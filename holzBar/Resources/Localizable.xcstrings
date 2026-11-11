@@ -12745,124 +12745,6 @@
         }
       }
     },
-    "Put Back by a Rule" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vráceno pravidlem"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Von einer Regel zurückgestellt"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Devolver por regla"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remis en place par une règle"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Szabály által visszahelyezve"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dikembalikan oleh aturan"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rimesso a posto da una regola"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ルールで元に戻す"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "규칙으로 되돌리기"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Terugzetten door een regel"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przywrócone przez regułę"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Devolver por regra"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remess da ina regla"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Возврат по правилу"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Återställdes av regeln"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kural tarafından geri konuldu"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Повернення за правилом"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "按规则放回"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "依規則放回"
-          }
-        }
-      }
-    },
     "%@ · Items: %lld" : {
       "localizations" : {
         "cs" : {
@@ -20917,124 +20799,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已套用"
-          }
-        }
-      }
-    },
-    "Applies to items holzBar has not seen before. Items that are already arranged stay where they are." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Platí pro položky, které holzBar dosud neviděl. Položky, které už jsou uspořádané, zůstanou tam, kde jsou."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gilt für Elemente, die holzBar noch nicht kennt. Bereits angeordnete Elemente bleiben, wo sie sind."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se aplica a los elementos que holzBar no ha visto antes. Los elementos ya ordenados se quedan donde están."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "S'applique aux éléments que holzBar n'a encore jamais vus. Les éléments déjà disposés restent où ils sont."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Azokra az elemekre vonatkozik, amelyeket a holzBar még nem látott. A már elrendezett elemek a helyükön maradnak."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Berlaku untuk item yang belum pernah dilihat holzBar. Item yang sudah ditata tetap di tempatnya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vale per gli elementi che holzBar non ha ancora visto. Gli elementi già sistemati restano dove sono."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar がまだ見たことのない項目に適用されます。すでに配置済みの項目はそのままです。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar가 이전에 본 적 없는 항목에 적용됩니다. 이미 정리된 항목은 그대로 둡니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Geldt voor onderdelen die holzBar nog niet eerder heeft gezien. Onderdelen die al zijn geordend, blijven waar ze zijn."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dotyczy elementów, których holzBar jeszcze nie widział. Elementy, które są już uporządkowane, zostają tam, gdzie są."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aplica-se a itens que o holzBar ainda não viu. Os itens que já estão organizados permanecem onde estão."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vala per elements che holzBar n'ha anc betg vis. Elements gia ordinads restan nua ch'els èn."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Относится к элементам, которых holzBar раньше не видел. Уже расставленные элементы остаются на месте."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gäller objekt som holzBar ännu inte har sett. Objekt som redan är ordnade stannar där de är."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar’ın henüz görmediği öğelere uygulanır. Zaten düzenlenmiş öğeler olduğu yerde kalır."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Стосується елементів, яких holzBar раніше не бачив. Уже розставлені елементи залишаються на місці."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "适用于 holzBar 以前没有见过的项目。已经排列好的项目保持原位。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "適用於 holzBar 先前沒見過的項目。已排好的項目維持原位。"
           }
         }
       }
@@ -33193,124 +32957,6 @@
         }
       }
     },
-    "Drag to arrange your menu bar items into different sections." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Přetažením uspořádejte položky řádku nabídek do různých sekcí."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ziehe deine Menüleistenelemente in die gewünschten Bereiche."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Arrastra para organizar los elementos de tu barra de menús en distintas secciones."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Faites glisser les éléments de la barre des menus dans les sections voulues."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Húzással rendezze a menüsor elemeit különböző szakaszokba."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Seret untuk menata item bar menu ke bagian yang berbeda."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trascina gli elementi della barra dei menu nelle sezioni che preferisci."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ドラッグして、メニューバーの項目を別々のセクションに整理します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "드래그하여 메뉴 막대 항목을 여러 섹션으로 정리하세요."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sleep om je menubalkonderdelen in verschillende secties te ordenen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przeciągaj, aby ułożyć elementy paska menu w różnych sekcjach."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Arraste para organizar os itens da sua barra de menus em seções diferentes."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tira ils elements da la trav da menu en las secziuns giavischadas."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перетаскивайте элементы строки меню, чтобы разложить их по разным разделам."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dra för att ordna menyradsobjekt i olika sektioner."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menü çubuğu öğelerini farklı bölümlere sıralamak için sürükleyin."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перетягуйте елементи смуги меню, щоб розкласти їх за різними розділами."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "拖移以将菜单栏项目整理到不同分区。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "拖移以將選單列項目排列到不同的區段。"
-          }
-        }
-      }
-    },
     "Draws rounded corners on every display, like the corners of a MacBook display." : {
       "localizations" : {
         "cs" : {
@@ -34133,124 +33779,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "啟用次要的情境選單"
-          }
-        }
-      }
-    },
-    "Enable the always-hidden section" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zapnout sekci vždy skrytých"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bereich «Immer ausgeblendet» aktivieren"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activar la sección siempre oculta"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activer la section « Toujours masqué »"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A mindig rejtett szakasz engedélyezése"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktifkan bagian selalu tersembunyi"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Attiva la sezione «Sempre nascosto»"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "常に非表示セクションを有効にする"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“항상 숨김” 섹션 사용"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Schakel de altijd verborgen sectie in"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Włącz sekcję zawsze ukrytych"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ativar a seção sempre oculta"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activar la secziun «Adina zuppà»"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Включить раздел «Всегда скрыто»"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktivera sektionen Alltid dolda"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Her zaman gizli bölümü etkinleştir"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Увімкнути розділ «Завжди приховано»"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "启用“始终隐藏”分区"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "啟用一律隱藏區段"
           }
         }
       }
@@ -40977,242 +40505,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "項目"
-          }
-        }
-      }
-    },
-    "Items can also be arranged by ⌘ Command + dragging them in the menu bar." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Položky lze uspořádat i přetažením v řádku nabídek s podrženým ⌘ Command."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elemente lassen sich auch mit ⌘ Befehlstaste + Ziehen direkt in der Menüleiste anordnen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los elementos también se pueden ordenar arrastrándolos en la barra de menús con ⌘ Comando."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous pouvez aussi disposer les éléments en les faisant glisser avec ⌘ Commande dans la barre des menus."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Az elemek a menüsorban ⌘ Command nyomva tartásával húzva is rendezhetők."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Item juga dapat ditata di bar menu dengan menahan ⌘ Command dan menyeret."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Puoi anche sistemare gli elementi trascinandoli con ⌘ Comando nella barra dei menu."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⌘ Command を押しながらメニューバー内でドラッグして、項目を並べ替えることもできます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⌘ Command 키를 누른 채 메뉴 막대에서 항목을 드래그하여 정리할 수도 있습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Onderdelen kunnen ook worden geordend door ze met ⌘ Command ingedrukt in de menubalk te slepen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elementy można też ułożyć, przeciągając je na pasku menu z wciśniętym ⌘ Command."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os itens também podem ser organizados arrastando-os na barra de menus com ⌘ Command."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ti pos era ordinar ils elements cun ⌘ Command + tirar en la trav da menu."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Элементы также можно расставлять, перетаскивая их в строке меню с удержанием ⌘ Command."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Objekt kan också ordnas på menyraden genom att hålla ⌘ Command nedtryckt och dra."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Öğeler, menü çubuğunda ⌘ Command tuşunu basılı tutarak sürüklenerek de sıralanabilir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Елементи також можна розставляти, перетягуючи їх у смузі меню з утриманням ⌘ Command."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "也可以按住 ⌘ Command 在菜单栏中拖移项目来整理它们。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "也可以在選單列中按住 ⌘ Command 並拖移項目來排列。"
-          }
-        }
-      }
-    },
-    "Items holzBar has not seen before land in this section." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Položky, které holzBar dosud neviděl, se zařadí do této sekce."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elemente, die holzBar noch nie gesehen hat, landen in diesem Bereich."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los elementos que holzBar no ha visto antes aparecen en esta sección."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les éléments que holzBar n’a encore jamais vus arrivent dans cette section."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A holzBar által még nem látott elemek ebbe a szakaszba kerülnek."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Item yang belum pernah dilihat holzBar masuk ke bagian ini."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli elementi che holzBar non ha mai visto finiscono in questa sezione."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar がまだ見たことのない項目は、このセクションに入ります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar가 이전에 본 적 없는 항목은 이 섹션에 들어갑니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Onderdelen die holzBar nog niet eerder heeft gezien, komen in deze sectie."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elementy, których holzBar jeszcze nie widział, trafiają do tej sekcji."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os itens que o holzBar ainda não viu vão para esta seção."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elements che holzBar n’ha anc mai vis van a fin en questa secziun."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Элементы, которых holzBar раньше не видел, попадают в этот раздел."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Objekt som holzBar ännu inte har sett hamnar i den här sektionen."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar’ın henüz görmediği öğeler bu bölüme girer."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Елементи, яких holzBar раніше не бачив, потрапляють у цей розділ."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar 以前没有见过的项目会放入此分区。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar 先前沒見過的項目會放到這個區段。"
           }
         }
       }
@@ -51479,124 +50771,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "關"
-          }
-        }
-      }
-    },
-    "Off: dragging an item only changes the drawing below, and the menu bar follows when you choose Apply. On: every move happens at once." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vyp.: přetažení položky změní jen kresbu níže a řádek nabídek ji následuje, až zvolíte Použít. Zap.: každý přesun se provede hned."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aus: Das Ziehen eines Elements ändert nur die Zeichnung unten, die Menüleiste folgt, sobald du «Anwenden» wählst. An: Jede Bewegung geschieht sofort."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desactivado: arrastrar un elemento solo cambia el dibujo de abajo, y la barra de menús lo sigue cuando eliges Aplicar. Activado: cada movimiento se hace al instante."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Désactivé : faire glisser un élément ne change que le dessin ci-dessous, et la barre des menus suit quand vous choisissez Appliquer. Activé : chaque déplacement a lieu aussitôt."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ki: egy elem húzása csak az alábbi rajzot módosítja, a menüsor az Alkalmazás választásakor követi. Be: minden áthelyezés azonnal megtörténik."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mati: menyeret item hanya mengubah gambar di bawah dan bar menu mengikuti saat Anda menerapkan. Hidup: setiap pemindahan terjadi seketika."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Disattivato: trascinare un elemento cambia solo il disegno qui sotto, e la barra dei menu segue quando scegli Applica. Attivato: ogni spostamento avviene subito."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "オフ: 項目をドラッグすると下の図だけが変わり、「適用」を選ぶとメニューバーに反映されます。オン: 移動はすべてすぐに行われます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "끔: 항목을 드래그하면 아래 그림만 바뀌고, 적용을 선택하면 메뉴 막대가 따라 바뀝니다. 켬: 모든 이동이 즉시 일어납니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uit: een onderdeel slepen wijzigt alleen de tekening hieronder en de menubalk volgt wanneer je Pas toe kiest. Aan: elke verplaatsing gebeurt direct."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wył.: przeciągnięcie elementu zmienia tylko rysunek poniżej, a pasek menu zmienia się po wybraniu Zastosuj. Wł.: każde przeniesienie następuje od razu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desativado: arrastar um item só altera o desenho abaixo, e a barra de menus o acompanha quando você escolhe Aplicar. Ativado: cada movimento acontece imediatamente."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deactivà: tractar in element mida be il dissegn sutvart, e la trav da menu suonda cur che ti tscherns Applitgar. Activà: mintga moviment capita immediatamain."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Выкл.: перетаскивание элемента меняет только рисунок ниже, а строка меню изменится, когда вы выберете «Применить». Вкл.: каждое перемещение происходит сразу."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Av: att dra ett objekt ändrar bara ritningen nedan och menyraden följer när du tillämpar. På: varje flytt sker direkt."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kapalı: bir öğeyi sürüklemek yalnızca aşağıdaki çizimi değiştirir ve menü çubuğu Uygula dediğinizde takip eder. Açık: her taşıma hemen gerçekleşir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вимк.: перетягування елемента змінює лише малюнок нижче, а смуга меню зміниться, коли ви оберете «Застосувати». Увімк.: кожне переміщення відбувається одразу."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "关闭：拖移项目只会改变下方的示意图，选取“应用”后菜单栏才会跟随更改。开启：每次移动都会立即生效。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "關：拖移項目只會更改下方的繪圖，選擇「套用」時選單列才會跟著更改。開：每次移動都會立即生效。"
           }
         }
       }
@@ -74257,124 +73431,6 @@
         }
       }
     },
-    "The search remembers how often and how lately you open an item from it, so what you use most comes first. A short name such as bt or wlan finds Bluetooth or Wi-Fi. The counts stay on this Mac, are not exported or backed up, and Forget deletes them." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hledání si pamatuje, jak často a jak nedávno z něj položku otevřete, takže to, co používáte nejvíc, je první. Krátký název jako bt nebo wifi najde Bluetooth nebo Wi-Fi. Počty zůstávají na tomto Macu, neexportují se ani nezálohují a Zapomenout je smaže."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Suche merkt sich, wie oft und wie kürzlich du ein Element über sie öffnest, damit das Meistgenutzte zuerst steht. Ein Kurzname wie bt oder wlan findet Bluetooth oder WLAN. Die Zähler bleiben auf diesem Mac, werden weder exportiert noch gesichert und mit Vergessen gelöscht."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La búsqueda recuerda con qué frecuencia y cuándo abriste un elemento desde ella, así que lo que más usas va primero. Un nombre corto como bt o wlan encuentra Bluetooth o Wi-Fi. Los recuentos se quedan en este Mac, no se exportan ni se incluyen en copias de seguridad, y Olvidar los borra."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La recherche retient à quelle fréquence et à quel moment vous ouvrez un élément avec elle, pour placer en premier ce que vous utilisez le plus. Un nom court comme bt ou wlan trouve Bluetooth ou le Wi-Fi. Les compteurs restent sur ce Mac, ne sont ni exportés ni sauvegardés, et Oublier les supprime."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A keresés megjegyzi, milyen gyakran és milyen régen nyit meg belőle egy elemet, így a leggyakrabban használt kerül előre. Egy rövid név, például bt vagy wifi, megtalálja a Bluetoothot vagy a Wi-Fit. A számlálók ezen a Macen maradnak, nem exportálódnak és nem készül róluk mentés, az Elfelejtés pedig törli őket."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pencarian mengingat seberapa sering dan seberapa baru Anda membuka suatu item darinya, sehingga yang paling sering Anda pakai berada di depan. Nama singkat, seperti bt atau wifi, menemukan Bluetooth atau Wi-Fi. Penghitung tetap di Mac ini, tidak diekspor dan tidak dicadangkan, dan Lupakan menghapusnya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La ricerca ricorda quanto spesso e quanto di recente apri un elemento da essa, così ciò che usi di più viene per primo. Un nome breve come bt o wlan trova Bluetooth o Wi-Fi. I contatori restano su questo Mac, non vengono esportati né salvati nei backup, e Dimentica li elimina."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "検索では、そこから項目を開いた頻度と最近さを記憶し、よく使う項目が先頭に並びます。bt や wlan のような短い名前で Bluetooth や Wi-Fi が見つかります。回数はこの Mac にのみ保存され、書き出しやバックアップの対象にはならず、「忘れる」で削除されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "검색은 항목을 얼마나 자주, 얼마나 최근에 열었는지 기억해 자주 쓰는 항목이 먼저 나오게 합니다. bt나 wlan 같은 짧은 이름으로 Bluetooth나 Wi-Fi를 찾을 수 있습니다. 횟수는 이 Mac에만 저장되고 내보내기나 백업에 포함되지 않으며, “잊기”로 삭제됩니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Het zoeken onthoudt hoe vaak en hoe recent je een onderdeel ermee opent, zodat wat je het meest gebruikt bovenaan komt. Een korte naam zoals bt of wifi vindt Bluetooth of wifi. De tellers blijven op deze Mac, worden niet geëxporteerd of in een reservekopie opgenomen, en Vergeten wist ze."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wyszukiwanie zapamiętuje, jak często i jak niedawno otwierasz z niego element, więc to, czego używasz najczęściej, jest pierwsze. Krótka nazwa, taka jak bt lub wifi, znajduje Bluetooth lub Wi-Fi. Liczniki zostają na tym Macu, nie są eksportowane ani kopiowane, a Zapomnij je usuwa."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A busca lembra com que frequência e há quanto tempo você abriu um item por ela, então o que você mais usa vem primeiro. Um nome curto como bt ou wlan encontra Bluetooth ou Wi-Fi. As contagens ficam neste Mac, não são exportadas nem incluídas em backups, e Esquecer as apaga."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La tschertga regorda co savens e co dacurt ti avras in element cun ella, uschia che quai che ti dovras il pli vegn emprim. In num curt sco bt u wlan chatta Bluetooth u Wi-Fi. Ils numers restan sin quest Mac, na vegnan ni exportads ni segiraids ed Emblidar ils stizza."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Поиск запоминает, как часто и как недавно вы открываете из него элемент, поэтому то, чем вы пользуетесь чаще всего, оказывается первым. Короткое название вроде bt или wlan находит Bluetooth или Wi-Fi. Счётчики хранятся только на этом Mac, не экспортируются и не попадают в резервные копии, а «Забыть» удаляет их."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sökningen minns hur ofta och hur nyligen du öppnar ett objekt från den, så att det du använder mest hamnar först. Ett kort namn, till exempel bt eller wifi, hittar Bluetooth eller Wi-Fi. Räknarna stannar på den här Macen, exporteras inte och säkerhetskopieras inte, och Glöm rensar dem."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Arama, içinden bir öğeyi ne sıklıkla ve ne kadar yakın zamanda açtığınızı hatırlar, böylece en çok kullandığınız öne çıkar. bt veya wifi gibi kısa bir ad Bluetooth’u veya Wi-Fi’ı bulur. Sayaçlar bu Mac’te kalır, dışa aktarılmaz ve yedeklenmez; Unut onları siler."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пошук запамʼятовує, як часто й як нещодавно ви відкриваєте з нього елемент, тож те, чим ви користуєтеся найчастіше, опиняється першим. Коротка назва на кшталт bt або wlan знаходить Bluetooth чи Wi-Fi. Лічильники зберігаються лише на цьому Mac, не експортуються й не потрапляють у резервні копії, а «Забути» видаляє їх."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "搜索会记住你通过它打开某个项目的频率和时间，让最常用的项目排在前面。bt 或 wlan 这样的简称可以找到“蓝牙”或 Wi-Fi。次数只保存在这台 Mac 上，不会被导出或备份，点按“忘记”即可将其删除。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "搜尋會記住你從中打開項目的頻率與最近程度，讓你最常用的排在最前面。像 bt 或 wlan 這樣的簡短名稱可找到藍牙或 Wi-Fi。次數只保存在這台 Mac 上，不會輸出或備份，按「忘記」即可刪除。"
-          }
-        }
-      }
-    },
     "The search shows pictures of your menu bar items, which macOS lets an app take only with Screen Recording. You can search by name without it." : {
       "localizations" : {
         "cs" : {
@@ -89013,124 +88069,6 @@
         }
       }
     },
-    "holzBar looked at the apps in your menu bar on this Mac. Nothing leaves your Mac and nothing is recorded. It proposes to hide what works in the background; the clock, the battery and apps with messages stay. Uncheck what should stay visible." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar si na tomto Macu prohlédl aplikace ve vašem řádku nabídek. Nic neopouští váš Mac a nic se nezaznamenává. Navrhuje skrýt to, co pracuje na pozadí; hodiny, baterie a aplikace se zprávami zůstanou. Zrušte zaškrtnutí toho, co má zůstat viditelné."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar hat sich die Apps in deiner Menüleiste auf diesem Mac angesehen. Nichts verlässt deinen Mac, und nichts wird aufgezeichnet. Es schlägt vor, auszublenden, was im Hintergrund arbeitet; die Uhr, die Batterie und Apps mit Nachrichten bleiben. Entferne das Häkchen bei dem, was sichtbar bleiben soll."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar ha mirado las apps de tu barra de menús en este Mac. Nada sale de tu Mac y no se registra nada. Propone ocultar lo que funciona en segundo plano; el reloj, la batería y las apps con mensajes se quedan. Desmarca lo que deba seguir visible."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar a regardé les apps de votre barre des menus sur ce Mac. Rien ne quitte votre Mac et rien n’est enregistré. Il propose de masquer ce qui travaille en arrière-plan ; l’horloge, la batterie et les apps de messages restent. Décochez ce qui doit rester visible."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A holzBar megvizsgálta a menüsoron lévő alkalmazásokat ezen a Macen. Semmi sem hagyja el a Macet, és semmi sem kerül rögzítésre. Azt javasolja elrejteni, ami a háttérben működik; az óra, az akkumulátor és az üzenetekkel rendelkező alkalmazások maradnak. Törölje a jelölést attól, aminek láthatónak kell maradnia."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar telah melihat app di bar menu Anda di Mac ini. Tidak ada yang meninggalkan Mac Anda dan tidak ada yang direkam. Aplikasi ini menyarankan menyembunyikan yang bekerja di latar belakang; jam, baterai, dan app pesan tetap ada. Hapus centang pada apa pun yang harus tetap terlihat."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar ha esaminato le app nella barra dei menu di questo Mac. Nulla lascia il tuo Mac e nulla viene registrato. Propone di nascondere ciò che lavora in background; l’orologio, la batteria e le app con messaggi restano. Deseleziona ciò che deve rimanere visibile."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar は、この Mac のメニューバーにある App を調べました。情報が Mac の外に出ることはなく、何も記録されません。バックグラウンドで動作するものを非表示にするよう提案します。時計、バッテリー、メッセージのある App はそのまま残ります。表示したままにしたい項目はチェックを外してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar가 이 Mac의 메뉴 막대에 있는 앱을 살펴보았습니다. 어떤 정보도 Mac 밖으로 나가지 않으며 아무것도 기록되지 않습니다. 백그라운드에서 동작하는 항목을 숨기도록 제안하며, 시계, 배터리, 메시지가 있는 앱은 그대로 둡니다. 계속 보여야 할 항목은 선택을 해제하세요."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar heeft op deze Mac gekeken naar de apps in je menubalk. Er verlaat niets je Mac en er wordt niets vastgelegd. Het stelt voor te verbergen wat op de achtergrond werkt; de klok, de batterij en apps met berichten blijven staan. Schakel uit wat zichtbaar moet blijven."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar przejrzał aplikacje na Twoim pasku menu na tym Macu. Nic nie opuszcza Twojego Maca i nic nie jest zapisywane. Proponuje ukryć to, co działa w tle; zegar, bateria i aplikacje z wiadomościami zostają. Odznacz to, co ma pozostać widoczne."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O holzBar examinou os apps da sua barra de menus neste Mac. Nada sai do seu Mac e nada é registrado. Ele propõe ocultar o que funciona em segundo plano; o relógio, a bateria e os apps com mensagens permanecem. Desmarque o que deve continuar visível."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar ha tschertgà las apps da tia trav da menu sin quest Mac. Nagut na bandunescha tes Mac e nagut na vegn registrà. El propona da zuppar quai che lavura en il fund; l’ura, l’accu e las apps cun messadis restan. Deactivescha quai che duai restar visibel."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar просмотрел приложения в строке меню на этом Mac. Ничто не покидает ваш Mac, и ничего не записывается. Он предлагает скрыть то, что работает в фоне; часы, аккумулятор и приложения с сообщениями остаются. Снимите отметку с того, что должно оставаться видимым."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar har tittat på apparna i din menyrad på den här Macen. Ingenting lämnar din Mac och ingenting spelas in. Den föreslår att dölja det som arbetar i bakgrunden; klockan, batteriet och meddelandeappar stannar kvar. Avmarkera det som ska förbli synligt."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar bu Mac’te menü çubuğunuzdaki uygulamalara baktı. Hiçbir şey Mac’inizden çıkmaz ve hiçbir şey kaydedilmez. Arka planda çalışanı gizlemeyi önerir; saat, pil ve mesaj uygulamaları kalır. Görünür kalmasını istediğiniz her şeyin işaretini kaldırın."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar переглянув програми у смузі меню на цьому Mac. Ніщо не залишає ваш Mac, і нічого не записується. Він пропонує приховати те, що працює у фоновому режимі; годинник, акумулятор і програми з повідомленнями залишаються. Зніміть позначку з того, що має лишатися видимим."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar 已查看了这台 Mac 菜单栏中的 App。任何内容都不会离开你的 Mac，也不会记录任何内容。它建议隐藏在后台运行的项目；时钟、电池以及带消息的 App 会保留。取消勾选应保持可见的项目。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar 查看了這台 Mac 選單列中的 App。不會有任何內容離開你的 Mac，也不會記錄任何內容。它建議隱藏在背景運作的項目；時鐘、電池與有訊息的 App 會保留。取消勾選要保持顯示的項目。"
-          }
-        }
-      }
-    },
     "holzBar needs full access to read events" : {
       "localizations" : {
         "de" : {
@@ -102343,242 +101281,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "請先在「選單列外觀」中儲存心情。"
-          }
-        }
-      }
-    },
-    "Usage Suggestions" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Návrhy podle používání"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nutzungsvorschläge"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sugerencias según el uso"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suggestions d’utilisation"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Használati javaslatok"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saran dari penggunaan"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suggerimenti d’uso"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用状況にもとづく提案"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "사용량 기반 제안"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gebruikssuggesties"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sugestie użycia"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sugestões de uso"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Propostas d’utilisaziun"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Подсказки по использованию"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Förslag utifrån användning"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kullanım önerileri"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Підказки щодо використання"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用情况建议"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用建議"
-          }
-        }
-      }
-    },
-    "Suggest items to hide" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Navrhnout položky ke skrytí"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vorschlagen, welche Elemente ausgeblendet werden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sugerir elementos para ocultar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suggérer les éléments à masquer"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elrejtendő elemek javaslata"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sarankan item untuk disembunyikan"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suggerisci gli elementi da nascondere"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "非表示にする項目を提案する"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "숨길 항목 제안"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stel onderdelen voor om te verbergen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zaproponuj elementy do ukrycia"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sugerir itens para ocultar"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proponer ils elements per zuppar"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Предлагать элементы для скрытия"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Föreslå objekt att dölja"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gizlenecek öğeleri öner"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пропонувати елементи для приховування"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "建议要隐藏的项目"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "建議要隱藏的項目"
           }
         }
       }
@@ -123313,242 +122015,6 @@
         }
       }
     },
-    "macOS 27 only. Hold ⌘ Command and drag an item across the holzBar icon: to the left of it, its app is hidden; to the right of it, its app is visible. Off: the drag only reorders the bar." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pouze macOS 27. Podržte ⌘ Command a přetáhněte položku přes ikonu holzBar: vlevo od ní je její aplikace skrytá, vpravo viditelná. Vypnuto: přetažení pouze změní pořadí na liště."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nur macOS 27. Halte ⌘ Command gedrückt und ziehe ein Element über das holzBar-Symbol: links davon wird seine App ausgeblendet, rechts davon ist sie sichtbar. Aus: Das Ziehen ordnet die Leiste nur neu an."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Solo macOS 27. Mantén pulsada ⌘ Command y arrastra un elemento al otro lado del icono de holzBar: a su izquierda, su app se oculta; a su derecha, está visible. Desactivado: arrastrar solo reordena la barra."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27 uniquement. Maintenez ⌘ Command et faites glisser un élément de l'autre côté de l'icône de holzBar : à sa gauche, son app est masquée ; à sa droite, elle est visible. Désactivé : le glissement ne fait que réorganiser la barre."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Csak macOS 27 alatt. Tartsa lenyomva a ⌘ Command billentyűt, és húzzon egy elemet a holzBar ikon túloldalára: attól balra az alkalmazása rejtett, jobbra látható. Kikapcsolva: a húzás csak átrendezi a sávot."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hanya macOS 27. Tahan ⌘ Command dan seret item melewati ikon holzBar: di sebelah kirinya, app-nya disembunyikan; di sebelah kanannya, app-nya terlihat. Nonaktif: seretan hanya mengatur ulang urutan bar."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Solo macOS 27. Tieni premuto ⌘ Command e trascina un elemento oltre l'icona di holzBar: a sinistra di essa la sua app viene nascosta, a destra è visibile. Disattivato: il trascinamento riordina soltanto la barra."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27 のみ。⌘ Command を押しながら項目を holzBar アイコンの反対側へドラッグします。アイコンの左側ではその App が非表示に、右側では表示になります。オフ：ドラッグではバーの順序が変わるだけです。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27에서만 사용할 수 있습니다. ⌘ Command를 누른 채 항목을 holzBar 아이콘 반대편으로 드래그하세요. 아이콘 왼쪽에서는 해당 앱이 숨겨지고, 오른쪽에서는 표시됩니다. 끄면 드래그는 막대의 순서만 바꿉니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alleen macOS 27. Houd ⌘ Command ingedrukt en sleep een onderdeel over het holzBar-symbool: links ervan wordt de app verborgen, rechts ervan is de app zichtbaar. Uit: slepen wijzigt alleen de volgorde in de balk."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tylko macOS 27. Przytrzymaj ⌘ Command i przeciągnij element przez ikonę holzBar: po jej lewej stronie jego aplikacja jest ukryta, po prawej widoczna. Wyłączone: przeciąganie tylko zmienia kolejność na pasku."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Somente macOS 27. Mantenha ⌘ Command pressionada e arraste um item para o outro lado do ícone do holzBar: à esquerda dele, o app do item fica oculto; à direita, fica visível. Desativado: arrastar apenas reordena a barra."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mo macOS 27. Tegna smatgà ⌘ Command e tira in element sur il simbol da holzBar: a sanestra dad el vegn sia app zuppentada, a dretga dad el è ella visibla. Dad: il trair sorta mo da nov la trav."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Только macOS 27. Удерживая ⌘ Command, перетащите элемент через значок holzBar: слева от него приложение скрыто, справа — видно. Выключено: перетаскивание только меняет порядок элементов в строке."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Endast macOS 27. Håll ned ⌘ Command och dra ett objekt över holzBar-ikonen: till vänster om den döljs objektets app, till höger om den är den synlig. Av: dragningen ändrar bara ordningen i raden."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Yalnızca macOS 27. ⌘ Command tuşunu basılı tutup bir öğeyi holzBar simgesinin diğer tarafına sürükleyin: simgenin solunda uygulaması gizlenir, sağında görünür. Kapalıyken: sürükleme yalnızca çubuğun sırasını değiştirir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Лише macOS 27. Утримуючи ⌘ Command, перетягніть елемент через значок holzBar: ліворуч від нього програма прихована, праворуч — видима. Вимкнено: перетягування лише змінює порядок у смузі."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "仅限 macOS 27。按住 ⌘ Command，将项目拖过 holzBar 图标：拖到图标左侧，其 App 会被隐藏；拖到右侧，其 App 会显示。关闭时：拖移只会重新排列栏。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "僅限 macOS 27。按住 ⌘ Command，將項目拖過 holzBar 圖像：拖到圖像左側，其 App 會被隱藏；拖到右側，其 App 會顯示。關閉時：拖移只會重新排列列。"
-          }
-        }
-      }
-    },
-    "Set by Command-Drag" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nastaveno přetažením s Command"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Per Command-Ziehen festgelegt"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Definido con Command-arrastrar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Défini par Command-glisser"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Command-húzással beállítva"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Diatur dengan seret Command"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impostato con Command-trascinamento"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Command ドラッグで設定"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Command 드래그로 설정됨"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ingesteld met Command-slepen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ustawione przeciąganiem z Command"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Definido com Command-arrastar"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fixà cun Command-trair"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Задано перетаскиванием с Command"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Angivet med Command-dragning"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Command-sürükleme ile ayarlandı"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Задано перетягуванням із Command"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "由 Command 拖移设定"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "由 Command 拖移設定"
-          }
-        }
-      }
-    },
     "Undo" : {
       "localizations" : {
         "cs" : {
@@ -135435,6 +133901,2862 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld pt"
+          }
+        }
+      }
+    },
+    "Changes" : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Změny"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Änderungen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambios"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changements"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Módosítások"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perubahan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifiche"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "変更"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "변경 사항"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wijzigingen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmiany"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alterações"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Midadas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изменения"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ändringar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Değişiklikler"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зміни"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更改"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更改"
+          }
+        }
+      }
+    },
+    "Notices" : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oznámení"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hinweise"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avisos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avis"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Értesítések"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pemberitahuan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avvisi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "お知らせ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알림"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meldingen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Powiadomienia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avisos"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avertiments"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уведомления"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meddelanden"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildirimler"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сповіщення"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知"
+          }
+        }
+      }
+    },
+    "Suggestions" : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Návrhy"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorschläge"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugerencias"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suggestions"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Javaslatok"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saran"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suggerimenti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提案"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제안"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suggesties"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugestie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugestões"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Propostas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предложения"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Förslag"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öneriler"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропозиції"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建议"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建議"
+          }
+        }
+      }
+    },
+    "Pictures of the items" : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obrázky položek"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilder der Elemente"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imágenes de los elementos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Images des éléments"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az elemek képei"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gambar item"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Immagini degli elementi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目の画像"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목 이미지"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afbeeldingen van de onderdelen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obrazy elementów"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imagens dos itens"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maletgs dals elements"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изображения элементов"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilder av objekten"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öğelerin görselleri"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зображення елементів"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "项目图片"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目圖片"
+          }
+        }
+      }
+    },
+    "third section" : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "třetí sekce"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dritter Bereich"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tercera sección"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "troisième section"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "harmadik szakasz"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bagian ketiga"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "terza sezione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3つ目のセクション"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "세 번째 섹션"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "derde sectie"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "trzecia sekcja"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "terceira seção"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "terza secziun"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "третий раздел"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tredje sektionen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "üçüncü bölüm"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "третій розділ"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第三个分区"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第三個區段"
+          }
+        }
+      }
+    },
+    "New items go to" : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nové položky jdou do"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Elemente kommen in"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los elementos nuevos van a"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les nouveaux éléments vont dans"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az új elemek ide kerülnek"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item baru masuk ke"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I nuovi elementi vanno in"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しい項目の追加先"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 항목의 위치"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieuwe onderdelen gaan naar"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nowe elementy trafiają do"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Novos itens vão para"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Novs elements van en"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новые элементы попадают в"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nya objekt hamnar i"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yeni öğeler şuraya gider"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нові елементи потрапляють до"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新项目放入"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新項目放入"
+          }
+        }
+      }
+    },
+    "Suggest rarely used items" : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Navrhovat zřídka používané položky"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selten genutzte Elemente vorschlagen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugerir elementos poco usados"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suggérer les éléments peu utilisés"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritkán használt elemek javaslata"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sarankan item yang jarang digunakan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suggerisci gli elementi usati di rado"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あまり使わない項目を提案"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "잘 쓰지 않는 항목 제안"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weinig gebruikte onderdelen voorstellen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugeruj rzadko używane elementy"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugerir itens pouco usados"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proponer elements duvrads darar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предлагать редко используемые элементы"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Föreslå sällan använda objekt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nadiren kullanılan öğeleri öner"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропонувати рідко використовувані елементи"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建议很少使用的项目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建議很少使用的項目"
+          }
+        }
+      }
+    },
+    "Stored usage" : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uložené používání"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gespeicherte Nutzung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uso almacenado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisation enregistrée"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tárolt használat"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Penggunaan tersimpan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilizzo memorizzato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存済みの使用状況"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장된 사용 내역"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opgeslagen gebruik"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisane użycie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uso armazenado"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duvrar memorisà"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранённое использование"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lagrad användning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kayıtlı kullanım"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Збережене використання"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已存储的使用情况"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已儲存的使用情況"
+          }
+        }
+      }
+    },
+    "Pictures instead of app icons" : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obrázky místo ikon aplikací"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilder statt App-Symbolen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imágenes en lugar de iconos de apps"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Images au lieu des icônes d'apps"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Képek az appikonok helyett"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gambar, bukan ikon app"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Immagini invece delle icone delle app"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリのアイコンの代わりに画像"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱 아이콘 대신 이미지"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afbeeldingen in plaats van app-symbolen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obrazy zamiast ikon aplikacji"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imagens em vez de ícones de apps"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maletgs empè dad icunas d'apps"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изображения вместо значков приложений"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilder i stället för appsymboler"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulama simgeleri yerine görseller"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зображення замість піктограм програм"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用图片而非 App 图标"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用圖片而非 App 圖像"
+          }
+        }
+      }
+    },
+    "Every move happens at once." : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Každé přesunutí se provede okamžitě."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jede Verschiebung geschieht sofort."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada movimiento se aplica al instante."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chaque déplacement s'applique immédiatement."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minden mozgatás azonnal megtörténik."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setiap pemindahan langsung diterapkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogni spostamento avviene subito."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべての移動がすぐに反映されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 이동이 즉시 적용됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elke verplaatsing gebeurt meteen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Każde przeniesienie następuje od razu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada movimento acontece na hora."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mintga spustada daventa immediatamain."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Каждое перемещение выполняется сразу."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Varje flytt sker direkt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her taşıma hemen gerçekleşir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кожне переміщення виконується одразу."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每次移动都会立即生效。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每次移動都會立即生效。"
+          }
+        }
+      }
+    },
+    "Drag an item into its section." : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přetáhněte položku do její sekce."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ziehe ein Element in seinen Bereich."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrastra un elemento a su sección."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faites glisser un élément dans sa section."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Húzzon egy elemet a szakaszába."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seret item ke bagiannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trascina un elemento nella sua sezione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目をドラッグして、入れたいセクションに移します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목을 해당 섹션으로 드래그하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleep een onderdeel naar zijn sectie."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przeciągnij element do jego sekcji."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arraste um item para a sua seção."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tira in element en sia secziun."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетащите элемент в его раздел."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dra ett objekt till dess sektion."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir öğeyi bölümüne sürükleyin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетягніть елемент до його розділу."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将项目拖入其分区。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "將項目拖入其區段。"
+          }
+        }
+      }
+    },
+    "You can also ⌘ Command-drag an item in the menu bar: to the left of the holzBar icon, it is hidden." : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Položku v řádku nabídek můžete také přetáhnout s ⌘ Command: nalevo od ikony holzBar je skrytá."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kannst ein Element auch in der Menüleiste mit ⌘ Command ziehen: links vom holzBar-Symbol ist es ausgeblendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "También puedes arrastrar un elemento en la barra de menús con ⌘ Command: a la izquierda del icono de holzBar, queda oculto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous pouvez aussi faire glisser un élément dans la barre des menus avec ⌘ Command : à gauche de l'icône holzBar, il est masqué."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egy elemet a menüsorban ⌘ Command lenyomásával is húzhat: a holzBar ikontól balra rejtett."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anda juga dapat menyeret item di bar menu dengan ⌘ Command: di sebelah kiri ikon holzBar, item itu tersembunyi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puoi anche trascinare un elemento nella barra dei menu con ⌘ Command: a sinistra dell'icona di holzBar, è nascosto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メニューバーの項目は ⌘ Command を押しながらドラッグすることもできます。holzBar アイコンの左側に置くと非表示になります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대에서 ⌘ Command를 누른 채 항목을 드래그할 수도 있습니다. holzBar 아이콘의 왼쪽에 놓으면 숨겨집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je kunt een onderdeel in de menubalk ook met ⌘ Command verslepen: links van het holzBar-symbool is het verborgen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Element na pasku menu możesz też przeciągnąć z ⌘ Command: na lewo od ikony holzBar jest ukryty."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Você também pode arrastar um item na barra de menus com ⌘ Command: à esquerda do ícone do holzBar, ele fica oculto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ti pos er trair in element en il trav da menu cun ⌘ Command: a sinistra da l'icuna holzBar è el zuppà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Элемент в строке меню можно перетащить и с ⌘ Command: слева от значка holzBar он скрыт."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kan också dra ett objekt i menyraden med ⌘ Command: till vänster om holzBar-symbolen är det dolt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menü çubuğunda bir öğeyi ⌘ Command ile de sürükleyebilirsiniz: holzBar simgesinin solunda gizlidir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Елемент у смузі меню можна також перетягнути з ⌘ Command: ліворуч від піктограми holzBar він прихований."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你也可以在菜单栏中按住 ⌘ Command 拖动项目：位于 holzBar 图标左侧时，它会被隐藏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你也可以在選單列中按住 ⌘ Command 拖移項目：位於 holzBar 圖像左側時，它會被隱藏。"
+          }
+        }
+      }
+    },
+    "Items holzBar has not seen before go to this section, and the New items tile shows where. Items that are already arranged stay where they are." : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Položky, které holzBar dosud neviděl, jdou do této sekce a dlaždice Nové položky ukazuje kam. Již uspořádané položky zůstávají, kde jsou."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemente, die holzBar noch nicht kannte, kommen in diesen Bereich; die Kachel «Neue Elemente» zeigt, wo. Bereits angeordnete Elemente bleiben, wo sie sind."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los elementos que holzBar no había visto antes van a esta sección, y el mosaico Elementos nuevos muestra dónde. Los elementos ya ordenados se quedan donde están."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les éléments que holzBar n'a jamais vus vont dans cette section, et la vignette Nouveaux éléments indique où. Les éléments déjà rangés restent où ils sont."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az elemek, amelyeket a holzBar korábban nem látott, ebbe a szakaszba kerülnek, és az Új elemek csempe megmutatja, hová. A már elrendezett elemek ott maradnak, ahol vannak."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item yang belum pernah dilihat holzBar masuk ke bagian ini, dan petak Item baru menunjukkan lokasinya. Item yang sudah diatur tetap di tempatnya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli elementi che holzBar non ha mai visto vanno in questa sezione, e il riquadro Nuovi elementi mostra dove. Gli elementi già disposti restano dove sono."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar がこれまで見たことのない項目はこのセクションに入り、「新しい項目」タイルがその場所を示します。すでに配置済みの項目はそのままです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar가 이전에 본 적 없는 항목은 이 섹션으로 가며, 새 항목 타일이 그 위치를 보여 줍니다. 이미 배치된 항목은 그대로 유지됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderdelen die holzBar nog niet eerder zag, komen in deze sectie, en de tegel Nieuwe onderdelen laat zien waar. Onderdelen die al zijn geordend, blijven waar ze zijn."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementy, których holzBar wcześniej nie widział, trafiają do tej sekcji, a kafelek Nowe elementy pokazuje gdzie. Elementy już ułożone zostają na swoim miejscu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Itens que o holzBar ainda não conhecia vão para esta seção, e o bloco Novos itens mostra onde. Itens já organizados ficam onde estão."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils elements che holzBar n'ha anc mai vis van en questa secziun, e la tessera Novs elements mussa nua. Ils elements gia ordinads restan nua ch'els èn."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Элементы, которых holzBar ещё не видел, попадают в этот раздел, а плитка «Новые элементы» показывает, куда именно. Уже расставленные элементы остаются на месте."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objekt som holzBar inte har sett förut hamnar i den här sektionen, och brickan Nya objekt visar var. Objekt som redan är ordnade stannar där de är."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar’ın daha önce görmediği öğeler bu bölüme gider ve Yeni öğeler karosu nereye gittiğini gösterir. Zaten düzenlenmiş öğeler olduğu yerde kalır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Елементи, яких holzBar раніше не бачив, потрапляють до цього розділу, а плитка «Нові елементи» показує, куди саме. Уже розташовані елементи залишаються на місці."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 以前没见过的项目会放入此分区，“新项目”磁贴会显示位置。已排列好的项目保持原位。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 以前沒見過的項目會放入此區段，「新項目」圖塊會顯示位置。已排列好的項目保持原位。"
+          }
+        }
+      }
+    },
+    "A third section for items that stay hidden when you show the hidden ones. ⌥-click on the holzBar icon shows them." : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Třetí sekce pro položky, které zůstanou skryté, i když zobrazíte skryté. Klepnutí s ⌥ na ikonu holzBar je zobrazí."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein dritter Bereich für Elemente, die ausgeblendet bleiben, wenn du die ausgeblendeten zeigst. ⌥-Klick auf das holzBar-Symbol zeigt sie."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una tercera sección para elementos que siguen ocultos cuando muestras los ocultos. Hacer clic con ⌥ en el icono de holzBar los muestra."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une troisième section pour les éléments qui restent masqués quand vous affichez les masqués. Un clic avec ⌥ sur l'icône holzBar les affiche."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harmadik szakasz azoknak az elemeknek, amelyek rejtve maradnak, amikor megjeleníti a rejtetteket. A holzBar ikonra ⌥-kattintva megjelennek."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bagian ketiga untuk item yang tetap tersembunyi saat Anda menampilkan yang tersembunyi. Klik ⌥ pada ikon holzBar untuk menampilkannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una terza sezione per gli elementi che restano nascosti quando mostri quelli nascosti. Un clic con ⌥ sull'icona di holzBar li mostra."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示の項目を表示しても隠れたままになる項目のための3つ目のセクションです。holzBar アイコンを ⌥ クリックすると表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "숨김 항목을 표시해도 계속 숨겨지는 항목을 위한 세 번째 섹션입니다. holzBar 아이콘을 ⌥ 클릭하면 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een derde sectie voor onderdelen die verborgen blijven wanneer je de verborgen onderdelen toont. ⌥-klik op het holzBar-symbool toont ze."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trzecia sekcja dla elementów, które pozostają ukryte, gdy pokazujesz ukryte. Kliknięcie ikony holzBar z ⌥ pokazuje je."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma terceira seção para itens que continuam ocultos quando você mostra os ocultos. Clicar com ⌥ no ícone do holzBar os mostra."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina terza secziun per elements che restan zuppads sch'ti mussas ils zuppads. Cliccar cun ⌥ sin l'icuna holzBar als mussa."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Третий раздел для элементов, которые остаются скрытыми, когда вы показываете скрытые. Щелчок по значку holzBar с ⌥ показывает их."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En tredje sektion för objekt som förblir dolda när du visar de dolda. ⌥-klick på holzBar-symbolen visar dem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gizli öğeleri gösterdiğinizde bile gizli kalan öğeler için üçüncü bir bölüm. holzBar simgesine ⌥ ile tıklamak onları gösterir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Третій розділ для елементів, які залишаються прихованими, коли ви показуєте приховані. Клацання із ⌥ по піктограмі holzBar показує їх."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第三个分区，用于存放在你显示隐藏项目时仍保持隐藏的项目。按住 ⌥ 点按 holzBar 图标即可显示它们。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第三個區段，用於存放在你顯示隱藏項目時仍保持隱藏的項目。按住 ⌥ 點按 holzBar 圖像即可顯示它們。"
+          }
+        }
+      }
+    },
+    "Off: dragging an item only changes the drawing here, and the menu bar follows when you choose Apply. On: every move happens at once." : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vypnuto: přetažení položky změní jen zobrazení zde a řádek nabídek se změní, až zvolíte Použít. Zapnuto: každé přesunutí se provede okamžitě."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus: Das Ziehen eines Elements ändert nur die Darstellung hier; die Menüleiste folgt, wenn du «Anwenden» wählst. Ein: Jede Verschiebung geschieht sofort."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivado: arrastrar un elemento solo cambia el dibujo aquí, y la barra de menús lo sigue cuando eliges Aplicar. Activado: cada movimiento se aplica al instante."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactivé : faire glisser un élément ne modifie que le dessin ici, et la barre des menus suit quand vous choisissez Appliquer. Activé : chaque déplacement s'applique immédiatement."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ki: egy elem húzása csak az itteni rajzot módosítja, a menüsor akkor követi, ha az Alkalmazás gombot választja. Be: minden mozgatás azonnal megtörténik."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mati: menyeret item hanya mengubah gambar di sini, dan bar menu mengikuti saat Anda memilih Terapkan. Hidup: setiap pemindahan langsung diterapkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattivato: trascinare un elemento cambia solo il disegno qui, e la barra dei menu segue quando scegli Applica. Attivato: ogni spostamento avviene subito."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オフ：項目をドラッグするとここの図だけが変わり、「適用」を選ぶとメニューバーに反映されます。オン：すべての移動がすぐに反映されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "끔: 항목을 드래그하면 여기의 그림만 바뀌고, 적용을 선택하면 메뉴 막대에 반영됩니다. 켬: 모든 이동이 즉시 적용됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uit: een onderdeel verslepen wijzigt alleen de tekening hier, en de menubalk volgt wanneer je Pas toe kiest. Aan: elke verplaatsing gebeurt meteen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyłączone: przeciągnięcie elementu zmienia tylko rysunek tutaj, a pasek menu podąża po wybraniu Zastosuj. Włączone: każde przeniesienie następuje od razu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desativado: arrastar um item muda só o desenho aqui, e a barra de menus acompanha quando você escolhe Aplicar. Ativado: cada movimento acontece na hora."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deactivà: trair in element mida be il dissegn qua, e il trav da menu suonda cur che ti tschernas Applitgar. Activà: mintga spustada daventa immediatamain."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выкл.: перетаскивание элемента меняет только рисунок здесь, а строка меню изменится, когда вы выберете «Применить». Вкл.: каждое перемещение выполняется сразу."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Av: att dra ett objekt ändrar bara ritningen här, och menyraden följer när du väljer Tillämpa. På: varje flytt sker direkt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapalı: bir öğeyi sürüklemek yalnızca buradaki çizimi değiştirir; Uygula’yı seçtiğinizde menü çubuğu bunu izler. Açık: her taşıma hemen gerçekleşir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вимкнено: перетягування елемента змінює лише малюнок тут, а смуга меню зміниться, коли ви оберете «Застосувати». Увімкнено: кожне переміщення виконується одразу."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭：拖动项目只改变此处的示意图，选择“应用”后菜单栏才会随之改变。开启：每次移动都会立即生效。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關閉：拖移項目只會改變此處的示意圖，選擇「套用」後選單列才會隨之改變。開啟：每次移動都會立即生效。"
+          }
+        }
+      }
+    },
+    "Hold ⌘ Command and drag an item in the menu bar across the holzBar icon: to the left of it, its app is hidden; to the right of it, visible. Off: the drag only reorders the bar." : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podržte ⌘ Command a přetáhněte položku v řádku nabídek přes ikonu holzBar: nalevo od ní je její aplikace skrytá, napravo viditelná. Vypnuto: přetažení jen změní pořadí."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Halte ⌘ Command gedrückt und ziehe ein Element in der Menüleiste über das holzBar-Symbol: links davon ist seine App ausgeblendet, rechts davon sichtbar. Aus: Das Ziehen ändert nur die Reihenfolge."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantén pulsada ⌘ Command y arrastra un elemento en la barra de menús por encima del icono de holzBar: a su izquierda, su app queda oculta; a su derecha, visible. Desactivado: arrastrar solo reordena la barra."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maintenez ⌘ Command et faites glisser un élément de la barre des menus par-dessus l'icône holzBar : à sa gauche, son app est masquée ; à sa droite, visible. Désactivé : le glissement ne fait que réordonner la barre."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tartsa lenyomva a ⌘ Command billentyűt, és húzzon egy elemet a menüsorban a holzBar ikon fölött át: tőle balra az appja rejtett, jobbra látható. Ki: a húzás csak átrendezi a sort."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tahan ⌘ Command dan seret item di bar menu melewati ikon holzBar: di sebelah kirinya, app-nya tersembunyi; di sebelah kanannya, terlihat. Mati: seretan hanya mengubah urutan bar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tieni premuto ⌘ Command e trascina un elemento nella barra dei menu oltre l'icona di holzBar: alla sua sinistra la sua app è nascosta, alla sua destra visibile. Disattivato: il trascinamento riordina soltanto la barra."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘ Command を押しながらメニューバーの項目を holzBar アイコンの向こう側へドラッグします。左側ではそのアプリが非表示に、右側では表示になります。オフ：ドラッグでは並び順だけが変わります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘ Command를 누른 채 메뉴 막대의 항목을 holzBar 아이콘 너머로 드래그하세요. 왼쪽에서는 해당 앱이 숨겨지고 오른쪽에서는 표시됩니다. 끔: 드래그는 순서만 바꿉니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houd ⌘ Command ingedrukt en sleep een onderdeel in de menubalk over het holzBar-symbool: links ervan is de app verborgen, rechts ervan zichtbaar. Uit: slepen wijzigt alleen de volgorde."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przytrzymaj ⌘ Command i przeciągnij element na pasku menu przez ikonę holzBar: na lewo od niej jego aplikacja jest ukryta, na prawo widoczna. Wyłączone: przeciągnięcie tylko zmienia kolejność."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segure ⌘ Command e arraste um item na barra de menus por cima do ícone do holzBar: à esquerda dele, o app fica oculto; à direita, visível. Desativado: arrastar só reordena a barra."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tegna smacà ⌘ Command e tira in element en il trav da menu sur l'icuna holzBar: a sinistra dad ella è l'app zuppada, a dretga visibla. Deactivà: trair mida be l'ordre."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удерживая ⌘ Command, перетащите элемент в строке меню через значок holzBar: слева от него его приложение скрыто, справа — видимо. Выкл.: перетаскивание только меняет порядок."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Håll ned ⌘ Command och dra ett objekt i menyraden över holzBar-symbolen: till vänster om den är dess app dold, till höger synlig. Av: dragningen ändrar bara ordningen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘ Command tuşunu basılı tutup menü çubuğundaki bir öğeyi holzBar simgesinin üzerinden sürükleyin: simgenin solunda uygulaması gizli, sağında görünür olur. Kapalı: sürükleme yalnızca sırayı değiştirir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Утримуючи ⌘ Command, перетягніть елемент у смузі меню через піктограму holzBar: ліворуч від неї його програма прихована, праворуч — видима. Вимкнено: перетягування лише змінює порядок."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按住 ⌘ Command，将菜单栏中的项目拖过 holzBar 图标：拖到其左侧时，对应 App 被隐藏；拖到其右侧时，则可见。关闭：拖动只会调整顺序。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按住 ⌘ Command，將選單列中的項目拖過 holzBar 圖像：拖到其左側時，對應 App 會被隱藏；拖到其右側時，則可見。關閉：拖移只會調整順序。"
+          }
+        }
+      }
+    },
+    "The search remembers how often and how lately you open an item from it, so what you use most comes first. The counts stay on this Mac, are not exported or backed up, and Forget deletes them." : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyhledávání si pamatuje, jak často a jak nedávno z něj položku otevřete, takže co používáte nejvíc, je první. Počty zůstávají v tomto Macu, neexportují se ani nezálohují a Zapomenout je smaže."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Suche merkt sich, wie oft und wie kürzlich du ein Element daraus öffnest, damit das Meistgenutzte zuerst kommt. Die Zähler bleiben auf diesem Mac, werden weder exportiert noch gesichert, und «Vergessen» löscht sie."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La búsqueda recuerda con qué frecuencia y cuándo abres un elemento desde ella, así lo que más usas va primero. Los recuentos se quedan en este Mac, no se exportan ni se incluyen en copias, y Olvidar los borra."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La recherche retient la fréquence et la date à laquelle vous ouvrez un élément depuis elle, afin que le plus utilisé vienne en premier. Les compteurs restent sur ce Mac, ne sont ni exportés ni sauvegardés, et Oublier les supprime."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A keresés megjegyzi, milyen gyakran és mikor nyit meg egy elemet belőle, így a leggyakrabban használt kerül előre. A számlálók ezen a Macen maradnak, nem exportálódnak és nem kerülnek mentésbe, az Elfelejtés pedig törli őket."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencarian mengingat seberapa sering dan seberapa baru Anda membuka item darinya, sehingga yang paling sering Anda pakai muncul lebih dulu. Hitungan tetap di Mac ini, tidak diekspor atau dicadangkan, dan Lupakan menghapusnya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La ricerca ricorda quanto spesso e quanto di recente apri un elemento da essa, così ciò che usi di più viene per primo. I conteggi restano su questo Mac, non vengono esportati né inclusi nei backup, e Dimentica li elimina."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "検索は、そこから項目を開いた頻度と最近さを記憶し、よく使うものを先頭に表示します。カウントはこの Mac にのみ保存され、書き出しやバックアップの対象にならず、「消去」で削除されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검색은 그곳에서 항목을 얼마나 자주, 얼마나 최근에 열었는지 기억하여 가장 많이 쓰는 항목을 먼저 보여 줍니다. 횟수는 이 Mac에만 남고, 내보내거나 백업하지 않으며, 지우기를 누르면 삭제됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De zoekfunctie onthoudt hoe vaak en hoe recent je een onderdeel ermee opent, zodat wat je het meest gebruikt eerst komt. De tellers blijven op deze Mac, worden niet geëxporteerd of geback-upt, en Vergeten wist ze."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyszukiwarka zapamiętuje, jak często i jak niedawno otwierasz z niej element, więc to, czego używasz najczęściej, jest pierwsze. Liczniki zostają na tym Macu, nie są eksportowane ani archiwizowane, a Zapomnij je usuwa."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A busca lembra com que frequência e quão recentemente você abre um item por ela, para que o que você mais usa venha primeiro. As contagens ficam neste Mac, não são exportadas nem incluídas em backups, e Esquecer as apaga."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La tschertga regorda co savens e cura ch'ti avras in element da la tschertga, uschia ch'il pli duvrà vegn emprim. Las dumbraziuns restan sin quest Mac, na vegnan betg exportadas ni sauvadas, e Emblidar las stizza."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поиск запоминает, как часто и как недавно вы открываете элемент из него, поэтому самое используемое идёт первым. Счётчики остаются на этом Mac, не экспортируются и не попадают в резервные копии, а «Забыть» удаляет их."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sökningen minns hur ofta och hur nyligen du öppnar ett objekt från den, så att det du använder mest kommer först. Räknarna stannar på den här Macen, exporteras eller säkerhetskopieras inte, och Glöm raderar dem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arama, bir öğeyi ondan ne sıklıkla ve ne kadar yakın zamanda açtığınızı anımsar; böylece en çok kullandığınız öne gelir. Sayaçlar bu Mac’te kalır, dışa aktarılmaz veya yedeklenmez ve Unut onları siler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пошук запам’ятовує, як часто й як нещодавно ви відкриваєте з нього елемент, тож найуживаніше йде першим. Лічильники залишаються на цьому Mac, не експортуються й не потрапляють до резервних копій, а «Забути» видаляє їх."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索会记住你从中打开项目的频率和时间，让最常用的排在前面。计数只保存在这台 Mac 上，不会被导出或备份，“清除”会将其删除。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜尋會記住你從中打開項目的頻率和時間，讓最常用的排在前面。計數只保存在這台 Mac 上，不會被匯出或備份，「忘記」會將其刪除。"
+          }
+        }
+      }
+    },
+    "macOS lets an app take pictures of your menu bar only with Screen Recording. If macOS then offers to quit and reopen holzBar, choose Quit & Reopen." : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS dovolí aplikaci pořizovat obrázky vašeho řádku nabídek jen se Záznamem obrazovky. Pokud vám macOS poté nabídne ukončit a znovu otevřít holzBar, zvolte Ukončit a znovu otevřít."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS erlaubt einer App Bilder deiner Menüleiste nur mit der Bildschirmaufnahme. Wenn macOS danach anbietet, holzBar zu beenden und neu zu öffnen, wähle «Beenden und erneut öffnen»."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS solo permite a una app tomar imágenes de tu barra de menús con la Grabación de pantalla. Si macOS te ofrece después salir y volver a abrir holzBar, elige Salir y reabrir."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS ne laisse une app prendre des images de votre barre des menus qu'avec l'Enregistrement de l'écran. Si macOS propose ensuite de quitter et rouvrir holzBar, choisissez « Quitter et rouvrir »."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A macOS csak Képernyőfelvétellel engedi, hogy egy app képeket készítsen a menüsorról. Ha a macOS ezután felajánlja a holzBar kilépését és újranyitását, válassza a Kilépés és újranyitás lehetőséget."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS hanya mengizinkan app mengambil gambar bar menu Anda dengan Perekaman Layar. Jika macOS lalu menawarkan untuk keluar dan membuka kembali holzBar, pilih Keluar & Buka Kembali."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS consente a un'app di acquisire immagini della tua barra dei menu solo con la Registrazione schermo. Se poi macOS propone di uscire e riaprire holzBar, scegli «Esci e riapri»."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS では、画面収録を許可したときだけ、アプリがメニューバーの画像を取得できます。その後 macOS が holzBar の終了と再度開くことを提案してきたら、「終了して再度開く」を選んでください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS는 화면 기록이 있어야만 앱이 메뉴 막대의 이미지를 가져올 수 있게 합니다. 이후 macOS에서 holzBar를 종료하고 다시 열도록 제안하면 “종료 후 다시 열기”를 선택하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS laat een app alleen met Schermopname afbeeldingen van je menubalk maken. Als macOS daarna aanbiedt holzBar af te sluiten en opnieuw te openen, kies dan Stop en open opnieuw."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS pozwala aplikacji robić obrazy paska menu tylko z Nagrywaniem ekranu. Jeśli macOS zaproponuje potem zamknięcie i ponowne otwarcie holzBar, wybierz Zakończ i otwórz ponownie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O macOS só permite que um app tire imagens da sua barra de menus com a Gravação de Tela. Se o macOS oferecer depois para encerrar e reabrir o holzBar, escolha Encerrar e Reabrir."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS lubescha ad ina app da far maletgs da tes trav da menu mo cun la Bildschirmaufnahme. Sche macOS porscha suenter da terminar ed avrir da nov holzBar, tscherna «Terminar ed avrir da nov»."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS позволяет приложению делать снимки вашей строки меню только при наличии доступа к записи экрана. Если после этого macOS предложит завершить и снова открыть holzBar, выберите «Завершить и открыть снова»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS låter en app ta bilder av din menyrad bara med Skärminspelning. Om macOS sedan erbjuder att avsluta och öppna holzBar igen, välj Avsluta och öppna igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS, bir uygulamanın menü çubuğunuzun görüntülerini yalnızca Ekran Kaydı ile almasına izin verir. macOS ardından holzBar’ı çıkıp yeniden açmayı önerirse, Çık ve Yeniden Aç’ı seçin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS дозволяє програмі робити знімки вашої смуги меню лише із записом екрана. Якщо після цього macOS запропонує завершити й знову відкрити holzBar, оберіть «Завершити й відкрити знову»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 只在启用“屏幕录制”时才允许 App 截取你的菜单栏图像。如果 macOS 随后提示退出并重新打开 holzBar，请选择“退出并重新打开”。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 只在啟用「螢幕錄影」時才允許 App 擷取你的選單列圖像。如果 macOS 隨後提示結束並重新打開 holzBar，請選擇「結束並重新打開」。"
+          }
+        }
+      }
+    },
+    "Screen Recording is not allowed: the bars show app icons instead of pictures." : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Záznam obrazovky není povolen: pruhy ukazují místo obrázků ikony aplikací."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildschirmaufnahme ist nicht erlaubt: Die Leisten zeigen App-Symbole statt Bilder."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La Grabación de pantalla no está permitida: las barras muestran iconos de apps en lugar de imágenes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'enregistrement de l'écran n'est pas autorisé : les barres affichent les icônes des apps au lieu d'images."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Képernyőfelvétel nincs engedélyezve: a sávok képek helyett appikonokat mutatnak."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perekaman Layar tidak diizinkan: bar menampilkan ikon app, bukan gambar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La Registrazione schermo non è consentita: le barre mostrano le icone delle app invece delle immagini."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画面収録が許可されていません。バーにはアプリのアイコンが表示され、画像は表示されません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "화면 기록이 허용되지 않았습니다. 막대에는 이미지 대신 앱 아이콘이 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schermopname is niet toegestaan: de balken tonen app-symbolen in plaats van afbeeldingen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagrywanie ekranu nie jest dozwolone: paski pokazują ikony aplikacji zamiast obrazów."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Gravação de Tela não é permitida: as barras mostram ícones de apps em vez de imagens."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La Bildschirmaufnahme n'è betg permessa: las bandas mussan ils icunas d'apps empè da maletgs."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запись экрана не разрешена: полосы показывают значки приложений вместо изображений."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skärminspelning är inte tillåten: fälten visar appsymboler i stället för bilder."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran Kaydı’na izin verilmedi: çubuklar görseller yerine uygulama simgelerini gösterir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запис екрана не дозволено: смуги показують піктограми програм замість зображень."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未允许“屏幕录制”：这些栏显示 App 图标而非图片。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未允許「螢幕錄影」：這些列顯示 App 圖像而非圖片。"
+          }
+        }
+      }
+    },
+    "A short name such as bt or wlan finds Bluetooth or Wi-Fi." : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Krátký název jako bt nebo wlan najde Bluetooth nebo Wi-Fi."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Kurzname wie bt oder wlan findet Bluetooth oder WLAN."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un nombre corto como bt o wlan encuentra Bluetooth o Wi-Fi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un nom court comme bt ou wlan trouve Bluetooth ou Wi-Fi."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egy rövid név, például bt vagy wlan, megtalálja a Bluetoothot vagy a Wi-Fit."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nama singkat seperti bt atau wlan menemukan Bluetooth atau Wi-Fi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un nome breve come bt o wlan trova Bluetooth o Wi-Fi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bt や wlan のような短い名前で、Bluetooth や Wi-Fi が見つかります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bt나 wlan 같은 짧은 이름으로 Bluetooth나 Wi-Fi를 찾을 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een korte naam zoals bt of wlan vindt Bluetooth of Wi-Fi."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Krótka nazwa, np. bt lub wlan, znajdzie Bluetooth lub Wi-Fi."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um nome curto como bt ou wlan encontra Bluetooth ou Wi-Fi."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In num curt sco bt u wlan chatta Bluetooth u Wi-Fi."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Короткое название, например bt или wlan, находит Bluetooth или Wi-Fi."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ett kort namn som bt eller wlan hittar Bluetooth eller Wi-Fi."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bt veya wlan gibi kısa bir ad Bluetooth’u veya Wi-Fi’yi bulur."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коротка назва, як-от bt або wlan, знаходить Bluetooth або Wi-Fi."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bt 或 wlan 这样的简称可以找到 Bluetooth 或 Wi-Fi。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bt 或 wlan 這樣的簡稱可以找到 Bluetooth 或 Wi-Fi。"
+          }
+        }
+      }
+    },
+    "Forget everything…" : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapomenout vše…"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alles vergessen …"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Olvidar todo…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tout oublier…"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mindent elfelejt…"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lupakan semuanya…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dimentica tutto…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべて忘れる…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모두 잊기…"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alles vergeten…"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapomnij wszystko…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esquecer tudo…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Emblidar tut…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Забыть всё…"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glöm allt…"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her şeyi unut…"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Забути все…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "忘记全部…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部忘記…"
+          }
+        }
+      }
+    },
+    "Forget all stored usage?" : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapomenout všechna uložená data o používání?"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesamte gespeicherte Nutzung vergessen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Olvidar todo el uso almacenado?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oublier toute l'utilisation enregistrée ?"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elfelejti az összes tárolt használati adatot?"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lupakan semua penggunaan tersimpan?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dimenticare tutto l'utilizzo memorizzato?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存済みの使用状況をすべて忘れますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장된 사용 내역을 모두 잊을까요?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al het opgeslagen gebruik vergeten?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapomnieć całe zapisane użycie?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esquecer todo o uso armazenado?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Emblidar tut l'utilisaziun memorisada?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Забыть всё сохранённое использование?"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glömma all lagrad användning?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tüm kayıtlı kullanım unutulsun mu?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Забути все збережене використання?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要忘记所有已存储的使用情况吗？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要忘記所有已儲存的使用情況嗎？"
+          }
+        }
+      }
+    },
+    "The counts of every item are deleted. This cannot be undone." : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Počty všech položek budou smazány. Tuto akci nelze vrátit zpět."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Zähler aller Elemente werden gelöscht. Das lässt sich nicht widerrufen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se borran los recuentos de todos los elementos. Esta acción no se puede deshacer."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les compteurs de tous les éléments sont supprimés. Cette action est irréversible."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az összes elem számlálója törlődik. Ez nem vonható vissza."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hitungan semua item dihapus. Tindakan ini tidak dapat dibatalkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I conteggi di ogni elemento vengono eliminati. Non si può annullare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべての項目のカウントが削除されます。この操作は取り消せません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 항목의 횟수가 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De tellers van alle onderdelen worden gewist. Dit kan niet ongedaan worden gemaakt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liczniki wszystkich elementów zostaną usunięte. Tej czynności nie można cofnąć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As contagens de todos os itens serão apagadas. Isso não pode ser desfeito."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las dumbraziuns da tut ils elements vegnan stizzadas. Quai na po betg vegnir revocà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Счётчики всех элементов будут удалены. Это действие нельзя отменить."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Räknarna för alla objekt raderas. Det går inte att ångra."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tüm öğelerin sayaçları silinir. Bu geri alınamaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лічильники всіх елементів буде видалено. Цю дію не можна скасувати."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有项目的计数都将被删除。此操作无法撤销。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有項目的計數都會被刪除。此操作無法還原。"
+          }
+        }
+      }
+    },
+    "holzBar looked at the apps in your menu bar on this Mac. Nothing leaves your Mac and nothing is recorded. It proposes to hide only visible items that work in the background, never the clock, the battery, Wi-Fi, Control Center, sound, an item that shows a changing value or a social or business app. Switch off what should stay visible." : {
+      "comment" : "Layout pane (89-08)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar prohlédl aplikace ve vašem řádku nabídek na tomto Macu. Nic neopouští váš Mac a nic se nezaznamenává. Navrhuje skrýt jen viditelné položky, které pracují na pozadí, nikdy hodiny, baterii, Wi-Fi, Ovládací centrum, zvuk, položku s měnící se hodnotou ani sociální nebo firemní aplikaci. Vypněte, co má zůstat viditelné."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar hat sich die Apps in deiner Menüleiste auf diesem Mac angesehen. Nichts verlässt deinen Mac, und nichts wird aufgezeichnet. Vorgeschlagen werden nur sichtbare Elemente, die im Hintergrund arbeiten, nie die Uhr, der Akku, WLAN, das Kontrollzentrum, der Ton, ein Element mit wechselndem Wert oder eine Social- oder Business-App. Schalte aus, was sichtbar bleiben soll."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ha examinado las apps de tu barra de menús en este Mac. Nada sale de tu Mac y nada se registra. Solo propone ocultar elementos visibles que funcionan en segundo plano, nunca el reloj, la batería, el Wi-Fi, el Centro de control, el sonido, un elemento que muestra un valor cambiante ni una app social o de negocios. Desactiva lo que deba seguir visible."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar a examiné les apps de votre barre des menus sur ce Mac. Rien ne quitte votre Mac et rien n'est enregistré. Il ne propose de masquer que des éléments visibles qui travaillent en arrière-plan, jamais l'horloge, la batterie, le Wi-Fi, le Centre de contrôle, le son, un élément qui affiche une valeur changeante ni une app sociale ou professionnelle. Désactivez ce qui doit rester visible."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar megvizsgálta a menüsorában lévő appokat ezen a Macen. Semmi nem hagyja el a Macet, és semmit nem rögzít. Csak olyan látható elemek elrejtését javasolja, amelyek a háttérben működnek, soha az órát, az akkumulátort, a Wi-Fit, a Vezérlőközpontot, a hangot, változó értéket mutató elemet, illetve közösségi vagy üzleti appot. Kapcsolja ki, aminek láthatónak kell maradnia."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar memeriksa app di bar menu Anda di Mac ini. Tidak ada yang meninggalkan Mac Anda dan tidak ada yang direkam. holzBar hanya mengusulkan menyembunyikan item terlihat yang bekerja di latar belakang, tidak pernah jam, baterai, Wi-Fi, Pusat Kontrol, suara, item yang menampilkan nilai yang berubah, atau app sosial atau bisnis. Matikan yang harus tetap terlihat."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ha esaminato le app nella tua barra dei menu su questo Mac. Nulla lascia il tuo Mac e nulla viene registrato. Propone di nascondere solo elementi visibili che lavorano in background, mai l'orologio, la batteria, il Wi-Fi, il Centro di Controllo, l'audio, un elemento che mostra un valore che cambia o un'app social o business. Disattiva ciò che deve restare visibile."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar は、この Mac のメニューバーにあるアプリを確認しました。Mac の外には何も送られず、何も記録されません。非表示を提案するのは、バックグラウンドで動作する表示中の項目だけで、時計、バッテリー、Wi-Fi、コントロールセンター、サウンド、変化する値を表示する項目、ソーシャルやビジネスのアプリは決して対象になりません。表示したままにする項目はオフにしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar가 이 Mac의 메뉴 막대에 있는 앱을 살펴봤습니다. 어떤 것도 Mac 밖으로 나가지 않으며 아무것도 기록되지 않습니다. 백그라운드에서 동작하는 표시 중인 항목만 숨기도록 제안하며, 시계, 배터리, Wi-Fi, 제어 센터, 사운드, 변하는 값을 보여 주는 항목, 소셜 또는 비즈니스 앱은 절대 제안하지 않습니다. 계속 표시할 항목은 끄세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar heeft de apps in je menubalk op deze Mac bekeken. Er verlaat niets je Mac en er wordt niets vastgelegd. Alleen zichtbare onderdelen die op de achtergrond werken worden voorgesteld om te verbergen, nooit de klok, de batterij, wifi, het Control Center, geluid, een onderdeel met een veranderende waarde of een social- of zakelijke app. Zet uit wat zichtbaar moet blijven."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar przejrzał aplikacje na pasku menu na tym Macu. Nic nie opuszcza Maca i nic nie jest zapisywane. Proponuje ukrycie tylko widocznych elementów działających w tle, nigdy zegara, baterii, Wi-Fi, Centrum sterowania, dźwięku, elementu pokazującego zmienną wartość ani aplikacji społecznościowej lub biznesowej. Wyłącz to, co ma pozostać widoczne."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar examinou os apps da sua barra de menus neste Mac. Nada sai do seu Mac e nada é gravado. Ele propõe ocultar só itens visíveis que funcionam em segundo plano, nunca o relógio, a bateria, o Wi-Fi, a Central de Controle, o som, um item que mostra um valor em mudança nem um app social ou de negócios. Desative o que deve continuar visível."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ha examinà las apps en tes trav da menu sin quest Mac. Nagut na bandunescha tes Mac e nagut na vegn registrà. El propona da zuppentar be elements visibels che lavuran en il fund, mai l'ura, la batteria, il Wi-Fi, il Control Center, il tun, in element che mussa ina valur che sa mida ni ina app sociala u commerziala. Deactivescha tge che duai restar visibel."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar просмотрел приложения в вашей строке меню на этом Mac. Ничто не покидает ваш Mac, и ничего не записывается. Он предлагает скрыть только видимые элементы, работающие в фоне, но никогда часы, батарею, Wi-Fi, Пункт управления, звук, элемент с меняющимся значением и приложения социальных сетей или бизнеса. Выключите то, что должно остаться видимым."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar har tittat på apparna i din menyrad på den här Macen. Inget lämnar din Mac och inget registreras. Den föreslår bara att dölja synliga objekt som arbetar i bakgrunden, aldrig klockan, batteriet, Wi-Fi, Kontrollcenter, ljud, ett objekt som visar ett föränderligt värde eller en social eller affärsapp. Stäng av det som ska förbli synligt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar, bu Mac’teki menü çubuğunuzda bulunan uygulamalara baktı. Hiçbir şey Mac’inizden çıkmaz ve hiçbir şey kaydedilmez. Yalnızca arka planda çalışan görünür öğeleri gizlemeyi önerir; saati, pili, Wi-Fi’ı, Denetim Merkezi’ni, sesi, değişen bir değer gösteren bir öğeyi veya sosyal ya da iş uygulamasını asla önermez. Görünür kalması gereken öğeyi kapatın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar переглянув програми у вашій смузі меню на цьому Mac. Ніщо не залишає ваш Mac, і нічого не записується. Він пропонує приховати лише видимі елементи, що працюють у фоні, але ніколи годинник, батарею, Wi-Fi, Пункт керування, звук, елемент зі змінним значенням чи програму соцмереж або бізнесу. Вимкніть те, що має залишитися видимим."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 已查看了这台 Mac 上菜单栏中的 App。没有任何内容离开你的 Mac，也不会记录任何内容。它只建议隐藏在后台运行的可见项目，绝不包括时钟、电池、Wi-Fi、控制中心、声音、显示变化数值的项目，以及社交或商务类 App。请关闭应该保持可见的项目。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 已查看這台 Mac 上選單列中的 App。沒有任何內容離開你的 Mac，也不會記錄任何內容。它只建議隱藏在背景運行的可見項目，絕不包括時鐘、電池、Wi-Fi、控制中心、聲音、顯示變化數值的項目，以及社交或商務類 App。請關閉應該保持可見的項目。"
           }
         }
       }
