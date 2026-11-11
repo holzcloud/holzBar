@@ -81,6 +81,8 @@ python3 .github/scripts/strings-check.py
 
 New texts reach all nineteen languages with `python3 .github/scripts/translations.py add-strings FILE`, which checks specifiers, placeholders and plural forms.
 
+A text that is renamed or no longer shown leaves the catalogue with `python3 .github/scripts/translations.py remove-strings FILE` (a map of catalogue names to lists of keys), which refuses a key that code still uses and writes nothing then. `python3 .github/scripts/translations.py unused-strings` lists the candidates.
+
 ## Privacy and licence
 
 A sheet holds the app's texts and no personal data. A corrected sheet is a contribution under the project's GPL-3.0 licence, like any other change. The tool only reads and writes files and never connects to the network, and neither does the app.
