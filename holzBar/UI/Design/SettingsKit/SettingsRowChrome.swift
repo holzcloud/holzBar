@@ -77,3 +77,42 @@ extension View {
         ))
     }
 }
+
+/// Starts the rows inside further in (D-17): adds the sub row inset to whatever the leading
+/// padding is, so nested insets add up. Every kit row, the module row and the picture card row
+/// honour it.
+private struct SettingsSubRowModifier: ViewModifier {
+    @Environment(\.settingsRowLeadingPadding) private var current
+
+    func body(content: Content) -> some View {
+        content.environment(
+            \.settingsRowLeadingPadding,
+            (current ?? HolzBarTheme.SettingsKit.rowPaddingHorizontal) + HolzBarTheme.SettingsKit.subRowInset
+        )
+    }
+}
+
+/// Makes the rows inside depend on a parent switch (D-17): while it is off they stay visible at
+/// reduced opacity with only their controls disabled. A row inside two dependencies is off when
+/// either parent is. Every kit row, the module row and the picture card row honour it.
+private struct SettingsDependentModifier: ViewModifier {
+    let parentIsOn: Bool
+
+    @Environment(\.settingsParentIsOn) private var current
+
+    func body(content: Content) -> some View {
+        content.environment(\.settingsParentIsOn, current && parentIsOn)
+    }
+}
+
+extension View {
+    /// Starts this row or block 18 pt further in, like a sub row of a setting (D-17).
+    func settingsSubRow() -> some View {
+        modifier(SettingsSubRowModifier())
+    }
+
+    /// Dims this row or block and disables its controls while `parentIsOn` is false (D-17).
+    func settingsDependent(on parentIsOn: Bool) -> some View {
+        modifier(SettingsDependentModifier(parentIsOn: parentIsOn))
+    }
+}
