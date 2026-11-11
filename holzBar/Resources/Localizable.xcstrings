@@ -12981,242 +12981,6 @@
         }
       }
     },
-    "%@ second" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ sekunda"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ Sekunde"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ segundo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ seconde"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ másodperc"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ detik"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ secondo"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ 秒"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@초"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ seconde"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ sekunda"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ segundo"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ secunda"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ с"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ sekunder"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ saniye"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ с"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ 秒"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ 秒"
-          }
-        }
-      }
-    },
-    "%@ seconds" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ sekund"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ Sekunden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ segundos"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ secondes"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ másodperc"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ detik"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ secondi"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ 秒"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@초"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ seconden"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ sekundy"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ segundos"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ secundas"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ с"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ sekunder"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ saniye"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ с"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ 秒"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ 秒"
-          }
-        }
-      }
-    },
     "%@ · Items: %lld" : {
       "localizations" : {
         "cs" : {
@@ -22573,124 +22337,6 @@
         }
       }
     },
-    "Ask for Touch ID or your password before showing hidden items" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Před zobrazením skrytých položek požádat o Touch ID nebo heslo"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vor dem Anzeigen ausgeblendeter Objekte nach Touch ID oder Passwort fragen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pedir Touch ID o tu contraseña antes de mostrar los elementos ocultos"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Demander Touch ID ou votre mot de passe avant d’afficher les éléments masqués"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch ID vagy jelszó kérése a rejtett elemek megjelenítése előtt"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Minta Touch ID atau kata sandi sebelum menampilkan item tersembunyi"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chiedi Touch ID o la password prima di mostrare gli elementi nascosti"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "非表示の項目を表示する前に Touch ID またはパスワードを求める"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "숨겨진 항목을 표시하기 전에 Touch ID 또는 암호 요구"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vraag om Touch ID of je wachtwoord voordat verborgen onderdelen worden getoond"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pytaj o Touch ID lub hasło przed pokazaniem ukrytych elementów"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pedir Touch ID ou sua senha antes de exibir os itens ocultos"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dumandar Touch ID u il pled-clav avant che mussar ils elements zuppads"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Запрашивать Touch ID или пароль перед показом скрытых элементов"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kräv Touch ID eller lösenord innan dolda objekt visas"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gizli öğeleri göstermeden önce Touch ID veya parola iste"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Запитувати Touch ID або пароль перед показом прихованих елементів"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "显示隐藏项目前需要 Touch ID 或你的密码"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "顯示隱藏項目前先要求 Touch ID 或密碼"
-          }
-        }
-      }
-    },
     "Asks for Calendar access when you switch it on" : {
       "localizations" : {
         "de" : {
@@ -30951,124 +30597,6 @@
         }
       }
     },
-    "Counted from when the item's menu closes. 0 hides it right away." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Počítá se od zavření nabídky položky. 0 ji skryje hned."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ab dem Schliessen des Menüs gezählt. Bei 0 wird das Element sofort ausgeblendet."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se cuenta desde que se cierra el menú del elemento. 0 lo oculta de inmediato."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compté à partir de la fermeture du menu de l'élément. 0 le masque aussitôt."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Az elem menüjének bezárásától számítva. A 0 azonnal elrejti."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dihitung sejak menu item ditutup. 0 menyembunyikan seketika."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Contato dalla chiusura del menu dell'elemento. 0 lo nasconde subito."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "項目のメニューを閉じてから数えます。0 にするとすぐに非表示になります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "항목의 메뉴가 닫힌 시점부터 셉니다. 0이면 바로 숨깁니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Geteld vanaf het sluiten van het menu van het onderdeel. Bij 0 wordt het direct verborgen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Liczone od zamknięcia menu elementu. 0 ukrywa go od razu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Contado a partir do fechamento do menu do item. 0 o oculta imediatamente."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quintà a partir da cura ch'il menu da l'element sa serra. 0 al zuppenta immediatamain."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Отсчёт идёт с момента закрытия меню элемента. 0 — скрыть сразу."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Räknat från att objektets meny stängs. 0 döljer direkt."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Öğenin menüsü kapandığı andan itibaren sayılır. 0 hemen gizler."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Відлік іде з моменту закриття меню елемента. 0 — приховати одразу."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "从项目的菜单关闭时开始计时。0 表示立即隐藏。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "從項目選單關閉時開始計算。0 表示立即隱藏。"
-          }
-        }
-      }
-    },
     "Create" : {
       "localizations" : {
         "cs" : {
@@ -36375,124 +35903,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "今天的首次檢查"
-          }
-        }
-      }
-    },
-    "Focused app" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aplikace v popředí"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktive App"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App activa"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App active"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Előtérben lévő alkalmazás"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App di latar depan"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App attiva"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フォーカス中の App"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "활성 앱"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App op de voorgrond"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aplikacja na wierzchu"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App em foco"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App activa"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Активное приложение"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App i förgrunden"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ön plandaki uygulama"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Активна програма"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "当前 App"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "最前方的 App"
           }
         }
       }
@@ -46641,360 +46051,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "選單列項目間距"
-          }
-        }
-      }
-    },
-    "Menu bar items are rehidden after a fixed amount of time." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Položky řádku nabídek se znovu skryjí po pevně dané době."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menüleistenelemente werden nach einer festen Zeit wieder ausgeblendet."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los elementos de la barra de menús se vuelven a ocultar pasado un tiempo fijo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les éléments sont de nouveau masqués après un délai fixe."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A menüsor-elemek rögzített idő után újra elrejtődnek."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Item bar menu disembunyikan kembali setelah waktu tetap."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli elementi vengono nascosti di nuovo dopo un tempo fisso."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "メニューバー項目は、一定時間が経過すると再び非表示になります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "메뉴 막대 항목이 일정 시간이 지나면 다시 숨겨집니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menubalkonderdelen worden na een vaste tijd weer verborgen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elementy paska menu są ukrywane ponownie po upływie stałego czasu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os itens da barra de menus são ocultados novamente após um tempo fixo."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ils elements vegnan puspè zuppentads suenter in temp fix."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Элементы строки меню снова скрываются через заданное время."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menyradsobjekt döljs igen efter en fast tid."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menü çubuğu öğeleri sabit bir süre sonra yeniden gizlenir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Елементи смуги меню знову приховуються через заданий час."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "菜单栏项目会在固定时间后重新隐藏。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "選單列項目會在固定時間後重新隱藏。"
-          }
-        }
-      }
-    },
-    "Menu bar items are rehidden using a smart algorithm." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Položky řádku nabídek se znovu skryjí chytrým algoritmem."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menüleistenelemente werden nach einem intelligenten Verfahren wieder ausgeblendet."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los elementos de la barra de menús se vuelven a ocultar con un algoritmo inteligente."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les éléments sont de nouveau masqués selon un algorithme intelligent."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A menüsor-elemek okos algoritmussal rejtődnek el újra."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Item bar menu disembunyikan kembali dengan algoritma cerdas."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli elementi vengono nascosti di nuovo con un algoritmo intelligente."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "メニューバー項目は、スマートなアルゴリズムで再び非表示になります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "메뉴 막대 항목이 스마트 알고리즘으로 다시 숨겨집니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menubalkonderdelen worden met een slim algoritme weer verborgen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elementy paska menu są ukrywane ponownie przez inteligentny algorytm."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os itens da barra de menus são ocultados novamente por meio de um algoritmo inteligente."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ils elements vegnan puspè zuppentads cun in algoritmus intelligent."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Элементы строки меню снова скрываются по «умному» алгоритму."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menyradsobjekt döljs igen med en smart algoritm."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menü çubuğu öğeleri akıllı bir algoritmayla yeniden gizlenir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Елементи смуги меню знову приховуються за «розумним» алгоритмом."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "菜单栏项目会通过智能算法重新隐藏。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "選單列項目會以智慧演算法重新隱藏。"
-          }
-        }
-      }
-    },
-    "Menu bar items are rehidden when the focused app changes." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Položky řádku nabídek se znovu skryjí, když se změní aplikace v popředí."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menüleistenelemente werden wieder ausgeblendet, wenn die aktive App wechselt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los elementos de la barra de menús se vuelven a ocultar cuando cambia la app activa."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les éléments sont de nouveau masqués quand l'app active change."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A menüsor-elemek újra elrejtődnek, ha az előtérben lévő alkalmazás megváltozik."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Item bar menu disembunyikan kembali saat app di latar depan berubah."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli elementi vengono nascosti di nuovo quando cambia l'app attiva."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "メニューバー項目は、フォーカス中の App が変わると再び非表示になります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "활성 앱이 바뀌면 메뉴 막대 항목이 다시 숨겨집니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menubalkonderdelen worden weer verborgen wanneer de app op de voorgrond wisselt."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elementy paska menu są ukrywane ponownie, gdy zmienia się aplikacja na wierzchu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os itens da barra de menus são ocultados novamente quando o app em foco muda."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ils elements vegnan puspè zuppentads, cura che l'app activa sa mida."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Элементы строки меню снова скрываются, когда меняется активное приложение."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menyradsobjekt döljs igen när appen i förgrunden byts."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ön plandaki uygulama değiştiğinde menü çubuğu öğeleri yeniden gizlenir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Елементи смуги меню знову приховуються, коли змінюється активна програма."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "当前 App 改变时，菜单栏项目会重新隐藏。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "最前方的 App 改變時，選單列項目會重新隱藏。"
           }
         }
       }
@@ -59625,124 +58681,6 @@
         }
       }
     },
-    "Rehiding" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opětovné skrytí"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wieder ausblenden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Volver a ocultar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Masquage automatique"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Újrarejtés"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sembunyikan kembali"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nascondi di nuovo"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "再び非表示にする"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "다시 숨기기"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opnieuw verbergen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ponowne ukrywanie"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ocultar novamente"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zuppentar puspè"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Повторное скрытие"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dölj igen"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Yeniden gizle"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Повторне приховування"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新隐藏"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新隱藏"
-          }
-        }
-      }
-    },
     "Release notes for every version are on GitHub." : {
       "localizations" : {
         "cs" : {
@@ -70481,124 +69419,6 @@
         }
       }
     },
-    "Show on hover delay" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zpoždění zobrazení při najetí"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verzögerung beim Einblenden per Zeiger"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retraso al pasar el puntero"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Délai d'affichage au survol"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rámutatásos megjelenítés késleltetése"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jeda tampil saat kursor diarahkan"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ritardo della comparsa al passaggio"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ホバー表示の遅延"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "마우스 올림 표시 지연"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vertraging bij tonen via aanwijzen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opóźnienie pokazywania po najechaniu"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Atraso ao passar o ponteiro"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retard da mussar cun il cursur"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Задержка показа при наведении"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fördröjning för visning vid hovring"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Üzerine gelince gösterme gecikmesi"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Затримка показу під час наведення"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "悬停显示延迟"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "滑鼠移入顯示的延遲"
-          }
-        }
-      }
-    },
     "Show on scroll" : {
       "localizations" : {
         "cs" : {
@@ -74021,124 +72841,6 @@
         }
       }
     },
-    "Strategy" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Strategie"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Strategie"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Estrategia"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stratégie"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stratégia"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Strategi"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Strategia"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "方式"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "방식"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Strategie"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Strategia"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Estratégia"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Strategia"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Способ"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Strategi"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Strateji"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Спосіб"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "策略"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "策略"
-          }
-        }
-      }
-    },
     "Sunglasses" : {
       "localizations" : {
         "cs" : {
@@ -75319,124 +74021,6 @@
         }
       }
     },
-    "The amount of time to wait before showing on hover." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Doba čekání před zobrazením při najetí."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wie lange gewartet wird, bevor per Zeiger eingeblendet wird."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El tiempo de espera antes de mostrar al pasar el puntero."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le temps d'attente avant l'affichage au survol."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A rámutatásos megjelenítés előtti várakozási idő."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Waktu tunggu sebelum menampilkan saat kursor diarahkan."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il tempo di attesa prima della comparsa al passaggio del puntatore."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ホバーで表示するまでの待ち時間です。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "마우스를 올린 뒤 표시하기까지 기다리는 시간입니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De tijd die moet worden gewacht voordat bij aanwijzen wordt getoond."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Czas oczekiwania przed pokazaniem po najechaniu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O tempo de espera antes de exibir ao passar o ponteiro."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quant ditg ch'i vegn spetgà avant che mussar cun il cursur."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Время ожидания перед показом при наведении."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Väntetiden innan visning vid hovring."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Üzerine gelince göstermeden önceki bekleme süresi."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Час очікування перед показом під час наведення."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "悬停后显示前的等待时间。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "滑鼠移入顯示之前要等待的時間。"
-          }
-        }
-      }
-    },
     "The camera and microphone indicator is hidden" : {
       "localizations" : {
         "cs" : {
@@ -76495,124 +75079,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "選單列維持原樣。你可以用 ⌘Z 還原。"
-          }
-        }
-      }
-    },
-    "The menu bar's items change at once on this version of macOS, so the style applies to the holzBar Shelf: Smooth slides it out from under the menu bar, Fade fades it in. Nothing animates while Reduce Motion is on." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Položky řádku nabídek se v této verzi macOS mění najednou, takže se styl týká holzBar Shelf: Plynulý ho vysune zpod řádku nabídek, Prolnutí ho prolne. Při zapnutém Omezit pohyb se nic neanimuje."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Elemente der Menüleiste ändern sich in dieser macOS-Version sofort. Der Stil gilt daher für das holzBar Shelf: Fließend lässt es unter der Menüleiste hervorgleiten, Überblenden blendet es ein. Bei aktivierter Option «Bewegung reduzieren» wird nichts animiert."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los elementos de la barra de menús cambian al instante en esta versión de macOS, así que el estilo se aplica al holzBar Shelf: Suave lo desliza desde debajo de la barra de menús y Fundido lo muestra con un fundido. Nada se anima mientras Reducir movimiento esté activado."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dans cette version de macOS, les éléments de la barre des menus changent instantanément : le style s’applique donc au holzBar Shelf. Fluide le fait glisser sous la barre des menus, Fondu le fait apparaître en fondu. Rien n’est animé lorsque « Réduire les animations » est activé."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A menüsor elemei a macOS ezen verziójában egyszerre változnak, ezért a stílus a holzBar Shelfre vonatkozik: a Sima kicsúsztatja a menüsor alól, az Áttűnés áttűnéssel jeleníti meg. A Mozgás csökkentése bekapcsolt állapotában semmi sem animálódik."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Item bar menu berubah sekaligus di versi macOS ini, jadi gaya berlaku untuk holzBar Shelf: Halus menggesernya dari bawah bar menu, Pudar memudarkannya. Dengan Kurangi Gerakan aktif, tidak ada yang dianimasikan."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In questa versione di macOS gli elementi della barra dei menu cambiano subito: lo stile vale quindi per lo holzBar Shelf. Fluida lo fa scorrere da sotto la barra dei menu, Dissolvenza lo mostra con una dissolvenza. Niente viene animato mentre è attiva l’opzione «Riduci movimento»."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "この macOS のバージョンではメニューバーの項目が即座に切り替わるため、スタイルは holzBar Shelf に適用されます。「スムーズ」はメニューバーの下からスライドして現れ、「フェード」はフェードインします。「視差効果を減らす」がオンの間は、アニメーションしません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 macOS 버전에서는 메뉴 막대 항목이 즉시 바뀌므로 스타일은 holzBar Shelf에 적용됩니다. 부드럽게는 메뉴 막대 아래에서 밀려 나오고, 페이드는 서서히 나타납니다. 동작 줄이기가 켜져 있는 동안에는 애니메이션이 없습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De onderdelen van de menubalk veranderen in één keer in deze versie van macOS, dus de stijl geldt voor de holzBar Shelf: Soepel schuift hem onder de menubalk vandaan, Vervagen laat hem infaden. Er beweegt niets zolang Beweging beperken aan staat."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elementy paska menu zmieniają się od razu w tej wersji macOS, więc styl dotyczy holzBar Shelf: Płynny wysuwa go spod paska menu, Zanikanie wprowadza go przez zanikanie. Nic się nie animuje, gdy włączone jest Ogranicz ruch."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os itens da barra de menus mudam instantaneamente nesta versão do macOS, então o estilo se aplica ao holzBar Shelf: Suave o desliza para fora de baixo da barra de menus e Esmaecer o exibe com um esmaecimento. Nada é animado enquanto Reduzir Movimento estiver ativado."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En questa versiun da macOS mudan ils elements da la trav da menu immediat, perquai vala il stil per il holzBar Shelf: Fluid til lascha or da sut la trav da menu, Fade til mussa cun in fade. Nagut vegn animà cun «Reducir il moviment» activà."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "В этой версии macOS элементы строки меню меняются мгновенно, поэтому стиль относится к holzBar Shelf: «Плавно» выдвигает его из-под строки меню, «Затухание» плавно проявляет. При включённом параметре «Уменьшение движения» анимации нет."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menyradsobjekten ändras på en gång i den här versionen av macOS, så stilen gäller holzBar Shelf: Mjuk skjuter ut den under menyraden, Toning tonar in den. Med Minska rörelse på animeras ingenting."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bu macOS sürümünde menü çubuğu öğeleri bir anda değişir, bu yüzden stil holzBar Shelf için geçerlidir: Akıcı onu menü çubuğunun altından kaydırır, Soldurma soldurarak getirir. Hareketi Azalt açıkken hiçbir şey canlandırılmaz."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "У цій версії macOS елементи смуги меню змінюються миттєво, тому стиль стосується holzBar Shelf: «Плавно» висуває його з-під смуги меню, «Згасання» плавно проявляє. Коли ввімкнено «Зменшення руху», анімації немає."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在此版本的 macOS 上，菜单栏项目会立即变化，因此样式应用于 holzBar Shelf：“平滑”会从菜单栏下方滑出，“淡入淡出”会渐显。开启“减弱动态效果”时，不会有任何动画。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在這個 macOS 版本上，選單列的項目會立即改變，因此樣式套用於 holzBar Shelf：「平滑」會讓它從選單列下方滑出，「淡出」會讓它淡入。開啟「減少動態效果」時不會有任何動畫。"
           }
         }
       }
@@ -80153,124 +78619,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "一天中的時段"
-          }
-        }
-      }
-    },
-    "Timed" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Načasované"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zeitgesteuert"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Temporizado"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Minuté"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Időzített"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Berwaktu"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A tempo"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "時間指定"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "시간 지정"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Getimed"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Z czasem"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Temporizado"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Temporisà"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "По времени"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tidsinställd"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zamanlı"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "За часом"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "定时"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "定時"
           }
         }
       }
@@ -86289,124 +84637,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "要將此檔案夾用於指令碼嗎？"
-          }
-        }
-      }
-    },
-    "Uses no permission: holzBar notices a mirrored display and macOS's screen sharing agent." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nepotřebuje žádné oprávnění: holzBar pozná zrcadlený displej a agenta sdílení obrazovky macOS."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Braucht keine Berechtigung: holzBar erkennt einen gespiegelten Bildschirm und den Bildschirmfreigabe-Agenten von macOS."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No usa ningún permiso: holzBar detecta una pantalla duplicada y el agente de compartir pantalla de macOS."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucune autorisation requise : holzBar détecte un écran recopié et l'agent de partage d'écran de macOS."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nem használ engedélyt: a holzBar észleli a tükrözött kijelzőt és a macOS képernyőmegosztó ügynökét."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tidak memakai izin: holzBar mendeteksi layar yang dicerminkan dan agen berbagi layar macOS."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Non serve alcuna autorizzazione: holzBar rileva un monitor duplicato e l'agente di condivisione schermo di macOS."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "権限は使いません。holzBar は、ミラーリングされたディスプレイと macOS の画面共有エージェントを検知します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "권한을 사용하지 않습니다. holzBar는 미러링된 디스플레이와 macOS의 화면 공유 에이전트를 감지합니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gebruikt geen toestemming: holzBar merkt een gespiegeld beeldscherm en de schermdelingsagent van macOS op."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie używa żadnego uprawnienia: holzBar zauważa powielony wyświetlacz i agenta udostępniania ekranu macOS."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Não usa nenhuma permissão: o holzBar percebe um monitor espelhado e o agente de compartilhamento de tela do macOS."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Na dovra nagina permissiun: holzBar percorscha in monitur spievlà e l'agent da partiziun dal monitur da macOS."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Разрешения не требуются: holzBar замечает дублированный дисплей и агент демонстрации экрана macOS."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Använder ingen behörighet: holzBar känner av en speglad skärm och macOS skärmdelningsagent."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hiçbir izin kullanmaz: holzBar yansıtılan bir ekranı ve macOS ekran paylaşım aracısını algılar."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Дозволів не потрібно: holzBar помічає дзеркальний дисплей і агент демонстрації екрана macOS."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "不使用任何权限：holzBar 会察觉镜像显示器以及 macOS 的屏幕共享代理。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "不需要任何權限：holzBar 會偵測鏡像顯示器與 macOS 的螢幕分享代理程式。"
           }
         }
       }
@@ -94323,124 +92553,6 @@
         }
       }
     },
-    "macOS animates the menu bar itself on macOS 27, and holzBar cannot change that, so the style applies to the holzBar Shelf: Smooth slides it out from under the menu bar, Fade fades it in. Nothing animates while Reduce Motion is on." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS si řádek nabídek v macOS 27 animuje samo a holzBar to nemůže změnit, takže se styl týká holzBar Shelf: Plynulý ho vysune zpod řádku nabídek, Prolnutí ho prolne. Při zapnutém Omezit pohyb se nic neanimuje."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS animiert die Menüleiste unter macOS 27 selbst, und holzBar kann das nicht ändern. Der Stil gilt daher für das holzBar Shelf: Fließend lässt es unter der Menüleiste hervorgleiten, Überblenden blendet es ein. Bei aktivierter Option «Bewegung reduzieren» wird nichts animiert."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS anima por sí misma la barra de menús en macOS 27, y holzBar no puede cambiarlo, así que el estilo se aplica al holzBar Shelf: Suave lo desliza desde debajo de la barra de menús y Fundido lo muestra con un fundido. Nada se anima mientras Reducir movimiento esté activado."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS anime lui-même la barre des menus sous macOS 27, et holzBar ne peut pas le modifier : le style s’applique donc au holzBar Shelf. Fluide le fait glisser sous la barre des menus, Fondu le fait apparaître en fondu. Rien n’est animé lorsque « Réduire les animations » est activé."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A macOS 27 maga animálja a menüsort, és a holzBar ezt nem módosíthatja, ezért a stílus a holzBar Shelfre vonatkozik: a Sima kicsúsztatja a menüsor alól, az Áttűnés áttűnéssel jeleníti meg. A Mozgás csökkentése bekapcsolt állapotában semmi sem animálódik."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS menganimasikan bar menu sendiri di macOS 27 dan holzBar tidak dapat mengubahnya, jadi gaya berlaku untuk holzBar Shelf: Halus menggesernya dari bawah bar menu, Pudar memudarkannya. Dengan Kurangi Gerakan aktif, tidak ada yang dianimasikan."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS anima da sé la barra dei menu con macOS 27 e holzBar non può cambiarlo: lo stile vale quindi per lo holzBar Shelf. Fluida lo fa scorrere da sotto la barra dei menu, Dissolvenza lo mostra con una dissolvenza. Niente viene animato mentre è attiva l’opzione «Riduci movimento»."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27 ではメニューバーのアニメーションを macOS 自身が行い、holzBar はそれを変更できません。そのため、スタイルは holzBar Shelf に適用されます。「スムーズ」はメニューバーの下からスライドして現れ、「フェード」はフェードインします。「視差効果を減らす」がオンの間は、アニメーションしません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27에서는 macOS가 메뉴 막대를 직접 애니메이션하며 holzBar는 이를 바꿀 수 없으므로 스타일은 holzBar Shelf에 적용됩니다. 부드럽게는 메뉴 막대 아래에서 밀려 나오고, 페이드는 서서히 나타납니다. 동작 줄이기가 켜져 있는 동안에는 애니메이션이 없습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS animeert de menubalk zelf op macOS 27 en holzBar kan dat niet wijzigen, dus de stijl geldt voor de holzBar Shelf: Soepel schuift hem onder de menubalk vandaan, Vervagen laat hem infaden. Er beweegt niets zolang Beweging beperken aan staat."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS sam animuje pasek menu w macOS 27, a holzBar nie może tego zmienić, więc styl dotyczy holzBar Shelf: Płynny wysuwa go spod paska menu, Zanikanie wprowadza go przez zanikanie. Nic się nie animuje, gdy włączone jest Ogranicz ruch."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O macOS anima a barra de menus por conta própria no macOS 27, e o holzBar não pode mudar isso, então o estilo se aplica ao holzBar Shelf: Suave o desliza para fora de baixo da barra de menus e Esmaecer o exibe com um esmaecimento. Nada é animado enquanto Reduzir Movimento estiver ativado."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS animescha sezza la trav da menu cun macOS 27 e holzBar na sa betg midar quai, perquai vala il stil per il holzBar Shelf: Fluid til lascha or da sut la trav da menu, Fade til mussa cun in fade. Nagut vegn animà cun «Reducir il moviment» activà."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "На macOS 27 строку меню анимирует сама система, и holzBar не может это изменить, поэтому стиль относится к holzBar Shelf: «Плавно» выдвигает его из-под строки меню, «Затухание» плавно проявляет. При включённом параметре «Уменьшение движения» анимации нет."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS animerar själv menyraden i macOS 27 och holzBar kan inte ändra det, så stilen gäller holzBar Shelf: Mjuk skjuter ut den under menyraden, Toning tonar in den. Med Minska rörelse på animeras ingenting."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27’de menü çubuğunu macOS kendisi canlandırır ve holzBar bunu değiştiremez, bu yüzden stil holzBar Shelf için geçerlidir: Akıcı onu menü çubuğunun altından kaydırır, Soldurma soldurarak getirir. Hareketi Azalt açıkken hiçbir şey canlandırılmaz."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "У macOS 27 смугу меню анімує сама система, і holzBar не може цього змінити, тому стиль стосується holzBar Shelf: «Плавно» висуває його з-під смуги меню, «Згасання» плавно проявляє. Коли ввімкнено «Зменшення руху», анімації немає."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在 macOS 27 上，菜单栏的动画由 macOS 自己处理，holzBar 无法更改，因此样式应用于 holzBar Shelf：“平滑”会从菜单栏下方滑出，“淡入淡出”会渐显。开启“减弱动态效果”时，不会有任何动画。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在 macOS 27 上，選單列本身由 macOS 製作動畫，holzBar 無法更改，因此樣式套用於 holzBar Shelf：「平滑」會讓它從選單列下方滑出，「淡出」會讓它淡入。開啟「減少動態效果」時不會有任何動畫。"
-          }
-        }
-      }
-    },
     "macOS did not accept this combination. Choose another one." : {
       "localizations" : {
         "cs" : {
@@ -97151,124 +95263,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "連線為高成本連線，例如個人熱點"
-          }
-        }
-      }
-    },
-    "The display under the pointer decides. Always show everything keeps every section shown there. Collapse keeps the hidden items hidden there: hovering, clicking empty space and scrolling no longer show them, while the holzBar icon and the hotkeys still do. Neither is used with the holzBar Shelf." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rozhoduje displej pod ukazatelem. Vždy zobrazovat vše ponechá zobrazenou každou sekci. Sbalit ponechá skryté položky skryté: najetí, kliknutí do prázdného místa a posouvání je už nezobrazí, ikona holzBar a klávesové zkratky však ano. Žádné z nich se s holzBar Shelf nepoužívá."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Bildschirm unter dem Zeiger entscheidet. «Immer alles anzeigen» hält dort jeden Bereich eingeblendet. «Einklappen» hält dort die ausgeblendeten Elemente ausgeblendet: Darüberfahren, Klicken auf eine leere Stelle und Scrollen blenden sie nicht mehr ein, das holzBar-Symbol und die Tastenkürzel aber weiterhin. Beides gilt nicht mit dem holzBar Shelf."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Decide la pantalla bajo el puntero. Mostrar siempre todo mantiene todas las secciones visibles allí. Plegar mantiene ocultos allí los elementos ocultos: pasar el puntero, hacer clic en un espacio vacío y desplazarse ya no los muestran, mientras que el icono de holzBar y los atajos de teclado sí. Ninguno de los dos se usa con el holzBar Shelf."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L’écran sous le pointeur décide. « Toujours tout afficher » y garde chaque section affichée. « Replier » y garde les éléments masqués : le survol, un clic sur un espace vide et le défilement ne les affichent plus, alors que l’icône holzBar et les raccourcis le font toujours. Aucun des deux ne s’applique avec le holzBar Shelf."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A mutató alatti kijelző dönt. A Mindig minden látszik minden szakaszt megjelenítve tart ott. Az Összecsukás ott rejtve tartja a rejtett elemeket: a rámutatás, az üres helyre kattintás és a görgetés már nem jeleníti meg őket, a holzBar ikon és a billentyűparancsok viszont igen. Egyiket sem használja a holzBar Shelf."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Layar di bawah penunjuk yang menentukan. Selalu tampilkan semuanya menjaga setiap bagian tetap terlihat di sana. Ciutkan menjaga item tersembunyi tetap tersembunyi di sana: mengarahkan kursor, mengklik ruang kosong, dan menggulir tidak lagi menampilkannya, tetapi ikon holzBar dan pintasan keyboard tetap bisa. Keduanya tidak dipakai dengan holzBar Shelf."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Decide lo schermo sotto il puntatore. «Mostra sempre tutto» vi tiene ogni sezione visibile. «Comprimi» vi tiene nascosti gli elementi nascosti: il passaggio del puntatore, un clic su uno spazio vuoto e lo scorrimento non li mostrano più, mentre l’icona holzBar e le scorciatoie continuano a farlo. Nessuna delle due vale con lo holzBar Shelf."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ポインタの下にあるディスプレイが基準になります。「常にすべて表示」は、そのディスプレイですべてのセクションを表示したままにします。「折りたたむ」は、そのディスプレイで非表示の項目を隠したままにします。ホバー、空いている部分のクリック、スクロールでは表示されなくなりますが、holzBar アイコンとショートカットキーでは表示されます。どちらも holzBar Shelf では使われません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "포인터 아래에 있는 디스플레이를 기준으로 합니다. “항상 모두 표시”는 그 디스플레이에서 모든 섹션을 계속 표시합니다. “접기”는 그 디스플레이에서 숨겨진 항목을 계속 숨깁니다. 마우스 올리기, 빈 곳 클릭, 스크롤로는 더 이상 표시되지 않지만 holzBar 아이콘과 단축키로는 표시됩니다. 둘 다 holzBar Shelf에서는 사용되지 않습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Het beeldscherm onder de aanwijzer beslist. Toon altijd alles houdt elke sectie daar getoond. Samenvouwen houdt de verborgen onderdelen daar verborgen: aanwijzen, op lege ruimte klikken en scrollen tonen ze niet meer, terwijl het holzBar-symbool en de sneltoetsen dat wel doen. Geen van beide wordt met de holzBar Shelf gebruikt."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Decyduje wyświetlacz pod wskaźnikiem. Zawsze pokazuj wszystko utrzymuje pokazane każdą sekcję. Zwiń utrzymuje tam ukryte elementy: najechanie, kliknięcie pustego miejsca i przewijanie już ich nie pokazują, a ikona holzBar i skróty klawiszowe nadal tak. Żadne z tych nie jest używane z holzBar Shelf."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Decide o monitor sob o ponteiro. Sempre mostrar tudo mantém todas as seções exibidas ali. Recolher mantém os itens ocultos ocultos ali: passar o ponteiro, clicar em um espaço vazio e rolar deixam de exibi-los, enquanto o ícone do holzBar e os atalhos de teclado continuam exibindo. Nenhum dos dois é usado com o holzBar Shelf."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il monitur sut il cursur decida. «Adina mussar tut» tegna là mintga secziun mussada. «Plajar» tegna là ils elements zuppads: passar sur, cliccar sin ina zona vida e scrollar na ils mussan betg pli, ma l’icona da holzBar e las cumbinaziuns da tastas fan quai adina. Nagin dals dus na vala cun il holzBar Shelf."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Решает дисплей под указателем. «Всегда показывать всё» оставляет на нём все разделы показанными. «Свернуть» оставляет на нём скрытые элементы скрытыми: наведение, нажатие на пустое место и прокрутка их больше не показывают, а значок holzBar и горячие клавиши — по-прежнему показывают. С holzBar Shelf не используется ни то, ни другое."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skärmen under pekaren avgör. Alltid allt synligt håller varje sektion visad där. Fäll ihop håller dolda objekt dolda där: hovring, klick på tomt utrymme och rullning visar dem inte längre, men holzBar-ikonen och kortkommandon gör det. Inget av dem används med holzBar Shelf."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "İşaretçinin altındaki ekran karar verir. Her zaman her şey görünür her bölümü orada gösterir. Daralt gizli öğeleri orada gizli tutar: üzerine gelmek, boş alana tıklamak ve kaydırmak artık onları göstermez, ancak holzBar simgesi ve klavye kısayolları gösterir. Hiçbiri holzBar Shelf ile kullanılmaz."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вирішує дисплей під вказівником. «Завжди показувати все» залишає на ньому всі розділи показаними. «Згорнути» залишає на ньому приховані елементи прихованими: наведення, клацання на порожньому місці та прокручування їх більше не показують, а значок holzBar і гарячі клавіші — як і раніше показують. З holzBar Shelf не використовується ні те, ні інше."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "以指针所在的显示器为准。“始终显示全部”会让该显示器上的所有分区保持显示。“折叠”会让该显示器上的隐藏项目保持隐藏：悬停、点按空白处和滚动都不再显示它们，而 holzBar 图标和快捷键仍然可以。两者都不适用于 holzBar Shelf。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "由指標下方的顯示器決定。「一律顯示全部」會在那裡保持所有區段顯示。「收合」會在那裡保持隱藏項目隱藏：滑鼠移入、按一下空白處與捲動都不再顯示它們，但 holzBar 圖像與快速鍵仍可顯示。這兩者都不用於 holzBar Shelf。"
           }
         }
       }
@@ -110013,124 +108007,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "平滑"
-          }
-        }
-      }
-    },
-    "Smooth slides the menu bar's items in and out, and the holzBar Shelf out from under the menu bar. Fade fades the holzBar Shelf in; the menu bar's items change at once. Nothing animates while Reduce Motion is on." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plynulý zasouvá a vysouvá položky řádku nabídek a holzBar Shelf vysouvá zpod řádku nabídek. Prolnutí holzBar Shelf prolne; položky řádku nabídek se mění najednou. Při zapnutém Omezit pohyb se nic neanimuje."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fließend lässt die Elemente der Menüleiste ein- und ausgleiten und das holzBar Shelf unter der Menüleiste hervorgleiten. Überblenden blendet das holzBar Shelf ein; die Elemente der Menüleiste ändern sich sofort. Bei aktivierter Option «Bewegung reduzieren» wird nichts animiert."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suave desliza los elementos de la barra de menús hacia dentro y hacia fuera, y el holzBar Shelf desde debajo de la barra de menús. Fundido muestra el holzBar Shelf con un fundido; los elementos de la barra de menús cambian al instante. Nada se anima mientras Reducir movimiento esté activado."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fluide fait glisser les éléments de la barre des menus vers l’intérieur et l’extérieur, et le holzBar Shelf sous la barre des menus. Fondu fait apparaître le holzBar Shelf en fondu ; les éléments de la barre des menus changent instantanément. Rien n’est animé lorsque « Réduire les animations » est activé."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A Sima be- és kicsúsztatja a menüsor elemeit, a holzBar Shelfet pedig a menüsor alól csúsztatja ki. Az Áttűnés áttűnéssel jeleníti meg a holzBar Shelfet; a menüsor elemei egyszerre változnak. A Mozgás csökkentése bekapcsolt állapotában semmi sem animálódik."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Halus menggeser item bar menu masuk dan keluar serta menggeser holzBar Shelf dari bawah bar menu. Pudar memudarkan holzBar Shelf; item bar menu berubah sekaligus. Dengan Kurangi Gerakan aktif, tidak ada yang dianimasikan."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fluida fa scorrere gli elementi della barra dei menu dentro e fuori, e lo holzBar Shelf da sotto la barra dei menu. Dissolvenza mostra lo holzBar Shelf con una dissolvenza; gli elementi della barra dei menu cambiano subito. Niente viene animato mentre è attiva l’opzione «Riduci movimento»."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「スムーズ」は、メニューバーの項目をスライドして出し入れし、holzBar Shelf はメニューバーの下からスライドして現れます。「フェード」は holzBar Shelf をフェードインし、メニューバーの項目は即座に切り替わります。「視差効果を減らす」がオンの間は、アニメーションしません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "부드럽게는 메뉴 막대 항목을 밀어서 들이고 내보내며, holzBar Shelf는 메뉴 막대 아래에서 밀려 나옵니다. 페이드는 holzBar Shelf를 서서히 나타나게 하며, 메뉴 막대 항목은 즉시 바뀝니다. 동작 줄이기가 켜져 있는 동안에는 애니메이션이 없습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Soepel schuift de onderdelen van de menubalk in en uit, en de holzBar Shelf onder de menubalk vandaan. Vervagen laat de holzBar Shelf infaden; de onderdelen van de menubalk veranderen in één keer. Er beweegt niets zolang Beweging beperken aan staat."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Płynny wsuwa i wysuwa elementy paska menu oraz wysuwa holzBar Shelf spod paska menu. Zanikanie wprowadza holzBar Shelf przez zanikanie; elementy paska menu zmieniają się od razu. Nic się nie animuje, gdy włączone jest Ogranicz ruch."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suave desliza os itens da barra de menus para dentro e para fora, e o holzBar Shelf para fora de baixo da barra de menus. Esmaecer exibe o holzBar Shelf com um esmaecimento; os itens da barra de menus mudam instantaneamente. Nada é animado enquanto Reduzir Movimento estiver ativado."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fluid lascha ir ils elements da la trav da menu aint e ora e il holzBar Shelf or da sut la trav da menu. Fade mussa il holzBar Shelf cun in fade; ils elements da la trav da menu mudan immediat. Nagut vegn animà cun «Reducir il moviment» activà."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«Плавно» плавно задвигает и выдвигает элементы строки меню, а holzBar Shelf выдвигает из-под строки меню. «Затухание» плавно проявляет holzBar Shelf; элементы строки меню меняются мгновенно. При включённом параметре «Уменьшение движения» анимации нет."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mjuk skjuter in och ut menyradsobjekt och skjuter ut holzBar Shelf under menyraden. Toning tonar in holzBar Shelf; menyradsobjekt ändras på en gång. Med Minska rörelse på animeras ingenting."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Akıcı, menü çubuğu öğelerini içeri ve dışarı kaydırır ve holzBar Shelf’i menü çubuğunun altından kaydırır. Soldurma holzBar Shelf’i soldurarak getirir; menü çubuğu öğeleri bir anda değişir. Hareketi Azalt açıkken hiçbir şey canlandırılmaz."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«Плавно» плавно засуває й висуває елементи смуги меню, а holzBar Shelf висуває з-під смуги меню. «Згасання» плавно проявляє holzBar Shelf; елементи смуги меню змінюються миттєво. Коли ввімкнено «Зменшення руху», анімації немає."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“平滑”会让菜单栏项目滑入滑出，并让 holzBar Shelf 从菜单栏下方滑出。“淡入淡出”会让 holzBar Shelf 渐显；菜单栏项目则立即变化。开启“减弱动态效果”时，不会有任何动画。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「平滑」會讓選單列的項目滑入滑出，並讓 holzBar Shelf 從選單列下方滑出。「淡出」會讓 holzBar Shelf 淡入；選單列的項目會立即改變。開啟「減少動態效果」時不會有任何動畫。"
           }
         }
       }
@@ -131947,6 +129823,3338 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "搜尋設定"
+          }
+        }
+      }
+    },
+    "After a fixed time" : {
+      "comment" : "Showing & Hiding pane, GeneralSettings.swift:395",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po pevně stanoveném čase"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach fester Zeit"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tras un tiempo fijo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Après un délai fixe"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rögzített idő után"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setelah waktu tetap"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dopo un tempo fisso"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一定時間後"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정해진 시간 후"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na een vaste tijd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po ustalonym czasie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Após um tempo fixo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suenter in temp fix"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Через заданное время"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Efter en fast tid"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sabit bir süre sonra"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Через заданий час"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "固定时间后"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "固定時間後"
+          }
+        }
+      }
+    },
+    "When the app changes" : {
+      "comment" : "Showing & Hiding pane, GeneralSettings.swift:396",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Při změně aplikace"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim Wechsel der App"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al cambiar de app"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Au changement d’app"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alkalmazásváltáskor"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saat app berganti"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al cambio dell’app"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリの切り替え時"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱이 바뀔 때"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bij wisselen van app"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przy zmianie aplikacji"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ao trocar de app"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cur che l'app semida"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При смене приложения"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "När appen byts"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulama değişince"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Під час зміни програми"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "切换 App 时"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "切換 App 時"
+          }
+        }
+      }
+    },
+    "Show hidden items" : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:11",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobrazení skrytých položek"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgeblendete Elemente anzeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar elementos ocultos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher les éléments masqués"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rejtett elemek megjelenítése"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tampilkan item tersembunyi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra elementi nascosti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示の項目を表示"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "숨겨진 항목 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verborgen onderdelen tonen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokazywanie ukrytych elementów"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exibir itens ocultos"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar elements zuppads"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показ скрытых элементов"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visa dolda objekt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gizli öğeleri göster"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показ прихованих елементів"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示隐藏项目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示隱藏項目"
+          }
+        }
+      }
+    },
+    "Hide again" : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:12",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opětovné skrytí"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wieder ausblenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volver a ocultar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer à nouveau"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Újrarejtés"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sembunyikan kembali"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi di nuovo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再び非表示"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 숨기기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weer verbergen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponowne ukrywanie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar novamente"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuppentar puspè"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторное скрытие"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dölj igen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yeniden gizle"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторне приховування"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新隐藏"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再次隱藏"
+          }
+        }
+      }
+    },
+    "Zen mode and lock" : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:14",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Režim Zen a zámek"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen-Modus und Sperre"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modo Zen y bloqueo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mode Zen et verrouillage"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen mód és zár"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mode Zen dan kunci"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modalità Zen e blocco"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen モードとロック"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "젠 모드 및 잠금"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zenmodus en vergrendeling"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tryb Zen i blokada"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modo Zen e bloqueio"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modus Zen e bloccaziun"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Режим «Дзен» и блокировка"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen-läge och lås"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen modu ve kilit"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Режим «Дзен» і блокування"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "禅模式与锁定"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen 模式與鎖定"
+          }
+        }
+      }
+    },
+    "Hover delay" : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:57",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prodleva při najetí"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verzögerung beim Überfahren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retraso al pasar el puntero"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Délai au survol"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rámutatási késleltetés"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jeda saat kursor diarahkan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritardo al passaggio"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホバーの遅延"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마우스 오버 지연"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertraging bij aanwijzen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opóźnienie po najechaniu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atraso ao passar o ponteiro"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retard cun il cursur"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задержка при наведении"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fördröjning vid hovring"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Üzerine gelme gecikmesi"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Затримка під час наведення"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "悬停延迟"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "滑鼠移入延遲"
+          }
+        }
+      }
+    },
+    "How long holzBar waits before hovering shows the hidden items, from 0 to 1 second." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:58",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak dlouho holzBar čeká, než najetí zobrazí skryté položky, od 0 do 1 sekundy."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie lange holzBar wartet, bevor das Überfahren die ausgeblendeten Elemente zeigt, von 0 bis 1 Sekunde."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuánto espera holzBar antes de que pasar el puntero muestre los elementos ocultos, de 0 a 1 segundo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durée d’attente de holzBar avant que le survol affiche les éléments masqués, de 0 à 1 seconde."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mennyit vár a holzBar, mielőtt a rámutatás megjeleníti a rejtett elemeket, 0 és 1 másodperc között."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Berapa lama holzBar menunggu sebelum mengarahkan kursor menampilkan item tersembunyi, dari 0 hingga 1 detik."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto attende holzBar prima che il passaggio del puntatore mostri gli elementi nascosti, da 0 a 1 secondo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホバーで非表示の項目を表示するまで holzBar が待つ時間です。0 〜 1 秒で設定できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마우스를 올렸을 때 숨겨진 항목을 표시하기까지 holzBar가 기다리는 시간입니다. 0초에서 1초까지입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoe lang holzBar wacht voordat aanwijzen de verborgen onderdelen toont, van 0 tot 1 seconde."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak długo holzBar czeka, zanim najechanie pokaże ukryte elementy, od 0 do 1 sekundy."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto tempo o holzBar espera antes de o ponteiro mostrar os itens ocultos, de 0 a 1 segundo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quant ditg che holzBar spetga, avant che il cursur mussa ils elements zuppads, da 0 fin 1 secunda."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сколько holzBar ждёт, прежде чем при наведении показать скрытые элементы: от 0 до 1 секунды."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur länge holzBar väntar innan hovring visar de dolda objekten, från 0 till 1 sekund."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar'ın, üzerine gelindiğinde gizli öğeleri göstermeden önce ne kadar bekleyeceği, 0 ile 1 saniye arasında."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скільки holzBar чекає, перш ніж під час наведення показати приховані елементи: від 0 до 1 секунди."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "悬停后 holzBar 等待多久才显示隐藏项目，范围为 0 到 1 秒。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "滑鼠移入後 holzBar 等待多久才顯示隱藏項目，範圍為 0 到 1 秒。"
+          }
+        }
+      }
+    },
+    "When to hide again" : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:88",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kdy znovu skrýt"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wann wieder ausblenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuándo volver a ocultar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quand masquer à nouveau"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikor rejtse újra"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapan disembunyikan kembali"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando nascondere di nuovo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再び非表示にするタイミング"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 숨길 시점"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer weer verbergen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kiedy ukrywać ponownie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando ocultar novamente"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cura zuppentar puspè"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Когда снова скрывать"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "När ska de döljas igen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ne zaman yeniden gizlensin"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли знову приховувати"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "何时重新隐藏"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "何時再次隱藏"
+          }
+        }
+      }
+    },
+    "Smart hides items again when you click outside the menu bar, After a fixed time waits for the time you set, and When the app changes hides them when another app comes to the front." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:89",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chytrý skryje položky, když kliknete mimo řádek nabídek, Po pevně stanoveném čase počká nastavenou dobu a Při změně aplikace je skryje, když se do popředí dostane jiná aplikace."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intelligent blendet Elemente wieder aus, wenn du außerhalb der Menüleiste klickst, Nach fester Zeit wartet die eingestellte Zeit, und Beim Wechsel der App blendet sie aus, wenn eine andere App in den Vordergrund kommt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inteligente vuelve a ocultar los elementos al hacer clic fuera de la barra de menús, Tras un tiempo fijo espera el tiempo que definas y Al cambiar de app los oculta cuando otra app pasa al primer plano."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intelligent masque à nouveau les éléments quand vous cliquez hors de la barre des menus, Après un délai fixe attend la durée choisie, et Au changement d’app les masque quand une autre app passe au premier plan."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az Okos újra elrejti az elemeket, ha a menüsoron kívülre kattintasz, a Rögzített idő után megvárja a beállított időt, az Alkalmazásváltáskor pedig akkor rejti el őket, ha másik alkalmazás kerül előtérbe."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerdas menyembunyikan item lagi saat Anda mengeklik di luar bar menu, Setelah waktu tetap menunggu sesuai waktu yang diatur, dan Saat app berganti menyembunyikannya saat app lain tampil di depan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intelligente nasconde di nuovo gli elementi quando fai clic fuori dalla barra dei menu, Dopo un tempo fisso attende il tempo impostato e Al cambio dell’app li nasconde quando un’altra app passa in primo piano."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「スマート」はメニューバーの外をクリックすると再び非表示にし、「一定時間後」は設定した時間だけ待ち、「アプリの切り替え時」は別のアプリが最前面に来たときに非表示にします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'스마트'는 메뉴 막대 밖을 클릭하면 다시 숨기고, '정해진 시간 후'는 설정한 시간 동안 기다리며, '앱이 바뀔 때'는 다른 앱이 맨 앞으로 오면 숨깁니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slim verbergt onderdelen weer wanneer je buiten de menubalk klikt, Na een vaste tijd wacht de ingestelde tijd af, en Bij wisselen van app verbergt ze wanneer een andere app op de voorgrond komt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inteligentny ukrywa elementy ponownie po kliknięciu poza paskiem menu, Po ustalonym czasie czeka ustawiony czas, a Przy zmianie aplikacji ukrywa je, gdy na wierzch wychodzi inna aplikacja."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inteligente oculta os itens novamente ao clicar fora da barra de menus, Após um tempo fixo espera o tempo definido e Ao trocar de app os oculta quando outro app vai para a frente."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intelligent zuppenta puspè ils elements cur che ti cliccas ordaifer la trav da menu, Suenter in temp fix spetga il temp fixà, e Cur che l'app semida als zuppenta cura che in'autra app vegn davant."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Умный» снова скрывает элементы при щелчке вне строки меню, «Через заданное время» ждёт установленное время, а «При смене приложения» скрывает их, когда на передний план выходит другое приложение."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smart döljer objekten igen när du klickar utanför menyraden, Efter en fast tid väntar den tid du ställer in, och När appen byts döljer dem när en annan app kommer i förgrunden."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Akıllı, menü çubuğunun dışına tıkladığınızda öğeleri yeniden gizler; Sabit bir süre sonra ayarladığınız süreyi bekler; Uygulama değişince ise başka bir uygulama öne geldiğinde gizler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Розумний» знову приховує елементи, коли ви клацаєте поза смугою меню, «Через заданий час» чекає встановлений час, а «Під час зміни програми» приховує їх, коли на передній план виходить інша програма."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“智能”在你点按菜单栏之外时重新隐藏项目，“固定时间后”等待你设定的时间，“切换 App 时”则在另一个 App 切到前台时隐藏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「智慧」會在你點按選單列之外時再次隱藏項目，「固定時間後」會等待你設定的時間，「切換 App 時」則在另一個 App 移到前景時隱藏。"
+          }
+        }
+      }
+    },
+    "Time until hiding" : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:96",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doba do skrytí"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeit bis zum Ausblenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiempo hasta ocultar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Délai avant masquage"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elrejtésig hátralévő idő"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waktu hingga disembunyikan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo prima di nascondere"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示までの時間"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "숨기기까지의 시간"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tijd tot verbergen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas do ukrycia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo até ocultar"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temp fin al zuppentar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время до скрытия"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tid till döljning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gizlenmeye kalan süre"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Час до приховування"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隐藏前的时间"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隱藏前的時間"
+          }
+        }
+      }
+    },
+    "How long hidden items stay shown after the pointer leaves the menu bar, from 1 to 30 seconds." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:97",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak dlouho zůstanou skryté položky zobrazené poté, co ukazatel opustí řádek nabídek, od 1 do 30 sekund."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie lange ausgeblendete Elemente sichtbar bleiben, nachdem der Zeiger die Menüleiste verlassen hat, von 1 bis 30 Sekunden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuánto tiempo siguen visibles los elementos ocultos después de que el puntero salga de la barra de menús, de 1 a 30 segundos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durée pendant laquelle les éléments masqués restent affichés après que le pointeur a quitté la barre des menus, de 1 à 30 secondes."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mennyi ideig maradnak látszva a rejtett elemek, miután a mutató elhagyta a menüsort, 1 és 30 másodperc között."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Berapa lama item tersembunyi tetap tampil setelah kursor meninggalkan bar menu, dari 1 hingga 30 detik."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per quanto tempo gli elementi nascosti restano visibili dopo che il puntatore ha lasciato la barra dei menu, da 1 a 30 secondi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ポインタがメニューバーから出た後、非表示の項目を表示し続ける時間です。1 〜 30 秒で設定できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "포인터가 메뉴 막대를 벗어난 뒤 숨겨진 항목이 표시된 채로 유지되는 시간입니다. 1초에서 30초까지입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoe lang verborgen onderdelen zichtbaar blijven nadat de aanwijzer de menubalk heeft verlaten, van 1 tot 30 seconden."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak długo ukryte elementy pozostają widoczne po opuszczeniu paska menu przez wskaźnik, od 1 do 30 sekund."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por quanto tempo os itens ocultos continuam visíveis depois que o ponteiro sai da barra de menus, de 1 a 30 segundos."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quant ditg ch'ils elements zuppads restan visibels, suenter che il cursur ha bandunà la trav da menu, da 1 fin 30 secundas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Как долго скрытые элементы остаются на виду после того, как указатель покинул строку меню: от 1 до 30 секунд."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur länge dolda objekt förblir synliga efter att pekaren lämnat menyraden, från 1 till 30 sekunder."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İşaretçi menü çubuğundan ayrıldıktan sonra gizli öğelerin ne kadar görünür kalacağı, 1 ile 30 saniye arasında."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Як довго приховані елементи лишаються на видноті після того, як вказівник покинув смугу меню: від 1 до 30 секунд."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指针离开菜单栏后，隐藏项目继续显示多久，范围为 1 到 30 秒。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指標離開選單列後，隱藏項目繼續顯示多久，範圍為 1 到 30 秒。"
+          }
+        }
+      }
+    },
+    "Counted from when the item's menu closes; 0 hides it at once. The hotkey that shows hidden items for a moment and items shown by a rule use the same time." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:105",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Počítá se od zavření nabídky položky; 0 ji skryje okamžitě. Stejnou dobu používají klávesová zkratka, která skryté položky na chvíli zobrazí, a položky zobrazené pravidlem."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerechnet ab dem Schließen des Menüs des Elements; 0 blendet es sofort aus. Dieselbe Zeit gilt für das Tastenkürzel, das ausgeblendete Elemente kurz zeigt, und für Elemente, die eine Regel anzeigt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se cuenta desde que se cierra el menú del elemento; 0 lo oculta al instante. El mismo tiempo se aplica al atajo que muestra los elementos ocultos un momento y a los elementos que muestra una regla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compté à partir de la fermeture du menu de l’élément ; 0 le masque aussitôt. Le même délai s’applique au raccourci qui affiche brièvement les éléments masqués et aux éléments affichés par une règle."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az elem menüjének bezárásától számítva; 0 azonnal elrejti. Ugyanez az idő vonatkozik a rejtett elemeket egy pillanatra megjelenítő gyorsbillentyűre és a szabály által megjelenített elemekre."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dihitung sejak menu item ditutup; 0 menyembunyikannya seketika. Waktu yang sama berlaku untuk pintasan yang menampilkan item tersembunyi sejenak dan item yang ditampilkan oleh aturan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conteggiato dalla chiusura del menu dell’elemento; 0 lo nasconde subito. Lo stesso tempo vale per la scorciatoia che mostra per un momento gli elementi nascosti e per gli elementi mostrati da una regola."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目のメニューが閉じた時点から数えます。0 にするとすぐに非表示になります。非表示の項目を一時的に表示するショートカットや、ルールで表示された項目にも同じ時間が使われます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목의 메뉴가 닫힌 시점부터 계산합니다. 0이면 즉시 숨깁니다. 숨겨진 항목을 잠시 표시하는 단축키와 규칙으로 표시된 항목에도 같은 시간이 쓰입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geteld vanaf het sluiten van het menu van het onderdeel; 0 verbergt het meteen. Dezelfde tijd geldt voor de sneltoets die verborgen onderdelen even toont en voor onderdelen die door een regel worden getoond."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liczone od zamknięcia menu elementu; 0 ukrywa go od razu. Ten sam czas dotyczy skrótu, który na chwilę pokazuje ukryte elementy, oraz elementów pokazanych przez regułę."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contado a partir do fechamento do menu do item; 0 o oculta na hora. O mesmo tempo vale para o atalho que mostra os itens ocultos por um momento e para itens exibidos por uma regra."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quintà dapi che il menu da l'element vegn serrà; 0 al zuppenta sanewa. Il medem temp vala per la scursanida che mussa per in mument ils elements zuppads e per ils elements mussads d'ina regla."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отсчёт идёт с момента закрытия меню элемента; 0 скрывает его сразу. То же время действует для сочетания клавиш, которое ненадолго показывает скрытые элементы, и для элементов, показанных правилом."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Räknas från att objektets meny stängs; 0 döljer det direkt. Samma tid gäller kortkommandot som visar dolda objekt en stund och objekt som visas av en regel."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öğenin menüsü kapandığı andan itibaren sayılır; 0 öğeyi hemen gizler. Aynı süre, gizli öğeleri bir an gösteren kısayol ve bir kuralın gösterdiği öğeler için de geçerlidir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відлік іде від закриття меню елемента; 0 приховує його одразу. Той самий час діє для комбінації клавіш, що ненадовго показує приховані елементи, і для елементів, показаних правилом."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从该项目的菜单关闭时开始计时；0 表示立即隐藏。短暂显示隐藏项目的快捷键以及由规则显示的项目也使用同样的时间。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "從該項目的選單關閉時開始計時；0 表示立即隱藏。短暫顯示隱藏項目的快速鍵以及由規則顯示的項目也使用相同的時間。"
+          }
+        }
+      }
+    },
+    "Hidden items per display" : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:112",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skryté položky podle displeje"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgeblendete Elemente pro Bildschirm"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementos ocultos por pantalla"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Éléments masqués par écran"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rejtett elemek kijelzőnként"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item tersembunyi per layar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementi nascosti per schermo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ディスプレイごとの非表示項目"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "디스플레이별 숨겨진 항목"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verborgen onderdelen per beeldscherm"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukryte elementy na wyświetlacz"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Itens ocultos por monitor"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elements zuppads per monitur"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрытые элементы по дисплеям"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dolda objekt per skärm"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran başına gizli öğeler"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приховані елементи за дисплеями"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "各显示器的隐藏项目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "各顯示器的隱藏項目"
+          }
+        }
+      }
+    },
+    "Always show everything keeps every section shown on that display. Collapse keeps hidden items hidden there; only the holzBar icon and the hotkeys show them. Neither applies with the holzBar Shelf." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:113",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vždy zobrazovat vše ponechá na tom displeji všechny sekce zobrazené. Sbalit tam nechá skryté položky skryté; zobrazí je jen ikona holzBar a klávesové zkratky. Nic z toho neplatí s holzBar Shelf."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Immer alles anzeigen lässt auf diesem Bildschirm jeden Bereich sichtbar. Einklappen lässt ausgeblendete Elemente dort ausgeblendet; nur das holzBar-Symbol und die Tastenkürzel zeigen sie. Beides gilt nicht mit dem holzBar Shelf."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar siempre todo mantiene cada sección visible en esa pantalla. Plegar mantiene allí ocultos los elementos ocultos; solo el icono de holzBar y los atajos los muestran. Ninguna de las dos opciones se aplica con el holzBar Shelf."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toujours tout afficher garde chaque section affichée sur cet écran. Replier y garde les éléments masqués ; seuls l’icône holzBar et les raccourcis les affichent. Aucun des deux ne s’applique avec le holzBar Shelf."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Mindig minden látszik minden szakaszt megjelenítve tart azon a kijelzőn. Az Összecsukás ott rejtve tartja a rejtett elemeket; csak a holzBar ikon és a gyorsbillentyűk jelenítik meg őket. Egyik sem érvényes a holzBar Shelf mellett."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selalu tampilkan semuanya menjaga setiap bagian tetap tampil di layar itu. Ciutkan menjaga item tersembunyi tetap tersembunyi di sana; hanya ikon holzBar dan pintasan yang menampilkannya. Keduanya tidak berlaku dengan holzBar Shelf."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra sempre tutto mantiene visibile ogni sezione su quello schermo. Comprimi mantiene nascosti gli elementi nascosti; solo l’icona di holzBar e le scorciatoie li mostrano. Nessuna delle due vale con holzBar Shelf."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「常にすべて表示」はそのディスプレイですべてのセクションを表示したままにします。「折りたたむ」は非表示の項目を隠したままにし、holzBar のアイコンとショートカットだけが表示できます。どちらも holzBar Shelf では適用されません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'항상 모두 표시'는 해당 디스플레이에서 모든 섹션을 계속 표시합니다. '접기'는 숨겨진 항목을 숨긴 채로 두며, holzBar 아이콘과 단축키로만 표시할 수 있습니다. 둘 다 holzBar Shelf에는 적용되지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon altijd alles houdt elke sectie op dat beeldscherm zichtbaar. Vouw samen houdt verborgen onderdelen daar verborgen; alleen het holzBar-symbool en de sneltoetsen tonen ze. Beide gelden niet met de holzBar Shelf."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zawsze pokazuj wszystko zostawia na tym wyświetlaczu każdą sekcję widoczną. Zwiń zostawia tam ukryte elementy ukryte; pokazują je tylko ikona holzBar i skróty. Żadne z nich nie dotyczy holzBar Shelf."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sempre mostrar tudo mantém todas as seções visíveis nesse monitor. Recolher mantém lá os itens ocultos; só o ícone do holzBar e os atalhos os mostram. Nenhum dos dois vale com o holzBar Shelf."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adina mussar tut tegna mussada mintga secziun sin quel monitur. Plajar tegna là ils elements zuppads zuppads; be l'icona holzBar e las scursanidas als mussan. Nagin dals dus na vala cun il holzBar Shelf."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Всегда показывать всё» оставляет все разделы видимыми на этом дисплее. «Свернуть» оставляет скрытые элементы скрытыми; их показывают только значок holzBar и сочетания клавиш. Ни то, ни другое не действует с holzBar Shelf."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alltid allt synligt håller varje sektion synlig på den skärmen. Fäll ihop håller dolda objekt dolda där; bara holzBar-symbolen och kortkommandona visar dem. Ingetdera gäller med holzBar Shelf."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her zaman her şey görünür, o ekranda her bölümü görünür tutar. Daralt, gizli öğeleri orada gizli tutar; onları yalnızca holzBar simgesi ve kısayollar gösterir. İkisi de holzBar Shelf ile geçerli değildir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Завжди показувати все» залишає всі розділи видимими на цьому дисплеї. «Згорнути» залишає приховані елементи прихованими; їх показують лише значок holzBar і комбінації клавіш. Жодне з двох не діє з holzBar Shelf."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“始终显示全部”会让该显示器上的每个分区保持显示。“折叠”会让隐藏项目在该显示器上保持隐藏，只有 holzBar 图标和快捷键能显示它们。两者都不适用于 holzBar Shelf。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「一律顯示全部」會讓該顯示器上的每個區段保持顯示。「收合」會讓隱藏項目在該顯示器上保持隱藏，只有 holzBar 圖示和快速鍵能顯示它們。兩者都不適用於 holzBar Shelf。"
+          }
+        }
+      }
+    },
+    "Keeps hidden items hidden: hover, clicks, scrolling and rules don't show them until you turn it off." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:121",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Udrží skryté položky skryté: najetí, kliknutí, posouvání ani pravidla je nezobrazí, dokud to nevypnete."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hält ausgeblendete Elemente ausgeblendet: Überfahren, Klicks, Scrollen und Regeln zeigen sie nicht, bis du es ausschaltest."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantiene ocultos los elementos ocultos: pasar el puntero, hacer clic, desplazarse y las reglas no los muestran hasta que lo desactives."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garde les éléments masqués : le survol, les clics, le défilement et les règles ne les affichent pas tant que vous ne le désactivez pas."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rejtve tartja a rejtett elemeket: a rámutatás, a kattintás, a görgetés és a szabályok sem jelenítik meg őket, amíg ki nem kapcsolod."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menjaga item tersembunyi tetap tersembunyi: arahan kursor, klik, pengguliran, dan aturan tidak menampilkannya sampai Anda mematikannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantiene nascosti gli elementi nascosti: passaggio del puntatore, clic, scorrimento e regole non li mostrano finché non lo disattivi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示の項目を隠したままにします。オフにするまで、ホバー、クリック、スクロール、ルールでは表示されません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "숨겨진 항목을 계속 숨깁니다. 끄기 전까지는 마우스 오버, 클릭, 스크롤, 규칙으로도 표시되지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houdt verborgen onderdelen verborgen: aanwijzen, klikken, scrollen en regels tonen ze niet totdat je het uitzet."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utrzymuje ukryte elementy ukryte: najechanie, kliknięcia, przewijanie i reguły nie pokażą ich, dopóki tego nie wyłączysz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantém os itens ocultos ocultos: passar o ponteiro, cliques, rolagem e regras não os mostram até você desativar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tegna ils elements zuppads zuppads: il cursur, clicks, scrollar e reglas als mussan buc, fin che ti la deactiveschas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оставляет скрытые элементы скрытыми: наведение, щелчки, прокрутка и правила не покажут их, пока вы это не отключите."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Håller dolda objekt dolda: hovring, klick, rullning och regler visar dem inte förrän du stänger av det."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gizli öğeleri gizli tutar: siz kapatana kadar üzerine gelme, tıklama, kaydırma ve kurallar onları göstermez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тримає приховані елементи прихованими: наведення, клацання, прокручування й правила не покажуть їх, доки ви це не вимкнете."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "让隐藏项目保持隐藏：在你关闭之前，悬停、点按、滚动和规则都不会显示它们。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讓隱藏項目保持隱藏：在你關閉之前，滑鼠移入、點按、捲動和規則都不會顯示它們。"
+          }
+        }
+      }
+    },
+    "Zen mode while sharing the screen" : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:128",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Režim Zen při sdílení obrazovky"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen-Modus beim Teilen des Bildschirms"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modo Zen al compartir la pantalla"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mode Zen pendant le partage d’écran"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen mód képernyőmegosztás közben"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mode Zen saat berbagi layar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modalità Zen durante la condivisione dello schermo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画面共有中の Zen モード"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "화면 공유 중 젠 모드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zenmodus tijdens het delen van het scherm"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tryb Zen podczas udostępniania ekranu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modo Zen ao compartilhar a tela"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modus Zen durant il partir il monitur"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Режим «Дзен» при демонстрации экрана"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen-läge vid skärmdelning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran paylaşırken Zen modu"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Режим «Дзен» під час демонстрації екрана"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共享屏幕时启用禅模式"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分享螢幕時啟用 Zen 模式"
+          }
+        }
+      }
+    },
+    "Turns Zen mode on while the screen is mirrored or shared. Uses no permission: holzBar notices a mirrored display and macOS's screen sharing agent." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:129",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapne režim Zen, když je obrazovka zrcadlena nebo sdílena. Nepotřebuje žádné oprávnění: holzBar rozpozná zrcadlený displej a agenta pro sdílení obrazovky v macOS."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schaltet den Zen-Modus ein, solange der Bildschirm gespiegelt oder geteilt wird. Braucht keine Berechtigung: holzBar erkennt einen gespiegelten Bildschirm und den Bildschirmfreigabe-Agenten von macOS."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activa el modo Zen mientras la pantalla se duplica o se comparte. No usa ningún permiso: holzBar detecta una pantalla duplicada y el agente de compartir pantalla de macOS."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active le mode Zen pendant la recopie ou le partage de l’écran. N’utilise aucune autorisation : holzBar repère un écran recopié et l’agent de partage d’écran de macOS."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bekapcsolja a Zen módot, amíg a képernyő tükrözve vagy megosztva van. Nem kér engedélyt: a holzBar észleli a tükrözött kijelzőt és a macOS képernyőmegosztó ügynökét."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menghidupkan mode Zen saat layar dicerminkan atau dibagikan. Tidak memerlukan izin: holzBar mendeteksi layar yang dicerminkan dan agen berbagi layar macOS."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attiva la modalità Zen mentre lo schermo è duplicato o condiviso. Non usa alcun permesso: holzBar rileva uno schermo duplicato e l’agente di condivisione dello schermo di macOS."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画面のミラーリング中または共有中に Zen モードをオンにします。権限は不要です。holzBar はミラーリングされたディスプレイと macOS の画面共有エージェントを検出します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "화면을 미러링하거나 공유하는 동안 젠 모드를 켭니다. 권한이 필요 없습니다. holzBar가 미러링된 디스플레이와 macOS의 화면 공유 에이전트를 감지합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zet de zenmodus aan terwijl het scherm wordt gespiegeld of gedeeld. Gebruikt geen toestemming: holzBar merkt een gespiegeld beeldscherm en de schermdelingsagent van macOS op."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Włącza tryb Zen, gdy ekran jest powielany lub udostępniany. Nie wymaga uprawnień: holzBar wykrywa powielany wyświetlacz i agenta udostępniania ekranu w macOS."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ativa o modo Zen enquanto a tela está espelhada ou compartilhada. Não usa nenhuma permissão: o holzBar percebe um monitor espelhado e o agente de compartilhamento de tela do macOS."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activescha il modus Zen, durant ch'il monitur vegn spievlà u partì. Dovra nagina permissiun: holzBar remartga in monitur spievlà e l'agent da macOS per partir il monitur."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Включает режим «Дзен», пока экран дублируется или демонстрируется. Разрешения не требуются: holzBar замечает дублируемый дисплей и агент демонстрации экрана macOS."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slår på Zen-läge medan skärmen speglas eller delas. Kräver ingen behörighet: holzBar märker en speglad skärm och macOS skärmdelningsagent."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran yansıtılırken veya paylaşılırken Zen modunu açar. İzin gerektirmez: holzBar yansıtılan bir ekranı ve macOS'in ekran paylaşım aracısını fark eder."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вмикає режим «Дзен», поки екран дзеркалюється або демонструється. Дозволів не потрібно: holzBar помічає дзеркальний дисплей і агент демонстрації екрана macOS."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "屏幕镜像或共享期间开启禅模式。无需任何权限：holzBar 会检测镜像的显示器和 macOS 的屏幕共享代理。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在螢幕鏡像或分享期間開啟 Zen 模式。不需要任何權限：holzBar 會偵測鏡像的顯示器和 macOS 的螢幕分享代理程式。"
+          }
+        }
+      }
+    },
+    "Require Touch ID before showing" : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:136",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Před zobrazením vyžadovat Touch ID"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor dem Anzeigen Touch ID verlangen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pedir Touch ID antes de mostrar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exiger Touch ID avant l’affichage"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch ID megkövetelése megjelenítés előtt"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wajibkan Touch ID sebelum menampilkan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richiedi Touch ID prima di mostrare"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "表示する前に Touch ID を要求"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "표시하기 전에 Touch ID 요구"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch ID vereisen voor het tonen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wymagaj Touch ID przed pokazaniem"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exigir Touch ID antes de exibir"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pretender Touch ID avant il mussar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требовать Touch ID перед показом"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kräv Touch ID innan visning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Göstermeden önce Touch ID iste"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вимагати Touch ID перед показом"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示前需要 Touch ID"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示前需要 Touch ID"
+          }
+        }
+      }
+    },
+    "Instant, Smooth or Fade: how hidden items and the holzBar Shelf appear. What moves depends on the macOS version; nothing moves while Reduce Motion is on." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:145",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Okamžitě, Plynulý nebo Prolnutí: jak se skryté položky a holzBar Shelf objevují. Co se pohybuje, závisí na verzi macOS; při zapnutém Omezit pohyb se nic nehýbe."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sofort, Fließend oder Überblenden: wie ausgeblendete Elemente und das holzBar Shelf erscheinen. Was sich bewegt, hängt von der macOS-Version ab; bei eingeschaltetem „Bewegung reduzieren“ bewegt sich nichts."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instantáneo, Suave o Fundido: cómo aparecen los elementos ocultos y el holzBar Shelf. Qué se mueve depende de la versión de macOS; con Reducir movimiento activado nada se mueve."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instantané, Fluide ou Fondu : comment les éléments masqués et le holzBar Shelf apparaissent. Ce qui bouge dépend de la version de macOS ; rien ne bouge quand Réduire les animations est activé."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Azonnali, Sima vagy Áttűnés: hogyan jelennek meg a rejtett elemek és a holzBar Shelf. Hogy mi mozog, a macOS verziójától függ; a Mozgás csökkentése bekapcsolt állapotában semmi sem mozog."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seketika, Halus, atau Pudar: cara item tersembunyi dan holzBar Shelf muncul. Apa yang bergerak bergantung pada versi macOS; tidak ada yang bergerak saat Kurangi Gerakan aktif."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Immediata, Fluida o Dissolvenza: come compaiono gli elementi nascosti e holzBar Shelf. Cosa si muove dipende dalla versione di macOS; con Riduci movimento attivo non si muove nulla."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「即時」「スムーズ」「フェード」で、非表示の項目と holzBar Shelf の現れ方を選びます。動くものは macOS のバージョンによって異なります。「視差効果を減らす」がオンの間は何も動きません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'즉시', '부드럽게', '페이드': 숨겨진 항목과 holzBar Shelf가 나타나는 방식입니다. 움직이는 대상은 macOS 버전에 따라 다르며, '동작 줄이기'가 켜져 있으면 아무것도 움직이지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direct, Soepel of Vervagen: hoe verborgen onderdelen en de holzBar Shelf verschijnen. Wat beweegt, hangt af van de macOS-versie; er beweegt niets terwijl Verminder beweging aan staat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Natychmiast, Płynny lub Zanikanie: jak pojawiają się ukryte elementy i holzBar Shelf. To, co się porusza, zależy od wersji macOS; przy włączonej opcji Ogranicz ruch nic się nie porusza."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instantâneo, Suave ou Esmaecer: como os itens ocultos e o holzBar Shelf aparecem. O que se move depende da versão do macOS; nada se move com Reduzir movimento ativado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instantan, Fluid u Fade: sco ils elements zuppads e il holzBar Shelf cumparan. Tge che sa mova dependa da la versiun da macOS; nagut na sa mova cun Reducir moviment activà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Мгновенно», «Плавно» или «Затухание»: как появляются скрытые элементы и holzBar Shelf. Что движется, зависит от версии macOS; при включённой настройке «Уменьшение движения» ничего не движется."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direkt, Mjuk eller Toning: hur dolda objekt och holzBar Shelf visas. Vad som rör sig beror på macOS-versionen; inget rör sig när Minska rörelse är på."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anında, Akıcı veya Soldurma: gizli öğelerin ve holzBar Shelf'in nasıl göründüğü. Neyin hareket ettiği macOS sürümüne bağlıdır; Hareketi Azalt açıkken hiçbir şey hareket etmez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Миттєво», «Плавно» або «Згасання»: як з’являються приховані елементи та holzBar Shelf. Що рухається, залежить від версії macOS; коли ввімкнено «Зменшення руху», нічого не рухається."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即时、平滑或淡入淡出：隐藏项目和 holzBar Shelf 的出现方式。哪些内容会动取决于 macOS 版本；开启“减弱动态效果”时不会有任何动画。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立即、平滑或淡出：隱藏項目和 holzBar Shelf 的出現方式。哪些內容會動取決於 macOS 版本；開啟「減少動態效果」時不會有任何動畫。"
+          }
+        }
+      }
+    },
+    "fixed time only" : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingSettingsPane.swift:71",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "jen pevná doba"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nur feste Zeit"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "solo tiempo fijo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "délai fixe uniquement"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "csak rögzített idő"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hanya waktu tetap"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "solo tempo fisso"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一定時間のみ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정해진 시간만"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "alleen vaste tijd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tylko stały czas"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "somente tempo fixo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "be temp fix"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "только заданное время"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "endast fast tid"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "yalnızca sabit süre"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "лише заданий час"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅限固定时间"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "僅限固定時間"
+          }
+        }
+      }
+    },
+    "Hidden items hide again as soon as you click a window or the Dock, outside the menu bar." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingSettingsPane.swift:100",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skryté položky se znovu skryjí, jakmile kliknete na okno nebo Dock mimo řádek nabídek."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgeblendete Elemente werden wieder ausgeblendet, sobald du außerhalb der Menüleiste auf ein Fenster oder das Dock klickst."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los elementos ocultos se vuelven a ocultar en cuanto haces clic en una ventana o en el Dock, fuera de la barra de menús."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les éléments masqués se masquent à nouveau dès que vous cliquez sur une fenêtre ou sur le Dock, hors de la barre des menus."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A rejtett elemek újra elrejtőznek, amint egy ablakra vagy a Dockra kattintasz a menüsoron kívül."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item tersembunyi disembunyikan lagi segera setelah Anda mengeklik jendela atau Dock, di luar bar menu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli elementi nascosti si nascondono di nuovo non appena fai clic su una finestra o sul Dock, fuori dalla barra dei menu."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メニューバーの外でウインドウまたは Dock をクリックすると、非表示の項目はすぐに再び非表示になります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대 밖에서 윈도우나 Dock을 클릭하면 숨겨진 항목이 바로 다시 숨겨집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verborgen onderdelen worden weer verborgen zodra je buiten de menubalk op een venster of het Dock klikt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukryte elementy znów się ukrywają, gdy tylko klikniesz okno lub Dock poza paskiem menu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os itens ocultos são ocultados novamente assim que você clica em uma janela ou no Dock, fora da barra de menus."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils elements zuppads vegnan puspè zuppads, uschespert che ti cliccas sin ina fanestra u sin il Dock, ordaifer la trav da menu."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрытые элементы снова скрываются, как только вы щёлкаете окно или Dock вне строки меню."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dolda objekt döljs igen så fort du klickar på ett fönster eller Dock utanför menyraden."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menü çubuğunun dışında bir pencereye veya Dock'a tıkladığınız anda gizli öğeler yeniden gizlenir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приховані елементи знову ховаються, щойно ви клацаєте вікно або Dock поза смугою меню."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在菜单栏之外点按窗口或 Dock 时，隐藏项目会立即重新隐藏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在選單列之外點按視窗或 Dock 時，隱藏項目會立即再次隱藏。"
+          }
+        }
+      }
+    },
+    "Hidden items hide again once the pointer has been out of the menu bar for the time you set." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingSettingsPane.swift:102",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skryté položky se znovu skryjí, jakmile je ukazatel mimo řádek nabídek po nastavenou dobu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgeblendete Elemente werden wieder ausgeblendet, sobald der Zeiger die eingestellte Zeit außerhalb der Menüleiste war."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los elementos ocultos se vuelven a ocultar cuando el puntero lleva fuera de la barra de menús el tiempo que definas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les éléments masqués se masquent à nouveau quand le pointeur est resté hors de la barre des menus pendant la durée choisie."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A rejtett elemek újra elrejtőznek, ha a mutató a beállított ideig a menüsoron kívül volt."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item tersembunyi disembunyikan lagi setelah kursor berada di luar bar menu selama waktu yang Anda atur."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli elementi nascosti si nascondono di nuovo quando il puntatore resta fuori dalla barra dei menu per il tempo impostato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ポインタが設定した時間だけメニューバーの外にあると、非表示の項目は再び非表示になります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "포인터가 설정한 시간 동안 메뉴 막대 밖에 있으면 숨겨진 항목이 다시 숨겨집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verborgen onderdelen worden weer verborgen zodra de aanwijzer de ingestelde tijd buiten de menubalk is geweest."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukryte elementy znów się ukrywają, gdy wskaźnik pozostaje poza paskiem menu przez ustawiony czas."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os itens ocultos são ocultados novamente quando o ponteiro fica fora da barra de menus pelo tempo definido."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils elements zuppads vegnan puspè zuppads, cur che il cursur è stà ordaifer la trav da menu durant il temp fixà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрытые элементы снова скрываются, когда указатель находится вне строки меню в течение установленного времени."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dolda objekt döljs igen när pekaren varit utanför menyraden under den tid du ställt in."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İşaretçi, ayarladığınız süre boyunca menü çubuğunun dışında kaldığında gizli öğeler yeniden gizlenir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приховані елементи знову ховаються, коли вказівник перебуває поза смугою меню протягом встановленого часу."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指针在菜单栏之外停留你设定的时间后，隐藏项目会重新隐藏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指標在選單列之外停留你設定的時間後，隱藏項目會再次隱藏。"
+          }
+        }
+      }
+    },
+    "Hidden items hide again as soon as another app comes to the front." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingSettingsPane.swift:104",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skryté položky se znovu skryjí, jakmile se do popředí dostane jiná aplikace."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgeblendete Elemente werden wieder ausgeblendet, sobald eine andere App in den Vordergrund kommt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los elementos ocultos se vuelven a ocultar en cuanto otra app pasa al primer plano."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les éléments masqués se masquent à nouveau dès qu’une autre app passe au premier plan."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A rejtett elemek újra elrejtőznek, amint másik alkalmazás kerül előtérbe."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item tersembunyi disembunyikan lagi segera setelah app lain tampil di depan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli elementi nascosti si nascondono di nuovo non appena un’altra app passa in primo piano."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "別のアプリが最前面に来ると、非表示の項目はすぐに再び非表示になります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 앱이 맨 앞으로 오면 숨겨진 항목이 바로 다시 숨겨집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verborgen onderdelen worden weer verborgen zodra een andere app op de voorgrond komt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukryte elementy znów się ukrywają, gdy tylko inna aplikacja wyjdzie na wierzch."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os itens ocultos são ocultados novamente assim que outro app vai para a frente."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils elements zuppads vegnan puspè zuppads, uschespert che in'autra app vegn davant."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрытые элементы снова скрываются, как только на передний план выходит другое приложение."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dolda objekt döljs igen så fort en annan app kommer i förgrunden."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Başka bir uygulama öne geldiği anda gizli öğeler yeniden gizlenir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приховані елементи знову ховаються, щойно на передній план виходить інша програма."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "另一个 App 切到前台时，隐藏项目会立即重新隐藏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "另一個 App 移到前景時，隱藏項目會立即再次隱藏。"
+          }
+        }
+      }
+    },
+    "The display under the pointer decides." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingSettingsPane.swift:145",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozhoduje displej pod ukazatelem."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es entscheidet der Bildschirm unter dem Zeiger."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decide la pantalla que está bajo el puntero."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’écran sous le pointeur décide."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A mutató alatti kijelző dönt."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layar di bawah kursor yang menentukan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decide lo schermo sotto il puntatore."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ポインタのあるディスプレイが優先されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "포인터가 있는 디스플레이가 우선합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het beeldscherm onder de aanwijzer bepaalt het."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decyduje wyświetlacz pod wskaźnikiem."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O monitor sob o ponteiro decide."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il monitur sut il cursur decida."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Решает дисплей под указателем."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skärmen under pekaren avgör."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İşaretçinin altındaki ekran belirler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вирішує дисплей під вказівником."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "由指针所在的显示器决定。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "由指標所在的顯示器決定。"
+          }
+        }
+      }
+    },
+    "or password" : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingSettingsPane.swift:193",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nebo heslo"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "oder Passwort"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "o contraseña"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ou mot de passe"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vagy jelszó"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "atau kata sandi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "o password"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "またはパスワード"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "또는 암호"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "of wachtwoord"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "lub hasło"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ou senha"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "u pled-clav"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "или пароль"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "eller lösenord"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "veya parola"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "або пароль"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "或密码"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "或密碼"
+          }
+        }
+      }
+    },
+    "Smooth slides the menu bar's items and the holzBar Shelf in and out. Fade fades the holzBar Shelf in while the items change at once. Nothing moves while Reduce Motion is on." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingSettingsPane.swift:219",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plynulý posouvá položky řádku nabídek a holzBar Shelf dovnitř a ven. Prolnutí holzBar Shelf prolne, zatímco se položky změní najednou. Při zapnutém Omezit pohyb se nic nehýbe."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fließend schiebt die Elemente der Menüleiste und das holzBar Shelf ein und aus. Überblenden blendet das holzBar Shelf ein, während sich die Elemente sofort ändern. Bei eingeschaltetem „Bewegung reduzieren“ bewegt sich nichts."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suave desliza los elementos de la barra de menús y el holzBar Shelf hacia dentro y hacia fuera. Fundido funde el holzBar Shelf mientras los elementos cambian al instante. Con Reducir movimiento activado nada se mueve."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fluide fait glisser les éléments de la barre des menus et le holzBar Shelf vers l’intérieur et l’extérieur. Fondu fait apparaître le holzBar Shelf en fondu tandis que les éléments changent aussitôt. Rien ne bouge quand Réduire les animations est activé."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Sima ki- és becsúsztatja a menüsor elemeit és a holzBar Shelfet. Az Áttűnés áttűnéssel jeleníti meg a holzBar Shelfet, miközben az elemek azonnal változnak. A Mozgás csökkentése bekapcsolt állapotában semmi sem mozog."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Halus menggeser item bar menu dan holzBar Shelf masuk dan keluar. Pudar memudarkan holzBar Shelf sementara item berubah seketika. Tidak ada yang bergerak saat Kurangi Gerakan aktif."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fluida fa scorrere dentro e fuori gli elementi della barra dei menu e holzBar Shelf. Dissolvenza fa comparire holzBar Shelf in dissolvenza mentre gli elementi cambiano subito. Con Riduci movimento attivo non si muove nulla."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「スムーズ」はメニューバーの項目と holzBar Shelf をスライドして出し入れします。「フェード」は項目がすぐに切り替わる間に holzBar Shelf をフェードインさせます。「視差効果を減らす」がオンの間は何も動きません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'부드럽게'는 메뉴 막대 항목과 holzBar Shelf를 밀어서 넣고 뺍니다. '페이드'는 항목이 즉시 바뀌는 동안 holzBar Shelf를 서서히 나타냅니다. '동작 줄이기'가 켜져 있으면 아무것도 움직이지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soepel schuift de onderdelen van de menubalk en de holzBar Shelf in en uit. Vervagen laat de holzBar Shelf vervagend verschijnen terwijl de onderdelen meteen veranderen. Er beweegt niets terwijl Verminder beweging aan staat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Płynny wsuwa i wysuwa elementy paska menu oraz holzBar Shelf. Zanikanie płynnie wyświetla holzBar Shelf, podczas gdy elementy zmieniają się od razu. Przy włączonej opcji Ogranicz ruch nic się nie porusza."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suave desliza os itens da barra de menus e o holzBar Shelf para dentro e para fora. Esmaecer faz o holzBar Shelf aparecer em fade enquanto os itens mudam na hora. Nada se move com Reduzir movimento ativado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fluid fa glischar ils elements da la trav da menu e il holzBar Shelf ora e engiu. Fade fa cumparair il holzBar Shelf cun in fade, entant che ils elements midan sanewa. Nagut na sa mova cun Reducir moviment activà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Плавно» плавно выдвигает и задвигает элементы строки меню и holzBar Shelf. «Затухание» плавно проявляет holzBar Shelf, пока элементы меняются сразу. При включённой настройке «Уменьшение движения» ничего не движется."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mjuk glider in och ut menyradens objekt och holzBar Shelf. Toning tonar in holzBar Shelf medan objekten ändras direkt. Inget rör sig när Minska rörelse är på."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Akıcı, menü çubuğu öğelerini ve holzBar Shelf'i kaydırarak içeri ve dışarı alır. Soldurma, öğeler bir anda değişirken holzBar Shelf'i yavaşça görünür kılar. Hareketi Azalt açıkken hiçbir şey hareket etmez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Плавно» плавно висуває й засуває елементи смуги меню та holzBar Shelf. «Згасання» плавно проявляє holzBar Shelf, поки елементи змінюються одразу. Коли ввімкнено «Зменшення руху», нічого не рухається."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“平滑”会将菜单栏项目和 holzBar Shelf 滑入滑出。“淡入淡出”会让 holzBar Shelf 淡入，而项目立即变化。开启“减弱动态效果”时不会有任何动画。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「平滑」會將選單列項目和 holzBar Shelf 滑入滑出。「淡出」會讓 holzBar Shelf 淡入，而項目立即變化。開啟「減少動態效果」時不會有任何動畫。"
+          }
+        }
+      }
+    },
+    "On macOS 27, macOS animates the menu bar itself, so the style applies to the holzBar Shelf: Smooth slides it out, Fade fades it in. Nothing moves while Reduce Motion is on." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingSettingsPane.swift:221",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 animuje řádek nabídek samotný macOS, takže styl platí pro holzBar Shelf: Plynulý ho vysune, Prolnutí ho prolne. Při zapnutém Omezit pohyb se nic nehýbe."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 animiert macOS die Menüleiste selbst, daher gilt der Stil für das holzBar Shelf: Fließend schiebt es heraus, Überblenden blendet es ein. Bei eingeschaltetem „Bewegung reduzieren“ bewegt sich nichts."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27 es macOS quien anima la barra de menús, así que el estilo se aplica al holzBar Shelf: Suave lo desliza hacia fuera, Fundido lo funde. Con Reducir movimiento activado nada se mueve."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, macOS anime lui-même la barre des menus ; le style s’applique donc au holzBar Shelf : Fluide le fait glisser, Fondu le fait apparaître en fondu. Rien ne bouge quand Réduire les animations est activé."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27-en maga a macOS animálja a menüsort, ezért a stílus a holzBar Shelfre vonatkozik: a Sima kicsúsztatja, az Áttűnés áttűnéssel jeleníti meg. A Mozgás csökkentése bekapcsolt állapotában semmi sem mozog."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, macOS menganimasikan bar menu sendiri, jadi gaya ini berlaku untuk holzBar Shelf: Halus menggesernya keluar, Pudar memudarkannya masuk. Tidak ada yang bergerak saat Kurangi Gerakan aktif."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27 è macOS stesso ad animare la barra dei menu, quindi lo stile si applica a holzBar Shelf: Fluida lo fa scorrere fuori, Dissolvenza lo fa comparire in dissolvenza. Con Riduci movimento attivo non si muove nulla."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 ではメニューバー自体を macOS がアニメーションさせるため、スタイルは holzBar Shelf に適用されます。「スムーズ」はスライドして表示し、「フェード」はフェードインします。「視差効果を減らす」がオンの間は何も動きません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서는 macOS가 메뉴 막대를 직접 애니메이션하므로 이 스타일은 holzBar Shelf에 적용됩니다. '부드럽게'는 밀어서 내보내고 '페이드'는 서서히 나타냅니다. '동작 줄이기'가 켜져 있으면 아무것도 움직이지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 animeert macOS de menubalk zelf, dus de stijl geldt voor de holzBar Shelf: Soepel schuift hem uit, Vervagen laat hem vervagend verschijnen. Er beweegt niets terwijl Verminder beweging aan staat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 sam macOS animuje pasek menu, więc styl dotyczy holzBar Shelf: Płynny wysuwa go, Zanikanie płynnie go wyświetla. Przy włączonej opcji Ogranicz ruch nic się nie porusza."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, o próprio macOS anima a barra de menus, então o estilo vale para o holzBar Shelf: Suave o desliza para fora, Esmaecer o faz aparecer em fade. Nada se move com Reduzir movimento ativado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 animescha macOS sez la trav da menu, perquai vala la stil per il holzBar Shelf: Fluid al fa glischar ora, Fade al fa cumparair cun in fade. Nagut na sa mova cun Reducir moviment activà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 строку меню анимирует сама macOS, поэтому стиль относится к holzBar Shelf: «Плавно» выдвигает его, «Затухание» плавно проявляет. При включённой настройке «Уменьшение движения» ничего не движется."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I macOS 27 animerar macOS själv menyraden, så stilen gäller holzBar Shelf: Mjuk glider ut det, Toning tonar in det. Inget rör sig när Minska rörelse är på."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27'de menü çubuğunu macOS'in kendisi canlandırır, bu yüzden stil holzBar Shelf için geçerlidir: Akıcı onu kaydırarak çıkarır, Soldurma yavaşça görünür kılar. Hareketi Azalt açıkken hiçbir şey hareket etmez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 смугу меню анімує сама macOS, тому стиль стосується holzBar Shelf: «Плавно» висуває його, «Згасання» плавно проявляє. Коли ввімкнено «Зменшення руху», нічого не рухається."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，菜单栏由 macOS 自己制作动画，因此样式适用于 holzBar Shelf：“平滑”会将其滑出，“淡入淡出”会将其淡入。开启“减弱动态效果”时不会有任何动画。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，選單列由 macOS 自己製作動畫，因此樣式適用於 holzBar Shelf：「平滑」會將其滑出，「淡出」會將其淡入。開啟「減少動態效果」時不會有任何動畫。"
+          }
+        }
+      }
+    },
+    "On this version of macOS the menu bar's items change at once, so the style applies to the holzBar Shelf: Smooth slides it out, Fade fades it in. Nothing moves while Reduce Motion is on." : {
+      "comment" : "Showing & Hiding pane, ShowingAndHidingSettingsPane.swift:223",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V této verzi macOS se položky řádku nabídek mění najednou, takže styl platí pro holzBar Shelf: Plynulý ho vysune, Prolnutí ho prolne. Při zapnutém Omezit pohyb se nic nehýbe."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In dieser macOS-Version ändern sich die Elemente der Menüleiste sofort, daher gilt der Stil für das holzBar Shelf: Fließend schiebt es heraus, Überblenden blendet es ein. Bei eingeschaltetem „Bewegung reduzieren“ bewegt sich nichts."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En esta versión de macOS los elementos de la barra de menús cambian al instante, así que el estilo se aplica al holzBar Shelf: Suave lo desliza hacia fuera, Fundido lo funde. Con Reducir movimiento activado nada se mueve."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dans cette version de macOS, les éléments de la barre des menus changent aussitôt ; le style s’applique donc au holzBar Shelf : Fluide le fait glisser, Fondu le fait apparaître en fondu. Rien ne bouge quand Réduire les animations est activé."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A macOS ezen verzióján a menüsor elemei azonnal változnak, ezért a stílus a holzBar Shelfre vonatkozik: a Sima kicsúsztatja, az Áttűnés áttűnéssel jeleníti meg. A Mozgás csökkentése bekapcsolt állapotában semmi sem mozog."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS versi ini item bar menu berubah seketika, jadi gaya ini berlaku untuk holzBar Shelf: Halus menggesernya keluar, Pudar memudarkannya masuk. Tidak ada yang bergerak saat Kurangi Gerakan aktif."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In questa versione di macOS gli elementi della barra dei menu cambiano subito, quindi lo stile si applica a holzBar Shelf: Fluida lo fa scorrere fuori, Dissolvenza lo fa comparire in dissolvenza. Con Riduci movimento attivo non si muove nulla."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この macOS のバージョンではメニューバーの項目がすぐに切り替わるため、スタイルは holzBar Shelf に適用されます。「スムーズ」はスライドして表示し、「フェード」はフェードインします。「視差効果を減らす」がオンの間は何も動きません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 macOS 버전에서는 메뉴 막대 항목이 즉시 바뀌므로 이 스타일은 holzBar Shelf에 적용됩니다. '부드럽게'는 밀어서 내보내고 '페이드'는 서서히 나타냅니다. '동작 줄이기'가 켜져 있으면 아무것도 움직이지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In deze versie van macOS veranderen de onderdelen van de menubalk meteen, dus de stijl geldt voor de holzBar Shelf: Soepel schuift hem uit, Vervagen laat hem vervagend verschijnen. Er beweegt niets terwijl Verminder beweging aan staat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W tej wersji macOS elementy paska menu zmieniają się od razu, więc styl dotyczy holzBar Shelf: Płynny wysuwa go, Zanikanie płynnie go wyświetla. Przy włączonej opcji Ogranicz ruch nic się nie porusza."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nesta versão do macOS os itens da barra de menus mudam na hora, então o estilo vale para o holzBar Shelf: Suave o desliza para fora, Esmaecer o faz aparecer em fade. Nada se move com Reduzir movimento ativado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En questa versiun da macOS midan ils elements da la trav da menu sanewa, perquai vala la stil per il holzBar Shelf: Fluid al fa glischar ora, Fade al fa cumparair cun in fade. Nagut na sa mova cun Reducir moviment activà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В этой версии macOS элементы строки меню меняются сразу, поэтому стиль относится к holzBar Shelf: «Плавно» выдвигает его, «Затухание» плавно проявляет. При включённой настройке «Уменьшение движения» ничего не движется."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I den här macOS-versionen ändras menyradens objekt direkt, så stilen gäller holzBar Shelf: Mjuk glider ut det, Toning tonar in det. Inget rör sig när Minska rörelse är på."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu macOS sürümünde menü çubuğu öğeleri bir anda değişir, bu yüzden stil holzBar Shelf için geçerlidir: Akıcı onu kaydırarak çıkarır, Soldurma yavaşça görünür kılar. Hareketi Azalt açıkken hiçbir şey hareket etmez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У цій версії macOS елементи смуги меню змінюються одразу, тому стиль стосується holzBar Shelf: «Плавно» висуває його, «Згасання» плавно проявляє. Коли ввімкнено «Зменшення руху», нічого не рухається."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在此版本的 macOS 上，菜单栏项目会立即变化，因此样式适用于 holzBar Shelf：“平滑”会将其滑出，“淡入淡出”会将其淡入。开启“减弱动态效果”时不会有任何动画。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在此版本的 macOS 上，選單列項目會立即變化，因此樣式適用於 holzBar Shelf：「平滑」會將其滑出，「淡出」會將其淡入。開啟「減少動態效果」時不會有任何動畫。"
           }
         }
       }
