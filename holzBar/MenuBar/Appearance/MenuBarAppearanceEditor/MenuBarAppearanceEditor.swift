@@ -13,7 +13,12 @@ struct MenuBarAppearanceEditor: View {
 
     @Environment(AppState.self) var appState
     @Bindable var appearanceManager: MenuBarAppearanceManager
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isResetPromptPresented = false
+    /// The appearance Tint and Shadow and border edit while Dynamic appearance is on. View state,
+    /// not stored (D-13).
+    @State private var editedAppearance = SystemAppearance.current
+    @State private var currentAppearance = SystemAppearance.current
 
     let location: Location
 
@@ -33,14 +38,26 @@ struct MenuBarAppearanceEditor: View {
         }
     }
 
-    @ViewBuilder
-    private var partialEditor: some View {
-        if appearanceManager.configuration.isDynamic {
-            LabeledPartialEditor(configuration: $appearanceManager.configuration, appearance: .light)
-            LabeledPartialEditor(configuration: $appearanceManager.configuration, appearance: .dark)
-        } else {
-            StaticPartialEditor(configuration: $appearanceManager.configuration)
+    /// The partial configuration Tint and Shadow and border edit: the static one, or the Light or
+    /// Dark one the scope chooses.
+    private var editedPartial: Binding<MenuBarAppearancePartialConfiguration> {
+        guard appearanceManager.configuration.isDynamic else {
+            return $appearanceManager.configuration.staticConfiguration
         }
+        switch editedAppearance {
+        case .light:
+            return $appearanceManager.configuration.lightModeConfiguration
+        case .dark:
+            return $appearanceManager.configuration.darkModeConfiguration
+        }
+    }
+
+    private var partialEditor: some View {
+        AppearancePartialEditor(
+            configuration: editedPartial,
+            drawsShape: appearanceManager.configuration.shapeKind.drawnKind != .noShape,
+            drawsAppleLogo: appearanceManager.configuration.appleLogoStyle == .capsule
+        )
     }
 
     private var shapeGroup: some View {
@@ -59,8 +76,34 @@ struct MenuBarAppearanceEditor: View {
     }
 
     private var dynamicGroup: some View {
-        HolzBarSection {
-            isDynamicToggle
+        SettingsGroup(
+            SettingsCatalog.AppearancePane.lightAndDark,
+            footnote: Text("With Dynamic appearance on, Tint and Shadow and border apply to the appearance chosen in Edit.")
+        ) {
+            SettingsToggleRow(.appearanceDynamic, isOn: $appearanceManager.configuration.isDynamic)
+            // The generic slot, not SettingsSegmentedRow: Hold to Preview sits beside the scope.
+            SettingsRow(.appearanceEditScope) {
+                HStack(spacing: HolzBarTheme.SettingsKit.accessoryGap) {
+                    if appearanceManager.configuration.isDynamic, editedAppearance != currentAppearance {
+                        PreviewButton(appearance: editedAppearance)
+                    }
+                    Picker(selection: $editedAppearance) {
+                        Text("Light").tag(SystemAppearance.light)
+                        Text("Dark").tag(SystemAppearance.dark)
+                    } label: {
+                        Text(verbatim: SettingsEntry.appearanceEditScope.label)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .fixedSize()
+                }
+            }
+            .settingsSubRow()
+            .settingsDependent(on: appearanceManager.configuration.isDynamic)
+        }
+        .onChange(of: colorScheme) {
+            // The view's colour scheme follows the app's effective appearance.
+            currentAppearance = .current
         }
     }
 
@@ -125,12 +168,6 @@ struct MenuBarAppearanceEditor: View {
         }
     }
 
-    @ViewBuilder
-    private var isDynamicToggle: some View {
-        Toggle("Use dynamic appearance", isOn: $appearanceManager.configuration.isDynamic)
-            .annotation("Apply different settings based on the current system appearance.")
-    }
-
     /// Whether holzBar runs on macOS 27.
     private var isMacOS27: Bool {
         if #available(macOS 27.0, *) {
@@ -171,7 +208,10 @@ struct MenuBarAppearanceEditor: View {
     }
 }
 
-private struct UnlabeledPartialEditor: View {
+/// Tint, and Shadow and border, of one appearance: the static one, or the Light or Dark one the
+/// scope chooses (D-33). Rows that apply to one value of a pop-up are built only while it is
+/// chosen (D-71); rows that depend on a switch stay and dim (D-17).
+private struct AppearancePartialEditor: View {
     @Binding var configuration: MenuBarAppearancePartialConfiguration
 
     /// Whether the bar draws a shape (Single, Paired or Sections), so a gradient can run over
@@ -179,77 +219,6 @@ private struct UnlabeledPartialEditor: View {
     let drawsShape: Bool
     /// Whether the Apple menu has a capsule of its own, so its fill can be chosen.
     let drawsAppleLogo: Bool
-
-    var body: some View {
-        HolzBarSection {
-            tintPicker
-            accentColorToggle
-            tintStrength
-            gradientOptions
-            appleLogoFill
-            shadowToggle
-        }
-        HolzBarSection {
-            borderToggle
-            borderFill
-            borderColor
-            borderWidth
-            borderStyle
-        }
-    }
-
-    @ViewBuilder
-    private var tintPicker: some View {
-        LabeledContent("Tint") {
-            HStack {
-                HolzBarPicker("Tint", selection: $configuration.tintKind) {
-                    // System Glass needs macOS 26; an older system shows no tint for it.
-                    ForEach(MenuBarTintKind.allCases.filter(\.isAvailable)) { tintKind in
-                        Text(tintKind.localized).tag(tintKind)
-                    }
-                }
-                .labelsHidden()
-
-                switch configuration.tintKind {
-                case .noTint, .adaptive, .systemGlass:
-                    EmptyView()
-                case .solid:
-                    ColorPicker(
-                        configuration.tintKind.localized,
-                        selection: $configuration.tintColor,
-                        supportsOpacity: false
-                    )
-                    .labelsHidden()
-                    .disabled(configuration.tintFollowsAccentColor)
-                case .gradient:
-                    HolzBarGradientPicker(
-                        configuration.tintKind.localized,
-                        gradient: $configuration.tintGradient,
-                        supportsOpacity: false
-                    )
-                    .labelsHidden()
-                }
-            }
-            .frame(height: 24)
-        }
-    }
-
-    @ViewBuilder
-    private var accentColorToggle: some View {
-        if configuration.tintKind == .solid {
-            Toggle("Use Accent Color", isOn: $configuration.tintFollowsAccentColor)
-                .annotation("Follows the accent color chosen in System Settings, Appearance.")
-        } else if configuration.tintKind == .adaptive {
-            Text("Tints the menu bar with the main colors of your wallpaper, read from its file.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        } else if configuration.tintKind == .systemGlass {
-            // A fact about the system's options; there is no switch for it.
-            Text("With Reduce Transparency or Increase Contrast on in System Settings (Accessibility, Display), System Glass is drawn opaque with a border.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        }
-    }
 
     /// Whether the tint is one that has a strength and, for the last two, a direction.
     private var tintHasStrength: Bool {
@@ -266,45 +235,6 @@ private struct UnlabeledPartialEditor: View {
         }
     }
 
-    @ViewBuilder
-    private var tintStrength: some View {
-        if tintHasStrength {
-            LabeledContent {
-                Slider(
-                    value: $configuration.style.tintStrength,
-                    in: MenuBarPartialStyle.tintStrengthRange,
-                    step: 0.05
-                ) {
-                    Text("Tint Strength")
-                }
-                .labelsHidden()
-                .frame(maxWidth: 200)
-                .accessibilityValue(
-                    Text(configuration.style.tintStrength, format: .percent.precision(.fractionLength(0)))
-                )
-            } label: {
-                Text("Tint Strength")
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var gradientOptions: some View {
-        if tintHasDirection {
-            HolzBarPicker(selection: $configuration.style.gradientDirection) {
-                Text("Horizontal").tag(MenuBarGradientDirection.horizontal)
-                Text("Vertical").tag(MenuBarGradientDirection.vertical)
-            } label: {
-                Text("Gradient Direction")
-            }
-            if drawsShape {
-                Toggle(isOn: gradientPerShape) {
-                    Text("One gradient per shape")
-                }
-            }
-        }
-    }
-
     private var gradientPerShape: Binding<Bool> {
         Binding(
             get: { configuration.style.gradientSpan == .eachShape },
@@ -312,178 +242,124 @@ private struct UnlabeledPartialEditor: View {
         )
     }
 
-    @ViewBuilder
-    private var appleLogoFill: some View {
-        if drawsAppleLogo {
-            LabeledContent {
-                HStack {
-                    HolzBarPicker("Apple Logo", selection: $configuration.style.appleLogoFill) {
-                        Text("Bar Tint").tag(MenuBarAppleLogoFill.barTint)
-                        Text("Accent Color").tag(MenuBarAppleLogoFill.accentColor)
-                        Text("Follow Wallpaper").tag(MenuBarAppleLogoFill.wallpaper)
-                        Text("Color").tag(MenuBarAppleLogoFill.color)
-                    }
-                    .labelsHidden()
+    var body: some View {
+        tintGroup
+        shadowAndBorderGroup
+    }
 
-                    if configuration.style.appleLogoFill == .color {
-                        ColorPicker(
-                            "Apple Logo",
-                            selection: $configuration.appleLogoColor,
-                            supportsOpacity: false
-                        )
-                        .labelsHidden()
-                    }
+    private var tintGroup: some View {
+        SettingsGroup(SettingsCatalog.AppearancePane.tint) {
+            SettingsPickerRow(.appearanceTint, selection: $configuration.tintKind) {
+                // System Glass needs macOS 26; an older system shows no tint for it.
+                ForEach(MenuBarTintKind.allCases.filter(\.isAvailable)) { tintKind in
+                    Text(tintKind.localized).tag(tintKind)
                 }
-                .frame(height: 24)
-            } label: {
-                Text("Apple Logo")
             }
-        }
-    }
-
-    @ViewBuilder
-    private var shadowToggle: some View {
-        Toggle("Shadow", isOn: $configuration.hasShadow)
-    }
-
-    @ViewBuilder
-    private var borderToggle: some View {
-        Toggle("Border", isOn: $configuration.hasBorder)
-    }
-
-    @ViewBuilder
-    private var borderFill: some View {
-        if configuration.hasBorder {
-            LabeledContent {
-                HStack {
-                    HolzBarPicker("Border Fill", selection: $configuration.style.borderFill) {
-                        Text("Color").tag(MenuBarBorderFill.color)
-                        Text("Accent Color").tag(MenuBarBorderFill.accentColor)
-                        Text("Gradient").tag(MenuBarBorderFill.gradient)
-                    }
-                    .labelsHidden()
-
-                    if configuration.style.borderFill == .gradient {
-                        HolzBarGradientPicker(
-                            "Border Fill",
-                            gradient: $configuration.borderGradient,
-                            supportsOpacity: true
-                        )
-                        .labelsHidden()
-                    }
+            if configuration.tintKind == .solid {
+                SettingsColorRow(.appearanceTintColor, color: $configuration.tintColor)
+                    .settingsSubRow()
+                    .settingsDependent(on: !configuration.tintFollowsAccentColor)
+                SettingsToggleRow(.appearanceAccentColor, isOn: $configuration.tintFollowsAccentColor)
+                    .settingsSubRow()
+            }
+            if configuration.tintKind == .gradient {
+                SettingsGradientRow(.appearanceTintGradient, gradient: $configuration.tintGradient)
+                    .settingsSubRow()
+            }
+            if tintHasStrength {
+                SettingsSliderRow(
+                    .appearanceTintStrength,
+                    value: $configuration.style.tintStrength,
+                    in: MenuBarPartialStyle.tintStrengthRange,
+                    step: 0.05
+                ) { strength in
+                    Text(strength, format: .percent.precision(.fractionLength(0)))
                 }
-                .frame(height: 24)
-            } label: {
-                Text("Border Fill")
+                .settingsSubRow()
+            }
+            if tintHasDirection {
+                SettingsPickerRow(
+                    .appearanceGradientDirection,
+                    selection: $configuration.style.gradientDirection
+                ) {
+                    Text("Horizontal").tag(MenuBarGradientDirection.horizontal)
+                    Text("Vertical").tag(MenuBarGradientDirection.vertical)
+                }
+                .settingsSubRow()
+                if drawsShape {
+                    SettingsToggleRow(.appearanceGradientPerShape, isOn: gradientPerShape)
+                        .settingsSubRow()
+                }
+            }
+            SettingsPickerRow(.appearanceAppleLogoFill, selection: $configuration.style.appleLogoFill) {
+                Text("Bar Tint").tag(MenuBarAppleLogoFill.barTint)
+                Text("Accent Color").tag(MenuBarAppleLogoFill.accentColor)
+                Text("Follow Wallpaper").tag(MenuBarAppleLogoFill.wallpaper)
+                Text("Color").tag(MenuBarAppleLogoFill.color)
+            }
+            .settingsDependent(on: drawsAppleLogo)
+            if configuration.style.appleLogoFill == .color {
+                SettingsColorRow(.appearanceAppleLogoColor, color: $configuration.appleLogoColor)
+                    .settingsSubRow()
+                    .settingsDependent(on: drawsAppleLogo)
             }
         }
     }
 
-    @ViewBuilder
-    private var borderColor: some View {
-        if configuration.hasBorder, configuration.style.borderFill == .color {
-            ColorPicker(
-                "Border Color",
-                selection: $configuration.borderColor,
-                supportsOpacity: true
-            )
-        }
-    }
-
-    @ViewBuilder
-    private var borderWidth: some View {
-        if configuration.hasBorder {
-            HolzBarPicker(
-                "Border Width",
-                selection: $configuration.borderWidth
-            ) {
-                Text(verbatim: "1").tag(1.0)
-                Text(verbatim: "2").tag(2.0)
-                Text(verbatim: "3").tag(3.0)
+    private var shadowAndBorderGroup: some View {
+        SettingsGroup(SettingsCatalog.AppearancePane.shadowAndBorder) {
+            SettingsToggleRow(.appearanceShadow, isOn: $configuration.hasShadow)
+            SettingsToggleRow(.appearanceBorder, isOn: $configuration.hasBorder)
+            SettingsPickerRow(.appearanceBorderFill, selection: $configuration.style.borderFill) {
+                Text("Color").tag(MenuBarBorderFill.color)
+                Text("Accent Color").tag(MenuBarBorderFill.accentColor)
+                Text("Gradient").tag(MenuBarBorderFill.gradient)
             }
-        }
-    }
-
-    @ViewBuilder
-    private var borderStyle: some View {
-        if configuration.hasBorder {
-            HolzBarPicker("Border Style", selection: $configuration.borderStyle) {
+            .settingsSubRow()
+            .settingsDependent(on: configuration.hasBorder)
+            if configuration.style.borderFill == .color {
+                SettingsColorRow(
+                    .appearanceBorderColor,
+                    color: $configuration.borderColor,
+                    supportsOpacity: true
+                )
+                .settingsSubRow()
+                .settingsDependent(on: configuration.hasBorder)
+            }
+            if configuration.style.borderFill == .gradient {
+                SettingsGradientRow(
+                    .appearanceBorderGradient,
+                    gradient: $configuration.borderGradient,
+                    supportsOpacity: true
+                )
+                .settingsSubRow()
+                .settingsDependent(on: configuration.hasBorder)
+            }
+            SettingsPickerRow(.appearanceBorderWidth, selection: $configuration.borderWidth) {
+                ForEach([1.0, 2.0, 3.0], id: \.self) { width in
+                    Text("\(Int(width)) pt").tag(width)
+                }
+            }
+            .settingsSubRow()
+            .settingsDependent(on: configuration.hasBorder)
+            SettingsPickerRow(.appearanceBorderStyle, selection: $configuration.borderStyle) {
                 Text("Solid").tag(BorderStyle.solid)
                 Text("Dashed").tag(BorderStyle.dashed)
                 Text("Dotted").tag(BorderStyle.dotted)
             }
+            .settingsSubRow()
+            .settingsDependent(on: configuration.hasBorder)
         }
     }
 }
 
-private struct LabeledPartialEditor: View {
-    @Binding var configuration: MenuBarAppearanceConfigurationV2
-    @Environment(\.colorScheme) private var colorScheme
-    @State private var currentAppearance = SystemAppearance.current
-    @State private var textFrame = CGRect.zero
-
-    let appearance: SystemAppearance
-
-    var body: some View {
-        HolzBarSection(options: .plain) {
-            labelStack
-        } content: {
-            partialEditor
-        }
-        .onChange(of: colorScheme) {
-            // The view's colour scheme follows the app's effective appearance.
-            currentAppearance = .current
-        }
-    }
-
-    @ViewBuilder
-    private var labelStack: some View {
-        HStack {
-            Text(appearance.titleKey)
-                .font(.headline)
-                .onFrameChange(update: $textFrame)
-
-            if currentAppearance != appearance {
-                PreviewButton(appearance: appearance)
-            }
-        }
-        .frame(height: textFrame.height)
-    }
-
-    @ViewBuilder
-    private var partialEditor: some View {
-        switch appearance {
-        case .light:
-            UnlabeledPartialEditor(
-                configuration: $configuration.lightModeConfiguration,
-                drawsShape: configuration.shapeKind.drawnKind != .noShape,
-                drawsAppleLogo: configuration.appleLogoStyle == .capsule
-            )
-        case .dark:
-            UnlabeledPartialEditor(
-                configuration: $configuration.darkModeConfiguration,
-                drawsShape: configuration.shapeKind.drawnKind != .noShape,
-                drawsAppleLogo: configuration.appleLogoStyle == .capsule
-            )
-        }
-    }
-}
-
-private struct StaticPartialEditor: View {
-    @Binding var configuration: MenuBarAppearanceConfigurationV2
-
-    var body: some View {
-        UnlabeledPartialEditor(
-            configuration: $configuration.staticConfiguration,
-            drawsShape: configuration.shapeKind.drawnKind != .noShape,
-            drawsAppleLogo: configuration.appleLogoStyle == .capsule
-        )
-    }
-}
-
+/// Previews the chosen appearance in the menu bar (D-56). A pointer press holds the preview while
+/// it lasts; Space on the focused button and the VoiceOver press turn it on and off.
 private struct PreviewButton: View {
     @Environment(AppState.self) private var appState
-    @State private var isPressed = false
+    /// The press state the style reports, from the pointer or from a key.
+    @State private var isHeld = false
+    @State private var isLatched = false
 
     let appearance: SystemAppearance
 
@@ -500,34 +376,63 @@ private struct PreviewButton: View {
         }
     }
 
+    /// What the menu bar shows now: the edited appearance while held or turned on, so edits made
+    /// during a preview show at once.
+    private var effectivePreview: MenuBarAppearancePartialConfiguration? {
+        isHeld || isLatched ? previewConfiguration : nil
+    }
+
     var body: some View {
-        Button("Hold to Preview") { }
-            .buttonStyle(PreviewButtonStyle(isPressed: $isPressed))
-            .onChange(of: isPressed) {
-                manager.previewConfiguration = isPressed ? previewConfiguration : nil
+        Button("Hold to Preview") {
+            // A pointer press is the hold and never latches; Space and VoiceOver latch.
+            switch NSApp.currentEvent?.type {
+            case .leftMouseDown, .leftMouseUp:
+                break
+            default:
+                isLatched.toggle()
             }
+        }
+        .buttonStyle(PreviewButtonStyle(isPressed: $isHeld, isOn: isLatched))
+        .accessibilityAddTraits(.isToggle)
+        .accessibilityValue(isLatched ? Text("On") : Text("Off"))
+        .onChange(of: effectivePreview) {
+            manager.previewConfiguration = effectivePreview
+        }
+        .onChange(of: manager.previewConfiguration) {
+            // The panel clears the preview when it hides.
+            if manager.previewConfiguration == nil {
+                isLatched = false
+            }
+        }
+        .onDisappear {
+            isLatched = false
+            isHeld = false
+            manager.previewConfiguration = nil
+        }
     }
 }
 
 private struct PreviewButtonStyle: ButtonStyle {
     @Binding var isPressed: Bool
+    let isOn: Bool
 
     private var borderShape: some InsettableShape {
         if #available(macOS 26.0, *) {
             AnyInsettableShape(Capsule(style: .continuous))
         } else {
-            AnyInsettableShape(RoundedRectangle(cornerRadius: 6, style: .circular))
+            AnyInsettableShape(HolzBarTheme.shape(HolzBarTheme.Radius.control))
         }
     }
 
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .padding(.horizontal, 10)
-            .padding(.vertical, 3)
+        let isActive = configuration.isPressed || isOn
+        return configuration.label
+            .padding(.horizontal, HolzBarTheme.Spacing.xs)
+            .padding(.vertical, HolzBarTheme.SettingsKit.rowPaddingVertical)
             .background {
                 borderShape
-                    .fill(configuration.isPressed ? .tertiary : .quaternary)
-                    .opacity(configuration.isPressed ? 0.5 : 0.75)
+                    .fill(isActive ? .tertiary : .quaternary)
+                    .opacity(isActive ? 0.5 : 0.75)
             }
             .contentShape([.focusEffect, .interaction], borderShape)
             .onChange(of: configuration.isPressed) { _, newValue in
