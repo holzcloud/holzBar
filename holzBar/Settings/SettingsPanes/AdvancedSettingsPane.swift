@@ -46,9 +46,7 @@ struct AdvancedSettingsPane: View {
                     keepsDockIconHidden
                 }
                 enableSecondaryContextMenu
-                showOnHoverDelay
                 tempShowInterval
-                openHiddenItemsInMenuBar
                 autoZenWhileSharingScreen
                 lockHiddenItems
                 if !isMacOS27 {
@@ -197,25 +195,6 @@ struct AdvancedSettingsPane: View {
     }
 
     @ViewBuilder
-    private var showOnHoverDelay: some View {
-        LabeledContent {
-            HolzBarSlider(
-                formattedToSeconds(settings.showOnHoverDelay),
-                value: $settings.showOnHoverDelay,
-                in: 0...1,
-                step: 0.1
-            )
-        } label: {
-            Text("Show on hover delay")
-                .frame(minWidth: maxSliderLabelWidth, alignment: .leading)
-                .onFrameChange { frame in
-                    maxSliderLabelWidth = max(maxSliderLabelWidth, frame.width)
-                }
-        }
-        .annotation("The amount of time to wait before showing on hover.")
-    }
-
-    @ViewBuilder
     private var tempShowInterval: some View {
         LabeledContent {
             HolzBarSlider(
@@ -232,12 +211,6 @@ struct AdvancedSettingsPane: View {
                 }
         }
         .annotation("Counted from when the item's menu closes. 0 hides it right away.")
-    }
-
-    @ViewBuilder
-    private var openHiddenItemsInMenuBar: some View {
-        Toggle("Open hidden items in the menu bar", isOn: $settings.openHiddenItemsInMenuBar)
-            .annotation("Shows a hidden item in the menu bar and opens its menu under it. Off, the menu opens without showing the item.")
     }
 
     @ViewBuilder
