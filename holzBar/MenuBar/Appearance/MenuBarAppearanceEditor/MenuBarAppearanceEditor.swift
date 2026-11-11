@@ -44,10 +44,16 @@ struct MenuBarAppearanceEditor: View {
     }
 
     private var shapeGroup: some View {
-        HolzBarSection("Menu Bar Shape") {
-            shapePicker
-            isInset
-            appleLogoShape
+        SettingsGroup(
+            SettingsCatalog.AppearancePane.shape,
+            footnote: Text("On macOS 27, a shape saved as Sections is drawn as Paired.")
+        ) {
+            MenuBarShapePicker(configuration: $appearanceManager.configuration)
+            if appearanceManager.configuration.shapeKind != .noShape {
+                SettingsToggleRow(.appearanceInsetShape, isOn: $appearanceManager.configuration.isInset)
+                    .settingsSubRow()
+            }
+            SettingsToggleRow(.appearanceAppleLogoShape, isOn: appleLogoShapeBinding)
             shapeScreenRecordingHint
         }
     }
@@ -125,12 +131,6 @@ struct MenuBarAppearanceEditor: View {
             .annotation("Apply different settings based on the current system appearance.")
     }
 
-    @ViewBuilder
-    private var shapePicker: some View {
-        MenuBarShapePicker(configuration: $appearanceManager.configuration)
-            .fixedSize(horizontal: false, vertical: true)
-    }
-
     /// Whether holzBar runs on macOS 27.
     private var isMacOS27: Bool {
         if #available(macOS 27.0, *) {
@@ -140,9 +140,9 @@ struct MenuBarAppearanceEditor: View {
         }
     }
 
-    /// Asks for Screen Recording when a shape is chosen without it and the wallpaper
-    /// beside it cannot be read from its file (a moving wallpaper). Before macOS 27 only:
-    /// on macOS 27 holzBar never captures the wallpaper.
+    /// Says that Screen Recording is missing when a shape is chosen and the wallpaper beside it
+    /// cannot be read from its file (a moving wallpaper). Before macOS 27 only: on macOS 27
+    /// holzBar never captures the wallpaper.
     @ViewBuilder
     private var shapeScreenRecordingHint: some View {
         if
@@ -151,30 +151,18 @@ struct MenuBarAppearanceEditor: View {
             !ScreenRecordingAccess.isGranted(appState),
             !(NSScreen.main.map(DesktopPicture.isReadable(on:)) ?? false)
         {
-            ScreenRecordingHint(feature: .menuBarShape, appState: appState)
-                .frame(maxWidth: .infinity)
+            SettingsStateLine(.warning, Text("Moving wallpaper: needs Screen Recording")) {
+                Button("Allow Screen Recording…") {
+                    Task {
+                        await ScreenRecordingAccess.request(for: .menuBarShape, appState: appState)
+                    }
+                }
+            }
         }
     }
 
-    @ViewBuilder
-    private var isInset: some View {
-        if appearanceManager.configuration.shapeKind != .noShape {
-            Toggle(
-                "Use inset shape on screens with notch",
-                isOn: $appearanceManager.configuration.isInset
-            )
-        }
-    }
-
-    /// Switches the capsule behind the Apple menu on or off. It is offered with every shape
-    /// kind, None included, on every supported macOS.
-    @ViewBuilder
-    private var appleLogoShape: some View {
-        Toggle(isOn: appleLogoShapeBinding) {
-            Text("Own shape for the Apple logo")
-        }
-    }
-
+    /// The capsule behind the Apple menu, offered with every shape kind, None included, on every
+    /// supported macOS.
     private var appleLogoShapeBinding: Binding<Bool> {
         Binding(
             get: { appearanceManager.configuration.appleLogoStyle == .capsule },

@@ -17,25 +17,19 @@ struct MoodsSection: View {
     }
 
     var body: some View {
-        HolzBarSection {
-            Text("Moods")
-                .font(.headline)
-        } content: {
+        SettingsGroup(
+            SettingsCatalog.AppearancePane.moods,
+            footnote: Text("At most \(MoodNaming.maximumCount) moods. A name has up to \(MoodNaming.maximumNameLength) characters.")
+        ) {
             ForEach(appearanceManager.moods) { mood in
                 row(for: mood)
             }
-            HStack {
-                Button("Save Current Look…", systemImage: "plus") {
+            SettingsButtonRow(unlabeled: .appearanceSaveCurrentLook) {
+                Button("Save Current Look…") {
                     newName = ""
                     isAskingForName = true
                 }
                 .disabled(!canSave)
-                if appearanceManager.moods.isEmpty {
-                    Text("Save a look to switch back to it in one click, or from a rule.")
-                        .font(HolzBarTheme.Typography.caption)
-                        .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-                }
-                Spacer()
             }
         }
         .alert("Save Current Look", isPresented: $isAskingForName) {
@@ -49,30 +43,21 @@ struct MoodsSection: View {
         }
     }
 
+    /// The name is user data, so the row uses the text form; the trash acts at once (D-10).
     private func row(for mood: AppearanceMood) -> some View {
         let isCurrent = mood.name == appearanceManager.currentMoodName
-        return HStack(spacing: HolzBarTheme.Spacing.sm) {
-            Image(systemName: isCurrent ? "checkmark.circle.fill" : "circle")
-                .foregroundStyle(isCurrent ? HolzBarTheme.Palette.accent : HolzBarTheme.Palette.textTertiary)
-                .accessibilityHidden(true)
-            Text(verbatim: mood.name)
-            Spacer()
+        return SettingsButtonRow(Text(verbatim: mood.name), small: isCurrent ? Text("In use") : nil) {
             Button("Apply") {
                 appearanceManager.applyMood(named: mood.name)
             }
             .disabled(isCurrent)
-            Button {
+            Button(role: .destructive) {
                 appearanceManager.removeMood(withID: mood.id)
             } label: {
-                Image(systemName: "trash")
+                Label("Delete Mood", systemImage: "trash")
+                    .labelStyle(.iconOnly)
             }
-            .buttonStyle(.plain)
-            .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-            .accessibilityLabel(Text("Delete Mood"))
             .help("Delete Mood")
         }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(Text(verbatim: mood.name))
-        .accessibilityValue(isCurrent ? Text("In use") : Text(""))
     }
 }
