@@ -30,12 +30,14 @@ struct ImportProfileSheet: View {
                 .font(HolzBarTheme.Typography.callout)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
-            List(shared.apps, id: \.id) { entry in
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(verbatim: AutomationDescription.applicationName(for: entry.id))
-                    Text(verbatim: entry.id)
-                        .font(HolzBarTheme.Typography.caption)
-                        .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+            ScrollView {
+                SettingsGroup {
+                    ForEach(shared.apps, id: \.id) { entry in
+                        SettingsValueRow(
+                            Text(verbatim: AutomationDescription.applicationName(for: entry.id)),
+                            value: Text(verbatim: entry.id)
+                        )
+                    }
                 }
             }
             .frame(height: 220)

@@ -19,6 +19,7 @@ struct ProfilesAndHistorySettingsPane: View {
                     )
                 }
             } else {
+                ProfilesSection(profiles: appState.profiles)
                 SpacersSection(spacers: appState.spacers)
             }
         }
