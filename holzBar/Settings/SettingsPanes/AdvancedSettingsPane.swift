@@ -36,8 +36,6 @@ struct AdvancedSettingsPane: View {
                     keepsDockIconHidden
                 }
                 enableSecondaryContextMenu
-                autoZenWhileSharingScreen
-                lockHiddenItems
                 if !isMacOS27 {
                     pinSystemItems
                 }
@@ -194,23 +192,6 @@ struct AdvancedSettingsPane: View {
             Text("Keep the clock, battery, Wi-Fi, Control Center and sound visible")
         }
         .annotation("Profiles, restored layouts and rules leave these items where they are. You can still move them yourself.")
-    }
-
-    private var lockHiddenItems: some View {
-        Toggle(
-            isOn: Binding(
-                get: { appState.hiddenItemsLock.isEnabled },
-                set: { appState.hiddenItemsLock.setEnabled($0) }
-            )
-        ) {
-            Text("Ask for Touch ID or your password before showing hidden items")
-        }
-        .annotation("This keeps someone at your unlocked Mac from seeing your hidden items. Turning it off asks too. It is not protection against someone who knows your password.")
-    }
-
-    private var autoZenWhileSharingScreen: some View {
-        Toggle("Turn on Zen mode while the screen is mirrored or shared", isOn: $settings.autoZenWhileSharingScreen)
-            .annotation("Uses no permission: holzBar notices a mirrored display and macOS's screen sharing agent.")
     }
 
     @ViewBuilder

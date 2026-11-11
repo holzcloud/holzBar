@@ -33,6 +33,7 @@ struct ShowingAndHidingSettingsPane: View {
             }
             hideAgainGroup(general: general, advanced: advanced)
             displaysGroup(general: general)
+            zenModeAndLockGroup(advanced: advanced)
             animationGroup(general: general)
         }
         .task {
@@ -156,6 +157,41 @@ struct ShowingAndHidingSettingsPane: View {
                 }
             }
             .id(SettingsEntry.hidingDisplays.id)
+        }
+    }
+
+    // MARK: Zen mode and lock
+
+    /// The Zen mode switch shows and changes the same state as the holzBar icon's menu entry, the
+    /// hotkey and the Shortcuts action; no key is stored here. The lock keeps its authentication:
+    /// `setEnabled(_:)` asks before it turns the lock off.
+    @ViewBuilder
+    private func zenModeAndLockGroup(advanced: AdvancedSettings) -> some View {
+        @Bindable var advanced = advanced
+        let manager = appState.menuBarManager
+        let lock = appState.hiddenItemsLock
+        SettingsGroup(SettingsCatalog.ShowingAndHidingPane.zenModeAndLock) {
+            SettingsToggleRow(
+                .hidingZenMode,
+                isOn: Binding {
+                    manager.zenMode.isActive
+                } set: { newValue in
+                    if newValue != manager.zenMode.isActive {
+                        manager.toggleZenMode()
+                    }
+                }
+            )
+            SettingsToggleRow(.hidingAutoZen, isOn: $advanced.autoZenWhileSharingScreen)
+                .settingsSubRow()
+            SettingsToggleRow(
+                .hidingLock,
+                isOn: Binding {
+                    lock.isEnabled
+                } set: { newValue in
+                    lock.setEnabled(newValue)
+                },
+                small: Text("or password")
+            )
         }
     }
 

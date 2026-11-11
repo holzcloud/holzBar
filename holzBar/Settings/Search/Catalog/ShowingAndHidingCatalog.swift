@@ -25,6 +25,9 @@ extension SettingsCatalog {
             .hidingRehideInterval,
             .hidingTempShowInterval,
             .hidingDisplays,
+            .hidingZenMode,
+            .hidingAutoZen,
+            .hidingLock,
             .hidingAnimationStyle,
         ]
     }
@@ -108,6 +111,30 @@ extension SettingsEntry {
         group: SettingsCatalog.ShowingAndHidingPane.displays,
         label: String(localized: "Hidden items per display"),
         info: String(localized: "Always show everything keeps every section shown on that display. Collapse keeps hidden items hidden there; only the holzBar icon and the hotkeys show them. Neither applies with the holzBar Shelf.")
+    )
+
+    static let hidingZenMode = SettingsEntry(
+        id: "hidingZenMode",
+        pane: .showingAndHiding,
+        group: SettingsCatalog.ShowingAndHidingPane.zenModeAndLock,
+        label: String(localized: "Zen mode"),
+        info: String(localized: "Keeps hidden items hidden: hover, clicks, scrolling and rules don't show them until you turn it off.")
+    )
+
+    static let hidingAutoZen = SettingsEntry(
+        id: "hidingAutoZen",
+        pane: .showingAndHiding,
+        group: SettingsCatalog.ShowingAndHidingPane.zenModeAndLock,
+        label: String(localized: "Zen mode while sharing the screen"),
+        info: String(localized: "Turns Zen mode on while the screen is mirrored or shared. Uses no permission: holzBar notices a mirrored display and macOS's screen sharing agent.")
+    )
+
+    static let hidingLock = SettingsEntry(
+        id: "hidingLock",
+        pane: .showingAndHiding,
+        group: SettingsCatalog.ShowingAndHidingPane.zenModeAndLock,
+        label: String(localized: "Require Touch ID before showing"),
+        info: String(localized: "This keeps someone at your unlocked Mac from seeing your hidden items. Turning it off asks too. It is not protection against someone who knows your password.")
     )
 
     static let hidingAnimationStyle = SettingsEntry(
