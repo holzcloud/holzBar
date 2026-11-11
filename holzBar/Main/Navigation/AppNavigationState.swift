@@ -19,6 +19,9 @@ final class AppNavigationState {
     /// Whether the panel of a menu bar item group is shown.
     var isItemGroupPanelPresented = false
     var settingsNavigationIdentifier: SettingsNavigationIdentifier = .general
+    /// The Settings search. It lives as long as the app, so a jump can open a disclosure or a
+    /// module before the pane that holds it exists.
+    let settingsSearch = SettingsSearchModel()
     /// Whether the Menu Bar Layout pane shows the clean-up assistant.
     var isTidyUpPresented = false
     /// The item whose rule ("Show Only When…") the Menu Bar Layout pane edits, if any.

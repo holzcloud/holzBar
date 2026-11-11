@@ -10,6 +10,7 @@ struct SettingsView: View {
     @Bindable var navigationState: AppNavigationState
     @Environment(\.appearsActive) private var appearsActive
     @Environment(\.sidebarRowSize) private var sidebarRowSize
+    @FocusState private var isSearchFocused: Bool
 
     private let sidebarPadding: CGFloat = 3
 
@@ -58,20 +59,43 @@ struct SettingsView: View {
         appearsActive ? .primary : .secondary
     }
 
-    private var navigationTitle: LocalizedStringKey {
-        navigationState.settingsNavigationIdentifier.localized
+    private var navigationTitle: Text {
+        if navigationState.settingsSearch.isSearching {
+            Text("Search Results")
+        } else {
+            Text(navigationState.settingsNavigationIdentifier.localized)
+        }
     }
 
     var body: some View {
         // The sidebar is always shown, and its fixed width keeps the divider from
         // collapsing it.
         NavigationSplitView(columnVisibility: .constant(.all)) {
-            sidebar
+            sidebarColumn
         } detail: {
             detailView
         }
+        .environment(navigationState.settingsSearch)
         .navigationTitle(navigationTitle)
         .tint(HolzBarTheme.Palette.accent)
+        .onExitCommand {
+            if navigationState.settingsSearch.isSearching {
+                navigationState.settingsSearch.clear()
+            }
+        }
+    }
+
+    /// The search field, pinned above the sidebar list.
+    private var sidebarColumn: some View {
+        VStack(spacing: 0) {
+            SettingsSearchField(
+                text: Bindable(navigationState.settingsSearch).query,
+                isFocused: $isSearchFocused
+            )
+            .padding(.horizontal, HolzBarTheme.SettingsSidebar.rowPadding)
+            .padding(.bottom, HolzBarTheme.SettingsSidebar.searchFieldBottomGap)
+            sidebar
+        }
     }
 
     @ViewBuilder
@@ -151,12 +175,22 @@ struct SettingsView: View {
     @ViewBuilder
     private var detailView: some View {
         if #available(macOS 26.0, *) {
-            settingsPane
+            detailContent
                 .scrollEdgeEffectStyle(.hard, for: .top)
                 .background(HolzBarGround())
         } else {
-            settingsPane
+            detailContent
                 .background(HolzBarGround())
+        }
+    }
+
+    /// The results while a query is set, the selected pane otherwise.
+    @ViewBuilder
+    private var detailContent: some View {
+        if navigationState.settingsSearch.isSearching {
+            SettingsSearchResultsView()
+        } else {
+            settingsPane
         }
     }
 
