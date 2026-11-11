@@ -34019,124 +34019,6 @@
         }
       }
     },
-    "Empty items that add space between others. ⌘ Command-drag them where you want them, or arrange them below." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prázdné položky, které přidávají místo mezi ostatní. Přetáhněte je s podrženým ⌘ Command na požadované místo nebo je uspořádejte níže."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Leere Elemente, die Platz zwischen anderen schaffen. Ziehe sie mit ⌘ Befehlstaste an die gewünschte Stelle oder ordne sie unten an."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elementos vacíos que añaden espacio entre otros. Arrástralos con ⌘ Comando donde los quieras, u ordénalos abajo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Des éléments vides qui ajoutent de l'espace entre les autres. Faites-les glisser avec ⌘ Commande où vous voulez, ou disposez-les ci-dessous."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Üres elemek, amelyek helyet adnak mások között. ⌘ Command nyomva tartásával húzza őket a kívánt helyre, vagy rendezze őket lent."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Item kosong yang memberi ruang di antara item lain. Tahan ⌘ Command dan seret ke tempat yang Anda inginkan, atau tata di bawah."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elementi vuoti che aggiungono spazio tra gli altri. Trascinali con ⌘ Comando dove vuoi o sistemali qui sotto."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "他の項目の間にスペースを入れる空の項目です。⌘ Command を押しながら好きな場所へドラッグするか、下で並べ替えてください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "다른 항목 사이에 공간을 만드는 빈 항목입니다. ⌘ Command 키를 누른 채 원하는 곳으로 드래그하거나 아래에서 정리하세요."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lege onderdelen die ruimte tussen andere onderdelen toevoegen. Sleep ze met ⌘ Command ingedrukt naar de gewenste plek, of orden ze hieronder."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Puste elementy, które dodają odstęp między innymi. Przeciągnij je z wciśniętym ⌘ Command w wybrane miejsce lub ułóż je poniżej."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Itens vazios que adicionam espaço entre outros. Arraste-os com ⌘ Command para onde quiser, ou organize-os abaixo."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elements vids che fan plazza tranter auters. Tira els cun ⌘ Command nua che ti vuls u ordina els qua sutvart."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пустые элементы, которые добавляют промежутки между другими. Перетащите их куда нужно, удерживая ⌘ Command, или расставьте ниже."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tomma objekt som ger plats mellan andra. Håll ⌘ Command nedtryckt och dra dem dit du vill ha dem, eller ordna dem nedan."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Diğerlerinin arasında yer açan boş öğeler. ⌘ Command tuşunu basılı tutarak istediğiniz yere sürükleyin veya aşağıda düzenleyin."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Порожні елементи, що додають проміжки між іншими. Перетягніть їх, куди потрібно, утримуючи ⌘ Command, або розставте нижче."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在其他项目之间添加空白的空项目。按住 ⌘ Command 将它们拖到所需位置，或在下方整理。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在其他項目之間加入間距的空項目。按住 ⌘ Command 並拖移到想要的位置，或在下方排列。"
-          }
-        }
-      }
-    },
     "Enable secondary context menu" : {
       "localizations" : {
         "cs" : {
@@ -42865,124 +42747,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "登入時打開"
-          }
-        }
-      }
-    },
-    "Layout History" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Historie uspořádání"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Layoutverlauf"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Historial de la disposición"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Historique de la disposition"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elrendezési előzmények"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Riwayat Tata Letak"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cronologia del layout"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "レイアウト履歴"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "레이아웃 기록"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Indelingsgeschiedenis"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Historia układu"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Histórico do layout"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Istorgia dal layout"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "История раскладки"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Layouthistorik"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Düzen Geçmişi"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Історія розкладки"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "布局历史"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "佈局歷史記錄"
           }
         }
       }
@@ -59861,124 +59625,6 @@
         }
       }
     },
-    "Remove the color" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Odebrat barvu"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Farbe entfernen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quitar el color"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer la couleur"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Szín eltávolítása"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hapus warna"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rimuovi il colore"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "色を削除"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "색상 제거"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verwijder de kleur"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usuń kolor"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remover a cor"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Allontanar la colur"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Удалить цвет"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ta bort färgen"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rengi kaldır"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вилучити колір"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "移除颜色"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "移除顏色"
-          }
-        }
-      }
-    },
     "Remove the hotkey of this item" : {
       "localizations" : {
         "cs" : {
@@ -63637,124 +63283,6 @@
         }
       }
     },
-    "Save Current Layout…" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uložit aktuální uspořádání…"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktuelles Layout sichern …"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Guardar la disposición actual…"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enregistrer la disposition actuelle…"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jelenlegi elrendezés mentése…"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Simpan tata letak saat ini…"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Salva il layout attuale…"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "現在のレイアウトを保存…"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "현재 레이아웃 저장…"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bewaar huidige indeling…"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zachowaj bieżący układ…"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Salvar o layout atual…"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Memorisar la disposiziun actuala …"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сохранить текущую раскладку…"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spara aktuell layout…"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Geçerli düzeni kaydet…"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Зберегти поточну розкладку…"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "存储当前布局…"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "儲存目前的佈局⋯"
-          }
-        }
-      }
-    },
     "Save Layout as Profile" : {
       "localizations" : {
         "cs" : {
@@ -64223,124 +63751,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在「選單列佈局」面板中儲存佈局設定檔，即可為它指定快速鍵。"
-          }
-        }
-      }
-    },
-    "Save the current layout as a profile, for example “Work” or “Home”." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uložte aktuální uspořádání jako profil, například „Práce“ nebo „Domov“."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sichere das aktuelle Layout als Profil, zum Beispiel «Arbeit» oder «Zuhause»."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Guarda la disposición actual como perfil, por ejemplo “Trabajo” o “Casa”."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enregistrez la disposition actuelle comme profil, par exemple « Travail » ou « Maison »."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mentse a jelenlegi elrendezést profilként, például „Munka” vagy „Otthon”."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Simpan tata letak Anda saat ini sebagai profil, misalnya “Kerja” atau “Rumah”."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Salva il layout attuale come profilo, per esempio «Lavoro» o «Casa»."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "現在のレイアウトを、たとえば「仕事」や「自宅」のようなプロファイルとして保存します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "현재 레이아웃을 “업무”나 “집” 같은 프로파일로 저장하세요."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bewaar de huidige indeling als profiel, bijvoorbeeld “Werk” of “Thuis”."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zachowaj bieżący układ jako profil, na przykład „Praca” lub „Dom”."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Salve o layout atual como perfil, por exemplo “Trabalho” ou “Casa”."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Memorisescha la disposiziun actuala sco profil, per exempel «Lavur» u «Chasa»."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сохраните текущую раскладку как профиль, например «Работа» или «Дом»."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spara din aktuella layout som en profil, till exempel ”Arbete” eller ”Hemma”."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Geçerli düzeninizi “İş” veya “Ev” gibi bir profil olarak kaydedin."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Збережіть поточну розкладку як профіль, наприклад «Робота» або «Дім»."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "将当前布局存储为配置文件，例如“工作”或“家”。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "將目前的佈局儲存為設定檔，例如「工作」或「家」。"
           }
         }
       }
@@ -71543,124 +70953,6 @@
         }
       }
     },
-    "Spacers: %lld" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mezery: %lld"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abstandhalter: %lld"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Espaciadores: %lld"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Espaceurs : %lld"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Térközök: %lld"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spasi: %lld"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spaziatori: %lld"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "スペーサー: %lld"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "스페이서: %lld"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tussenruimtes: %lld"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Odstępy: %lld"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Espaçadores: %lld"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Distanziaders: %lld"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Разделителей: %lld"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Avstånd: %lld"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Boşluk sayısı: %lld"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Роздільників: %lld"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "间隔项：%lld"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "間隔：%lld"
-          }
-        }
-      }
-    },
     "Split" : {
       "localizations" : {
         "cs" : {
@@ -73781,124 +73073,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "群組圖像與名稱的顏色"
-          }
-        }
-      }
-    },
-    "The file lists the applications below and the section of each. It holds no display, Wi-Fi, hotkey or other setting. Uncheck an application to leave it out." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Soubor uvádí níže uvedené aplikace a sekci každé z nich. Neobsahuje žádné nastavení displeje, Wi-Fi, klávesových zkratek ani jiné. Zrušte zaškrtnutí aplikace, abyste ji vynechali."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Datei enthält die unten aufgeführten Apps und deren Bereich. Sie enthält keine Bildschirm-, WLAN-, Tastenkürzel- oder andere Einstellungen. Entferne das Häkchen bei einer App, um sie wegzulassen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El archivo enumera las aplicaciones de abajo y la sección de cada una. No contiene ningún ajuste de pantalla, Wi-Fi, atajo de teclado ni de otro tipo. Desmarca una aplicación para dejarla fuera."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le fichier contient les apps ci-dessous et la section de chacune. Il ne contient aucun réglage d’écran, de Wi-Fi, de raccourci ou autre. Décochez une app pour l’exclure."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A fájl felsorolja az alábbi alkalmazásokat és mindegyik szakaszát. Nem tartalmaz kijelző-, Wi-Fi-, billentyűparancs- vagy egyéb beállítást. Törölje egy alkalmazás jelölését a kihagyásához."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "File mencantumkan app di bawah dan setiap bagiannya. File tidak berisi layar, Wi-Fi, pintasan keyboard, atau pengaturan lain. Hapus centang app untuk mengecualikannya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il file contiene le app qui sotto e la sezione di ciascuna. Non contiene impostazioni di schermo, Wi-Fi, abbreviazioni da tastiera o altro. Deseleziona un’app per escluderla."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このファイルには、以下のアプリケーションとそれぞれのセクションが記載されます。ディスプレイ、Wi-Fi、ショートカットキーなどの設定は含まれません。含めたくないアプリケーションはチェックを外してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "파일에는 아래의 앱과 각 앱의 섹션이 기록됩니다. 디스플레이, Wi-Fi, 단축키 등의 다른 설정은 들어 있지 않습니다. 제외할 앱은 선택을 해제하세요."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Het bestand bevat de onderstaande apps en de sectie van elk ervan. Het bevat geen beeldscherm-, wifi-, sneltoets- of andere instelling. Schakel een app uit om hem weg te laten."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plik zawiera poniższe aplikacje i sekcję każdej z nich. Nie zawiera ustawień wyświetlacza, Wi-Fi, skrótów klawiszowych ani innych. Odznacz aplikację, aby ją pominąć."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O arquivo lista os aplicativos abaixo e a seção de cada um. Ele não contém nenhum ajuste de monitor, Wi-Fi, atalho de teclado ou de outro tipo. Desmarque um aplicativo para deixá-lo de fora."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La datoteca cuntegna las apps sutvart e la secziun da mintgina. Ella na cuntegna naginas preferenzas da visur, WLAN, cumbinaziuns da tastas u autras. Deactivescha ina app per l’exclude."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "В файл попадает список приложений ниже и раздел каждого из них. Настройки дисплеев, Wi-Fi, горячих клавиш и любые другие в него не входят. Снимите отметку с приложения, чтобы исключить его."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filen listar apparna nedan och var och en av deras sektioner. Den innehåller ingen skärm-, Wi-Fi-, kortkommando- eller annan inställning. Avmarkera en app för att utelämna den."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dosya aşağıdaki uygulamaları ve her birinin bölümlerini listeler. Hiçbir ekran, Wi-Fi, klavye kısayolu veya başka ayar içermez. Bir uygulamayı dışarıda bırakmak için işaretini kaldırın."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "У файлі наведено список програм нижче та розділ кожної з них. Параметрів дисплеїв, Wi-Fi, гарячих клавіш чи будь-яких інших у ньому немає. Зніміть позначку з програми, щоб виключити її."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "文件会列出下方的 App 及其各自所在的分区，不包含显示器、Wi-Fi、快捷键或其他任何设置。取消勾选某个 App 即可将其排除。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "此檔案會列出下方的 App 以及各自的區段，不含任何顯示器、Wi-Fi、快速鍵或其他設定。取消勾選 App 即可將它排除。"
           }
         }
       }
@@ -86883,124 +86057,6 @@
         }
       }
     },
-    "Width: %lld pt" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Šířka: %lld pt"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Breite: %lld pt"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ancho: %lld pt"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Largeur : %lld pt"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Szélesség: %lld pt"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lebar: %lld pt"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Larghezza: %lld pt"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "幅: %lld pt"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "너비: %lld pt"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Breedte: %lld pt"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Szerokość: %lld pt"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Largura: %lld pt"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ladezza: %lld pt"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ширина: %lld пт"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bredd: %lld pt"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Genişlik: %lld pt"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ширина: %lld пт"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "宽度：%lld 磅"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "寬度：%lld pt"
-          }
-        }
-      }
-    },
     "With Reduce Transparency or Increase Contrast on in System Settings (Accessibility, Display), System Glass is drawn opaque with a border." : {
       "localizations" : {
         "cs" : {
@@ -96089,124 +95145,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "沒有它時，holzBar 會顯示 App 的圖像。你隨時可以在「設定」→「進階」中更改。"
-          }
-        }
-      }
-    },
-    "Snapshots to keep: %lld" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Snímky k uchování: %lld"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zu behaltende Schnappschüsse: %lld"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instantáneas que conservar: %lld"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instantanés à conserver : %lld"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Megtartandó pillanatképek: %lld"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Snapshot yang disimpan: %lld"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Istantanee da conservare: %lld"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "保持するスナップショット: %lld"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "보관할 스냅샷: %lld"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Momentopnamen om te bewaren: %lld"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Migawki do zachowania: %lld"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instantâneos a manter: %lld"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Snapshots da mantegnair: %lld"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Хранить снимков: %lld"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ögonblicksbilder att behålla: %lld"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tutulacak anlık görüntüler: %lld"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Знімків для зберігання: %lld"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "要保留的快照：%lld"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "要保留的快照：%lld"
           }
         }
       }
@@ -133879,6 +132817,2624 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar Shelf 會置中顯示在 holzBar 圖像下方。"
+          }
+        }
+      }
+    },
+    "Layout history" : {
+      "comment" : "Profiles & History pane, ProfilesAndHistoryCatalog.swift:14",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historie uspořádání"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layoutverlauf"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historial de la disposición"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historique de la disposition"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elrendezési előzmények"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riwayat tata letak"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cronologia del layout"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "レイアウト履歴"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "레이아웃 기록"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indelingsgeschiedenis"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historia układu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Histórico do layout"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Istorgia dal layout"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "История раскладки"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layouthistorik"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Düzen geçmişi"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Історія розкладки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "布局历史"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "佈局歷史記錄"
+          }
+        }
+      }
+    },
+    "Current layout" : {
+      "comment" : "Profiles & History pane, ProfilesAndHistoryCatalog.swift:35",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktuální uspořádání"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktuelles Layout"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disposición actual"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disposition actuelle"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jelenlegi elrendezés"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tata letak saat ini"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layout attuale"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在のレイアウト"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 레이아웃"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huidige indeling"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bieżący układ"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layout atual"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disposiziun actuala"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Текущая раскладка"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktuell layout"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçerli düzen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поточна розкладка"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前布局"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前的佈局"
+          }
+        }
+      }
+    },
+    "Save the current layout as a profile, for example “Work” or “Home”. A profile with the same name is replaced. Apply it later from here, or with holzbar://profile/<name>." : {
+      "comment" : "Profiles & History pane, ProfilesAndHistoryCatalog.swift:36",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uložte aktuální uspořádání jako profil, například „Práce“ nebo „Domov“. Profil se stejným názvem se nahradí. Použijte ho později odtud nebo přes holzbar://profile/<název>."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sichere das aktuelle Layout als Profil, zum Beispiel «Arbeit» oder «Zuhause». Ein Profil mit demselben Namen wird ersetzt. Wende es später hier an oder mit holzbar://profile/<name>."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guarda la disposición actual como perfil, por ejemplo «Trabajo» o «Casa». Un perfil con el mismo nombre se sustituye. Aplícalo más tarde desde aquí o con holzbar://profile/<name>."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrez la disposition actuelle comme profil, par exemple « Travail » ou « Maison ». Un profil du même nom est remplacé. Appliquez-le plus tard d'ici, ou avec holzbar://profile/<name>."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mentse el a jelenlegi elrendezést profilként, például „Munka” vagy „Otthon” néven. Az azonos nevű profil felülíródik. Később innen alkalmazhatja, vagy a holzbar://profile/<name> címmel."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simpan tata letak saat ini sebagai profil, misalnya “Kerja” atau “Rumah”. Profil dengan nama yang sama akan diganti. Terapkan nanti dari sini, atau dengan holzbar://profile/<name>."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva il layout attuale come profilo, ad esempio «Lavoro» o «Casa». Un profilo con lo stesso nome viene sostituito. Applicalo più tardi da qui o con holzbar://profile/<name>."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在のレイアウトを、たとえば「仕事」や「自宅」のようなプロファイルとして保存します。同じ名前のプロファイルは置き換えられます。後でここから、または holzbar://profile/<name> で適用できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 레이아웃을 예를 들어 “업무”나 “집” 같은 프로파일로 저장합니다. 이름이 같은 프로파일은 교체됩니다. 나중에 여기서 또는 holzbar://profile/<name>으로 적용할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bewaar de huidige indeling als profiel, bijvoorbeeld “Werk” of “Thuis”. Een profiel met dezelfde naam wordt vervangen. Pas het later toe vanaf hier of met holzbar://profile/<name>."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zachowaj bieżący układ jako profil, na przykład „Praca” lub „Dom”. Profil o tej samej nazwie zostanie zastąpiony. Zastosuj go później stąd lub przez holzbar://profile/<name>."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salve o layout atual como perfil, por exemplo “Trabalho” ou “Casa”. Um perfil com o mesmo nome é substituído. Aplique-o depois aqui ou com holzbar://profile/<name>."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memorisescha la disposiziun actuala sco profil, per exempel «Lavur» u «Chasa». In profil cun il medem num vegn substituì. Applitgescha el pli tard qua u cun holzbar://profile/<name>."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохраните текущую раскладку как профиль, например «Работа» или «Дом». Профиль с тем же именем заменяется. Примените его позже отсюда или через holzbar://profile/<name>."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spara den aktuella layouten som en profil, till exempel ”Arbete” eller ”Hem”. En profil med samma namn ersätts. Tillämpa den senare härifrån eller med holzbar://profile/<name>."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçerli düzeni bir profil olarak kaydedin, örneğin “İş” veya “Ev”. Aynı adlı bir profil değiştirilir. Sonra buradan veya holzbar://profile/<name> ile uygulayın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Збережіть поточну розкладку як профіль, наприклад «Робота» або «Дім». Профіль з такою самою назвою замінюється. Застосуйте його пізніше звідси або через holzbar://profile/<name>."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将当前布局存储为配置文件，例如“工作”或“家”。同名配置文件会被替换。之后可在此处应用，或通过 holzbar://profile/<name> 应用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "將目前的佈局儲存為設定檔，例如「工作」或「家」。同名的設定檔會被取代。之後可在此套用，或透過 holzbar://profile/<name> 套用。"
+          }
+        }
+      }
+    },
+    "Profile from a file" : {
+      "comment" : "Profiles & History pane, ProfilesAndHistoryCatalog.swift:43",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil ze souboru"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil aus einer Datei"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perfil desde un archivo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil depuis un fichier"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil fájlból"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil dari file"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profilo da un file"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイルからのプロファイル"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파일에서 가져온 프로파일"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profiel uit een bestand"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil z pliku"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perfil de um arquivo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil or d’ina datoteca"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Профиль из файла"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil från en fil"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dosyadan profil"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Профіль із файлу"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "来自文件的配置文件"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "來自檔案的設定檔"
+          }
+        }
+      }
+    },
+    "Importing adds the profile only. It moves nothing until you apply it." : {
+      "comment" : "Profiles & History pane, ProfilesAndHistoryCatalog.swift:44",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import pouze přidá profil. Nic nepřesune, dokud ho nepoužijete."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Importieren fügt nur das Profil hinzu. Es verschiebt nichts, bis du es anwendest."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar solo añade el perfil. No mueve nada hasta que lo apliques."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’importation ajoute seulement le profil. Elle ne déplace rien tant que vous ne l’appliquez pas."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az importálás csak a profilt adja hozzá. Addig nem mozdít semmit, amíg alkalmazza."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mengimpor hanya menambahkan profil. Tidak ada yang dipindahkan sampai Anda menerapkannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’importazione aggiunge solo il profilo. Non sposta nulla finché non lo applichi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読み込むとプロファイルが追加されるだけです。適用するまで何も移動しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가져오면 프로파일만 추가됩니다. 적용하기 전에는 아무것도 이동하지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importeren voegt alleen het profiel toe. Er wordt niets verplaatst tot je het toepast."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import tylko dodaje profil. Nic nie przenosi, dopóki go nie zastosujesz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar só adiciona o perfil. Nada é movido até você aplicá-lo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’import agiunscha mo il profil. Nagut na vegn spustà fin che ti l’applitgeschas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Импорт только добавляет профиль. Ничего не перемещается, пока вы его не примените."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importen lägger bara till profilen. Inget flyttas förrän du tillämpar den."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İçe aktarma yalnızca profili ekler. Siz uygulayana kadar hiçbir şeyi taşımaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Імпорт лише додає профіль. Нічого не переміщується, доки ви його не застосуєте."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入只会添加配置文件，在你应用之前不会移动任何项目。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "輸入只會加入設定檔，在你套用之前不會移動任何項目。"
+          }
+        }
+      }
+    },
+    "Bundle items" : {
+      "comment" : "Profiles & History pane, ProfilesAndHistoryCatalog.swift:51",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seskupit položky"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemente bündeln"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agrupar elementos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regrouper des éléments"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemek csoportosítása"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gabungkan item"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raggruppa elementi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目をまとめる"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목 묶기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderdelen bundelen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grupuj elementy"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agrupar itens"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cumbinar elements"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Объединить элементы"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samla objekt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öğeleri topla"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обʼєднати елементи"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打包项目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打包項目"
+          }
+        }
+      }
+    },
+    "Number" : {
+      "comment" : "Profiles & History pane, ProfilesAndHistoryCatalog.swift:59",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Počet"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anzahl"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cantidad"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Darabszám"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jumlah"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Numero"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개수"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aantal"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liczba"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quantidade"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dumber"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Количество"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antal"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sayı"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кількість"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数量"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "數量"
+          }
+        }
+      }
+    },
+    "Empty items that add space between others. ⌘ Command-drag them where you want them, or arrange them in Layout. At most ten." : {
+      "comment" : "Profiles & History pane, ProfilesAndHistoryCatalog.swift:60",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prázdné položky, které přidávají místo mezi ostatní. Přetáhněte je s podrženým ⌘ Command na požadované místo nebo je uspořádejte v části „Uspořádání“. Nejvýše deset."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leere Elemente, die Platz zwischen anderen schaffen. Ziehe sie mit ⌘ Befehlstaste an die gewünschte Stelle oder ordne sie unter «Anordnung» an. Höchstens zehn."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementos vacíos que añaden espacio entre otros. Arrástralos con ⌘ Comando donde los quieras, u ordénalos en «Disposición». Como máximo diez."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Des éléments vides qui ajoutent de l'espace entre les autres. Faites-les glisser avec ⌘ Commande où vous voulez, ou disposez-les dans « Disposition ». Dix au maximum."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Üres elemek, amelyek helyet adnak mások között. ⌘ Command nyomva tartásával húzza őket a kívánt helyre, vagy rendezze őket az „Elrendezés” részben. Legfeljebb tíz."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item kosong yang memberi ruang di antara item lain. Tahan ⌘ Command dan seret ke tempat yang Anda inginkan, atau tata di “Tata Letak”. Maksimal sepuluh."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementi vuoti che aggiungono spazio tra gli altri. Trascinali con ⌘ Comando dove vuoi o sistemali in «Disposizione». Al massimo dieci."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "他の項目の間にスペースを入れる空の項目です。⌘ Command を押しながら好きな場所へドラッグするか、「レイアウト」で並べ替えてください。最大10個です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 항목 사이에 공간을 만드는 빈 항목입니다. ⌘ Command 키를 누른 채 원하는 곳으로 드래그하거나 “레이아웃”에서 정리하세요. 최대 10개입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lege onderdelen die ruimte tussen andere onderdelen toevoegen. Sleep ze met ⌘ Command ingedrukt naar de gewenste plek, of orden ze in “Indeling”. Maximaal tien."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puste elementy, które dodają odstęp między innymi. Przeciągnij je z wciśniętym ⌘ Command w wybrane miejsce lub ułóż je w sekcji „Układ”. Najwyżej dziesięć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Itens vazios que adicionam espaço entre outros. Arraste-os com ⌘ Command para onde quiser, ou organize-os em “Layout”. No máximo dez."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elements vids che fan plazza tranter auters. Tira els cun ⌘ Command nua che ti vuls u ordina els en «Disposiziun». Maximal diesch."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пустые элементы, которые добавляют промежутки между другими. Перетащите их куда нужно, удерживая ⌘ Command, или расставьте в разделе «Раскладка». Не более десяти."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tomma objekt som ger plats mellan andra. Håll ⌘ Command nedtryckt och dra dem dit du vill ha dem, eller ordna dem i ”Layout”. Högst tio."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diğerlerinin arasında yer açan boş öğeler. ⌘ Command tuşunu basılı tutarak istediğiniz yere sürükleyin veya “Düzen” bölümünde düzenleyin. En fazla on."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Порожні елементи, що додають проміжки між іншими. Перетягніть їх, куди потрібно, утримуючи ⌘ Command, або розставте в розділі «Розкладка». Не більше десяти."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在其他项目之间添加空白的空项目。按住 ⌘ Command 将它们拖到所需位置，或在“布局”中整理。最多十个。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在其他項目之間加入間距的空項目。按住 ⌘ Command 並拖移到想要的位置，或在「佈局」中排列。最多十個。"
+          }
+        }
+      }
+    },
+    "Snapshots to keep" : {
+      "comment" : "Profiles & History pane, ProfilesAndHistoryCatalog.swift:83",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Počet uchovávaných snímků"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufzubewahrende Momentaufnahmen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instantáneas que conservar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instantanés à conserver"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Megőrzendő pillanatképek"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snapshot yang disimpan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Istantanee da conservare"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保持するスナップショット"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보관할 스냅샷"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te bewaren momentopnamen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Migawki do zachowania"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instantâneos a manter"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snapshots da mantegnair"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хранить снимков"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ögonblicksbilder att spara"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saklanacak anlık görüntüler"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Знімків для збереження"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保留的快照数"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保留的快照數"
+          }
+        }
+      }
+    },
+    "Group symbol" : {
+      "comment" : "Profiles & History pane, ItemGroupsSection.swift:77",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Symbol skupiny"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gruppensymbol"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Símbolo del grupo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Symbole du groupe"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A csoport szimbóluma"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simbol grup"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simbolo del gruppo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "グループのシンボル"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그룹 기호"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Groepssymbool"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Symbol grupy"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Símbolo do grupo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simbol da la gruppa"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Символ группы"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gruppsymbol"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grup sembolü"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Символ групи"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分组符号"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "群組符號"
+          }
+        }
+      }
+    },
+    "Remove Color" : {
+      "comment" : "Profiles & History pane, ItemGroupsSection.swift:117",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odebrat barvu"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farbe entfernen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitar color"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retirer la couleur"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szín eltávolítása"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hapus warna"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi colore"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カラーを削除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "색상 제거"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder kleur"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń kolor"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remover cor"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allontanar la colur"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Убрать цвет"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta bort färg"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rengi kaldır"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прибрати колір"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除颜色"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除顏色"
+          }
+        }
+      }
+    },
+    "Choose…" : {
+      "comment" : "Profiles & History pane, ItemGroupsSection.swift:124",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vybrat…"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auswählen …"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elegir…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir…"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kiválasztás…"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pilih…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選択…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택…"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kies…"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolher…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tscherner …"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбрать…"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Välj…"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seç…"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обрати…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选取…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇⋯"
+          }
+        }
+      }
+    },
+    "holzBar saves the layout by itself before every profile, restore, tidy-up and rule." : {
+      "comment" : "Profiles & History pane, LayoutHistorySection.swift:19",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar uloží uspořádání samo před každým profilem, obnovením, úklidem a pravidlem."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar sichert das Layout von selbst vor jedem Profil, jeder Wiederherstellung, Aufräumaktion und Regel."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar guarda la disposición por sí mismo antes de cada perfil, restauración, limpieza y regla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar enregistre lui-même la disposition avant chaque profil, restauration, rangement et règle."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar magától elmenti az elrendezést minden profil, visszaállítás, rendrakás és szabály előtt."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar menyimpan tata letak sendiri sebelum setiap profil, pemulihan, perapian, dan aturan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar salva da solo il layout prima di ogni profilo, ripristino, riordino e regola."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar は、プロファイル、復元、整理、ルールの前に、レイアウトを自動で保存します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar는 모든 프로파일, 복원, 정리, 규칙 적용 전에 레이아웃을 자동으로 저장합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar bewaart de indeling zelf vóór elk profiel, elke herstelactie, opruimactie en regel."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar sam zachowuje układ przed każdym profilem, przywróceniem, uporządkowaniem i regułą."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar salva o layout por conta própria antes de cada perfil, restauração, arrumação e regra."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar memorisescha sez la disposiziun avant mintga profil, restauraziun, rangiada e regla."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar сам сохраняет раскладку перед каждым профилем, восстановлением, наведением порядка и правилом."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar sparar layouten själv före varje profil, återställning, uppstädning och regel."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar, her profilden, geri yüklemeden, toparlamadan ve kuraldan önce düzeni kendiliğinden kaydeder."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar сам зберігає розкладку перед кожним профілем, відновленням, наведенням ладу та правилом."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在每次应用配置文件、还原、整理和规则之前，holzBar 都会自动存储布局。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在每次套用設定檔、還原、整理和規則之前，holzBar 都會自動儲存佈局。"
+          }
+        }
+      }
+    },
+    "At most 100 profiles. When the limit is reached, delete one to save or import a new one." : {
+      "comment" : "Profiles & History pane, ProfilesSection.swift:78",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nejvýše 100 profilů. Po dosažení limitu jeden smažte, abyste mohli uložit nebo importovat nový."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Höchstens 100 Profile. Ist das Limit erreicht, lösche eines, um ein neues zu sichern oder zu importieren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Como máximo 100 perfiles. Al alcanzar el límite, elimina uno para guardar o importar otro nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "100 profils au maximum. Une fois la limite atteinte, supprimez-en un pour en enregistrer ou en importer un nouveau."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legfeljebb 100 profil. A korlát elérésekor törölje az egyiket, hogy újat menthessen vagy importálhasson."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maksimal 100 profil. Jika batas tercapai, hapus satu untuk menyimpan atau mengimpor yang baru."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al massimo 100 profili. Raggiunto il limite, elimina un profilo per salvarne o importarne uno nuovo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイルは最大100個です。上限に達したら、1つ削除して新しいものを保存または読み込んでください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로파일은 최대 100개입니다. 한도에 도달하면 하나를 삭제한 뒤 새로 저장하거나 가져오세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximaal 100 profielen. Als de limiet is bereikt, verwijder je er een om een nieuw profiel te bewaren of te importeren."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najwyżej 100 profili. Po osiągnięciu limitu usuń jeden, aby zachować lub zaimportować nowy."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No máximo 100 perfis. Ao atingir o limite, exclua um para salvar ou importar um novo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximal 100 profils. Cura che la limita è cuntanschida, stizza in per memorisar u importar in nov."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не более 100 профилей. Когда лимит достигнут, удалите один, чтобы сохранить или импортировать новый."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Högst 100 profiler. När gränsen är nådd tar du bort en för att spara eller importera en ny."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En fazla 100 profil. Sınıra ulaşıldığında yenisini kaydetmek veya içe aktarmak için birini silin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не більше 100 профілів. Коли ліміт досягнуто, видаліть один, щоб зберегти або імпортувати новий."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最多 100 个配置文件。达到上限后，请删除一个再存储或导入新的。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最多 100 個設定檔。達到上限後，請刪除一個再儲存或輸入新的。"
+          }
+        }
+      }
+    },
+    "Save as Profile…" : {
+      "comment" : "Profiles & History pane, ProfilesSection.swift:91",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uložit jako profil…"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als Profil sichern …"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar como perfil…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer comme profil…"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mentés profilként…"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simpan sebagai profil…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva come profilo…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイルとして保存…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로파일로 저장…"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bewaar als profiel…"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zachowaj jako profil…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salvar como perfil…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memorisar sco profil …"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранить как профиль…"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spara som profil…"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil olarak kaydet…"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зберегти як профіль…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "存储为配置文件…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "儲存為設定檔⋯"
+          }
+        }
+      }
+    },
+    "To apply a profile with a Focus, add the holzBar filter to that Focus in System Settings." : {
+      "comment" : "Profiles & History pane, ProfilesSection.swift:120",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chcete-li použít profil s režimem Soustředění, přidejte filtr holzBar do tohoto režimu v Nastavení systému."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um ein Profil mit einem Fokus anzuwenden, füge in den Systemeinstellungen den holzBar-Filter zu diesem Fokus hinzu."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para aplicar un perfil con un modo de concentración, añade el filtro de holzBar a ese modo en Ajustes del Sistema."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour appliquer un profil avec un mode de concentration, ajoutez le filtre holzBar à ce mode dans Réglages Système."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ha egy profilt fókusszal szeretne alkalmazni, adja hozzá a holzBar szűrőt ahhoz a fókuszhoz a Rendszerbeállításokban."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Untuk menerapkan profil dengan Fokus, tambahkan filter holzBar ke Fokus tersebut di Pengaturan Sistem."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per applicare un profilo con una modalità Full immersion, aggiungi il filtro holzBar a quella modalità in Impostazioni di Sistema."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイルを集中モードと連動して適用するには、システム設定でその集中モードに holzBar フィルタを追加してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집중 모드와 함께 프로파일을 적용하려면 시스템 설정에서 해당 집중 모드에 holzBar 필터를 추가하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om een profiel met een Focus toe te passen, voeg je in Systeeminstellingen het holzBar-filter toe aan die Focus."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aby zastosować profil wraz z trybem skupienia, dodaj filtr holzBar do tego trybu w Ustawieniach systemowych."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para aplicar um perfil com um Foco, adicione o filtro do holzBar a esse Foco em Ajustes do Sistema."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per applitgar in profil cun in focus, agiunscha il filter da holzBar a quel focus en las Preferenzas dal sistem."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чтобы применять профиль вместе с режимом «Фокусирование», добавьте фильтр holzBar в этот режим в Системных настройках."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om du vill tillämpa en profil med ett fokus lägger du till holzBar-filtret i det fokuset i Systeminställningar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir profili Odak ile uygulamak için Sistem Ayarları’nda o Odak’a holzBar filtresini ekleyin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Щоб застосовувати профіль разом із режимом «Фокусування», додайте фільтр holzBar до цього режиму в Системних параметрах."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "若要在专注模式下应用配置文件，请在“系统设置”中为该专注模式添加 holzBar 过滤器。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "若要搭配專注模式套用設定檔，請在「系統設定」中為該專注模式加入 holzBar 過濾器。"
+          }
+        }
+      }
+    },
+    "Not bound" : {
+      "comment" : "Profiles & History pane, ProfilesSection.swift:252",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nesvázáno"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht verknüpft"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin vincular"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non associé"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nincs kötve"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidak terikat"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non associato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "関連付けなし"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결 안 됨"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niet gekoppeld"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niepowiązany"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não vinculado"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betg associà"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не привязан"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inte kopplad"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bağlı değil"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не привʼязано"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未绑定"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未綁定"
+          }
+        }
+      }
+    },
+    "Share as a file" : {
+      "comment" : "Profiles & History pane, ProfilesSection.swift:262",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sdílet jako soubor"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als Datei teilen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir como archivo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Partager comme fichier"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Megosztás fájlként"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bagikan sebagai file"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condividi come file"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイルとして共有"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파일로 공유"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delen als bestand"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Udostępnij jako plik"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartilhar como arquivo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cundivider sco datoteca"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поделиться файлом"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dela som fil"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dosya olarak paylaş"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поділитися як файл"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以文件共享"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以檔案分享"
+          }
+        }
+      }
+    },
+    "The file names the apps and the section of each. It holds no display, Wi-Fi, hotkey or other setting." : {
+      "comment" : "Profiles & History pane, ProfilesSection.swift:263",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soubor uvádí aplikace a sekci každé z nich. Neobsahuje žádné nastavení displeje, Wi-Fi, klávesových zkratek ani jiné."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Datei nennt die Apps und den Bereich jeder App. Sie enthält keine Bildschirm-, WLAN-, Tastenkürzel- oder andere Einstellungen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo nombra las apps y la sección de cada una. No contiene ningún ajuste de pantalla, Wi-Fi, atajo u otro."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le fichier nomme les apps et la section de chacune. Il ne contient aucun réglage d’écran, de Wi-Fi, de raccourci ou autre."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A fájl megnevezi az alkalmazásokat és mindegyik szakaszát. Nem tartalmaz kijelző-, Wi-Fi-, gyorsbillentyű- vagy egyéb beállítást."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File ini menyebut aplikasi dan bagian masing-masing. File ini tidak berisi pengaturan layar, Wi-Fi, pintasan, atau pengaturan lain."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il file nomina le app e la sezione di ciascuna. Non contiene impostazioni di display, Wi-Fi, scorciatoie o altro."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このファイルには、アプリケーションとそれぞれのセクションが記載されます。ディスプレイ、Wi-Fi、ショートカットキーなどの設定は含まれません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 파일에는 앱과 각 앱의 섹션이 기록됩니다. 디스플레이, Wi-Fi, 단축키 등 다른 설정은 포함되지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het bestand noemt de apps en het gedeelte van elke app. Het bevat geen scherm-, Wi-Fi-, sneltoets- of andere instellingen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plik zawiera nazwy aplikacji i sekcję każdej z nich. Nie zawiera ustawień wyświetlacza, Wi-Fi, skrótów ani innych."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O arquivo nomeia os apps e a seção de cada um. Ele não contém ajustes de tela, Wi-Fi, atalhos ou outros."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La datoteca numna las apps e la secziun da mintgina. Ella na cuntegna naginas preferenzas da visur, Wi-Fi, scursanidas ni autras."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В файле указаны приложения и раздел каждого из них. В нём нет настроек дисплея, Wi-Fi, горячих клавиш и других."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filen anger apparna och sektionen för var och en. Den innehåller inga inställningar för skärm, Wi-Fi, kortkommandon eller andra."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dosya uygulamaları ve her birinin bölümünü adlandırır. Ekran, Wi-Fi, kısayol veya başka ayar içermez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У файлі названо застосунки та розділ кожного з них. У ньому немає налаштувань дисплея, Wi-Fi, гарячих клавіш чи інших."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件会列出各个 App 及其所在区域。其中不含显示器、Wi-Fi、快捷键或其他设置。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "檔案會列出各個 App 及其所屬區域。其中不含顯示器、Wi-Fi、快速鍵或其他設定。"
+          }
+        }
+      }
+    },
+    "Delete profile" : {
+      "comment" : "Profiles & History pane, ProfilesSection.swift:271",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smazat profil"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil löschen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar perfil"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer le profil"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil törlése"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hapus profil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina profilo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイルを削除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로파일 삭제"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder profiel"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń profil"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluir perfil"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stizzar il profil"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить профиль"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta bort profil"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profili sil"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалити профіль"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除配置文件"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除設定檔"
+          }
+        }
+      }
+    },
+    "The file lists these applications and the section of each. It holds no display, Wi-Fi, hotkey or other setting. Switch an application off to leave it out." : {
+      "comment" : "Profiles & History pane, ShareProfileSheet.swift:22",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soubor uvádí tyto aplikace a sekci každé z nich. Neobsahuje žádné nastavení displeje, Wi-Fi, klávesových zkratek ani jiné. Vypněte aplikaci, abyste ji vynechali."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Datei enthält diese Apps und deren Bereich. Sie enthält keine Bildschirm-, WLAN-, Tastenkürzel- oder andere Einstellungen. Schalte eine App aus, um sie wegzulassen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo contiene estas apps y la sección de cada una. No contiene ningún ajuste de pantalla, Wi-Fi, atajo u otro. Desactiva una app para excluirla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le fichier contient ces apps et la section de chacune. Il ne contient aucun réglage d’écran, de Wi-Fi, de raccourci ou autre. Désactivez une app pour l’exclure."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A fájl ezeket az alkalmazásokat és mindegyik szakaszát tartalmazza. Nem tartalmaz kijelző-, Wi-Fi-, gyorsbillentyű- vagy egyéb beállítást. Kapcsoljon ki egy alkalmazást, hogy kimaradjon."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File ini berisi aplikasi ini dan bagian masing-masing. File ini tidak berisi pengaturan layar, Wi-Fi, pintasan, atau pengaturan lain. Matikan sebuah aplikasi untuk mengecualikannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il file contiene queste app e la sezione di ciascuna. Non contiene impostazioni di display, Wi-Fi, scorciatoie o altro. Disattiva un’app per escluderla."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このファイルには、これらのアプリケーションとそれぞれのセクションが記載されます。ディスプレイ、Wi-Fi、ショートカットキーなどの設定は含まれません。含めたくないアプリケーションはオフにしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 파일에는 이 앱들과 각 앱의 섹션이 기록됩니다. 디스플레이, Wi-Fi, 단축키 등 다른 설정은 포함되지 않습니다. 제외할 앱은 끄세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het bestand bevat deze apps en het gedeelte van elke app. Het bevat geen scherm-, Wi-Fi-, sneltoets- of andere instellingen. Zet een app uit om die weg te laten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plik zawiera te aplikacje i sekcję każdej z nich. Nie zawiera ustawień wyświetlacza, Wi-Fi, skrótów ani innych. Wyłącz aplikację, aby ją pominąć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O arquivo contém estes apps e a seção de cada um. Ele não contém ajustes de tela, Wi-Fi, atalhos ou outros. Desative um app para deixá-lo de fora."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La datoteca cuntegna questas apps e la secziun da mintgina. Ella na cuntegna naginas preferenzas da visur, Wi-Fi, scursanidas ni autras. Deactivescha ina app per l’exclude."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В файле указаны эти приложения и раздел каждого из них. В нём нет настроек дисплея, Wi-Fi, горячих клавиш и других. Выключите приложение, чтобы исключить его."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filen innehåller dessa appar och sektionen för var och en. Den innehåller inga inställningar för skärm, Wi-Fi, kortkommandon eller andra. Stäng av en app för att utesluta den."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dosya bu uygulamaları ve her birinin bölümünü içerir. Ekran, Wi-Fi, kısayol veya başka ayar içermez. Bir uygulamayı hariç tutmak için kapatın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У файлі наведено ці застосунки та розділ кожного з них. У ньому немає налаштувань дисплея, Wi-Fi, гарячих клавіш чи інших. Вимкніть застосунок, щоб виключити його."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件会列出这些 App 及其所在区域。其中不含显示器、Wi-Fi、快捷键或其他设置。关闭某个 App 即可将其排除。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "檔案會列出這些 App 及其所屬區域。其中不含顯示器、Wi-Fi、快速鍵或其他設定。關閉某個 App 即可將其排除。"
+          }
+        }
+      }
+    },
+    "%lld pt" : {
+      "comment" : "Profiles & History pane, SpacersSection.swift:27",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld пт"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld пт"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 磅"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
           }
         }
       }
