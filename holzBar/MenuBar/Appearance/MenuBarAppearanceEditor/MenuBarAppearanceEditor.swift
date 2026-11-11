@@ -13,134 +13,110 @@ struct MenuBarAppearanceEditor: View {
 
     @Environment(AppState.self) var appState
     @Bindable var appearanceManager: MenuBarAppearanceManager
-    @Environment(\.dismissWindow) private var dismissWindow
     @State private var isResetPromptPresented = false
 
     let location: Location
 
+    /// Only the groups: the host (the Settings pane or the panel) draws the scroll view, the margins
+    /// and the ground.
+    @ViewBuilder
     var body: some View {
-        if #available(macOS 26.0, *) {
-            bodyContent
-                .safeAreaBar(edge: .bottom, spacing: 0) {
-                    bottomBar
-                }
-        } else {
-            VStack(spacing: 0) {
-                bodyContent
-                bottomBar
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var bodyContent: some View {
         if appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults {
-            cannotEdit
-        } else if #available(macOS 26.0, *) {
-            mainForm
-                .scrollEdgeEffectStyle(.hard, for: .vertical)
+            SettingsStateLine(.info, Text("holzBar cannot edit the appearance of automatically hidden menu bars."))
         } else {
-            mainForm
-        }
-    }
-
-    @ViewBuilder
-    private var cannotEdit: some View {
-        Text("holzBar cannot edit the appearance of automatically hidden menu bars.")
-            .font(.title3)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-    }
-
-    @ViewBuilder
-    private var mainForm: some View {
-        HolzBarForm {
-            if
-                case .settings = location,
-                appState.settings.advanced.enableSecondaryContextMenu
-            {
-                CalloutBox(
-                    "Tip: You can also edit these settings by right-clicking in an empty area of the menu bar.",
-                    systemImage: "lightbulb"
-                )
-            }
             MoodsSection(appearanceManager: appearanceManager)
-            HolzBarSection {
-                isDynamicToggle
-            }
-            if appearanceManager.configuration.isDynamic {
-                LabeledPartialEditor(configuration: $appearanceManager.configuration, appearance: .light)
-                LabeledPartialEditor(configuration: $appearanceManager.configuration, appearance: .dark)
-            } else {
-                StaticPartialEditor(configuration: $appearanceManager.configuration)
-            }
-            HolzBarSection("Menu Bar Shape") {
-                shapePicker
-                isInset
-                appleLogoShape
-                shapeScreenRecordingHint
-            }
-            HolzBarSection("Notch and Screen") {
-                blackBackgroundPicker
-                screenCorners
-            }
+            shapeGroup
+            dynamicGroup
+            partialEditor
+            notchAndScreenGroup
+            resetGroup
         }
     }
 
     @ViewBuilder
-    private var blackBackgroundPicker: some View {
-        HolzBarPicker("Black menu bar", selection: $appearanceManager.configuration.blackBackground) {
-            ForEach(MenuBarBlackBackground.allCases) { option in
-                Text(option.localized).tag(option)
-            }
-        }
-        .annotation("Draws the menu bar solid black, so the notch blends into it. Works best in dark mode, where the menu bar text is light.")
-    }
-
-    @ViewBuilder
-    private var screenCorners: some View {
-        Toggle("Round the screen corners", isOn: $appearanceManager.configuration.roundsScreenCorners)
-            .annotation("Draws rounded corners on every display, like the corners of a MacBook display.")
-        if appearanceManager.configuration.roundsScreenCorners {
-            LabeledContent {
-                Slider(value: $appearanceManager.configuration.screenCornerRadius, in: 4...24, step: 1)
-                    .frame(maxWidth: 200)
-            } label: {
-                Text("Corner radius: \(Int(appearanceManager.configuration.screenCornerRadius)) pt")
-            }
+    private var partialEditor: some View {
+        if appearanceManager.configuration.isDynamic {
+            LabeledPartialEditor(configuration: $appearanceManager.configuration, appearance: .light)
+            LabeledPartialEditor(configuration: $appearanceManager.configuration, appearance: .dark)
+        } else {
+            StaticPartialEditor(configuration: $appearanceManager.configuration)
         }
     }
 
-    @ViewBuilder
-    private var bottomBar: some View {
-        HStack {
-            if case .panel = location {
-                Button("Done") {
-                    dismissWindow()
+    private var shapeGroup: some View {
+        HolzBarSection("Menu Bar Shape") {
+            shapePicker
+            isInset
+            appleLogoShape
+            shapeScreenRecordingHint
+        }
+    }
+
+    private var dynamicGroup: some View {
+        HolzBarSection {
+            isDynamicToggle
+        }
+    }
+
+    private var notchAndScreenGroup: some View {
+        SettingsGroup(SettingsCatalog.AppearancePane.notchAndScreen) {
+            SettingsPickerRow(
+                .appearanceBlackMenuBar,
+                selection: $appearanceManager.configuration.blackBackground
+            ) {
+                ForEach(MenuBarBlackBackground.allCases) { option in
+                    Text(option.localized).tag(option)
                 }
             }
+            SettingsToggleRow(
+                .appearanceRoundCorners,
+                isOn: $appearanceManager.configuration.roundsScreenCorners
+            )
+            SettingsSliderRow(
+                .appearanceCornerRadius,
+                value: $appearanceManager.configuration.screenCornerRadius,
+                in: 4...24,
+                step: 1
+            ) { radius in
+                Text("\(Int(radius)) pt")
+            }
+            .settingsSubRow()
+            .settingsDependent(on: appearanceManager.configuration.roundsScreenCorners)
+        }
+    }
 
-            Spacer()
+    /// The old callout's condition: the tip points out the panel, which only exists with the
+    /// secondary context menu.
+    private var showsRightClickTip: Bool {
+        if case .settings = location {
+            appState.settings.advanced.enableSecondaryContextMenu
+        } else {
+            false
+        }
+    }
 
-            if
-                !appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults,
-                appearanceManager.configuration != .defaultConfiguration
-            {
-                Button("Reset") {
+    private var resetGroup: some View {
+        SettingsGroup(
+            footnote: showsRightClickTip
+                ? Text("Tip: Right-click an empty area of the menu bar to edit these settings in a panel of their own.")
+                : nil
+        ) {
+            SettingsButtonRow(.appearanceReset) {
+                Button("Reset…", role: .destructive) {
                     isResetPromptPresented = true
                 }
-                .holzBarConfirmation(
-                    isPresented: $isResetPromptPresented,
-                    title: Text("Reset Menu Bar Appearance"),
-                    message: Text("This action cannot be undone."),
-                    confirmTitle: "Reset",
-                    isDestructive: true
-                ) {
-                    appearanceManager.configuration = .defaultConfiguration
-                }
+                .disabled(appearanceManager.configuration == .defaultConfiguration)
+            }
+            .holzBarConfirmation(
+                isPresented: $isResetPromptPresented,
+                title: Text("Reset Menu Bar Appearance"),
+                message: Text("This action cannot be undone."),
+                confirmTitle: "Reset",
+                isDestructive: true
+            ) {
+                appearanceManager.configuration = .defaultConfiguration
             }
         }
-        .buttonBorderShape(.capsule)
-        .padding(10)
     }
 
     @ViewBuilder
