@@ -25,20 +25,26 @@ enum PictureCardGrid {
 /// The card is plain, not glass: it sits in a group that is the glass layer, and nothing inside
 /// glass is glass again. A selected card has the accent border and a check mark, so the choice is
 /// never told by colour alone. The picture is decoration of the name, so VoiceOver reads the name
-/// and "selected".
+/// and "selected". The measures are the settings kit's (D-23): a 42 pt well with radius 6 and a
+/// 1 pt border, a card of radius 10 with padding 8 and a 1.5 pt border, the accent fill at 12 or
+/// 16 % when selected, and the name in `caption` over up to two lines.
 struct PictureCard<Picture: View>: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
 
-    private let title: LocalizedStringKey
+    private let title: Text
     private let isSelected: Bool
     private let action: () -> Void
     private let picture: Picture
 
-    /// The height of the picture's well.
-    private static var wellHeight: CGFloat { HolzBarTheme.Spacing.xxl + HolzBarTheme.Spacing.md }
+    private var wellShape: RoundedRectangle { HolzBarTheme.shape(HolzBarTheme.SettingsKit.pictureWellRadius) }
+    private var cardShape: RoundedRectangle { HolzBarTheme.shape(HolzBarTheme.Radius.list) }
 
-    private var wellShape: RoundedRectangle { HolzBarTheme.shape(HolzBarTheme.Radius.control) }
-    private var cardShape: RoundedRectangle { HolzBarTheme.shape(HolzBarTheme.Radius.card) }
+    private var selectedFill: Double {
+        colorScheme == .dark
+            ? HolzBarTheme.SettingsKit.accentFillDark
+            : HolzBarTheme.SettingsKit.accentFillLight
+    }
 
     /// Creates a card.
     ///
@@ -50,6 +56,16 @@ struct PictureCard<Picture: View>: View {
     ///     text.
     init(
         _ title: LocalizedStringKey,
+        isSelected: Bool,
+        action: @escaping () -> Void,
+        @ViewBuilder picture: () -> Picture
+    ) {
+        self.init(Text(title), isSelected: isSelected, action: action, picture: picture)
+    }
+
+    /// Creates a card whose name is a prepared `Text`, for names that come from a value.
+    init(
+        _ title: Text,
         isSelected: Bool,
         action: @escaping () -> Void,
         @ViewBuilder picture: () -> Picture
@@ -68,10 +84,13 @@ struct PictureCard<Picture: View>: View {
                 // wider than its cell, and the clip keeps it inside the well.
                 Color.clear
                     .frame(maxWidth: .infinity)
-                    .frame(height: Self.wellHeight)
+                    .frame(height: HolzBarTheme.SettingsKit.pictureWellHeight)
                     .overlay { picture }
                     .background(HolzBarTheme.Palette.ground, in: wellShape)
                     .clipShape(wellShape)
+                    .overlay {
+                        wellShape.strokeBorder(HolzBarTheme.Palette.stroke, lineWidth: HolzBarTheme.Spacing.hairline)
+                    }
                     .overlay(alignment: .topTrailing) {
                         if isSelected {
                             Image(systemName: "checkmark.circle.fill")
@@ -82,22 +101,28 @@ struct PictureCard<Picture: View>: View {
                         }
                     }
                     .accessibilityHidden(true)
-                Text(title)
-                    .font(HolzBarTheme.Typography.callout)
-                    .foregroundStyle(HolzBarTheme.Palette.text)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                title
+                    .font(HolzBarTheme.Typography.caption)
+                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
             }
-            .padding(CGFloat(DesignTokens.PictureCard.padding))
+            .padding(HolzBarTheme.SettingsKit.pictureCardPadding)
             .frame(minWidth: 0, maxWidth: .infinity, minHeight: HolzBarTheme.minimumTargetSize)
-            .background(HolzBarTheme.Palette.groundElevated, in: cardShape)
+            .background {
+                // The selected fill lies over the elevated ground.
+                ZStack {
+                    cardShape.fill(HolzBarTheme.Palette.groundElevated)
+                    cardShape.fill(HolzBarTheme.Palette.accent.opacity(isSelected ? selectedFill : 0))
+                }
+            }
             .overlay {
                 // Inside the card's edge, so a selected card's thicker border never reaches
                 // over the gap to its neighbour.
                 cardShape
                     .strokeBorder(
                         isSelected ? HolzBarTheme.Palette.accent : HolzBarTheme.Palette.stroke,
-                        lineWidth: isSelected ? 2 : HolzBarTheme.Spacing.hairline
+                        lineWidth: HolzBarTheme.SettingsKit.pictureCardStrokeWidth
                     )
             }
             .contentShape(cardShape)
