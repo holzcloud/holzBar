@@ -116,7 +116,9 @@ sources=(
   ScriptLaunch
   ScriptOutput
   ScriptStorage
+  SettingsPaneID
   SettingsSchema
+  SettingsSearch
   SharedProfile
   ShelfAlwaysHiddenFold
   ShelfClosedApps
@@ -163,6 +165,7 @@ tests=(
   CommandDragSectionTests
   ControlCenterControlTests
   ControlItemOrderTests
+  DefaultsKeyNamesTests
   DesignTokensTests
   DiagnosticsReportTests
   DisplayBehaviorTests
@@ -232,7 +235,9 @@ tests=(
   ScriptLaunchTests
   ScriptOutputTests
   ScriptStorageTests
+  SettingsPaneIDTests
   SettingsSchemaTests
+  SettingsSearchTests
   SharedProfileTests
   ShelfAlwaysHiddenFoldTests
   ShelfClosedAppsTests
