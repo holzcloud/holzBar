@@ -10,8 +10,6 @@ struct GeneralSettingsPane: View {
     @Bindable var settings: GeneralSettings
     @State private var isApplyingItemSpacingOffset = false
     @State private var tempItemSpacingOffset: CGFloat = 0
-    /// Changes when the displays do, so the list of displays is read again.
-    @State private var displayListVersion = 0
 
     private var itemSpacingOffsetKey: LocalizedStringKey {
         switch tempItemSpacingOffset {
@@ -19,15 +17,6 @@ struct GeneralSettingsPane: View {
         case 0: "default"
         case 16: "max"
         default: "\(tempItemSpacingOffset.formatted())"
-        }
-    }
-
-    private var rehideIntervalKey: LocalizedStringKey {
-        let formatted = settings.rehideInterval.formatted()
-        if settings.rehideInterval == 1 {
-            return "\(formatted) second"
-        } else {
-            return "\(formatted) seconds"
         }
     }
 
@@ -42,24 +31,16 @@ struct GeneralSettingsPane: View {
             HolzBarSection("holzBar Shelf") {
                 shelfOptions
             }
-            HolzBarSection("Showing Items") {
-                showOptions
-            }
-            displayBehaviorSection
-            HolzBarSection("Rehiding") {
-                rehideOptions
+            if #available(macOS 27.0, *) {
+                HolzBarSection("Showing Items") {
+                    clockOpensNotificationCenter
+                }
             }
             HolzBarSection("Item Spacing") {
                 spacingOptions
             }
             if #available(macOS 27.0, *) {
                 PrivacyIndicatorNote(settings: settings)
-            }
-        }
-        .task {
-            // A display that connects or leaves changes the rows of the displays.
-            for await _ in NotificationCenter.default.notifications(named: NSApplication.didChangeScreenParametersNotification) {
-                displayListVersion += 1
             }
         }
     }
@@ -234,13 +215,7 @@ struct GeneralSettingsPane: View {
         .annotation("On other displays, hidden menu bar items are shown in the menu bar itself.")
     }
 
-    // MARK: Show Options
-
-    @ViewBuilder
-    private var showOptions: some View {
-        revealAnimationCards
-        clockOpensNotificationCenter
-    }
+    // MARK: Clock
 
     @ViewBuilder
     private var clockOpensNotificationCenter: some View {
@@ -251,133 +226,6 @@ struct GeneralSettingsPane: View {
                 }
             }
             .annotation("While items are hidden, macOS 27 ignores a click on the clock. holzBar lifts the hiding for a moment and clicks again, so Notification Center opens. Turn this off to leave the click to macOS; the clock then does nothing while items are hidden. It needs only the Accessibility permission holzBar has already.")
-        }
-    }
-
-    @ViewBuilder
-    private var revealAnimationCards: some View {
-        PictureCardRow(
-            selection: $settings.revealAnimationStyle,
-            values: RevealAnimationStyle.allCases,
-            name: \.localized
-        ) {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Text("Animation")
-            }
-        } picture: { style in
-            AnimationStylePicture(style: style)
-        }
-        .annotation {
-            switch MenuBarBackendKind.current {
-            case .service26:
-                Text("Smooth slides the menu bar's items in and out, and the holzBar Shelf out from under the menu bar. Fade fades the holzBar Shelf in; the menu bar's items change at once. Nothing animates while Reduce Motion is on.")
-            case .accessibility27:
-                Text("macOS animates the menu bar itself on macOS 27, and holzBar cannot change that, so the style applies to the holzBar Shelf: Smooth slides it out from under the menu bar, Fade fades it in. Nothing animates while Reduce Motion is on.")
-            case .windowList:
-                Text("The menu bar's items change at once on this version of macOS, so the style applies to the holzBar Shelf: Smooth slides it out from under the menu bar, Fade fades it in. Nothing animates while Reduce Motion is on.")
-            }
-        }
-    }
-
-    // MARK: Display Behaviour
-
-    /// The connected displays, by name.
-    private struct ConnectedDisplay: Identifiable {
-        let uuid: String
-        let name: String
-        var id: String { uuid }
-    }
-
-    private var connectedDisplays: [ConnectedDisplay] {
-        NSScreen.screens.compactMap { screen in
-            Bridging.getDisplayUUIDString(for: screen.displayID).map {
-                ConnectedDisplay(uuid: $0, name: screen.localizedName)
-            }
-        }
-    }
-
-    /// The choice for one display.
-    private func displayBehavior(for uuid: String) -> Binding<DisplayBehavior> {
-        Binding {
-            settings.displayBehaviors.behavior(of: uuid)
-        } set: { behavior in
-            var behaviors = settings.displayBehaviors
-            behaviors.set(behavior, for: uuid)
-            settings.displayBehaviors = behaviors
-        }
-    }
-
-    /// One row per connected display, shown when there is more than one or a choice is stored.
-    @ViewBuilder
-    private var displayBehaviorSection: some View {
-        let displays = connectedDisplays
-        if displays.count > 1 || !settings.displayBehaviors.isEmpty {
-            HolzBarSection {
-                HStack(spacing: HolzBarTheme.Spacing.sm) {
-                    Text("Displays")
-                        .font(.headline)
-                }
-            } content: {
-                ForEach(displays) { display in
-                    HolzBarPicker(selection: displayBehavior(for: display.uuid)) {
-                        ForEach(DisplayBehavior.allCases) { behavior in
-                            Text(behavior.localized).tag(behavior)
-                        }
-                    } label: {
-                        Text(verbatim: display.name)
-                    }
-                }
-            } footer: {
-                Text("The display under the pointer decides. Always show everything keeps every section shown there. Collapse keeps the hidden items hidden there: hovering, clicking empty space and scrolling no longer show them, while the holzBar icon and the hotkeys still do. Neither is used with the holzBar Shelf.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-    }
-
-    // MARK: Rehide Options
-
-    @ViewBuilder
-    private var rehideOptions: some View {
-        autoRehide
-        if settings.autoRehide {
-            rehideStrategyPicker
-        }
-    }
-
-    @ViewBuilder
-    private var autoRehide: some View {
-        Toggle("Automatically rehide", isOn: $settings.autoRehide)
-    }
-
-    @ViewBuilder
-    private var rehideStrategyPicker: some View {
-        VStack {
-            HolzBarPicker("Strategy", selection: $settings.rehideStrategy) {
-                ForEach(RehideStrategy.allCases) { strategy in
-                    Text(strategy.localized).tag(strategy)
-                }
-            }
-            .annotation {
-                switch settings.rehideStrategy {
-                case .smart:
-                    Text("Menu bar items are rehidden using a smart algorithm.")
-                case .timed:
-                    Text("Menu bar items are rehidden after a fixed amount of time.")
-                case .focusedApp:
-                    Text("Menu bar items are rehidden when the focused app changes.")
-                }
-            }
-
-            if case .timed = settings.rehideStrategy {
-                HolzBarSlider(
-                    rehideIntervalKey,
-                    value: $settings.rehideInterval,
-                    in: 0...30,
-                    step: 1
-                )
-            }
         }
     }
 
@@ -487,19 +335,6 @@ private struct PrivacyIndicatorNote: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             Toggle("Show a dot on the holzBar icon while the microphone or camera is in use", isOn: $settings.holzBarIconShowsCaptureDot)
                 .annotation("Orange for the microphone, green for the camera. Uses no permission; holzBar cannot tell when an app records the screen.")
-        }
-    }
-}
-
-// MARK: - DisplayBehavior
-
-extension DisplayBehavior {
-    /// The name of the behaviour.
-    var localized: LocalizedStringKey {
-        switch self {
-        case .standard: "Default"
-        case .showEverything: "Always show everything"
-        case .collapse: "Collapse"
         }
     }
 }

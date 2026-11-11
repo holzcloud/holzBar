@@ -8,20 +8,10 @@ import SwiftUI
 struct AdvancedSettingsPane: View {
     @Environment(AppState.self) var appState
     @Bindable var settings: AdvancedSettings
-    @State private var maxSliderLabelWidth: CGFloat = 0
     @State private var revokingPermission: Permission?
 
     private var menuBarManager: MenuBarManager {
         appState.menuBarManager
-    }
-
-    private func formattedToSeconds(_ interval: TimeInterval) -> LocalizedStringKey {
-        let formatted = interval.formatted()
-        return if interval == 1 {
-            "\(formatted) second"
-        } else {
-            "\(formatted) seconds"
-        }
     }
 
     var body: some View {
@@ -46,7 +36,6 @@ struct AdvancedSettingsPane: View {
                     keepsDockIconHidden
                 }
                 enableSecondaryContextMenu
-                tempShowInterval
                 autoZenWhileSharingScreen
                 lockHiddenItems
                 if !isMacOS27 {
@@ -192,25 +181,6 @@ struct AdvancedSettingsPane: View {
             )
             .padding(.trailing, 75)
         }
-    }
-
-    @ViewBuilder
-    private var tempShowInterval: some View {
-        LabeledContent {
-            HolzBarSlider(
-                formattedToSeconds(settings.tempShowInterval),
-                value: $settings.tempShowInterval,
-                in: 0...30,
-                step: 1
-            )
-        } label: {
-            Text("Hide opened items again after")
-                .frame(minWidth: maxSliderLabelWidth, alignment: .leading)
-                .onFrameChange { frame in
-                    maxSliderLabelWidth = max(maxSliderLabelWidth, frame.width)
-                }
-        }
-        .annotation("Counted from when the item's menu closes. 0 hides it right away.")
     }
 
     @ViewBuilder

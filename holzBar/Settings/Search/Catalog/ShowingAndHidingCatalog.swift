@@ -20,6 +20,12 @@ extension SettingsCatalog {
             .hidingHoverDelay,
             .hidingShowOnScroll,
             .hidingOpenInMenuBar,
+            .hidingAutoRehide,
+            .hidingRehideStrategy,
+            .hidingRehideInterval,
+            .hidingTempShowInterval,
+            .hidingDisplays,
+            .hidingAnimationStyle,
         ]
     }
 }
@@ -63,5 +69,52 @@ extension SettingsEntry {
         group: SettingsCatalog.ShowingAndHidingPane.showHiddenItems,
         label: String(localized: "Open hidden items in the menu bar"),
         info: String(localized: "Shows a hidden item in the menu bar and opens its menu under it. Off, the menu opens without showing the item.")
+    )
+
+    static let hidingAutoRehide = SettingsEntry(
+        id: "hidingAutoRehide",
+        pane: .showingAndHiding,
+        group: SettingsCatalog.ShowingAndHidingPane.hideAgain,
+        label: String(localized: "Automatically rehide")
+    )
+
+    static let hidingRehideStrategy = SettingsEntry(
+        id: "hidingRehideStrategy",
+        pane: .showingAndHiding,
+        group: SettingsCatalog.ShowingAndHidingPane.hideAgain,
+        label: String(localized: "When to hide again"),
+        info: String(localized: "Smart hides items again when you click outside the menu bar, After a fixed time waits for the time you set, and When the app changes hides them when another app comes to the front.")
+    )
+
+    static let hidingRehideInterval = SettingsEntry(
+        id: "hidingRehideInterval",
+        pane: .showingAndHiding,
+        group: SettingsCatalog.ShowingAndHidingPane.hideAgain,
+        label: String(localized: "Time until hiding"),
+        info: String(localized: "How long hidden items stay shown after the pointer leaves the menu bar, from 1 to 30 seconds.")
+    )
+
+    static let hidingTempShowInterval = SettingsEntry(
+        id: "hidingTempShowInterval",
+        pane: .showingAndHiding,
+        group: SettingsCatalog.ShowingAndHidingPane.hideAgain,
+        label: String(localized: "Hide opened items again after"),
+        info: String(localized: "Counted from when the item's menu closes; 0 hides it at once. The hotkey that shows hidden items for a moment and items shown by a rule use the same time.")
+    )
+
+    static let hidingDisplays = SettingsEntry(
+        id: "hidingDisplays",
+        pane: .showingAndHiding,
+        group: SettingsCatalog.ShowingAndHidingPane.displays,
+        label: String(localized: "Hidden items per display"),
+        info: String(localized: "Always show everything keeps every section shown on that display. Collapse keeps hidden items hidden there; only the holzBar icon and the hotkeys show them. Neither applies with the holzBar Shelf.")
+    )
+
+    static let hidingAnimationStyle = SettingsEntry(
+        id: "hidingAnimationStyle",
+        pane: .showingAndHiding,
+        group: SettingsCatalog.ShowingAndHidingPane.animation,
+        label: String(localized: "Style"),
+        info: String(localized: "Instant, Smooth or Fade: how hidden items and the holzBar Shelf appear. What moves depends on the macOS version; nothing moves while Reduce Motion is on.")
     )
 }
