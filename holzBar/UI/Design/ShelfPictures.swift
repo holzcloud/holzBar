@@ -59,8 +59,16 @@ struct ShelfStylePicture: View {
     }
 
     private var shelfShape: UnevenRoundedRectangle {
+        style.pictureShape
+    }
+}
+
+extension HolzBarShelfStyle {
+    /// The shape of the Shelf in a picture: attached touches the menu bar and rounds only its
+    /// bottom corners, floating rounds every corner.
+    fileprivate var pictureShape: UnevenRoundedRectangle {
         let radius = HolzBarTheme.Radius.keyCap
-        return switch style {
+        return switch self {
         case .attached:
             UnevenRoundedRectangle(bottomLeadingRadius: radius, bottomTrailingRadius: radius, style: .continuous)
         case .floating:
@@ -120,6 +128,84 @@ struct ShelfLayoutPicture: View {
     }
 }
 
+/// The picture under the switch "Use holzBar Shelf": the menu bar with a few visible items at its
+/// trailing end and, while the Shelf is on, the Shelf under it in the style and layout chosen,
+/// holding the hidden items. While it is off, the hidden items sit in the menu bar itself,
+/// dimmed. It holds no text and is still.
+struct ShelfOverviewPicture: View {
+    let isOn: Bool
+    let style: HolzBarShelfStyle
+    let layout: ShelfLayout
+
+    /// The width of the menu bar in the picture.
+    private static var barWidth: CGFloat { HolzBarTheme.Spacing.xxl * 5 }
+
+    /// The number of visible items on the bar and of hidden items in the picture.
+    private static let visibleCount = 3
+    private static let hiddenCount = 6
+
+    var body: some View {
+        VStack(alignment: .trailing, spacing: style == .floating ? HolzBarTheme.Spacing.xxs : 0) {
+            bar
+            if isOn {
+                shelf
+                    .padding(.trailing, HolzBarTheme.Spacing.xxl)
+            }
+        }
+        .frame(width: Self.barWidth)
+    }
+
+    private var bar: some View {
+        HStack(spacing: HolzBarTheme.Spacing.xxs) {
+            Spacer(minLength: 0)
+            if !isOn {
+                marks(Self.hiddenCount, color: HolzBarTheme.Palette.accent.opacity(0.35))
+            }
+            marks(Self.visibleCount, color: HolzBarTheme.Palette.textSecondary.opacity(0.6))
+        }
+        .padding(.horizontal, HolzBarTheme.Spacing.xs)
+        .frame(width: Self.barWidth, height: HolzBarTheme.Spacing.md)
+        .background(HolzBarTheme.Palette.textSecondary.opacity(0.35))
+    }
+
+    private var shelf: some View {
+        hiddenMarks
+            .padding(HolzBarTheme.Spacing.xs)
+            .background(HolzBarTheme.Palette.accent.opacity(0.85), in: style.pictureShape)
+    }
+
+    @ViewBuilder
+    private var hiddenMarks: some View {
+        let color = HolzBarTheme.Palette.ground
+        switch layout {
+        case .row:
+            HStack(spacing: HolzBarTheme.Spacing.xxs) {
+                marks(Self.hiddenCount, color: color)
+            }
+        case .grid:
+            VStack(spacing: HolzBarTheme.Spacing.xxs) {
+                ForEach(0..<2, id: \.self) { _ in
+                    HStack(spacing: HolzBarTheme.Spacing.xxs) {
+                        marks(Self.hiddenCount / 2, color: color)
+                    }
+                }
+            }
+        case .column:
+            VStack(spacing: HolzBarTheme.Spacing.xxs) {
+                marks(Self.hiddenCount / 2, color: color)
+            }
+        }
+    }
+
+    private func marks(_ count: Int, color: Color) -> some View {
+        ForEach(0..<count, id: \.self) { _ in
+            Circle()
+                .fill(color)
+                .frame(width: HolzBarTheme.Spacing.xs, height: HolzBarTheme.Spacing.xs)
+        }
+    }
+}
+
 #Preview("ShelfPictures") {
     HStack {
         ForEach(HolzBarShelfStyle.allCases) { style in
@@ -132,6 +218,8 @@ struct ShelfLayoutPicture: View {
                 ShelfLayoutPicture(layout: layout)
             })
         }
+        ShelfOverviewPicture(isOn: true, style: .floating, layout: .grid)
+        ShelfOverviewPicture(isOn: false, style: .attached, layout: .row)
     }
     .padding()
     .frame(width: 520)

@@ -73,7 +73,6 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var shelfOptions: some View {
-        useShelf
         if settings.useShelf {
             shelfStylePicker
             shelfLocationPicker
@@ -96,12 +95,6 @@ struct GeneralSettingsPane: View {
                     .annotation("Visible items that the notch hides, for example behind a long application menu, also appear in the holzBar Shelf.")
             }
         }
-    }
-
-    @ViewBuilder
-    private var useShelf: some View {
-        Toggle("Use holzBar Shelf", isOn: $settings.useShelf)
-            .annotation("Show hidden menu bar items in a separate bar below the menu bar.")
     }
 
     @ViewBuilder
