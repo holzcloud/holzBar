@@ -33,17 +33,31 @@ extension EnvironmentValues {
 /// the minimum height and the leading inset. The hairline is part of the layout, not an overlay,
 /// and the group pulls the first one out of view (D-51).
 struct SettingsRowChrome: ViewModifier {
-    /// The id of the catalogue entry the row shows; 89-03 attaches the reveal id and the
-    /// highlight to it.
+    /// The id of the catalogue entry the row shows: it is the row's scroll id and the key of its
+    /// highlight after a found setting led to it.
     let entryID: String?
     let minHeight: CGFloat
     let verticalPadding: CGFloat
     let trailingPadding: CGFloat
 
     @Environment(\.settingsRowLeadingPadding) private var leadingPadding
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(SettingsSearchModel.self) private var search: SettingsSearchModel?
 
+    /// Whether the row is the one a found setting led to, for the moment its highlight shows.
+    private var isHighlighted: Bool {
+        entryID != nil && search?.highlightedEntry == entryID
+    }
+
+    private var highlightOpacity: Double {
+        colorScheme == .dark
+            ? HolzBarTheme.SettingsKit.accentFillDark
+            : HolzBarTheme.SettingsKit.accentFillLight
+    }
+
+    @ViewBuilder
     func body(content: Content) -> some View {
-        VStack(spacing: 0) {
+        let row = VStack(spacing: 0) {
             Rectangle()
                 .fill(HolzBarTheme.Palette.stroke)
                 .frame(height: HolzBarTheme.Spacing.hairline)
@@ -54,6 +68,19 @@ struct SettingsRowChrome: ViewModifier {
                 .padding(.trailing, trailingPadding)
                 .frame(minHeight: minHeight)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .background {
+                    // Below the hairline and inside the group's clip; opacity, not presence, so a
+                    // change inside an animation fades.
+                    HolzBarTheme.Palette.accent
+                        .opacity(isHighlighted ? highlightOpacity : 0)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
+        }
+        if let entryID {
+            row.id(entryID)
+        } else {
+            row
         }
     }
 }

@@ -62,6 +62,12 @@ struct SettingsView: View {
                 text: Bindable(navigationState.settingsSearch).query,
                 isFocused: $isSearchFocused
             )
+            .onSubmit {
+                // Return reaches the first hit without the mouse.
+                if let first = navigationState.settingsSearch.results.first {
+                    navigationState.revealSetting(first)
+                }
+            }
             .padding(.horizontal, HolzBarTheme.SettingsSidebar.rowPadding)
             .padding(.bottom, HolzBarTheme.SettingsSidebar.searchFieldBottomGap)
             sidebarRows

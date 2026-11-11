@@ -33,6 +33,30 @@ final class AppNavigationState {
 
     /// The Settings window, while it exists. Its visibility is ``isSettingsPresented``.
     @ObservationIgnored weak var settingsWindow: NSWindow?
+
+    /// Leads from a found setting to its row: selects its pane (which ends the search), opens the
+    /// disclosure and the module that hold it, and sets the row as the target the pane host
+    /// scrolls to and highlights. It does not open the window; callers do that.
+    func revealSetting(_ entry: SettingsEntry) {
+        settingsNavigationIdentifier = SettingsNavigationIdentifier(entry.pane)
+        if let disclosure = entry.disclosure {
+            settingsSearch.openDisclosures.insert(disclosure)
+        }
+        if let module = entry.module {
+            settingsSearch.openModule = module
+        }
+        settingsSearch.revealTarget = entry.id
+        settingsSearch.clear()
+    }
+
+    /// Opens the Modules pane with one module's area open and scrolled into view. The module's
+    /// row carries the catalogue id `modules.<id>`. It does not open the window; callers do that.
+    func openModuleSettings(_ moduleID: String) {
+        settingsNavigationIdentifier = .modules
+        settingsSearch.openModule = moduleID
+        settingsSearch.revealTarget = "modules.\(moduleID)"
+        settingsSearch.clear()
+    }
 }
 
 /// The menu bar item that a rule is made or edited for.
