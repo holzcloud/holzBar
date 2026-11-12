@@ -6,7 +6,7 @@
 import SwiftUI
 
 /// One section of the menu bar layout: the strip of its items, which can be dragged, inside a
-/// card that the pane draws (``HolzBarSection``).
+/// card that the pane draws (``SettingsGroup``).
 ///
 /// The strip keeps the colour of the real menu bar, because the pictures of the items are
 /// captured from it and are only legible on it. Everything around the strip follows the
