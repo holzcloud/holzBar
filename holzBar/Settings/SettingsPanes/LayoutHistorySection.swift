@@ -43,6 +43,9 @@ struct LayoutHistorySection: View {
                 Text("Snapshots: \(snapshots.snapshots.count)"),
                 id: SettingsCatalog.ProfilesAndHistoryPane.snapshotsDisclosure
             ) {
+                if snapshots.snapshots.isEmpty {
+                    SettingsEmptyRow(systemImage: "clock.arrow.circlepath", Text("No snapshots yet: holzBar takes one when the bar settles and once a day."))
+                }
                 ForEach(snapshots.snapshots) { snapshot in
                     row(for: snapshot)
                 }

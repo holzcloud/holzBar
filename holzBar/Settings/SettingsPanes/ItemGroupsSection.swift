@@ -47,6 +47,9 @@ struct ItemGroupsSection: View {
 
     var body: some View {
         SettingsGroup(SettingsCatalog.ProfilesAndHistoryPane.groups) {
+            if groups.groups.isEmpty {
+                SettingsEmptyRow(systemImage: "square.grid.2x2", Text("No groups yet: a group puts items behind an icon of its own."))
+            }
             ForEach(groups.groups) { group in
                 groupRows(for: group)
             }

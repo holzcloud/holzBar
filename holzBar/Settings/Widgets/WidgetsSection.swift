@@ -32,6 +32,9 @@ struct WidgetsSection: View {
     }
 
     var body: some View {
+        if widgets.definitions.isEmpty {
+            SettingsEmptyRow(systemImage: "square.on.square", Text("No widgets yet: a widget shows a value or runs an action in the menu bar."))
+        }
         ForEach(widgets.definitions) { definition in
             row(for: definition)
             if editingID == definition.id {

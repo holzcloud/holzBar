@@ -77,6 +77,9 @@ struct ProfilesSection: View {
             SettingsCatalog.ProfilesAndHistoryPane.profiles,
             footnote: Text("At most 100 profiles. When the limit is reached, delete one to save or import a new one.")
         ) {
+            if profiles.profiles.isEmpty {
+                SettingsEmptyRow(systemImage: "rectangle.stack", Text("No profiles yet: save the current layout to switch back to it later."))
+            }
             ForEach(profiles.profiles) { profile in
                 ProfileRows(
                     profiles: profiles,

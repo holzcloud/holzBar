@@ -70,6 +70,9 @@ struct AutomationSettingsPane: View {
             SettingsCatalog.AutomationPane.rules,
             footnote: Text("With no rules, nothing is observed.")
         ) {
+            if manager.rules.isEmpty {
+                SettingsEmptyRow(systemImage: "bolt.badge.automatic", Text("No rules yet: a rule changes the menu bar when something on your Mac changes."))
+            }
             ForEach($manager.rules) { $rule in
                 SettingsModuleRow(
                     Text(verbatim: rule.name),

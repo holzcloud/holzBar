@@ -24,6 +24,9 @@ struct MoodsSection: View {
             SettingsCatalog.AppearancePane.moods,
             footnote: Text("At most \(MoodNaming.maximumCount) moods. A name has up to \(MoodNaming.maximumNameLength) characters.")
         ) {
+            if appearanceManager.moods.isEmpty {
+                SettingsEmptyRow(systemImage: "paintpalette", Text("No moods yet: save the current look to switch to it in one click."))
+            }
             ForEach(appearanceManager.moods) { mood in
                 row(for: mood)
             }
