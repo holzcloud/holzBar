@@ -226,6 +226,13 @@ enum HolzBarTheme {
         static let paneMarginBottom = CGFloat(DesignTokens.SettingsKit.paneMarginBottom)
     }
 
+    /// The measures of the onboarding window (D-22).
+    enum Onboarding {
+        static let width = CGFloat(DesignTokens.Onboarding.width)
+        static let pictureHeight = CGFloat(DesignTokens.Onboarding.pictureHeight)
+        static let dotSize = CGFloat(DesignTokens.Onboarding.dotSize)
+    }
+
     /// The measures of Layout's list view (mock-up 01, D-08).
     enum LayoutList {
         static let appColumnWidth = CGFloat(DesignTokens.LayoutList.appColumnWidth)

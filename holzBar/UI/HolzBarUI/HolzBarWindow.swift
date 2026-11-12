@@ -108,6 +108,9 @@ enum HolzBarWindowIdentifier: String, Sendable, CustomStringConvertible {
     /// The identifier for holzBar's What's New window.
     case whatsNew = "WhatsNewWindow"
 
+    /// The identifier for holzBar's onboarding window.
+    case onboarding = "OnboardingWindow"
+
     /// The non-localized title of the corresponding window.
     ///
     /// - Note: Use ``titleKey`` to get the localized title.
@@ -116,6 +119,7 @@ enum HolzBarWindowIdentifier: String, Sendable, CustomStringConvertible {
         case .settings: "holzBar"
         case .permissions: "Permissions"
         case .whatsNew: "What's New"
+        case .onboarding: "Welcome to holzBar"
         }
     }
 

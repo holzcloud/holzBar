@@ -34,6 +34,8 @@ final class AppNavigationState {
     let settingsSearch = SettingsSearchModel()
     /// Whether the Menu Bar Layout pane shows the clean-up assistant.
     var isTidyUpPresented = false
+    /// Whether the onboarding window is on screen.
+    var isOnboardingPresented = false
     /// Whether Layout shows the bars or the list; lasts for the session, never stored (D-09).
     var layoutView = LayoutPaneView.bars
     /// The text of Layout's filter; lasts for the session, never stored (D-09).

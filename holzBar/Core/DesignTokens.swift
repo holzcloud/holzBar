@@ -462,6 +462,16 @@ nonisolated enum DesignTokens {
         static let paneMarginBottom: Double = 22
     }
 
+    /// The onboarding window (D-22, D-36).
+    nonisolated enum Onboarding {
+        /// The width of the window's content.
+        static let width: Double = 440
+        /// The height of the picture well above each step's title.
+        static let pictureHeight: Double = 44
+        /// The size of a page dot.
+        static let dotSize: Double = 6
+    }
+
     /// The list view of Layout (mock-up 01, D-08).
     nonisolated enum LayoutList {
         /// The width of the App column (mock-up 01).

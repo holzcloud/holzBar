@@ -34,11 +34,15 @@ enum MigrationManager {
     ///
     /// Settings of any Ice version are brought into the current schema while they are
     /// imported (``LegacySettingsMigration``), so nothing migrates at launch.
-    static func importPreviousSettingsIfNeeded() {
+    ///
+    /// - Returns: Whether settings of Ice were taken over now. The stored flag cannot tell:
+    ///   it is written on every first run, with or without Ice.
+    @discardableResult
+    static func importPreviousSettingsIfNeeded() -> Bool {
         let defaults = UserDefaults.standard
         let flag = Defaults.Key.hasImportedPreviousSettings.rawValue
         guard !defaults.bool(forKey: flag) else {
-            return
+            return false
         }
         let isNewInstall = ownSettingsAreEmpty
         defaults.set(true, forKey: flag)
@@ -47,7 +51,7 @@ enum MigrationManager {
             let settings = defaults.persistentDomain(forName: iceBundleIdentifier),
             !settings.isEmpty
         else {
-            return
+            return false
         }
         // Window frames and status item positions belong to Ice's own windows
         // and items, not to holzBar's. The first launch after importing them
@@ -75,6 +79,7 @@ enum MigrationManager {
         logger.notice(
             "Imported \(imported.count, privacy: .public) of \(settings.count, privacy: .public) settings from Ice"
         )
+        return !imported.isEmpty
     }
 
     /// Converts the menu bar appearance of Ice before 0.11.10 into the current

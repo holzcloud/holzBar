@@ -236,6 +236,10 @@ final class AppState {
     /// the settings of Ice are imported. The What's New window stays closed then.
     @ObservationIgnored var isFreshInstall = false
 
+    /// Whether this launch took over the settings of Ice. Only this launch knows it; the
+    /// onboarding and the tidy-up suggestion are kept from such a Mac by their own flags.
+    @ObservationIgnored var didImportPreviousSettings = false
+
     /// Whether the setup finished: before, the settings and items are not loaded yet.
     @ObservationIgnored private(set) var isSetUp = false
 
@@ -288,7 +292,7 @@ final class AppState {
         configureObservers()
         isSetUp = true
         Task {
-            await TidyUpOffer.offerIfFirstLaunch(appState: self)
+            await OnboardingOffer.offerIfPending(appState: self)
         }
         Task {
             await WhatsNewOffer.offerIfNeeded(appState: self)

@@ -48,6 +48,7 @@ sources=(
   DisplayBehavior
   DisplayControlsLevel
   DividerPlausibility
+  DockIconPolicy
   DownloadScan
   DownloadTracker
   FileDragWatch
@@ -101,6 +102,7 @@ sources=(
   NowPlayingRemoteLaunch
   NowPlayingRemoteMessage
   NowPlayingTrack
+  OnboardingPolicy
   OpenMenuWait
   OutputVolumePlan
   OwnBundle
@@ -176,6 +178,7 @@ tests=(
   DisplayBehaviorTests
   DisplayControlsLevelTests
   DividerPlausibilityTests
+  DockIconPolicyTests
   DownloadScanTests
   DownloadTrackerTests
   FileDragWatchTests
@@ -224,6 +227,7 @@ tests=(
   NowPlayingPlayersTests
   NowPlayingRemoteLaunchTests
   NowPlayingRemoteMessageTests
+  OnboardingPolicyTests
   OpenMenuWaitTests
   OutputVolumePlanTests
   OwnBundleTests

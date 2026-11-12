@@ -414,6 +414,13 @@ struct DesignTokensTests {
         #expect(Tokens.SettingsSidebar.rowRadius == Tokens.Radius.control)
     }
 
+    @Test("The onboarding keeps its measures")
+    func onboardingMeasures() {
+        #expect(Tokens.Onboarding.width == 440)
+        #expect(Tokens.Onboarding.pictureHeight == 44)
+        #expect(Tokens.Onboarding.dotSize == 6)
+    }
+
     @Test("The Layout list keeps the measures of mock-up 01")
     func layoutListMeasures() {
         let list = Tokens.LayoutList.self
