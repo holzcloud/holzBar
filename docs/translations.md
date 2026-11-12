@@ -32,7 +32,7 @@ A date in the status column means a native speaker went through every string tha
 
 ## What machine-made and reviewed mean
 
-- **Machine-made**: the text was written by a language model, with a glossary built from Apple's own wording (`Translations/glossary.json`) and checked by script. No person who speaks the language has gone through it yet. All nineteen translations are machine-made today.
+- **Machine-made**: the text was written by a language model, with a glossary built from Apple's own wording (`Translations/glossary.json`) and checked by script. No person who speaks the language has gone through it yet. All nineteen translations are machine-made today. A term of the glossary can carry a usage note (for example titles and sentences), which new strings follow.
 - **Reviewed through a date**: a review round covered every string that existed on that date, and a person who knows the language corrected what needed it. The record of such a round lives in `Translations/reviews/<code>.json`: for each string it covered, a short hash of the English text and the translation as it stood after the round. A string whose English text or translation changes later no longer matches the record and counts as unreviewed again.
 
 No document calls a language reviewed for strings that no round covered.

@@ -20,7 +20,7 @@ final class MenuBarSection {
             switch self {
             case .visible: String(localized: "Visible")
             case .hidden: String(localized: "Hidden")
-            case .alwaysHidden: String(localized: "Always-Hidden")
+            case .alwaysHidden: String(localized: "Always Hidden")
             }
         }
 
@@ -47,7 +47,7 @@ final class MenuBarSection {
             switch self {
             case .visible: "Visible"
             case .hidden: "Hidden"
-            case .alwaysHidden: "Always-Hidden"
+            case .alwaysHidden: "Always Hidden"
             }
         }
     }

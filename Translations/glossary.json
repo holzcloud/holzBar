@@ -375,7 +375,8 @@
           "source": "catalog",
           "entries": 13
         }
-      }
+      },
+      "usage": "Title of the third section: Always Hidden. In sentences: always-hidden items."
     },
     {
       "en": "visible",
@@ -3748,6 +3749,88 @@
           "text": "通知",
           "source": "catalog",
           "entries": 8
+        }
+      }
+    },
+    {
+      "en": "always-hidden items",
+      "usage": "In sentences; the section's title is Always Hidden.",
+      "translations": {
+        "de": {
+          "text": "immer ausgeblendete Elemente",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "fr": {
+          "text": "éléments toujours masqués",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "it": {
+          "text": "elementi sempre nascosti",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "rm": {
+          "text": "elements adina zuppads",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "es": {
+          "text": "elementos siempre ocultos",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "nl": {
+          "text": "altijd verborgen onderdelen",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "pt-BR": {
+          "text": "itens sempre ocultos",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "pl": {
+          "text": "zawsze ukryte elementy",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "cs": {
+          "text": "vždy skryté položky",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "hu": {
+          "text": "mindig rejtett elemek",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "sv": {
+          "text": "alltid dolda objekt",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "tr": {
+          "text": "her zaman gizli öğeler",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "id": {
+          "text": "item selalu tersembunyi",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "ru": {
+          "text": "всегда скрытые элементы",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "uk": {
+          "text": "завжди приховані елементи",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "ja": {
+          "text": "常に非表示の項目",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "ko": {
+          "text": "항상 숨긴 항목",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "zh-Hans": {
+          "text": "始终隐藏的项目",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        },
+        "zh-Hant": {
+          "text": "一律隱藏的項目",
+          "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
         }
       }
     }
