@@ -5,104 +5,108 @@
 
 import SwiftUI
 
-/// The list of optional modules: one glass group per area with a row per module.
+/// The rows of a list of optional modules, as kit module rows.
 ///
-/// The view knows no module by name. What a row says comes from the closures, and the
-/// settings of a module open under its row only while the module is on.
+/// The view knows no module by name: what a row says comes from the closures. One module's
+/// settings are open at a time, through the `openModule` binding. A module that depends on
+/// another one's switch is a sub row, dimmed while that switch is off.
 struct ModuleListView<Settings: View>: View {
     private let modules: [ModuleDescriptor]
     private let store: ModuleStore
-    private let areaTitle: (ModuleArea) -> Text
-    private let title: (ModuleDescriptor) -> Text
-    private let summary: (ModuleDescriptor) -> Text
-    private let permissionText: (ModulePermission) -> Text
-    private let isPermissionGranted: (ModulePermission) -> Bool
-    private let emptyTitle: Text
-    private let emptyMessage: Text
+    @Binding private var openModule: String?
+    private let entry: (ModuleDescriptor) -> SettingsEntry
+    private let small: (ModuleDescriptor) -> Text?
+    private let parent: (ModuleDescriptor) -> String?
+    private let hasSettings: (ModuleDescriptor) -> Bool
     private let settings: (ModuleDescriptor) -> Settings
 
     init(
         modules: [ModuleDescriptor],
         store: ModuleStore,
-        areaTitle: @escaping (ModuleArea) -> Text,
-        title: @escaping (ModuleDescriptor) -> Text,
-        summary: @escaping (ModuleDescriptor) -> Text,
-        permissionText: @escaping (ModulePermission) -> Text,
-        isPermissionGranted: @escaping (ModulePermission) -> Bool,
-        emptyTitle: Text,
-        emptyMessage: Text,
+        openModule: Binding<String?>,
+        entry: @escaping (ModuleDescriptor) -> SettingsEntry,
+        small: @escaping (ModuleDescriptor) -> Text?,
+        parent: @escaping (ModuleDescriptor) -> String?,
+        hasSettings: @escaping (ModuleDescriptor) -> Bool,
         @ViewBuilder settings: @escaping (ModuleDescriptor) -> Settings
     ) {
         self.modules = modules
         self.store = store
-        self.areaTitle = areaTitle
-        self.title = title
-        self.summary = summary
-        self.permissionText = permissionText
-        self.isPermissionGranted = isPermissionGranted
-        self.emptyTitle = emptyTitle
-        self.emptyMessage = emptyMessage
+        _openModule = openModule
+        self.entry = entry
+        self.small = small
+        self.parent = parent
+        self.hasSettings = hasSettings
         self.settings = settings
     }
 
     var body: some View {
-        ScrollView {
-            if modules.isEmpty {
-                EmptyState(systemImage: "square.grid.2x2", title: emptyTitle, message: emptyMessage)
+        ForEach(modules) { module in
+            if let parentID = parent(module) {
+                row(for: module)
+                    .settingsSubRow()
+                    .settingsDependent(on: store.isEnabled(parentID))
             } else {
-                VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xl) {
-                    ForEach(ModuleCatalog.populatedAreas(of: modules), id: \.self) { area in
-                        section(for: area)
-                    }
-                }
-                .padding(HolzBarTheme.Spacing.lg)
+                row(for: module)
             }
-        }
-        .scrollContentBackground(.hidden)
-        .accessibilityElement(children: .contain)
-    }
-
-    private func section(for area: ModuleArea) -> some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-            areaTitle(area)
-                .font(HolzBarTheme.Typography.headline)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                .accessibilityAddTraits(.isHeader)
-            VStack(spacing: 0) {
-                let rows = ModuleCatalog.modules(in: area, of: modules)
-                ForEach(rows) { module in
-                    row(for: module)
-                    if module.id != rows.last?.id {
-                        Divider()
-                            .overlay(HolzBarTheme.Palette.stroke)
-                    }
-                }
-            }
-            .clipShape(HolzBarTheme.shape(HolzBarTheme.Radius.card))
-            .holzBarGlass(in: HolzBarTheme.shape(HolzBarTheme.Radius.card))
         }
     }
 
+    @ViewBuilder
     private func row(for module: ModuleDescriptor) -> some View {
-        ModuleRow(
-            systemImage: module.symbol,
-            title: title(module),
-            summary: summary(module),
-            isOn: Binding(
-                get: { store.isEnabled(module.id) },
-                set: { store.setEnabled(module.id, $0) }
-            ),
-            permission: module.permission.map(permissionText),
-            isPermissionGranted: module.permission.map(isPermissionGranted) ?? false,
-            isPreview: module.isPreview
-        ) {
-            settings(module)
+        let isOn = Binding(
+            get: { store.isEnabled(module.id) },
+            set: { store.setEnabled(module.id, $0) }
+        )
+        let badge: SettingsBadge? = module.isPreview ? .preview : nil
+        if hasSettings(module) {
+            SettingsModuleRow(
+                entry(module),
+                systemImage: module.symbol,
+                isOn: isOn,
+                isOpen: isOpenBinding(for: module),
+                small: small(module),
+                badge: badge
+            ) {
+                settings(module)
+            }
+        } else {
+            SettingsModuleRow(
+                entry(module),
+                systemImage: module.symbol,
+                isOn: isOn,
+                small: small(module),
+                badge: badge
+            )
         }
+    }
+
+    /// Open while this module is the open one; closing it closes only this module.
+    private func isOpenBinding(for module: ModuleDescriptor) -> Binding<Bool> {
+        Binding(
+            get: { openModule == module.id },
+            set: { isOpen in
+                if isOpen {
+                    openModule = module.id
+                } else if openModule == module.id {
+                    openModule = nil
+                }
+            }
+        )
     }
 }
 
 #Preview("ModuleListView") {
+    @Previewable @State var openModule: String?
     let modules = [
+        ModuleDescriptor(
+            id: "notch-hub",
+            area: .notch,
+            symbol: "rectangle.topthird.inset.filled",
+            titleKey: "Notch hub",
+            summaryKey: "A panel at the notch.",
+            permission: nil
+        ),
         ModuleDescriptor(
             id: "timers",
             area: .notch,
@@ -111,38 +115,32 @@ struct ModuleListView<Settings: View>: View {
             summaryKey: "Countdowns in the notch hub.",
             permission: nil
         ),
-        ModuleDescriptor(
-            id: "calendar",
-            area: .notch,
-            symbol: "calendar",
-            titleKey: "Calendar",
-            summaryKey: "Next events and meeting links.",
-            permission: .calendar
-        ),
-        ModuleDescriptor(
-            id: "clipboard",
-            area: .clipboard,
-            symbol: "doc.on.clipboard",
-            titleKey: "Clipboard history",
-            summaryKey: "Local, opt-in and erasable.",
-            permission: nil
-        ),
     ]
-    return ModuleListView(
-        modules: modules,
-        store: ModuleStore(defaults: UserDefaults(suiteName: "holzBar.preview") ?? .standard, catalog: modules),
-        areaTitle: { Text(verbatim: $0.rawValue.capitalized) },
-        title: { Text(verbatim: $0.titleKey) },
-        summary: { Text(verbatim: $0.summaryKey) },
-        permissionText: { Text(verbatim: "Needs \($0.rawValue)") },
-        isPermissionGranted: { _ in false },
-        emptyTitle: Text(verbatim: "No modules yet"),
-        emptyMessage: Text(verbatim: "Modules arrive with the next releases."),
-        settings: { _ in
-            Text(verbatim: "Settings of the module.")
-                .font(HolzBarTheme.Typography.callout)
-        }
-    )
-    .frame(width: 720, height: 520)
+    let entry = { (module: ModuleDescriptor) in
+        SettingsEntry(
+            id: "modules.\(module.id)",
+            pane: .modules,
+            group: "Notch",
+            label: module.titleKey,
+            summary: module.summaryKey,
+            module: module.id
+        )
+    }
+    SettingsGroup {
+        ModuleListView(
+            modules: modules,
+            store: ModuleStore(defaults: UserDefaults(suiteName: "holzBar.preview") ?? .standard, catalog: modules),
+            openModule: $openModule,
+            entry: entry,
+            small: { $0.id == "timers" ? Text(verbatim: "in the hub") : nil },
+            parent: { $0.id == "timers" ? "notch-hub" : nil },
+            hasSettings: { _ in true },
+            settings: { _ in
+                Text(verbatim: "Settings of the module.")
+            }
+        )
+    }
+    .frame(width: 620)
+    .padding()
     .background(HolzBarTheme.Palette.ground)
 }
