@@ -58,6 +58,16 @@ extension SettingsCatalog {
             .modulesAppleItemsReplacements,
             .modulesNotchHubOpensOnHover,
             .modulesNotchHubDisplays,
+            // Settings of the hub modules, in catalog order.
+            .modulesDisplayControlsBrightness,
+            .modulesAccessoryAlertsConnect,
+            .modulesAccessoryAlertsDisconnect,
+            .modulesAccessoryAlertsReadsBattery,
+            .modulesAccessoryAlertsLowBattery,
+            .modulesAccessoryAlertsLowBatteryLevel,
+            .modulesNowPlayingAppleMusic,
+            .modulesNowPlayingSpotify,
+            .modulesNowPlayingReadsAllApps,
         ]
 
         /// Whether a row entry belongs to a module this Mac can run.
@@ -158,5 +168,85 @@ extension SettingsEntry {
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Show the hub on"),
         module: NotchHubController.moduleID
+    )
+
+    // MARK: Settings of the hub modules
+
+    static let modulesDisplayControlsBrightness = SettingsEntry(
+        id: "modulesDisplayControlsBrightness",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Brightness"),
+        info: String(localized: "Uses a private macOS interface. It switches itself off if macOS changes it."),
+        module: "display-controls"
+    )
+
+    static let modulesAccessoryAlertsConnect = SettingsEntry(
+        id: "modulesAccessoryAlertsConnect",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Alert when an accessory connects"),
+        info: String(localized: "A capsule below the notch names the accessory for five seconds."),
+        module: "accessory-alerts"
+    )
+
+    static let modulesAccessoryAlertsDisconnect = SettingsEntry(
+        id: "modulesAccessoryAlertsDisconnect",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Alert when an accessory disconnects"),
+        info: String(localized: "AirPods disconnect whenever they go back in their case."),
+        module: "accessory-alerts"
+    )
+
+    static let modulesAccessoryAlertsReadsBattery = SettingsEntry(
+        id: "modulesAccessoryAlertsReadsBattery",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Read battery levels"),
+        info: String(localized: "Levels are read on this Mac and sent nowhere. Uses a private macOS interface. It switches itself off if macOS changes it."),
+        module: "accessory-alerts"
+    )
+
+    static let modulesAccessoryAlertsLowBattery = SettingsEntry(
+        id: "modulesAccessoryAlertsLowBattery",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Alert when the battery is low"),
+        module: "accessory-alerts"
+    )
+
+    static let modulesAccessoryAlertsLowBatteryLevel = SettingsEntry(
+        id: "modulesAccessoryAlertsLowBatteryLevel",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Low battery level"),
+        module: "accessory-alerts"
+    )
+
+    static let modulesNowPlayingAppleMusic = SettingsEntry(
+        id: "modulesNowPlayingAppleMusic",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Apple Music"),
+        module: "now-playing"
+    )
+
+    static let modulesNowPlayingSpotify = SettingsEntry(
+        id: "modulesNowPlayingSpotify",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Spotify"),
+        info: String(localized: "Apple Music and Spotify tell holzBar what they play. One of the two always stays on."),
+        module: "now-playing"
+    )
+
+    static let modulesNowPlayingReadsAllApps = SettingsEntry(
+        id: "modulesNowPlayingReadsAllApps",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Read all apps"),
+        info: String(localized: "Shows what browsers and video apps play, too, through a helper that runs only while the hub is open. Uses a private macOS interface. It switches itself off if macOS changes it."),
+        module: "now-playing"
     )
 }
