@@ -27,7 +27,7 @@ struct MenuBarAppearanceEditor: View {
     @ViewBuilder
     var body: some View {
         if appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults {
-            SettingsStateLine(.info, Text("holzBar cannot edit the appearance of automatically hidden menu bars."))
+            AutoHiddenMenuBarState(kind: .appearance)
         } else {
             MoodsSection(appearanceManager: appearanceManager, place: location == .settings ? .settings : .appearanceEditor)
             shapeGroup

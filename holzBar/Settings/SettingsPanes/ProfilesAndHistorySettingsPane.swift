@@ -12,12 +12,7 @@ struct ProfilesAndHistorySettingsPane: View {
     var body: some View {
         SettingsPaneHost(.profilesAndHistory) {
             if appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults {
-                SettingsGroup {
-                    SettingsStateLine(
-                        .info,
-                        Text("holzBar cannot arrange menu bar items in automatically hidden menu bars.")
-                    )
-                }
+                AutoHiddenMenuBarState(kind: .arrange)
             } else {
                 ProfilesSection(profiles: appState.profiles)
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: appState.itemManager)

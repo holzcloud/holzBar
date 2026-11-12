@@ -207,9 +207,7 @@ struct MenuBarLayoutSettingsPane: View {
     @ViewBuilder
     private var cannotArrange: some View {
         SettingsPaneHost(.layout) {
-            SettingsGroup {
-                SettingsStateLine(.info, Text("holzBar cannot arrange menu bar items in automatically hidden menu bars."))
-            }
+            AutoHiddenMenuBarState(kind: .arrange)
         }
     }
 
