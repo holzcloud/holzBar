@@ -198,6 +198,18 @@ final class LayoutSnapshots {
         try? FileManager.default.removeItem(at: Self.url(for: snapshot))
     }
 
+    /// Puts a deleted snapshot back, in its place among the others (newest first), unless a
+    /// snapshot of that moment is there again.
+    func reinsert(_ snapshot: LayoutSnapshot) {
+        guard !snapshots.contains(where: { $0.id == snapshot.id }) else {
+            return
+        }
+        write(snapshot)
+        let index = snapshots.firstIndex { $0.date < snapshot.date } ?? snapshots.count
+        snapshots.insert(snapshot, at: index)
+        prune()
+    }
+
     func deleteAll() {
         for snapshot in snapshots {
             try? FileManager.default.removeItem(at: Self.url(for: snapshot))

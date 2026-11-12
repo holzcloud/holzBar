@@ -8,6 +8,7 @@ import SwiftUI
 /// The Layout history group of Profiles & History: snapshots to go back to, with a preview of
 /// what a restore changes.
 struct LayoutHistorySection: View {
+    @Environment(AppState.self) private var appState
     @Bindable var snapshots: LayoutSnapshots
     @State private var restoreTarget: LayoutSnapshot?
     @State private var isDismissed = false
@@ -104,13 +105,21 @@ struct LayoutHistorySection: View {
                 restoreTarget = snapshot
             }
             Button("Delete", systemImage: "trash", role: .destructive) {
+                // Acts at once; the undo toast brings it back (D-04, D-16).
                 snapshots.delete(snapshot)
+                appState.layoutUndo.recordDeletion(
+                    String(localized: "\u{201C}\(date)\u{201D} deleted"),
+                    place: .settings,
+                    restore: { snapshots.reinsert(snapshot) },
+                    deleteAgain: { snapshots.delete(snapshot) }
+                )
             }
             .labelStyle(.iconOnly)
             .buttonStyle(.borderless)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel(Text(verbatim: date))
+        .accessibilityLabel(Text("\(date), \(reasonText(snapshot.reason)), Items: \(snapshot.count)"))
+        .accessibilityValue(snapshot.isStarred ? Text("Starred") : Text(verbatim: ""))
     }
 
     private func reasonText(_ reason: SnapshotReason) -> String {

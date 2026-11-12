@@ -128,6 +128,7 @@ private struct MenuBarAppearanceEditorContentView: View {
                 HolzBarGround(showsGlows: false)
                     .ignoresSafeArea()
             }
+            .holzBarUndoToast(appState.layoutUndo, place: .appearanceEditor)
             .environment(appState)
     }
 
