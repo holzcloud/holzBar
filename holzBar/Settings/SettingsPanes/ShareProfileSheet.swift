@@ -19,7 +19,7 @@ struct ShareProfileSheet: View {
             Text("Share Profile")
                 .font(HolzBarTheme.Typography.title)
                 .accessibilityAddTraits(.isHeader)
-            Text("The file lists these applications and the section of each. It holds no display, Wi-Fi, hotkey or other setting. Switch an application off to leave it out.")
+            Text("The file lists these apps and the section of each. It holds no display, Wi-Fi, hotkey or other setting. Switch an app off to leave it out.")
                 .font(HolzBarTheme.Typography.callout)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)

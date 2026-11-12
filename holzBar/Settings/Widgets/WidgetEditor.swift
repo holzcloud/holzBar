@@ -48,7 +48,7 @@ struct WidgetEditor: View {
                     widgets.moveWidget(id: id, by: 1)
                 }
                 .disabled(!canMoveDown)
-                Button("Remove", role: .destructive, action: onRemove)
+                Button("Delete…", role: .destructive, action: onRemove)
             }
             .settingsSubRow()
         }

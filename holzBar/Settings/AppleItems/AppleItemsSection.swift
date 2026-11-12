@@ -46,10 +46,10 @@ struct AppleItemsSection: View {
             .labelsHidden()
             .accessibilityLabel(Text("Symbol"))
             .fixedSize()
-            Button("Remove") {
+            Button("Delete") {
                 appleItems.removeReplacement(id: replacement.id)
             }
-            .accessibilityLabel(Text("Remove \(replacement.title)"))
+            .accessibilityLabel(Text("Delete \(replacement.title)"))
         }
     }
 

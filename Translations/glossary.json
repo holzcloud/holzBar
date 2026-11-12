@@ -1239,7 +1239,8 @@
           "source": "catalog",
           "entries": 11
         }
-      }
+      },
+      "usage": "In sentences; Zen Mode in titles and menus."
     },
     {
       "en": "hotkey",
@@ -3045,7 +3046,8 @@
           "text": "App",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_TW.lproj/LocalizableMerged.strings"
         }
-      }
+      },
+      "usage": "Never application."
     },
     {
       "en": "preview",
@@ -3831,6 +3833,757 @@
         "zh-Hant": {
           "text": "一律隱藏的項目",
           "source": "holzBar/Resources/Localizable.xcstrings (Show Always Hidden Items)"
+        }
+      }
+    },
+    {
+      "en": "Show Hidden Items",
+      "usage": "Title of the menu entry; Hide Hidden Items for the opposite.",
+      "translations": {
+        "de": {
+          "text": "Ausgeblendete Elemente einblenden",
+          "source": "catalog",
+          "entries": 1
+        },
+        "fr": {
+          "text": "Afficher les éléments masqués",
+          "source": "catalog",
+          "entries": 1
+        },
+        "it": {
+          "text": "Mostra gli elementi nascosti",
+          "source": "catalog",
+          "entries": 1
+        },
+        "rm": {
+          "text": "Mussar ils elements zuppads",
+          "source": "catalog",
+          "entries": 1
+        },
+        "es": {
+          "text": "Mostrar los elementos ocultos",
+          "source": "catalog",
+          "entries": 1
+        },
+        "nl": {
+          "text": "Toon verborgen onderdelen",
+          "source": "catalog",
+          "entries": 1
+        },
+        "pt-BR": {
+          "text": "Exibir os itens ocultos",
+          "source": "catalog",
+          "entries": 1
+        },
+        "pl": {
+          "text": "Pokaż ukryte elementy",
+          "source": "catalog",
+          "entries": 1
+        },
+        "cs": {
+          "text": "Zobrazit skryté položky",
+          "source": "catalog",
+          "entries": 1
+        },
+        "hu": {
+          "text": "Rejtett elemek megjelenítése",
+          "source": "catalog",
+          "entries": 1
+        },
+        "sv": {
+          "text": "Visa dolda objekt",
+          "source": "catalog",
+          "entries": 1
+        },
+        "tr": {
+          "text": "Gizli Öğeleri Göster",
+          "source": "catalog",
+          "entries": 1
+        },
+        "id": {
+          "text": "Tampilkan Item Tersembunyi",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ru": {
+          "text": "Показать скрытые элементы",
+          "source": "catalog",
+          "entries": 1
+        },
+        "uk": {
+          "text": "Показати приховані елементи",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ja": {
+          "text": "非表示の項目を表示",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ko": {
+          "text": "숨긴 항목 보기",
+          "source": "catalog",
+          "entries": 1
+        },
+        "zh-Hans": {
+          "text": "显示隐藏的项目",
+          "source": "catalog",
+          "entries": 1
+        },
+        "zh-Hant": {
+          "text": "顯示已隱藏的項目",
+          "source": "catalog",
+          "entries": 1
+        }
+      }
+    },
+    {
+      "en": "Control Center",
+      "usage": "Apple's name; never Control Centre.",
+      "translations": {
+        "de": {
+          "text": "Kontrollzentrum",
+          "source": "Apple's name in macOS"
+        },
+        "fr": {
+          "text": "Centre de contrôle",
+          "source": "Apple's name in macOS"
+        },
+        "it": {
+          "text": "Centro di Controllo",
+          "source": "Apple's name in macOS"
+        },
+        "rm": {
+          "text": "Center da controlla",
+          "source": "Apple's name in macOS"
+        },
+        "es": {
+          "text": "Centro de control",
+          "source": "Apple's name in macOS"
+        },
+        "pt-BR": {
+          "text": "Central de Controle",
+          "source": "Apple's name in macOS"
+        },
+        "ja": {
+          "text": "コントロールセンター",
+          "source": "Apple's name in macOS"
+        },
+        "zh-Hans": {
+          "text": "控制中心",
+          "source": "Apple's name in macOS"
+        },
+        "ko": {
+          "text": "제어 센터",
+          "source": "Apple's name in macOS"
+        },
+        "ru": {
+          "text": "Пункт управления",
+          "source": "Apple's name in macOS"
+        },
+        "nl": {
+          "text": "Bedieningspaneel",
+          "source": "Apple's name in macOS"
+        },
+        "pl": {
+          "text": "Centrum sterowania",
+          "source": "Apple's name in macOS"
+        },
+        "cs": {
+          "text": "Ovládací centrum",
+          "source": "Apple's name in macOS"
+        },
+        "hu": {
+          "text": "Vezérlőközpont",
+          "source": "Apple's name in macOS"
+        },
+        "sv": {
+          "text": "Kontrollcenter",
+          "source": "Apple's name in macOS"
+        },
+        "tr": {
+          "text": "Denetim Merkezi",
+          "source": "Apple's name in macOS"
+        },
+        "id": {
+          "text": "Pusat Kontrol",
+          "source": "Apple's name in macOS"
+        },
+        "uk": {
+          "text": "Центр керування",
+          "source": "Apple's name in macOS"
+        },
+        "zh-Hant": {
+          "text": "控制中心",
+          "source": "Apple's name in macOS"
+        }
+      }
+    },
+    {
+      "en": "app menus",
+      "usage": "The menus of the frontmost app; never application menus.",
+      "translations": {
+        "de": {
+          "text": "App-Menüs",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "fr": {
+          "text": "menus des apps",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "it": {
+          "text": "menu delle app",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "rm": {
+          "text": "menus da las apps",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "es": {
+          "text": "menús de las apps",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "pt-BR": {
+          "text": "menus dos apps",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "ja": {
+          "text": "アプリのメニュー",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "zh-Hans": {
+          "text": "App 菜单",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "ko": {
+          "text": "앱 메뉴",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "ru": {
+          "text": "меню приложений",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "nl": {
+          "text": "app-menu's",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "pl": {
+          "text": "menu aplikacji",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "cs": {
+          "text": "nabídky aplikací",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "hu": {
+          "text": "alkalmazásmenük",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "sv": {
+          "text": "appmenyer",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "tr": {
+          "text": "uygulama menüleri",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "id": {
+          "text": "menu app",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "uk": {
+          "text": "меню програм",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        },
+        "zh-Hant": {
+          "text": "App 選單",
+          "source": "holzBar/Resources/Localizable.xcstrings (in context)"
+        }
+      }
+    },
+    {
+      "en": "⌘ Command-drag",
+      "usage": "Always with the symbol and the word Command.",
+      "translations": {
+        "de": {
+          "text": "mit ⌘ Command ziehen",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "fr": {
+          "text": "faire glisser avec ⌘ Command",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "it": {
+          "text": "trascinare con ⌘ Command",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "rm": {
+          "text": "trair cun ⌘ Command",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "es": {
+          "text": "arrastrar con ⌘ Command",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "pt-BR": {
+          "text": "arrastar com ⌘ Command",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "ja": {
+          "text": "⌘ Command を押しながらドラッグ",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "zh-Hans": {
+          "text": "按住 ⌘ Command 拖动",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "ko": {
+          "text": "⌘ Command를 누른 채 드래그",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "ru": {
+          "text": "перетащить с ⌘ Command",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "nl": {
+          "text": "met ⌘ Command verslepen",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "pl": {
+          "text": "przeciągnąć z ⌘ Command",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "cs": {
+          "text": "přetáhnout s ⌘ Command",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "hu": {
+          "text": "⌘ Command lenyomásával húzni",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "sv": {
+          "text": "dra med ⌘ Command",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "tr": {
+          "text": "⌘ Command ile sürüklemek",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "id": {
+          "text": "menyeret dengan ⌘ Command",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "uk": {
+          "text": "перетягнути з ⌘ Command",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        },
+        "zh-Hant": {
+          "text": "按住 ⌘ Command 拖移",
+          "source": "holzBar/Resources/Localizable.xcstrings (the Command-drag sentence of Layout)"
+        }
+      }
+    },
+    {
+      "en": "Show Only When…",
+      "usage": "The item rule; in docs and notes followed by (rule) where the rule is meant.",
+      "translations": {
+        "de": {
+          "text": "Nur zeigen, wenn …",
+          "source": "catalog",
+          "entries": 1
+        },
+        "fr": {
+          "text": "Afficher seulement si…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "it": {
+          "text": "Mostra solo quando…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "rm": {
+          "text": "Mussar mo cura che…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "es": {
+          "text": "Mostrar solo cuando…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "nl": {
+          "text": "Toon alleen wanneer…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "pt-BR": {
+          "text": "Exibir somente quando…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "pl": {
+          "text": "Pokaż tylko gdy…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "cs": {
+          "text": "Zobrazit jen když…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "hu": {
+          "text": "Megjelenítés csak ha…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "sv": {
+          "text": "Visa bara när…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "tr": {
+          "text": "Yalnızca şu durumda göster…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "id": {
+          "text": "Tampilkan hanya bila…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ru": {
+          "text": "Показывать, только когда…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "uk": {
+          "text": "Показувати, лише коли…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ja": {
+          "text": "次のときだけ表示…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ko": {
+          "text": "다음일 때만 표시…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "zh-Hans": {
+          "text": "仅在以下情况显示…",
+          "source": "catalog",
+          "entries": 1
+        },
+        "zh-Hant": {
+          "text": "僅在符合以下情況時顯示⋯",
+          "source": "catalog",
+          "entries": 1
+        }
+      }
+    },
+    {
+      "en": "Delete",
+      "usage": "Removing a thing the user made: rule, condition, group, snapshot, hook, mood, profile, widget, replacement item.",
+      "translations": {
+        "de": {
+          "text": "Löschen",
+          "source": "catalog",
+          "entries": 1
+        },
+        "fr": {
+          "text": "Supprimer",
+          "source": "catalog",
+          "entries": 1
+        },
+        "it": {
+          "text": "Elimina",
+          "source": "catalog",
+          "entries": 1
+        },
+        "rm": {
+          "text": "Stizzar",
+          "source": "catalog",
+          "entries": 1
+        },
+        "es": {
+          "text": "Eliminar",
+          "source": "catalog",
+          "entries": 1
+        },
+        "nl": {
+          "text": "Verwijder",
+          "source": "catalog",
+          "entries": 1
+        },
+        "pt-BR": {
+          "text": "Excluir",
+          "source": "catalog",
+          "entries": 1
+        },
+        "pl": {
+          "text": "Usuń",
+          "source": "catalog",
+          "entries": 1
+        },
+        "cs": {
+          "text": "Smazat",
+          "source": "catalog",
+          "entries": 1
+        },
+        "hu": {
+          "text": "Törlés",
+          "source": "catalog",
+          "entries": 1
+        },
+        "sv": {
+          "text": "Ta bort",
+          "source": "catalog",
+          "entries": 1
+        },
+        "tr": {
+          "text": "Sil",
+          "source": "catalog",
+          "entries": 1
+        },
+        "id": {
+          "text": "Hapus",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ru": {
+          "text": "Удалить",
+          "source": "catalog",
+          "entries": 1
+        },
+        "uk": {
+          "text": "Видалити",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ja": {
+          "text": "削除",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ko": {
+          "text": "삭제",
+          "source": "catalog",
+          "entries": 1
+        },
+        "zh-Hans": {
+          "text": "删除",
+          "source": "catalog",
+          "entries": 1
+        },
+        "zh-Hant": {
+          "text": "刪除",
+          "source": "catalog",
+          "entries": 1
+        }
+      }
+    },
+    {
+      "en": "Remove",
+      "usage": "Taking a detail off a thing: a binding, a colour, a star, an item's rule from its tile menu, an item's hotkey.",
+      "translations": {
+        "de": {
+          "text": "Entfernen",
+          "source": "catalog",
+          "entries": 1
+        },
+        "fr": {
+          "text": "Supprimer",
+          "source": "catalog",
+          "entries": 1
+        },
+        "it": {
+          "text": "Rimuovi",
+          "source": "catalog",
+          "entries": 1
+        },
+        "rm": {
+          "text": "Allontanar",
+          "source": "catalog",
+          "entries": 1
+        },
+        "es": {
+          "text": "Quitar",
+          "source": "catalog",
+          "entries": 1
+        },
+        "nl": {
+          "text": "Verwijder",
+          "source": "catalog",
+          "entries": 1
+        },
+        "pt-BR": {
+          "text": "Remover",
+          "source": "catalog",
+          "entries": 1
+        },
+        "pl": {
+          "text": "Usuń",
+          "source": "catalog",
+          "entries": 1
+        },
+        "cs": {
+          "text": "Odebrat",
+          "source": "catalog",
+          "entries": 1
+        },
+        "hu": {
+          "text": "Eltávolítás",
+          "source": "catalog",
+          "entries": 1
+        },
+        "sv": {
+          "text": "Ta bort",
+          "source": "catalog",
+          "entries": 1
+        },
+        "tr": {
+          "text": "Kaldır",
+          "source": "catalog",
+          "entries": 1
+        },
+        "id": {
+          "text": "Hapus",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ru": {
+          "text": "Удалить",
+          "source": "catalog",
+          "entries": 1
+        },
+        "uk": {
+          "text": "Вилучити",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ja": {
+          "text": "削除",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ko": {
+          "text": "제거",
+          "source": "catalog",
+          "entries": 1
+        },
+        "zh-Hans": {
+          "text": "移除",
+          "source": "catalog",
+          "entries": 1
+        },
+        "zh-Hant": {
+          "text": "移除",
+          "source": "catalog",
+          "entries": 1
+        }
+      }
+    },
+    {
+      "en": "Revoke",
+      "usage": "A script approval or a permission.",
+      "translations": {
+        "de": {
+          "text": "Widerrufen",
+          "source": "catalog",
+          "entries": 1
+        },
+        "fr": {
+          "text": "Révoquer",
+          "source": "catalog",
+          "entries": 1
+        },
+        "it": {
+          "text": "Revoca",
+          "source": "catalog",
+          "entries": 1
+        },
+        "rm": {
+          "text": "Revocar",
+          "source": "catalog",
+          "entries": 1
+        },
+        "es": {
+          "text": "Revocar",
+          "source": "catalog",
+          "entries": 1
+        },
+        "nl": {
+          "text": "Trek in",
+          "source": "catalog",
+          "entries": 1
+        },
+        "pt-BR": {
+          "text": "Revogar",
+          "source": "catalog",
+          "entries": 1
+        },
+        "pl": {
+          "text": "Cofnij",
+          "source": "catalog",
+          "entries": 1
+        },
+        "cs": {
+          "text": "Odvolat",
+          "source": "catalog",
+          "entries": 1
+        },
+        "hu": {
+          "text": "Visszavonás",
+          "source": "catalog",
+          "entries": 1
+        },
+        "sv": {
+          "text": "Återkalla",
+          "source": "catalog",
+          "entries": 1
+        },
+        "tr": {
+          "text": "Geri çek",
+          "source": "catalog",
+          "entries": 1
+        },
+        "id": {
+          "text": "Cabut",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ru": {
+          "text": "Отозвать",
+          "source": "catalog",
+          "entries": 1
+        },
+        "uk": {
+          "text": "Відкликати",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ja": {
+          "text": "取り消す",
+          "source": "catalog",
+          "entries": 1
+        },
+        "ko": {
+          "text": "철회",
+          "source": "catalog",
+          "entries": 1
+        },
+        "zh-Hans": {
+          "text": "撤销",
+          "source": "catalog",
+          "entries": 1
+        },
+        "zh-Hant": {
+          "text": "撤銷⋯",
+          "source": "catalog",
+          "entries": 1
         }
       }
     }

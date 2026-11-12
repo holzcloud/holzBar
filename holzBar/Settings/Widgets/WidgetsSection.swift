@@ -46,8 +46,8 @@ struct WidgetsSection: View {
         }
         .holzBarConfirmation(
             isPresented: isConfirmingRemoval,
-            title: Text("Remove this widget?"),
-            confirmTitle: "Remove",
+            title: Text("Delete this widget?"),
+            confirmTitle: "Delete",
             isDestructive: true
         ) {
             if let id = removalID {

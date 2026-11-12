@@ -371,8 +371,8 @@ struct AutomationRuleEditor: View {
         SettingsPickerRow(Text("Then"), selection: actionChoice) {
             Text("Apply a layout profile").tag(ActionChoice.profile)
             Text("Switch to a mood").tag(ActionChoice.mood)
-            Text("Show the hidden section").tag(ActionChoice.hiddenSection)
-            Text("Show the always-hidden section").tag(ActionChoice.alwaysHiddenSection)
+            Text("Show the hidden items").tag(ActionChoice.hiddenSection)
+            Text("Show the always-hidden items").tag(ActionChoice.alwaysHiddenSection)
             Text("Turn Zen mode on").tag(ActionChoice.zenOn)
             Text("Turn Zen mode off").tag(ActionChoice.zenOff)
             Text("Keep the Mac awake").tag(ActionChoice.keepAwake)

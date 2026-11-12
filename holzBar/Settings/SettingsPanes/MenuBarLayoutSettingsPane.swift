@@ -246,7 +246,7 @@ private struct StuckOverflowWarning: View {
     var body: some View {
         if concealer.isOverflowStuck {
             SettingsStateLine(.warning, Text("Some items are folded away on the built-in display.")) {
-                SettingsInfoButton(Text("macOS stopped laying them out when holzBar freed the space beside the notch, and left no control to reach them. Quitting and reopening the application whose item is missing brings it back."))
+                SettingsInfoButton(Text("macOS stopped laying them out when holzBar freed the space beside the notch, and left no control to reach them. Quitting and reopening the app whose item is missing brings it back."))
             }
         }
     }

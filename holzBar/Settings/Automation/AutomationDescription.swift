@@ -78,9 +78,9 @@ enum AutomationDescription {
         case .applyMood(let name):
             String(localized: "switch the menu bar to the mood “\(name)”")
         case .showSection(.hidden):
-            String(localized: "show the hidden section")
+            String(localized: "show the hidden items")
         case .showSection(.alwaysHidden):
-            String(localized: "show the always-hidden section")
+            String(localized: "show the always-hidden items")
         case .zen(true):
             String(localized: "turn Zen mode on")
         case .zen(false):
