@@ -7,7 +7,7 @@ import SwiftUI
 
 /// The rules: "when this is true, do that". One settings group of module rows, one per rule; the
 /// editor of a rule opens in its row's open area, one at a time. "Add rule…" sits directly under
-/// the list. The Scripts box follows the group.
+/// the list. Then the groups Scripts, Profile hooks and Storage.
 struct AutomationSettingsPane: View {
     @Environment(AppState.self) private var appState
     @Bindable var manager: AutomationManager
@@ -36,6 +36,7 @@ struct AutomationSettingsPane: View {
             rulesGroup
             ScriptsSection(store: manager.scriptStore, manager: manager)
             ProfileHooksSection(store: manager.scriptStore)
+            storageGroup
         }
         .holzBarConfirmation(
             isPresented: isConfirmingDeletion,
@@ -50,6 +51,17 @@ struct AutomationSettingsPane: View {
                 manager.removeRule(withID: id)
             }
             deletionID = nil
+        }
+    }
+
+    /// Where rules, scripts, approvals and hooks live (D-55).
+    private var storageGroup: some View {
+        SettingsGroup(SettingsCatalog.AutomationPane.storage) {
+            SettingsValueRow(
+                .automationStorageRules,
+                value: Text("Rules stay on this Mac. An exported settings file contains them, except rules that run a script.")
+            )
+            SettingsValueRow(.automationStorageScripts, value: Text("Only on this Mac"))
         }
     }
 

@@ -11,6 +11,8 @@ extension SettingsCatalog {
     enum AutomationPane {
         static let rules = String(localized: "Rules")
         static let scripts = String(localized: "Scripts")
+        static let profileHooks = String(localized: "Profile hooks")
+        static let storage = String(localized: "Storage")
 
         static let entries: [SettingsEntry] = [
             .automationAddRule,
@@ -18,6 +20,9 @@ extension SettingsCatalog {
             .automationChooseScriptsFolder,
             .automationOpenScriptsFolder,
             .automationCheckScripts,
+            .automationAddHook,
+            .automationStorageRules,
+            .automationStorageScripts,
         ]
     }
 }
@@ -60,5 +65,28 @@ extension SettingsEntry {
         group: SettingsCatalog.AutomationPane.scripts,
         label: String(localized: "Scripts of the rules"),
         info: String(localized: "Reads the scripts folder again and checks every rule now, without waiting for the next change.")
+    )
+
+    static let automationAddHook = SettingsEntry(
+        id: "automationAddHook",
+        pane: .automation,
+        group: SettingsCatalog.AutomationPane.profileHooks,
+        label: String(localized: "Add hook"),
+        info: String(localized: "Runs an allowed script before or after a layout profile is applied. A profile applied by a URL, a Shortcut or a Focus runs no hooks. At most 50.")
+    )
+
+    static let automationStorageRules = SettingsEntry(
+        id: "automationStorageRules",
+        pane: .automation,
+        group: SettingsCatalog.AutomationPane.storage,
+        label: String(localized: "Rules")
+    )
+
+    static let automationStorageScripts = SettingsEntry(
+        id: "automationStorageScripts",
+        pane: .automation,
+        group: SettingsCatalog.AutomationPane.storage,
+        label: String(localized: "Scripts, approvals and hooks"),
+        info: String(localized: "They are in the file Scripts.json in ~/Library/Application Support/holzBar and are never exported.")
     )
 }
