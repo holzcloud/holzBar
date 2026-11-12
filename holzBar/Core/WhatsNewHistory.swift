@@ -75,6 +75,7 @@ nonisolated enum WhatsNewHistory {
                 WhatsNewFix(text: "The first launch no longer lists Calendar and Bluetooth; their modules ask when you switch them on."),
                 WhatsNewFix(text: "Turning off usage suggestions asks before it deletes the stored usage."),
                 WhatsNewFix(text: "The offer to use Screen Recording appears in holzBar's own look."),
+                WhatsNewFix(text: "On macOS 27, an app whose picture matched another app's tile gets its own picture again, and items without a picture show their app's icon."),
                 WhatsNewFix(text: "holzBar uses one word for each thing: Always Hidden, apps, and Delete for what you made."),
             ]
         ),
