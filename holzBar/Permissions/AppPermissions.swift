@@ -52,6 +52,12 @@ final class AppPermissions {
     /// Checks the permissions again whenever holzBar becomes active.
     @ObservationIgnored private var activationObserver: Task<Void, Never>?
 
+    /// What the menu bar manager needs, listed at the first launch; Calendar and Bluetooth are
+    /// asked by their modules (D-24).
+    var launchPermissions: [Permission] {
+        [accessibility, screenRecording]
+    }
+
     /// The permissions required for full app functionality.
     var allPermissions: [Permission] {
         [accessibility, screenRecording, calendar, bluetooth]

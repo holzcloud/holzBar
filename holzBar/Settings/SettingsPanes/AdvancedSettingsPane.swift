@@ -127,7 +127,12 @@ struct AdvancedSettingsPane: View {
             SettingsGroup(SettingsCatalog.AdvancedPane.permissions) {
                 ForEach(listedPermissions, id: \.self) { kind in
                     if let permission = appState.permissions.permission(for: kind), let entry = entry(for: kind) {
-                        permissionRow(permission, entry: entry)
+                        PermissionRow(
+                            permission,
+                            entry: entry,
+                            onGrant: { $0.performRequest() },
+                            onRevoke: { revokingPermission = $0 }
+                        )
                     }
                 }
             }
@@ -135,27 +140,7 @@ struct AdvancedSettingsPane: View {
         .onAppear {
             appState.permissions.refresh()
         }
-        .sheet(item: $revokingPermission) { permission in
-            ConfirmSheet(
-                title: Text("Revoke this permission?"),
-                message: Text("holzBar stops using it at once and cannot do what needs it until you allow it again. You can also remove it yourself in System Settings, in Privacy & Security."),
-                confirmTitle: "Revoke \(permission.title)",
-                cancelTitle: "Cancel",
-                isDestructive: true,
-                secondaryTitle: "Open System Settings",
-                onSecondary: {
-                    revokingPermission = nil
-                    permission.openSettings()
-                },
-                onConfirm: {
-                    revokingPermission = nil
-                    permission.revoke()
-                },
-                onCancel: {
-                    revokingPermission = nil
-                }
-            )
-        }
+        .permissionRevokeConfirmation($revokingPermission)
     }
 
     private var isMacOS27: Bool {
@@ -206,35 +191,6 @@ struct AdvancedSettingsPane: View {
         case .calendar: .advancedPermissionCalendar
         case .bluetooth: .advancedPermissionBluetooth
         case .inputMonitoring, .microphone, .camera, .notifications, .fullDiskAccess, .files: nil
-        }
-    }
-
-    /// One permission: its state and the one button that fits it. "Grant…" asks only on this
-    /// click; "Revoke…" asks first.
-    private func permissionRow(_ permission: Permission, entry: SettingsEntry) -> some View {
-        SettingsRow(entry) {
-            HStack(spacing: HolzBarTheme.SettingsKit.accessoryGap) {
-                Group {
-                    if permission.hasPermission {
-                        Text("Granted")
-                    } else {
-                        Text("Not granted")
-                    }
-                }
-                .font(HolzBarTheme.Typography.body)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                if permission.hasPermission {
-                    if permission.canReset {
-                        Button("Revoke…") {
-                            revokingPermission = permission
-                        }
-                    }
-                } else {
-                    Button("Grant…") {
-                        permission.performRequest()
-                    }
-                }
-            }
         }
     }
 }
