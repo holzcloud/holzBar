@@ -1017,12 +1017,12 @@ private struct HolzBarShelfContentView: View {
         case .none:
             break
         case .menuBar:
-            LayoutBarMoves.setSection(of: item, to: .visible, appState: appState)
+            LayoutBarMoves.setSection(of: item, to: .visible, appState: appState, place: .menuBar)
         case .section(let group):
             guard let name = MenuBarSection.Name(group) else {
                 return
             }
-            LayoutBarMoves.setSection(of: item, to: name, appState: appState)
+            LayoutBarMoves.setSection(of: item, to: name, appState: appState, place: .menuBar)
         case .beside(let id, let side):
             guard
                 let target = contents.tiles.first(where: { $0.id == id }),
@@ -1035,7 +1035,8 @@ private struct HolzBarShelfContentView: View {
                 item,
                 to: side == .before ? .leftOfItem(targetItem) : .rightOfItem(targetItem),
                 appState: appState,
-                actionName: String(localized: "Move \(item.displayName)")
+                actionName: String(localized: "Move \(item.displayName)"),
+                place: .menuBar
             )
         }
     }
@@ -1066,24 +1067,22 @@ private struct HolzBarShelfContentView: View {
             Text("holzBar cannot display menu bar items for automatically hidden menu bars")
                 .padding(.horizontal, 10)
         } else if itemManager.itemCache.managedItems.isEmpty {
-            HStack {
-                Text("Loading menu bar items…")
-                ProgressView()
-                    .controlSize(.small)
-            }
-            .padding(.horizontal, 10)
+            MenuBarItemsLoadingState(style: .strip, itemManager: itemManager)
         } else if ScreenRecordingAccess.isGranted(appState), imageCache.cacheFailed(for: section) {
             if imageCache.isCapturing || !imageCache.hasCaptured {
                 // The pictures are still being taken: say so instead of reporting a failure.
+                MenuBarItemsLoadingState(style: .strip, itemManager: itemManager)
+            } else {
                 HStack {
-                    Text("Loading menu bar items…")
-                    ProgressView()
-                        .controlSize(.small)
+                    Text("macOS gave holzBar no pictures of these items.")
+                    Button("Try Again") {
+                        Task {
+                            await imageCache.updateCache()
+                        }
+                    }
+                    .controlSize(.small)
                 }
                 .padding(.horizontal, 10)
-            } else {
-                Text("Unable to display menu bar items")
-                    .padding(.horizontal, 10)
             }
         } else {
             // Without Screen Recording the items show their apps' icons (or the images chosen

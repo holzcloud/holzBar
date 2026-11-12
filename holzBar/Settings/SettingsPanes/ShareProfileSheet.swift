@@ -19,17 +19,18 @@ struct ShareProfileSheet: View {
             Text("Share Profile")
                 .font(HolzBarTheme.Typography.title)
                 .accessibilityAddTraits(.isHeader)
-            Text("The file lists the applications below and the section of each. It holds no display, Wi-Fi, hotkey or other setting. Uncheck an application to leave it out.")
+            Text("The file lists these apps and the section of each. It holds no display, Wi-Fi, hotkey or other setting. Switch an app off to leave it out.")
                 .font(HolzBarTheme.Typography.callout)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
-            List(entries, id: \.id) { entry in
-                Toggle(isOn: isIncluded(entry.id)) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(verbatim: AutomationDescription.applicationName(for: entry.id))
-                        Text(verbatim: entry.id)
-                            .font(HolzBarTheme.Typography.caption)
-                            .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+            ScrollView {
+                SettingsGroup {
+                    ForEach(entries, id: \.id) { entry in
+                        SettingsToggleRow(
+                            Text(verbatim: AutomationDescription.applicationName(for: entry.id)),
+                            isOn: isIncluded(entry.id),
+                            small: Text(verbatim: entry.id)
+                        )
                     }
                 }
             }

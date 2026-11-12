@@ -95,6 +95,73 @@ final class LayoutEditor {
         return MenuBarSection.Name.allCases.filter { $0 != .alwaysHidden || hasAlwaysHidden }
     }
 
+    /// The app whose items are highlighted together: the one under the pointer, the keyboard
+    /// selection or the drag (macOS 27, D-11).
+    private(set) var highlightedApp: String?
+
+    /// Highlights the items of the item's app; only on macOS 27, which hides whole apps.
+    func highlightApp(of item: MenuBarItem) {
+        if #available(macOS 27.0, *) {
+            if highlightedApp != item.layoutKey27 {
+                highlightedApp = item.layoutKey27
+            }
+        }
+    }
+
+    /// Ends the highlight, if it is the one of the item's app.
+    func clearHighlight(of item: MenuBarItem) {
+        if let key = item.layoutKey27, highlightedApp == key {
+            highlightedApp = nil
+        }
+    }
+
+    /// The section an item is in, in the drawing or on the bar.
+    func section(of item: MenuBarItem) -> MenuBarSection.Name? {
+        MenuBarSection.Name.allCases.first { name in
+            items(in: name).contains { $0.tag == item.tag }
+        }
+    }
+
+    /// Why an item cannot be moved from the pane (the tile's own tooltip), or `nil` when it can.
+    func paneMoveRefusal(for item: MenuBarItem) -> String? {
+        if #available(macOS 27.0, *) {
+            if !item.isMovable {
+                return String(localized: "macOS 27 doesn't let apps hide this system item.")
+            }
+            if item.sourceApplication?.bundleIdentifier == nil {
+                return String(localized: "macOS 27 hides whole apps, and holzBar can't tell which app this item belongs to.")
+            }
+        } else if !item.isMovable {
+            return String(localized: "Menu bar item is not movable.")
+        }
+        return nil
+    }
+
+    /// Whether the list's pop-up and the tile may move the item now.
+    func canMoveFromPane(_ item: MenuBarItem) -> Bool {
+        !item.isControlItem && !isApplying && paneMoveRefusal(for: item) == nil
+    }
+
+    /// Moves an item to a section from the pane, the one path of the tiles, their VoiceOver
+    /// actions and the list (D-08): into the drawing while changes wait for Apply, else on the
+    /// bar at once, which records its undo.
+    ///
+    /// - Returns: `false` if the move was refused.
+    @discardableResult
+    func moveFromPane(_ item: MenuBarItem, to section: MenuBarSection.Name) -> Bool {
+        guard let appState else {
+            return false
+        }
+        if recordsChanges {
+            guard recordSection(of: item, to: section) else {
+                return false
+            }
+            LayoutBarItemView.announce(String(localized: "\(item.displayName) moved to \(section.displayString)"))
+            return true
+        }
+        return LayoutBarMoves.setSection(of: item, to: section, appState: appState)
+    }
+
     // MARK: Recording
 
     /// Moves an item to the end of a section in the drawing.
@@ -165,6 +232,38 @@ final class LayoutEditor {
         didChange()
     }
 
+    /// The choice the pop-up New items go to shows: the section the drawing waits to apply while
+    /// it holds one, otherwise the stored setting, which may be where macOS puts them.
+    var newItemsPlacement: NewItemsPlacement {
+        if let draft, draft.newItems != draft.baselineNewItems {
+            return Self.placement(for: draft.newItems)
+        }
+        return appState?.settings.advanced.newItemsPlacement ?? .systemDefault
+    }
+
+    /// Sets where new items go, from the pop-up. A section goes through `setNewItemsSection(_:)`,
+    /// so it waits for Apply like every other change of the drawing. Where macOS puts them has no
+    /// section for a drawing to hold: it is written at once, and a section waiting in the drawing
+    /// is dropped first, so a later Apply cannot overwrite it.
+    func setNewItemsPlacement(_ placement: NewItemsPlacement) {
+        guard !isApplying else {
+            return
+        }
+        if let section = placement.section {
+            setNewItemsSection(section)
+            return
+        }
+        guard let appState else {
+            return
+        }
+        if let baseline = draft?.baselineNewItems {
+            draft?.setNewItems(baseline)
+        }
+        appState.settings.advanced.newItemsPlacement = .systemDefault
+        // The drawing follows the new landing section and goes when nothing else differs.
+        cacheDidChange()
+    }
+
     /// Makes the rows show the bar again.
     func discard() {
         guard !isApplying else {
@@ -182,6 +281,7 @@ final class LayoutEditor {
         guard let appState, let pending = draft, !isApplying, pending.isChanged else {
             return
         }
+        let before = appState.layoutUndo.beforeSnapshot()
         isApplying = true
         outcome = nil
         Task { [weak self] in
@@ -194,7 +294,12 @@ final class LayoutEditor {
             outcome = result
             revision += 1
             let message = String(localized: "Changes applied: \(result.applied)")
-            LayoutBarItemView.announce(message)
+            if result.applied > 0 {
+                // The record announces the same sentence, so VoiceOver hears it once (D-13).
+                appState.layoutUndo.recordArrangementChange(message, before: before, place: .settings)
+            } else {
+                LayoutBarItemView.announce(message)
+            }
         }
     }
 

@@ -82,9 +82,18 @@ final class LayoutBarContainer: NSView {
         }
         let editor = appState.layoutEditor
         let imageCache = appState.imageCache
+        let navigationState = appState.navigationState
         setArrangedViews(items: editor.items(in: section))
         layoutArrangedViews()
         observers = [
+            // On macOS 27 the items of the app under the pointer get a ring (D-11).
+            ObservationLoop.observe { editor.highlightedApp } onChange: { [weak self] _ in
+                self?.applySiblingHighlight()
+            },
+            // Layout's filter dims the tiles it leaves out (D-09).
+            ObservationLoop.observe { navigationState.layoutFilter } onChange: { [weak self] _ in
+                self?.applyFilter()
+            },
             // The drawing of the Layout pane, or the item cache while there is none.
             ObservationLoop.observe { editor.revision } onChange: { [weak self] _ in
                 guard let self else {
@@ -174,6 +183,32 @@ final class LayoutBarContainer: NSView {
     ///
     /// - Note: If the value of the container's ``canSetArrangedViews``
     ///   property is `false`, this function returns early.
+    /// Rings the tiles of the highlighted app.
+    private func applySiblingHighlight() {
+        let app = appState?.layoutEditor.highlightedApp
+        let siblings = SiblingGrouping.siblings(
+            of: app,
+            among: arrangedViews.map { (key: String($0.item.windowID), appKey: $0.item.layoutKey27) }
+        )
+        for view in arrangedViews {
+            view.isSiblingHighlighted = siblings.contains(String(view.item.windowID))
+        }
+    }
+
+    /// Dims the tiles Layout's filter leaves out.
+    private func applyFilter() {
+        guard let filter = appState?.navigationState.layoutFilter else {
+            return
+        }
+        for view in arrangedViews {
+            view.isFilteredOut = !LayoutListFilter.matches(
+                query: filter,
+                itemName: view.item.displayName,
+                appName: view.item.sourceApplication?.localizedName
+            )
+        }
+    }
+
     func setArrangedViews(items: [MenuBarItem]?) {
         guard
             let appState,
@@ -202,6 +237,8 @@ final class LayoutBarContainer: NSView {
             }
         }
         arrangedViews = newViews
+        applyFilter()
+        applySiblingHighlight()
         guard let focusedTag else {
             return
         }

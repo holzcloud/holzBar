@@ -68,6 +68,8 @@ final class MenuBarAppearanceEditorPanel: NSPanel {
                     if panel.isVisible {
                         NSColorPanel.shared.hidesOnDeactivate = false
                     } else {
+                        // A preview turned on in the panel ends with it.
+                        panel.appState?.appearanceManager.previewConfiguration = nil
                         NSColorPanel.shared.hidesOnDeactivate = true
                         NSColorPanel.shared.close()
                     }
@@ -118,11 +120,57 @@ private final class MenuBarAppearanceEditorHostingView: NSHostingView<MenuBarApp
 private struct MenuBarAppearanceEditorContentView: View {
     var appState: AppState
 
+    @Environment(\.dismissWindow) private var dismissWindow
+
     var body: some View {
-        MenuBarAppearanceEditor(
-            appearanceManager: appState.appearanceManager,
-            location: .panel
-        )
-        .environment(appState)
+        content
+            .background {
+                HolzBarGround(showsGlows: false)
+                    .ignoresSafeArea()
+            }
+            .holzBarUndoToast(appState.layoutUndo, place: .appearanceEditor)
+            .environment(appState)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if #available(macOS 26.0, *) {
+            scrollContent
+                .scrollEdgeEffectStyle(.hard, for: .vertical)
+                .safeAreaBar(edge: .bottom, spacing: 0) {
+                    footer
+                }
+        } else {
+            VStack(spacing: 0) {
+                scrollContent
+                footer
+            }
+        }
+    }
+
+    private var scrollContent: some View {
+        ScrollView(.vertical) {
+            VStack(alignment: .leading, spacing: HolzBarTheme.SettingsKit.groupGap) {
+                MenuBarAppearanceEditor(
+                    appearanceManager: appState.appearanceManager,
+                    location: .panel
+                )
+            }
+            .padding(.horizontal, HolzBarTheme.SettingsKit.paneMarginHorizontal)
+            .padding(.top, HolzBarTheme.SettingsKit.paneMarginTop)
+            .padding(.bottom, HolzBarTheme.SettingsKit.paneMarginBottom)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+        }
+    }
+
+    private var footer: some View {
+        HStack {
+            Spacer()
+            Button("Done") {
+                dismissWindow()
+            }
+        }
+        .buttonBorderShape(.capsule)
+        .padding(HolzBarTheme.Spacing.sm)
     }
 }

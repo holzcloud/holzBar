@@ -6,7 +6,7 @@
 import SwiftUI
 
 /// One section of the menu bar layout: the strip of its items, which can be dragged, inside a
-/// card that the pane draws (``HolzBarSection``).
+/// card that the pane draws (``SettingsGroup``).
 ///
 /// The strip keeps the colour of the real menu bar, because the pictures of the items are
 /// captured from it and are only legible on it. Everything around the strip follows the
@@ -82,11 +82,23 @@ struct LayoutBar: View {
 
     @ViewBuilder
     private var mainContent: some View {
-        if imageCache.cacheFailed(for: section) {
-            Text("Unable to display menu bar items")
-                .font(HolzBarTheme.Typography.body)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                .padding(HolzBarTheme.Spacing.sm)
+        // Without Screen Recording the tiles draw the apps' icons, so only a finished capture
+        // with the permission is a failure, as in the Shelf (D-26).
+        if
+            ScreenRecordingAccess.isGranted(appState),
+            imageCache.cacheFailed(for: section),
+            imageCache.hasCaptured,
+            !imageCache.isCapturing
+        {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                CompactEmptyState(message: Text("macOS gave holzBar no pictures of these items."))
+                Button("Try Again") {
+                    Task {
+                        await appState.imageCache.updateCache()
+                    }
+                }
+            }
+            .padding(HolzBarTheme.Spacing.sm)
         } else {
             // The hint lets every pointer event through to the strip.
             Representable(appState: appState, section: section, isDropTarget: $isDropTarget)

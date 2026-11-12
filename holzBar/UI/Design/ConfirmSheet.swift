@@ -11,6 +11,10 @@ import SwiftUI
 /// The safe choice is the default button; the confirming button is never the default for a
 /// destructive action. Escape always cancels.
 ///
+/// A careful confirmation asks for care without deleting anything: Cancel stays the default
+/// button and Escape cancels, as for a destructive one, but the confirming button is a plain
+/// push button.
+///
 /// The message is optional, for a question that needs no more than its title. A secondary
 /// action, such as "Open System Settings", sits at the leading edge of the buttons.
 struct ConfirmSheet: View {
@@ -19,6 +23,7 @@ struct ConfirmSheet: View {
     private let confirmTitle: LocalizedStringKey
     private let cancelTitle: LocalizedStringKey
     private let isDestructive: Bool
+    private let isCareful: Bool
     private let secondaryTitle: LocalizedStringKey?
     private let onSecondary: (() -> Void)?
     private let onConfirm: () -> Void
@@ -30,6 +35,7 @@ struct ConfirmSheet: View {
         confirmTitle: LocalizedStringKey,
         cancelTitle: LocalizedStringKey,
         isDestructive: Bool = false,
+        isCareful: Bool = false,
         secondaryTitle: LocalizedStringKey? = nil,
         onSecondary: (() -> Void)? = nil,
         onConfirm: @escaping () -> Void,
@@ -40,6 +46,7 @@ struct ConfirmSheet: View {
         self.confirmTitle = confirmTitle
         self.cancelTitle = cancelTitle
         self.isDestructive = isDestructive
+        self.isCareful = isCareful
         self.secondaryTitle = secondaryTitle
         self.onSecondary = onSecondary
         self.onConfirm = onConfirm
@@ -47,7 +54,7 @@ struct ConfirmSheet: View {
     }
 
     private var cancelShortcut: KeyboardShortcut {
-        isDestructive ? .defaultAction : .cancelAction
+        isDestructive || isCareful ? .defaultAction : .cancelAction
     }
 
     var body: some View {
@@ -71,6 +78,8 @@ struct ConfirmSheet: View {
                     .keyboardShortcut(cancelShortcut)
                 if isDestructive {
                     Button(confirmTitle, role: .destructive, action: onConfirm)
+                } else if isCareful {
+                    Button(confirmTitle, action: onConfirm)
                 } else {
                     Button(confirmTitle, action: onConfirm)
                         .keyboardShortcut(.defaultAction)
@@ -82,7 +91,7 @@ struct ConfirmSheet: View {
         .padding(HolzBarTheme.Spacing.lg)
         .frame(width: 420)
         .background(HolzBarTheme.Palette.ground)
-        .onExitCommand(perform: isDestructive ? onCancel : nil)
+        .onExitCommand(perform: isDestructive || isCareful ? onCancel : nil)
     }
 }
 
@@ -98,6 +107,7 @@ extension View {
         confirmTitle: LocalizedStringKey,
         cancelTitle: LocalizedStringKey = "Cancel",
         isDestructive: Bool = false,
+        isCareful: Bool = false,
         onConfirm: @escaping () -> Void
     ) -> some View {
         sheet(isPresented: isPresented) {
@@ -107,6 +117,7 @@ extension View {
                 confirmTitle: confirmTitle,
                 cancelTitle: cancelTitle,
                 isDestructive: isDestructive,
+                isCareful: isCareful,
                 onConfirm: {
                     onConfirm()
                     isPresented.wrappedValue = false
@@ -152,4 +163,16 @@ extension View {
             onCancel: {}
         )
     }
+}
+
+#Preview("ConfirmSheet, careful") {
+    ConfirmSheet(
+        title: Text(verbatim: "Allow this script?"),
+        message: Text(verbatim: "It runs as you, with holzBar's permissions."),
+        confirmTitle: "Allow",
+        cancelTitle: "Cancel",
+        isCareful: true,
+        onConfirm: {},
+        onCancel: {}
+    )
 }

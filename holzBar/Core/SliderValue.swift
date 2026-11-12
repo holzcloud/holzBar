@@ -5,7 +5,7 @@
 
 import Foundation
 
-/// The value math of `HolzBarSlider`: fractions, snapping and arrow-key steps.
+/// The value math of a stepped slider: fractions, snapping and arrow-key steps.
 ///
 /// Every function works on `Double`; the slider converts its value type to and from it.
 nonisolated enum SliderValue {

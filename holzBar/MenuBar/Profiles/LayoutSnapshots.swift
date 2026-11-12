@@ -127,6 +127,12 @@ final class LayoutSnapshots {
         lastRearrangement = .now
     }
 
+    /// Called before an undo puts an arrangement back: takes no snapshot, but keeps the "layout
+    /// looks reset" suggestion quiet, as after a restore.
+    func willUndo() {
+        lastRearrangement = .now
+    }
+
     /// Called before the clean-up assistant hides items: keeps the arrangement as it is now.
     func willTidyUp() {
         take(.beforeAssistant)
@@ -190,6 +196,18 @@ final class LayoutSnapshots {
     func delete(_ snapshot: LayoutSnapshot) {
         snapshots.removeAll { $0.id == snapshot.id }
         try? FileManager.default.removeItem(at: Self.url(for: snapshot))
+    }
+
+    /// Puts a deleted snapshot back, in its place among the others (newest first), unless a
+    /// snapshot of that moment is there again.
+    func reinsert(_ snapshot: LayoutSnapshot) {
+        guard !snapshots.contains(where: { $0.id == snapshot.id }) else {
+            return
+        }
+        write(snapshot)
+        let index = snapshots.firstIndex { $0.date < snapshot.date } ?? snapshots.count
+        snapshots.insert(snapshot, at: index)
+        prune()
     }
 
     func deleteAll() {

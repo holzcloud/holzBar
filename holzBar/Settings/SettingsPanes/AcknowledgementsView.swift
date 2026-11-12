@@ -140,7 +140,7 @@ private struct AcknowledgementRow: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.quinary, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .background(.quinary, in: HolzBarTheme.shape(HolzBarTheme.Radius.control))
     }
 
     /// The bundled license text of the given base name, or a note that it is missing.

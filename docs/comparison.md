@@ -2,7 +2,7 @@
 
 Two comparisons live here: the detailed one against Ice, Thaw and Bartender, and [the wider one against 14 apps](#against-every-other-menu-bar-manager) further down. The README carries a short version.
 
-What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds, next to [Bartender](https://www.macbartender.com/) 7, the paid app for macOS 27 (Bartender 6 covers macOS 14 – 26). The Bartender column comes from its product pages; — means not stated there. ❌ means not available or not documented. 🔜 means planned, with the release where one is set (1.1.0, or later): it is **not available yet**.
+What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds, next to [Bartender](https://www.macbartender.com/) 7, the paid app for macOS 27 (Bartender 6 covers macOS 14 – 26). The Bartender column comes from its product pages; — means not stated there. ❌ means not available or not documented. 🔜 means planned, with the release where one is set (1.2.0, or later): it is **not available yet**.
 
 | | Ice 0.11.12 | Thaw 3.0 beta | Bartender 7 | holzBar |
 |---|:---:|:---:|:---:|:---:|
@@ -61,9 +61,9 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Show or hide a single item while a condition holds (a VPN is connected, an app is running) | ❌ | ✅ | — | ✅ |
 | Automatic layout snapshots with a one-click restore | — | — | — | ✅ |
 | Command palette for holzBar's own actions | — | — | — | ✅ |
-| Settings with a Modules pane: every optional module off until you switch it on | ❌ | — | — | ✅ |
+| Settings with a Modules pane: every optional module off until you switch it on | ❌ | — | — | ✅ <sub>one of eleven panes sorted by task</sub> |
 | Share one profile as a file | ❌ | ✅ | — | ✅ |
-| First-launch assistant that proposes an arrangement | — | — | — | ✅ |
+| First launch that asks only for Accessibility, then a three-step introduction that proposes an arrangement | — | — | — | ✅ <sub>Calendar and Bluetooth are asked with their module</sub> |
 | Smart Categories in the search (system, network, media and more) | ❌ | — | — | ✅ |
 | Suggests hiding items you never click (opt-in, counters stay on your Mac) | — | — | — | ✅ |
 | Redacted diagnostics report you read before you copy it | — | — | — | ✅ |
@@ -73,7 +73,10 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Shortcuts actions (App Intents) | ❌ | ✅ | ✅ | ✅ |
 | Profiles bound to a display or a Space | ❌ | ✅ | — | ✅ |
 | Open an item by letter | ❌ | ✅ | — | ✅ |
-| Layout editor and Shelf from the keyboard, undo, VoiceOver actions | ❌ | ✅ | — | ✅ |
+| Layout editor and Shelf from the keyboard, undo, VoiceOver actions | ❌ | ✅ | — | ✅ <sub>since 1.1.0 also a list with a section menu per item</sub> |
+| Undo after every layout change, also one made in the menu bar (a notice with Undo, ⌘Z, the last 20 changes) | ❌ | — | — | ✅ |
+| Layout as a list with a filter that dims the other items in the bars | ❌ | — | — | ✅ |
+| Search over every setting (⌘F) | ❌ | — | — | ✅ |
 | Opened items stay up to 30 s, or open without showing the item | ❌ | ✅ | — | ✅ |
 | Show an item briefly when it changes | ❌ | ✅ | — | ✅ <sub>opt-in per item</sub> |
 | Export and import settings | ❌ | ✅ | — | ✅ |
@@ -134,7 +137,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 
 | | holzBar | Bartender 7 | Ice | Thaw | SaneBar | Tuck | Barbee | Hidden Bar | Dozer | Vanilla | iBar | Glow | Brow | Lounge | Vorssaint | Dimble | Fire from Ice | JustHide | Ice 2 | ice-rust | ExtraBar |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Maintenance | active (1.0.5) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) | active (beta channel, pushed 31 Oct) <sup>16</sup> | active (pushed 31 Oct) <sup>16</sup> | active (pushed 1 Nov) <sup>16</sup> | active (pushed 29 Oct) <sup>16</sup> | active (pushed 23 Oct) <sup>16</sup> | ❓ |
+| Maintenance | active (1.0.5; 1.1.0 in beta) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) | active (beta channel, pushed 31 Oct) <sup>16</sup> | active (pushed 31 Oct) <sup>16</sup> | active (pushed 1 Nov) <sup>16</sup> | active (pushed 29 Oct) <sup>16</sup> | active (pushed 23 Oct) <sup>16</sup> | ❓ |
 | Price | free | paid, one-time <sup>1</sup> | free | free | free | free; Pro $14.99 | free + in-app (lifetime $12.99) | free | free | free; Pro $10 | free + $2.99/yr | $19.99 once | free; Pro $49/yr (AI only) | $3.99/yr | free | free | free | free | free | free | paid: €14.99/yr, lifetime €39.99 <sup>17</sup> |
 | Open source | ✅ GPL-3.0 | ❌ | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ MIT | ❌ | ❌ | ✅ MIT | ✅ MPL-2.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ GPL-3.0+ | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ GPL-3.0 | ❓ |
 | macOS 26 / 27 | ✅ / ✅ | ❌ / ✅ <sup>2</sup> | dev builds / ❌ | ✅ / ✅ <sup>3</sup> | ✅ / ❌ | ✅ / ✅ <sup>4</sup> | ❓ / ❓ <sup>5</sup> | ✅ / partly <sup>6</sup> | ❓ / ❓ | ✅ / ❓ | ✅ / ❓ | ✅ / ✅ <sup>13</sup> | ❓ / vendor claim | ✅ / vendor claim | ✅ / ✅ | ❌ / ✅ (macOS 27 only) | ✅ / ❓ | ❌ / ✅ (macOS 27 only) | ✅ / ❓ | ✅ / ✅ | ✅ / ❓ (macOS 12.4 or later) |
@@ -178,8 +181,8 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Now Playing in the hub (Music and Spotify; any app with the opt-in Read all apps) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | media controls item | ❓ | menu bar item, not a hub | ❓ | ❓ | ❓ |
 | Live activities in the hub (a capsule at the notch while something is going on; holzBar's are downloads and a camera or microphone in use) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ❓ | camera/mic indicator item | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Accessory alerts (connect, disconnect and low battery of AirPods and other accessories; holzBar's battery levels use a call that Apple does not document) | ✅ | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
-| System readouts in the menu bar (CPU, memory, network, disk) | 🔜 1.1.0; CPU, memory and disk as text widgets ✅ <sup>14</sup> | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
-| Launcher, command bar | ✅ palette, 🔜 1.2.0 launcher | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | search panel | ❓ | ❓ | ❓ | ❓ | ✅ one hotkey opens the bar |
+| System readouts in the menu bar (CPU, memory, network, disk) | 🔜 1.2.0; CPU, memory and disk as text widgets ✅ <sup>14</sup> | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
+| Launcher, command bar | ✅ palette, 🔜 1.3.0 launcher | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | search panel | ❓ | ❓ | ❓ | ❓ | ✅ one hotkey opens the bar |
 | Clipboard history | ❌ not planned | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ✅ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Window management, app switcher | 🔜 later | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Screenshots, OCR, screen recording | 🔜 later | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |

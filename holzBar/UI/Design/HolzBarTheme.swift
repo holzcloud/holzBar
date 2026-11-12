@@ -104,6 +104,7 @@ enum HolzBarTheme {
     enum Radius {
         static let keyCap = CGFloat(DesignTokens.Radius.keyCap)
         static let control = CGFloat(DesignTokens.Radius.control)
+        static let list = CGFloat(DesignTokens.Radius.list)
         static let card = CGFloat(DesignTokens.Radius.card)
         static let panel = CGFloat(DesignTokens.Radius.panel)
         static let hub = CGFloat(DesignTokens.Radius.hub)
@@ -142,6 +143,147 @@ enum HolzBarTheme {
         }
         /// The gap between a header or footer and the card it belongs to.
         static let headerGap = CGFloat(DesignTokens.Layout.headerGap)
+    }
+
+    /// The measures of the settings kit; views read these, never `DesignTokens` directly.
+    enum SettingsKit {
+
+        // Rows (D-16 to D-18)
+        static let rowMinHeight = CGFloat(DesignTokens.SettingsKit.rowMinHeight)
+        static let rowPaddingVertical = CGFloat(DesignTokens.SettingsKit.rowPaddingVertical)
+        static let rowPaddingHorizontal = CGFloat(DesignTokens.SettingsKit.rowPaddingHorizontal)
+        static let labelControlGap = CGFloat(DesignTokens.SettingsKit.labelControlGap)
+        static let accessoryGap = CGFloat(DesignTokens.SettingsKit.accessoryGap)
+        static let subRowInset = CGFloat(DesignTokens.SettingsKit.subRowInset)
+        static let dependentOpacity = DesignTokens.SettingsKit.dependentOpacity
+        static let switchMinHeight = CGFloat(DesignTokens.SettingsKit.switchMinHeight)
+
+        // Groups (D-16)
+        static let groupHeaderInset = CGFloat(DesignTokens.SettingsKit.groupHeaderInset)
+        static let groupHeaderGap = CGFloat(DesignTokens.SettingsKit.groupHeaderGap)
+        static let groupGap = CGFloat(DesignTokens.SettingsKit.groupGap)
+        static let footnoteGap = CGFloat(DesignTokens.SettingsKit.footnoteGap)
+        static let footnoteInset = CGFloat(DesignTokens.SettingsKit.footnoteInset)
+
+        // Row variants (D-18)
+        static let popUpMaxWidth = CGFloat(DesignTokens.SettingsKit.popUpMaxWidth)
+        static let sliderTrackWidth = CGFloat(DesignTokens.SettingsKit.sliderTrackWidth)
+        static let sliderValueGap = CGFloat(DesignTokens.SettingsKit.sliderValueGap)
+        static let sliderValueMinWidth = CGFloat(DesignTokens.SettingsKit.sliderValueMinWidth)
+        static let stepperValueGap = CGFloat(DesignTokens.SettingsKit.stepperValueGap)
+        static let textFieldMinWidth = CGFloat(DesignTokens.SettingsKit.textFieldMinWidth)
+        static let colorWellWidth = CGFloat(DesignTokens.SettingsKit.colorWellWidth)
+        static let colorWellHeight = CGFloat(DesignTokens.SettingsKit.colorWellHeight)
+        static let colorWellRadius = CGFloat(DesignTokens.SettingsKit.colorWellRadius)
+        static let gradientStripWidth = CGFloat(DesignTokens.SettingsKit.gradientStripWidth)
+        static let hotkeyRecorderWidth = CGFloat(DesignTokens.SettingsKit.hotkeyRecorderWidth)
+        static let hotkeyRecorderHeight = CGFloat(DesignTokens.SettingsKit.hotkeyRecorderHeight)
+
+        // State and note lines, disclosure (D-19, D-20)
+        static let stateLineGap = CGFloat(DesignTokens.SettingsKit.stateLineGap)
+        static let noteLinePaddingVertical = CGFloat(DesignTokens.SettingsKit.noteLinePaddingVertical)
+        static let noteLinePaddingHorizontal = CGFloat(DesignTokens.SettingsKit.noteLinePaddingHorizontal)
+        static let disclosureChevronSize = CGFloat(DesignTokens.SettingsKit.disclosureChevronSize)
+
+        // Module row (D-21)
+        static let moduleRowMinHeight = CGFloat(DesignTokens.SettingsKit.moduleRowMinHeight)
+        static let moduleRowGap = CGFloat(DesignTokens.SettingsKit.moduleRowGap)
+        static let moduleTileSize = CGFloat(DesignTokens.SettingsKit.moduleTileSize)
+        static let moduleTileRadius = CGFloat(DesignTokens.SettingsKit.moduleTileRadius)
+        static let moduleSymbolSize = CGFloat(DesignTokens.SettingsKit.moduleSymbolSize)
+        static let moduleChevronButtonSize = CGFloat(DesignTokens.SettingsKit.moduleChevronButtonSize)
+        static let moduleChevronSize = CGFloat(DesignTokens.SettingsKit.moduleChevronSize)
+        static let openAreaInset = CGFloat(DesignTokens.SettingsKit.openAreaInset)
+        static let accentFillLight = DesignTokens.SettingsKit.accentFillLight
+        static let accentFillDark = DesignTokens.SettingsKit.accentFillDark
+        static let openAreaFillLight = DesignTokens.SettingsKit.openAreaFillLight
+        static let openAreaFillDark = DesignTokens.SettingsKit.openAreaFillDark
+
+        // Info button and texts (D-22)
+        static let infoButtonSize = CGFloat(DesignTokens.SettingsKit.infoButtonSize)
+        static let infoButtonLineWidth = CGFloat(DesignTokens.SettingsKit.infoButtonLineWidth)
+        static let infoButtonHitArea = CGFloat(DesignTokens.SettingsKit.infoButtonHitArea)
+        static let infoPopoverMaxWidth = CGFloat(DesignTokens.SettingsKit.infoPopoverMaxWidth)
+        static let infoPopoverPaddingVertical = CGFloat(DesignTokens.SettingsKit.infoPopoverPaddingVertical)
+        static let infoPopoverPaddingHorizontal = CGFloat(DesignTokens.SettingsKit.infoPopoverPaddingHorizontal)
+        static let infoTextMaxCharacters = DesignTokens.SettingsKit.infoTextMaxCharacters
+        static let smallTextMaxWords = DesignTokens.SettingsKit.smallTextMaxWords
+
+        // Picture card row (D-24)
+        static let pictureCardGap = CGFloat(DesignTokens.SettingsKit.pictureCardGap)
+        static let pictureCardRowPaddingVertical = CGFloat(DesignTokens.SettingsKit.pictureCardRowPaddingVertical)
+        static let pictureCardRowPaddingHorizontal = CGFloat(DesignTokens.SettingsKit.pictureCardRowPaddingHorizontal)
+        static let pictureCardStrokeWidth = CGFloat(DesignTokens.SettingsKit.pictureCardStrokeWidth)
+        static let pictureCardPadding = CGFloat(DesignTokens.SettingsKit.pictureCardPadding)
+        static let pictureWellHeight = CGFloat(DesignTokens.SettingsKit.pictureWellHeight)
+        static let pictureWellRadius = CGFloat(DesignTokens.SettingsKit.pictureWellRadius)
+        static let pictureCardCompactWidth = CGFloat(DesignTokens.SettingsKit.pictureCardCompactWidth)
+        static let pictureCardsBeforeCompact = DesignTokens.SettingsKit.pictureCardsBeforeCompact
+
+        // Pane margins (D-26)
+        static let paneMarginHorizontal = CGFloat(DesignTokens.SettingsKit.paneMarginHorizontal)
+        static let paneMarginTop = CGFloat(DesignTokens.SettingsKit.paneMarginTop)
+        static let paneMarginBottom = CGFloat(DesignTokens.SettingsKit.paneMarginBottom)
+    }
+
+    /// The measures of the onboarding window (D-22).
+    enum Onboarding {
+        static let width = CGFloat(DesignTokens.Onboarding.width)
+        static let pictureHeight = CGFloat(DesignTokens.Onboarding.pictureHeight)
+        static let dotSize = CGFloat(DesignTokens.Onboarding.dotSize)
+    }
+
+    /// The measures of Layout's list view (mock-up 01, D-08).
+    enum LayoutList {
+        static let appColumnWidth = CGFloat(DesignTokens.LayoutList.appColumnWidth)
+        static let sectionColumnWidth = CGFloat(DesignTokens.LayoutList.sectionColumnWidth)
+        static let iconSize = CGFloat(DesignTokens.LayoutList.iconSize)
+        static let filterFieldMinWidth = CGFloat(DesignTokens.LayoutList.filterFieldMinWidth)
+        static let filteredOutOpacity = DesignTokens.LayoutList.filteredOutOpacity
+        static let siblingRingWidth = CGFloat(DesignTokens.LayoutList.siblingRingWidth)
+    }
+
+    /// The measures and times of the undo toast (concept 9a, D-03, D-13).
+    enum UndoToast {
+        static let paddingVertical = CGFloat(DesignTokens.UndoToast.paddingVertical)
+        static let paddingHorizontal = CGFloat(DesignTokens.UndoToast.paddingHorizontal)
+        static let gap = CGFloat(DesignTokens.UndoToast.gap)
+        static let menuBarGap = CGFloat(DesignTokens.UndoToast.menuBarGap)
+        static let screenMargin = CGFloat(DesignTokens.UndoToast.screenMargin)
+        /// How long the toast with an Undo button stays.
+        static let duration = Duration.seconds(DesignTokens.UndoToast.visibleSeconds)
+        /// How long a plain toast stays.
+        static let plainDuration = Duration.seconds(DesignTokens.UndoToast.plainVisibleSeconds)
+    }
+
+    /// The sidebar and the window of the Settings window.
+    enum SettingsSidebar {
+        /// The measures that follow the system's sidebar icon size, as frame and font values.
+        struct Metrics: Equatable, Sendable {
+            let width, textSize, symbolSize, rowHeight: CGFloat
+
+            init(_ tokens: DesignTokens.SettingsSidebar.Metrics) {
+                width = CGFloat(tokens.width)
+                textSize = CGFloat(tokens.textSize)
+                symbolSize = CGFloat(tokens.symbolSize)
+                rowHeight = CGFloat(tokens.rowHeight)
+            }
+        }
+
+        static let small = Metrics(DesignTokens.SettingsSidebar.small)
+        static let medium = Metrics(DesignTokens.SettingsSidebar.medium)
+        static let large = Metrics(DesignTokens.SettingsSidebar.large)
+        static let rowRadius = CGFloat(DesignTokens.SettingsSidebar.rowRadius)
+        static let rowPadding = CGFloat(DesignTokens.SettingsSidebar.rowPadding)
+        static let symbolTextGap = CGFloat(DesignTokens.SettingsSidebar.symbolTextGap)
+        static let rowGap = CGFloat(DesignTokens.SettingsSidebar.rowGap)
+        static let moduleGap = CGFloat(DesignTokens.SettingsSidebar.moduleGap)
+        static let searchFieldHeight = CGFloat(DesignTokens.SettingsSidebar.searchFieldHeight)
+        static let searchMagnifierSize = CGFloat(DesignTokens.SettingsSidebar.searchMagnifierSize)
+        static let searchFieldBottomGap = CGFloat(DesignTokens.SettingsSidebar.searchFieldBottomGap)
+        static let titleBarHeight = CGFloat(DesignTokens.SettingsSidebar.titleBarHeight)
+        static let minimumWindowWidth = CGFloat(DesignTokens.SettingsSidebar.minimumWindowWidth)
+        static let minimumWindowHeight = CGFloat(DesignTokens.SettingsSidebar.minimumWindowHeight)
     }
 
     /// The smallest size of anything that can be clicked.

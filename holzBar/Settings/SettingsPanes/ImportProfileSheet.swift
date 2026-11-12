@@ -26,16 +26,18 @@ struct ImportProfileSheet: View {
             Text("Import Profile")
                 .font(HolzBarTheme.Typography.title)
                 .accessibilityAddTraits(.isHeader)
-            Text("The profile \u{201C}\(finalName)\u{201D} has \(shared.apps.count) applications, \(installedCount) of them installed on this Mac. Importing adds it to your profiles; it moves nothing until you apply it.")
+            Text("The profile \u{201C}\(finalName)\u{201D} has \(shared.apps.count) apps, \(installedCount) of them installed on this Mac. Importing adds it to your profiles; it moves nothing until you apply it.")
                 .font(HolzBarTheme.Typography.callout)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
-            List(shared.apps, id: \.id) { entry in
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(verbatim: AutomationDescription.applicationName(for: entry.id))
-                    Text(verbatim: entry.id)
-                        .font(HolzBarTheme.Typography.caption)
-                        .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+            ScrollView {
+                SettingsGroup {
+                    ForEach(shared.apps, id: \.id) { entry in
+                        SettingsValueRow(
+                            Text(verbatim: AutomationDescription.applicationName(for: entry.id)),
+                            value: Text(verbatim: entry.id)
+                        )
+                    }
                 }
             }
             .frame(height: 220)

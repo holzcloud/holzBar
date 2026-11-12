@@ -295,7 +295,7 @@ final class MenuBarWidgets {
         guard let appState else {
             return
         }
-        appState.navigationState.settingsNavigationIdentifier = .modules
+        appState.navigationState.openModuleSettings(Self.moduleID)
         appState.activate(for: .settings)
         appState.openWindow(.settings)
     }

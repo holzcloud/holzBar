@@ -38,19 +38,9 @@ enum ScreenRecordingAccess {
         Defaults.set(true, forKey: .screenRecordingOffered)
         willRequest()
         _ = appState.activate(for: .settings)
-        let alert = NSAlert()
-        alert.messageText = String(localized: "Show real pictures of your menu bar items?")
-        alert.informativeText = feature.reason.localizedFromCatalog + "\n\n"
-            + String(localized: "Without it holzBar shows the apps' icons. You can change this any time in Settings → Advanced.")
-            + "\n\n" + String(localized: "If macOS offers to quit and reopen holzBar after you allow it, choose Quit & Reopen.")
-        alert.addButton(withTitle: String(localized: "Allow Screen Recording…"))
-        alert.addButton(withTitle: String(localized: "Not Now"))
-        guard alert.runModal() == .alertFirstButtonReturn else {
-            return
-        }
-        Task {
-            await request(for: feature, appState: appState)
-        }
+        // A confirmation in holzBar's look, in a small window of its own (D-25).
+        appState.navigationState.screenRecordingOfferFeature = feature
+        appState.openWindow(.screenRecordingOffer)
     }
 
     /// Asks for Screen Recording for the given feature.

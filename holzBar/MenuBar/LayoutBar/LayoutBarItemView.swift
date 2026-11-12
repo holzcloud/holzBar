@@ -87,6 +87,29 @@ final class LayoutBarItemView: NSView {
         }
     }
 
+    /// Whether the item belongs to the app under the pointer (macOS 27, D-11): a ring in the
+    /// accent colour.
+    var isSiblingHighlighted = false {
+        didSet {
+            if isSiblingHighlighted != oldValue {
+                needsDisplay = true
+            }
+        }
+    }
+
+    /// The area that tells the pane which app the pointer is on.
+    private var hoverArea: NSTrackingArea?
+
+    /// Whether Layout's filter leaves the item out: its picture is dimmed, and the tile stays
+    /// reachable and movable (D-09).
+    var isFilteredOut = false {
+        didSet {
+            if isFilteredOut != oldValue {
+                needsDisplay = true
+            }
+        }
+    }
+
     /// Creates a view that displays the given menu bar item.
     init(appState: AppState, item: MenuBarItem) {
         self.item = item
@@ -195,7 +218,10 @@ final class LayoutBarItemView: NSView {
         guard let displayImage else {
             return
         }
-        let fraction: CGFloat = isEnabled ? 1.0 : 0.67
+        var fraction: CGFloat = isEnabled ? 1.0 : 0.67
+        if isFilteredOut {
+            fraction *= HolzBarTheme.LayoutList.filteredOutOpacity
+        }
         guard displayImage.isTemplate else {
             displayImage.draw(in: bounds, from: .zero, operation: .sourceOver, fraction: fraction)
             return
@@ -241,6 +267,12 @@ final class LayoutBarItemView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         if !isDraggingPlaceholder {
             drawDisplayImage()
+            if isSiblingHighlighted {
+                let ring = NSBezierPath(roundedRect: bounds.insetBy(dx: 1, dy: 1), xRadius: 4, yRadius: 4)
+                ring.lineWidth = HolzBarTheme.LayoutList.siblingRingWidth
+                NSColor(HolzBarTheme.Palette.accent).setStroke()
+                ring.stroke()
+            }
             if isControlledByRule {
                 drawRuleBadge()
             }
@@ -273,6 +305,30 @@ final class LayoutBarItemView: NSView {
     /// The item's menu: its hotkey and the other settings of the item.
     private func makeContextMenu() -> NSMenu {
         let menu = NSMenu(title: item.displayName)
+        if let appState, !item.isControlItem {
+            // "Move to" first: the same move as the VoiceOver actions and the list (D-18).
+            let moveItem = NSMenuItem(title: String(localized: "Move to"), action: nil, keyEquivalent: "")
+            let sections = NSMenu(title: String(localized: "Move to"))
+            for name in appState.layoutEditor.availableSections {
+                let sectionItem = NSMenuItem(
+                    title: name.displayString,
+                    action: #selector(moveToSectionFromMenu(_:)),
+                    keyEquivalent: ""
+                )
+                sectionItem.target = self
+                sectionItem.tag = MenuBarSection.Name.allCases.firstIndex(of: name) ?? 0
+                sectionItem.state = name == section ? .on : .off
+                sections.addItem(sectionItem)
+            }
+            moveItem.submenu = sections
+            if !isEnabled {
+                // A pinned item, or one without an app on macOS 27; the tooltip says why.
+                moveItem.isEnabled = false
+                moveItem.toolTip = toolTip
+            }
+            menu.addItem(moveItem)
+            menu.addItem(.separator())
+        }
         let hotkeyItem = NSMenuItem(
             title: String(localized: "Set Hotkey…"),
             action: #selector(showHotkeyPopover),
@@ -342,6 +398,15 @@ final class LayoutBarItemView: NSView {
     }
 
     /// Lets the user choose an image for the item.
+    @objc private func moveToSectionFromMenu(_ sender: NSMenuItem) {
+        let names = MenuBarSection.Name.allCases
+        guard names.indices.contains(sender.tag), names[sender.tag] != section else {
+            return
+        }
+        let target = names[sender.tag]
+        move(to: target)
+    }
+
     @objc private func chooseImage() {
         appState?.itemIconStore.chooseImage(for: item)
     }
@@ -396,6 +461,40 @@ final class LayoutBarItemView: NSView {
     }
 
     override var acceptsFirstResponder: Bool { true }
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        if let hoverArea {
+            removeTrackingArea(hoverArea)
+        }
+        let area = NSTrackingArea(rect: .zero, options: [.mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect], owner: self)
+        addTrackingArea(area)
+        hoverArea = area
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        appState?.layoutEditor.highlightApp(of: item)
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        appState?.layoutEditor.clearHighlight(of: item)
+    }
+
+    override func becomeFirstResponder() -> Bool {
+        let didBecome = super.becomeFirstResponder()
+        if didBecome {
+            appState?.layoutEditor.highlightApp(of: item)
+        }
+        return didBecome
+    }
+
+    override func resignFirstResponder() -> Bool {
+        let didResign = super.resignFirstResponder()
+        if didResign {
+            appState?.layoutEditor.clearHighlight(of: item)
+        }
+        return didResign
+    }
 
     override var canBecomeKeyView: Bool { true }
 
@@ -506,16 +605,10 @@ final class LayoutBarItemView: NSView {
         guard checkMovable(), let appState else {
             return
         }
-        if appState.layoutEditor.recordsChanges {
-            // Into the drawing; Apply lays the bar out.
-            if appState.layoutEditor.recordSection(of: item, to: section) {
-                Self.announce(String(localized: "\(item.displayName) moved to \(section.displayString)"))
-            } else {
-                NSSound.beep()
-            }
-            return
+        // The one path of the tiles, their VoiceOver actions and the list (D-08).
+        if !appState.layoutEditor.moveFromPane(item, to: section) {
+            NSSound.beep()
         }
-        LayoutBarMoves.setSection(of: item, to: section, appState: appState)
     }
 
     /// Asks VoiceOver to read a message.
@@ -685,6 +778,7 @@ extension LayoutBarItemView: NSDraggingSource {
 
         // A profile bound to a display or a Space waits until the drop.
         appState?.profiles.isLayoutDragInProgress = true
+        appState?.layoutEditor.highlightApp(of: item)
 
         // async to prevent the view from disappearing before the dragging image appears
         Task {
@@ -698,6 +792,7 @@ extension LayoutBarItemView: NSDraggingSource {
             // always remove container info at the end of a session
             oldContainerInfo = nil
             appState?.profiles.isLayoutDragInProgress = false
+            appState?.layoutEditor.clearHighlight(of: item)
             // The source row follows the item cache again: after a drop that moves the item
             // the move's cache change updates the rows. A drag that moved nothing (dropped
             // outside every row, cancelled, or refused by the row) puts them back to the

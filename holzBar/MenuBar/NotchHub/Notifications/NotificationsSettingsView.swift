@@ -3,52 +3,69 @@
 //  holzBar
 //
 
+import AppKit
 import SwiftUI
 
-/// The Notifications module's settings, shown under its row in the Modules pane while the module
-/// is on: a sentence that says what the module reads and that nothing is stored, and the list of
-/// apps whose notifications are never shown, each with a button that takes it off the list.
+/// The Notifications module's settings, in the open area of the module's row: a note line that
+/// says what the module reads and that nothing is stored, the apps whose notifications are never
+/// shown (edited in a sheet), and a state line while holzBar lacks Accessibility.
+///
+/// The state line's button only opens System Settings; it never asks for the permission, which
+/// would show the system prompt.
 struct NotificationsSettingsView: View {
     @Environment(AppState.self) private var appState
+    @State private var isEditingExclusions = false
 
     var body: some View {
         let settings = appState.settings.notifications
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-            caption(Text("Reads the banners macOS shows, through Accessibility. Nothing is stored."))
-            Text("Excluded apps")
-                .font(HolzBarTheme.Typography.callout)
-                .foregroundStyle(HolzBarTheme.Palette.text)
-            if settings.excludedApps.isEmpty {
-                caption(Text("Hide an app with the crossed-out eye on one of its notifications."))
-            } else {
-                ForEach(settings.excludedApps, id: \.self) { name in
-                    HStack {
-                        Text(verbatim: name)
-                            .font(HolzBarTheme.Typography.body)
-                            .foregroundStyle(HolzBarTheme.Palette.text)
-                        Spacer(minLength: 0)
-                        Button {
-                            settings.include(name)
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(HolzBarTheme.Typography.caption)
-                                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                                .frame(width: HolzBarTheme.minimumTargetSize, height: HolzBarTheme.minimumTargetSize)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(Text("Remove"))
-                        .help(Text("Remove"))
+        SettingsNoteLine(Text("Reads the banners macOS shows, through Accessibility. Nothing is stored."))
+        SettingsButtonRow(
+            .modulesNotificationsExcludedApps,
+            small: settings.excludedApps.isEmpty
+                ? Text("none yet")
+                : Text(settings.excludedApps.count, format: .number)
+        ) {
+            Button("Edit…") {
+                isEditingExclusions = true
+            }
+            .disabled(settings.excludedApps.isEmpty)
+        }
+        .sheet(isPresented: $isEditingExclusions) {
+            ExcludedAppsSheet(settings: settings)
+        }
+        if !appState.permissions.accessibility.hasPermission {
+            SettingsStateLine(.warning, Text("Accessibility access is off")) {
+                Button("Open System Settings") {
+                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
+                        NSWorkspace.shared.open(url)
                     }
                 }
             }
         }
     }
+}
 
-    private func caption(_ text: Text) -> some View {
-        text
-            .font(HolzBarTheme.Typography.caption)
-            .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-            .fixedSize(horizontal: false, vertical: true)
+/// The apps whose notifications are never shown; removing one acts at once. App names are shown
+/// as they are, never looked up as string keys.
+private struct ExcludedAppsSheet: View {
+    let settings: NotificationsSettings
+
+    var body: some View {
+        SettingsListSheet(Text("Excluded apps")) {
+            if settings.excludedApps.isEmpty {
+                SettingsStateLine(.info, Text("No excluded apps"))
+            } else {
+                SettingsGroup {
+                    ForEach(settings.excludedApps, id: \.self) { name in
+                        SettingsButtonRow(Text(verbatim: name)) {
+                            Button("Remove") {
+                                settings.include(name)
+                            }
+                            .accessibilityLabel(Text("Remove \(name)"))
+                        }
+                    }
+                }
+            }
+        }
     }
 }

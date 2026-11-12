@@ -241,6 +241,9 @@ nonisolated extension Defaults {
         case revealRules = "RevealRules"
         /// Whether the clean-up assistant was offered once, at the first launch.
         case cleanUpOffered = "CleanUpOffered"
+        /// Whether the onboarding waits to be shown: set at the first launch of a new install,
+        /// cleared when it opens. Local to the Mac.
+        case onboardingPending = "OnboardingPending"
         /// The core version of holzBar the What's New window last covered (`1.0.1` for
         /// `1.0.1-beta1`), as text. It describes this Mac's install, so it stays here: never
         /// exported, imported or synced.
@@ -448,6 +451,7 @@ nonisolated extension Defaults.Key {
             .keepsDockIconHidden,
             .layoutSnapshotsDisabled,
             .cleanUpOffered,
+            .onboardingPending,
             .whatsNewShowsAfterUpdate,
             .screenRecordingOffered,
             .systemItemsMayHide,
@@ -640,6 +644,7 @@ nonisolated extension Defaults.Key {
         .lockHiddenItems,
         .usageSuggestionsEnabled,
         .cleanUpOffered,
+        .onboardingPending,
         .lastSeenVersion,
         .screenRecordingOffered,
         .widgetShortcutNames,

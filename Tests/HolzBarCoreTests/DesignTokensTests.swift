@@ -177,10 +177,15 @@ struct DesignTokensTests {
     @Test("Radii ascend from control to hub")
     func radii() {
         let radii = [
-            Tokens.Radius.keyCap, Tokens.Radius.control, Tokens.Radius.card,
+            Tokens.Radius.keyCap, Tokens.Radius.control, Tokens.Radius.list, Tokens.Radius.card,
             Tokens.Radius.panel, Tokens.Radius.hub
         ]
         #expect(radii == radii.sorted())
+    }
+
+    @Test("The list radius is 10, between control and card")
+    func listRadius() {
+        #expect(Tokens.Radius.list == 10)
     }
 
     @Test("The form layout constants keep the values the components always had")
@@ -307,5 +312,135 @@ struct DesignTokensTests {
         #expect(Tokens.Shadow.barRadius + Tokens.Shadow.barOffsetY <= insets.bottom)
         #expect(Tokens.Shadow.barRadius <= insets.leading)
         #expect(Tokens.Shadow.barRadius <= insets.trailing)
+    }
+
+    @Test("The settings kit measures are the approved ones")
+    func settingsKitMeasures() {
+        #expect(Tokens.SettingsKit.rowMinHeight == 30)
+        #expect(Tokens.SettingsKit.rowPaddingVertical == 3)
+        #expect(Tokens.SettingsKit.rowPaddingHorizontal == 12)
+        #expect(Tokens.SettingsKit.labelControlGap == 16)
+        #expect(Tokens.SettingsKit.accessoryGap == 6)
+        #expect(Tokens.SettingsKit.subRowInset == 18)
+        #expect(Tokens.SettingsKit.dependentOpacity == 0.42)
+        #expect(Tokens.SettingsKit.switchMinHeight == Tokens.minimumTargetSize)
+        #expect(Tokens.SettingsKit.groupHeaderInset == 4)
+        #expect(Tokens.SettingsKit.groupHeaderGap == 6)
+        #expect(Tokens.SettingsKit.groupGap == 14)
+        #expect(Tokens.SettingsKit.footnoteGap == 6)
+        #expect(Tokens.SettingsKit.footnoteInset == 4)
+        #expect(Tokens.SettingsKit.popUpMaxWidth == 260)
+        #expect(Tokens.SettingsKit.sliderTrackWidth == 120)
+        #expect(Tokens.SettingsKit.sliderValueGap == 10)
+        #expect(Tokens.SettingsKit.sliderValueMinWidth == 34)
+        #expect(Tokens.SettingsKit.stepperValueGap == 6)
+        #expect(Tokens.SettingsKit.textFieldMinWidth == 150)
+        #expect(Tokens.SettingsKit.colorWellWidth == 40)
+        #expect(Tokens.SettingsKit.colorWellHeight == 20)
+        #expect(Tokens.SettingsKit.colorWellRadius == 6)
+        #expect(Tokens.SettingsKit.gradientStripWidth == 96)
+        #expect(Tokens.SettingsKit.hotkeyRecorderWidth == 132)
+        #expect(Tokens.SettingsKit.hotkeyRecorderHeight == 24)
+        #expect(Tokens.SettingsKit.stateLineGap == 8)
+        #expect(Tokens.SettingsKit.noteLinePaddingVertical == 8)
+        #expect(Tokens.SettingsKit.noteLinePaddingHorizontal == 12)
+        #expect(Tokens.SettingsKit.disclosureChevronSize == 10)
+        #expect(Tokens.SettingsKit.moduleRowMinHeight == 38)
+        #expect(Tokens.SettingsKit.moduleRowGap == 10)
+        #expect(Tokens.SettingsKit.moduleTileSize == 24)
+        #expect(Tokens.SettingsKit.moduleTileRadius == 7)
+        #expect(Tokens.SettingsKit.moduleSymbolSize == 14)
+        #expect(Tokens.SettingsKit.moduleChevronButtonSize == 22)
+        #expect(Tokens.SettingsKit.moduleChevronSize == 10)
+        #expect(Tokens.SettingsKit.openAreaInset == 46)
+        #expect(Tokens.SettingsKit.accentFillLight == 0.12)
+        #expect(Tokens.SettingsKit.accentFillDark == 0.16)
+        #expect(Tokens.SettingsKit.openAreaFillLight == 0.07)
+        #expect(Tokens.SettingsKit.openAreaFillDark == 0.08)
+        #expect(Tokens.SettingsKit.infoButtonSize == 14)
+        #expect(Tokens.SettingsKit.infoButtonLineWidth == 1.3)
+        #expect(Tokens.SettingsKit.infoButtonHitArea == 28)
+        #expect(Tokens.SettingsKit.infoPopoverMaxWidth == 290)
+        #expect(Tokens.SettingsKit.infoPopoverPaddingVertical == 10)
+        #expect(Tokens.SettingsKit.infoPopoverPaddingHorizontal == 12)
+        #expect(Tokens.SettingsKit.infoTextMaxCharacters == 200)
+        #expect(Tokens.SettingsKit.smallTextMaxWords == 3)
+        #expect(Tokens.SettingsKit.pictureCardGap == 10)
+        #expect(Tokens.SettingsKit.pictureCardRowPaddingVertical == 10)
+        #expect(Tokens.SettingsKit.pictureCardRowPaddingHorizontal == 12)
+        #expect(Tokens.SettingsKit.pictureCardStrokeWidth == 1.5)
+        #expect(Tokens.SettingsKit.pictureCardPadding == 8)
+        #expect(Tokens.SettingsKit.pictureWellHeight == 42)
+        #expect(Tokens.SettingsKit.pictureWellRadius == 6)
+        #expect(Tokens.SettingsKit.pictureCardCompactWidth == 78)
+        #expect(Tokens.SettingsKit.pictureCardsBeforeCompact == 4)
+        #expect(Tokens.SettingsKit.paneMarginHorizontal == 20)
+        #expect(Tokens.SettingsKit.paneMarginTop == 4)
+        #expect(Tokens.SettingsKit.paneMarginBottom == 22)
+    }
+
+    @Test("The settings sidebar follows the system size with the approved medium")
+    func settingsSidebarMeasures() {
+        typealias Metrics = Tokens.SettingsSidebar.Metrics
+        #expect(Tokens.SettingsSidebar.medium == Metrics(width: 210, textSize: 14, symbolSize: 22, rowHeight: 32))
+        let small = Tokens.SettingsSidebar.small
+        let medium = Tokens.SettingsSidebar.medium
+        let large = Tokens.SettingsSidebar.large
+        #expect(small.width < medium.width && medium.width < large.width)
+        #expect(small.textSize < medium.textSize && medium.textSize < large.textSize)
+        #expect(small.symbolSize < medium.symbolSize && medium.symbolSize < large.symbolSize)
+        #expect(small.rowHeight < medium.rowHeight && medium.rowHeight < large.rowHeight)
+        #expect(Tokens.SettingsSidebar.rowRadius == Tokens.Radius.control)
+        #expect(Tokens.SettingsSidebar.rowPadding == 10)
+        #expect(Tokens.SettingsSidebar.symbolTextGap == 10)
+        #expect(Tokens.SettingsSidebar.rowGap == 2)
+        #expect(Tokens.SettingsSidebar.moduleGap == 10)
+        #expect(Tokens.SettingsSidebar.searchFieldHeight == 28)
+        #expect(Tokens.SettingsSidebar.searchMagnifierSize == 13)
+        #expect(Tokens.SettingsSidebar.searchFieldBottomGap == 8)
+        #expect(Tokens.SettingsSidebar.titleBarHeight == 44)
+        #expect(Tokens.SettingsSidebar.minimumWindowWidth == 760)
+        #expect(Tokens.SettingsSidebar.minimumWindowHeight == 540)
+    }
+
+    @Test("The settings kit fits its own parts")
+    func settingsKitFits() {
+        typealias Kit = Tokens.SettingsKit
+        #expect(Kit.rowMinHeight >= Kit.hotkeyRecorderHeight)
+        #expect(Tokens.Spacing.sm + Kit.subRowInset == 30)
+        #expect(Kit.rowPaddingHorizontal + Kit.subRowInset == 30)
+        #expect(Kit.infoButtonHitArea >= 28)
+        #expect(Kit.switchMinHeight >= Tokens.minimumTargetSize)
+        #expect(Tokens.SettingsSidebar.rowRadius == Tokens.Radius.control)
+    }
+
+    @Test("The onboarding keeps its measures")
+    func onboardingMeasures() {
+        #expect(Tokens.Onboarding.width == 440)
+        #expect(Tokens.Onboarding.pictureHeight == 44)
+        #expect(Tokens.Onboarding.dotSize == 6)
+    }
+
+    @Test("The Layout list keeps the measures of mock-up 01")
+    func layoutListMeasures() {
+        let list = Tokens.LayoutList.self
+        #expect(list.appColumnWidth == 150)
+        #expect(list.sectionColumnWidth == 150)
+        #expect(list.iconSize == 20)
+        #expect(list.filterFieldMinWidth == 112)
+        #expect(list.filteredOutOpacity == 0.25)
+        #expect(list.siblingRingWidth == 2)
+    }
+
+    @Test("The undo toast keeps the measures of the design concept")
+    func undoToastMeasures() {
+        let toast = Tokens.UndoToast.self
+        #expect(toast.paddingVertical == 7)
+        #expect(toast.paddingHorizontal == 12)
+        #expect(toast.gap == 10)
+        #expect(toast.visibleSeconds == 5)
+        #expect(toast.plainVisibleSeconds == 3)
+        #expect(toast.menuBarGap == 8)
+        #expect(toast.screenMargin == 8)
     }
 }

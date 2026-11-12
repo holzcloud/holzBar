@@ -227,6 +227,8 @@ nonisolated enum DesignTokens {
     nonisolated enum Radius {
         static let keyCap: Double = 6
         static let control: Double = 8
+        /// The radius of a settings group's list (concept 9a).
+        static let list: Double = 10
         static let card: Double = 16
         static let panel: Double = 22
         static let hub: Double = 28
@@ -314,6 +316,234 @@ nonisolated enum DesignTokens {
         static let minimumWidth = animationStripWidth + padding * 2
         /// The space between the cards of a row.
         static let gap = Spacing.sm
+    }
+
+    /// The measures of the settings kit (concept 9a, decisions D-14 to D-26): every number of a
+    /// group, row, variant, state line, disclosure, module row, info button and picture card row.
+    /// The kit's views read them through `HolzBarTheme.SettingsKit`; a test pins each one.
+    nonisolated enum SettingsKit {
+
+        // Rows (D-16 to D-18)
+        /// The minimum height of a settings row.
+        static let rowMinHeight: Double = 30
+        /// The vertical padding inside a row.
+        static let rowPaddingVertical: Double = 3
+        /// The horizontal padding inside a row.
+        static let rowPaddingHorizontal: Double = 12
+        /// The gap between a row's label and its control.
+        static let labelControlGap: Double = 16
+        /// The gap between a label and its info button or Preview badge.
+        static let accessoryGap: Double = 6
+        /// How far a sub row is indented beyond a row's horizontal padding.
+        static let subRowInset: Double = 18
+        /// The opacity of a row whose switch above it is off.
+        static let dependentOpacity: Double = 0.42
+        /// The hit height of a switch: the smallest target (D-23).
+        static let switchMinHeight: Double = minimumTargetSize
+
+        // Groups (D-16)
+        /// The inset of a group header.
+        static let groupHeaderInset: Double = 4
+        /// The gap between a group header and its list.
+        static let groupHeaderGap: Double = 6
+        /// The gap between two groups.
+        static let groupGap: Double = 14
+        /// The gap between a list and its footnote.
+        static let footnoteGap: Double = 6
+        /// The inset of a footnote.
+        static let footnoteInset: Double = 4
+
+        // Row variants (D-18)
+        /// The widest a pop-up button gets.
+        static let popUpMaxWidth: Double = 260
+        /// The width of a slider's track.
+        static let sliderTrackWidth: Double = 120
+        /// The gap between a slider and its value.
+        static let sliderValueGap: Double = 10
+        /// The narrowest the value beside a slider gets.
+        static let sliderValueMinWidth: Double = 34
+        /// The gap between a stepper and its value.
+        static let stepperValueGap: Double = 6
+        /// The narrowest a text field in a row gets.
+        static let textFieldMinWidth: Double = 150
+        /// The width of a color well.
+        static let colorWellWidth: Double = 40
+        /// The height of a color well.
+        static let colorWellHeight: Double = 20
+        /// The corner radius of a color well.
+        static let colorWellRadius: Double = 6
+        /// The width of a gradient strip.
+        static let gradientStripWidth: Double = 96
+        /// The width of a hotkey recorder.
+        static let hotkeyRecorderWidth: Double = 132
+        /// The height of a hotkey recorder; a row is at least as high.
+        static let hotkeyRecorderHeight: Double = 24
+
+        // State and note lines, disclosure (D-19, D-20)
+        /// The gap inside a state line.
+        static let stateLineGap: Double = 8
+        /// The vertical padding of a note line.
+        static let noteLinePaddingVertical: Double = 8
+        /// The horizontal padding of a note line.
+        static let noteLinePaddingHorizontal: Double = 12
+        /// The size of a disclosure chevron.
+        static let disclosureChevronSize: Double = 10
+
+        // Module row (D-21)
+        /// The minimum height of a module row.
+        static let moduleRowMinHeight: Double = 38
+        /// The gap inside a module row.
+        static let moduleRowGap: Double = 10
+        /// The size of a module's symbol tile.
+        static let moduleTileSize: Double = 24
+        /// The corner radius of a module's symbol tile.
+        static let moduleTileRadius: Double = 7
+        /// The size of the symbol inside the tile.
+        static let moduleSymbolSize: Double = 14
+        /// The size of the chevron button of a module row.
+        static let moduleChevronButtonSize: Double = 22
+        /// The size of the chevron.
+        static let moduleChevronSize: Double = 10
+        /// The inset of a module's open area.
+        static let openAreaInset: Double = 46
+        /// The accent fill of a tile in light appearance.
+        static let accentFillLight: Double = 0.12
+        /// The accent fill of a tile in dark appearance.
+        static let accentFillDark: Double = 0.16
+        /// The fill of an open area in light appearance.
+        static let openAreaFillLight: Double = 0.07
+        /// The fill of an open area in dark appearance.
+        static let openAreaFillDark: Double = 0.08
+
+        // Info button and texts (D-22)
+        /// The size of the info button's circle.
+        static let infoButtonSize: Double = 14
+        /// The line width of the info button's circle.
+        static let infoButtonLineWidth: Double = 1.3
+        /// The hit area of the info button (at least 28, concept 11).
+        static let infoButtonHitArea: Double = 28
+        /// The widest an info popover gets.
+        static let infoPopoverMaxWidth: Double = 290
+        /// The vertical padding of an info popover.
+        static let infoPopoverPaddingVertical: Double = 10
+        /// The horizontal padding of an info popover.
+        static let infoPopoverPaddingHorizontal: Double = 12
+        /// The longest an info text may be, in characters.
+        static let infoTextMaxCharacters: Double = 200
+        /// The longest small text beside a label, in words.
+        static let smallTextMaxWords: Double = 3
+
+        // Picture card row (D-24)
+        /// The gap between picture cards.
+        static let pictureCardGap: Double = 10
+        /// The vertical padding of a picture card row.
+        static let pictureCardRowPaddingVertical: Double = 10
+        /// The horizontal padding of a picture card row.
+        static let pictureCardRowPaddingHorizontal: Double = 12
+        /// The stroke of a selected picture card.
+        static let pictureCardStrokeWidth: Double = 1.5
+        /// The padding inside a picture card.
+        static let pictureCardPadding: Double = 8
+        /// The height of a picture's well.
+        static let pictureWellHeight: Double = 42
+        /// The corner radius of a picture's well.
+        static let pictureWellRadius: Double = 6
+        /// The width of a compact picture card.
+        static let pictureCardCompactWidth: Double = 78
+        /// How many cards a row holds before they turn compact.
+        static let pictureCardsBeforeCompact: Double = 4
+
+        // Pane margins (D-26)
+        /// The horizontal margin of a pane.
+        static let paneMarginHorizontal: Double = 20
+        /// The top margin of a pane.
+        static let paneMarginTop: Double = 4
+        /// The bottom margin of a pane.
+        static let paneMarginBottom: Double = 22
+    }
+
+    /// The onboarding window (D-22, D-36).
+    nonisolated enum Onboarding {
+        /// The width of the window's content.
+        static let width: Double = 440
+        /// The height of the picture well above each step's title.
+        static let pictureHeight: Double = 44
+        /// The size of a page dot.
+        static let dotSize: Double = 6
+    }
+
+    /// The list view of Layout (mock-up 01, D-08).
+    nonisolated enum LayoutList {
+        /// The width of the App column (mock-up 01).
+        static let appColumnWidth: Double = 150
+        /// The width of the Section column (mock-up 01).
+        static let sectionColumnWidth: Double = 150
+        /// The size of an item's picture in a row.
+        static let iconSize: Double = 20
+        /// The least width of the filter field in Layout's top row.
+        static let filterFieldMinWidth: Double = 112
+        /// The opacity of a tile in the bars that the filter leaves out (D-09).
+        static let filteredOutOpacity: Double = 0.25
+        /// The width of the ring around the items of the app under the pointer (macOS 27, D-11).
+        static let siblingRingWidth: Double = 2
+    }
+
+    /// The undo toast: a glass capsule with one sentence and an Undo button (concept 9a, D-13).
+    nonisolated enum UndoToast {
+        /// The vertical padding inside the capsule (D-13).
+        static let paddingVertical: Double = 7
+        /// The horizontal padding inside the capsule (D-13).
+        static let paddingHorizontal: Double = 12
+        /// The gap between the symbol, the sentence and the Undo button (D-13).
+        static let gap: Double = 10
+        /// How long the toast with an Undo button stays, in seconds (D-03).
+        static let visibleSeconds: Double = 5
+        /// How long a plain toast without an action stays, in seconds (concept 9, row `Toast`).
+        static let plainVisibleSeconds: Double = 3
+        /// The gap between the menu bar and the toast of a change made there (D-14).
+        static let menuBarGap: Double = 8
+        /// The least distance between that toast and the screen's edge.
+        static let screenMargin: Double = 8
+    }
+
+    /// The sidebar and the window of the Settings window (concept 10, D-08, D-26).
+    nonisolated enum SettingsSidebar {
+        /// The measures that follow the system's sidebar icon size.
+        nonisolated struct Metrics: Equatable, Sendable {
+            let width: Double
+            let textSize: Double
+            let symbolSize: Double
+            let rowHeight: Double
+        }
+
+        /// The small system sidebar size (chosen by the planner, adjusted after the Mac test).
+        static let small = Metrics(width: 200, textSize: 13, symbolSize: 17, rowHeight: 28)
+        /// The medium system sidebar size (D-08).
+        static let medium = Metrics(width: 210, textSize: 14, symbolSize: 22, rowHeight: 32)
+        /// The large system sidebar size (chosen by the planner, adjusted after the Mac test).
+        static let large = Metrics(width: 230, textSize: 16, symbolSize: 25, rowHeight: 36)
+        /// The corner radius of a sidebar row: the control radius.
+        static let rowRadius: Double = Radius.control
+        /// The horizontal padding of a sidebar row.
+        static let rowPadding: Double = 10
+        /// The gap between a row's symbol and its text.
+        static let symbolTextGap: Double = 10
+        /// The gap between sidebar rows.
+        static let rowGap: Double = 2
+        /// The gap between the sidebar's groups.
+        static let moduleGap: Double = 10
+        /// The height of the search field.
+        static let searchFieldHeight: Double = 28
+        /// The size of the search field's magnifier.
+        static let searchMagnifierSize: Double = 13
+        /// The gap under the search field.
+        static let searchFieldBottomGap: Double = 8
+        /// The height of the title bar (D-67).
+        static let titleBarHeight: Double = 44
+        /// The narrowest the Settings window gets.
+        static let minimumWindowWidth: Double = 760
+        /// The lowest the Settings window gets.
+        static let minimumWindowHeight: Double = 540
     }
 
     /// The minimum contrast ratios the design asks for.

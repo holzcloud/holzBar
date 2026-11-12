@@ -5,169 +5,142 @@
 
 import SwiftUI
 
+/// The rare settings: the menu bar's own behaviour, app menus, item spacing, backing up settings and the
+/// permissions holzBar has or needs, on the settings kit.
 struct AdvancedSettingsPane: View {
     @Environment(AppState.self) var appState
     @Bindable var settings: AdvancedSettings
-    @State private var maxSliderLabelWidth: CGFloat = 0
     @State private var revokingPermission: Permission?
-
-    private var menuBarManager: MenuBarManager {
-        appState.menuBarManager
-    }
-
-    private func formattedToSeconds(_ interval: TimeInterval) -> LocalizedStringKey {
-        let formatted = interval.formatted()
-        return if interval == 1 {
-            "\(formatted) second"
-        } else {
-            "\(formatted) seconds"
-        }
-    }
+    @State private var tempItemSpacingOffset: Double = 0
+    @State private var isApplyingItemSpacingOffset = false
 
     var body: some View {
-        HolzBarForm {
-            // Settings that do nothing on macOS 27 are not shown there (jordanbaird/Ice#1001):
-            // there are no dividers to style, no drags on the bar, no item moves and no
-            // hiding of application menus. Their stored values are kept.
-            HolzBarSection("Menu Bar Sections") {
-                enableAlwaysHiddenSection
+        SettingsPaneHost(.advanced) {
+            // Settings that do nothing on macOS 27 are not shown there (jordanbaird/Ice#1001);
+            // their stored values are kept.
+            SettingsGroup(SettingsCatalog.AdvancedPane.menuBar) {
                 if !isMacOS27 {
-                    showAllSectionsOnUserDrag
-                    sectionDividerStyle
+                    SettingsPickerRow(
+                        .advancedDividerStyle,
+                        selection: $settings.sectionDividerStyle,
+                        small: Text("macOS 14 to 26")
+                    ) {
+                        ForEach(SectionDividerStyle.allCases) { style in
+                            Text(style.localized).tag(style)
+                        }
+                    }
+                    SettingsToggleRow(
+                        .advancedShowAllSectionsOnDrag,
+                        isOn: $settings.showAllSectionsOnUserDrag,
+                        small: Text("macOS 14 to 26")
+                    )
                 }
-                newItemsPlacement
+                SettingsToggleRow(.advancedSecondaryContextMenu, isOn: $settings.enableSecondaryContextMenu)
                 if !isMacOS27 {
-                    keepLiveActivitiesVisible
+                    SettingsToggleRow(
+                        .advancedKeepLiveActivities,
+                        isOn: $settings.keepLiveActivitiesVisible,
+                        small: Text("macOS 14 to 26"),
+                        badge: .beta
+                    )
+                    SettingsToggleRow(
+                        .advancedSystemItemsInPlace,
+                        isOn: Binding(
+                            get: { !Defaults.bool(forKey: .systemItemsMayHide) },
+                            set: { Defaults.set(!$0, forKey: .systemItemsMayHide) }
+                        ),
+                        small: Text("macOS 14 to 26")
+                    )
                 }
             }
-            HolzBarSection("Other") {
-                if !isMacOS27 {
-                    hideApplicationMenus
-                    keepsDockIconHidden
-                }
-                enableSecondaryContextMenu
-                showOnHoverDelay
-                tempShowInterval
-                openHiddenItemsInMenuBar
-                autoZenWhileSharingScreen
-                lockHiddenItems
-                if !isMacOS27 {
-                    pinSystemItems
+            if !isMacOS27 {
+                SettingsGroup(SettingsCatalog.AdvancedPane.appMenus) {
+                    SettingsToggleRow(
+                        .advancedHideAppMenus,
+                        isOn: $settings.hideApplicationMenus,
+                        small: Text("macOS 14 to 26")
+                    )
+                    SettingsToggleRow(
+                        .advancedKeepDockIconHidden,
+                        isOn: $settings.keepsDockIconHidden,
+                        small: Text("macOS 14 to 26")
+                    )
+                    .settingsSubRow()
+                    .settingsDependent(on: settings.hideApplicationMenus)
                 }
             }
-            HolzBarSection("Settings") {
-                settingsBackup
+            SettingsGroup(SettingsCatalog.AdvancedPane.itemSpacing) {
+                SettingsSliderRow(
+                    .advancedItemSpacing,
+                    value: $tempItemSpacingOffset,
+                    in: -16...16,
+                    step: 2,
+                    badge: .beta,
+                    valueLabel: { value in
+                        switch value {
+                        case -16: Text("none")
+                        case 0: Text("default")
+                        case 16: Text("max")
+                        default: Text(verbatim: value.formatted())
+                        }
+                    }
+                )
+                .settingsDependent(on: !isApplyingItemSpacingOffset)
+                .onAppear {
+                    tempItemSpacingOffset = appState.settings.general.itemSpacingOffset
+                }
+                SettingsButtonRow(.advancedApplySpacing) {
+                    if isApplyingItemSpacingOffset {
+                        ProgressView()
+                            .controlSize(.small)
+                    }
+                    Button("Apply") {
+                        applyTempItemSpacingOffset()
+                    }
+                    .disabled(
+                        isApplyingItemSpacingOffset
+                            || tempItemSpacingOffset == appState.settings.general.itemSpacingOffset
+                    )
+                }
+                .settingsSubRow()
+                SettingsButtonRow(.advancedDefaultSpacing) {
+                    Button("Reset") {
+                        tempItemSpacingOffset = 0
+                        applyTempItemSpacingOffset()
+                    }
+                    .disabled(isApplyingItemSpacingOffset || appState.settings.general.itemSpacingOffset == 0)
+                }
+                .settingsSubRow()
             }
-            HolzBarSection("Permissions") {
-                allPermissions
+            SettingsGroup(SettingsCatalog.AdvancedPane.backUp) {
+                SettingsButtonRow(.advancedExportSettings) {
+                    Button("Export…") {
+                        SettingsBackup.exportToFile(attachedTo: appState.navigationState.settingsWindow)
+                    }
+                }
+                SettingsButtonRow(.advancedImportSettings) {
+                    Button("Import…") {
+                        SettingsBackup.importFromFile(attachedTo: appState.navigationState.settingsWindow)
+                    }
+                }
+            }
+            SettingsGroup(SettingsCatalog.AdvancedPane.permissions) {
+                ForEach(listedPermissions, id: \.self) { kind in
+                    if let permission = appState.permissions.permission(for: kind), let entry = entry(for: kind) {
+                        PermissionRow(
+                            permission,
+                            entry: entry,
+                            onGrant: { $0.performRequest() },
+                            onRevoke: { revokingPermission = $0 }
+                        )
+                    }
+                }
             }
         }
         .onAppear {
             appState.permissions.refresh()
         }
-        .sheet(item: $revokingPermission) { permission in
-            ConfirmSheet(
-                title: Text("Revoke this permission?"),
-                message: Text("holzBar stops using it at once and cannot do what needs it until you allow it again. You can also remove it yourself in System Settings, in Privacy & Security."),
-                confirmTitle: "Revoke \(permission.title)",
-                cancelTitle: "Cancel",
-                isDestructive: true,
-                secondaryTitle: "Open System Settings",
-                onSecondary: {
-                    revokingPermission = nil
-                    permission.openSettings()
-                },
-                onConfirm: {
-                    revokingPermission = nil
-                    permission.revoke()
-                },
-                onCancel: {
-                    revokingPermission = nil
-                }
-            )
-        }
-    }
-
-    @ViewBuilder
-    private var enableAlwaysHiddenSection: some View {
-        Toggle(
-            "Enable the always-hidden section",
-            isOn: $settings.enableAlwaysHiddenSection
-        )
-    }
-
-    @ViewBuilder
-    private var showAllSectionsOnUserDrag: some View {
-        Toggle(
-            "Show all sections when ⌘ Command + dragging menu bar items",
-            isOn: $settings.showAllSectionsOnUserDrag
-        )
-    }
-
-    @ViewBuilder
-    private var newItemsPlacement: some View {
-        HolzBarPicker("Place new menu bar items in", selection: $settings.newItemsPlacement) {
-            ForEach(NewItemsPlacement.allCases) { placement in
-                if placement != .alwaysHidden || settings.enableAlwaysHiddenSection {
-                    Text(placement.localized).tag(placement)
-                }
-            }
-        }
-        .annotation("Applies to items holzBar has not seen before. Items that are already arranged stay where they are.")
-    }
-
-    @ViewBuilder
-    private var keepLiveActivitiesVisible: some View {
-        Toggle("Keep Live Activities visible", isOn: $settings.keepLiveActivitiesVisible)
-            .annotation("Live Activities from your iPhone stay in the menu bar instead of being hidden. Experimental.")
-    }
-
-    @ViewBuilder
-    private var sectionDividerStyle: some View {
-        HolzBarPicker("Section divider style", selection: $settings.sectionDividerStyle) {
-            ForEach(SectionDividerStyle.allCases) { style in
-                Text(style.localized).tag(style)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var hideApplicationMenus: some View {
-        Toggle(
-            "Hide app menus when showing menu bar items",
-            isOn: $settings.hideApplicationMenus
-        )
-        .annotation {
-            if #available(macOS 27.0, *) {
-                Text("Not needed on macOS 27, which folds items that do not fit behind its own overflow button.")
-                    .padding(.trailing, 75)
-            } else {
-                Text(
-                    """
-                    Make more room in the menu bar by hiding the current app menus if \
-                    needed. macOS requires holzBar to make itself visible in the Dock while \
-                    this setting is in effect.
-                    """
-                )
-                .padding(.trailing, 75)
-            }
-        }
-        .disabled(isMacOS27)
-    }
-
-    @ViewBuilder
-    private var keepsDockIconHidden: some View {
-        Toggle("Keep the Dock icon hidden", isOn: $settings.keepsDockIconHidden)
-            .annotation {
-                Text(
-                    """
-                    macOS hides another app's menus only while holzBar is in the Dock. With \
-                    this on, holzBar never shows a Dock icon, and the menus stay.
-                    """
-                )
-                .padding(.trailing, 75)
-            }
-            .disabled(isMacOS27 || !settings.hideApplicationMenus)
+        .permissionRevokeConfirmation($revokingPermission)
     }
 
     private var isMacOS27: Bool {
@@ -178,140 +151,46 @@ struct AdvancedSettingsPane: View {
         }
     }
 
-    @ViewBuilder
-    private var enableSecondaryContextMenu: some View {
-        Toggle(
-            "Enable secondary context menu",
-            isOn: $settings.enableSecondaryContextMenu
-        )
-        .annotation {
-            Text(
-                """
-                Right-click in an empty area of the menu bar to display a minimal \
-                version of holzBar's menu. Disable this setting if you encounter conflicts \
-                with other apps.
-                """
-            )
-            .padding(.trailing, 75)
-        }
-    }
+    // MARK: Item spacing
 
-    @ViewBuilder
-    private var showOnHoverDelay: some View {
-        LabeledContent {
-            HolzBarSlider(
-                formattedToSeconds(settings.showOnHoverDelay),
-                value: $settings.showOnHoverDelay,
-                in: 0...1,
-                step: 0.1
-            )
-        } label: {
-            Text("Show on hover delay")
-                .frame(minWidth: maxSliderLabelWidth, alignment: .leading)
-                .onFrameChange { frame in
-                    maxSliderLabelWidth = max(maxSliderLabelWidth, frame.width)
-                }
-        }
-        .annotation("The amount of time to wait before showing on hover.")
-    }
-
-    @ViewBuilder
-    private var tempShowInterval: some View {
-        LabeledContent {
-            HolzBarSlider(
-                formattedToSeconds(settings.tempShowInterval),
-                value: $settings.tempShowInterval,
-                in: 0...30,
-                step: 1
-            )
-        } label: {
-            Text("Hide opened items again after")
-                .frame(minWidth: maxSliderLabelWidth, alignment: .leading)
-                .onFrameChange { frame in
-                    maxSliderLabelWidth = max(maxSliderLabelWidth, frame.width)
-                }
-        }
-        .annotation("Counted from when the item's menu closes. 0 hides it right away.")
-    }
-
-    @ViewBuilder
-    private var openHiddenItemsInMenuBar: some View {
-        Toggle("Open hidden items in the menu bar", isOn: $settings.openHiddenItemsInMenuBar)
-            .annotation("Shows a hidden item in the menu bar and opens its menu under it. Off, the menu opens without showing the item.")
-    }
-
-    @ViewBuilder
-    private var pinSystemItems: some View {
-        Toggle(
-            isOn: Binding(
-                get: { !Defaults.bool(forKey: .systemItemsMayHide) },
-                set: { Defaults.set(!$0, forKey: .systemItemsMayHide) }
-            )
-        ) {
-            Text("Keep the clock, battery, Wi-Fi, Control Center and sound visible")
-        }
-        .annotation("Profiles, restored layouts and rules leave these items where they are. You can still move them yourself.")
-    }
-
-    private var lockHiddenItems: some View {
-        Toggle(
-            isOn: Binding(
-                get: { appState.hiddenItemsLock.isEnabled },
-                set: { appState.hiddenItemsLock.setEnabled($0) }
-            )
-        ) {
-            Text("Ask for Touch ID or your password before showing hidden items")
-        }
-        .annotation("This keeps someone at your unlocked Mac from seeing your hidden items. Turning it off asks too. It is not protection against someone who knows your password.")
-    }
-
-    private var autoZenWhileSharingScreen: some View {
-        Toggle("Turn on Zen mode while the screen is mirrored or shared", isOn: $settings.autoZenWhileSharingScreen)
-            .annotation("Uses no permission: holzBar notices a mirrored display and macOS's screen sharing agent.")
-    }
-
-    @ViewBuilder
-    private var settingsBackup: some View {
-        LabeledContent {
-            HStack {
-                Button("Export…") {
-                    SettingsBackup.exportToFile(attachedTo: appState.navigationState.settingsWindow)
-                }
-                Button("Import…") {
-                    SettingsBackup.importFromFile(attachedTo: appState.navigationState.settingsWindow)
-                }
+    private func applyTempItemSpacingOffset() {
+        isApplyingItemSpacingOffset = true
+        appState.settings.general.itemSpacingOffset = tempItemSpacingOffset
+        Task {
+            // The spinner stops before the alert: the alert waits for the user, who may not
+            // see it while another app is active.
+            await SpacingRelaunch.apply {
+                try await appState.spacingManager.applyOffset()
+            } finished: {
+                isApplyingItemSpacingOffset = false
+            } reportFailure: { error in
+                await NSAlert(error: error).present(attachedTo: appState.navigationState.settingsWindow)
             }
-        } label: {
-            Text("Back up or move your settings")
         }
-        .annotation("Exports layout, hotkeys and appearance to a file that can be imported on another Mac.")
     }
 
-    @ViewBuilder
-    private var allPermissions: some View {
-        ForEach(appState.permissions.allPermissions) { permission in
-            LabeledContent {
-                if permission.hasPermission {
-                    HStack {
-                        PermissionPill(Text("Permission Granted"), state: .granted)
-                        if permission.canReset {
-                            Button("Revoke…") {
-                                revokingPermission = permission
-                            }
-                        }
-                    }
-                } else {
-                    HStack {
-                        PermissionPill(Text("Needs \(permission.title)"), state: .needed)
-                        Button("Grant Permission") {
-                            permission.performRequest()
-                        }
-                    }
-                }
-            } label: {
-                Text(permission.title)
-            }
-            .frame(height: 22)
+    // MARK: Permissions
+
+    /// The permissions a switched-on module needs, the granted ones and Accessibility (D-57,
+    /// D-65), in their fixed order.
+    private var listedPermissions: [ModulePermission] {
+        let enabled = Set(ModuleCatalog.all.map(\.id).filter { appState.modules.isEnabled($0) })
+        let needed = PermissionListing.needs(ofEnabled: enabled, in: ModuleCatalog.all)
+        let granted = Set(PermissionListing.candidates.filter {
+            appState.permissions.permission(for: $0)?.hasPermission == true
+        })
+        return PermissionListing.listed(needed: needed, granted: granted)
+    }
+
+    /// The catalog entry of a listed permission. The switch has no default: a new candidate
+    /// needs its entry here.
+    private func entry(for kind: ModulePermission) -> SettingsEntry? {
+        switch kind {
+        case .accessibility: .advancedPermissionAccessibility
+        case .screenRecording: .advancedPermissionScreenRecording
+        case .calendar: .advancedPermissionCalendar
+        case .bluetooth: .advancedPermissionBluetooth
+        case .inputMonitoring, .microphone, .camera, .notifications, .fullDiskAccess, .files: nil
         }
     }
 }

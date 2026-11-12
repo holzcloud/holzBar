@@ -9,6 +9,8 @@ struct MenuBarAppearanceSettingsPane: View {
     var appearanceManager: MenuBarAppearanceManager
 
     var body: some View {
-        MenuBarAppearanceEditor(appearanceManager: appearanceManager, location: .settings)
+        SettingsPaneHost(.appearance) {
+            MenuBarAppearanceEditor(appearanceManager: appearanceManager, location: .settings)
+        }
     }
 }

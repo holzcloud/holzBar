@@ -10,10 +10,19 @@ import SwiftUI
 /// bottom left, so the glass above it has something to refract. The glass is the only layer
 /// above it.
 ///
+/// The Settings window uses the ground without the two glows (`showsGlows: false`), the calm
+/// fall alone.
+///
 /// With Increase Contrast the ground is flat: no fall and no glow, so nothing lowers the
 /// contrast of the text above it.
 struct HolzBarGround: View {
     @Environment(\.colorSchemeContrast) private var contrast
+    private let showsGlows: Bool
+
+    /// - Parameter showsGlows: Whether the two soft glows are drawn above the fall.
+    init(showsGlows: Bool = true) {
+        self.showsGlows = showsGlows
+    }
 
     var body: some View {
         ZStack {
@@ -25,18 +34,20 @@ struct HolzBarGround: View {
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                RadialGradient(
-                    colors: [HolzBarTheme.Palette.accent.opacity(0.26), .clear],
-                    center: UnitPoint(x: 0.85, y: -0.05),
-                    startRadius: 0,
-                    endRadius: 520
-                )
-                RadialGradient(
-                    colors: [HolzBarTheme.Palette.wood.opacity(0.14), .clear],
-                    center: UnitPoint(x: 0.3, y: 1.1),
-                    startRadius: 0,
-                    endRadius: 420
-                )
+                if showsGlows {
+                    RadialGradient(
+                        colors: [HolzBarTheme.Palette.accent.opacity(0.26), .clear],
+                        center: UnitPoint(x: 0.85, y: -0.05),
+                        startRadius: 0,
+                        endRadius: 520
+                    )
+                    RadialGradient(
+                        colors: [HolzBarTheme.Palette.wood.opacity(0.14), .clear],
+                        center: UnitPoint(x: 0.3, y: 1.1),
+                        startRadius: 0,
+                        endRadius: 420
+                    )
+                }
             }
         }
         .ignoresSafeArea()

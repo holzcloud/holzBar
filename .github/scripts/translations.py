@@ -13,6 +13,8 @@
 #   apply CODE FILE   validate corrected sheets, write the catalogs, and with
 #                     --reviewer record the round in Translations/reviews/CODE.json
 #   add-strings FILE  add new English keys with their translations in every language
+#   remove-strings FILE  remove keys that no code uses, in every language
+#   unused-strings    list catalogue keys that no code uses
 #   status            strings, reviewed share, copies of English, changed strings;
 #                     with --markdown --write FILE the language table of the guide
 #   report            translations that are much longer than the English
@@ -33,6 +35,7 @@ import copy
 import csv
 import datetime
 import hashlib
+import importlib.util
 import io
 import json
 import os
@@ -922,6 +925,85 @@ def cmd_add_strings(args):
     return 0
 
 
+LITERAL = re.compile(r'"((?:[^"\\\n]|\\.)*)"')
+INTERPOLATION = re.compile(r"\\\([^()]*(?:\([^()]*\)[^()]*)*\)")
+ESCAPES = {"n": "\n", "t": "\t", '"': '"', "\\": "\\", "'": "'"}
+
+
+def swift_literals(root):
+    """Every plain string literal of the Swift sources under holzBar/ and Shared/, Core
+    included, with each interpolation written as U+FFFC (as strings-check does)."""
+    found = set()
+    for folder in ("holzBar", "Shared"):
+        for current, dirs, names in os.walk(os.path.join(root, folder)):
+            dirs.sort()
+            for name in sorted(names):
+                if not name.endswith(".swift"):
+                    continue
+                with open(os.path.join(current, name), encoding="utf-8") as file:
+                    text = file.read()
+                for match in LITERAL.finditer(text):
+                    body = INTERPOLATION.sub("\ufffc", match.group(1))
+                    found.add(re.sub(r"\\(.)", lambda m: ESCAPES.get(m.group(1), m.group(1)), body))
+    return found
+
+
+def keys_in_code(root):
+    """The literals that strings-check reports (localised positions) and every Swift literal
+    of holzBar/ and Shared/; a key is used when either holds it, as text or as a pattern."""
+    spec = importlib.util.spec_from_file_location("strings_check", os.path.join(os.path.dirname(os.path.abspath(__file__)), "strings-check.py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    literals = {key for _, _, key in module.code_keys(root)} | swift_literals(root)
+    return {key for key in literals if "\ufffc" not in key}, [module.key_pattern(key) for key in literals if "\ufffc" in key]
+
+
+def key_in_code(key, exact, patterns):
+    return key in exact or any(pattern.match(key) for pattern in patterns)
+
+
+def cmd_remove_strings(args):
+    repo = Repo(args.root)
+    data = read_json(args.file)
+    if not isinstance(data, dict):
+        raise ToolError(f"{args.file}: a map of catalogs to lists of keys")
+    exact, patterns = keys_in_code(args.root)
+    problems = []
+    catalogs = copy.deepcopy(repo.catalogs)
+    removed = 0
+    for catalog, keys in data.items():
+        if catalog not in CATALOGS or not isinstance(keys, list):
+            problems.append(f"{catalog}: not one of {', '.join(CATALOGS)}, or not a list of keys")
+            continue
+        for key in keys:
+            where = f"{catalog}|{key}"
+            if key not in catalogs[catalog]["strings"]:
+                problems.append(f"{where}: the key is not in the catalog")
+            elif key_in_code(key, exact, patterns):
+                problems.append(f"{where}: code still uses the key")
+            else:
+                del catalogs[catalog]["strings"][key]
+                removed += 1
+    if problems:
+        for problem in problems:
+            print(f"error: {problem}", file=sys.stderr)
+        print(f"remove-strings: {len(problems)} problem(s); nothing was written", file=sys.stderr)
+        return 1
+    files = {catalog_path(args.root, name): dumps_catalog(catalogs[name]) for name in CATALOGS if catalogs[name] != repo.catalogs[name]}
+    write_all(files)
+    print(f"remove-strings: {removed} strings removed in {len(repo.targets()) + 1} languages")
+    return 0
+
+
+def cmd_unused_strings(args):
+    repo = Repo(args.root)
+    exact, patterns = keys_in_code(args.root)
+    for key in repo.catalogs["Localizable"]["strings"]:
+        if not key_in_code(key, exact, patterns):
+            print(key)
+    return 0
+
+
 def entry_status(repo, code):
     ledger = read_ledger(repo.root, code)
     covered = ledger["strings"] if ledger else {}
@@ -1417,6 +1499,35 @@ def self_test():
         check("add-strings: refuses a lost placeholder", status == 1 and "placeholder" in err and unchanged)
         check("add-strings: refuses an unknown catalog", add({"Other": {}})[0] == 1)
 
+        # remove-strings and unused-strings.
+        build_fixture(root)
+        used_dir = os.path.join(root, "holzBar")
+        write_all({
+            os.path.join(used_dir, "Used.swift"): 'import SwiftUI\nlet view = Text("Hello")\n',
+            os.path.join(used_dir, "Core", "CoreOnly.swift"): 'let note = "Save the file to disk now"\n',
+        })
+        rm_path = os.path.join(folder, "remove.json")
+
+        def remove(spec):
+            write_all({rm_path: json.dumps(spec, ensure_ascii=False)})
+            before = snapshot(root)
+            status_, out_, err_ = run(["remove-strings", rm_path, "--root", root])
+            return status_, err_, snapshot(root) == before
+
+        status, out, _ = run(["unused-strings", "--root", root])
+        check("unused-strings: lists an unused key and not a used one", status == 0 and "Name: %@, size: %lld" in out.splitlines() and "Hello" not in out.splitlines() and "Save the file to disk now" not in out.splitlines())
+        status, err, unchanged = remove({"Localizable": ["Hello"]})
+        check("remove-strings: refuses a key used by a Swift literal", status == 1 and "still uses" in err and unchanged)
+        status, err, unchanged = remove({"Localizable": ["Save the file to disk now"]})
+        check("remove-strings: refuses a key used only from a Core file", status == 1 and "still uses" in err and unchanged)
+        status, err, unchanged = remove({"Localizable": ["No such key"]})
+        check("remove-strings: refuses a missing key", status == 1 and "not in the catalog" in err and unchanged)
+        status, err, unchanged = remove({"Localizable": ["Name: %@, size: %lld", "Hello"]})
+        check("remove-strings: writes nothing when one key of several is refused", status == 1 and unchanged)
+        status, err, unchanged = remove({"Localizable": ["Name: %@, size: %lld"]})
+        check("remove-strings: removes an unused key", status == 0 and "Name: %@, size: %lld" not in Repo(root).catalogs["Localizable"]["strings"] and "Hello" in Repo(root).catalogs["Localizable"]["strings"])
+        check("remove-strings: the files still round trip", run(["roundtrip-check", "--root", root])[0] == 0)
+
         # status --markdown and report.
         build_fixture(root)
         status, out, _ = run(["status", "--markdown", "--root", root])
@@ -1489,6 +1600,9 @@ def make_parser():
     apply.add_argument("--reviewer", help="record a review round: `anonymous` or the name as the reviewer wrote it")
     add = commands.add_parser("add-strings", parents=[common], help="add new English keys with translations in every language")
     add.add_argument("file")
+    remove = commands.add_parser("remove-strings", parents=[common], help="remove keys that no code uses, in every language")
+    remove.add_argument("file")
+    commands.add_parser("unused-strings", parents=[common], help="list catalogue keys that no code uses")
     status = commands.add_parser("status", parents=[common], help="strings, reviewed share, copies and changed strings per language")
     status.add_argument("--markdown", action="store_true", help="the table of docs/translations.md")
     status.add_argument("--write", metavar="FILE", help="with --markdown: replace the table between the languages:start and languages:end lines of FILE")
@@ -1509,6 +1623,8 @@ def main(argv=None):
         "export": cmd_export,
         "apply": cmd_apply,
         "add-strings": cmd_add_strings,
+        "remove-strings": cmd_remove_strings,
+        "unused-strings": cmd_unused_strings,
         "status": cmd_status,
         "report": cmd_report,
     }

@@ -89,6 +89,9 @@ final class AppState {
     /// The drawing behind the Menu Bar Layout pane: changes wait for Apply.
     let layoutEditor = LayoutEditor()
 
+    /// The undo history of the layout: every change can be taken back (D-14, D-15).
+    let layoutUndo = LayoutUndo()
+
     /// The history of the layout: snapshots to go back to.
     let snapshots = LayoutSnapshots()
 
@@ -233,6 +236,10 @@ final class AppState {
     /// the settings of Ice are imported. The What's New window stays closed then.
     @ObservationIgnored var isFreshInstall = false
 
+    /// Whether this launch took over the settings of Ice. Only this launch knows it; the
+    /// onboarding and the tidy-up suggestion are kept from such a Mac by their own flags.
+    @ObservationIgnored var didImportPreviousSettings = false
+
     /// Whether the setup finished: before, the settings and items are not loaded yet.
     @ObservationIgnored private(set) var isSetUp = false
 
@@ -266,6 +273,7 @@ final class AppState {
         profiles.performSetup(with: self)
         snapshots.performSetup(with: self)
         layoutEditor.performSetup(with: self)
+        layoutUndo.performSetup(with: self)
         hiddenItemsLock.performSetup(with: self)
         itemGroups.performSetup(with: self)
         appleItems.performSetup(with: self)
@@ -284,7 +292,7 @@ final class AppState {
         configureObservers()
         isSetUp = true
         Task {
-            await TidyUpOffer.offerIfFirstLaunch(appState: self)
+            await OnboardingOffer.offerIfPending(appState: self)
         }
         Task {
             await WhatsNewOffer.offerIfNeeded(appState: self)

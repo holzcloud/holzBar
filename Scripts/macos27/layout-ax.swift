@@ -1,4 +1,4 @@
-// Reads holzBar's settings window: "sidebar <x> <y>" for the Menu Bar Layout entry, and
+// Reads holzBar's settings window: "sidebar <x> <y>" for the Layout entry, and
 // "image <row> <x> <y> <label>" for each layout item, rows 0 Visible, 1 Hidden, 2 Always Hidden.
 import AppKit
 import ApplicationServices
@@ -27,7 +27,7 @@ func walk(_ element: AXUIElement, depth: Int) {
     }
     let role = value(element, kAXRoleAttribute) as? String
     let text = (value(element, kAXValueAttribute) as? String) ?? (value(element, kAXTitleAttribute) as? String) ?? ""
-    if sidebar == nil, role == kAXStaticTextRole, text == "Menu Bar Layout", let f = frame(element) {
+    if sidebar == nil, role == kAXStaticTextRole, text == "Layout", let f = frame(element) {
         sidebar = f
     }
     // Layout items are buttons since holzBar 0.0.6 (images before).

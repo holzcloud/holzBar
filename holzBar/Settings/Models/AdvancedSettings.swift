@@ -200,7 +200,7 @@ enum NewItemsPlacement: Int, CaseIterable, Identifiable {
         case .systemDefault: "Where macOS puts them"
         case .visible: "Visible"
         case .hidden: "Hidden"
-        case .alwaysHidden: "Always-Hidden"
+        case .alwaysHidden: "Always Hidden"
         }
     }
 }

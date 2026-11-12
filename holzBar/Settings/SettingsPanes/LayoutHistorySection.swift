@@ -5,48 +5,62 @@
 
 import SwiftUI
 
-/// The history of the layout: snapshots to go back to, with a preview of what a restore
-/// changes.
+/// The Layout history group of Profiles & History: snapshots to go back to, with a preview of
+/// what a restore changes.
 struct LayoutHistorySection: View {
+    @Environment(AppState.self) private var appState
     @Bindable var snapshots: LayoutSnapshots
     @State private var restoreTarget: LayoutSnapshot?
     @State private var isDismissed = false
     @State private var isConfirmingDeleteAll = false
-    /// The list is folded away until the user opens it.
-    @State private var isExpanded = false
 
     var body: some View {
-        HolzBarSection {
-            Text("Layout History")
-                .font(.headline)
-        } content: {
-            Toggle("Keep a history of the layout", isOn: $snapshots.isEnabled)
-            if snapshots.isEnabled {
-                Stepper(value: $snapshots.limit, in: SnapshotRetention.limits) {
-                    Text("Snapshots to keep: \(snapshots.limit)")
-                }
-                .annotation("Older ones are deleted. Starred snapshots stay and are not counted.")
+        SettingsGroup(
+            SettingsCatalog.ProfilesAndHistoryPane.layoutHistory,
+            footnote: Text("holzBar saves the layout by itself before every profile, restore, tidy-up and rule.")
+        ) {
+            SettingsToggleRow(.profilesKeepHistory, isOn: $snapshots.isEnabled)
+            SettingsStepperRow(
+                .profilesSnapshotsToKeep,
+                value: $snapshots.limit,
+                in: SnapshotRetention.limits
+            ) { limit in
+                Text(limit, format: .number)
             }
+            .settingsDependent(on: snapshots.isEnabled)
             if !isDismissed, let suggested = snapshots.snapshotToSuggest {
-                suggestion(for: suggested)
+                SettingsStateLine(.warning, Text("Your layout looks reset."))
+                SettingsButtonRow {
+                    Button("Restore from \(suggested.date.formatted(date: .abbreviated, time: .shortened))") {
+                        restoreTarget = suggested
+                    }
+                    Button("Not Now") {
+                        isDismissed = true
+                    }
+                }
             }
-            DisclosureGroup(isExpanded: $isExpanded) {
+            SettingsDisclosure(
+                Text("Snapshots: \(snapshots.snapshots.count)"),
+                id: SettingsCatalog.ProfilesAndHistoryPane.snapshotsDisclosure
+            ) {
+                if snapshots.snapshots.isEmpty {
+                    SettingsEmptyRow(systemImage: "clock.arrow.circlepath", Text("No snapshots yet: holzBar takes one when the bar settles and once a day."))
+                }
                 ForEach(snapshots.snapshots) { snapshot in
                     row(for: snapshot)
                 }
-                HStack {
-                    Button("Take Snapshot Now") {
-                        snapshots.take(.manual)
-                    }
-                    .disabled(!snapshots.isEnabled)
-                    Spacer()
-                    Button("Delete All Snapshots…", role: .destructive) {
-                        isConfirmingDeleteAll = true
-                    }
-                    .disabled(snapshots.snapshots.isEmpty)
+            }
+            SettingsButtonRow {
+                Button("Take Snapshot Now") {
+                    snapshots.take(.manual)
                 }
-            } label: {
-                Text("Snapshots: \(snapshots.snapshots.count)")
+            }
+            .settingsDependent(on: snapshots.isEnabled)
+            SettingsButtonRow {
+                Button("Delete All Snapshots…", role: .destructive) {
+                    isConfirmingDeleteAll = true
+                }
+                .disabled(snapshots.snapshots.isEmpty)
             }
         }
         .sheet(item: $restoreTarget) { target in
@@ -78,29 +92,12 @@ struct LayoutHistorySection: View {
         }
     }
 
-    private func suggestion(for snapshot: LayoutSnapshot) -> some View {
-        HStack {
-            Label("Your layout looks reset.", systemImage: "exclamationmark.triangle")
-                .foregroundStyle(HolzBarTheme.Palette.warning)
-            Spacer()
-            Button("Restore from \(snapshot.date.formatted(date: .abbreviated, time: .shortened))") {
-                restoreTarget = snapshot
-            }
-            Button("Not Now") {
-                isDismissed = true
-            }
-        }
-    }
-
     private func row(for snapshot: LayoutSnapshot) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(snapshot.date.formatted(date: .abbreviated, time: .shortened))
-                Text("\(reasonText(snapshot.reason)) · Items: \(snapshot.count)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
+        let date = snapshot.date.formatted(date: .abbreviated, time: .shortened)
+        return SettingsButtonRow(
+            Text(verbatim: date),
+            small: Text("\(reasonText(snapshot.reason)) · Items: \(snapshot.count)")
+        ) {
             let starTitle: LocalizedStringKey = snapshot.isStarred ? "Remove Star" : "Star"
             Button(starTitle, systemImage: snapshot.isStarred ? "star.fill" : "star") {
                 snapshots.toggleStar(snapshot)
@@ -110,14 +107,22 @@ struct LayoutHistorySection: View {
             Button("Restore…") {
                 restoreTarget = snapshot
             }
-            Button("Delete", systemImage: "trash") {
+            Button("Delete", systemImage: "trash", role: .destructive) {
+                // Acts at once; the undo toast brings it back (D-04, D-16).
                 snapshots.delete(snapshot)
+                appState.layoutUndo.recordDeletion(
+                    String(localized: "\u{201C}\(date)\u{201D} deleted"),
+                    place: .settings,
+                    restore: { snapshots.reinsert(snapshot) },
+                    deleteAgain: { snapshots.delete(snapshot) }
+                )
             }
             .labelStyle(.iconOnly)
             .buttonStyle(.borderless)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel(Text(verbatim: snapshot.date.formatted(date: .abbreviated, time: .shortened)))
+        .accessibilityLabel(Text("\(date), \(reasonText(snapshot.reason)), Items: \(snapshot.count)"))
+        .accessibilityValue(snapshot.isStarred ? Text("Starred") : Text(verbatim: ""))
     }
 
     private func reasonText(_ reason: SnapshotReason) -> String {

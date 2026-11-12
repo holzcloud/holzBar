@@ -441,6 +441,20 @@ final class ScriptStore {
         hooksChanged()
     }
 
+    /// Puts a deleted hook back at its former index, under the same rules as adding one.
+    func insertProfileHook(_ hook: ProfileHook, at index: Int) {
+        guard
+            !isReadOnly,
+            hook.isValid,
+            file.profileHooks.count < ProfileHooks.maximumCount,
+            !file.profileHooks.contains(where: { $0.id == hook.id })
+        else {
+            return
+        }
+        DeletionUndo.reinsert(hook, at: index, into: &file.profileHooks)
+        hooksChanged()
+    }
+
     func updateProfileHook(_ hook: ProfileHook) {
         guard
             !isReadOnly,

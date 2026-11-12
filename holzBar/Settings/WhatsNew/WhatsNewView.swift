@@ -182,9 +182,11 @@ struct WhatsNewView: View {
 
     private var footer: some View {
         HStack {
-            Toggle("Show after an update", isOn: $settings.showsWhatsNewAfterUpdate)
-                .toggleStyle(.switch)
-                .controlSize(.small)
+            HStack(spacing: HolzBarTheme.SettingsKit.accessoryGap) {
+                Text("Show after an update")
+                    .accessibilityHidden(true)
+                SettingsSwitch(isOn: $settings.showsWhatsNewAfterUpdate, label: Text("Show after an update"))
+            }
             Spacer()
             Button("Done", action: onDone)
                 .buttonStyle(.borderedProminent)

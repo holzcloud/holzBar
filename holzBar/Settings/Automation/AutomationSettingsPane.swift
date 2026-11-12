@@ -5,8 +5,9 @@
 
 import SwiftUI
 
-/// The rules: "when this is true, do that". One glass group, one row per rule; the editor of
-/// a rule opens under its row.
+/// The rules: "when this is true, do that". One settings group of module rows, one per rule; the
+/// editor of a rule opens in its row's open area, one at a time. "Add rule…" sits directly under
+/// the list. Then the groups Scripts, Profile hooks and Storage.
 struct AutomationSettingsPane: View {
     @Environment(AppState.self) private var appState
     @Bindable var manager: AutomationManager
@@ -31,28 +32,11 @@ struct AutomationSettingsPane: View {
     }
 
     var body: some View {
-        HolzBarForm(alignment: .leading, spacing: HolzBarTheme.Spacing.md) {
-            Text("When something happens, holzBar changes the menu bar for you. With no rules, nothing is observed.")
-                .font(HolzBarTheme.Typography.callout)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
-            if !manager.rules.isEmpty {
-                ruleList
-            }
-            Text("To apply a layout profile with a Focus, add the holzBar filter to that Focus in System Settings.")
-                .font(HolzBarTheme.Typography.caption)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
+        SettingsPaneHost(.automation) {
+            rulesGroup
             ScriptsSection(store: manager.scriptStore, manager: manager)
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Button("Add Rule", systemImage: "plus") {
-                    addRule()
-                }
-                .disabled(manager.rules.count >= AutomationRule.maximumCount)
-                Text("Rules are stored on this Mac.")
-                    .font(HolzBarTheme.Typography.caption)
-                    .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-            }
+            ProfileHooksSection(store: manager.scriptStore)
+            storageGroup
         }
         .holzBarConfirmation(
             isPresented: isConfirmingDeletion,
@@ -70,39 +54,63 @@ struct AutomationSettingsPane: View {
         }
     }
 
-    private var ruleList: some View {
-        VStack(spacing: 0) {
+    /// Where rules, scripts, approvals and hooks live (D-55).
+    private var storageGroup: some View {
+        SettingsGroup(SettingsCatalog.AutomationPane.storage) {
+            SettingsValueRow(
+                .automationStorageRules,
+                value: Text("Rules stay on this Mac. An exported settings file contains them, except rules that run a script.")
+            )
+            SettingsValueRow(.automationStorageScripts, value: Text("Only on this Mac"))
+        }
+    }
+
+    private var rulesGroup: some View {
+        SettingsGroup(
+            SettingsCatalog.AutomationPane.rules,
+            footnote: Text("With no rules, nothing is observed.")
+        ) {
+            if manager.rules.isEmpty {
+                SettingsEmptyRow(systemImage: "bolt.badge.automatic", Text("No rules yet: a rule changes the menu bar when something on your Mac changes."))
+            }
             ForEach($manager.rules) { $rule in
-                ModuleRow(
-                    systemImage: symbol(for: rule.action),
-                    title: Text(verbatim: rule.name),
+                SettingsModuleRow(
+                    Text(verbatim: rule.name),
                     summary: Text(verbatim: AutomationDescription.sentence(for: rule)),
+                    systemImage: symbol(for: rule.action),
                     isOn: $rule.isEnabled,
-                    showsSettings: editingID == rule.id,
-                    onSelect: {
-                        focusedNewRuleID = nil
-                        editingID = editingID == rule.id ? nil : rule.id
-                    },
-                    settings: {
-                        AutomationRuleEditor(
-                            rule: $rule,
-                            profileNames: profileNames,
-                            focusesName: rule.id == focusedNewRuleID
-                        ) {
-                            deletionID = rule.id
-                        }
+                    isOpen: isOpen(rule.id)
+                ) {
+                    AutomationRuleEditor(
+                        rule: $rule,
+                        profileNames: profileNames,
+                        focusesName: rule.id == focusedNewRuleID
+                    ) {
+                        deletionID = rule.id
                     }
-                )
-                if rule.id != manager.rules.last?.id {
-                    Divider()
-                        .overlay(HolzBarTheme.Palette.stroke)
                 }
             }
+            SettingsButtonRow(unlabeled: .automationAddRule) {
+                Button("Add rule…") {
+                    addRule()
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(HolzBarTheme.Palette.accent)
+                .disabled(manager.rules.count >= AutomationRule.maximumCount)
+            }
+            SettingsNoteLine(Text("To apply a layout profile with a Focus, add the holzBar filter to that Focus in System Settings."))
         }
-        .clipShape(HolzBarTheme.shape(HolzBarTheme.Radius.card))
-        .holzBarGlass(in: HolzBarTheme.shape(HolzBarTheme.Radius.card))
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(Text("Rules"))
+    }
+
+    /// Whether the editor of the rule is open; one rule is open at a time.
+    private func isOpen(_ id: UUID) -> Binding<Bool> {
+        Binding(
+            get: { editingID == id },
+            set: { isOpen in
+                focusedNewRuleID = nil
+                editingID = isOpen ? id : (editingID == id ? nil : editingID)
+            }
+        )
     }
 
     private func symbol(for action: AutomationAction) -> String {

@@ -27,34 +27,18 @@ struct ProfileHooksSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-            Text("Profile Hooks")
-                .font(HolzBarTheme.Typography.caption)
-                .textCase(.uppercase)
-                .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-                .accessibilityAddTraits(.isHeader)
-            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
-                Text("Run a script you allowed before or after a layout profile is applied.")
-                Text("holzBar waits for scripts that run before a profile, up to their time limit.")
-                Text("A profile applied by a URL, a Shortcut or a Focus runs no hooks.")
-            }
-            .font(HolzBarTheme.Typography.caption)
-            .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-            .fixedSize(horizontal: false, vertical: true)
+        SettingsGroup(SettingsCatalog.AutomationPane.profileHooks) {
             ForEach(store.profileHooks) { hook in
                 row(for: hook)
             }
-            HStack {
-                Button("Add Hook", systemImage: "plus") {
+            SettingsButtonRow(unlabeled: .automationAddHook) {
+                Button("Add hook") {
                     addHook()
                 }
                 .disabled(allowedScriptNames.isEmpty || store.profileHooks.count >= ProfileHooks.maximumCount)
-                if allowedScriptNames.isEmpty {
-                    Text("Allow a script above first.")
-                        .font(HolzBarTheme.Typography.caption)
-                        .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-                }
-                Spacer()
+            }
+            if allowedScriptNames.isEmpty {
+                SettingsStateLine(.info, Text("Allow a script in Scripts first."))
             }
         }
     }
@@ -71,40 +55,45 @@ struct ProfileHooksSection: View {
     // MARK: Rows
 
     private func row(for hook: ProfileHook) -> some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Picker("Profile", selection: profileBinding(for: hook)) {
-                    Text("Every Profile").tag(String?.none)
-                    ForEach(profileOptions(for: hook), id: \.self) { name in
-                        Text(verbatim: URLPrompt.displayName(name)).tag(String?.some(name))
-                    }
+        VStack(alignment: .leading, spacing: 0) {
+            SettingsPickerRow(Text("Profile"), selection: profileBinding(for: hook)) {
+                Text("Every profile").tag(String?.none)
+                ForEach(profileOptions(for: hook), id: \.self) { name in
+                    Text(verbatim: URLPrompt.displayName(name)).tag(String?.some(name))
                 }
-                Spacer()
-                Button {
-                    store.removeProfileHook(id: hook.id)
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(Text("Remove Hook"))
             }
-            Picker("When", selection: timingBinding(for: hook)) {
-                Text("Before Applying").tag(ProfileHookTiming.beforeApplying)
-                Text("After Applying").tag(ProfileHookTiming.afterApplying)
+            SettingsPickerRow(
+                Text("Timing"),
+                selection: timingBinding(for: hook),
+                info: Text("holzBar waits for scripts that run before a profile, up to their time limit.")
+            ) {
+                Text("Before applying").tag(ProfileHookTiming.beforeApplying)
+                Text("After applying").tag(ProfileHookTiming.afterApplying)
             }
-            Picker("Script", selection: scriptBinding(for: hook)) {
+            .settingsSubRow()
+            SettingsPickerRow(Text("Script"), selection: scriptBinding(for: hook)) {
                 ForEach(scriptOptions(for: hook), id: \.self) { name in
                     Text(verbatim: URLPrompt.displayName(name)).tag(name)
                 }
             }
+            .settingsSubRow()
+            SettingsButtonRow {
+                Button("Delete hook", role: .destructive) {
+                    // Acts at once; the undo toast puts it back at its place (D-04, D-16).
+                    guard let index = store.profileHooks.firstIndex(where: { $0.id == hook.id }) else {
+                        return
+                    }
+                    store.removeProfileHook(id: hook.id)
+                    appState.layoutUndo.recordDeletion(
+                        String(localized: "\u{201C}\(URLPrompt.displayName(hook.scriptName))\u{201D} deleted"),
+                        place: .settings,
+                        restore: { store.insertProfileHook(hook, at: index) },
+                        deleteAgain: { store.removeProfileHook(id: hook.id) }
+                    )
+                }
+            }
+            .settingsSubRow()
         }
-        .padding(.horizontal, HolzBarTheme.Spacing.sm)
-        .padding(.vertical, HolzBarTheme.Spacing.xs + 2)
-        .background(
-            HolzBarTheme.Palette.text.opacity(0.05),
-            in: HolzBarTheme.shape(HolzBarTheme.Radius.control)
-        )
         .accessibilityElement(children: .contain)
         .accessibilityLabel(Text(verbatim: URLPrompt.displayName(hook.scriptName)))
     }

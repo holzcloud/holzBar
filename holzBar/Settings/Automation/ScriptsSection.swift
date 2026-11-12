@@ -18,35 +18,49 @@ struct ScriptsSection: View {
     private enum Confirmation: Identifiable {
         case allow(ScriptStore.Entry)
         case folder(URL)
+        case revoke(ScriptStore.Entry)
 
         var id: String {
             switch self {
             case .allow(let entry): "allow:\(entry.name):\(entry.sha256)"
+            case .revoke(let entry): "revoke:\(entry.name):\(entry.sha256)"
             case .folder(let url): "folder:\(url.path(percentEncoded: false))"
             }
         }
     }
 
     var body: some View {
-        HolzBarSection {
-            Text("Scripts")
-                .font(.headline)
-        } content: {
-            Text("Scripts run as you, with holzBar's permissions. macOS asks separately before a script controls another app. Only scripts in the folder you chose run, and only after you allowed their exact content.")
-                .font(HolzBarTheme.Typography.callout)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
-            folderRow
+        SettingsGroup(SettingsCatalog.AutomationPane.scripts) {
+            SettingsValueRow(.automationScriptsFolder, value: Text(verbatim: Self.shortenedPath(of: store.folderURL)))
+            if let refusal = store.folderRefusal {
+                SettingsStateLine(.warning, refusalText(refusal))
+            }
+            if let problem = store.problem {
+                SettingsStateLine(.warning, problemText(problem))
+            }
+            if store.saveFailed {
+                SettingsStateLine(.warning, Text("Your script settings could not be saved on this Mac. holzBar tries again at the next change."))
+            }
+            SettingsButtonRow(unlabeled: .automationChooseScriptsFolder) {
+                Button("Choose Folder…") {
+                    chooseFolder()
+                }
+            }
+            .settingsSubRow()
+            SettingsButtonRow(unlabeled: .automationOpenScriptsFolder) {
+                Button("Open Scripts Folder") {
+                    store.openFolder()
+                }
+            }
+            .settingsSubRow()
             ForEach(store.scripts) { entry in
                 row(for: entry)
             }
-            HStack {
+            SettingsButtonRow(.automationCheckScripts) {
                 Button("Check Now") {
                     manager.checkScriptsNow()
                 }
-                Spacer()
             }
-            ProfileHooksSection(store: store)
         }
         .onAppear {
             store.refresh()
@@ -57,36 +71,6 @@ struct ScriptsSection: View {
     }
 
     // MARK: Folder
-
-    private var folderRow: some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
-            Label {
-                Text(verbatim: Self.shortenedPath(of: store.folderURL))
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-            } icon: {
-                Image(systemName: "folder")
-            }
-            if let refusal = store.folderRefusal {
-                notice(refusalText(refusal))
-            }
-            if let problem = store.problem {
-                notice(problemText(problem))
-            }
-            if store.saveFailed {
-                notice(Text("Your script settings could not be saved on this Mac. holzBar tries again at the next change."))
-            }
-            HStack {
-                Button("Choose Folder…") {
-                    chooseFolder()
-                }
-                Button("Open Scripts Folder") {
-                    store.openFolder()
-                }
-                Spacer()
-            }
-        }
-    }
 
     /// The path of a folder as one line: the home folder as "~", and every name cleaned and
     /// shortened, because a folder name is text from outside holzBar (T-11-L2).
@@ -126,17 +110,6 @@ struct ScriptsSection: View {
         pending = .folder(url)
     }
 
-    private func notice(_ text: Text) -> some View {
-        Label {
-            text
-        } icon: {
-            Image(systemName: "exclamationmark.triangle")
-        }
-        .font(HolzBarTheme.Typography.caption)
-        .foregroundStyle(HolzBarTheme.Palette.warning)
-        .fixedSize(horizontal: false, vertical: true)
-    }
-
     private func refusalText(_ refusal: ScriptGate.FolderRefusal) -> Text {
         switch refusal {
         case .symbolicLink: Text("This folder is a link, so no script in it runs.")
@@ -166,7 +139,7 @@ struct ScriptsSection: View {
                 message: Text(verbatim: approvalMessage(for: entry)),
                 confirmTitle: "Allow",
                 cancelTitle: "Cancel",
-                isDestructive: true,
+                isCareful: true,
                 onConfirm: {
                     pending = nil
                     store.approve(entry)
@@ -190,6 +163,20 @@ struct ScriptsSection: View {
                     pending = nil
                 }
             )
+        case .revoke(let entry):
+            ConfirmSheet(
+                title: Text("Revoke this script's approval?"),
+                message: Text(verbatim: revocationMessage(for: entry)),
+                confirmTitle: "Revoke Approval",
+                cancelTitle: "Cancel",
+                onConfirm: {
+                    pending = nil
+                    store.revokeApproval(entry)
+                },
+                onCancel: {
+                    pending = nil
+                }
+            )
         }
     }
 
@@ -204,38 +191,41 @@ struct ScriptsSection: View {
         )
     }
 
+    /// What the revoke sheet says about a script. The name is cleaned and shortened, and the
+    /// text is shown as it is, never as markup (T-11-L2).
+    private func revocationMessage(for entry: ScriptStore.Entry) -> String {
+        let name = URLPrompt.displayName(entry.name)
+        return String(localized: "\u{201C}\(name)\u{201D} no longer runs until you allow it again.")
+    }
+
     // MARK: Scripts
 
     private func row(for entry: ScriptStore.Entry) -> some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(verbatim: URLPrompt.displayName(entry.name))
-                    statusText(for: entry.decision)
-                        .font(HolzBarTheme.Typography.caption)
-                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                }
-                Spacer()
-                switch entry.decision {
-                case .needsApproval:
+        let name = Text(verbatim: URLPrompt.displayName(entry.name))
+        return VStack(alignment: .leading, spacing: 0) {
+            switch entry.decision {
+            case .needsApproval:
+                SettingsButtonRow(
+                    name,
+                    small: Text("Needs your approval"),
+                    info: Text("holzBar shows the folder, size and checksum and asks. Allow a script only if you wrote it or read it. macOS asks separately before it controls another app.")
+                ) {
                     Button("Allow…") {
                         pending = .allow(entry)
                     }
-                case .allowed:
-                    Button("Remove Approval") {
-                        store.revokeApproval(entry)
+                }
+            case .allowed:
+                SettingsButtonRow(name, small: Text("Allowed")) {
+                    Button("Revoke approval…", role: .destructive) {
+                        pending = .revoke(entry)
                     }
-                case .refused:
-                    EmptyView()
                 }
-            }
-            if case .allowed = entry.decision {
                 lastRun(of: entry)
-                HStack {
-                    ScriptTimeLimitStepper(store: store, name: entry.name)
-                        .id(store.folderURL)
-                    Spacer()
-                }
+                ScriptTimeLimitStepper(store: store, name: entry.name)
+                    .id(store.folderURL)
+                    .settingsSubRow()
+            case .refused:
+                SettingsValueRow(name, value: statusText(for: entry.decision))
             }
         }
         .accessibilityElement(children: .contain)
@@ -243,21 +233,25 @@ struct ScriptsSection: View {
     }
 
     /// How the script last ran in this session, and the first line it printed. The line is
-    /// text from the script: it is shown as it is on one line, never as a link, markup or a
-    /// styled string (D-08, T-11-M3).
+    /// text from the script: it is shown as it is, never as a link, markup or a styled string
+    /// (D-08, T-11-M3).
     @ViewBuilder
     private func lastRun(of entry: ScriptStore.Entry) -> some View {
         if let record = manager.lastScriptRuns[entry.name] {
-            VStack(alignment: .leading, spacing: 2) {
-                lastRunText(for: record.termination)
-                if !record.displayLine.isEmpty {
-                    Text(verbatim: record.displayLine)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                }
+            SettingsStateLine(lastRunKind(for: record.termination), lastRunText(for: record.termination))
+                .settingsSubRow()
+            if !record.displayLine.isEmpty {
+                SettingsStateLine(.info, Text(verbatim: record.displayLine))
+                    .settingsSubRow()
             }
-            .font(HolzBarTheme.Typography.caption)
-            .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+        }
+    }
+
+    private func lastRunKind(for termination: ScriptTermination) -> SettingsStateKind {
+        switch termination {
+        case .exited(0): .success
+        case .skipped: .info
+        case .exited, .signaled, .timedOut, .notLaunched: .warning
         }
     }
 
@@ -303,12 +297,14 @@ private struct ScriptTimeLimitStepper: View {
     }
 
     var body: some View {
-        Stepper(
-            "Time limit: \(seconds) s",
+        SettingsStepperRow(
+            Text("Time limit"),
             value: $seconds,
-            in: ScriptLimits.minimumTimeLimit...ScriptLimits.maximumTimeLimit
-        )
-        .fixedSize()
+            in: ScriptLimits.minimumTimeLimit...ScriptLimits.maximumTimeLimit,
+            info: Text("From 1 to 60 seconds. Then holzBar stops the script.")
+        ) { value in
+            Text("\(value) s")
+        }
         .onChange(of: seconds) { _, newValue in
             store.setTimeLimit(newValue, for: name)
         }

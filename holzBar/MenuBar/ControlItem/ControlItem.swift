@@ -942,6 +942,14 @@ final class ControlItem {
         settingsItem.keyEquivalentModifierMask = .command
         menu.addItem(settingsItem)
 
+        let arrangeItem = NSMenuItem(
+            title: String(localized: "Arrange Menu Bar…"),
+            action: #selector(arrangeMenuBar),
+            keyEquivalent: ""
+        )
+        arrangeItem.target = self
+        menu.addItem(arrangeItem)
+
         menu.addItem(.separator())
 
         let searchItem = NSMenuItem(
@@ -970,10 +978,10 @@ final class ControlItem {
                 continue
             }
             let title = switch (name, section.isHidden) {
-            case (.alwaysHidden, true): String(localized: "Show Always-Hidden Section")
-            case (.alwaysHidden, false): String(localized: "Hide Always-Hidden Section")
-            case (_, true): String(localized: "Show Hidden Section")
-            case (_, false): String(localized: "Hide Hidden Section")
+            case (.alwaysHidden, true): String(localized: "Show Always Hidden Items")
+            case (.alwaysHidden, false): String(localized: "Hide Always Hidden Items")
+            case (_, true): String(localized: "Show Hidden Items")
+            case (_, false): String(localized: "Hide Hidden Items")
             }
             let item = NSMenuItem(
                 title: title,
@@ -1008,15 +1016,22 @@ final class ControlItem {
         zenModeItem.target = self
         menu.addItem(zenModeItem)
 
-        menu.addItem(.separator())
-
-        let howToUpdateItem = NSMenuItem(
-            title: String(localized: "How to Update…"),
-            action: #selector(showHowToUpdate),
-            keyEquivalent: ""
-        )
-        howToUpdateItem.target = self
-        menu.addItem(howToUpdateItem)
+        let profiles = appState.profiles.profiles
+        if !appState.profiles.profiles.isEmpty {
+            // Applies a profile as Apply in Settings does, hooks included, with the undo
+            // toast under the menu bar (D-14, D-19).
+            let profilesItem = NSMenuItem(title: String(localized: "Profiles"), action: nil, keyEquivalent: "")
+            let submenu = NSMenu(title: String(localized: "Profiles"))
+            for profile in profiles {
+                let item = NSMenuItem(title: profile.name, action: #selector(applyProfile(_:)), keyEquivalent: "")
+                item.representedObject = profile.name
+                item.state = profile.name == appState.profiles.currentProfileName ? .on : .off
+                item.target = self
+                submenu.addItem(item)
+            }
+            profilesItem.submenu = submenu
+            menu.addItem(profilesItem)
+        }
 
         menu.addItem(.separator())
 
@@ -1040,6 +1055,21 @@ final class ControlItem {
         statusItem.showMenu(menu)
     }
 
+    /// Opens Settings on Layout (D-19); while permissions are missing the settings path shows
+    /// the Permissions window instead.
+    @objc private func arrangeMenuBar() {
+        appState?.navigationState.settingsNavigationIdentifier = .menuBarLayout
+        (NSApp.delegate as? AppDelegate)?.openSettingsWindow()
+    }
+
+    /// Applies the profile the menu item names.
+    @objc private func applyProfile(_ sender: NSMenuItem) {
+        guard let name = sender.representedObject as? String else {
+            return
+        }
+        appState?.profiles.apply(named: name, undoPlace: .menuBar)
+    }
+
     /// Toggles the menu bar section associated with the given menu item.
     @objc private func toggleMenuBarSection(for menuItem: NSMenuItem) {
         guard let section = menuItem.representedObject as? MenuBarSection else {
@@ -1056,13 +1086,6 @@ final class ControlItem {
     /// Opens the menu bar search panel.
     @objc private func showSearchPanel() {
         appState?.menuBarManager.searchPanel.show()
-    }
-
-    /// Opens the releases page in the browser. Its notes carry the update
-    /// command, `brew update && brew upgrade --cask holzbar`. holzBar itself
-    /// makes no request: it never connects to the network.
-    @objc private func showHowToUpdate() {
-        NSWorkspace.shared.open(Constants.releasesURL)
     }
 }
 

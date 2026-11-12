@@ -5,6 +5,8 @@
 
 import SwiftUI
 
+/// The hotkeys, grouped by goal: showing items, finding items, single items, profiles, modes and
+/// modules. A hotkey whose feature is off stays visible, dimmed.
 struct HotkeysSettingsPane: View {
     @Environment(AppState.self) var appState
     var settings: HotkeysSettings
@@ -33,50 +35,88 @@ struct HotkeysSettingsPane: View {
     }
 
     var body: some View {
-        HolzBarForm {
-            HolzBarSection("Menu Bar Sections") {
-                hotkeyRecorder(forSection: .hidden)
-                hotkeyRecorder(forSection: .alwaysHidden)
-                hotkeyRecorder(forAction: .showHiddenSectionTemporarily)
+        SettingsPaneHost(.hotkeys) {
+            SettingsGroup(SettingsCatalog.HotkeysPane.showItems) {
+                if isSectionEnabled(.hidden) {
+                    hotkeyRow(.hotkeysToggleHidden, action: .toggleHiddenSection)
+                }
+                hotkeyRow(.hotkeysToggleAlwaysHidden, action: .toggleAlwaysHiddenSection, small: Text("needs Always Hidden"))
+                    .settingsDependent(on: isSectionEnabled(.alwaysHidden))
+                hotkeyRow(.hotkeysShowForAMoment, action: .showHiddenSectionTemporarily)
             }
-            HolzBarSection("Menu Bar Items") {
-                hotkeyRecorder(forAction: .searchMenuBarItems)
-                hotkeyRecorder(forAction: .showItemHints)
-                hotkeyRecorder(forAction: .openCommandPalette)
+            SettingsGroup(SettingsCatalog.HotkeysPane.findItems) {
+                hotkeyRow(.hotkeysSearch, action: .searchMenuBarItems)
+                hotkeyRow(.hotkeysItemHints, action: .showItemHints)
+                hotkeyRow(.hotkeysCommandPalette, action: .openCommandPalette)
+            }
+            SettingsGroup(
+                SettingsCatalog.HotkeysPane.singleItems,
+                footnote: Text("Give an item its own hotkey in Layout, with Set Hotkey… in the item's menu.")
+            ) {
                 itemHotkeyRows
             }
-            HolzBarSection("Layout Profiles") {
+            SettingsGroup(
+                SettingsCatalog.HotkeysPane.profiles,
+                footnote: Text("Every profile saved in Profiles & History gets a row here.")
+            ) {
                 profileHotkeyRows
             }
-            HolzBarSection("Other") {
-                hotkeyRecorder(forAction: .enableShelf)
-                hotkeyRecorder(forAction: .toggleApplicationMenus)
-                hotkeyRecorder(forAction: .toggleAutoRehide)
-                hotkeyRecorder(forAction: .toggleZenMode)
-                hotkeyRecorder(forAction: .toggleKeepAwake)
-                hotkeyRecorder(forAction: .toggleNotchHub)
+            SettingsGroup(SettingsCatalog.HotkeysPane.modes) {
+                hotkeyRow(.hotkeysShelf, action: .enableShelf)
+                hotkeyRow(.hotkeysAutoRehide, action: .toggleAutoRehide)
+                hotkeyRow(.hotkeysZenMode, action: .toggleZenMode)
+                hotkeyRow(.hotkeysKeepAwake, action: .toggleKeepAwake)
+                hotkeyRow(.hotkeysAppMenus, action: .toggleApplicationMenus, badge: appMenusBadge)
+            }
+            SettingsGroup(
+                SettingsCatalog.HotkeysPane.modules,
+                footnote: Text("Module hotkeys are set here only, not in Modules.")
+            ) {
+                hotkeyRow(.hotkeysNotchHub, action: .toggleNotchHub, small: Text("needs Notch hub"))
+                    .settingsDependent(on: appState.modules.isEnabled(NotchHubController.moduleID))
             }
         }
         .task(id: profileNames) {
             // Each profile gets its hotkey object here, outside the view update, so the
-            // rows below only read them.
+            // rows only read them.
             for name in profileNames {
                 _ = settings.hotkey(for: .applyProfile(name))
             }
         }
     }
 
+    /// The app-menus hotkey works on macOS 27 too, which nobody has tested yet (D-59).
+    private var appMenusBadge: SettingsBadge? {
+        if #available(macOS 27.0, *) {
+            return .preview
+        }
+        return nil
+    }
+
+    private func isSectionEnabled(_ name: MenuBarSection.Name) -> Bool {
+        appState.menuBarManager.section(withName: name)?.isEnabled == true
+    }
+
+    @ViewBuilder
+    private func hotkeyRow(
+        _ entry: SettingsEntry,
+        action: HotkeyAction,
+        small: Text? = nil,
+        badge: SettingsBadge? = nil
+    ) -> some View {
+        if let hotkey = settings.hotkey(withAction: action) {
+            SettingsHotkeyRow(entry, hotkey: hotkey, settings: settings, small: small, badge: badge)
+        }
+    }
+
     @ViewBuilder
     private var profileHotkeyRows: some View {
         if profileNames.isEmpty {
-            Text("Save a layout profile in the Menu Bar Layout pane to give it a hotkey.")
-                .foregroundStyle(.secondary)
+            SettingsStateLine(.info, Text("No profile is saved yet."))
         } else {
             ForEach(profileNames, id: \.self) { name in
                 if let hotkey = settings.existingHotkey(for: .applyProfile(name)) {
-                    HotkeyRecorder(hotkey: hotkey, settings: settings) {
-                        Text(name)
-                    }
+                    SettingsHotkeyRow(Text(verbatim: name), hotkey: hotkey, settings: settings)
                 }
             }
         }
@@ -84,43 +124,24 @@ struct HotkeysSettingsPane: View {
 
     @ViewBuilder
     private var itemHotkeyRows: some View {
-        ForEach(itemHotkeys) { entry in
-            HStack {
-                HotkeyRecorder(hotkey: entry.hotkey, settings: settings) {
-                    Text(settings.name(of: entry.hotkey.target))
-                }
-                Button {
-                    settings.removeHotkey(for: .openItem(entry.key))
-                } label: {
-                    Image(systemName: "minus.circle")
-                }
-                .buttonStyle(.borderless)
-                .help("Remove the hotkey of this item")
-                .accessibilityLabel("Remove")
-            }
-        }
         if itemHotkeys.isEmpty {
-            Text("Give a menu bar item its own hotkey with Set Hotkey… in its menu in the Menu Bar Layout pane.")
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    @ViewBuilder
-    private func hotkeyRecorder(forAction action: HotkeyAction) -> some View {
-        if let hotkey = settings.hotkey(withAction: action) {
-            HotkeyRecorder(hotkey: hotkey, settings: settings) {
-                Text(action.title)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func hotkeyRecorder(forSection name: MenuBarSection.Name) -> some View {
-        if appState.menuBarManager.section(withName: name)?.isEnabled == true {
-            if case .hidden = name {
-                hotkeyRecorder(forAction: .toggleHiddenSection)
-            } else if case .alwaysHidden = name {
-                hotkeyRecorder(forAction: .toggleAlwaysHiddenSection)
+            SettingsStateLine(.info, Text("No item has its own hotkey yet."))
+        } else {
+            ForEach(itemHotkeys) { entry in
+                SettingsRow(Text(verbatim: settings.name(of: entry.hotkey.target))) {
+                    HotkeyRecorder(hotkey: entry.hotkey, settings: settings) {
+                        Text(verbatim: settings.name(of: entry.hotkey.target))
+                    }
+                    .labelsHidden()
+                    Button {
+                        settings.removeHotkey(for: .openItem(entry.key))
+                    } label: {
+                        Image(systemName: "minus.circle")
+                    }
+                    .buttonStyle(.borderless)
+                    .help("Remove the hotkey of this item")
+                    .accessibilityLabel("Remove")
+                }
             }
         }
     }

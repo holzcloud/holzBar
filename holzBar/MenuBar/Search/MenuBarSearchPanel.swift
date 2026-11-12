@@ -304,17 +304,19 @@ private struct MenuBarSearchContentView: View {
     @ViewBuilder
     private var mainContent: some View {
         if hasItems {
-            SectionedList(selection: Bindable(model).selection, items: Bindable(model).displayedItems)
-                .contentPadding(8)
-                .scrollContentBackground(.hidden)
-        } else {
-            VStack {
-                Text("Loading menu bar items…")
-                    .font(.title2)
-                ProgressView()
-                    .controlSize(.small)
+            if !model.searchText.isEmpty, !model.displayedItems.contains(where: \.isSelectable) {
+                EmptyState(
+                    systemImage: "magnifyingglass",
+                    title: Text("No matches"),
+                    message: Text("No menu bar item matches your search.")
+                )
+            } else {
+                SectionedList(selection: Bindable(model).selection, items: Bindable(model).displayedItems)
+                    .contentPadding(8)
+                    .scrollContentBackground(.hidden)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            MenuBarItemsLoadingState(style: .panel, itemManager: itemManager)
         }
     }
 

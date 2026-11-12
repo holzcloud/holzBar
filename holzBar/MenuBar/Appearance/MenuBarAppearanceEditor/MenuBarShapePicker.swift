@@ -5,209 +5,82 @@
 
 import SwiftUI
 
+/// The rows of the shape kind and its end caps, as direct children of the "Menu bar shape" group
+/// (no group and no stack of its own). The end-cap rows are built only while a shape is drawn
+/// (D-71): Single has one pair, Paired and Sections have a pair for each half.
 struct MenuBarShapePicker: View {
-    @Environment(\.colorScheme) private var colorScheme
     @Binding var configuration: MenuBarAppearanceConfigurationV2
 
     var body: some View {
-        VStack {
-            shapeKindPicker
-            shapePicker
-                .foregroundStyle(colorScheme == .dark ? .primary : .secondary)
-        }
-        if configuration.shapeKind == .noShape {
-            Text("No shape kind selected")
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .center)
-        }
+        shapeKindRow
+        endCapRows
     }
 
     @ViewBuilder
-    private var shapeKindPicker: some View {
+    private var shapeKindRow: some View {
         // A stored Sections shows as Paired where macOS cannot draw it, and stays stored until
         // another kind is picked.
         let selection = Binding(
             get: { configuration.shapeKind.drawnKind },
             set: { configuration.shapeKind = $0 }
         )
-        PictureCardRow(
+        SettingsPictureCardRow(
+            .appearanceShapeKind,
             selection: selection,
             values: MenuBarShapeKind.allCases.filter(\.isAvailable),
-            name: \.localized
-        ) {
-            Text("Shape Kind")
-        } picture: { shapeKind in
-            MenuBarShapePicture(kind: shapeKind)
-        }
+            name: { Text($0.localized) },
+            picture: { MenuBarShapePicture(kind: $0) }
+        )
     }
 
     @ViewBuilder
-    private var shapePicker: some View {
+    private var endCapRows: some View {
         switch configuration.shapeKind.drawnKind {
         case .noShape:
             EmptyView()
         case .full:
-            MenuBarFullShapePicker(info: $configuration.fullShapeInfo).equatable()
+            SettingsSegmentedRow(.appearanceLeadingEnd, selection: $configuration.fullShapeInfo.leadingEndCap) {
+                endCapOptions
+            }
+            .settingsSubRow()
+            SettingsSegmentedRow(.appearanceTrailingEnd, selection: $configuration.fullShapeInfo.trailingEndCap) {
+                endCapOptions
+            }
+            .settingsSubRow()
         case .split, .sections:
-            // Sections shares the end caps of Paired.
-            MenuBarSplitShapePicker(info: $configuration.splitShapeInfo).equatable()
-        }
-    }
-}
-
-private struct MenuBarFullShapePicker: View, Equatable {
-    @Binding var info: MenuBarFullShapeInfo
-
-    var body: some View {
-        VStack {
-            pickerStack
-            exampleStack
-        }
-    }
-
-    @ViewBuilder
-    private var pickerStack: some View {
-        HStack(spacing: 0) {
-            leadingEndCapPicker
-            Spacer()
-            trailingEndCapPicker
-        }
-        .labelsHidden()
-        .pickerStyle(.segmented)
-    }
-
-    @ViewBuilder
-    private var exampleStack: some View {
-        HStack(spacing: 0) {
-            leadingEndCapExample
-            Rectangle()
-            trailingEndCapExample
-        }
-        .frame(height: 24)
-    }
-
-    @ViewBuilder
-    private func endCapPickerContentView(endCap: MenuBarEndCap, edge: HorizontalEdge) -> some View {
-        switch endCap {
-        case .square:
-            Image(size: CGSize(width: 12, height: 12)) { context in
-                context.fill(Path(context.clipBoundingRect), with: .foreground)
+            // Sections shares the end caps of Paired. The right half repeats the labels, so its
+            // rows have no entry of their own.
+            SettingsSegmentedRow(.appearanceLeadingEnd, selection: $configuration.splitShapeInfo.leading.leadingEndCap) {
+                endCapOptions
             }
-            .resizable()
-            .accessibilityLabel(Text("Square Cap"))
-            .help("Square Cap")
-            .tag(endCap)
-        case .round:
-            Image(size: CGSize(width: 12, height: 12)) { context in
-                let remainder = context.clipBoundingRect
-                    .divided(atDistance: context.clipBoundingRect.width / 2, from: cgRectEdge(for: edge))
-                    .remainder
-                let path1 = Path(remainder)
-                let path2 = Path(ellipseIn: context.clipBoundingRect)
-                context.fill(path1.union(path2), with: .foreground)
+            .settingsSubRow()
+            SettingsSegmentedRow(.appearanceTrailingEnd, selection: $configuration.splitShapeInfo.leading.trailingEndCap) {
+                endCapOptions
             }
-            .resizable()
-            .accessibilityLabel(Text("Round Cap"))
-            .help("Round Cap")
-            .tag(endCap)
-        }
-    }
-
-    @ViewBuilder
-    private var leadingEndCapPicker: some View {
-        Picker("Leading End Cap", selection: $info.leadingEndCap) {
-            ForEach(MenuBarEndCap.allCases.reversed(), id: \.self) { endCap in
-                endCapPickerContentView(endCap: endCap, edge: .leading)
+            .settingsSubRow()
+            SettingsSegmentedRow(
+                Text("Leading end"),
+                selection: $configuration.splitShapeInfo.trailing.leadingEndCap,
+                small: Text("right half")
+            ) {
+                endCapOptions
             }
-        }
-        .fixedSize()
-    }
-
-    @ViewBuilder
-    private var trailingEndCapPicker: some View {
-        Picker("Trailing End Cap", selection: $info.trailingEndCap) {
-            ForEach(MenuBarEndCap.allCases, id: \.self) { endCap in
-                endCapPickerContentView(endCap: endCap, edge: .trailing)
+            .settingsSubRow()
+            SettingsSegmentedRow(
+                Text("Trailing end"),
+                selection: $configuration.splitShapeInfo.trailing.trailingEndCap,
+                small: Text("right half")
+            ) {
+                endCapOptions
             }
+            .settingsSubRow()
         }
-        .fixedSize()
     }
 
+    /// Round first on both sides.
     @ViewBuilder
-    private var leadingEndCapExample: some View {
-        MenuBarEndCapExampleView(
-            endCap: info.leadingEndCap,
-            edge: .leading
-        )
-    }
-
-    @ViewBuilder
-    private var trailingEndCapExample: some View {
-        MenuBarEndCapExampleView(
-            endCap: info.trailingEndCap,
-            edge: .trailing
-        )
-    }
-
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.info == rhs.info
-    }
-
-    private func cgRectEdge(for edge: HorizontalEdge) -> CGRectEdge {
-        switch edge {
-        case .leading: .minXEdge
-        case .trailing: .maxXEdge
-        }
-    }
-}
-
-private struct MenuBarSplitShapePicker: View, Equatable {
-    @Binding var info: MenuBarSplitShapeInfo
-
-    var body: some View {
-        HStack {
-            MenuBarFullShapePicker(info: $info.leading).equatable()
-            Divider()
-            MenuBarFullShapePicker(info: $info.trailing).equatable()
-        }
-    }
-
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.info == rhs.info
-    }
-}
-
-private struct MenuBarEndCapExampleView: View {
-    @State private var radius: CGFloat = 0
-
-    let endCap: MenuBarEndCap
-    let edge: HorizontalEdge
-
-    var body: some View {
-        switch endCap {
-        case .square:
-            Rectangle()
-        case .round:
-            switch edge {
-            case .leading:
-                UnevenRoundedRectangle(
-                    topLeadingRadius: radius,
-                    bottomLeadingRadius: radius,
-                    style: .circular
-                )
-                .onFrameChange { frame in
-                    radius = frame.height / 2
-                }
-            case .trailing:
-                UnevenRoundedRectangle(
-                    bottomTrailingRadius: radius,
-                    topTrailingRadius: radius,
-                    style: .circular
-                )
-                .onFrameChange { frame in
-                    radius = frame.height / 2
-                }
-            }
-        }
+    private var endCapOptions: some View {
+        Text("Round").tag(MenuBarEndCap.round)
+        Text("Square").tag(MenuBarEndCap.square)
     }
 }

@@ -454,11 +454,12 @@ final class MenuBarDragController {
                 dragged,
                 to: destination,
                 appState: appState,
-                actionName: String(localized: "Move \(dragged.displayName)")
+                actionName: String(localized: "Move \(dragged.displayName)"),
+                place: .menuBar
             )
             return .applied
         case .setSection(_, let section):
-            let accepted = LayoutBarMoves.setSection(of: gesture.dragged, to: Self.name(of: section), appState: appState)
+            let accepted = LayoutBarMoves.setSection(of: gesture.dragged, to: Self.name(of: section), appState: appState, place: .menuBar)
             return accepted ? .applied : .notApplied
         case .macOSOrders:
             logger.debug("macOS ordered a dropped item")

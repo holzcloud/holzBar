@@ -5,32 +5,22 @@
 
 import SwiftUI
 
+/// The first-launch window: only what the menu bar manager needs, Accessibility (required)
+/// and Screen Recording (optional), on the rows of Advanced (D-24).
 struct PermissionsView: View {
     @Environment(AppState.self) var appState
     @Environment(AppPermissions.self) var manager
+    @State private var revoking: Permission?
 
     /// The window's width.
     private static let width: CGFloat = 550
-
-    /// The most the permission rows take: a window is never taller than four fifths of the
-    /// screen, so Quit and Continue stay on it; the rows scroll when they do not fit.
-    private var maximumRowsHeight: CGFloat {
-        let screenHeight = NSScreen.main?.visibleFrame.height ?? 700
-        return max(240, screenHeight * 0.8 - 190)
-    }
 
     var body: some View {
         VStack(spacing: 0) {
             headerView
                 .padding(.vertical, HolzBarTheme.Spacing.md)
 
-            ScrollView {
-                permissionsList
-                    .padding(.bottom, HolzBarTheme.Spacing.xs)
-            }
-            .scrollBounceBehavior(.basedOnSize)
-            .frame(maxHeight: maximumRowsHeight)
-            .fixedSize(horizontal: false, vertical: true)
+            permissionsList
 
             footerView
                 .padding(.vertical)
@@ -38,6 +28,7 @@ struct PermissionsView: View {
         .padding(.horizontal)
         .frame(width: Self.width)
         .fixedSize()
+        .permissionRevokeConfirmation($revoking)
         .onDisappear {
             appState.hideDockIconIfUnneeded()
         }
@@ -59,22 +50,35 @@ struct PermissionsView: View {
                     .font(HolzBarTheme.Typography.titleLarge)
                     .accessibilityAddTraits(.isHeader)
                 Text("holzBar never connects to the network.")
-                    .font(.callout)
-                    .foregroundStyle(.tint)
-                    .fontWeight(.medium)
+                    .font(HolzBarTheme.Typography.callout)
+                    .foregroundStyle(HolzBarTheme.Palette.accent)
             }
             Spacer(minLength: 0)
         }
     }
 
-    /// One row per permission: the name and what it is for on the left, its state or its
-    /// button on the right.
-    @ViewBuilder
+    /// The two permissions of the menu bar manager and where the others are asked.
     private var permissionsList: some View {
-        HolzBarSection {
-            ForEach(manager.allPermissions) { permission in
-                permissionRow(permission)
-            }
+        SettingsGroup {
+            PermissionRow(
+                manager.accessibility,
+                entry: .advancedPermissionAccessibility,
+                small: Text("required"),
+                onGrant: { request($0) },
+                onRevoke: { revoking = $0 },
+                showsReset: true,
+                onReset: { request($0, reset: true) }
+            )
+            PermissionRow(
+                manager.screenRecording,
+                entry: .advancedPermissionScreenRecording,
+                small: Text("optional"),
+                onGrant: { request($0) },
+                onRevoke: { revoking = $0 },
+                showsReset: true,
+                onReset: { request($0, reset: true) }
+            )
+            SettingsNoteLine(Text("Calendar and Bluetooth are asked when you switch on the module that needs them."))
         }
     }
 
@@ -109,6 +113,13 @@ struct PermissionsView: View {
 
             appState.performSetup(hasPermissions: true)
 
+            // While the onboarding waits, it comes instead of Settings (D-20).
+            guard OnboardingPolicy.continueOpensSettings(
+                isPending: Defaults.bool(forKey: .onboardingPending),
+                hasImportedSettings: appState.didImportPreviousSettings
+            ) else {
+                return
+            }
             Task {
                 appState.activate(for: .settings)
                 appState.openWindow(.settings)
@@ -135,64 +146,6 @@ struct PermissionsView: View {
             }
             appState.activate(for: .permissions)
             appState.openWindow(.permissions)
-        }
-    }
-
-    @ViewBuilder
-    private func permissionRow(_ permission: Permission) -> some View {
-        HStack(alignment: .center, spacing: HolzBarTheme.Spacing.md) {
-            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
-                Text(permission.title)
-                    .font(HolzBarTheme.Typography.headline)
-                if let summary = permission.summary {
-                    Text(verbatim: summary)
-                        .font(.callout)
-                }
-                if let withoutNote = permission.withoutNote {
-                    Text(verbatim: withoutNote)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                // A permission asked for at launch lists what holzBar does with it instead.
-                ForEach(permission.summary == nil ? permission.details : [], id: \.self) { detail in
-                    Text(verbatim: detail)
-                        .font(.callout)
-                }
-            }
-            .fixedSize(horizontal: false, vertical: true)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            permissionControl(permission)
-        }
-        .padding(.vertical, HolzBarTheme.Spacing.sm)
-        .padding(.horizontal, HolzBarTheme.Spacing.xs)
-        .accessibilityElement(children: .contain)
-    }
-
-    /// The state of a permission, or the button that asks for it.
-    @ViewBuilder
-    private func permissionControl(_ permission: Permission) -> some View {
-        VStack(alignment: .trailing, spacing: HolzBarTheme.Spacing.xs) {
-            if permission.hasPermission {
-                PermissionPill(Text("Permission Granted"), state: .granted)
-                if permission.summary != nil, permission.canReset {
-                    Button("Revoke Permission") {
-                        permission.revoke()
-                    }
-                    .controlSize(.small)
-                }
-            } else {
-                Button("Grant Permission") {
-                    request(permission)
-                }
-                if permission.canReset {
-                    Button("Reset and Grant Again") {
-                        request(permission, reset: true)
-                    }
-                    .buttonStyle(.link)
-                    .font(.caption)
-                    .help(Text("Already granted in System Settings?"))
-                }
-            }
         }
     }
 }

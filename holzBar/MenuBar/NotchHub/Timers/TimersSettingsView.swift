@@ -5,19 +5,19 @@
 
 import SwiftUI
 
-/// The Timers module's setting, shown under its row in the Modules pane while the module is
-/// on: the sound that rings when a timer ends, and a button that plays it.
+/// The Timers module's setting, in the open area of the module's row: the sound that rings when
+/// a timer ends, and a button that plays it.
 struct TimersSettingsView: View {
     @Environment(AppState.self) private var appState
 
     var body: some View {
         @Bindable var settings = appState.settings.timers
-        HStack(spacing: HolzBarTheme.Spacing.sm) {
-            HolzBarPicker("Finish sound", selection: $settings.finishSound) {
-                ForEach(TimerFinishSound.allCases, id: \.self) { sound in
-                    label(of: sound).tag(sound)
-                }
+        SettingsPickerRow(.modulesTimersFinishSound, selection: $settings.finishSound) {
+            ForEach(TimerFinishSound.allCases, id: \.self) { sound in
+                label(of: sound).tag(sound)
             }
+        }
+        SettingsButtonRow {
             Button("Play") {
                 preview.playFinishSound(settings.finishSound)
             }

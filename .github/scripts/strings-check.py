@@ -54,8 +54,8 @@ SPECIFIER = translations.SPECIFIER
 # Where a string literal is localised. Each pattern ends right before the
 # opening quote of the literal.
 POSITIONS = [
-    r"\b(?:Text|Toggle|Button|Label|Menu|ColorPicker|TextField|Picker|Section|LabeledContent|Stepper|HolzBarSection|HolzBarPicker|PictureCard)\(\s*",
-    r"\.(?:annotation|help|navigationTitle|accessibilityLabel|accessibilityHint|alert|confirmationDialog)\(\s*",
+    r"\b(?:Text|Toggle|Button|Label|Menu|ColorPicker|TextField|Picker|Section|LabeledContent|Stepper|HolzBarSection|PictureCard)\(\s*",
+    r"\.(?:help|navigationTitle|accessibilityLabel|accessibilityHint|alert|confirmationDialog)\(\s*",
     r"\.accessibilityAction\(\s*named:\s*",
     r"\bString\(\s*localized:\s*",
     r"\bLocalizedStringResource\(\s*",

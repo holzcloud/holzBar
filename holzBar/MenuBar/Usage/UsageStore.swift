@@ -137,6 +137,7 @@ final class UsageStore {
             return
         }
         let key = appState.itemManager.identityKey(for: item)
+        let before = appState.layoutUndo.beforeSnapshot()
         appState.snapshots.willTidyUp()
         let layout = appState.profiles.currentLayout()
         var itemSections = layout.itemSections
@@ -151,6 +152,11 @@ final class UsageStore {
             applicationSections: applicationSections,
             knownApplications: layout.knownApplications
         ))
+        appState.layoutUndo.recordArrangementChange(
+            String(localized: "\(item.displayName) moved to \(MenuBarSection.Name.hidden.displayString)"),
+            before: before,
+            place: .settings
+        )
     }
 
     /// Keeps an item where it is and never suggests it again.

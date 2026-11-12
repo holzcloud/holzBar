@@ -941,7 +941,7 @@ final class NotchHubController: HubHost {
         guard let appState else {
             return
         }
-        appState.navigationState.settingsNavigationIdentifier = .modules
+        appState.navigationState.openModuleSettings(moduleID)
         appState.activate(for: .settings)
         appState.openWindow(.settings)
     }

@@ -5,51 +5,53 @@
 
 import SwiftUI
 
-/// The strip above the rows of the Menu Bar Layout pane: the changes that wait for Apply, with
-/// Apply and Discard, and the setting that makes every move happen at once.
+/// The group Changes of the Layout pane: the changes that wait for Apply, the outcome of the last
+/// Apply, and the settings for how changes apply.
 struct LayoutDraftSection: View {
     @Environment(AppState.self) private var appState
 
     var body: some View {
         let editor = appState.layoutEditor
         let general = Bindable(appState.settings.general)
-        HolzBarSection {
+        SettingsGroup(SettingsCatalog.LayoutPane.changes) {
             if editor.isChanged || editor.isApplying {
-                changes(of: editor)
+                waitingRow(of: editor)
             } else if let outcome = editor.outcome {
-                result(of: outcome)
-            }
-            Toggle(isOn: general.appliesLayoutChangesImmediately) {
-                HStack(spacing: HolzBarTheme.Spacing.sm) {
-                    Text("Apply changes immediately")
+                SettingsStateLine(.success, Text("Changes applied: \(outcome.applied)"))
+                if outcome.leftToRules > 0 {
+                    SettingsStateLine(.info, Text("Left to their rules: \(outcome.leftToRules)"))
                 }
-            }
-            .annotation("Off: dragging an item only changes the drawing below, and the menu bar follows when you choose Apply. On: every move happens at once.")
-            .onChange(of: appState.settings.general.appliesLayoutChangesImmediately) { _, isImmediate in
-                // What waits is applied, so no change is left behind a switch.
-                if isImmediate {
-                    editor.apply()
+                if outcome.failed > 0 {
+                    SettingsStateLine(.warning, Text("Could not be moved: \(outcome.failed)"))
                 }
+            } else if appState.settings.general.appliesLayoutChangesImmediately {
+                SettingsStateLine(.info, Text("Every move happens at once."))
             }
+            SettingsToggleRow(.layoutApplyImmediately, isOn: general.appliesLayoutChangesImmediately)
+                .onChange(of: appState.settings.general.appliesLayoutChangesImmediately) { _, isImmediate in
+                    // What waits is applied, so no change is left behind a switch.
+                    if isImmediate {
+                        editor.apply()
+                    }
+                }
             if MenuBarBackendKind.current == .accessibility27 {
-                Toggle(isOn: general.commandDragSetsSection) {
-                    Text("Set the section with ⌘ Command-drag")
-                }
-                .annotation("macOS 27 only. Hold ⌘ Command and drag an item across the holzBar icon: to the left of it, its app is hidden; to the right of it, its app is visible. Off: the drag only reorders the bar.")
+                SettingsToggleRow(
+                    .layoutCommandDragSetsSection,
+                    isOn: general.commandDragSetsSection,
+                    badge: .preview
+                )
             }
         }
     }
 
-    private func changes(of editor: LayoutEditor) -> some View {
-        HStack(spacing: HolzBarTheme.Spacing.sm) {
+    private func waitingRow(of editor: LayoutEditor) -> some View {
+        SettingsButtonRow(
+            editor.isApplying ? Text("Applying…") : Text("Changes waiting: \(editor.changeCount)")
+        ) {
             if editor.isApplying {
                 ProgressView()
                     .controlSize(.small)
-                Text("Applying…")
-            } else {
-                Text("Changes waiting: \(editor.changeCount)")
             }
-            Spacer()
             Button("Discard") {
                 editor.discard()
             }
@@ -60,50 +62,17 @@ struct LayoutDraftSection: View {
             .buttonStyle(.borderedProminent)
             .disabled(editor.isApplying)
         }
-        .padding(HolzBarTheme.Spacing.md)
-        .accessibilityElement(children: .contain)
-    }
-
-    private func result(of outcome: LayoutEditor.Outcome) -> some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
-            Text("Changes applied: \(outcome.applied)")
-            if outcome.leftToRules > 0 {
-                Text("Left to their rules: \(outcome.leftToRules)")
-                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-            }
-            if outcome.failed > 0 {
-                Text("Could not be moved: \(outcome.failed)")
-                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(HolzBarTheme.Spacing.md)
     }
 }
 
-/// The tile "New items" in the section where items holzBar has never seen land, with the choice
-/// of another section.
+/// The tile New items in the bar where items holzBar has never seen land; the pop-up New items go
+/// to chooses the section.
 struct NewItemsTile: View {
-    @Environment(AppState.self) private var appState
-
     var body: some View {
-        let editor = appState.layoutEditor
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
-            HolzBarPicker(selection: Binding(
-                get: { editor.newItemsSection },
-                set: { editor.setNewItemsSection($0) }
-            )) {
-                ForEach(editor.availableSections, id: \.self) { section in
-                    Text(section.localized).tag(section)
-                }
-            } label: {
-                Label("New items", systemImage: "sparkles")
-            }
-            Text("Items holzBar has not seen before land in this section.")
-                .font(HolzBarTheme.Typography.caption)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(HolzBarTheme.Spacing.md)
+        Label("New items", systemImage: "sparkles")
+            .font(HolzBarTheme.Typography.callout)
+            .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+            .padding(HolzBarTheme.Spacing.md)
+            .accessibilityElement(children: .combine)
     }
 }

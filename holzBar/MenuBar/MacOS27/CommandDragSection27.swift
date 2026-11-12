@@ -74,6 +74,9 @@ final class CommandDragSection27 {
     /// One task per released drop, so a new press never cancels a drop that is settling.
     @ObservationIgnored private var settleTasks = [UUID: Task<Void, Never>]()
     @ObservationIgnored private let logger = Logger(category: "CommandDragSection27")
+    /// The undo history's change of each notice of a set section, so the notice's own Undo
+    /// takes that change out of the history (D-15).
+    @ObservationIgnored private var undoChanges = [(notice: CommandDragNotice, change: UUID)]()
 
     init(appState: AppState?) {
         self.appState = appState
@@ -331,7 +334,16 @@ final class CommandDragSection27 {
             appState.concealer27.setSection(Self.macOS27Section(to), for: key)
             // A rule that controls the item has to look at it again.
             appState.automation.itemsWereArrangedByHand()
-            add(CommandDragNotice.make(key: key, name: press.name, kind: .set(from: from, to: to)))
+            let notice = CommandDragNotice.make(key: key, name: press.name, kind: .set(from: from, to: to))
+            add(notice)
+            // The notice stays, and the undo toast shows under the menu bar too (D-15).
+            let change = undoChange(for: notice, key: key, from: from, to: to, appState: appState)
+            undoChanges.append((notice, change.id))
+            // The history keeps no more changes than this, so neither does the list.
+            if undoChanges.count > UndoHistory<LayoutUndo.Change>.defaultCapacity {
+                undoChanges.removeFirst()
+            }
+            appState.layoutUndo.record(change, place: .menuBar)
         case .keep(let lock):
             guard case .set(let target) = decision else {
                 return
@@ -352,18 +364,82 @@ final class CommandDragSection27 {
 
     // MARK: - Notices
 
-    /// Puts the application's former section back, if it still is the one the drop set; the
-    /// notice goes either way.
-    func undo(_ notice: CommandDragNotice) {
+    /// The notice's Undo: puts the application's former section back, if it still is the one
+    /// the drop set; the notice goes either way, and so does its change in the undo history.
+    ///
+    /// - Returns: Whether the former section was set.
+    @discardableResult
+    func undo(_ notice: CommandDragNotice) -> Bool {
+        if let change = takeUndoChange(of: notice) {
+            appState?.layoutUndo.forget(id: change)
+        }
+        return putBack(notice)
+    }
+
+    private func putBack(_ notice: CommandDragNotice) -> Bool {
         dismiss(notice)
         guard case .set(let from, let to) = notice.kind, let appState else {
-            return
+            return false
         }
         guard appState.concealer27.section(forKey: notice.id) == Self.macOS27Section(to) else {
-            return
+            return false
         }
         appState.concealer27.setSection(Self.macOS27Section(from), for: notice.id)
         appState.automation.itemsWereArrangedByHand()
+        return true
+    }
+
+    private func takeUndoChange(of notice: CommandDragNotice) -> UUID? {
+        guard let index = undoChanges.firstIndex(where: { $0.notice == notice }) else {
+            return nil
+        }
+        return undoChanges.remove(at: index).change
+    }
+
+    /// The undo history's change of a drop that set a section: its undo is the notice's Undo,
+    /// checked after macOS had a moment; its inverse sets the drop's section again.
+    private func undoChange(
+        for notice: CommandDragNotice,
+        key: String,
+        from: MenuBarDrop.Section,
+        to: MenuBarDrop.Section,
+        appState: AppState
+    ) -> LayoutUndo.Change {
+        let sentence = to == .visible
+            ? String(localized: "\u{201C}\(notice.itemName)\u{201D} is now visible.")
+            : String(localized: "\u{201C}\(notice.itemName)\u{201D} is now hidden.")
+        let former = Self.macOS27Section(from)
+        let target = Self.macOS27Section(to)
+        return LayoutUndo.Change(
+            sentence: sentence,
+            actionName: String(localized: "Change Section"),
+            inverse: {
+                LayoutBarMoves.section27Change(
+                    to: target,
+                    from: former,
+                    for: key,
+                    sentence: sentence,
+                    actionName: String(localized: "Change Section"),
+                    appState: appState
+                )
+            },
+            perform: { [weak self] in
+                guard let self else {
+                    return true
+                }
+                _ = takeUndoChange(of: notice)
+                guard putBack(notice) else {
+                    return false
+                }
+                try? await Task.sleep(for: LayoutUndo.settleDelay27)
+                await appState.itemManager.cacheItemsRegardless()
+                return ArrangementUndo.isRestored(
+                    app: key,
+                    wantedSection: former.rawValue,
+                    sections: LayoutBarMoves.sections27(appState)
+                )
+            }
+        )
     }
 
     /// Removes a notice.

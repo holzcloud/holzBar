@@ -6,49 +6,61 @@
 import AppKit
 import SwiftUI
 
-/// The Accessory alerts module's settings, shown under its row in the Modules pane while the
-/// module is on: a switch for connect alerts and one for disconnect alerts, the three settings
-/// of the battery half (reading levels, the low-battery alert and its level), and the state of
-/// the Bluetooth permission.
+/// The Accessory alerts module's settings, in the open area of the module's row: a switch for
+/// connect alerts and one for disconnect alerts, the three settings of the battery half (reading
+/// levels, labelled as a private interface, the low-battery alert and its level as dependent sub
+/// rows), and the state of the Bluetooth permission.
 ///
-/// The view only flips stored values and reads the permission; the question itself is asked by
-/// the running module when it starts, never from here. A change of a battery setting tells the
-/// running module, which reads again.
+/// The view only flips stored values and reads states; the Bluetooth question is asked by the
+/// running module when it starts, never from here, and whether battery reading switched itself
+/// off comes from the running module too. A change of a battery setting tells the running
+/// module, which reads again.
 struct AccessoryAlertsSettingsView: View {
     @Environment(AppState.self) private var appState
     @State private var settings = AccessoryAlertsSettings()
 
     var body: some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-            Toggle("Alert when an accessory connects", isOn: $settings.connect)
-            caption(Text("A capsule below the notch names the accessory for five seconds."))
-            Toggle("Alert when an accessory disconnects", isOn: $settings.disconnect)
-            caption(Text("Off by default, because AirPods disconnect whenever they go back in their case."))
-            Toggle("Read battery levels", isOn: $settings.readsBattery)
-            caption(Text("Uses a macOS call that Apple does not document, so it may stop working in a later macOS. Nothing is sent anywhere."))
-            Toggle("Alert when the battery is low", isOn: $settings.lowBattery)
-                .disabled(!settings.readsBattery)
-            Stepper(value: $settings.lowBatteryLevel, in: AccessoryAlertOptions.lowBatteryLevelRange, step: 5) {
-                HStack {
-                    Text("Low battery level")
-                    Spacer()
-                    Text(verbatim: AccessoryBattery.percentText(settings.lowBatteryLevel))
-                        .monospacedDigit()
-                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+        // A container only so that the three change handlers run once.
+        VStack(alignment: .leading, spacing: 0) {
+            SettingsToggleRow(
+                .modulesAccessoryAlertsConnect,
+                isOn: $settings.connect,
+                info: access == .notDetermined
+                    ? Text("A capsule below the notch names the accessory for five seconds. macOS asks for Bluetooth when the Notch hub is on.")
+                    : nil
+            )
+            SettingsToggleRow(.modulesAccessoryAlertsDisconnect, isOn: $settings.disconnect)
+            if access == .denied {
+                SettingsStateLine(.warning, Text("Bluetooth access is off")) {
+                    Button("Open Bluetooth Settings") {
+                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Bluetooth") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    }
                 }
             }
-            .disabled(!settings.readsBattery || !settings.lowBattery)
-            switch access {
-            case .denied:
-                deniedAccess
-            case .notDetermined:
-                caption(Text("macOS asks for Bluetooth when the Notch hub is on."))
-            case .allowed:
-                EmptyView()
+            SettingsToggleRow(
+                .modulesAccessoryAlertsReadsBattery,
+                isOn: $settings.readsBattery,
+                small: Text("private interface")
+            )
+            if batteryReadingSwitchedOff {
+                SettingsStateLine(.warning, Text("Battery levels are not available on this Mac"))
             }
+            SettingsToggleRow(.modulesAccessoryAlertsLowBattery, isOn: $settings.lowBattery)
+                .settingsSubRow()
+                .settingsDependent(on: settings.readsBattery)
+            SettingsStepperRow(
+                .modulesAccessoryAlertsLowBatteryLevel,
+                value: $settings.lowBatteryLevel,
+                in: AccessoryAlertOptions.lowBatteryLevelRange,
+                step: 5
+            ) { level in
+                Text(verbatim: AccessoryBattery.percentText(level))
+            }
+            .settingsSubRow()
+            .settingsDependent(on: settings.readsBattery && settings.lowBattery)
         }
-        .toggleStyle(.switch)
-        .tint(HolzBarTheme.Palette.accent)
         .onChange(of: settings.readsBattery) {
             runtime?.settingsDidChange()
         }
@@ -60,6 +72,12 @@ struct AccessoryAlertsSettingsView: View {
         }
     }
 
+    /// Whether battery reading is on and the running module found the undocumented call
+    /// missing or failing. Settings never looks the call up itself.
+    private var batteryReadingSwitchedOff: Bool {
+        settings.readsBattery && (runtime?.batteryReadingUnavailable ?? false)
+    }
+
     private var runtime: AccessoryAlertsRuntime? {
         appState.notchHub.runtime(AccessoryAlertsRuntime.self)
     }
@@ -68,27 +86,5 @@ struct AccessoryAlertsSettingsView: View {
     /// system's answer while the module does not run.
     private var access: BluetoothAccess {
         runtime?.access ?? BluetoothDeviceMonitor.access
-    }
-
-    /// The sentence and the button of a refused permission; nothing asks again by itself.
-    private var deniedAccess: some View {
-        HStack(spacing: HolzBarTheme.Spacing.sm) {
-            Text("holzBar may not use Bluetooth, so connection alerts are off.")
-                .font(HolzBarTheme.Typography.callout)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
-            Button("Open Bluetooth Settings") {
-                if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Bluetooth") {
-                    NSWorkspace.shared.open(url)
-                }
-            }
-        }
-    }
-
-    private func caption(_ text: Text) -> some View {
-        text
-            .font(HolzBarTheme.Typography.caption)
-            .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-            .fixedSize(horizontal: false, vertical: true)
     }
 }

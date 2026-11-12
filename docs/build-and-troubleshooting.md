@@ -20,11 +20,15 @@ The other way round: `brew uninstall --cask holzbar@beta`, then trust and instal
 
 ## Troubleshooting
 
-**"holzBar cannot arrange menu bar items in automatically hidden menu bars."** holzBar can only arrange the items while the menu bar stays visible. Open **System Settings → Control Center**, set **Automatically hide and show the menu bar** to **Never**, arrange your items in holzBar, then set the option back to what you had.
+**"The menu bar hides automatically."** holzBar can only arrange the items, and change the look of the bar, while the menu bar stays visible; Layout and Appearance then show this one sentence with **Open System Settings**. Open **System Settings → Control Center**, set **Automatically hide and show the menu bar** to **Never**, arrange your items in holzBar, then set the option back to what you had.
 
-**New items end up in the always-hidden section.** macOS puts new menu bar items at the far left of the bar, which is where the always-hidden section is. Choose where they go in **Settings → Advanced → Place new menu bar items in**.
+**New items end up in the always-hidden section.** macOS puts new menu bar items at the far left of the bar, which is where the always-hidden section is. Choose where they go in **Settings → Layout → New items go to**.
 
-**holzBar is stuck on the permissions window.** After an update from 0.0.5 or earlier, or after replacing the app with a build signed by another key, macOS may no longer accept the old permission. Click **Reset and Grant Again** in the permissions window and grant the permission once more.
+**holzBar is stuck on the permissions window.** After an update from 0.0.5 or earlier, or after replacing the app with a build signed by another key, macOS may no longer accept the old permission. Click **Reset and Grant Again** under the permission in the permissions window (it shows while the permission is missing) and grant the permission once more.
+
+**Layout says "holzBar has not read the menu bar items yet."** Reading them takes a few seconds; after 15 seconds holzBar stops waiting and offers **Read Again**. If that does not help, quit and reopen holzBar.
+
+**A layout change went wrong.** Every change of the layout can be taken back: **Undo** in the notice that shows for five seconds, **Undo** in Layout, or ⌘Z in the Settings window (the last 20 changes, until holzBar quits).
 
 **An item is listed as "Menu Bar Item" (macOS 26).** On macOS 26 every item window belongs to Control Center, so holzBar asks the running apps, off the main thread and with time limits, which item is theirs. An app that does not answer in time is asked again at a later read. Apps signed by Apple are asked first, and the first of them to claim an item gets it. An item that two other apps claim stays "Menu Bar Item", and holzBar never moves it by itself.
 

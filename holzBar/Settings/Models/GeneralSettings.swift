@@ -392,8 +392,8 @@ enum RehideStrategy: Int, CaseIterable, Identifiable {
     var localized: LocalizedStringKey {
         switch self {
         case .smart: "Smart"
-        case .timed: "Timed"
-        case .focusedApp: "Focused app"
+        case .timed: "After a fixed time"
+        case .focusedApp: "When the app changes"
         }
     }
 }

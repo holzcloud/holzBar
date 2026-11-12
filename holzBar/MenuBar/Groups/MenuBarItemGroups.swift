@@ -108,12 +108,34 @@ final class MenuBarItemGroups {
     }
 
     /// Deletes the group and the image file it no longer uses.
-    func deleteGroup(_ group: MenuBarItemGroup) {
-        let imageFile = groups.first { $0.id == group.id }?.imageFile
-        groups.removeAll { $0.id == group.id }
-        if let imageFile {
-            appState?.itemIconStore.deleteFile(named: imageFile)
+    /// Removes a group. Its image stays until the deletion can no longer be undone
+    /// (``discardImage(of:)``).
+    ///
+    /// - Returns: The group and its former index, for an undo; `nil` if it was not there.
+    @discardableResult
+    func deleteGroup(_ group: MenuBarItemGroup) -> (group: MenuBarItemGroup, index: Int)? {
+        guard let index = groups.firstIndex(where: { $0.id == group.id }) else {
+            return nil
         }
+        let removed = groups.remove(at: index)
+        return (removed, index)
+    }
+
+    /// Puts a deleted group back at its former index, unless a group with its identifier is
+    /// there again.
+    func reinsertGroup(_ group: MenuBarItemGroup, at index: Int) {
+        guard !groups.contains(where: { $0.id == group.id }) else {
+            return
+        }
+        DeletionUndo.reinsert(group, at: index, into: &groups)
+    }
+
+    /// Deletes a removed group's image file, unless a group still names it.
+    func discardImage(of group: MenuBarItemGroup) {
+        guard let imageFile = group.imageFile, !groups.contains(where: { $0.imageFile == imageFile }) else {
+            return
+        }
+        appState?.itemIconStore.deleteFile(named: imageFile)
     }
 
     func toggle(_ item: MenuBarItem, in group: MenuBarItemGroup) {
@@ -321,7 +343,7 @@ private struct MenuBarItemGroupPanel: View {
                 .font(.headline)
                 .foregroundStyle(group.color.map { Color(nsColor: $0) } ?? .primary)
             if items.isEmpty {
-                Text("Add items to this group in holzBar's Menu Bar Layout settings.")
+                Text("Add items to this group in holzBar's Profiles & History settings.")
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             } else {

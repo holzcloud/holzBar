@@ -5,8 +5,8 @@
 
 import SwiftUI
 
-/// The editor of one widget, shown under its row in the widget list: every option the widget's
-/// source or kind has, the place in the list and the way to remove it.
+/// The editor of one widget, as sub rows under its row in the widget list: every option the
+/// widget's source or kind has, the place in the list and the way to remove it.
 ///
 /// A text widget offers its source, its format (a fixed preset, no template language), the
 /// leading symbol, and the options of its source: the clock's hour cycle and seconds, the
@@ -29,30 +29,55 @@ struct WidgetEditor: View {
 
     var body: some View {
         if let definition {
-            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-                switch definition.kind {
-                case .text:
-                    TextWidgetFields(widgets: widgets, definition: definition)
-                case .button:
-                    ShortcutButtonFields(widgets: widgets, id: id)
-                case .script:
-                    ScriptWidgetFields(widgets: widgets, definition: definition)
-                case .builtIn:
-                    BuiltInItemFields(widgets: widgets, definition: definition)
+            switch definition.kind {
+            case .text:
+                TextWidgetFields(widgets: widgets, definition: definition)
+            case .button:
+                ShortcutButtonFields(widgets: widgets, id: id)
+            case .script:
+                ScriptWidgetFields(widgets: widgets, definition: definition)
+            case .builtIn:
+                BuiltInItemFields(widgets: widgets, definition: definition)
+            }
+            SettingsButtonRow {
+                Button("Move Up", systemImage: "arrow.up") {
+                    widgets.moveWidget(id: id, by: -1)
                 }
-                HStack(spacing: HolzBarTheme.Spacing.sm) {
-                    Button("Move Up", systemImage: "arrow.up") {
-                        widgets.moveWidget(id: id, by: -1)
-                    }
-                    .disabled(!canMoveUp)
-                    Button("Move Down", systemImage: "arrow.down") {
-                        widgets.moveWidget(id: id, by: 1)
-                    }
-                    .disabled(!canMoveDown)
-                    Spacer(minLength: HolzBarTheme.Spacing.sm)
-                    Button("Remove", role: .destructive, action: onRemove)
+                .disabled(!canMoveUp)
+                Button("Move Down", systemImage: "arrow.down") {
+                    widgets.moveWidget(id: id, by: 1)
                 }
-                .padding(.top, HolzBarTheme.Spacing.xs)
+                .disabled(!canMoveDown)
+                Button("Delete…", role: .destructive, action: onRemove)
+            }
+            .settingsSubRow()
+        }
+    }
+
+    /// What a click on the widget does, for the info of its row: the script widget's and the
+    /// ready-made items' sentences. Text and Shortcut button widgets have none.
+    static func explanation(for definition: WidgetDefinition, appName: String?) -> Text? {
+        switch definition.kind {
+        case .text, .button:
+            return nil
+        case .script:
+            return Text("The widget shows the first line of the script's output. It runs when the widget appears and when you click it, and on the system events your automation rules follow, never on a timer.")
+        case .builtIn:
+            switch definition.builtIn {
+            case .timer:
+                return Text("A click starts the timer, the next click stops it. A sound plays when it ends.")
+            case .media:
+                return Text("A click plays or pauses. A right-click offers previous and next. The item stays for two minutes after the sound stops.")
+            case .airDrop:
+                return Text("A click opens AirDrop. Drop files on the icon to share them.")
+            case .focus:
+                return Text("A click opens Focus.")
+            case .userSwitching:
+                return Text("A click opens fast user switching.")
+            case .launcher:
+                return Text(verbatim: WidgetSpeech.hint(for: .launcher, appName: appName))
+            case nil:
+                return nil
             }
         }
     }
@@ -88,46 +113,53 @@ private struct TextWidgetFields: View {
     let definition: WidgetDefinition
 
     var body: some View {
-        Picker("Source", selection: sourceBinding) {
+        SettingsPickerRow(Text("Source"), selection: sourceBinding) {
             ForEach(WidgetSource.allCases, id: \.self) { source in
                 WidgetsSection.sourceTitle(source)
                     .tag(source)
             }
         }
+        .settingsSubRow()
         if definition.source.presets.count > 1 {
-            Picker("Format", selection: binding(\.preset)) {
+            SettingsPickerRow(Text("Format"), selection: binding(\.preset)) {
                 ForEach(definition.source.presets, id: \.self) { preset in
                     WidgetEditor.presetTitle(preset)
                         .tag(preset)
                 }
             }
+            .settingsSubRow()
         }
-        Toggle("Show symbol", isOn: binding(\.showsSymbol))
+        SettingsToggleRow(Text("Show symbol"), isOn: binding(\.showsSymbol))
+            .settingsSubRow()
         if definition.source == .dateTime {
-            Toggle("24-hour clock", isOn: binding(\.uses24HourClock))
-            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
-                Toggle("Show seconds", isOn: binding(\.showsSeconds))
-                    .help("Wakes the Mac every second while visible.")
-                Text("Wakes the Mac every second while visible.")
-                    .font(HolzBarTheme.Typography.caption)
-                    .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+            SettingsToggleRow(Text("24-hour clock"), isOn: binding(\.uses24HourClock))
+                .settingsSubRow()
+            SettingsToggleRow(
+                Text("Show seconds"),
+                isOn: binding(\.showsSeconds),
+                info: Text("Wakes the Mac every second while visible.")
+            )
+            .settingsSubRow()
         }
         if definition.source == .countdown {
-            DatePicker(
-                "Count down to",
-                selection: countdownBinding,
-                displayedComponents: [.date, .hourAndMinute]
-            )
+            SettingsRow(Text("Count down to")) {
+                DatePicker(
+                    "Count down to",
+                    selection: countdownBinding,
+                    displayedComponents: [.date, .hourAndMinute]
+                )
+                .labelsHidden()
+            }
+            .settingsSubRow()
         }
         if !refreshChoices.isEmpty {
-            Picker("Refresh every", selection: binding(\.refreshSeconds)) {
+            SettingsPickerRow(Text("Refresh every"), selection: binding(\.refreshSeconds)) {
                 ForEach(refreshChoices, id: \.self) { seconds in
                     Text("\(seconds) s")
                         .tag(Optional(seconds))
                 }
             }
+            .settingsSubRow()
         }
     }
 
@@ -243,34 +275,30 @@ private struct ScriptWidgetFields: View {
     }
 
     var body: some View {
-        Picker("Script", selection: scriptBinding) {
+        SettingsPickerRow(Text("Script"), selection: scriptBinding) {
             Text("None").tag(String?.none)
             ForEach(scriptNames, id: \.self) { name in
                 Text(verbatim: URLPrompt.displayName(name)).tag(String?.some(name))
             }
         }
+        .settingsSubRow()
         if isNotAllowed {
-            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
-                Text("Allow this script first in Automation, Scripts.")
-                    .font(HolzBarTheme.Typography.caption)
-                    .foregroundStyle(HolzBarTheme.Palette.warning)
-                    .fixedSize(horizontal: false, vertical: true)
+            SettingsStateLine(.warning, Text("Allow this script first in Automation, Scripts.")) {
                 Button("Open Scripts") {
                     appState.navigationState.settingsNavigationIdentifier = .automation
                 }
             }
+            .settingsSubRow()
         }
-        Picker("Width", selection: binding(\.preset)) {
+        SettingsPickerRow(Text("Width"), selection: binding(\.preset)) {
             ForEach(WidgetKind.scriptPresets, id: \.self) { preset in
                 WidgetEditor.presetTitle(preset)
                     .tag(preset)
             }
         }
-        Toggle("Show symbol", isOn: binding(\.showsSymbol))
-        Text("The widget shows the first line of the script's output. It runs when the widget appears and when you click it, and on the system events your automation rules follow, never on a timer.")
-            .font(HolzBarTheme.Typography.caption)
-            .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-            .fixedSize(horizontal: false, vertical: true)
+        .settingsSubRow()
+        SettingsToggleRow(Text("Show symbol"), isOn: binding(\.showsSymbol))
+            .settingsSubRow()
     }
 
     /// The chosen script, read from the store and written to it. A new choice asks the script
@@ -323,13 +351,13 @@ private struct ShortcutButtonFields: View {
     }
 
     var body: some View {
-        TextField("Title", text: $title)
-            .textFieldStyle(.roundedBorder)
+        SettingsTextFieldRow(Text("Title"), text: $title)
             .onChange(of: title) { _, newValue in
                 commitTitle(newValue)
             }
-        Toggle(
-            "Show as symbol",
+            .settingsSubRow()
+        SettingsToggleRow(
+            Text("Show as symbol"),
             isOn: Binding(
                 get: { definition?.buttonShowsSymbol ?? true },
                 set: { showsSymbol in
@@ -341,22 +369,19 @@ private struct ShortcutButtonFields: View {
                 }
             )
         )
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
-            TextField("Shortcut name", text: $shortcutName)
-                .textFieldStyle(.roundedBorder)
-                .onChange(of: shortcutName) { _, newValue in
-                    isNameRefused = !widgets.setShortcutName(newValue, for: id)
-                }
-            Text("Type the name exactly as it appears in the Shortcuts app.")
-                .font(HolzBarTheme.Typography.caption)
-                .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-                .fixedSize(horizontal: false, vertical: true)
-            if isNameRefused {
-                Text("This name cannot be used.")
-                    .font(HolzBarTheme.Typography.caption)
-                    .foregroundStyle(HolzBarTheme.Palette.warning)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+        .settingsSubRow()
+        SettingsTextFieldRow(
+            Text("Shortcut name"),
+            text: $shortcutName,
+            info: Text("Type the name exactly as it appears in the Shortcuts app.")
+        )
+        .onChange(of: shortcutName) { _, newValue in
+            isNameRefused = !widgets.setShortcutName(newValue, for: id)
+        }
+        .settingsSubRow()
+        if isNameRefused {
+            SettingsStateLine(.warning, Text("This name cannot be used."))
+                .settingsSubRow()
         }
     }
 
@@ -378,7 +403,7 @@ private struct ShortcutButtonFields: View {
 // MARK: - Built-in items
 
 /// The options of a built-in item: the timer's length, when the media item shows, the launcher's
-/// app. The items that open Apple's own item have no option; their editor says what a click does.
+/// app. The items that open Apple's own item have no option; their row's info says what a click does.
 private struct BuiltInItemFields: View {
     var widgets: MenuBarWidgets
     let definition: WidgetDefinition
@@ -390,36 +415,25 @@ private struct BuiltInItemFields: View {
     var body: some View {
         switch definition.builtIn {
         case .timer:
-            Picker("Length", selection: binding(\.timerMinutes)) {
+            SettingsPickerRow(Text("Length"), selection: binding(\.timerMinutes)) {
                 ForEach(minuteChoices, id: \.self) { minutes in
                     Text("\(minutes) min")
                         .tag(minutes)
                 }
             }
-            caption("A click starts the timer, the next click stops it. A sound plays when it ends.")
+            .settingsSubRow()
         case .media:
-            Toggle("Only while sound plays", isOn: binding(\.mediaOnlyWhenActive))
-            caption("A click plays or pauses. A right-click offers previous and next. The item stays for two minutes after the sound stops.")
+            SettingsToggleRow(Text("Only while sound plays"), isOn: binding(\.mediaOnlyWhenActive))
+                .settingsSubRow()
         case .launcher:
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                if let appName {
-                    Text(verbatim: appName)
-                } else {
-                    Text("No app chosen")
-                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                }
-                Spacer(minLength: HolzBarTheme.Spacing.sm)
+            SettingsButtonRow(appName.map { Text(verbatim: $0) } ?? Text("No app chosen")) {
                 Button("Choose App…") {
                     chooseApp()
                 }
             }
-        case .airDrop:
-            caption("A click opens AirDrop. Drop files on the icon to share them.")
-        case .focus:
-            caption("A click opens Focus.")
-        case .userSwitching:
-            caption("A click opens fast user switching.")
-        case nil:
+            .settingsSubRow()
+        case .airDrop, .focus, .userSwitching, nil:
+            // What a click does is the info of the widget's row.
             EmptyView()
         }
     }
@@ -441,13 +455,6 @@ private struct BuiltInItemFields: View {
         var updated = definition
         updated.launcherBundleID = bundleID
         widgets.update(updated)
-    }
-
-    private func caption(_ text: LocalizedStringKey) -> some View {
-        Text(text)
-            .font(HolzBarTheme.Typography.caption)
-            .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-            .fixedSize(horizontal: false, vertical: true)
     }
 
     private func binding<Value>(_ keyPath: WritableKeyPath<WidgetDefinition, Value>) -> Binding<Value> {

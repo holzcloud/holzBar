@@ -11,6 +11,7 @@ struct HolzBarGradientPicker<Label: View>: View {
     @State private var window: NSWindow?
 
     private let supportsOpacity: Bool
+    private let stripWidth: CGFloat
     private let label: Label
 
     init(
@@ -20,6 +21,7 @@ struct HolzBarGradientPicker<Label: View>: View {
     ) {
         self._gradient = gradient
         self.supportsOpacity = supportsOpacity
+        self.stripWidth = 200
         self.label = label()
     }
 
@@ -30,6 +32,7 @@ struct HolzBarGradientPicker<Label: View>: View {
     ) where Label == Text {
         self._gradient = gradient
         self.supportsOpacity = supportsOpacity
+        self.stripWidth = 200
         self.label = Text(labelKey)
     }
 
@@ -39,12 +42,16 @@ struct HolzBarGradientPicker<Label: View>: View {
     ///   - gradient: A binding to a gradient.
     ///   - supportsOpacity: A Boolean value indicating whether the
     ///     picker should support opacity.
+    ///   - stripWidth: The width of the gradient strip; the settings kit
+    ///     draws it 96 pt wide (D-18).
     init(
         gradient: Binding<HolzBarGradient>,
-        supportsOpacity: Bool = true
+        supportsOpacity: Bool = true,
+        stripWidth: CGFloat = 200
     ) where Label == EmptyView {
         self._gradient = gradient
         self.supportsOpacity = supportsOpacity
+        self.stripWidth = stripWidth
         self.label = EmptyView()
     }
 
@@ -54,7 +61,8 @@ struct HolzBarGradientPicker<Label: View>: View {
                 gradient: $gradient,
                 selection: $selection,
                 window: $window,
-                supportsOpacity: supportsOpacity
+                supportsOpacity: supportsOpacity,
+                stripWidth: stripWidth
             )
             .onWindowChange(update: $window)
             .task(id: window.map(ObjectIdentifier.init)) {
@@ -86,6 +94,7 @@ private struct HolzBarGradientPickerRoot: View {
     @State private var isRemappingSelection = false
 
     let supportsOpacity: Bool
+    let stripWidth: CGFloat
 
     private let handleWidth: CGFloat = 10
 
@@ -111,7 +120,7 @@ private struct HolzBarGradientPickerRoot: View {
                 }
                 .padding(.horizontal, handleWidth / 2)
             }
-            .frame(width: 200, height: 24)
+            .frame(width: stripWidth, height: 24)
             .shadow(radius: 2)
             .onTapGesture(count: 2) {
                 distributeStops()

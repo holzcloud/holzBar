@@ -144,14 +144,37 @@ final class MenuBarAppearanceManager {
         currentMoodName = mood.name
     }
 
-    func removeMood(withID id: UUID) {
+    /// Removes a mood.
+    ///
+    /// - Returns: The mood, its former index and whether it was in use, for an undo; `nil`
+    ///   if it was not there.
+    @discardableResult
+    func removeMood(withID id: UUID) -> (mood: AppearanceMood, index: Int, wasCurrent: Bool)? {
         guard let index = moods.firstIndex(where: { $0.id == id }) else {
-            return
+            return nil
         }
-        if moods[index].name == currentMoodName {
+        let wasCurrent = moods[index].name == currentMoodName
+        if wasCurrent {
             currentMoodName = nil
         }
-        moods.remove(at: index)
+        let mood = moods.remove(at: index)
+        saveMoods()
+        return (mood, index, wasCurrent)
+    }
+
+    /// Puts a deleted mood back at its former index, unless a mood with its identifier or
+    /// name is there again or the list is full.
+    func insertMood(_ mood: AppearanceMood, at index: Int, makeCurrent: Bool) {
+        guard
+            moods.count < MoodNaming.maximumCount,
+            !moods.contains(where: { $0.id == mood.id || $0.name == mood.name })
+        else {
+            return
+        }
+        DeletionUndo.reinsert(mood, at: index, into: &moods)
+        if makeCurrent {
+            currentMoodName = mood.name
+        }
         saveMoods()
     }
 

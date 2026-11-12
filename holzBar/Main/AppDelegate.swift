@@ -16,9 +16,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // nothing later tells a new install from an update of 1.0.0 (What's New).
         let isFreshInstall = MigrationManager.ownSettingsAreEmpty
         // Must come before the app state, which reads the settings.
-        MigrationManager.importPreviousSettingsIfNeeded()
+        let didImport = MigrationManager.importPreviousSettingsIfNeeded()
+        if isFreshInstall, !didImport {
+            // The onboarding waits for its window, also across a quit while permissions are
+            // granted; an update or an import of Ice never sets it (D-20). Written after the
+            // import, which runs only while holzBar's own settings are empty.
+            Defaults.set(true, forKey: .onboardingPending)
+        }
+        if didImport {
+            // Someone who arranged their bar in Ice gets no tidy-up suggestion (D-21).
+            Defaults.set(true, forKey: .cleanUpOffered)
+        }
         let appState = AppState()
         appState.isFreshInstall = isFreshInstall
+        appState.didImportPreviousSettings = didImport
         AppState.current = appState
         self.appState = appState
         super.init()
@@ -153,6 +164,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        // What deletions kept for their undo (a group's image) goes now.
+        appState.layoutUndo.discardAll()
         if #available(macOS 27.0, *) {
             // Released synchronously, before the process goes, so no application stays hidden.
             appState.concealer27.releaseAllForTermination()

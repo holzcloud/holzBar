@@ -236,16 +236,17 @@ struct ModuleCatalogTests {
         #expect(
             ModuleCatalog.populatedAreas(of: ModuleCatalog.all) == [.menuBar, .notch],
             """
-            A module of another area needs its area title in ModulesSettingsPane. \
-            Teach the pane the title, then update this test.
+            A module of another area needs its group title in SettingsCatalog.ModulesPane \
+            (ModulesCatalog.swift) and its group in ModulesSettingsPane. Teach both, then \
+            update this test.
             """
         )
         #expect(
             Set(ModuleCatalog.all.compactMap(\.permission)) == [.calendar, .bluetooth, .accessibility],
             """
-            A module with a permission needs its sentence (permissionText) and its lookup \
-            (isGranted) in ModulesSettingsPane (a module says why before it asks). Teach the \
-            pane both, then update this test.
+            A module with a permission needs its small text in \
+            ModulesSettingsPane.smallText(for:) (a module says why before it asks). Teach the \
+            pane, then update this test.
             """
         )
     }

@@ -18,6 +18,13 @@ struct DockIconPolicyTests {
         }
     }
 
+    @Test("The onboarding window stays out of the Dock")
+    func onboardingWindowStaysOutOfTheDock() {
+        for keepsHidden in [true, false] {
+            #expect(DockIconPolicy.policy(for: .onboarding, keepsDockIconHidden: keepsHidden) == .accessory)
+        }
+    }
+
     @Test("The permissions window is in the Dock")
     func permissionsWindowIsInTheDock() {
         #expect(DockIconPolicy.policy(for: .permissions, keepsDockIconHidden: true) == .regular)

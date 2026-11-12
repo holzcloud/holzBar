@@ -16,7 +16,7 @@ extension HotkeyTarget {
         case .applyProfile(let name):
             // No question, unlike `holzbar://profile/<name>`: the user gave the profile
             // this hotkey.
-            appState.profiles.apply(named: name)
+            appState.profiles.apply(named: name, undoPlace: .menuBar)
         case .openItem(let key):
             appState.itemManager.openItem(withIdentityKey: key)
         }

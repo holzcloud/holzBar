@@ -20,6 +20,7 @@ scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 
 sources=(
+  AboutUpdateCommands
   AccessoryAlertOptions
   AccessoryBattery
   AccessoryDevice
@@ -47,6 +48,7 @@ sources=(
   DisplayBehavior
   DisplayControlsLevel
   DividerPlausibility
+  DockIconPolicy
   DownloadScan
   DownloadTracker
   FileDragWatch
@@ -71,6 +73,7 @@ sources=(
   ItemRuleMemory
   ItemTimer
   LayoutDraft
+  LayoutList
   LayoutProfile
   LayoutProfileList
   LayoutSnapshot
@@ -99,9 +102,11 @@ sources=(
   NowPlayingRemoteLaunch
   NowPlayingRemoteMessage
   NowPlayingTrack
+  OnboardingPolicy
   OpenMenuWait
   OutputVolumePlan
   OwnBundle
+  PermissionListing
   PinnedSystemItems
   PlaybackClock
   PrivateFeatureGate
@@ -116,7 +121,9 @@ sources=(
   ScriptLaunch
   ScriptOutput
   ScriptStorage
+  SettingsPaneID
   SettingsSchema
+  SettingsSearch
   SharedProfile
   ShelfAlwaysHiddenFold
   ShelfClosedApps
@@ -129,6 +136,7 @@ sources=(
   TimerBoard
   TimerFinishSound
   TimerInput
+  UndoHistory
   UngovernedItemOwners
   URLCommand
   URLPrompt
@@ -144,6 +152,7 @@ sources=(
   ZenMode
 )
 tests=(
+  AboutUpdateCommandsTests
   AccessoryAlertOptionsTests
   AccessoryBatteryTests
   AccessoryDeviceTests
@@ -163,11 +172,13 @@ tests=(
   CommandDragSectionTests
   ControlCenterControlTests
   ControlItemOrderTests
+  DefaultsKeyNamesTests
   DesignTokensTests
   DiagnosticsReportTests
   DisplayBehaviorTests
   DisplayControlsLevelTests
   DividerPlausibilityTests
+  DockIconPolicyTests
   DownloadScanTests
   DownloadTrackerTests
   FileDragWatchTests
@@ -190,6 +201,7 @@ tests=(
   ItemRuleMemoryTests
   ItemTimerTests
   LayoutDraftTests
+  LayoutListTests
   LayoutProfileListTests
   LayoutProfileTests
   LayoutSnapshotTests
@@ -215,9 +227,11 @@ tests=(
   NowPlayingPlayersTests
   NowPlayingRemoteLaunchTests
   NowPlayingRemoteMessageTests
+  OnboardingPolicyTests
   OpenMenuWaitTests
   OutputVolumePlanTests
   OwnBundleTests
+  PermissionListingTests
   PinnedSystemItemsTests
   PlaybackClockTests
   PrivateFeatureGateTests
@@ -232,7 +246,9 @@ tests=(
   ScriptLaunchTests
   ScriptOutputTests
   ScriptStorageTests
+  SettingsPaneIDTests
   SettingsSchemaTests
+  SettingsSearchTests
   SharedProfileTests
   ShelfAlwaysHiddenFoldTests
   ShelfClosedAppsTests
@@ -244,6 +260,7 @@ tests=(
   TimerBoardTests
   TimerFinishSoundTests
   TimerInputTests
+  UndoHistoryTests
   UngovernedItemOwnersTests
   URLCommandTests
   URLPromptTests

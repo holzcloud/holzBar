@@ -40,56 +40,110 @@ struct AutomationRuleEditor: View {
         case runScript
     }
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-            TextField("Name", text: $rule.name)
-                .textFieldStyle(.roundedBorder)
-                .focused($isNameFocused)
-            heading("When")
-            Picker("Conditions", selection: $rule.match) {
-                Text("All of these are true").tag(AutomationMatch.all)
-                Text("Any of these is true").tag(AutomationMatch.any)
+    /// Deletes a condition at once; the undo toast puts it back at its place (D-04, D-16).
+    private func deleteClause(_ clause: AutomationClause) {
+        guard let index = rule.clauses.firstIndex(where: { $0.id == clause.id }) else {
+            return
+        }
+        rule.clauses.remove(at: index)
+        let ruleID = rule.id
+        let binding = $rule
+        let automation = appState.automation
+        // The editor's rule while it is shown (a sheet edits a copy until Save), else the
+        // stored rule with that identifier; a rule that is gone takes nothing back.
+        let change: (@escaping (inout AutomationRule) -> Void) -> Void = { edit in
+            if binding.wrappedValue.id == ruleID {
+                edit(&binding.wrappedValue)
+            } else if let ruleIndex = automation.rules.firstIndex(where: { $0.id == ruleID }) {
+                edit(&automation.rules[ruleIndex])
             }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-            ForEach($rule.clauses) { $clause in
-                AutomationConditionRow(condition: $clause.condition) {
+        }
+        appState.layoutUndo.recordDeletion(
+            String(localized: "\u{201C}\(AutomationDescription.text(for: clause.condition).capitalizedFirst)\u{201D} deleted"),
+            place: .settings,
+            restore: {
+                change { rule in
+                    guard rule.clauses.count < 10, !rule.clauses.contains(where: { $0.id == clause.id }) else {
+                        return
+                    }
+                    DeletionUndo.reinsert(clause, at: index, into: &rule.clauses)
+                }
+            },
+            deleteAgain: {
+                change { rule in
                     rule.clauses.removeAll { $0.id == clause.id }
                 }
             }
-            addConditionMenu
-            heading("Then")
+        )
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SettingsRow(Text("Name")) {
+                TextField("Name", text: $rule.name)
+                    .labelsHidden()
+                    .textFieldStyle(.roundedBorder)
+                    .frame(minWidth: HolzBarTheme.SettingsKit.textFieldMinWidth)
+                    .focused($isNameFocused)
+            }
+            SettingsSegmentedRow(Text("When"), selection: $rule.match) {
+                Text("All apply").tag(AutomationMatch.all)
+                Text("One applies").tag(AutomationMatch.any)
+            }
+            ForEach($rule.clauses) { $clause in
+                AutomationConditionRow(condition: $clause.condition) {
+                    deleteClause(clause)
+                }
+            }
+            SettingsRow(
+                Text("Add condition"),
+                info: Text("At most ten conditions per rule. Entries with “…” ask for a name or a permission.")
+            ) {
+                addConditionMenu
+            }
             if let itemName {
-                Text("\(itemName) is shown only while this is true.")
-                    .font(HolzBarTheme.Typography.callout)
-                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                SettingsValueRow(Text("Then"), value: Text("\(itemName) is shown only while this is true."))
                 if case .showItemOnlyWhile(let key, let hiding) = rule.action {
                     hidingPicker(key: key, hiding: hiding)
+                        .settingsSubRow()
                 }
             } else {
                 actionPicker
             }
             if itemName == nil, case .applyProfile(let name) = rule.action {
                 profilePicker(selection: name)
+                    .settingsSubRow()
             }
             if itemName == nil, case .applyMood(let name) = rule.action {
                 moodPicker(selection: name)
+                    .settingsSubRow()
             }
             if itemName == nil, case .showItemOnlyWhile(let key, let hiding) = rule.action {
                 itemPicker(key: key, hiding: hiding)
+                    .settingsSubRow()
             }
             if itemName == nil, case .runScript(let name) = rule.action {
                 scriptPicker(name: name)
+                    .settingsSubRow()
             }
             if itemName == nil, restoresApply {
                 if case .runScript = rule.action {
-                    Toggle("Also run it when the rule stops being true", isOn: $rule.restoresWhenEnded)
+                    SettingsToggleRow(
+                        Text("Also run it when the rule stops being true"),
+                        isOn: $rule.restoresWhenEnded,
+                        info: Text("The script then runs when the rule starts and when it ends.")
+                    )
                 } else {
-                    Toggle("When it stops being true, go back", isOn: $rule.restoresWhenEnded)
+                    SettingsToggleRow(
+                        Text("When it stops being true, go back"),
+                        isOn: $rule.restoresWhenEnded,
+                        info: Text("When the conditions stop being true, holzBar undoes what the rule did.")
+                    )
                 }
             }
-            Button(itemName == nil ? "Delete Rule" : "Remove Rule", role: .destructive, action: onDelete)
-                .padding(.top, HolzBarTheme.Spacing.xs)
+            SettingsButtonRow {
+                Button("Delete rule…", role: .destructive, action: onDelete)
+            }
         }
         .task {
             if focusesName {
@@ -139,19 +193,10 @@ struct AutomationRuleEditor: View {
         add(.wifiNetwork(name))
     }
 
-    private func heading(_ key: LocalizedStringKey) -> some View {
-        Text(key)
-            .font(HolzBarTheme.Typography.caption)
-            .textCase(.uppercase)
-            .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-            .padding(.top, HolzBarTheme.Spacing.xs)
-            .accessibilityAddTraits(.isHeader)
-    }
-
     // MARK: Conditions
 
     private var addConditionMenu: some View {
-        Menu("Add Condition", systemImage: "plus") {
+        Menu("Choose") {
             Button("On battery") {
                 add(.power(.battery))
             }
@@ -239,7 +284,6 @@ struct AutomationRuleEditor: View {
                 isAskingForBluetooth = true
             }
         }
-        .menuStyle(.borderlessButton)
         .fixedSize()
         .disabled(rule.clauses.count >= 10)
     }
@@ -324,16 +368,16 @@ struct AutomationRuleEditor: View {
     }
 
     private var actionPicker: some View {
-        Picker("Action", selection: actionChoice) {
+        SettingsPickerRow(Text("Then"), selection: actionChoice) {
             Text("Apply a layout profile").tag(ActionChoice.profile)
             Text("Switch to a mood").tag(ActionChoice.mood)
-            Text("Show the hidden section").tag(ActionChoice.hiddenSection)
-            Text("Show the always-hidden section").tag(ActionChoice.alwaysHiddenSection)
+            Text("Show the hidden items").tag(ActionChoice.hiddenSection)
+            Text("Show the always-hidden items").tag(ActionChoice.alwaysHiddenSection)
             Text("Turn Zen mode on").tag(ActionChoice.zenOn)
             Text("Turn Zen mode off").tag(ActionChoice.zenOff)
             Text("Keep the Mac awake").tag(ActionChoice.keepAwake)
             Text("Let the Mac sleep").tag(ActionChoice.allowSleep)
-            Text("Show an item only while this is true").tag(ActionChoice.showItem)
+            Text("Show a menu bar item only while this is true").tag(ActionChoice.showItem)
             Text("Run a script").tag(ActionChoice.runScript)
         }
     }
@@ -341,12 +385,10 @@ struct AutomationRuleEditor: View {
     @ViewBuilder
     private func profilePicker(selection name: String) -> some View {
         if profileNames.isEmpty {
-            Text("Save a layout profile in Menu Bar Layout first.")
-                .font(HolzBarTheme.Typography.caption)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+            SettingsStateLine(.info, Text("Save a layout profile in Profiles & History first."))
         } else {
-            Picker(
-                "Profile",
+            SettingsPickerRow(
+                Text("Profile"),
                 selection: Binding(
                     get: { name },
                     set: { rule.action = .applyProfile($0) }
@@ -363,12 +405,10 @@ struct AutomationRuleEditor: View {
     private func moodPicker(selection name: String) -> some View {
         let moods = appState.appearanceManager.moods
         if moods.isEmpty && name.isEmpty {
-            Text("Save a mood in Menu Bar Appearance first.")
-                .font(HolzBarTheme.Typography.caption)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+            SettingsStateLine(.info, Text("Save a mood in Appearance first."))
         } else {
-            Picker(
-                "Mood",
+            SettingsPickerRow(
+                Text("Mood"),
                 selection: Binding(
                     get: { name },
                     set: { rule.action = .applyMood($0) }
@@ -397,12 +437,10 @@ struct AutomationRuleEditor: View {
     private func scriptPicker(name: String) -> some View {
         let scripts = approvedScripts
         if scripts.isEmpty && name.isEmpty {
-            Text("Put a script in your scripts folder and allow it below first.")
-                .font(HolzBarTheme.Typography.caption)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+            SettingsStateLine(.info, Text("Put a script in your scripts folder and allow it in Scripts first."))
         } else {
-            Picker(
-                "Script",
+            SettingsPickerRow(
+                Text("Script"),
                 selection: Binding(
                     get: { name },
                     set: { rule.action = .runScript($0) }
@@ -440,8 +478,8 @@ struct AutomationRuleEditor: View {
     @ViewBuilder
     private func itemPicker(key: String, hiding: AutomationSection) -> some View {
         let choices = itemChoices
-        Picker(
-            "Item",
+        SettingsPickerRow(
+            Text("Menu bar item"),
             selection: Binding(
                 get: { key },
                 set: { rule.action = .showItemOnlyWhile(itemKey: $0, hiding: hiding) }
@@ -459,15 +497,15 @@ struct AutomationRuleEditor: View {
     }
 
     private func hidingPicker(key: String, hiding: AutomationSection) -> some View {
-        Picker(
-            "Otherwise hide it in",
+        SettingsPickerRow(
+            Text("Otherwise hide it in"),
             selection: Binding(
                 get: { hiding },
                 set: { rule.action = .showItemOnlyWhile(itemKey: key, hiding: $0) }
             )
         ) {
             Text("Hidden").tag(AutomationSection.hidden)
-            Text("Always-Hidden").tag(AutomationSection.alwaysHidden)
+            Text("Always Hidden").tag(AutomationSection.alwaysHidden)
         }
     }
 
@@ -488,29 +526,21 @@ private struct AutomationConditionRow: View {
     let onRemove: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Text(verbatim: AutomationDescription.text(for: condition).capitalizedFirst)
-                    .font(HolzBarTheme.Typography.body)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(alignment: .leading, spacing: 0) {
+            SettingsButtonRow(Text(verbatim: AutomationDescription.text(for: condition).capitalizedFirst)) {
                 Button(action: onRemove) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+                    Label("Delete condition", systemImage: "xmark")
+                        .labelStyle(.iconOnly)
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel(Text("Remove Condition"))
+                .help(Text("Delete condition"))
             }
             settings
+                .settingsSubRow()
             if case .wifiNetwork = condition {
                 WiFiPermissionNote(monitor: appState.automation.wifiMonitor)
+                    .settingsSubRow()
             }
         }
-        .padding(.horizontal, HolzBarTheme.Spacing.sm)
-        .padding(.vertical, HolzBarTheme.Spacing.xs + 2)
-        .background(
-            HolzBarTheme.Palette.text.opacity(0.05),
-            in: HolzBarTheme.shape(HolzBarTheme.Radius.control)
-        )
         .accessibilityElement(children: .contain)
         .accessibilityLabel(Text(verbatim: AutomationDescription.text(for: condition).capitalizedFirst))
     }
@@ -519,17 +549,18 @@ private struct AutomationConditionRow: View {
     private var settings: some View {
         switch condition {
         case .batteryBelow(let percent):
-            Stepper(
+            SettingsStepperRow(
+                Text("Level"),
                 value: Binding(
                     get: { percent },
                     set: { condition = .batteryBelow($0) }
                 ),
                 in: 5...95,
-                step: 5
-            ) {
-                Text("Level")
+                step: 5,
+                info: Text("From 5 to 95 percent, in steps of 5.")
+            ) { value in
+                Text(verbatim: (Double(value) / 100).formatted(.percent))
             }
-            .accessibilityValue(Text("\(percent) percent"))
         case .time(let window):
             timeSettings(window)
         case .power, .lowPowerMode, .appRunning, .appFrontmost, .displayConnected, .network, .wifiNetwork,
@@ -540,42 +571,37 @@ private struct AutomationConditionRow: View {
 
     @ViewBuilder
     private func timeSettings(_ window: AutomationTimeWindow) -> some View {
-        HStack {
+        SettingsRow(Text("From")) {
             DatePicker(
                 "From",
                 selection: minutesBinding(window.startMinute) { $0.startMinute = $1 },
                 displayedComponents: .hourAndMinute
             )
+            .labelsHidden()
+        }
+        SettingsRow(Text("To")) {
             DatePicker(
                 "To",
                 selection: minutesBinding(window.endMinute) { $0.endMinute = $1 },
                 displayedComponents: .hourAndMinute
             )
+            .labelsHidden()
         }
-        HStack(spacing: HolzBarTheme.Spacing.xs) {
-            ForEach(1...7, id: \.self) { day in
-                Toggle(
-                    Calendar.current.veryShortWeekdaySymbols[day - 1],
-                    isOn: Binding(
-                        get: { window.weekdays.contains(day) },
-                        set: { isOn in
-                            var updated = window
-                            if isOn {
-                                updated.weekdays.insert(day)
-                            } else {
-                                updated.weekdays.remove(day)
-                            }
-                            condition = .time(updated)
-                        }
-                    )
-                )
-                .toggleStyle(.button)
+        SettingsMultiSegmentedRow(
+            Text("Weekdays"),
+            selection: Binding(
+                get: { window.weekdays },
+                set: { weekdays in
+                    var updated = window
+                    updated.weekdays = weekdays
+                    condition = .time(updated)
+                }
+            ),
+            values: Array(1...7),
+            info: Text("No day chosen means every day.")
+        ) { day in
+            Text(verbatim: Calendar.current.veryShortWeekdaySymbols[day - 1])
                 .accessibilityLabel(Text(verbatim: Calendar.current.weekdaySymbols[day - 1]))
-                .accessibilityInputLabels([
-                    Text(verbatim: Calendar.current.weekdaySymbols[day - 1]),
-                    Text(verbatim: Calendar.current.veryShortWeekdaySymbols[day - 1]),
-                ])
-            }
         }
     }
 
@@ -604,20 +630,17 @@ private struct WiFiPermissionNote: View {
 
     var body: some View {
         if !monitor.isAuthorized {
-            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
-                Label("Needs Location Services. Until you allow holzBar, this condition is never true.", systemImage: "lock")
-                    .font(HolzBarTheme.Typography.caption)
-                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                if monitor.authorization != .notDetermined {
+            let text = Text("Needs Location Services. Until you allow holzBar, this condition is never true.")
+            if monitor.authorization != .notDetermined {
+                SettingsStateLine(.warning, text) {
                     Button("Open Location Settings") {
                         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices") {
                             NSWorkspace.shared.open(url)
                         }
                     }
-                    .buttonStyle(.link)
-                    .font(HolzBarTheme.Typography.caption)
                 }
+            } else {
+                SettingsStateLine(.warning, text)
             }
         }
     }

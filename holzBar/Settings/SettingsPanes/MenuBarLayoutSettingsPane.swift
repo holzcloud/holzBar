@@ -28,98 +28,184 @@ struct MenuBarLayoutSettingsPane: View {
         if appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults {
             cannotArrange
         } else {
-            HolzBarForm(spacing: 20) {
-                header
-                if #available(macOS 27.0, *) {
-                    StuckOverflowWarning(concealer: appState.concealer27)
-                }
-                ItemRuleNoticesSection()
-                if #available(macOS 27.0, *) {
-                    CommandDragNoticesSection()
-                }
+            SettingsPaneHost(.layout) {
+                topRow
+                menuBarGroup
                 LayoutDraftSection()
-                layoutBars
-                HolzBarSection {
-                    HStack {
-                        Text("Let holzBar propose which items to hide, from what it knows of the apps. You decide, and you can undo it.")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Button("Tidy Up…") {
-                            appState.navigationState.isTidyUpPresented = true
-                        }
-                    }
-                    .padding(10)
-                }
+                noticesGroup
+                UsageSuggestionsSection(usage: appState.usage)
                 SearchSettingsSection(general: appState.settings.general, opens: appState.searchOpens)
                 if !ScreenRecordingAccess.isGranted(appState) {
-                    // Without Screen Recording the items show their apps' icons; the hint
+                    // Without Screen Recording the items show their apps' icons; the group
                     // offers their real pictures.
-                    HolzBarSection {
-                        ScreenRecordingHint(feature: .layoutPane, appState: appState)
-                    }
+                    picturesGroup
                 }
-                UsageSuggestionsSection(usage: appState.usage)
-                LayoutProfilesSection(profiles: appState.profiles)
-                ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
-                SpacersSection(spacers: appState.spacers)
-                LayoutHistorySection(snapshots: appState.snapshots)
+            }
+            .onChange(of: appState.automation.itemRuleNotices) { old, new in
+                // A put-back while Settings is open is announced once; a dismissal is not.
+                if let newest = new.first, !old.contains(newest) {
+                    LayoutBarItemView.announce(ItemRuleNoticeRows.sentence(for: newest))
+                }
+            }
+            .onChange(of: commandDragNoticeCount) {
+                // Every drop that arrives while Settings is open is announced, also one equal to
+                // an earlier notice; notices that existed when the pane opened and dismissals
+                // are not.
+                if #available(macOS 27.0, *), let newest = appState.commandDragSection27.notices.first {
+                    LayoutBarItemView.announce(CommandDragNoticeRows.sentence(for: newest))
+                }
             }
         }
     }
 
-    @ViewBuilder
-    private var header: some View {
-        HolzBarSection {
-            VStack(spacing: 3) {
-                Text("Drag to arrange your menu bar items into different sections.")
-                    .font(.title3.bold())
-                Group {
-                    if #available(macOS 27.0, *) {
-                        HStack(spacing: HolzBarTheme.Spacing.sm) {
-                            Text("Items can be sorted by dragging them within a section.")
-                        }
-                    } else {
-                        Text("Items can also be arranged by ⌘ Command + dragging them in the menu bar.")
-                    }
-                }
-                .font(HolzBarTheme.Typography.callout.weight(.medium))
-                .foregroundStyle(.secondary)
+    /// The row above the groups: Tidy Up… (Phase 90 puts Bars | List and the filter before it and
+    /// Undo after it). The id lets a search hit scroll to it.
+    private var topRow: some View {
+        HStack(spacing: HolzBarTheme.SettingsKit.accessoryGap) {
+            Picker(selection: Bindable(appState.navigationState).layoutView) {
+                Text("Bars").tag(LayoutPaneView.bars)
+                Text("List").tag(LayoutPaneView.list)
+            } label: {
+                Text(SettingsEntry.layoutView.label)
             }
-            .padding(15)
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .fixedSize()
+            .id(SettingsEntry.layoutView.id)
+            SettingsFilterField(
+                text: Bindable(appState.navigationState).layoutFilter,
+                prompt: Text("Filter"),
+                label: Text(SettingsEntry.layoutFilter.label)
+            )
+            .fixedSize()
+            .id(SettingsEntry.layoutFilter.id)
+            Spacer(minLength: 0)
+            Button("Tidy Up…", systemImage: "wand.and.stars") {
+                appState.navigationState.isTidyUpPresented = true
+            }
+            .id(SettingsEntry.layoutTidyUp.id)
+            if let info = SettingsEntry.layoutTidyUp.info {
+                SettingsInfoButton(Text(info))
+            }
+            Button("Undo", systemImage: "arrow.uturn.backward") {
+                appState.layoutUndo.undo()
+            }
+            .disabled(!appState.layoutUndo.canUndo)
+            .help(Text("Undo the last change"))
+            .id(SettingsEntry.layoutUndo.id)
         }
     }
 
+    private var commandDragNoticeCount: Int {
+        if #available(macOS 27.0, *) {
+            return appState.commandDragSection27.noticeCount
+        }
+        return 0
+    }
+
+    private var hasNotices: Bool {
+        if !appState.automation.itemRuleNotices.isEmpty {
+            return true
+        }
+        if #available(macOS 27.0, *) {
+            return !appState.commandDragSection27.notices.isEmpty || appState.concealer27.isOverflowStuck
+        }
+        return false
+    }
+
+    /// What was put back by a rule, what a Command-drag did and the folded-away warning; the
+    /// group exists only while there is something to report.
     @ViewBuilder
-    private var layoutBars: some View {
-        VStack(spacing: 20) {
-            ForEach(MenuBarSection.Name.allCases, id: \.self) { section in
-                layoutBar(for: section)
+    private var noticesGroup: some View {
+        if hasNotices {
+            SettingsGroup(SettingsCatalog.LayoutPane.notices) {
+                ItemRuleNoticeRows()
+                if #available(macOS 27.0, *) {
+                    CommandDragNoticeRows()
+                    StuckOverflowWarning(concealer: appState.concealer27)
+                }
             }
         }
-        .opacity(hasItems ? 1 : 0.75)
-        .blur(radius: hasItems ? 0 : 5)
-        .allowsHitTesting(hasItems)
-        .overlay {
+    }
+
+    private var picturesGroup: some View {
+        SettingsGroup(SettingsCatalog.LayoutPane.pictures) {
+            SettingsStateLine(.warning, Text("Screen Recording is not allowed: the bars show app icons instead of pictures."))
+            SettingsButtonRow(.layoutPictures) {
+                Button("Allow Screen Recording…") {
+                    Task {
+                        await ScreenRecordingAccess.request(for: .layoutPane, appState: appState)
+                    }
+                }
+            }
+        }
+    }
+
+    private var menuBarGroup: some View {
+        SettingsGroup(SettingsCatalog.LayoutPane.menuBar, footnote: barsFootnote) {
             if !hasItems {
-                loadingMenuBarItems
+                MenuBarItemsLoadingState(style: .settingsRow, itemManager: appState.itemManager)
             }
+            if appState.navigationState.layoutView == .list {
+                // The list in place of the three bars; the rows below stay (D-08).
+                LayoutListView()
+            } else {
+                layoutBar(for: .visible)
+                layoutBar(for: .hidden)
+            }
+            SettingsToggleRow(
+                .layoutAlwaysHidden,
+                isOn: Bindable(appState.settings.advanced).enableAlwaysHiddenSection,
+                small: Text("third section")
+            )
+            if appState.navigationState.layoutView == .bars {
+                layoutBar(for: .alwaysHidden)
+            }
+            SettingsPickerRow(.layoutNewItems, selection: newItemsBinding) {
+                Text(NewItemsPlacement.visible.localized).tag(NewItemsPlacement.visible)
+                Text(NewItemsPlacement.hidden.localized).tag(NewItemsPlacement.hidden)
+                if appState.settings.advanced.enableAlwaysHiddenSection {
+                    Text(NewItemsPlacement.alwaysHidden.localized).tag(NewItemsPlacement.alwaysHidden)
+                }
+                Text(NewItemsPlacement.systemDefault.localized).tag(NewItemsPlacement.systemDefault)
+            }
+            .disabled(appState.layoutEditor.isApplying)
+            if #available(macOS 27.0, *) {
+                SettingsNoteLine(Text("Items can be sorted by dragging them within a section."))
+                SettingsNoteLine(Text("macOS 27 hides whole apps: the items of one app always move together."))
+            }
+        }
+    }
+
+    /// What the pop-up New items go to shows and how it writes (D-40): a section waits for Apply
+    /// in draft mode, where macOS puts them is written at once.
+    private var newItemsBinding: Binding<NewItemsPlacement> {
+        Binding(
+            get: { appState.layoutEditor.newItemsPlacement },
+            set: { appState.layoutEditor.setNewItemsPlacement($0) }
+        )
+    }
+
+    private var barsFootnote: Text {
+        let keys = Text("With the keyboard, ⌥ Option and an arrow key move the selected item, and ⌘1, ⌘2 and ⌘3 put it in a section.")
+        if #available(macOS 27.0, *) {
+            return Text("Drag an item into its section.")
+                + Text(verbatim: " ")
+                + keys
+        } else {
+            return Text("Drag an item into its section.")
+                + Text(verbatim: " ")
+                + Text("You can also ⌘ Command-drag an item in the menu bar: to the left of the holzBar icon, it is hidden.")
+                + Text(verbatim: " ")
+                + keys
         }
     }
 
     @ViewBuilder
     private var cannotArrange: some View {
-        Text("holzBar cannot arrange menu bar items in automatically hidden menu bars.")
-            .font(.title3)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-    }
-
-    @ViewBuilder
-    private var loadingMenuBarItems: some View {
-        VStack {
-            Text("Loading menu bar items…")
-            ProgressView()
+        SettingsPaneHost(.layout) {
+            AutoHiddenMenuBarState(kind: .arrange)
         }
-        .font(.title)
     }
 
     @ViewBuilder
@@ -128,12 +214,19 @@ struct MenuBarLayoutSettingsPane: View {
             let section = appState.menuBarManager.section(withName: name),
             section.isEnabled
         {
-            HolzBarSection(name.localized) {
-                LayoutBar(imageCache: appState.imageCache, section: name)
-                if appState.layoutEditor.newItemsSection == name {
-                    NewItemsTile()
+            SettingsBlockRow {
+                VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
+                    Text(name.localized)
+                        .font(HolzBarTheme.Typography.callout.weight(.semibold))
+                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                        .accessibilityAddTraits(.isHeader)
+                    LayoutBar(imageCache: appState.imageCache, section: name)
+                    if appState.layoutEditor.newItemsSection == name {
+                        NewItemsTile()
+                    }
                 }
             }
+            .settingsDependent(on: hasItems)
         }
     }
 }
@@ -152,76 +245,42 @@ private struct StuckOverflowWarning: View {
 
     var body: some View {
         if concealer.isOverflowStuck {
-            HolzBarSection {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Some items are folded away on the built-in display.")
-                        .font(.headline)
-                    Text("macOS stopped laying them out when holzBar freed the space beside the notch, and left no control to reach them. Quitting and reopening the application whose item is missing brings it back.")
-                        .font(HolzBarTheme.Typography.callout.weight(.medium))
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(15)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            SettingsStateLine(.warning, Text("Some items are folded away on the built-in display.")) {
+                SettingsInfoButton(Text("macOS stopped laying them out when holzBar freed the space beside the notch, and left no control to reach them. Quitting and reopening the app whose item is missing brings it back."))
             }
         }
     }
 }
 
-// MARK: - ItemRuleNoticesSection
+// MARK: - ItemRuleNoticeRows
 
 /// Tells the user which items a rule put back after a move by hand, so a put-back is never
 /// silent. The notices stay until they are dismissed or the rule goes.
-private struct ItemRuleNoticesSection: View {
+private struct ItemRuleNoticeRows: View {
     @Environment(AppState.self) private var appState
 
     var body: some View {
-        let notices = appState.automation.itemRuleNotices
-        Group {
-            if !notices.isEmpty {
-                HolzBarSection {
-                    Text("Put Back by a Rule")
-                        .font(.headline)
-                } content: {
-                    ForEach(notices) { notice in
-                        row(for: notice)
-                    }
-                    Text("Its rule decides where the item is. A move by hand lasts only while the rule shows the item.")
-                        .font(HolzBarTheme.Typography.caption)
-                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(10)
+        ForEach(appState.automation.itemRuleNotices) { notice in
+            SettingsButtonRow(
+                Text(verbatim: Self.sentence(for: notice)),
+                info: Text("Its rule decides where the item is. A move by hand lasts only while the rule shows the item.")
+            ) {
+                Button("Edit Rule…") {
+                    edit(notice)
+                }
+                Button("OK") {
+                    appState.automation.dismissItemRuleNotice(forKey: notice.itemKey)
                 }
             }
-        }
-        .onChange(of: notices) { old, new in
-            // A put-back while Settings is open is announced once; a dismissal is not.
-            if let newest = new.first, !old.contains(newest) {
-                LayoutBarItemView.announce(sentence(for: newest))
-            }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(Self.sentence(for: notice))
         }
     }
 
     /// "“Name” was put back in Hidden."
-    private func sentence(for notice: ItemRuleNotice) -> String {
+    static func sentence(for notice: ItemRuleNotice) -> String {
         let section = MenuBarSection.Name(profileIndex: notice.putBackIn)?.displayString ?? ""
         return String(localized: "\u{201C}\(notice.itemName)\u{201D} was put back in \(section).")
-    }
-
-    private func row(for notice: ItemRuleNotice) -> some View {
-        HStack {
-            Text(sentence(for: notice))
-            Spacer()
-            Button("Edit Rule…") {
-                edit(notice)
-            }
-            Button("OK") {
-                appState.automation.dismissItemRuleNotice(forKey: notice.itemKey)
-            }
-        }
-        .padding(10)
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(sentence(for: notice))
     }
 
     /// Opens the rule of the item in the sheet of this pane. The item's own name is used when
@@ -234,46 +293,44 @@ private struct ItemRuleNoticesSection: View {
     }
 }
 
-// MARK: - CommandDragNoticesSection
+// MARK: - CommandDragNoticeRows
 
 /// Tells the user what a Command-drag across the holzBar icon did, so a drop is never silent: an
 /// app's new section with Undo, or why a drop changed nothing. The notices stay until they are
 /// dismissed or the list is full, and are never stored.
 @available(macOS 27.0, *)
-private struct CommandDragNoticesSection: View {
+private struct CommandDragNoticeRows: View {
     @Environment(AppState.self) private var appState
 
     var body: some View {
-        let notices = appState.commandDragSection27.notices
-        Group {
-            if !notices.isEmpty {
-                HolzBarSection {
-                    Text("Set by Command-Drag")
-                        .font(.headline)
-                } content: {
-                    ForEach(notices) { notice in
-                        row(for: notice)
+        ForEach(appState.commandDragSection27.notices) { notice in
+            SettingsButtonRow(Text(verbatim: Self.sentence(for: notice)), info: info(for: notice)) {
+                if case .set = notice.kind {
+                    Button("Undo") {
+                        appState.commandDragSection27.undo(notice)
                     }
-                    Text("The section is per app: every item of the app changed with it.")
-                        .font(HolzBarTheme.Typography.caption)
-                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(10)
+                }
+                Button("OK") {
+                    appState.commandDragSection27.dismiss(notice)
                 }
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(Self.sentence(for: notice))
         }
-        .onChange(of: appState.commandDragSection27.noticeCount) {
-            // Every drop that arrives while Settings is open is announced, also one equal to an
-            // earlier notice; notices that existed when the pane opened and dismissals are not.
-            if let newest = appState.commandDragSection27.notices.first {
-                LayoutBarItemView.announce(sentence(for: newest))
-            }
+    }
+
+    /// The explanation fits a drop that set a section; for one that changed nothing it would be
+    /// wrong.
+    private func info(for notice: CommandDragNotice) -> Text? {
+        if case .set = notice.kind {
+            return Text("The section is per app: every item of the app changed with it.")
         }
+        return nil
     }
 
     /// "“Name” is now hidden.", or the reason a drop changed nothing; the nameless notice of an
     /// item macOS keeps in place names no app.
-    private func sentence(for notice: CommandDragNotice) -> String {
+    static func sentence(for notice: CommandDragNotice) -> String {
         let name = notice.itemName
         switch notice.kind {
         case .set(_, let section):
@@ -286,443 +343,6 @@ private struct CommandDragNoticesSection: View {
             return String(localized: "\u{201C}\(name)\u{201D} stays where it is: macOS keeps it in place.")
         case .kept(.system):
             return String(localized: "macOS keeps its own items in place: the drop changed nothing.")
-        }
-    }
-
-    private func row(for notice: CommandDragNotice) -> some View {
-        HStack {
-            Text(sentence(for: notice))
-            Spacer()
-            if case .set = notice.kind {
-                Button("Undo") {
-                    appState.commandDragSection27.undo(notice)
-                }
-            }
-            Button("OK") {
-                appState.commandDragSection27.dismiss(notice)
-            }
-        }
-        .padding(10)
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(sentence(for: notice))
-    }
-}
-
-// MARK: - LayoutProfilesSection
-
-/// Saves the current layout as a profile and applies saved ones
-/// (jordanbaird/Ice#26).
-private struct LayoutProfilesSection: View {
-    @Environment(AppState.self) private var appState
-    var profiles: LayoutProfiles
-    @State private var isNamingProfile = false
-    @State private var newProfileName = ""
-    @State private var renamedProfile: LayoutProfile?
-    @State private var renamedName = ""
-    @State private var importedProfile: SharedProfile?
-    @State private var isShowingImportError = false
-    @State private var refusedSave: LayoutProfileList.LimitViolation?
-
-    /// Whether the alert about a refused save is shown.
-    private var isShowingRefusedSave: Binding<Bool> {
-        Binding {
-            refusedSave != nil
-        } set: { isPresented in
-            if !isPresented {
-                refusedSave = nil
-            }
-        }
-    }
-
-    /// Whether the import sheet is shown.
-    private var isImporting: Binding<Bool> {
-        Binding {
-            importedProfile != nil
-        } set: { isPresented in
-            if !isPresented {
-                importedProfile = nil
-            }
-        }
-    }
-
-    /// Whether the rename alert is shown.
-    private var isRenaming: Binding<Bool> {
-        Binding {
-            renamedProfile != nil
-        } set: { isPresented in
-            if !isPresented {
-                renamedProfile = nil
-            }
-        }
-    }
-
-    /// Asks for a profile file and reads it. The file is untrusted: it is checked in full, and
-    /// nothing in it runs.
-    private func chooseProfileFile() {
-        let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        guard panel.runModal() == .OK, let url = panel.url else {
-            return
-        }
-        let size = (try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? Int.max
-        guard
-            size <= SharedProfile.maximumSize,
-            let data = try? Data(contentsOf: url),
-            case .success(let shared) = SharedProfile.decode(data, ownBundleIdentifier: Constants.bundleIdentifier)
-        else {
-            isShowingImportError = true
-            return
-        }
-        importedProfile = shared
-    }
-
-    var body: some View {
-        HolzBarSection("Profiles") {
-            ForEach(profiles.profiles) { profile in
-                LayoutProfileRow(
-                    profiles: profiles,
-                    profile: profile,
-                    isCurrent: profile.name == profiles.currentProfileName
-                ) {
-                    renamedName = profile.name
-                    renamedProfile = profile
-                }
-            }
-            let controlledCount = appState.automation.controlledItemKeys.count
-            if controlledCount > 0 {
-                Text("\(controlledCount) items are controlled by rules. A profile leaves them where their rule puts them.")
-                    .foregroundStyle(.secondary)
-            }
-            HStack {
-                if profiles.profiles.isEmpty {
-                    Text("Save the current layout as a profile, for example \u{201C}Work\u{201D} or \u{201C}Home\u{201D}.")
-                        .foregroundStyle(.secondary)
-                } else if profiles.isOverProfileLimit {
-                    Text("New profiles can be saved or imported while there are fewer than 100. Delete profiles to make room.")
-                        .foregroundStyle(.secondary)
-                } else if profiles.isAtProfileLimit {
-                    Text("You have the most profiles there can be. Delete one to save or import a new one.")
-                        .foregroundStyle(.secondary)
-                } else {
-                    Text("Bind a profile to a display or a Space to apply it when you connect the display or switch to the Space.")
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                Button("Import Profile…") {
-                    chooseProfileFile()
-                }
-                .disabled(profiles.isAtProfileLimit)
-                Button("Save Current Layout…") {
-                    newProfileName = profiles.currentProfileName ?? ""
-                    isNamingProfile = true
-                }
-            }
-            .alert("Save Layout as Profile", isPresented: $isNamingProfile) {
-                TextField("Name", text: $newProfileName)
-                Button("Save") {
-                    if case .refused(let violation) = profiles.saveCurrentLayout(as: newProfileName) {
-                        // After the naming alert has gone, so the second alert is not lost.
-                        Task {
-                            refusedSave = violation
-                        }
-                    }
-                }
-                Button("Cancel", role: .cancel) { }
-            } message: {
-                Text("A profile with the same name is replaced. Apply it later from here, or with holzbar://profile/<name>.")
-            }
-            .sheet(isPresented: isImporting) {
-                if let importedProfile {
-                    ImportProfileSheet(shared: importedProfile, profiles: profiles)
-                }
-            }
-            .alert("Save Layout as Profile", isPresented: isShowingRefusedSave) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                switch refusedSave {
-                case .tooLarge?:
-                    Text("The profiles would be too large to store. Delete one, then save again.")
-                default:
-                    if profiles.isOverProfileLimit {
-                        Text("New profiles can be saved or imported while there are fewer than 100. Delete profiles to make room.")
-                    } else {
-                        Text("You have the most profiles there can be. Delete one to save or import a new one.")
-                    }
-                }
-            }
-            .alert("This file is not a holzBar profile.", isPresented: $isShowingImportError) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text("It could not be read, or it holds something a profile may not hold.")
-            }
-            .alert("Rename Profile", isPresented: isRenaming) {
-                TextField("Name", text: $renamedName)
-                Button("Rename") {
-                    if let renamedProfile {
-                        profiles.rename(renamedProfile, to: renamedName)
-                    }
-                }
-                Button("Cancel", role: .cancel) { }
-            }
-        }
-    }
-}
-
-// MARK: - LayoutProfileRow
-
-/// One saved profile: apply it, bind it to a display or a Space, rename or delete it.
-private struct LayoutProfileRow: View {
-    var profiles: LayoutProfiles
-    let profile: LayoutProfile
-    let isCurrent: Bool
-    let rename: () -> Void
-    @State private var isConfirmingDelete = false
-    @State private var isSharing = false
-
-    /// The screen of the Settings window, which "This Display" means.
-    private var currentScreen: NSScreen? {
-        NSScreen.main
-    }
-
-    /// The name of the bound display, or `nil` when it is not connected.
-    private func displayName(for uuid: String) -> String? {
-        NSScreen.screens.first { screen in
-            Bridging.getDisplayUUIDString(for: screen.displayID) == uuid
-        }?.localizedName
-    }
-
-    /// What the profile is bound to, for the line below its name.
-    private var bindingDescription: Text? {
-        let display = profile.displayUUID.map { uuid in
-            displayName(for: uuid) ?? String(localized: "a display that is not connected")
-        }
-        switch (display, profile.spaceUUID) {
-        case (let display?, _?):
-            return Text("Bound to \(display) and a Space")
-        case (let display?, nil):
-            return Text("Bound to \(display)")
-        case (nil, _?):
-            return Text("Bound to a Space")
-        case (nil, nil):
-            return nil
-        }
-    }
-
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 4) {
-                    Text(profile.name)
-                    if isCurrent {
-                        Image(systemName: "checkmark")
-                            .foregroundStyle(.secondary)
-                            .accessibilityLabel("Applied")
-                    }
-                }
-                if let bindingDescription {
-                    bindingDescription
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            Spacer()
-            Button("Apply") {
-                profiles.apply(profile)
-            }
-            Menu("Bind") {
-                if let currentScreen, let uuid = Bridging.getDisplayUUIDString(for: currentScreen.displayID) {
-                    Button("To This Display (\(currentScreen.localizedName))") {
-                        profiles.bind(profile, toDisplay: uuid)
-                    }
-                }
-                if let spaceUUID = Bridging.getActiveSpaceUUID() {
-                    Button("To This Space") {
-                        profiles.bind(profile, toSpace: spaceUUID)
-                    }
-                }
-                Divider()
-                Button("Remove Binding") {
-                    profiles.unbind(profile)
-                }
-                .disabled(!profile.isBound)
-            }
-            .fixedSize()
-            Menu {
-                Button("Rename…", action: rename)
-                Button("Share…") {
-                    isSharing = true
-                }
-                Button("Delete…", role: .destructive) {
-                    isConfirmingDelete = true
-                }
-            } label: {
-                Image(systemName: "ellipsis.circle")
-                    .accessibilityLabel("More")
-            }
-            .menuStyle(.button)
-            .menuIndicator(.hidden)
-            .buttonStyle(.borderless)
-            .fixedSize()
-        }
-        .sheet(isPresented: $isSharing) {
-            ShareProfileSheet(profile: profile)
-        }
-        .holzBarConfirmation(
-            isPresented: $isConfirmingDelete,
-            title: Text("Delete the profile \u{201C}\(profile.name)\u{201D}?"),
-            message: Text("The menu bar stays as it is. You can undo this with \u{2318}Z."),
-            confirmTitle: "Delete",
-            isDestructive: true
-        ) {
-            profiles.delete(named: profile.name)
-        }
-    }
-}
-
-// MARK: - ItemGroupsSection
-
-/// Creates groups of items behind icons of their own (jordanbaird/Ice#46).
-private struct ItemGroupsSection: View {
-    var groups: MenuBarItemGroups
-    var itemManager: MenuBarItemManager
-    @State private var isNamingGroup = false
-    @State private var newGroupName = ""
-
-    private var items: [MenuBarItem] {
-        itemManager.itemCache.managedItems.filter { !$0.isControlItem }
-    }
-
-    /// The group's color for the color well; the primary color while it has none.
-    private func colorBinding(for group: MenuBarItemGroup) -> Binding<Color> {
-        Binding {
-            group.color.map { Color(nsColor: $0) } ?? .primary
-        } set: { color in
-            groups.setColor(NSColor(color), for: group)
-        }
-    }
-
-    /// The name of one of the group symbols, for the symbol menu and VoiceOver.
-    private func symbolTitle(_ symbolName: String) -> Text {
-        switch symbolName {
-        case "square.grid.2x2": Text("Apps")
-        case "folder": Text("Folder")
-        case "tray": Text("Tray")
-        case "briefcase": Text("Work")
-        case "house": Text("Home")
-        case "gamecontroller": Text("Games")
-        case "music.note": Text("Music")
-        case "network": Text("Network")
-        case "bolt": Text("Power")
-        case "cloud": Text("Cloud")
-        case "wrench.and.screwdriver": Text("Tools")
-        case "star": Text("Favorites")
-        default: Text(verbatim: symbolName)
-        }
-    }
-
-    var body: some View {
-        HolzBarSection("Groups") {
-            ForEach(groups.groups) { group in
-                HStack {
-                    Menu {
-                        ForEach(MenuBarItemGroups.symbolNames, id: \.self) { symbol in
-                            Button {
-                                groups.setSymbol(symbol, for: group)
-                            } label: {
-                                Label {
-                                    symbolTitle(symbol)
-                                } icon: {
-                                    Image(systemName: symbol)
-                                }
-                            }
-                        }
-                        Divider()
-                        Button("Choose Image…") {
-                            groups.chooseImage(for: group)
-                        }
-                        Button("Use Symbol") {
-                            groups.useSymbol(for: group)
-                        }
-                        .disabled(group.imageFile == nil)
-                    } label: {
-                        Image(systemName: group.symbolName)
-                            .accessibilityLabel(Text("Symbol"))
-                            .accessibilityValue(symbolTitle(group.symbolName))
-                    }
-                    .fixedSize()
-                    .help("Symbol")
-                    ColorPicker("Color", selection: colorBinding(for: group), supportsOpacity: false)
-                        .labelsHidden()
-                        .help("The color of the group's icon and name")
-                    if group.colorHex != nil {
-                        Button {
-                            groups.setColor(nil, for: group)
-                        } label: {
-                            Image(systemName: "xmark.circle")
-                        }
-                        .buttonStyle(.borderless)
-                        .help("Remove the color")
-                        .accessibilityLabel("Remove the color")
-                    }
-                    Text(group.name)
-                    Text("\(group.itemTags.count) items")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Menu("Items") {
-                        ForEach(items, id: \.tag) { item in
-                            Toggle(item.displayName, isOn: Binding(
-                                get: { groups.contains(item, in: group) },
-                                set: { _ in groups.toggle(item, in: group) }
-                            ))
-                        }
-                    }
-                    .fixedSize()
-                    Button("Delete", role: .destructive) {
-                        groups.deleteGroup(group)
-                    }
-                }
-            }
-            HStack {
-                Text("A group puts several items behind an icon of its own.")
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Button("New Group…") {
-                    newGroupName = ""
-                    isNamingGroup = true
-                }
-            }
-            .alert("New Group", isPresented: $isNamingGroup) {
-                TextField("Name", text: $newGroupName)
-                Button("Create") {
-                    groups.addGroup(named: newGroupName)
-                }
-                Button("Cancel", role: .cancel) { }
-            }
-        }
-    }
-}
-
-// MARK: - SpacersSection
-
-/// Adds empty items that make space between others (jordanbaird/Ice#91).
-private struct SpacersSection: View {
-    @Bindable var spacers: MenuBarSpacers
-
-    var body: some View {
-        HolzBarSection("Spacers") {
-            Stepper(value: $spacers.count, in: 0...MenuBarSpacers.maximumCount) {
-                Text("Spacers: \(spacers.count)")
-            }
-            .annotation("Empty items that add space between others. ⌘ Command-drag them where you want them, or arrange them below.")
-            if spacers.count >= 1 {
-                LabeledContent {
-                    Slider(value: $spacers.width, in: 4...60, step: 2)
-                        .frame(maxWidth: 200)
-                } label: {
-                    Text("Width: \(Int(spacers.width)) pt")
-                }
-            }
         }
     }
 }

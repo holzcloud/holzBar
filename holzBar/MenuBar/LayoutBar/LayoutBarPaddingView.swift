@@ -107,7 +107,7 @@ final class LayoutBarPaddingView: NSView {
                 }
                 if isSameRow {
                     // At once: left of the item to the right, else right of the item to the left.
-                    // The order has no undo of its own; the section undo stays as it is.
+                    // The move records its inverse, so the new order can be undone too (D-14).
                     let destination: MenuBarItemManager.MoveDestination
                     if arrangedViews.indices.contains(index + 1) {
                         destination = .leftOfItem(arrangedViews[index + 1].item)
@@ -120,8 +120,7 @@ final class LayoutBarPaddingView: NSView {
                         item,
                         to: destination,
                         appState: appState,
-                        actionName: String(localized: "Move \(item.displayName)"),
-                        registersUndo: false
+                        actionName: String(localized: "Move \(item.displayName)")
                     )
                     return true
                 }
@@ -170,10 +169,10 @@ final class LayoutBarPaddingView: NSView {
 
 // MARK: - LayoutBarMoves
 
-/// Moves items from the Menu Bar Layout pane, by a drop or the keyboard, and registers the
-/// inverse of every move on the Settings window's undo manager (THAW-14): before macOS 27
-/// a user move back next to the item's former neighbour, on macOS 27 the former section.
-/// Undoing registers the inverse again, which is the redo.
+/// Moves items from the Layout pane, the menu bar and the Shelf, by a drop or the keyboard, and
+/// records the inverse of every move in the undo history of the layout (THAW-14, D-14): before
+/// macOS 27 a user move back next to the item's former neighbour, on macOS 27 the former
+/// section of its application. The inverse of an undo is the redo.
 @MainActor
 enum LayoutBarMoves {
     /// Where an item was before a move: beside its right neighbour, else its left one, else
@@ -185,27 +184,31 @@ enum LayoutBarMoves {
         case endOf(MenuBarSection.Name)
     }
 
-    /// The undo manager of the Settings window, which shows the Layout pane.
-    private static func undoManager(_ appState: AppState) -> UndoManager? {
-        appState.navigationState.settingsWindow?.undoManager
-    }
-
     // MARK: Before macOS 27
 
     /// Moves an item to a destination on the bar, as the user asked.
     ///
-    /// - Parameter registersUndo: Whether the move registers its inverse; an undo registers
-    ///   the redo itself, at once.
+    /// - Parameters:
+    ///   - announcement: What VoiceOver hears; with a recorded move it is also the toast's
+    ///     sentence.
+    ///   - registersUndo: Whether the move records its inverse; a caller that records it
+    ///     itself passes `false`.
+    ///   - place: Where the undo toast shows.
     static func move(
         _ item: MenuBarItem,
         to destination: MenuBarItemManager.MoveDestination,
         appState: AppState,
         actionName: String,
         announcement: String? = nil,
-        registersUndo: Bool = true
+        registersUndo: Bool = true,
+        place: LayoutUndo.Place = .settings
     ) {
+        var announcement = announcement
         if registersUndo, let anchor = anchor(of: item, appState: appState) {
-            registerUndo(windowID: item.windowID, anchor: anchor, appState: appState, actionName: actionName)
+            let sentence = announcement ?? String(localized: "\(item.displayName) moved")
+            recordMove(windowID: item.windowID, anchor: anchor, sentence: sentence, actionName: actionName, place: place, appState: appState)
+            // The record announces the sentence, so VoiceOver hears it once.
+            announcement = nil
         }
         Task {
             try? await Task.sleep(for: .milliseconds(25))
@@ -233,11 +236,15 @@ enum LayoutBarMoves {
         item: MenuBarItem,
         appState: AppState,
         actionName: String,
-        announcement: String? = nil
+        announcement: String? = nil,
+        place: LayoutUndo.Place = .settings
     ) {
-        // Registered now, while the item is still where it was.
+        var announcement = announcement
+        // Recorded now, while the item is still where it was.
         if let anchor = anchor(of: item, appState: appState) {
-            registerUndo(windowID: item.windowID, anchor: anchor, appState: appState, actionName: actionName)
+            let sentence = announcement ?? String(localized: "\(item.displayName) moved")
+            recordMove(windowID: item.windowID, anchor: anchor, sentence: sentence, actionName: actionName, place: place, appState: appState)
+            announcement = nil
         }
         Task {
             let items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
@@ -280,46 +287,76 @@ enum LayoutBarMoves {
         return .endOf(address.section)
     }
 
-    private static func registerUndo(windowID: CGWindowID, anchor: Anchor, appState: AppState, actionName: String) {
-        guard let undoManager = undoManager(appState) else {
-            return
-        }
-        undoManager.registerUndo(withTarget: appState) { appState in
-            MainActor.assumeIsolated {
-                LayoutBarMoves.moveBack(windowID: windowID, to: anchor, appState: appState, actionName: actionName)
+    /// Records a move in the undo history: its undo puts the item back at the anchor.
+    private static func recordMove(
+        windowID: CGWindowID,
+        anchor: Anchor,
+        sentence: String,
+        actionName: String,
+        place: LayoutUndo.Place,
+        appState: AppState
+    ) {
+        appState.layoutUndo.record(
+            moveChange(windowID: windowID, anchor: anchor, sentence: sentence, actionName: actionName, appState: appState),
+            place: place
+        )
+    }
+
+    private static func moveChange(
+        windowID: CGWindowID,
+        anchor: Anchor,
+        sentence: String,
+        actionName: String,
+        appState: AppState
+    ) -> LayoutUndo.Change {
+        LayoutUndo.Change(
+            sentence: sentence,
+            actionName: actionName,
+            inverse: {
+                // Where the item is now, before the undo moves it: the redo goes back there.
+                guard
+                    let item = appState.itemManager.itemCache.managedItems.first(where: { $0.windowID == windowID }),
+                    let current = LayoutBarMoves.anchor(of: item, appState: appState)
+                else {
+                    return nil
+                }
+                return moveChange(windowID: windowID, anchor: current, sentence: sentence, actionName: actionName, appState: appState)
+            },
+            perform: {
+                await moveBack(windowID: windowID, to: anchor, appState: appState)
             }
-        }
-        undoManager.setActionName(actionName)
+        )
     }
 
     /// Puts an item back where the anchor says.
     ///
-    /// The redo, back to where the item is now, is registered at once: only while the undo
-    /// manager is undoing does a registration become the redo.
-    private static func moveBack(windowID: CGWindowID, to anchor: Anchor, appState: AppState, actionName: String) {
-        if
-            let item = appState.itemManager.itemCache.managedItems.first(where: { $0.windowID == windowID }),
-            let current = self.anchor(of: item, appState: appState)
-        {
-            registerUndo(windowID: windowID, anchor: current, appState: appState, actionName: actionName)
+    /// - Returns: Whether the item is back; an item that left the bar counts as back, since
+    ///   nothing is left to put back.
+    private static func moveBack(windowID: CGWindowID, to anchor: Anchor, appState: AppState) async -> Bool {
+        let items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
+        guard let item = items.first(where: { $0.windowID == windowID }) else {
+            return true
         }
-        Task {
-            let items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
-            guard let item = items.first(where: { $0.windowID == windowID }) else {
-                return
-            }
-            let destination: MenuBarItemManager.MoveDestination? = switch anchor {
-            case .leftOf(let neighbour):
-                items.first { $0.windowID == neighbour }.map { .leftOfItem($0) }
-            case .rightOf(let neighbour):
-                items.first { $0.windowID == neighbour }.map { .rightOfItem($0) }
-            case .endOf(let section):
-                endDestination(of: section, in: items)
-            }
-            guard let destination else {
-                return
-            }
-            move(item, to: destination, appState: appState, actionName: actionName, registersUndo: false)
+        let destination: MenuBarItemManager.MoveDestination? = switch anchor {
+        case .leftOf(let neighbour):
+            items.first { $0.windowID == neighbour }.map { .leftOfItem($0) }
+        case .rightOf(let neighbour):
+            items.first { $0.windowID == neighbour }.map { .rightOfItem($0) }
+        case .endOf(let section):
+            endDestination(of: section, in: items)
+        }
+        guard let destination else {
+            return false
+        }
+        do {
+            try await appState.itemManager.move(item: item, to: destination, origin: .user)
+            appState.itemManager.removeTemporarilyShownItemFromCache(with: item.tag)
+            appState.itemManager.saveSectionsSoon()
+            return true
+        } catch {
+            Logger.default.error("Error putting a menu bar item back: \(error, privacy: .private)")
+            LayoutBarRouter.shared.showItemCache()
+            return false
         }
     }
 
@@ -331,7 +368,12 @@ enum LayoutBarMoves {
     /// - Returns: `false` if the section cannot be set (on macOS 27 an item without an
     ///   application); a move that fails later is reported then.
     @discardableResult
-    static func setSection(of item: MenuBarItem, to section: MenuBarSection.Name, appState: AppState) -> Bool {
+    static func setSection(
+        of item: MenuBarItem,
+        to section: MenuBarSection.Name,
+        appState: AppState,
+        place: LayoutUndo.Place = .settings
+    ) -> Bool {
         let actionName = String(localized: "Change Section")
         let announcement = String(localized: "\(item.displayName) moved to \(section.displayString)")
         if #available(macOS 27.0, *) {
@@ -339,35 +381,72 @@ enum LayoutBarMoves {
                 NSSound.beep()
                 return false
             }
-            setSection27(section, for: key, appState: appState, actionName: actionName)
-            LayoutBarItemView.announce(announcement)
+            setSection27(MacOS27Section(section), for: key, sentence: announcement, actionName: actionName, place: place, appState: appState)
             return true
         }
-        moveToEnd(of: section, item: item, appState: appState, actionName: actionName, announcement: announcement)
+        moveToEnd(of: section, item: item, appState: appState, actionName: actionName, announcement: announcement, place: place)
         return true
     }
 
-    /// Sets an application's section on macOS 27 and registers the former one for undo.
+    /// Sets an application's section on macOS 27 and records the former one in the undo
+    /// history.
     @available(macOS 27.0, *)
-    private static func setSection27(_ section: MenuBarSection.Name, for bundleID: String, appState: AppState, actionName: String) {
+    private static func setSection27(
+        _ section: MacOS27Section,
+        for bundleID: String,
+        sentence: String,
+        actionName: String,
+        place: LayoutUndo.Place,
+        appState: AppState
+    ) {
         let layout = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
         // An application missing from the layout is visible.
         let former = layout[bundleID].flatMap(MacOS27Section.init(rawValue:)) ?? .visible
-        if let undoManager = undoManager(appState) {
-            let formerName: MenuBarSection.Name = switch former {
-            case .visible: .visible
-            case .hidden: .hidden
-            case .alwaysHidden: .alwaysHidden
-            }
-            undoManager.registerUndo(withTarget: appState) { appState in
-                MainActor.assumeIsolated {
-                    LayoutBarMoves.setSection27(formerName, for: bundleID, appState: appState, actionName: actionName)
-                }
-            }
-            undoManager.setActionName(actionName)
-        }
-        appState.concealer27.setSection(MacOS27Section(section), for: bundleID)
+        appState.layoutUndo.record(
+            section27Change(to: former, from: section, for: bundleID, sentence: sentence, actionName: actionName, appState: appState),
+            place: place
+        )
+        appState.concealer27.setSection(section, for: bundleID)
         // A rule that controls the item has to look at it again.
         appState.automation.itemsWereArrangedByHand()
+    }
+
+    /// A change whose undo puts the application into `target`; its inverse puts it back into
+    /// `current`.
+    @available(macOS 27.0, *)
+    static func section27Change(
+        to target: MacOS27Section,
+        from current: MacOS27Section,
+        for bundleID: String,
+        sentence: String,
+        actionName: String,
+        appState: AppState
+    ) -> LayoutUndo.Change {
+        LayoutUndo.Change(
+            sentence: sentence,
+            actionName: actionName,
+            inverse: {
+                section27Change(to: current, from: target, for: bundleID, sentence: sentence, actionName: actionName, appState: appState)
+            },
+            perform: {
+                appState.concealer27.setSection(target, for: bundleID)
+                appState.automation.itemsWereArrangedByHand()
+                // macOS arranges per application and needs a moment; one wait, then one read.
+                try? await Task.sleep(for: LayoutUndo.settleDelay27)
+                await appState.itemManager.cacheItemsRegardless()
+                return ArrangementUndo.isRestored(app: bundleID, wantedSection: target.rawValue, sections: sections27(appState))
+            }
+        )
+    }
+
+    /// The application and section of every item in the cache (0 visible, 1 hidden, 2 always
+    /// hidden).
+    @available(macOS 27.0, *)
+    static func sections27(_ appState: AppState) -> [(app: String?, section: Int)] {
+        let cache = appState.itemManager.itemCache
+        let names: [MenuBarSection.Name] = [.visible, .hidden, .alwaysHidden]
+        return names.flatMap { name in
+            cache[name].map { (app: $0.layoutKey27, section: MacOS27Section(name).rawValue) }
+        }
     }
 }
