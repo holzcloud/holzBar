@@ -269,4 +269,47 @@ struct ItemIdentityTests {
         // The exclusion is what protects them: without it the same reads would be learned.
         #expect(ItemIdentity.learnTitleChangingOwners(previous: previous, current: current, excluding: []) == [own])
     }
+
+    // MARK: Unread counts as the whole title
+
+    @Test("A title that is only an unread count keeps one key while the count changes")
+    func countOnlyTitle() {
+        func key(_ title: String, owners: Set<String> = []) -> String? {
+            ItemIdentity.keys(for: [(namespace: "com.example.chat", title: title)], titleChangingOwners: owners).first
+        }
+        #expect(key("3") == key("12"))
+        // "99+" differs from a plain number after canonicalisation, so the learner has to see it.
+        #expect(key("12") != key("99+"))
+        #expect(ItemIdentity.learnTitleChangingOwners(
+            previous: [(namespace: "com.example.chat", title: "12")],
+            current: [(namespace: "com.example.chat", title: "99+")],
+            excluding: []
+        ) == ["com.example.chat"])
+        let learned: Set<String> = ["com.example.chat"]
+        #expect(key("12", owners: learned) == key("99+", owners: learned))
+    }
+
+    @Test("QQ alternating between Item-0 and an unread badge is one item from the start")
+    func qqBadgeIsOneItem() {
+        // The placeholder rule alone never learns this change.
+        #expect(ItemIdentity.learnTitleChangingOwners(
+            previous: [(namespace: "com.tencent.qq", title: "Item-0")],
+            current: [(namespace: "com.tencent.qq", title: "99+")],
+            excluding: []
+        ).isEmpty)
+        let owners = ItemIdentity.titleChangingOwners(learned: [])
+        func key(_ namespace: String, _ title: String) -> String? {
+            ItemIdentity.keys(for: [(namespace: namespace, title: title)], titleChangingOwners: owners).first
+        }
+        #expect(key("com.tencent.qq", "Item-0") == key("com.tencent.qq", "99+"))
+        #expect(key("com.tencent.xinWeChat", "") == key("com.tencent.xinWeChat", "99+"))
+        // Keys stored before keep matching.
+        #expect(ItemIdentity.storedKey("com.tencent.qq:Item-0", titleChangingOwners: owners) == "com.tencent.qq:#1")
+        #expect(ItemIdentity.storedKey("com.tencent.xinWeChat:#+", titleChangingOwners: owners) == "com.tencent.xinWeChat:#1")
+    }
+
+    @Test("The known apps join the learned ones")
+    func knownOwnersJoinLearned() {
+        #expect(ItemIdentity.titleChangingOwners(learned: ["a"]) == ["a", "com.tencent.qq", "com.tencent.xinWeChat"])
+    }
 }

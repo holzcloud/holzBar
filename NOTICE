@@ -22,9 +22,10 @@ one line per adapted file:
   - holzBar/Core/MoveBackoff.swift is adapted from Thaw's
     Thaw/MenuBar/MenuBarItems/MenuBarItemManager/MoveCircuitBreaker.swift
     (Copyright (C) 2026 Toni Förster).
-  - holzBar/Core/ItemIdentity.swift adapts canonicalMetricTitle and canonicalFirstLineTitle
-    from Thaw's MenuBarItemTag.swift and the placeholder rule of FreshVolatileTitleLearner.swift
-    (both in packages/MenuBarModel/Sources/MenuBarModel).
+  - holzBar/Core/ItemIdentity.swift adapts canonicalMetricTitle, canonicalFirstLineTitle and
+    the QQ and WeChat entries of the volatile-title list from Thaw's MenuBarItemTag.swift and
+    the placeholder rule of FreshVolatileTitleLearner.swift (both in
+    packages/MenuBarModel/Sources/MenuBarModel).
   - holzBar/MenuBar/Appearance/WallpaperChangeMonitor.swift is adapted from Thaw's
     Thaw/MenuBar/Appearance/WallpaperChangeMonitor.swift (Copyright (C) 2026 Toni Förster).
   - holzBar/MenuBar/PresentationMonitor.swift adapts the mirroring check of Thaw's
