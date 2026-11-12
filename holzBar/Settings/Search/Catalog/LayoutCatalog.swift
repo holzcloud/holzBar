@@ -20,6 +20,7 @@ extension SettingsCatalog {
         static let entries: [SettingsEntry] = {
             var entries: [SettingsEntry] = [
                 .layoutTidyUp,
+                .layoutUndo,
                 .layoutAlwaysHidden,
                 .layoutNewItems,
                 .layoutApplyImmediately,
@@ -48,6 +49,14 @@ extension SettingsEntry {
         group: SettingsCatalog.LayoutPane.pane,
         label: String(localized: "Tidy Up"),
         info: String(localized: "Let holzBar propose which items to hide, from what it knows of the apps. You decide, and you can undo it.")
+    )
+
+    static let layoutUndo = SettingsEntry(
+        id: "layoutUndo",
+        pane: .layout,
+        group: SettingsCatalog.LayoutPane.pane,
+        label: String(localized: "Undo the last change"),
+        info: String(localized: "Takes back the last change of the layout, made here or in the menu bar. ⌘Z does the same while this window is in front.")
     )
 
     static let layoutAlwaysHidden = SettingsEntry(

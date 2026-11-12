@@ -60,6 +60,13 @@ final class LayoutUndo {
     @ObservationIgnored private var history = UndoHistory<Change>()
     @ObservationIgnored private weak var appState: AppState?
 
+    /// The Settings window's undo manager, which mirrors the history for ⌘Z and ⇧⌘Z (D-15).
+    @ObservationIgnored private weak var windowUndoManager: UndoManager?
+    /// One registration target per change, so a change's registration can be taken out alone.
+    @ObservationIgnored private var tokens = [UUID: UndoToken]()
+    /// The changes registered on the window as redos, by identifier.
+    @ObservationIgnored private var redoChanges = [UUID: Change]()
+
     func performSetup(with appState: AppState) {
         self.appState = appState
     }
@@ -74,12 +81,23 @@ final class LayoutUndo {
 
     /// Adds a change as the newest one and shows its toast at the given place.
     func record(_ change: Change, place: Place) {
-        for dropped in history.push(change) {
-            dropped.onDiscard?()
-        }
-        canUndo = !history.isEmpty
+        // A new change ends what could be redone, in the window's undo manager as here.
+        redoChanges.removeAll()
+        push(change)
         toast = ToastContent(id: UUID(), sentence: change.sentence, isFailure: false, place: place)
         LayoutBarItemView.announce(change.sentence)
+    }
+
+    /// Mirrors the history on the Settings window's undo manager, oldest first, so ⌘Z, ⇧⌘Z
+    /// and the Edit menu act on the same changes as the toast (D-15).
+    func settingsWindowDidAppear(_ undoManager: UndoManager) {
+        guard undoManager !== windowUndoManager else {
+            return
+        }
+        windowUndoManager = undoManager
+        for change in history.entries {
+            register(change, on: undoManager)
+        }
     }
 
     /// Records a change after which the sections of `before` are to be put back: Apply, Tidy
@@ -94,6 +112,8 @@ final class LayoutUndo {
             return
         }
         canUndo = !history.isEmpty
+        // ⌘Z must not undo it a second time.
+        unregister(change.id)
         let place = toast?.place ?? .settings
         toast = nil
         Task {
@@ -110,6 +130,62 @@ final class LayoutUndo {
     }
 
     // MARK: Private
+
+    /// Pushes a change into the history and onto the window's undo manager; a change that
+    /// falls out of the history lets go of what it keeps.
+    private func push(_ change: Change) {
+        for dropped in history.push(change) {
+            unregister(dropped.id)
+            dropped.onDiscard?()
+        }
+        canUndo = !history.isEmpty
+        if let windowUndoManager {
+            register(change, on: windowUndoManager)
+        }
+    }
+
+    private func register(_ change: Change, on manager: UndoManager) {
+        let token = tokens[change.id] ?? UndoToken(owner: self, changeID: change.id)
+        tokens[change.id] = token
+        manager.registerUndo(withTarget: token) { token in
+            MainActor.assumeIsolated {
+                token.owner?.undoFromWindow(token.changeID)
+            }
+        }
+        manager.setActionName(change.actionName)
+    }
+
+    private func unregister(_ id: UUID) {
+        if let token = tokens.removeValue(forKey: id) {
+            windowUndoManager?.removeAllActions(withTarget: token)
+        }
+    }
+
+    /// ⌘Z, ⇧⌘Z or the Edit menu: undoes the change, and registers its inverse as the redo
+    /// (while undoing) or as the newest undoable change (while redoing).
+    private func undoFromWindow(_ id: UUID) {
+        guard let change = history.remove(id: id) ?? redoChanges.removeValue(forKey: id) else {
+            return
+        }
+        tokens[id] = nil
+        canUndo = !history.isEmpty
+        let place = toast?.place ?? .settings
+        toast = nil
+        // The inverse reads the state before anything moves.
+        if let inverse = change.inverse(), let manager = windowUndoManager {
+            if manager.isUndoing {
+                redoChanges[inverse.id] = inverse
+                register(inverse, on: manager)
+            } else if manager.isRedoing {
+                push(inverse)
+                toast = ToastContent(id: UUID(), sentence: inverse.sentence, isFailure: false, place: place)
+            }
+        }
+        Task {
+            let isRestored = await change.perform()
+            report(isRestored: isRestored, place: place)
+        }
+    }
 
     private func arrangementChange(_ sentence: String, before: LayoutSnapshot) -> Change {
         Change(
@@ -221,5 +297,16 @@ private struct UndoToastModifier: ViewModifier {
                 undo.undo()
             }
         }
+    }
+}
+
+/// The target of one change's registration on the window's undo manager.
+private final class UndoToken {
+    weak var owner: LayoutUndo?
+    let changeID: UUID
+
+    init(owner: LayoutUndo, changeID: UUID) {
+        self.owner = owner
+        self.changeID = changeID
     }
 }

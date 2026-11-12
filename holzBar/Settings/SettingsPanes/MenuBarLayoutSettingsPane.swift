@@ -66,11 +66,17 @@ struct MenuBarLayoutSettingsPane: View {
             Button("Tidy Up…", systemImage: "wand.and.stars") {
                 appState.navigationState.isTidyUpPresented = true
             }
+            .id(SettingsEntry.layoutTidyUp.id)
             if let info = SettingsEntry.layoutTidyUp.info {
                 SettingsInfoButton(Text(info))
             }
+            Button("Undo", systemImage: "arrow.uturn.backward") {
+                appState.layoutUndo.undo()
+            }
+            .disabled(!appState.layoutUndo.canUndo)
+            .help(Text("Undo the last change"))
+            .id(SettingsEntry.layoutUndo.id)
         }
-        .id(SettingsEntry.layoutTidyUp.id)
     }
 
     private var commandDragNoticeCount: Int {

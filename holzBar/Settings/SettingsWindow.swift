@@ -16,7 +16,7 @@ struct SettingsWindow: Scene {
             SettingsView(navigationState: appState.navigationState)
                 .holzBarUndoToast(appState.layoutUndo, place: .settings)
                 .onWindowChange { window in
-                    model.observe(window, navigationState: appState.navigationState)
+                    model.observe(window, appState: appState)
                 }
                 .frame(
                     minWidth: HolzBarTheme.SettingsSidebar.minimumWindowWidth,
@@ -42,12 +42,17 @@ private final class SettingsWindowModel {
 
     /// Follows the given window: its visibility becomes the navigation state's
     /// `isSettingsPresented`, and its toolbar keeps icons only.
-    func observe(_ window: NSWindow?, navigationState: AppNavigationState) {
+    func observe(_ window: NSWindow?, appState: AppState) {
+        let navigationState = appState.navigationState
         observations.removeAll()
         guard let window else {
             return
         }
         navigationState.settingsWindow = window
+        if let undoManager = window.undoManager {
+            // ⌘Z and ⇧⌘Z in this window act on the undo history of the layout (D-15).
+            appState.layoutUndo.settingsWindowDidAppear(undoManager)
+        }
 
         observations.append(window.observe(\.isVisible, options: [.initial, .new]) { [weak navigationState] window, _ in
             Task { @MainActor in
