@@ -123,6 +123,7 @@ struct ItemGroupsSection: View {
         SettingsButtonRow(Text("Items")) {
             Menu("Choose…") {
                 ForEach(items, id: \.tag) { item in
+                    // swiftlint:disable:next design_settings_bare_toggle - a Toggle in a Menu is a checkmark item, not a switch
                     Toggle(item.displayName, isOn: Binding(
                         get: { groups.contains(item, in: group) },
                         set: { _ in groups.toggle(item, in: group) }

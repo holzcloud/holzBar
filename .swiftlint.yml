@@ -83,6 +83,87 @@ custom_rules:
       - comment
       - doccomment
     severity: error
+  # The settings kit: Settings screens (the Settings folders, including the What's New window,
+  # the Appearance editor and the hub modules' settings views) use only the kit in
+  # `UI/Design/SettingsKit/`. The first-launch Permissions window is a separate window.
+  design_settings_raw_radius:
+    name: Raw radius in a Settings screen
+    message: "Use a settings kit part or `HolzBarTheme.shape(_:)` with a `HolzBarTheme.Radius` token instead of a number"
+    regex: '(?:\bRoundedRectangle|\.rect)\(\s*cornerRadius:\s*[0-9]'
+    included:
+      - '.*/holzBar/Settings/.*'
+      - '.*/holzBar/MenuBar/Appearance/MenuBarAppearanceEditor/.*'
+      - '.*/holzBar/MenuBar/NotchHub/[^/]+/[^/]*SettingsView\.swift'
+    excluded: '.*/UI/Design/.*|.*/holzBar/Permissions/.*'
+    excluded_match_kinds:
+      - comment
+      - doccomment
+    severity: error
+  design_settings_toggle_style:
+    name: Hand-set toggle style in a Settings screen
+    message: "The settings kit sets the one mini switch: use `SettingsToggleRow` or `SettingsSwitch` instead of setting a toggle style by hand"
+    regex: '\.toggleStyle\('
+    included:
+      - '.*/holzBar/Settings/.*'
+      - '.*/holzBar/MenuBar/Appearance/MenuBarAppearanceEditor/.*'
+      - '.*/holzBar/MenuBar/NotchHub/[^/]+/[^/]*SettingsView\.swift'
+    excluded: '.*/UI/Design/.*|.*/holzBar/Permissions/.*'
+    excluded_match_kinds:
+      - comment
+      - doccomment
+    severity: error
+  design_settings_bare_toggle:
+    name: Bare Toggle in a Settings screen
+    message: "Use `SettingsToggleRow` or `SettingsSwitch`: a bare `Toggle` draws a checkbox or a regular-size switch"
+    regex: '\bToggle\('
+    included:
+      - '.*/holzBar/Settings/.*'
+      - '.*/holzBar/MenuBar/Appearance/MenuBarAppearanceEditor/.*'
+      - '.*/holzBar/MenuBar/NotchHub/[^/]+/[^/]*SettingsView\.swift'
+    excluded: '.*/UI/Design/.*|.*/holzBar/Permissions/.*'
+    excluded_match_kinds:
+      - comment
+      - doccomment
+    severity: error
+  design_settings_old_component:
+    name: Old form component in a Settings screen
+    message: "Use the settings kit (`SettingsPaneHost`, `SettingsGroup` and its rows) instead of the old form components"
+    regex: '\b(?:HolzBarForm|HolzBarGroupBox|HolzBarSection)\b'
+    included:
+      - '.*/holzBar/Settings/.*'
+      - '.*/holzBar/MenuBar/Appearance/MenuBarAppearanceEditor/.*'
+      - '.*/holzBar/MenuBar/NotchHub/[^/]+/[^/]*SettingsView\.swift'
+    excluded: '.*/UI/Design/.*|.*/holzBar/Permissions/.*'
+    excluded_match_kinds:
+      - comment
+      - doccomment
+    severity: error
+  design_settings_annotation:
+    name: Always-visible explanation in a Settings screen
+    message: "Put the explanation in the row's info popover (`info:`) or in a state line"
+    regex: '\.annotation\(|\bcaption\('
+    included:
+      - '.*/holzBar/Settings/.*'
+      - '.*/holzBar/MenuBar/Appearance/MenuBarAppearanceEditor/.*'
+      - '.*/holzBar/MenuBar/NotchHub/[^/]+/[^/]*SettingsView\.swift'
+    excluded: '.*/UI/Design/.*|.*/holzBar/Permissions/.*'
+    excluded_match_kinds:
+      - comment
+      - doccomment
+    severity: error
+  design_settings_group_literal:
+    name: Group title literal in a Settings screen
+    message: "Pass the group constant of the pane's catalog enum (`SettingsCatalog.<Pane>Pane`), never a string literal"
+    regex: '\bSettingsGroup\(\s*\"'
+    included:
+      - '.*/holzBar/Settings/.*'
+      - '.*/holzBar/MenuBar/Appearance/MenuBarAppearanceEditor/.*'
+      - '.*/holzBar/MenuBar/NotchHub/[^/]+/[^/]*SettingsView\.swift'
+    excluded: '.*/UI/Design/.*|.*/holzBar/Permissions/.*'
+    excluded_match_kinds:
+      - comment
+      - doccomment
+    severity: error
 
 file_header:
   required_pattern: |-
