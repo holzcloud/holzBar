@@ -49,6 +49,7 @@ extension SettingsCatalog {
         /// The fixed rows inside the module rows' open areas and beside them. The plans of the
         /// module settings append their entries here.
         static let rowEntries: [SettingsEntry] = [
+            .modulesWidgetsAdd,
             .modulesClockOpensNotificationCenter,
             .modulesAppleItemsHideClock,
             .modulesAppleItemsHideControlCenter,
@@ -83,6 +84,15 @@ extension SettingsCatalog {
 }
 
 extension SettingsEntry {
+    static let modulesWidgetsAdd = SettingsEntry(
+        id: "modulesWidgetsAdd",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.menuBar,
+        label: String(localized: "Add Widget…"),
+        info: String(localized: "Text readouts, a Shortcut button, a script and ready-made items: Focus, AirDrop, Media Controls, Fast User Switching, Timer, App Launcher."),
+        module: MenuBarWidgets.moduleID
+    )
+
     static let modulesClockOpensNotificationCenter = SettingsEntry(
         id: "modulesClockOpensNotificationCenter",
         pane: .modules,

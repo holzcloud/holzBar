@@ -5,11 +5,11 @@
 
 import SwiftUI
 
-/// The widgets of the menu bar: one row each, an editor under the row that was chosen, a way
-/// to add one, at most twelve (D-05). The order of the rows is the order of the list, which a
+/// The widgets of the menu bar as kit rows: one row each, its editor's rows under the row that
+/// is being edited, a way to add one, at most twelve (D-05). The order of the rows is the order of the list, which a
 /// settings export carries; rows are moved with the editor's buttons and, for VoiceOver, with
-/// the "Move Up" and "Move Down" actions of every row (D-07). The Modules pane shows it under
-/// the Widgets row while the module is on.
+/// the "Move Up" and "Move Down" actions of every row (D-07). The Modules pane shows it in the
+/// open area of the Widgets row.
 struct WidgetsSection: View {
     @Environment(AppState.self) private var appState
     var widgets: MenuBarWidgets
@@ -32,60 +32,14 @@ struct WidgetsSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-            ForEach(widgets.definitions) { definition in
-                row(for: definition)
-                if editingID == definition.id {
-                    editor(for: definition)
-                }
-                if definition.id != widgets.definitions.last?.id {
-                    Divider()
-                        .overlay(HolzBarTheme.Palette.stroke)
-                }
+        ForEach(widgets.definitions) { definition in
+            row(for: definition)
+            if editingID == definition.id {
+                editor(for: definition)
             }
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Menu("Add Widget", systemImage: "plus") {
-                    ForEach(WidgetSource.allCases, id: \.self) { source in
-                        Button {
-                            add(source)
-                        } label: {
-                            Self.sourceTitle(source)
-                        }
-                    }
-                    Divider()
-                    Button {
-                        addButton()
-                    } label: {
-                        Text("Shortcut Button")
-                    }
-                    Button {
-                        addScript()
-                    } label: {
-                        Text("Script")
-                    }
-                    Divider()
-                    ForEach(BuiltInItem.allCases.filter { $0 != .launcher }, id: \.self) { item in
-                        Button {
-                            addBuiltIn(item)
-                        } label: {
-                            Text(verbatim: WidgetSpeech.label(for: item))
-                        }
-                        .disabled(!item.allowsSeveral && hasItem(item))
-                    }
-                    Button {
-                        addLauncher()
-                    } label: {
-                        Text("App Launcher…")
-                    }
-                }
-                .fixedSize()
-                .disabled(isFull)
-                if isFull {
-                    Text("You can add up to twelve widgets.")
-                        .font(HolzBarTheme.Typography.caption)
-                        .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-                }
-            }
+        }
+        SettingsButtonRow(unlabeled: .modulesWidgetsAdd) {
+            addMenu
         }
         .holzBarConfirmation(
             isPresented: isConfirmingRemoval,
@@ -101,42 +55,67 @@ struct WidgetsSection: View {
             }
             removalID = nil
         }
+        if isFull {
+            SettingsStateLine(.info, Text("You can add up to twelve widgets."))
+        }
+    }
+
+    private var addMenu: some View {
+        Menu("Add Widget…") {
+            Section {
+                ForEach(WidgetSource.allCases, id: \.self) { source in
+                    Button {
+                        add(source)
+                    } label: {
+                        Self.sourceTitle(source)
+                    }
+                }
+            }
+            Section {
+                Button {
+                    addButton()
+                } label: {
+                    Text("Shortcut Button")
+                }
+                Button {
+                    addScript()
+                } label: {
+                    Text("Script")
+                }
+            }
+            Section {
+                ForEach(BuiltInItem.allCases.filter { $0 != .launcher }, id: \.self) { item in
+                    Button {
+                        addBuiltIn(item)
+                    } label: {
+                        Text(verbatim: WidgetSpeech.label(for: item))
+                    }
+                    .disabled(!item.allowsSeveral && hasItem(item))
+                }
+                Button {
+                    addLauncher()
+                } label: {
+                    Text("App Launcher…")
+                }
+            }
+        }
+        .fixedSize()
+        .disabled(isFull)
     }
 
     private func row(for definition: WidgetDefinition) -> some View {
         let isEditing = editingID == definition.id
-        return HStack(spacing: HolzBarTheme.Spacing.sm) {
-            Image(systemName: definition.symbolName)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                .frame(width: HolzBarTheme.Spacing.xl)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 1) {
-                HStack(spacing: HolzBarTheme.Spacing.xs) {
-                    title(for: definition)
-                        .font(HolzBarTheme.Typography.body)
-                        .foregroundStyle(HolzBarTheme.Palette.text)
-                }
-                summary(for: definition)
-                    .font(HolzBarTheme.Typography.caption)
-                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-            }
-            Spacer(minLength: HolzBarTheme.Spacing.sm)
+        return SettingsButtonRow(title(for: definition), small: summary(for: definition)) {
             Button {
                 editingID = isEditing ? nil : definition.id
             } label: {
-                Image(systemName: isEditing ? "chevron.up" : "chevron.down")
-                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                    .frame(width: HolzBarTheme.minimumTargetSize, height: HolzBarTheme.minimumTargetSize)
-                    .contentShape(Rectangle())
+                if isEditing {
+                    Text("Done")
+                } else {
+                    Text("Edit")
+                }
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(Text("Edit"))
-            .accessibilityValue(isEditing ? Text("Expanded") : Text("Collapsed"))
-            .help("Edit")
         }
-        .padding(.vertical, HolzBarTheme.Spacing.xs)
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(title(for: definition))
         .accessibilityAction(named: "Move Up") {
             widgets.moveWidget(id: definition.id, by: -1)
         }
@@ -155,8 +134,6 @@ struct WidgetsSection: View {
         ) {
             removalID = definition.id
         }
-        .padding(.leading, HolzBarTheme.Spacing.xl + HolzBarTheme.Spacing.sm)
-        .padding(.bottom, HolzBarTheme.Spacing.xs)
     }
 
     /// The name of a widget: its source, its button's title, or "Script".
@@ -175,7 +152,7 @@ struct WidgetsSection: View {
     /// The format of a text widget, the cleaned name of a script widget's script, or the state of
     /// a button's Shortcut (D-23, D-25). A name from the scripts folder is shown through
     /// ``URLPrompt/displayName(_:)``, as everywhere else (T-12-32).
-    private func summary(for definition: WidgetDefinition) -> Text {
+    private func summary(for definition: WidgetDefinition) -> Text? {
         switch definition.kind {
         case .text:
             WidgetEditor.presetTitle(definition.preset)
@@ -192,7 +169,8 @@ struct WidgetsSection: View {
                 Text("Choose a Shortcut")
             }
         case .builtIn:
-            Text(verbatim: WidgetSpeech.hint(for: definition, shortcutName: nil, appName: launcherName(of: definition)) ?? "")
+            // A ready-made item's sentence is the info of its row.
+            nil
         }
     }
 
@@ -226,7 +204,7 @@ struct WidgetsSection: View {
         widgets.addWidget(WidgetDefinition.builtIn(.launcher, launcherBundleID: bundleID))
     }
 
-    /// Adds a button that runs a Shortcut, unless there are six (D-05). Its name is chosen in
+    /// Adds a button that runs a Shortcut, unless there are twelve (D-05). Its name is chosen in
     /// its editor, which opens at once.
     private func addButton() {
         let definition = WidgetDefinition.button(title: String(localized: "Shortcut"))
@@ -235,7 +213,7 @@ struct WidgetsSection: View {
         }
     }
 
-    /// Adds a script widget, medium wide and without a symbol, unless there are six (D-05). The
+    /// Adds a script widget, medium wide and without a symbol, unless there are twelve (D-05). The
     /// script is chosen in its editor, which opens at once (D-23).
     private func addScript() {
         let definition = WidgetDefinition.script()
@@ -244,7 +222,7 @@ struct WidgetsSection: View {
         }
     }
 
-    /// Adds a widget of the source with its default format, unless there are six (D-05).
+    /// Adds a widget of the source with its default format, unless there are twelve (D-05).
     private func add(_ source: WidgetSource) {
         let definition = WidgetDefinition.text(
             source: source,
