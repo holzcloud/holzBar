@@ -158011,6 +158011,360 @@
           }
         }
       }
+    },
+    "On macOS 27.2, a right-click on an empty area of the menu bar opens Apple's menu again; hold ⌥ Option for holzBar's menu." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27.2 otevře kliknutí pravým tlačítkem do prázdné oblasti řádku nabídek opět nabídku Apple; pro nabídku holzBar držte ⌥ Option."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27.2 öffnet ein Rechtsklick auf eine leere Stelle der Menüleiste wieder das Menü von Apple; für das holzBar-Menü halte ⌥ Wahl gedrückt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27.2, un clic derecho en un área vacía de la barra de menús vuelve a abrir el menú de Apple; mantén pulsada ⌥ Opción para el menú de holzBar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sur macOS 27.2, un clic droit dans une zone vide de la barre des menus ouvre de nouveau le menu d’Apple ; maintenez ⌥ Option pour le menu de holzBar."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.2 alatt a menüsor egy üres területére történő jobb kattintás ismét az Apple menüjét nyitja meg; a holzBar menüjéhez tartsa lenyomva az ⌥ Option billentyűt."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27.2, klik kanan area kosong di bar menu kembali membuka menu Apple; tahan ⌥ Option untuk menu holzBar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27.2, un clic destro in un’area vuota della barra dei menu apre di nuovo il menu di Apple; tieni premuto ⌥ Opzione per il menu di holzBar."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.2 では、メニューバーの空いている部分を右クリックすると再び Apple のメニューが開きます。holzBar のメニューには ⌥ Option を押しながら右クリックしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.2에서 메뉴 막대의 빈 영역을 오른쪽 클릭하면 다시 Apple의 메뉴가 열립니다. holzBar 메뉴는 ⌥ Option을 누른 채 여세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27.2 opent een rechterklik in een leeg gebied van de menubalk weer het menu van Apple; houd ⌥ Option ingedrukt voor het menu van holzBar."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27.2 kliknięcie prawym przyciskiem w pustym miejscu paska menu znowu otwiera menu Apple; przytrzymaj ⌥ Option, aby otworzyć menu holzBar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27.2, um clique direito em uma área vazia da barra de menus abre de novo o menu da Apple; mantenha ⌥ Option pressionada para o menu do holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27.2 avra in clic dretg en ina zona vida da la trav da menu puspè il menu dad Apple; tegna ⌥ Opziun smatgà per il menu da holzBar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27.2 нажатие правой кнопкой на пустой области строки меню снова открывает меню Apple; для меню holzBar удерживайте ⌥ Option."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27.2 öppnar ett högerklick på ett tomt område på menyraden Apples meny igen; håll ned ⌥ Alternativ för holzBars meny."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.2'de menü çubuğunda boş bir alana sağ tıklamak yeniden Apple'ın menüsünü açar; holzBar menüsü için ⌥ Option tuşunu basılı tutun."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27.2 клацання правою кнопкою на порожній ділянці смуги меню знову відкриває меню Apple; для меню holzBar утримуйте ⌥ Option."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27.2 上，在菜单栏的空白区域右键点按会再次打开 Apple 的菜单；按住 ⌥ Option 可打开 holzBar 的菜单。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27.2 上，在選單列的空白區域按一下滑鼠右鍵會再次打開 Apple 的選單；按住 ⌥ Option 可打開 holzBar 的選單。"
+          }
+        }
+      }
+    },
+    "QQ and WeChat no longer get a new item in Layout for each unread count." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ a WeChat už nedostávají v „Uspořádání“ novou položku pro každý počet nepřečtených zpráv."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ und WeChat bekommen in „Anordnung“ nicht mehr für jede Zahl ungelesener Nachrichten ein neues Element."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ y WeChat ya no reciben un elemento nuevo en “Disposición” por cada número de mensajes sin leer."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ et WeChat n’obtiennent plus un nouvel élément dans « Disposition » pour chaque nombre de messages non lus."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A QQ és a WeChat már nem kap új elemet az „Elrendezésben” minden olvasatlan üzenetszámhoz."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ dan WeChat tidak lagi mendapat item baru di “Tata Letak” untuk setiap jumlah pesan belum dibaca."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ e WeChat non ricevono più un nuovo elemento in «Disposizione» per ogni numero di messaggi non letti."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ と WeChat が、未読数が変わるたびに「レイアウト」で新しい項目として表示されることがなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ와 WeChat이 읽지 않은 메시지 수마다 “레이아웃”에 새 항목으로 나타나지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ en WeChat krijgen in “Indeling” niet langer een nieuw onderdeel voor elk aantal ongelezen berichten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ i WeChat nie dostają już w „Układzie” nowego elementu dla każdej liczby nieprzeczytanych wiadomości."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ e WeChat não ganham mais um item novo em “Layout” para cada número de mensagens não lidas."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ e WeChat na survegnan betg pli en «Disposiziun» in nov element per mintga dumber da messadis betg legids."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ и WeChat больше не получают в «Раскладке» новый элемент для каждого числа непрочитанных сообщений."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ och WeChat får inte längre ett nytt objekt i ”Layout” för varje antal olästa meddelanden."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ ve WeChat artık her okunmamış ileti sayısı için “Düzen”de yeni bir öğe almaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ і WeChat більше не отримують у «Розкладці» новий елемент для кожної кількості непрочитаних повідомлень."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ 和微信不再因每个未读数而在“布局”中多出一个新项目。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QQ 和微信不再因每個未讀數而在「佈局」中多出一個新項目。"
+          }
+        }
+      }
+    },
+    "On macOS 27.2, holzBar's own items no longer drop out of Layout for a moment." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27.2 už vlastní položky holzBar na chvíli nemizí z „Uspořádání“."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27.2 verschwinden die eigenen Elemente von holzBar nicht mehr kurz aus „Anordnung“."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27.2, los elementos propios de holzBar ya no desaparecen un momento de “Disposición”."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sur macOS 27.2, les éléments propres à holzBar ne disparaissent plus un instant de « Disposition »."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.2 alatt a holzBar saját elemei már nem tűnnek el egy pillanatra az „Elrendezésből”."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27.2, item milik holzBar sendiri tidak lagi hilang sesaat dari “Tata Letak”."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27.2, gli elementi propri di holzBar non spariscono più per un momento da «Disposizione»."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.2 で、holzBar 自身の項目が「レイアウト」から一時的に消えることがなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.2에서 holzBar 자체 항목이 “레이아웃”에서 잠시 사라지지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27.2 verdwijnen de eigen onderdelen van holzBar niet meer even uit “Indeling”."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27.2 własne elementy holzBar nie znikają już na chwilę z „Układu”."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27.2, os itens próprios do holzBar não somem mais por um momento de “Layout”."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27.2 na svaneschan ils agens elements da holzBar betg pli per in mument da «Disposiziun»."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27.2 собственные элементы holzBar больше не пропадают на мгновение из «Раскладки»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27.2 försvinner holzBars egna objekt inte längre en stund från ”Layout”."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.2'de holzBar'ın kendi öğeleri artık bir anlığına “Düzen”den kaybolmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27.2 власні елементи holzBar більше не зникають на мить із «Розкладки»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27.2 上，holzBar 自己的项目不再从“布局”中短暂消失。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27.2 上，holzBar 自己的項目不再從「佈局」中短暫消失。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
