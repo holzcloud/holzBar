@@ -34,9 +34,9 @@ jobs:
           build-mode: manual
 
       # The toolchain: CodeQL 2.27.1 (the bundle of codeql-action v4.38.2) analyzes Swift 5.4
-      # to 6.3.3. holzBar needs Swift 6.4 and the macOS 27 SDK (Xcode 27.1, as in build.yml),
+      # to 6.3.3. holzBar needs Swift 6.4 and the macOS 27 SDK (Xcode 27.2, as in build.yml),
       # and no toolchain CodeQL supports can build it. So this job keeps the runner, Xcode and
-      # Swift version of build.yml, but compiles with Xcode 27.1's own Swift 6.4 instead of
+      # Swift version of build.yml, but compiles with Xcode 27.2's own Swift 6.4 instead of
       # the swift.org build that select-xcode installs: CodeQL traces the compiler by
       # injecting a library, which Xcode's compiler allows, while the notarized swift.org
       # compiler runs with the hardened runtime. Until a CodeQL bundle supports Swift 6.4
