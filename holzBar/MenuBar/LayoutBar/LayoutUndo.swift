@@ -131,6 +131,37 @@ final class LayoutUndo {
         }
     }
 
+    /// Records a deletion that acted at once: Undo puts the thing back where it was (D-04,
+    /// D-16).
+    ///
+    /// - Parameters:
+    ///   - restore: Puts the deleted thing back at its place.
+    ///   - deleteAgain: Deletes it again (the redo).
+    ///   - onDiscard: Lets go of what the deletion kept for its undo, for example a group's
+    ///     image, once the deletion can no longer be undone.
+    func recordDeletion(
+        _ sentence: String,
+        place: Place,
+        restore: @escaping @MainActor () -> Void,
+        deleteAgain: @escaping @MainActor () -> Void,
+        onDiscard: (@MainActor () -> Void)? = nil
+    ) {
+        record(
+            Self.deletionChange(sentence, restore: restore, deleteAgain: deleteAgain, onDiscard: onDiscard),
+            place: place
+        )
+    }
+
+    /// Empties the history at quit: every change lets go of what it kept.
+    func discardAll() {
+        for change in history.removeAll() {
+            unregister(change.id)
+            change.onDiscard?()
+        }
+        redoChanges.removeAll()
+        canUndo = false
+    }
+
     /// Takes a change out of the history without running it, for example when the notice it
     /// belongs to was undone on its own.
     func forget(id: UUID) {
@@ -164,6 +195,38 @@ final class LayoutUndo {
     }
 
     // MARK: Private
+
+    private static func deletionChange(
+        _ sentence: String,
+        restore: @escaping @MainActor () -> Void,
+        deleteAgain: @escaping @MainActor () -> Void,
+        onDiscard: (@MainActor () -> Void)?
+    ) -> Change {
+        Change(
+            sentence: sentence,
+            actionName: String(localized: "Delete"),
+            inverse: {
+                // The redo deletes again; its own undo restores again.
+                Change(
+                    sentence: sentence,
+                    actionName: String(localized: "Delete"),
+                    inverse: {
+                        deletionChange(sentence, restore: restore, deleteAgain: deleteAgain, onDiscard: onDiscard)
+                    },
+                    perform: {
+                        deleteAgain()
+                        return true
+                    },
+                    onDiscard: nil
+                )
+            },
+            perform: {
+                restore()
+                return true
+            },
+            onDiscard: onDiscard
+        )
+    }
 
     /// Shows the toast and puts the menu bar panel up or away to match.
     private func setToast(_ content: ToastContent?) {

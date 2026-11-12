@@ -153,6 +153,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        // What deletions kept for their undo (a group's image) goes now.
+        appState.layoutUndo.discardAll()
         if #available(macOS 27.0, *) {
             // Released synchronously, before the process goes, so no application stays hidden.
             appState.concealer27.releaseAllForTermination()

@@ -7,6 +7,7 @@ import SwiftUI
 
 /// Creates groups of items behind icons of their own (jordanbaird/Ice#46).
 struct ItemGroupsSection: View {
+    @Environment(AppState.self) private var appState
     var groups: MenuBarItemGroups
     var itemManager: MenuBarItemManager
     @State private var isNamingGroup = false
@@ -135,7 +136,17 @@ struct ItemGroupsSection: View {
         .settingsSubRow()
         SettingsButtonRow {
             Button("Delete", role: .destructive) {
-                groups.deleteGroup(group)
+                // Acts at once; the undo toast brings the group back with its image (D-04).
+                guard let removed = groups.deleteGroup(group) else {
+                    return
+                }
+                appState.layoutUndo.recordDeletion(
+                    String(localized: "\u{201C}\(group.name)\u{201D} deleted"),
+                    place: .settings,
+                    restore: { groups.reinsertGroup(removed.group, at: removed.index) },
+                    deleteAgain: { groups.deleteGroup(removed.group) },
+                    onDiscard: { groups.discardImage(of: removed.group) }
+                )
             }
         }
         .settingsSubRow()
