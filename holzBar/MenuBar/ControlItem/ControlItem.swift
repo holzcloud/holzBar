@@ -942,6 +942,14 @@ final class ControlItem {
         settingsItem.keyEquivalentModifierMask = .command
         menu.addItem(settingsItem)
 
+        let arrangeItem = NSMenuItem(
+            title: String(localized: "Arrange Menu Bar…"),
+            action: #selector(arrangeMenuBar),
+            keyEquivalent: ""
+        )
+        arrangeItem.target = self
+        menu.addItem(arrangeItem)
+
         menu.addItem(.separator())
 
         let searchItem = NSMenuItem(
@@ -1028,6 +1036,13 @@ final class ControlItem {
         }
         let menu = createMenu(with: appState)
         statusItem.showMenu(menu)
+    }
+
+    /// Opens Settings on Layout (D-19); while permissions are missing the settings path shows
+    /// the Permissions window instead.
+    @objc private func arrangeMenuBar() {
+        appState?.navigationState.settingsNavigationIdentifier = .menuBarLayout
+        (NSApp.delegate as? AppDelegate)?.openSettingsWindow()
     }
 
     /// Toggles the menu bar section associated with the given menu item.
