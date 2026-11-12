@@ -56,6 +56,12 @@ struct AboutSettingsPane: View {
                         appState.openWindow(.whatsNew)
                     }
                 }
+                SettingsButtonRow(.aboutIntroduction) {
+                    Button("Show…") {
+                        appState.activate(for: .onboarding)
+                        appState.openWindow(.onboarding)
+                    }
+                }
                 SettingsButtonRow(.aboutAcknowledgements) {
                     Button("Show") {
                         isShowingAcknowledgements = true

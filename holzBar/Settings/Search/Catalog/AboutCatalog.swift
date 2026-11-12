@@ -21,6 +21,7 @@ extension SettingsCatalog {
             .aboutBasedOnIce,
             .aboutHowToUpdate,
             .aboutWhatsNew,
+            .aboutIntroduction,
             .aboutAcknowledgements,
             .aboutDiagnostics,
             .aboutQuit,
@@ -78,6 +79,14 @@ extension SettingsEntry {
         pane: .about,
         group: SettingsCatalog.AboutPane.more,
         label: String(localized: "What's new in this version")
+    )
+
+    static let aboutIntroduction = SettingsEntry(
+        id: "aboutIntroduction",
+        pane: .about,
+        group: SettingsCatalog.AboutPane.more,
+        label: String(localized: "Introduction to holzBar"),
+        info: String(localized: "The three short steps of the first launch: what holzBar does, how to show hidden items and how to arrange your menu bar.")
     )
 
     static let aboutAcknowledgements = SettingsEntry(

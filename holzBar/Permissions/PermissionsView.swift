@@ -109,6 +109,13 @@ struct PermissionsView: View {
 
             appState.performSetup(hasPermissions: true)
 
+            // While the onboarding waits, it comes instead of Settings (D-20).
+            guard OnboardingPolicy.continueOpensSettings(
+                isPending: Defaults.bool(forKey: .onboardingPending),
+                hasImportedSettings: appState.didImportPreviousSettings
+            ) else {
+                return
+            }
             Task {
                 appState.activate(for: .settings)
                 appState.openWindow(.settings)
