@@ -8615,124 +8615,6 @@
         }
       }
     },
-    "macOS asks for Bluetooth when the Notch hub is on." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS požádá o Bluetooth, když je zapnuté centrum u výřezu."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS fragt nach Bluetooth, sobald der Notch-Hub an ist."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS pedirá acceso a Bluetooth en cuanto el centro del notch esté activado."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS demande l’accès au Bluetooth dès que le hub de l’encoche est activé."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A macOS Bluetooth-engedélyt kér, amikor a notch-központ be van kapcsolva."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS meminta akses Bluetooth saat pusat notch diaktifkan."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS chiede il Bluetooth non appena l’hub del notch è attivo."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ノッチハブがオンになると、macOS が Bluetooth の使用許可を求めます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "노치 허브가 켜지면 macOS가 Bluetooth 사용 권한을 요청합니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS vraagt om Bluetooth wanneer de notch-hub aan staat."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS zapyta o Bluetooth, gdy centrum notcha jest włączone."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O macOS pede acesso ao Bluetooth assim que o hub do notch estiver ativado."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS dumonda davart Bluetooth uschespert che il hub da la notch è activà."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS запросит доступ к Bluetooth, как только центр у выреза будет включён."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS ber om Bluetooth-åtkomst när notchcentret är på."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notch merkezi açıkken macOS Bluetooth erişimi ister."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS запитає доступ до Bluetooth, щойно центр біля вирізу буде ввімкнено."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "刘海中心开启后，macOS 会请求使用蓝牙。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "開啟「瀏海中心」時，macOS 會要求藍牙權限。"
-          }
-        }
-      }
-    },
     "Media Controls" : {
       "localizations" : {
         "cs" : {
@@ -10735,124 +10617,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "目前沒有任何活動"
-          }
-        }
-      }
-    },
-    "Off by default, because AirPods disconnect whenever they go back in their case." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ve výchozím stavu vypnuto, protože se AirPods odpojí, kdykoli se vrátí do pouzdra."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Standardmäßig aus, weil sich AirPods trennen, sobald sie zurück in ihr Case kommen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desactivado de forma predeterminada, porque los AirPods se desconectan cada vez que vuelven a su estuche."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Désactivé par défaut, car les AirPods se déconnectent dès qu’ils retournent dans leur boîtier."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alapértelmezés szerint ki, mert az AirPods leválik, amint visszakerül a tokjába."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mati secara default, karena AirPods terputus begitu dimasukkan kembali ke casing."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Disattivato per impostazione predefinita, perché gli AirPods si disconnettono ogni volta che tornano nella custodia."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AirPods はケースに戻すたびに切断されるため、初期設定ではオフです。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AirPods는 케이스에 넣을 때마다 연결이 끊어지므로 기본값은 꺼짐입니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Standaard uit, omdat AirPods de verbinding verbreken zodra ze terug in hun etui gaan."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Domyślnie wyłączone, bo AirPods rozłączają się, gdy tylko wrócą do etui."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desativado por padrão, porque os AirPods se desconectam sempre que voltam ao estojo."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deactivà tenor standard, perquai che las AirPods sa disconnectan mintga giada ch’ellas turnan en lur cassa."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "По умолчанию выключено, потому что AirPods отключаются каждый раз, когда их убирают в кейс."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Av som standard, eftersom AirPods kopplas från så snart de läggs tillbaka i fodralet."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Varsayılan olarak kapalı, çünkü AirPods kutuya geri konur konmaz bağlantısı kesilir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Типово вимкнено, бо AirPods відключаються щоразу, коли їх ховають у футляр."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "默认关闭，因为 AirPods 每次放回充电盒时都会断开连接。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "預設為關閉，因為 AirPods 每次放回充電盒時都會中斷連線。"
           }
         }
       }
@@ -63401,124 +63165,6 @@
         }
       }
     },
-    "Shows what browsers and video apps play, too. Uses a private macOS interface and a helper that holzBar starts only while the hub is open. It switches itself off if macOS changes it." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zobrazuje i to, co přehrávají prohlížeče a aplikace pro video. Používá soukromé rozhraní macOS a pomocný program, který holzBar spouští jen při otevřeném centru. Sám se vypne, pokud ho macOS změní."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zeigt auch, was Browser und Video-Apps abspielen. Nutzt eine private macOS-Schnittstelle und einen Helfer, den holzBar nur startet, solange der Hub offen ist. Schaltet sich selbst aus, wenn macOS sie ändert."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Muestra también lo que reproducen los navegadores y las apps de vídeo. Usa una interfaz privada de macOS y un ayudante que holzBar inicia solo mientras el hub está abierto. Se desactiva solo si macOS la cambia."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Affiche aussi ce que lisent les navigateurs et les apps vidéo. Utilise une interface privée de macOS et un assistant que holzBar ne lance que lorsque le hub est ouvert. Se désactive de lui-même si macOS la modifie."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Azt is mutatja, amit a böngészők és videóalkalmazások lejátszanak. A macOS egy privát felületét és egy segédprogramot használ, amelyet a holzBar csak a központ megnyitása alatt indít el. Magától kikapcsol, ha a macOS megváltoztatja."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Juga menampilkan apa yang diputar browser dan app video. Memakai antarmuka pribadi macOS dan sebuah pembantu yang hanya dijalankan holzBar saat pusat terbuka. Mati sendiri jika macOS mengubahnya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostra anche ciò che riproducono browser e app video. Usa un’interfaccia privata di macOS e un helper che holzBar avvia solo mentre l’hub è aperto. Si disattiva da sola se macOS la modifica."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ブラウザやビデオアプリが再生している内容も表示します。macOSのプライベートなインターフェースと、hubが開いている間だけholzBarが起動するヘルパーを使用します。macOSがそれを変更すると、自動的にオフになります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "브라우저와 동영상 앱이 재생하는 내용도 표시합니다. macOS의 비공개 인터페이스와, hub가 열려 있는 동안에만 holzBar가 실행하는 도우미를 사용합니다. macOS가 이를 변경하면 스스로 꺼집니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toont ook wat browsers en video-apps afspelen. Gebruikt een privé-interface van macOS en een hulpprogramma dat holzBar alleen start terwijl de hub open is. Het schakelt zichzelf uit als macOS het wijzigt."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pokazuje też to, co odtwarzają przeglądarki i aplikacje wideo. Używa prywatnego interfejsu macOS i programu pomocniczego, który holzBar uruchamia tylko przy otwartym centrum. Wyłącza się samo, jeśli macOS go zmieni."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostra também o que navegadores e apps de vídeo reproduzem. Usa uma interface privada do macOS e um auxiliar que o holzBar inicia somente enquanto o hub está aberto. Desliga-se sozinho se o macOS a alterar."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mussa era tge che navigaturs ed apps da video reproduceschan. Duvra ina interfatscha privata da macOS ed in agid che holzBar entscheva mo uschè ditg che il hub è avert. El sa deactivescha atgnamain, sche macOS la midada."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Показывает также то, что воспроизводят браузеры и видеоприложения. Использует закрытый интерфейс macOS и вспомогательную программу, которую holzBar запускает только пока открыт hub. Отключается сама, если macOS его изменит."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visar även det som webbläsare och videoappar spelar. Använder ett privat macOS-gränssnitt och ett hjälpprogram som holzBar bara startar medan centret är öppet. Stängs av av sig självt om macOS ändrar det."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tarayıcıların ve video uygulamalarının oynattığını da gösterir. macOS’in özel bir arayüzünü ve holzBar’ın yalnızca merkez açıkken başlattığı bir yardımcıyı kullanır. macOS bunu değiştirirse kendiliğinden kapanır."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Показує також те, що відтворюють браузери та відеопрограми. Використовує закритий інтерфейс macOS і допоміжну програму, яку holzBar запускає лише поки відкрито центр. Вимикається сама, якщо macOS його змінить."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "同时显示浏览器和视频 App 正在播放的内容。使用 macOS 的私有接口，以及 holzBar 仅在 hub 打开期间启动的辅助程序。如果 macOS 更改了该接口，它会自动关闭。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "同時顯示瀏覽器與影片 App 正在播放的內容。使用 macOS 的私有介面，以及只在中心開啟時才啟動的輔助程式。如果 macOS 更改了該介面，它會自動關閉。"
-          }
-        }
-      }
-    },
     "Shows your next events and their meeting links in the notch hub." : {
       "localizations" : {
         "de" : {
@@ -102617,124 +102263,6 @@
         }
       }
     },
-    "Uses a macOS call that Apple does not document, so it may stop working in a later macOS. Nothing is sent anywhere." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Používá volání macOS, které Apple nedokumentuje, takže může v pozdější verzi macOS přestat fungovat. Nic se nikam neodesílá."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nutzt einen macOS-Aufruf, den Apple nicht dokumentiert, und kann in einer späteren macOS-Version aufhören zu funktionieren. Nichts wird irgendwohin gesendet."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usa una llamada de macOS que Apple no documenta, por lo que podría dejar de funcionar en una versión posterior. No se envía nada a ningún sitio."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utilise un appel de macOS que Apple ne documente pas ; il peut cesser de fonctionner dans une version ultérieure. Rien n’est envoyé nulle part."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Olyan macOS-hívást használ, amelyet az Apple nem dokumentál, ezért egy későbbi macOS-ben leállhat. Semmi sem kerül elküldésre sehová."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Memakai panggilan macOS yang tidak didokumentasikan Apple, jadi mungkin berhenti bekerja di macOS berikutnya. Tidak ada yang dikirim ke mana pun."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usa una chiamata di macOS che Apple non documenta, quindi potrebbe smettere di funzionare in una versione successiva. Non viene inviato nulla."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apple が公開していない macOS の呼び出しを使うため、今後の macOS で動作しなくなる可能性があります。何も送信されません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apple이 문서화하지 않은 macOS 호출을 사용하므로 이후 macOS에서 작동하지 않을 수 있습니다. 아무것도 전송되지 않습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gebruikt een macOS-aanroep die Apple niet documenteert, dus hij kan in een latere macOS ophouden te werken. Er wordt nergens iets naartoe verzonden."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Używa wywołania macOS, którego Apple nie dokumentuje, więc może przestać działać w późniejszej wersji macOS. Nic nie jest nigdzie wysyłane."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usa uma chamada do macOS que a Apple não documenta, então pode deixar de funcionar em uma versão futura. Nada é enviado para lugar nenhum."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Duvra ina clamada da macOS che Apple na documentescha betg e pudess smetter da funcziunar en ina versiun pli tardiva. Nagut na vegn tramett."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Использует вызов macOS, который Apple не документирует, поэтому может перестать работать в следующих версиях macOS. Ничего никуда не отправляется."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Använder ett macOS-anrop som Apple inte dokumenterar, så det kan sluta fungera i en senare version av macOS. Ingenting skickas någonstans."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apple’ın belgelemediği bir macOS çağrısı kullanır, bu yüzden macOS’in sonraki bir sürümünde çalışmayı bırakabilir. Hiçbir şey hiçbir yere gönderilmez."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Використовує виклик macOS, який Apple не документує, тому може перестати працювати в наступних версіях macOS. Нічого нікуди не надсилається."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用 Apple 未公开的 macOS 调用，因此在今后的 macOS 中可能失效。不会向任何地方发送任何内容。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用 Apple 未公開文件的 macOS 呼叫，因此在日後的 macOS 中可能停止運作。不會傳送任何資料到任何地方。"
-          }
-        }
-      }
-    },
     "Alert when the battery is low" : {
       "localizations" : {
         "cs" : {
@@ -106743,124 +106271,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "需要「輔助使用」存取權限"
-          }
-        }
-      }
-    },
-    "Music and Spotify tell holzBar what they play." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Music und Spotify melden holzBar, was sie spielen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Music et Spotify indiquent à holzBar ce qu’ils jouent."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Music e Spotify comunicano a holzBar cosa riproducono."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Music e Spotify di a holzBar tge ch’els reproduceschan."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Music y Spotify le dicen a holzBar lo que reproducen."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O Music e o Spotify informam ao holzBar o que estão tocando."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MusicとSpotifyが、再生中の内容をholzBarに知らせます。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Music 和 Spotify 会告诉 holzBar 它们正在播放什么。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Music과 Spotify가 재생 중인 항목을 holzBar에 알려 줍니다."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Music и Spotify сообщают holzBar, что они играют."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Muziek en Spotify laten holzBar weten wat ze afspelen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Muzyka i Spotify informują holzBar, co odtwarzają."
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hudba a Spotify sdělují holzBar, co přehrávají."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A Zene és a Spotify megmondják a holzBarnak, mit játszanak."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Musik och Spotify berättar för holzBar vad de spelar."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Müzik ve Spotify holzBar’a ne çaldıklarını söyler."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Musik dan Spotify memberi tahu holzBar apa yang mereka putar."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Music і Spotify повідомляють holzBar, що вони грають."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「音樂」與 Spotify 會告訴 holzBar 它們正在播放什麼。"
           }
         }
       }
@@ -141694,6 +141104,1196 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "文字讀數、捷徑按鈕、指令碼和現成項目：專注模式、AirDrop、媒體控制、快速使用者切換、計時器、App 啟動器。"
+          }
+        }
+      }
+    },
+    "private interface" : {
+      "comment" : "Modules > hub module settings. Small text after a switch label: names the kind of interface it uses (private, undocumented).",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "soukromé rozhraní"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "private Schnittstelle"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "interfaz privada"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "interface privée"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "privát felület"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "antarmuka pribadi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "interfaccia privata"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非公開インターフェイス"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비공개 인터페이스"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "privé-interface"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "prywatny interfejs"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "interface privada"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "interfascha privata"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "закрытый интерфейс"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "privat gränssnitt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "özel arayüz"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "закритий інтерфейс"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "私有接口"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "私有介面"
+          }
+        }
+      }
+    },
+    "Battery levels are not available on this Mac" : {
+      "comment" : "Modules > Accessory alerts settings. State line when the battery read is unavailable.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Úrovně baterie nejsou na tomto Macu k dispozici"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Akkustände sind auf diesem Mac nicht verfügbar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los niveles de batería no están disponibles en este Mac"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les niveaux de batterie ne sont pas disponibles sur ce Mac"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az akkumulátorszintek nem érhetők el ezen a Macen"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Level baterai tidak tersedia di Mac ini"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I livelli della batteria non sono disponibili su questo Mac"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この Mac ではバッテリー残量を読み取れません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 Mac에서는 배터리 잔량을 사용할 수 없습니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batterijniveaus zijn niet beschikbaar op deze Mac"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poziomy baterii nie są dostępne na tym Macu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os níveis de bateria não estão disponíveis neste Mac"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils nivels da la batteria n’èn betg disponibels sin quest Mac"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уровни заряда недоступны на этом Mac"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batterinivåer är inte tillgängliga på den här Macen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pil seviyeleri bu Mac’te kullanılamıyor"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рівні заряду недоступні на цьому Mac"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 Mac 无法读取电量"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 Mac 無法讀取電池電量"
+          }
+        }
+      }
+    },
+    "A capsule below the notch names the accessory for five seconds. macOS asks for Bluetooth when the Notch hub is on." : {
+      "comment" : "Modules > Accessory alerts settings. Small text below the switch.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapsle pod výřezem pět sekund uvádí název příslušenství. macOS požádá o Bluetooth, když je zapnuté centrum u výřezu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Kapsel unter der Notch nennt das Zubehör fünf Sekunden lang. macOS fragt nach Bluetooth, sobald der Notch-Hub an ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una cápsula bajo el notch nombra el accesorio durante cinco segundos. macOS pedirá acceso a Bluetooth en cuanto el centro del notch esté activado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une capsule sous l’encoche indique le nom de l’accessoire pendant cinq secondes. macOS demande l’accès au Bluetooth dès que le hub de l’encoche est activé."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A notch alatti kapszula öt másodpercig megnevezi a tartozékot. A macOS Bluetooth-engedélyt kér, amikor a notch-központ be van kapcsolva."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapsul di bawah notch menyebutkan nama aksesori selama lima detik. macOS meminta akses Bluetooth saat pusat notch diaktifkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una capsula sotto il notch indica il nome dell’accessorio per cinque secondi. macOS chiede il Bluetooth non appena l’hub del notch è attivo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ノッチの下のカプセルに、アクセサリの名前が 5 秒間表示されます。ノッチハブがオンになると、macOS が Bluetooth の使用許可を求めます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노치 아래의 캡슐에 5초 동안 액세서리 이름이 표시됩니다. 노치 허브가 켜지면 macOS가 Bluetooth 사용 권한을 요청합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een capsule onder de notch noemt het accessoire vijf seconden lang. macOS vraagt om Bluetooth wanneer de notch-hub aan staat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapsuła pod notchem przez pięć sekund pokazuje nazwę akcesorium. macOS zapyta o Bluetooth, gdy centrum notcha jest włączone."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma cápsula abaixo do notch mostra o nome do acessório por cinco segundos. O macOS pede acesso ao Bluetooth assim que o hub do notch estiver ativado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In capsula sut la notch numna l’accessori durant tschintg secundas. macOS dumonda davart Bluetooth uschespert che il hub da la notch è activà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Капсула под вырезом на пять секунд показывает название аксессуара. macOS запросит доступ к Bluetooth, как только центр у выреза будет включён."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En kapsel under notchen anger tillbehörets namn i fem sekunder. macOS ber om Bluetooth-åtkomst när notchcentret är på."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch’un altındaki bir kapsül aksesuarın adını beş saniye gösterir. Notch merkezi açıkken macOS Bluetooth erişimi ister."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Капсула під вирізом на пʼять секунд показує назву аксесуара. macOS запитає доступ до Bluetooth, щойно центр біля вирізу буде ввімкнено."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刘海下方的胶囊会显示配件名称，持续五秒。刘海中心开启后，macOS 会请求使用蓝牙。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "瀏海下方的膠囊會顯示配件名稱五秒鐘。開啟「瀏海中心」時，macOS 會要求藍牙權限。"
+          }
+        }
+      }
+    },
+    "AirPods disconnect whenever they go back in their case." : {
+      "comment" : "Modules > Accessory alerts settings. Small text explaining a known behaviour of AirPods.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods se odpojí pokaždé, když se vrátí do pouzdra."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods trennen sich jedes Mal, wenn sie ins Case zurückgehen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los AirPods se desconectan cada vez que vuelven a su estuche."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les AirPods se déconnectent dès qu’ils retournent dans leur boîtier."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az AirPods minden alkalommal lecsatlakozik, amikor visszakerül a tokjába."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods terputus setiap kali dimasukkan kembali ke casing-nya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli AirPods si scollegano ogni volta che tornano nella custodia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods は、ケースに戻すたびに接続が切れます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods는 케이스에 다시 넣을 때마다 연결이 끊어집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods verbreken de verbinding telkens als ze terug in hun hoesje gaan."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods rozłączają się za każdym razem, gdy wracają do etui."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os AirPods se desconectam sempre que voltam para o estojo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods sa deconnectan mintga giada ch’els turnan en lur cassa."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods отключаются каждый раз, когда возвращаются в кейс."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods kopplas från varje gång de läggs tillbaka i sitt fodral."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods kutusuna her geri döndüğünde bağlantıyı keser."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods відключаються щоразу, коли повертаються в кейс."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods 每次放回充电盒时都会断开连接。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods 每次放回充電盒時都會中斷連線。"
+          }
+        }
+      }
+    },
+    "Levels are read on this Mac and sent nowhere. Uses a private macOS interface. It switches itself off if macOS changes it." : {
+      "comment" : "Modules > Accessory alerts settings. Info popover of the battery read.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Úrovně se čtou na tomto Macu a nikam se neodesílají. Používá soukromé rozhraní macOS. Samo se vypne, pokud ho macOS změní."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Stände werden auf diesem Mac gelesen und nirgendwohin gesendet. Nutzt eine private macOS-Schnittstelle. Sie schaltet sich selbst ab, wenn macOS sie ändert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los niveles se leen en este Mac y no se envían a ningún sitio. Usa una interfaz privada de macOS. Se desactiva sola si macOS la cambia."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les niveaux sont lus sur ce Mac et ne sont envoyés nulle part. Utilise une interface privée de macOS. Elle se désactive d'elle-même si macOS la modifie."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A szinteket ezen a Macen olvassa, és sehová nem küldi el. A macOS privát felületét használja. Magától kikapcsol, ha a macOS megváltoztatja."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Level dibaca di Mac ini dan tidak dikirim ke mana pun. Memakai antarmuka pribadi macOS. Mati sendiri jika macOS mengubahnya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I livelli vengono letti su questo Mac e non vengono inviati da nessuna parte. Usa un'interfaccia privata di macOS. Si disattiva da sola se macOS la cambia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "残量はこの Mac 上で読み取られ、どこにも送信されません。macOS の非公開インターフェイスを使用します。macOS が変更した場合は自動的にオフになります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "잔량은 이 Mac에서 읽으며 어디로도 전송되지 않습니다. macOS의 비공개 인터페이스를 사용합니다. macOS에서 변경하면 자동으로 꺼집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De niveaus worden op deze Mac gelezen en nergens naartoe verzonden. Gebruikt een privé-interface van macOS. Het schakelt zichzelf uit als macOS het wijzigt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poziomy są odczytywane na tym Macu i nigdzie nie są wysyłane. Używa prywatnego interfejsu macOS. Wyłącza się samo, jeśli macOS go zmieni."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os níveis são lidos neste Mac e não são enviados a lugar nenhum. Usa uma interface privada do macOS. Desliga-se sozinha se o macOS a alterar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils nivels vegnan legids sin quest Mac e betg trametts a nagina vart. Duvra ina interfascha privata da macOS. Ella sa deactiveschescha sezza sch'macOS la midada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уровни считываются на этом Mac и никуда не отправляются. Использует закрытый интерфейс macOS. Отключается сама, если macOS его изменит."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nivåerna läses på den här Macen och skickas ingenstans. Använder ett privat macOS-gränssnitt. Stängs av av sig självt om macOS ändrar det."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seviyeler bu Mac’te okunur ve hiçbir yere gönderilmez. macOS’in özel bir arayüzünü kullanır. macOS bunu değiştirirse kendiliğinden kapanır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рівні зчитуються на цьому Mac і нікуди не надсилаються. Використовує закритий інтерфейс macOS. Вимикається сама, якщо macOS його змінить."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "电量在此 Mac 上读取，不会发送到任何地方。使用 macOS 的私有接口。如果 macOS 更改了该接口，它会自动关闭。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "電量在此 Mac 上讀取，不會傳送到任何地方。使用 macOS 的私有介面。如果 macOS 更改了該介面，它會自動關閉。"
+          }
+        }
+      }
+    },
+    "Bluetooth access is off" : {
+      "comment" : "Modules > Accessory alerts settings. State line when Bluetooth permission is off.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přístup k Bluetooth je vypnutý"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth-Zugriff ist aus"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El acceso a Bluetooth está desactivado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’accès au Bluetooth est désactivé"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Bluetooth-hozzáférés ki van kapcsolva"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Akses Bluetooth mati"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’accesso al Bluetooth è disattivato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth へのアクセスがオフです"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth 접근이 꺼져 있습니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toegang tot Bluetooth staat uit"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dostęp do Bluetooth jest wyłączony"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O acesso ao Bluetooth está desativado"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’access a Bluetooth è deactivà"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступ к Bluetooth выключен"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Åtkomst till Bluetooth är av"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth erişimi kapalı"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступ до Bluetooth вимкнено"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蓝牙访问已关闭"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "藍牙存取已關閉"
+          }
+        }
+      }
+    },
+    "Apple Music" : {
+      "comment" : "Modules > Now Playing settings. Row label for the Apple Music source.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music"
+          }
+        }
+      }
+    },
+    "Apple Music and Spotify tell holzBar what they play. One of the two always stays on." : {
+      "comment" : "Modules > Now Playing settings. Small text below the source rows.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music a Spotify říkají holzBaru, co přehrávají. Jedna z nich zůstane vždy zapnutá."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music und Spotify sagen holzBar, was sie spielen. Eines der beiden bleibt immer an."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music y Spotify le dicen a holzBar lo que reproducen. Una de las dos siempre queda activada."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music et Spotify indiquent à holzBar ce qu’ils lisent. L’un des deux reste toujours activé."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az Apple Music és a Spotify megmondja a holzBarnak, mit játszik. A kettő közül az egyik mindig bekapcsolva marad."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music dan Spotify memberi tahu holzBar apa yang mereka putar. Salah satunya selalu tetap aktif."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music e Spotify dicono a holzBar cosa riproducono. Uno dei due resta sempre attivo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music と Spotify は、再生中の内容を holzBar に伝えます。どちらか一方は常にオンのままです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music과 Spotify가 재생 중인 내용을 holzBar에 알려 줍니다. 둘 중 하나는 항상 켜져 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music en Spotify vertellen holzBar wat ze afspelen. Een van de twee blijft altijd aan."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music i Spotify mówią holzBar, co odtwarzają. Jedno z nich zawsze pozostaje włączone."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music e Spotify dizem ao holzBar o que estão tocando. Um dos dois sempre fica ativado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music e Spotify dian a holzBar tge ch’els reproduceschan. In dals dus resta adina activà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music и Spotify сообщают holzBar, что они воспроизводят. Один из двух всегда остаётся включённым."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music och Spotify talar om för holzBar vad de spelar. En av de två är alltid på."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music ve Spotify, ne çaldıklarını holzBar’a bildirir. İkisinden biri her zaman açık kalır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music і Spotify повідомляють holzBar, що вони відтворюють. Один із двох завжди залишається ввімкненим."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music 和 Spotify 会告诉 holzBar 它们正在播放什么。两者之中始终保留一个开启。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Music 與 Spotify 會告訴 holzBar 它們正在播放什麼。兩者之中永遠保留一個開啟。"
+          }
+        }
+      }
+    },
+    "The last source stays on" : {
+      "comment" : "Modules > Now Playing settings. State line when the last remaining source cannot be switched off.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poslední zdroj zůstává zapnutý"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die letzte Quelle bleibt an"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La última fuente sigue activada"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La dernière source reste activée"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az utolsó forrás bekapcsolva marad"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sumber terakhir tetap aktif"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’ultima fonte resta attiva"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最後のソースはオンのままです"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마지막 소스는 켜진 상태로 유지됩니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De laatste bron blijft aan"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostatnie źródło pozostaje włączone"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A última fonte continua ativada"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La davosa funtauna resta activada"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последний источник остаётся включённым"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den sista källan förblir på"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son kaynak açık kalır"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Останнє джерело залишається ввімкненим"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最后一个来源保持开启"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最後一個來源保持開啟"
+          }
+        }
+      }
+    },
+    "Shows what browsers and video apps play, too, through a helper that runs only while the hub is open. Uses a private macOS interface. It switches itself off if macOS changes it." : {
+      "comment" : "Modules > Now Playing settings. Info popover of Read all apps.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobrazuje také, co přehrávají prohlížeče a video aplikace, prostřednictvím pomocného programu, který běží jen při otevřeném centru. Používá soukromé rozhraní macOS. Samo se vypne, pokud ho macOS změní."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt auch, was Browser und Video-Apps spielen, über ein Hilfsprogramm, das nur läuft, solange der Hub offen ist. Nutzt eine private macOS-Schnittstelle. Sie schaltet sich selbst ab, wenn macOS sie ändert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "También muestra lo que reproducen los navegadores y las apps de vídeo, mediante un programa auxiliar que solo se ejecuta mientras el centro está abierto. Usa una interfaz privada de macOS. Se desactiva sola si macOS la cambia."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affiche aussi ce que lisent les navigateurs et les apps vidéo, via un programme auxiliaire qui ne s’exécute que tant que le hub est ouvert. Utilise une interface privée de macOS. Elle se désactive d'elle-même si macOS la modifie."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A böngészők és videóappok lejátszását is megjeleníti, egy segédprogramon keresztül, amely csak a központ megnyitása alatt fut. A macOS privát felületét használja. Magától kikapcsol, ha a macOS megváltoztatja."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Juga menampilkan apa yang diputar browser dan app video, melalui program pembantu yang hanya berjalan selama hub terbuka. Memakai antarmuka pribadi macOS. Mati sendiri jika macOS mengubahnya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra anche ciò che riproducono browser e app video, tramite un programma ausiliario che gira solo mentre l’hub è aperto. Usa un'interfaccia privata di macOS. Si disattiva da sola se macOS la cambia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ブラウザやビデオアプリの再生内容も表示します。ハブを開いている間だけ動作するヘルパーを使います。macOS の非公開インターフェイスを使用します。macOS が変更した場合は自動的にオフになります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "브라우저와 비디오 앱이 재생하는 내용도 표시하며, 허브가 열려 있는 동안에만 실행되는 도우미를 사용합니다. macOS의 비공개 인터페이스를 사용합니다. macOS에서 변경하면 자동으로 꺼집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toont ook wat browsers en video-apps afspelen, via een hulpprogramma dat alleen draait zolang de hub open is. Gebruikt een privé-interface van macOS. Het schakelt zichzelf uit als macOS het wijzigt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokazuje też, co odtwarzają przeglądarki i aplikacje wideo, za pomocą programu pomocniczego, który działa tylko wtedy, gdy centrum jest otwarte. Używa prywatnego interfejsu macOS. Wyłącza się samo, jeśli macOS go zmieni."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Também mostra o que navegadores e apps de vídeo reproduzem, por meio de um programa auxiliar que só roda enquanto o hub está aberto. Usa uma interface privada do macOS. Desliga-se sozinha se o macOS a alterar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussa era tge che navigaturs ed apps da video reproduceschan, cun agid d’in program d’agid che gira mo uschè ditg che il hub è avert. Duvra ina interfascha privata da macOS. Ella sa deactiveschescha sezza sch'macOS la midada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Также показывает, что воспроизводят браузеры и видеоприложения, с помощью вспомогательной программы, которая работает только пока центр открыт. Использует закрытый интерфейс macOS. Отключается сама, если macOS его изменит."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visar också vad webbläsare och videoappar spelar, via ett hjälpprogram som bara körs medan hubben är öppen. Använder ett privat macOS-gränssnitt. Stängs av av sig självt om macOS ändrar det."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarayıcıların ve video uygulamalarının oynattıklarını da gösterir; yalnızca merkez açıkken çalışan bir yardımcı program kullanır. macOS’in özel bir arayüzünü kullanır. macOS bunu değiştirirse kendiliğinden kapanır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Також показує, що відтворюють браузери та відеододатки, за допомогою допоміжної програми, яка працює лише поки центр відкрито. Використовує закритий інтерфейс macOS. Вимикається сама, якщо macOS його змінить."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还会显示浏览器和视频 App 正在播放的内容，通过仅在中心打开时运行的辅助程序实现。使用 macOS 的私有接口。如果 macOS 更改了该接口，它会自动关闭。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "也會顯示瀏覽器和影片 App 正在播放的內容，透過僅在中心開啟時執行的輔助程式實現。使用 macOS 的私有介面。如果 macOS 更改了該介面，它會自動關閉。"
           }
         }
       }
