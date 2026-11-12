@@ -53,9 +53,7 @@ nonisolated enum ScreenRecordingFeature: CaseIterable, Sendable {
 
     /// What Screen Recording is for, in one sentence that names every feature.
     static var summary: String {
-        """
-        Pictures of your menu bar items in the holzBar Shelf, the search and the Layout pane \
-        (on macOS 27 taken once per item), and a moving wallpaper beside a menu bar shape (before macOS 27).
-        """
+        // One line, so the string tools see the literal as the catalogue key it is.
+        "Pictures of your menu bar items in the holzBar Shelf, the search and the Layout pane (on macOS 27 taken once per item), and a moving wallpaper beside a menu bar shape (before macOS 27)."
     }
 }
