@@ -16083,124 +16083,6 @@
         }
       }
     },
-    "Add Widget" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Přidat widget"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Widget hinzufügen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Añadir widget"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajouter un widget"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Widget hozzáadása"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tambah widget"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aggiungi widget"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ウィジェットを追加"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "위젯 추가"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Widget toevoegen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dodaj widżet"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adicionar widget"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Agiuntar in widget"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Добавить виджет"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lägg till en widget"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Widget ekle"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Додати віджет"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "添加小组件"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "加入小工具"
-          }
-        }
-      }
-    },
     "Add a condition to this rule." : {
       "localizations" : {
         "cs" : {
@@ -141574,6 +141456,244 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "指標必須停在瀏海處，或在沒有瀏海的顯示器上停在上方中央。"
+          }
+        }
+      }
+    },
+    "Add Widget…" : {
+      "comment" : "Menu button title in Modules > Widgets that adds a widget.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přidat widget…"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget hinzufügen …"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir widget…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter un widget…"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget hozzáadása…"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tambah widget…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi widget…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ウィジェットを追加…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위젯 추가…"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget toevoegen…"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj widżet…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar widget…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agiuntar in widget…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить виджет…"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lägg till widget…"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget ekle…"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Додати віджет…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加小组件…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加入小工具⋯"
+          }
+        }
+      }
+    },
+    "Text readouts, a Shortcut button, a script and ready-made items: Focus, AirDrop, Media Controls, Fast User Switching, Timer, App Launcher." : {
+      "comment" : "Info popover of the add-widget row in Modules > Widgets; lists the kinds of widget.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Textové údaje, tlačítko zkratky, skript a hotové položky: Soustředění, AirDrop, Ovládání médií, Rychlé přepínání uživatelů, Časovač, Spouštěč aplikací."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Textanzeigen, eine Kurzbefehl-Schaltfläche, ein Skript und fertige Elemente: Fokus, AirDrop, Mediensteuerung, Schneller Benutzerwechsel, Timer, App-Starter."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indicadores de texto, un botón de atajo, un script y elementos predefinidos: Concentración, AirDrop, Controles multimedia, Cambio rápido de usuario, Temporizador, Lanzador de apps."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affichages de texte, un bouton de raccourci, un script et éléments prêts à l’emploi : Concentration, AirDrop, Commandes multimédia, Changement rapide d’utilisateur, Minuteur, Lanceur d’app."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szöveges kijelzők, parancsgomb, szkript és kész elemek: Fókusz, AirDrop, Médiavezérlők, Gyors felhasználóváltás, Időzítő, Appindító."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tampilan teks, tombol pintasan, skrip dan item siap pakai: Fokus, AirDrop, Kontrol Media, Pergantian pengguna cepat, Timer, Peluncur App."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indicatori di testo, un pulsante di comando rapido, uno script ed elementi già pronti: Full immersion, AirDrop, Controlli multimediali, Cambio rapido utente, Timer, Avvio app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "テキスト表示、ショートカットボタン、スクリプト、すぐに使える項目: 集中モード、AirDrop、メディアコントロール、高速ユーザ切り替え、タイマー、App ランチャー。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "텍스트 표시, 단축어 버튼, 스크립트 및 기본 제공 항목: 집중 모드, AirDrop, 미디어 제어, 빠른 사용자 전환, 타이머, 앱 실행기."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tekstweergaven, een opdrachtknop, een script en kant-en-klare onderdelen: Focus, AirDrop, Mediabediening, Snel wisselen van gebruiker, Timer, Appstarter."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wskazania tekstowe, przycisk skrótu, skrypt i gotowe elementy: Skupienie, AirDrop, Sterowanie multimediami, Szybkie przełączanie użytkowników, Minutnik, Program uruchamiający aplikacje."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indicadores de texto, um botão de atalho, um script e itens prontos: Foco, AirDrop, Controles de mídia, Troca rápida de usuário, Timer, Iniciador de apps."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indicaziuns da text, in buttun da Shortcut, in scrip ed elements fatgs: Focus, AirDrop, Controllas multimedialas, Midada svelta da utilisader, Timer, Starter d’app."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Текстовые показания, кнопка быстрой команды, скрипт и готовые элементы: Фокусирование, AirDrop, Управление медиа, Быстрое переключение пользователей, Таймер, Запуск приложений."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Textvisningar, en genvägsknapp, ett skript och färdiga element: Fokus, AirDrop, Mediekontroller, Snabbt användarbyte, Timer, Appstartare."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metin göstergeleri, bir kestirme düğmesi, bir komut dosyası ve hazır öğeler: Odak, AirDrop, Medya Denetimleri, Hızlı kullanıcı değiştirme, Zamanlayıcı, Uygulama Başlatıcı."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Текстові покази, кнопка швидкої команди, скрипт і готові елементи: Зосередження, AirDrop, Керування медіа, Швидке перемикання між користувачами, Таймер, Запуск програм."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文本读数、快捷指令按钮、脚本和现成项目：专注模式、隔空投送、媒体控制、快速切换用户、计时器、App 启动器。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文字讀數、捷徑按鈕、指令碼和現成項目：專注模式、AirDrop、媒體控制、快速使用者切換、計時器、App 啟動器。"
           }
         }
       }
