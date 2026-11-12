@@ -105,7 +105,11 @@ struct WidgetsSection: View {
 
     private func row(for definition: WidgetDefinition) -> some View {
         let isEditing = editingID == definition.id
-        return SettingsButtonRow(title(for: definition), small: summary(for: definition)) {
+        return SettingsButtonRow(
+            title(for: definition),
+            small: summary(for: definition),
+            info: WidgetEditor.explanation(for: definition, appName: launcherName(of: definition))
+        ) {
             Button {
                 editingID = isEditing ? nil : definition.id
             } label: {
