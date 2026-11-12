@@ -14,5 +14,6 @@ struct HolzBarApp: App {
         PermissionsWindow(appState: appDelegate.appState)
         WhatsNewWindow(appState: appDelegate.appState)
         OnboardingWindow(appState: appDelegate.appState)
+        ScreenRecordingOfferWindow(appState: appDelegate.appState)
     }
 }
