@@ -36,14 +36,14 @@ If you looked for an Ice fork that runs on macOS 27, or a free Bartender alterna
 - **Works on macOS 26 and 27.** A dedicated backend for the redesigned macOS 27 menu bar. Every pull request that changes code launches the app on both and runs the unit tests there. It needs macOS 14 or later; CI runs macOS 26 and 27.
 - **Never online.** No update checks, telemetry or analytics, and a CI check proves the app contains no network code.
 - **No dependencies, modern Swift.** Swift 6 language mode, built with Swift 6.4 and Xcode 27, no third-party packages.
-- **Least privilege.** Accessibility at first launch, Screen Recording optional, for pictures of your items, Location Services only when you add a Wi-Fi-name condition to a rule, Bluetooth only when you add a Bluetooth condition or switch on the Accessory alerts module. Calendar access only when you switch on the Calendar module of the notch hub, and access to your Downloads folder only when you switch on its downloads source in the Live activities module (the camera and microphone source needs no permission). Since 0.0.7-beta2 no XPC service or helper app, and from 1.0.0 one signed library for the optional Read all apps of Now Playing, used only while the hub is open and that switch is on; from 1.0.0 holzBar carries one entitlement, `com.apple.security.personal-information.calendars`, which only lets macOS ask you for Calendar access, and no `get-task-allow`.
+- **Least privilege.** The first launch asks only for Accessibility; Screen Recording is optional, for pictures of your items; Location Services only when you add a Wi-Fi-name condition to a rule, Bluetooth only when you add a Bluetooth condition or switch on the Accessory alerts module. Calendar access only when you switch on the Calendar module of the notch hub, and access to your Downloads folder only when you switch on its downloads source in the Live activities module (the camera and microphone source needs no permission). Since 0.0.7-beta2 no XPC service or helper app, and from 1.0.0 one signed library for the optional Read all apps of Now Playing, used only while the hub is open and that switch is on; from 1.0.0 holzBar carries one entitlement, `com.apple.security.personal-information.calendars`, which only lets macOS ask you for Calendar access, and no `get-task-allow`.
 - **Verifiable releases.** Signed with holzBar's own certificate, with GitHub build provenance and, since 0.0.7-beta2, SLSA Build Level 3 provenance.
-- **More than Ice.** Rules, scripts and widgets, profiles, folders, spacers, Zen mode, Shortcuts actions, URL commands, a command palette and moods, a black menu bar, and a camera and microphone dot on macOS 27. Available in 20 languages: English and nineteen translations, all machine-made and not yet checked by a native speaker ([how they are made and reviewed](docs/translations.md)).
+- **More than Ice.** Rules, scripts and widgets, profiles, folders, spacers, Zen mode, Shortcuts actions, URL commands, a command palette and moods, a black menu bar, a camera and microphone dot on macOS 27, a search over every setting, and Undo after every layout change. Available in 20 languages: English and nineteen translations, all machine-made and not yet checked by a native speaker ([how they are made and reviewed](docs/translations.md)).
 
 <table>
 <tr>
-<td width="50%" valign="top"><b>Layout</b>: drag items into sections<br><img src="Resources/Screenshots/settings-layout.png" alt="holzBar settings, Menu Bar Layout: drag menu bar icons into the visible, hidden and always-hidden sections"></td>
-<td width="50%" valign="top"><b>Appearance</b>: moods, tint, border, shapes, a black bar<br><img src="Resources/Screenshots/settings-appearance.png" alt="holzBar settings, Menu Bar Appearance: tint, shadow, border, shapes and rounded screen corners"></td>
+<td width="50%" valign="top"><b>Layout</b>: drag items into sections<br><img src="Resources/Screenshots/settings-layout.png" alt="holzBar settings, Layout: drag menu bar icons into the visible, hidden and always-hidden sections"></td>
+<td width="50%" valign="top"><b>Appearance</b>: moods, tint, border, shapes, a black bar<br><img src="Resources/Screenshots/settings-appearance.png" alt="holzBar settings, Appearance: tint, shadow, border, shapes and rounded screen corners"></td>
 </tr>
 </table>
 
@@ -67,6 +67,10 @@ Researched on 9 October 2026 from each project's own pages and repositories. A d
 | Hidden and always-hidden sections, separate bar | yes | yes | yes | yes |
 | Layout profiles, groups, spacers | no | yes | yes | yes |
 | Rules and scripts | no | yes | yes | yes |
+| Search over every setting (⌘F) | no | - | - | yes |
+| Layout as a list with a filter and a section menu per item | no | - | - | yes |
+| Undo after every layout change, also in the menu bar | no | in the layout editor | - | yes |
+| Short introduction after the first launch | no | - | - | yes |
 | Network connections | Sparkle updates | Sparkle updates | vendor says none | none, enforced by CI |
 | Dependencies, Swift | 5 packages, Swift 5 | 9 packages, Swift 6 | closed | none, Swift 6 |
 | Build provenance | no | Cosign, SLSA | - | SLSA Build Level 3 |
@@ -93,11 +97,20 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ## What's new
 
+### 1.1.0 beta
+
+Details: [release notes](docs/release-notes/v1.1.0-beta1.md) · [full list](docs/features.md#new-in-110)
+
+- **Settings, redesigned**: eleven panes sorted by task, compact rows with an info button, and a search over every setting with ⌘F.
+- **Layout as a list**: bars or a list of every item with its app and a section menu, a filter, and Move to at the top of each item's menu.
+- **Undo after every change**: a layout change in Settings or in the menu bar shows a notice with Undo for five seconds, and ⌘Z works too.
+- **A short introduction**: the first launch asks only for Accessibility, then shows three short steps that About shows again.
+
 ### 1.0.5
 
 Details: [release notes](docs/release-notes/v1.0.5.md) · [full list](docs/features.md#new-in-105)
 
-- **Command-drag across the holzBar icon**: on macOS 27, dragging an item with ⌘ Command across the holzBar icon hides its app (to the left) or shows it (to the right), with Undo in Menu Bar Layout.
+- **Command-drag across the holzBar icon**: on macOS 27, dragging an item with ⌘ Command across the holzBar icon hides its app (to the left) or shows it (to the right), with Undo in Layout.
 - **Fixes**: rules no longer reveal hidden apps on macOS 27, rehiding waits for open menus, the ⌘ Command-drag respects the Touch ID lock and Zen mode, and the holzBar icon can no longer get lost in the hidden section.
 
 ### 1.0.4
@@ -115,7 +128,7 @@ Details: [release notes](docs/release-notes/v1.0.4.md) · [full list](docs/featu
 - **1.0.1** ([notes](docs/release-notes/v1.0.1.md), [details](docs/features.md#new-in-101)): the What's New window, a tab for every version, with a switch under Settings → General → Startup.
 - **1.0.0** ([notes](docs/release-notes/v1.0.0.md), [details](docs/features.md#new-in-100)):
   - Notch hub: eight optional modules (Now Playing, Calendar, Timers, Live activities, File drop, Display controls, Accessory alerts, Notifications), each off until you switch it on in Settings → Modules.
-  - Menu bar and Shelf: a count badge on the icon, sorting in Menu Bar Layout and drop to hide on macOS 27, Apple Items in the Shelf, hidden items that stay listed, hub tabs in one row.
+  - Menu bar and Shelf: a count badge on the icon, sorting in Layout and drop to hide on macOS 27, Apple Items in the Shelf, hidden items that stay listed, hub tabs in one row.
   - 20 languages: nine new translations, all machine-made ([how they are reviewed](docs/translations.md)).
 - **0.0.13** ([notes](docs/release-notes/v0.0.13.md), [details](docs/features.md#new-in-0013)):
   - Shelf: type to find an item, a fold tile for always-hidden items ("+3"), dimmed apps that are not running, drag to reorder.
