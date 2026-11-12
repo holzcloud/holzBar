@@ -153490,244 +153490,6 @@
         }
       }
     },
-    "macOS gave holzBar no pictures of these items." : {
-      "comment" : "Layout bars and Shelf: the screen capture of the items failed",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS nepředal holzBaru žádné obrázky těchto položek."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS hat holzBar keine Bilder dieser Elemente gegeben."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS no ha dado a holzBar imágenes de estos elementos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS n’a fourni à holzBar aucune image de ces éléments."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A macOS nem adott a holzBarnak képeket ezekről az elemekről."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS tidak memberi holzBar gambar item ini."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS non ha fornito a holzBar alcuna immagine di questi elementi."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOSがholzBarにこれらの項目の画像を渡しませんでした。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS가 holzBar에 이 항목들의 이미지를 제공하지 않았습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS heeft holzBar geen afbeeldingen van deze onderdelen gegeven."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS nie przekazał holzBar obrazów tych elementów."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS não forneceu ao holzBar nenhuma imagem desses itens."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS n’ha dà a holzBar naginas maletgs da quests elements."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS не передала holzBar изображения этих элементов."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS gav inte holzBar några bilder av de här objekten."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS, holzBar’a bu öğelerin görüntülerini vermedi."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS не передала holzBar зображень цих елементів."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 没有向 holzBar 提供这些项目的图像。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 沒有向 holzBar 提供這些項目的影像。"
-          }
-        }
-      }
-    },
-    "Try Again" : {
-      "comment" : "Button: takes the pictures of the items again",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zkusit znovu"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erneut versuchen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reintentar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Réessayer"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Próbálja újra"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Coba lagi"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Riprova"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "再試行"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "다시 시도"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Probeer opnieuw"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spróbuj ponownie"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tentar novamente"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Empruvar anc ina giada"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Повторить"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Försök igen"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Yeniden dene"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Повторити"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重试"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重試"
-          }
-        }
-      }
-    },
     "No matches" : {
       "comment" : "Search panel empty state title when the search finds nothing",
       "localizations" : {
@@ -158127,6 +157889,125 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar 對每件事物只用一個詞：一律隱藏、App，以及用於你所建立內容的刪除。"
+          }
+        }
+      }
+    },
+    "On macOS 27, an app whose picture matched another app's tile gets its own picture again, and items without a picture show their app's icon." : {
+      "comment" : "What's New 1.1.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 aplikace, jejíž obrázek se shodoval s dlaždicí jiné aplikace, opět dostane svůj vlastní obrázek a položky bez obrázku ukazují ikonu své aplikace."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 bekommt eine App, deren Bild der Kachel einer anderen App glich, wieder ihr eigenes Bild, und Elemente ohne Bild zeigen das Symbol ihrer App."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, una app cuya imagen coincidía con el mosaico de otra app vuelve a tener su propia imagen, y los elementos sin imagen muestran el icono de su app."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sur macOS 27, une app dont l’image ressemblait à la vignette d’une autre app retrouve sa propre image, et les éléments sans image affichent l’icône de leur app."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt az az alkalmazás, amelynek képe egy másik alkalmazás csempéjével egyezett, ismét saját képet kap, a kép nélküli elemek pedig az alkalmazásuk ikonját mutatják."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, app yang gambarnya sama dengan petak app lain kembali mendapat gambarnya sendiri, dan item tanpa gambar menampilkan ikon app-nya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, un’app la cui immagine coincideva con il riquadro di un’altra app riceve di nuovo la propria immagine, e gli elementi senza immagine mostrano l’icona della loro app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 で、ほかのアプリのタイルと同じ画像になっていたアプリが自分の画像を再び取得し、画像のない項目にはアプリのアイコンが表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 다른 앱의 타일과 같은 그림이었던 앱이 다시 자신의 그림을 갖게 되며, 그림이 없는 항목은 앱 아이콘을 보여 줍니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In macOS 27 krijgt een app waarvan de afbeelding gelijk was aan de tegel van een andere app weer een eigen afbeelding, en onderdelen zonder afbeelding tonen het symbool van hun app."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 aplikacja, której obraz był taki sam jak kafelek innej aplikacji, znów dostaje własny obraz, a elementy bez obrazu pokazują ikonę swojej aplikacji."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, um app cuja imagem coincidia com o bloco de outro app volta a ter sua própria imagem, e itens sem imagem mostram o ícone do seu app."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 survegn ina app, dal la quala il maletg sumegliava al quadrat d’in’autra app, puspè ses agen maletg, ed elements senza maletg mussan il simbol da lur app."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 приложение, чьё изображение совпадало с плиткой другого приложения, снова получает своё изображение, а элементы без изображения показывают значок своего приложения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I macOS 27 får en app vars bild liknade en annan apps ruta sin egen bild igen, och objekt utan bild visar sin apps symbol."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27'de görüntüsü başka bir uygulamanın kutucuğuyla aynı olan bir uygulama yeniden kendi görüntüsünü alır ve görüntüsü olmayan öğeler uygulamalarının simgesini gösterir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 програма, чиє зображення збігалося з плиткою іншої програми, знову отримує власне зображення, а елементи без зображення показують піктограму своєї програми."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，图像与另一个 App 的图块相同的 App 会重新获得自己的图像，没有图像的项目会显示其 App 的图标。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，圖像與另一個 App 的圖塊相同的 App 會重新取得自己的圖像，沒有圖像的項目會顯示其 App 的圖像。"
           }
         }
       }

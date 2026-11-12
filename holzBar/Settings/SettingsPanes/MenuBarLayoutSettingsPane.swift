@@ -153,28 +153,36 @@ struct MenuBarLayoutSettingsPane: View {
                 layoutBar(for: .visible)
                 layoutBar(for: .hidden)
             }
-            SettingsToggleRow(
-                .layoutAlwaysHidden,
-                isOn: Bindable(appState.settings.advanced).enableAlwaysHiddenSection,
-                small: Text("third section")
-            )
+            alwaysHiddenRow
             if appState.navigationState.layoutView == .bars {
                 layoutBar(for: .alwaysHidden)
             }
-            SettingsPickerRow(.layoutNewItems, selection: newItemsBinding) {
-                Text(NewItemsPlacement.visible.localized).tag(NewItemsPlacement.visible)
-                Text(NewItemsPlacement.hidden.localized).tag(NewItemsPlacement.hidden)
-                if appState.settings.advanced.enableAlwaysHiddenSection {
-                    Text(NewItemsPlacement.alwaysHidden.localized).tag(NewItemsPlacement.alwaysHidden)
-                }
-                Text(NewItemsPlacement.systemDefault.localized).tag(NewItemsPlacement.systemDefault)
-            }
-            .disabled(appState.layoutEditor.isApplying)
+            newItemsRow
             if #available(macOS 27.0, *) {
                 SettingsNoteLine(Text("Items can be sorted by dragging them within a section."))
                 SettingsNoteLine(Text("macOS 27 hides whole apps: the items of one app always move together."))
             }
         }
+    }
+
+    private var alwaysHiddenRow: some View {
+        SettingsToggleRow(
+            .layoutAlwaysHidden,
+            isOn: Bindable(appState.settings.advanced).enableAlwaysHiddenSection,
+            small: Text("third section")
+        )
+    }
+
+    private var newItemsRow: some View {
+        SettingsPickerRow(.layoutNewItems, selection: newItemsBinding) {
+            Text(NewItemsPlacement.visible.localized).tag(NewItemsPlacement.visible)
+            Text(NewItemsPlacement.hidden.localized).tag(NewItemsPlacement.hidden)
+            if appState.settings.advanced.enableAlwaysHiddenSection {
+                Text(NewItemsPlacement.alwaysHidden.localized).tag(NewItemsPlacement.alwaysHidden)
+            }
+            Text(NewItemsPlacement.systemDefault.localized).tag(NewItemsPlacement.systemDefault)
+        }
+        .disabled(appState.layoutEditor.isApplying)
     }
 
     /// What the pop-up New items go to shows and how it writes (D-40): a section waits for Apply
@@ -205,6 +213,11 @@ struct MenuBarLayoutSettingsPane: View {
     private var cannotArrange: some View {
         SettingsPaneHost(.layout) {
             AutoHiddenMenuBarState(kind: .arrange)
+            // The settings that do not arrange anything stay reachable (89-08 open point).
+            SettingsGroup(SettingsCatalog.LayoutPane.menuBar) {
+                alwaysHiddenRow
+                newItemsRow
+            }
         }
     }
 

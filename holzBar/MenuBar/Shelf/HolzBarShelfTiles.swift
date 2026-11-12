@@ -328,6 +328,12 @@ struct HolzBarShelfItemView: View {
         .accessibilityLabel(item.displayName)
         .accessibilityAction(.default, leftClickAction)
         .accessibilityAction(named: "Open", leftClickAction)
+        .accessibilityActions {
+            // The right click is the item's own; "Move to" is offered to VoiceOver (D-18).
+            if let appState = itemManager.appState {
+                MoveToMenuItems(item: item, section: section, appState: appState)
+            }
+        }
         .accessibilityAction(named: "Open Menu", rightClickAction)
     }
 }

@@ -1068,25 +1068,12 @@ private struct HolzBarShelfContentView: View {
                 .padding(.horizontal, 10)
         } else if itemManager.itemCache.managedItems.isEmpty {
             MenuBarItemsLoadingState(style: .strip, itemManager: itemManager)
-        } else if ScreenRecordingAccess.isGranted(appState), imageCache.cacheFailed(for: section) {
-            if imageCache.isCapturing || !imageCache.hasCaptured {
-                // The pictures are still being taken: say so instead of reporting a failure.
-                MenuBarItemsLoadingState(style: .strip, itemManager: itemManager)
-            } else {
-                HStack {
-                    Text("macOS gave holzBar no pictures of these items.")
-                    Button("Try Again") {
-                        Task {
-                            await imageCache.updateCache()
-                        }
-                    }
-                    .controlSize(.small)
-                }
-                .padding(.horizontal, 10)
-            }
+        } else if ScreenRecordingAccess.isGranted(appState), imageCache.cacheFailed(for: section), imageCache.isCapturing || !imageCache.hasCaptured {
+            // The pictures are still being taken: say so instead of showing bare icons.
+            MenuBarItemsLoadingState(style: .strip, itemManager: itemManager)
         } else {
-            // Without Screen Recording the items show their apps' icons (or the images chosen
-            // for them); the first time the Shelf opens, a window offers their real pictures (see `show(section:on:)`).
+            // An item without a picture (no Screen Recording, or a capture that gave none: issue
+            // #130) shows its app's icon or the image chosen for it, never an error; the first time the Shelf opens, a window offers their real pictures (see `show(section:on:)`).
             findAndTiles
                 // Leaving for the menu bar: the Shelf steps back.
                 .opacity(dragModel.outcome == .menuBar ? 0.55 : 1)
