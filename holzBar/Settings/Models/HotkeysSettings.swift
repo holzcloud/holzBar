@@ -265,21 +265,21 @@ extension HotkeyAction {
     var title: String {
         switch self {
         case .toggleHiddenSection:
-            String(localized: "Toggle the hidden section")
+            String(localized: "Show or hide hidden items")
         case .toggleAlwaysHiddenSection:
-            String(localized: "Toggle the always-hidden section")
+            String(localized: "Show or hide always-hidden items")
         case .searchMenuBarItems:
             String(localized: "Search menu bar items")
         case .enableShelf:
-            String(localized: "Enable the holzBar Shelf")
+            String(localized: "Turn the holzBar Shelf on or off")
         case .toggleApplicationMenus:
-            String(localized: "Toggle application menus")
+            String(localized: "Show or hide app menus")
         case .showHiddenSectionTemporarily:
-            String(localized: "Show the hidden section for a moment")
+            String(localized: "Show hidden items for a moment")
         case .toggleAutoRehide:
             String(localized: "Turn auto-rehide on or off")
         case .toggleZenMode:
-            String(localized: "Zen mode")
+            String(localized: "Turn Zen mode on or off")
         case .showItemHints:
             String(localized: "Open an item by letter")
         case .toggleKeepAwake:
@@ -287,7 +287,7 @@ extension HotkeyAction {
         case .openCommandPalette:
             String(localized: "Open the command palette")
         case .toggleNotchHub:
-            String(localized: "Toggle the notch hub")
+            String(localized: "Open or close the Notch hub")
         }
     }
 }
