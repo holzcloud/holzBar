@@ -214,6 +214,7 @@ final class LayoutEditor {
         guard let appState, let pending = draft, !isApplying, pending.isChanged else {
             return
         }
+        let before = appState.layoutUndo.beforeSnapshot()
         isApplying = true
         outcome = nil
         Task { [weak self] in
@@ -226,7 +227,12 @@ final class LayoutEditor {
             outcome = result
             revision += 1
             let message = String(localized: "Changes applied: \(result.applied)")
-            LayoutBarItemView.announce(message)
+            if result.applied > 0 {
+                // The record announces the same sentence, so VoiceOver hears it once (D-13).
+                appState.layoutUndo.recordArrangementChange(message, before: before, place: .settings)
+            } else {
+                LayoutBarItemView.announce(message)
+            }
         }
     }
 

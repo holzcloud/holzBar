@@ -462,6 +462,20 @@ nonisolated enum DesignTokens {
         static let paneMarginBottom: Double = 22
     }
 
+    /// The undo toast: a glass capsule with one sentence and an Undo button (concept 9a, D-13).
+    nonisolated enum UndoToast {
+        /// The vertical padding inside the capsule (D-13).
+        static let paddingVertical: Double = 7
+        /// The horizontal padding inside the capsule (D-13).
+        static let paddingHorizontal: Double = 12
+        /// The gap between the symbol, the sentence and the Undo button (D-13).
+        static let gap: Double = 10
+        /// How long the toast with an Undo button stays, in seconds (D-03).
+        static let visibleSeconds: Double = 5
+        /// How long a plain toast without an action stays, in seconds (concept 9, row `Toast`).
+        static let plainVisibleSeconds: Double = 3
+    }
+
     /// The sidebar and the window of the Settings window (concept 10, D-08, D-26).
     nonisolated enum SettingsSidebar {
         /// The measures that follow the system's sidebar icon size.

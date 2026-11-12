@@ -413,4 +413,14 @@ struct DesignTokensTests {
         #expect(Kit.switchMinHeight >= Tokens.minimumTargetSize)
         #expect(Tokens.SettingsSidebar.rowRadius == Tokens.Radius.control)
     }
+
+    @Test("The undo toast keeps the measures of the design concept")
+    func undoToastMeasures() {
+        let toast = Tokens.UndoToast.self
+        #expect(toast.paddingVertical == 7)
+        #expect(toast.paddingHorizontal == 12)
+        #expect(toast.gap == 10)
+        #expect(toast.visibleSeconds == 5)
+        #expect(toast.plainVisibleSeconds == 3)
+    }
 }

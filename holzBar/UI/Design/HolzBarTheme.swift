@@ -226,6 +226,17 @@ enum HolzBarTheme {
         static let paneMarginBottom = CGFloat(DesignTokens.SettingsKit.paneMarginBottom)
     }
 
+    /// The measures and times of the undo toast (concept 9a, D-03, D-13).
+    enum UndoToast {
+        static let paddingVertical = CGFloat(DesignTokens.UndoToast.paddingVertical)
+        static let paddingHorizontal = CGFloat(DesignTokens.UndoToast.paddingHorizontal)
+        static let gap = CGFloat(DesignTokens.UndoToast.gap)
+        /// How long the toast with an Undo button stays.
+        static let duration = Duration.seconds(DesignTokens.UndoToast.visibleSeconds)
+        /// How long a plain toast stays.
+        static let plainDuration = Duration.seconds(DesignTokens.UndoToast.plainVisibleSeconds)
+    }
+
     /// The sidebar and the window of the Settings window.
     enum SettingsSidebar {
         /// The measures that follow the system's sidebar icon size, as frame and font values.

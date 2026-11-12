@@ -89,6 +89,9 @@ final class AppState {
     /// The drawing behind the Menu Bar Layout pane: changes wait for Apply.
     let layoutEditor = LayoutEditor()
 
+    /// The undo history of the layout: every change can be taken back (D-14, D-15).
+    let layoutUndo = LayoutUndo()
+
     /// The history of the layout: snapshots to go back to.
     let snapshots = LayoutSnapshots()
 
@@ -266,6 +269,7 @@ final class AppState {
         profiles.performSetup(with: self)
         snapshots.performSetup(with: self)
         layoutEditor.performSetup(with: self)
+        layoutUndo.performSetup(with: self)
         hiddenItemsLock.performSetup(with: self)
         itemGroups.performSetup(with: self)
         appleItems.performSetup(with: self)

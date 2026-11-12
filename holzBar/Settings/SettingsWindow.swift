@@ -14,6 +14,7 @@ struct SettingsWindow: Scene {
     var body: some Scene {
         HolzBarWindow(id: .settings, appState: appState) {
             SettingsView(navigationState: appState.navigationState)
+                .holzBarUndoToast(appState.layoutUndo, place: .settings)
                 .onWindowChange { window in
                     model.observe(window, navigationState: appState.navigationState)
                 }

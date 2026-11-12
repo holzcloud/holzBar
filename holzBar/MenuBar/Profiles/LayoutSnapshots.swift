@@ -127,6 +127,12 @@ final class LayoutSnapshots {
         lastRearrangement = .now
     }
 
+    /// Called before an undo puts an arrangement back: takes no snapshot, but keeps the "layout
+    /// looks reset" suggestion quiet, as after a restore.
+    func willUndo() {
+        lastRearrangement = .now
+    }
+
     /// Called before the clean-up assistant hides items: keeps the arrangement as it is now.
     func willTidyUp() {
         take(.beforeAssistant)

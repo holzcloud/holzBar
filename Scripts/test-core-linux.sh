@@ -133,6 +133,7 @@ sources=(
   TimerBoard
   TimerFinishSound
   TimerInput
+  UndoHistory
   UngovernedItemOwners
   URLCommand
   URLPrompt
@@ -253,6 +254,7 @@ tests=(
   TimerBoardTests
   TimerFinishSoundTests
   TimerInputTests
+  UndoHistoryTests
   UngovernedItemOwnersTests
   URLCommandTests
   URLPromptTests

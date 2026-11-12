@@ -5,32 +5,74 @@
 
 import SwiftUI
 
-/// A short notice that disappears on its own.
+/// A short notice that disappears on its own, plain or with one action (the undo toast).
 struct Toast: View {
     private let text: Text
     private let systemImage: String?
+    private let actionTitle: LocalizedStringKey?
+    private let action: (() -> Void)?
 
     init(_ text: Text, systemImage: String? = nil) {
         self.text = text
         self.systemImage = systemImage
+        self.actionTitle = nil
+        self.action = nil
+    }
+
+    /// A toast with one button, such as Undo (concept 9a, D-13).
+    init(
+        _ text: Text,
+        systemImage: String = "arrow.uturn.backward",
+        actionTitle: LocalizedStringKey,
+        action: @escaping () -> Void
+    ) {
+        self.text = text
+        self.systemImage = systemImage
+        self.actionTitle = actionTitle
+        self.action = action
     }
 
     var body: some View {
-        HStack(spacing: HolzBarTheme.Spacing.xs) {
-            if let systemImage {
-                Image(systemName: systemImage)
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(HolzBarTheme.Palette.accent)
-                    .accessibilityHidden(true)
+        if let actionTitle, let action {
+            HStack(spacing: HolzBarTheme.UndoToast.gap) {
+                symbol
+                sentence
+                Button(actionTitle, action: action)
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
             }
-            text
-                .font(HolzBarTheme.Typography.body)
-                .foregroundStyle(HolzBarTheme.Palette.text)
+            .padding(.horizontal, HolzBarTheme.UndoToast.paddingHorizontal)
+            .padding(.vertical, HolzBarTheme.UndoToast.paddingVertical)
+            .holzBarGlass(in: Capsule())
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(text)
+            .accessibilityAction(named: Text(actionTitle), action)
+        } else {
+            HStack(spacing: HolzBarTheme.Spacing.xs) {
+                symbol
+                sentence
+            }
+            .padding(.horizontal, HolzBarTheme.Spacing.md)
+            .padding(.vertical, HolzBarTheme.Spacing.xs)
+            .holzBarGlass(in: Capsule())
+            .accessibilityElement(children: .combine)
         }
-        .padding(.horizontal, HolzBarTheme.Spacing.md)
-        .padding(.vertical, HolzBarTheme.Spacing.xs)
-        .holzBarGlass(in: Capsule())
-        .accessibilityElement(children: .combine)
+    }
+
+    @ViewBuilder
+    private var symbol: some View {
+        if let systemImage {
+            Image(systemName: systemImage)
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(HolzBarTheme.Palette.accent)
+                .accessibilityHidden(true)
+        }
+    }
+
+    private var sentence: some View {
+        text
+            .font(HolzBarTheme.Typography.body)
+            .foregroundStyle(HolzBarTheme.Palette.text)
     }
 }
 
@@ -39,7 +81,7 @@ extension View {
     /// false after the duration. With Reduce Motion it fades instead of sliding.
     func holzBarToast(
         isPresented: Binding<Bool>,
-        duration: Duration = .seconds(3),
+        duration: Duration = HolzBarTheme.UndoToast.plainDuration,
         toast: Toast
     ) -> some View {
         modifier(ToastModifier(isPresented: isPresented, duration: duration, toast: toast))
