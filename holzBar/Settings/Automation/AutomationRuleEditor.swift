@@ -41,23 +41,29 @@ struct AutomationRuleEditor: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-            TextField("Name", text: $rule.name)
-                .textFieldStyle(.roundedBorder)
-                .focused($isNameFocused)
-            heading("When")
-            Picker("Conditions", selection: $rule.match) {
-                Text("All of these are true").tag(AutomationMatch.all)
-                Text("Any of these is true").tag(AutomationMatch.any)
+        VStack(alignment: .leading, spacing: 0) {
+            SettingsRow(Text("Name")) {
+                TextField("Name", text: $rule.name)
+                    .labelsHidden()
+                    .textFieldStyle(.roundedBorder)
+                    .frame(minWidth: HolzBarTheme.SettingsKit.textFieldMinWidth)
+                    .focused($isNameFocused)
             }
-            .pickerStyle(.segmented)
-            .labelsHidden()
+            SettingsSegmentedRow(Text("When"), selection: $rule.match) {
+                Text("All apply").tag(AutomationMatch.all)
+                Text("One applies").tag(AutomationMatch.any)
+            }
             ForEach($rule.clauses) { $clause in
                 AutomationConditionRow(condition: $clause.condition) {
                     rule.clauses.removeAll { $0.id == clause.id }
                 }
             }
-            addConditionMenu
+            SettingsRow(
+                Text("Add condition"),
+                info: Text("At most ten conditions per rule. Entries with “…” ask for a name or a permission.")
+            ) {
+                addConditionMenu
+            }
             heading("Then")
             if let itemName {
                 Text("\(itemName) is shown only while this is true.")
@@ -151,7 +157,7 @@ struct AutomationRuleEditor: View {
     // MARK: Conditions
 
     private var addConditionMenu: some View {
-        Menu("Add Condition", systemImage: "plus") {
+        Menu("Choose") {
             Button("On battery") {
                 add(.power(.battery))
             }
@@ -239,7 +245,6 @@ struct AutomationRuleEditor: View {
                 isAskingForBluetooth = true
             }
         }
-        .menuStyle(.borderlessButton)
         .fixedSize()
         .disabled(rule.clauses.count >= 10)
     }
@@ -488,29 +493,21 @@ private struct AutomationConditionRow: View {
     let onRemove: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Text(verbatim: AutomationDescription.text(for: condition).capitalizedFirst)
-                    .font(HolzBarTheme.Typography.body)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(alignment: .leading, spacing: 0) {
+            SettingsButtonRow(Text(verbatim: AutomationDescription.text(for: condition).capitalizedFirst)) {
                 Button(action: onRemove) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+                    Label("Delete condition", systemImage: "xmark")
+                        .labelStyle(.iconOnly)
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel(Text("Remove Condition"))
+                .help(Text("Delete condition"))
             }
             settings
+                .settingsSubRow()
             if case .wifiNetwork = condition {
                 WiFiPermissionNote(monitor: appState.automation.wifiMonitor)
+                    .settingsSubRow()
             }
         }
-        .padding(.horizontal, HolzBarTheme.Spacing.sm)
-        .padding(.vertical, HolzBarTheme.Spacing.xs + 2)
-        .background(
-            HolzBarTheme.Palette.text.opacity(0.05),
-            in: HolzBarTheme.shape(HolzBarTheme.Radius.control)
-        )
         .accessibilityElement(children: .contain)
         .accessibilityLabel(Text(verbatim: AutomationDescription.text(for: condition).capitalizedFirst))
     }
@@ -519,17 +516,18 @@ private struct AutomationConditionRow: View {
     private var settings: some View {
         switch condition {
         case .batteryBelow(let percent):
-            Stepper(
+            SettingsStepperRow(
+                Text("Level"),
                 value: Binding(
                     get: { percent },
                     set: { condition = .batteryBelow($0) }
                 ),
                 in: 5...95,
-                step: 5
-            ) {
-                Text("Level")
+                step: 5,
+                info: Text("From 5 to 95 percent, in steps of 5.")
+            ) { value in
+                Text(verbatim: (Double(value) / 100).formatted(.percent))
             }
-            .accessibilityValue(Text("\(percent) percent"))
         case .time(let window):
             timeSettings(window)
         case .power, .lowPowerMode, .appRunning, .appFrontmost, .displayConnected, .network, .wifiNetwork,
@@ -540,42 +538,37 @@ private struct AutomationConditionRow: View {
 
     @ViewBuilder
     private func timeSettings(_ window: AutomationTimeWindow) -> some View {
-        HStack {
+        SettingsRow(Text("From")) {
             DatePicker(
                 "From",
                 selection: minutesBinding(window.startMinute) { $0.startMinute = $1 },
                 displayedComponents: .hourAndMinute
             )
+            .labelsHidden()
+        }
+        SettingsRow(Text("To")) {
             DatePicker(
                 "To",
                 selection: minutesBinding(window.endMinute) { $0.endMinute = $1 },
                 displayedComponents: .hourAndMinute
             )
+            .labelsHidden()
         }
-        HStack(spacing: HolzBarTheme.Spacing.xs) {
-            ForEach(1...7, id: \.self) { day in
-                Toggle(
-                    Calendar.current.veryShortWeekdaySymbols[day - 1],
-                    isOn: Binding(
-                        get: { window.weekdays.contains(day) },
-                        set: { isOn in
-                            var updated = window
-                            if isOn {
-                                updated.weekdays.insert(day)
-                            } else {
-                                updated.weekdays.remove(day)
-                            }
-                            condition = .time(updated)
-                        }
-                    )
-                )
-                .toggleStyle(.button)
+        SettingsMultiSegmentedRow(
+            Text("Weekdays"),
+            selection: Binding(
+                get: { window.weekdays },
+                set: { weekdays in
+                    var updated = window
+                    updated.weekdays = weekdays
+                    condition = .time(updated)
+                }
+            ),
+            values: Array(1...7),
+            info: Text("No day chosen means every day.")
+        ) { day in
+            Text(verbatim: Calendar.current.veryShortWeekdaySymbols[day - 1])
                 .accessibilityLabel(Text(verbatim: Calendar.current.weekdaySymbols[day - 1]))
-                .accessibilityInputLabels([
-                    Text(verbatim: Calendar.current.weekdaySymbols[day - 1]),
-                    Text(verbatim: Calendar.current.veryShortWeekdaySymbols[day - 1]),
-                ])
-            }
         }
     }
 
@@ -604,20 +597,17 @@ private struct WiFiPermissionNote: View {
 
     var body: some View {
         if !monitor.isAuthorized {
-            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
-                Label("Needs Location Services. Until you allow holzBar, this condition is never true.", systemImage: "lock")
-                    .font(HolzBarTheme.Typography.caption)
-                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                if monitor.authorization != .notDetermined {
+            let text = Text("Needs Location Services. Until you allow holzBar, this condition is never true.")
+            if monitor.authorization != .notDetermined {
+                SettingsStateLine(.warning, text) {
                     Button("Open Location Settings") {
                         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices") {
                             NSWorkspace.shared.open(url)
                         }
                     }
-                    .buttonStyle(.link)
-                    .font(HolzBarTheme.Typography.caption)
                 }
+            } else {
+                SettingsStateLine(.warning, text)
             }
         }
     }
