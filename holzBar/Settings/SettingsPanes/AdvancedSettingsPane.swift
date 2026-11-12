@@ -5,44 +5,86 @@
 
 import SwiftUI
 
+/// The rare settings: the menu bar's own behaviour, app menus, backing up settings and the
+/// permissions holzBar has or needs, on the settings kit.
 struct AdvancedSettingsPane: View {
     @Environment(AppState.self) var appState
     @Bindable var settings: AdvancedSettings
     @State private var revokingPermission: Permission?
 
-    private var menuBarManager: MenuBarManager {
-        appState.menuBarManager
-    }
-
     var body: some View {
-        HolzBarForm {
-            // Settings that do nothing on macOS 27 are not shown there (jordanbaird/Ice#1001):
-            // there are no dividers to style, no drags on the bar, no item moves and no
-            // hiding of application menus. Their stored values are kept.
-            // The always-hidden switch and where new items go live in the Layout pane. What is
-            // left of this group has no row on macOS 27.
+        SettingsPaneHost(.advanced) {
+            // Settings that do nothing on macOS 27 are not shown there (jordanbaird/Ice#1001);
+            // their stored values are kept.
+            SettingsGroup(SettingsCatalog.AdvancedPane.menuBar) {
+                if !isMacOS27 {
+                    SettingsPickerRow(
+                        .advancedDividerStyle,
+                        selection: $settings.sectionDividerStyle,
+                        small: Text("macOS 14 to 26")
+                    ) {
+                        ForEach(SectionDividerStyle.allCases) { style in
+                            Text(style.localized).tag(style)
+                        }
+                    }
+                    SettingsToggleRow(
+                        .advancedShowAllSectionsOnDrag,
+                        isOn: $settings.showAllSectionsOnUserDrag,
+                        small: Text("macOS 14 to 26")
+                    )
+                }
+                SettingsToggleRow(.advancedSecondaryContextMenu, isOn: $settings.enableSecondaryContextMenu)
+                if !isMacOS27 {
+                    SettingsToggleRow(
+                        .advancedKeepLiveActivities,
+                        isOn: $settings.keepLiveActivitiesVisible,
+                        small: Text("macOS 14 to 26"),
+                        badge: .beta
+                    )
+                    SettingsToggleRow(
+                        .advancedSystemItemsInPlace,
+                        isOn: Binding(
+                            get: { !Defaults.bool(forKey: .systemItemsMayHide) },
+                            set: { Defaults.set(!$0, forKey: .systemItemsMayHide) }
+                        ),
+                        small: Text("macOS 14 to 26")
+                    )
+                }
+            }
             if !isMacOS27 {
-                HolzBarSection("Menu Bar Sections") {
-                    showAllSectionsOnUserDrag
-                    sectionDividerStyle
-                    keepLiveActivitiesVisible
+                SettingsGroup(SettingsCatalog.AdvancedPane.appMenus) {
+                    SettingsToggleRow(
+                        .advancedHideAppMenus,
+                        isOn: $settings.hideApplicationMenus,
+                        small: Text("macOS 14 to 26")
+                    )
+                    SettingsToggleRow(
+                        .advancedKeepDockIconHidden,
+                        isOn: $settings.keepsDockIconHidden,
+                        small: Text("macOS 14 to 26")
+                    )
+                    .settingsSubRow()
+                    .settingsDependent(on: settings.hideApplicationMenus)
                 }
             }
-            HolzBarSection("Other") {
-                if !isMacOS27 {
-                    hideApplicationMenus
-                    keepsDockIconHidden
+            SettingsGroup(SettingsCatalog.AdvancedPane.backUp) {
+                SettingsButtonRow(.advancedExportSettings) {
+                    Button("Export…") {
+                        SettingsBackup.exportToFile(attachedTo: appState.navigationState.settingsWindow)
+                    }
                 }
-                enableSecondaryContextMenu
-                if !isMacOS27 {
-                    pinSystemItems
+                SettingsButtonRow(.advancedImportSettings) {
+                    Button("Import…") {
+                        SettingsBackup.importFromFile(attachedTo: appState.navigationState.settingsWindow)
+                    }
                 }
             }
-            HolzBarSection("Settings") {
-                settingsBackup
-            }
-            HolzBarSection("Permissions") {
-                allPermissions
+            SettingsGroup(SettingsCatalog.AdvancedPane.permissions) {
+                ForEach(listedPermissions, id: \.self) { kind in
+                    if let permission = appState.permissions.permission(for: kind), let entry = entry(for: kind) {
+                        permissionRow(permission, entry: entry)
+                    }
+                }
             }
         }
         .onAppear {
@@ -71,68 +113,6 @@ struct AdvancedSettingsPane: View {
         }
     }
 
-    @ViewBuilder
-    private var showAllSectionsOnUserDrag: some View {
-        Toggle(
-            "Show all sections when ⌘ Command + dragging menu bar items",
-            isOn: $settings.showAllSectionsOnUserDrag
-        )
-    }
-
-    @ViewBuilder
-    private var keepLiveActivitiesVisible: some View {
-        Toggle("Keep Live Activities visible", isOn: $settings.keepLiveActivitiesVisible)
-            .annotation("Live Activities from your iPhone stay in the menu bar instead of being hidden. Experimental.")
-    }
-
-    @ViewBuilder
-    private var sectionDividerStyle: some View {
-        HolzBarPicker("Section divider style", selection: $settings.sectionDividerStyle) {
-            ForEach(SectionDividerStyle.allCases) { style in
-                Text(style.localized).tag(style)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var hideApplicationMenus: some View {
-        Toggle(
-            "Hide app menus when showing menu bar items",
-            isOn: $settings.hideApplicationMenus
-        )
-        .annotation {
-            if #available(macOS 27.0, *) {
-                Text("Not needed on macOS 27, which folds items that do not fit behind its own overflow button.")
-                    .padding(.trailing, 75)
-            } else {
-                Text(
-                    """
-                    Make more room in the menu bar by hiding the current app menus if \
-                    needed. macOS requires holzBar to make itself visible in the Dock while \
-                    this setting is in effect.
-                    """
-                )
-                .padding(.trailing, 75)
-            }
-        }
-        .disabled(isMacOS27)
-    }
-
-    @ViewBuilder
-    private var keepsDockIconHidden: some View {
-        Toggle("Keep the Dock icon hidden", isOn: $settings.keepsDockIconHidden)
-            .annotation {
-                Text(
-                    """
-                    macOS hides another app's menus only while holzBar is in the Dock. With \
-                    this on, holzBar never shows a Dock icon, and the menus stay.
-                    """
-                )
-                .padding(.trailing, 75)
-            }
-            .disabled(isMacOS27 || !settings.hideApplicationMenus)
-    }
-
     private var isMacOS27: Bool {
         if #available(macOS 27.0, *) {
             true
@@ -141,79 +121,57 @@ struct AdvancedSettingsPane: View {
         }
     }
 
-    @ViewBuilder
-    private var enableSecondaryContextMenu: some View {
-        Toggle(
-            "Enable secondary context menu",
-            isOn: $settings.enableSecondaryContextMenu
-        )
-        .annotation {
-            Text(
-                """
-                Right-click in an empty area of the menu bar to display a minimal \
-                version of holzBar's menu. Disable this setting if you encounter conflicts \
-                with other apps.
-                """
-            )
-            .padding(.trailing, 75)
+    // MARK: Permissions
+
+    /// The permissions a switched-on module needs, the granted ones and Accessibility (D-57,
+    /// D-65), in their fixed order.
+    private var listedPermissions: [ModulePermission] {
+        let enabled = Set(ModuleCatalog.all.map(\.id).filter { appState.modules.isEnabled($0) })
+        let needed = PermissionListing.needs(ofEnabled: enabled, in: ModuleCatalog.all)
+        let granted = Set(PermissionListing.candidates.filter {
+            appState.permissions.permission(for: $0)?.hasPermission == true
+        })
+        return PermissionListing.listed(needed: needed, granted: granted)
+    }
+
+    /// The catalog entry of a listed permission. The switch has no default: a new candidate
+    /// needs its entry here.
+    private func entry(for kind: ModulePermission) -> SettingsEntry? {
+        switch kind {
+        case .accessibility: .advancedPermissionAccessibility
+        case .screenRecording: .advancedPermissionScreenRecording
+        case .calendar: .advancedPermissionCalendar
+        case .bluetooth: .advancedPermissionBluetooth
+        case .inputMonitoring, .microphone, .camera, .notifications, .fullDiskAccess, .files: nil
         }
     }
 
-    @ViewBuilder
-    private var pinSystemItems: some View {
-        Toggle(
-            isOn: Binding(
-                get: { !Defaults.bool(forKey: .systemItemsMayHide) },
-                set: { Defaults.set(!$0, forKey: .systemItemsMayHide) }
-            )
-        ) {
-            Text("Keep the clock, battery, Wi-Fi, Control Center and sound visible")
-        }
-        .annotation("Profiles, restored layouts and rules leave these items where they are. You can still move them yourself.")
-    }
-
-    @ViewBuilder
-    private var settingsBackup: some View {
-        LabeledContent {
-            HStack {
-                Button("Export…") {
-                    SettingsBackup.exportToFile(attachedTo: appState.navigationState.settingsWindow)
+    /// One permission: its state and the one button that fits it. "Grant…" asks only on this
+    /// click; "Revoke…" asks first.
+    private func permissionRow(_ permission: Permission, entry: SettingsEntry) -> some View {
+        SettingsRow(entry) {
+            HStack(spacing: HolzBarTheme.SettingsKit.accessoryGap) {
+                Group {
+                    if permission.hasPermission {
+                        Text("Granted")
+                    } else {
+                        Text("Not granted")
+                    }
                 }
-                Button("Import…") {
-                    SettingsBackup.importFromFile(attachedTo: appState.navigationState.settingsWindow)
-                }
-            }
-        } label: {
-            Text("Back up or move your settings")
-        }
-        .annotation("Exports layout, hotkeys and appearance to a file that can be imported on another Mac.")
-    }
-
-    @ViewBuilder
-    private var allPermissions: some View {
-        ForEach(appState.permissions.allPermissions) { permission in
-            LabeledContent {
+                .font(HolzBarTheme.Typography.body)
+                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                 if permission.hasPermission {
-                    HStack {
-                        PermissionPill(Text("Permission Granted"), state: .granted)
-                        if permission.canReset {
-                            Button("Revoke…") {
-                                revokingPermission = permission
-                            }
+                    if permission.canReset {
+                        Button("Revoke…") {
+                            revokingPermission = permission
                         }
                     }
                 } else {
-                    HStack {
-                        PermissionPill(Text("Needs \(permission.title)"), state: .needed)
-                        Button("Grant Permission") {
-                            permission.performRequest()
-                        }
+                    Button("Grant…") {
+                        permission.performRequest()
                     }
                 }
-            } label: {
-                Text(permission.title)
             }
-            .frame(height: 22)
         }
     }
 }

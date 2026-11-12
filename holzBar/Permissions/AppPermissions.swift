@@ -57,6 +57,18 @@ final class AppPermissions {
         [accessibility, screenRecording, calendar, bluetooth]
     }
 
+    /// The permission object of a module permission, or nil when holzBar has none. The switch
+    /// has no default: a new case of ``ModulePermission`` must be placed here.
+    func permission(for kind: ModulePermission) -> Permission? {
+        switch kind {
+        case .accessibility: accessibility
+        case .screenRecording: screenRecording
+        case .calendar: calendar
+        case .bluetooth: bluetooth
+        case .inputMonitoring, .microphone, .camera, .notifications, .fullDiskAccess, .files: nil
+        }
+    }
+
     /// The permissions required for basic app functionality.
     var requiredPermissions: [Permission] {
         allPermissions.filter { $0.isRequired }

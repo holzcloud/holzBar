@@ -102,6 +102,7 @@ sources=(
   OpenMenuWait
   OutputVolumePlan
   OwnBundle
+  PermissionListing
   PinnedSystemItems
   PlaybackClock
   PrivateFeatureGate
@@ -221,6 +222,7 @@ tests=(
   OpenMenuWaitTests
   OutputVolumePlanTests
   OwnBundleTests
+  PermissionListingTests
   PinnedSystemItemsTests
   PlaybackClockTests
   PrivateFeatureGateTests
