@@ -15729,124 +15729,6 @@
         }
       }
     },
-    "Add items to this group in holzBar's Menu Bar Layout settings." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Přidejte položky do této skupiny v nastavení Uspořádání řádku nabídek v holzBar."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Füge in den holzBar-Einstellungen unter «Menüleistenlayout» Elemente zu dieser Gruppe hinzu."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Añade elementos a este grupo en los ajustes de la disposición de la barra de menús de holzBar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajoutez des éléments à ce groupe dans les réglages « Disposition de la barre des menus » de holzBar."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adjon hozzá elemeket ehhez a csoporthoz a holzBar Menüsor elrendezése beállításaiban."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tambahkan item ke grup ini di Tata Letak Bar Menu holzBar."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aggiungi elementi a questo gruppo nelle impostazioni «Layout della barra dei menu» di holzBar."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このグループへの項目の追加は、holzBar のメニューバーレイアウト設定で行います。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 그룹에 항목을 추가하려면 holzBar의 메뉴 막대 레이아웃 설정을 사용하세요."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voeg onderdelen aan deze groep toe in de instellingen voor Menubalkindeling van holzBar."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dodaj elementy do tej grupy w ustawieniach układu paska menu holzBar."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adicione itens a este grupo nos ajustes do Layout da Barra de Menus do holzBar."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Agiunta elements a questa gruppa en ils parameters «Disposiziun da la trav da menu» da holzBar."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Добавляйте элементы в эту группу в настройках раскладки строки меню holzBar."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lägg till objekt i den här gruppen i holzBars Menyradslayout."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Menü Çubuğu Düzeni’nde bu gruba öğe ekleyin."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Додавайте елементи до цієї групи в параметрах розкладки смуги меню holzBar."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "请在 holzBar 的“菜单栏布局”设置中向此分组添加项目。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在 holzBar 的「選單列佈局」設定中將項目加入此群組。"
-          }
-        }
-      }
-    },
     "Advanced" : {
       "localizations" : {
         "cs" : {
@@ -47825,124 +47707,6 @@
         }
       }
     },
-    "Pictures of your menu bar items in the holzBar Shelf, the search and the Menu Bar Layout pane (on macOS 27 taken once per item), and a moving wallpaper beside a menu bar shape (before macOS 27)." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Obrázky položek řádku nabídek v holzBar Shelf, ve vyhledávání a v podokně Uspořádání řádku nabídek (v macOS 27 pořízené jednou na položku) a pohyblivá tapeta vedle tvaru řádku nabídek (před macOS 27)."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bilder deiner Menüleistenelemente im holzBar Shelf, in der Suche und im Bereich «Menüleistenlayout» (unter macOS 27 einmal pro Element) sowie ein bewegtes Hintergrundbild neben einer Menüleistenform (vor macOS 27)."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Imágenes de los elementos de tu barra de menús en el holzBar Shelf, la búsqueda y el panel Disposición de la barra de menús (en macOS 27 se toman una vez por elemento), y un fondo de escritorio en movimiento junto a una forma de la barra de menús (antes de macOS 27)."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Des images de vos éléments dans le holzBar Shelf, la recherche et la sous-fenêtre « Disposition de la barre des menus » (sous macOS 27, une fois par élément), et un fond d'écran animé à côté d'une forme de barre des menus (avant macOS 27)."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A menüsor-elemek képei a holzBar Shelfben, a keresésben és a Menüsor elrendezése panelen (macOS 27 alatt elemenként egyszer készítve), valamint egy mozgó háttérkép a menüsor alakzata mellett (macOS 27 előtt)."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gambar item bar menu di holzBar Shelf, di pencarian, dan di Tata Letak Bar Menu (di macOS 27 diambil sekali per item), serta gambar desktop yang bergerak di samping bentuk bar menu (sebelum macOS 27)."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Immagini dei tuoi elementi in holzBar Shelf, nella ricerca e nel pannello «Layout della barra dei menu» (su macOS 27 una volta per elemento) e uno sfondo animato accanto a una forma della barra dei menu (prima di macOS 27)."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf、検索、メニューバーレイアウトのパネルに表示するメニューバー項目の画像（macOS 27 では項目ごとに 1 回取得）と、メニューバーのシェイプの横に表示する動く壁紙（macOS 27 より前）。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf, 검색, 메뉴 막대 레이아웃 패널에 표시되는 메뉴 막대 항목의 그림(macOS 27에서는 항목마다 한 번만 가져옴)과, 메뉴 막대 모양 옆에 표시되는 움직이는 배경화면(macOS 27 이전)."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afbeeldingen van je menubalkonderdelen in de holzBar Shelf, het zoeken en het paneel Menubalkindeling (op macOS 27 eenmaal per onderdeel gemaakt), en een bewegende achtergrond naast een menubalkvorm (vóór macOS 27)."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Obrazy elementów paska menu w holzBar Shelf, w wyszukiwaniu i w panelu Układ paska menu (w macOS 27 robione raz na element) oraz ruchoma tapeta obok kształtu paska menu (przed macOS 27)."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Imagens dos itens da sua barra de menus no holzBar Shelf, na busca e no painel Layout da Barra de Menus (no macOS 27 são capturadas uma vez por item), e um plano de fundo em movimento ao lado de uma forma da barra de menus (antes do macOS 27)."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Maletgs da tes elements en il holzBar Shelf, en la tschertga ed en il champ «Disposiziun da la trav da menu» (sut macOS 27 ina giada per element) ed in maletg dal fund en moviment sper ina furma da la trav da menu (avant macOS 27)."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Изображения элементов строки меню в holzBar Shelf, в поиске и на панели «Раскладка строки меню» (на macOS 27 снимаются один раз для каждого элемента), а также анимированные обои рядом с формой строки меню (до macOS 27)."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bilder av menyradsobjekt i holzBar Shelf, i sökningen och i Menyradslayout (på macOS 27 tagna en gång per objekt), samt en rörlig bakgrund bredvid menyradens form (före macOS 27)."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf’te, aramada ve Menü Çubuğu Düzeni’nde menü çubuğu öğelerinin resimleri (macOS 27’de öğe başına bir kez alınır) ve menü çubuğu şeklinin yanında hareketli bir masaüstü resmi (macOS 27 öncesi)."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Зображення елементів смуги меню в holzBar Shelf, у пошуку й на панелі «Розкладка смуги меню» (у macOS 27 знімаються один раз для кожного елемента), а також анімовані шпалери поруч із формою смуги меню (до macOS 27)."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf、搜索和“菜单栏布局”面板中的菜单栏项目图像（在 macOS 27 上每个项目仅截取一次），以及菜单栏形状旁边的动态壁纸（macOS 27 之前）。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf、搜尋和「選單列佈局」面板中的選單列項目圖片（在 macOS 27 上每個項目只擷取一次），以及選單列形狀旁的動態背景圖片（macOS 27 之前）。"
-          }
-        }
-      }
-    },
     "Place new menu bar items in" : {
       "localizations" : {
         "cs" : {
@@ -62221,124 +61985,6 @@
         }
       }
     },
-    "The Menu Bar Layout pane shows pictures of your menu bar items, which macOS lets an app take only with Screen Recording." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podokno Uspořádání řádku nabídek zobrazuje obrázky položek řádku nabídek, které macOS aplikaci dovolí pořídit jen se Záznamem obrazovky."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Bereich «Menüleistenlayout» zeigt Bilder deiner Menüleistenelemente, die eine App unter macOS nur mit der Bildschirmaufnahme erstellen darf."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El panel Disposición de la barra de menús muestra imágenes de tus elementos de la barra de menús, que macOS solo permite tomar a una app con Grabación de pantalla."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La sous-fenêtre « Disposition de la barre des menus » affiche des images de vos éléments, que macOS ne laisse prendre qu'avec l'enregistrement de l'écran."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A Menüsor elrendezése panel a menüsor-elemek képeit mutatja, amelyeket a macOS csak Képernyőfelvétellel enged egy alkalmazásnak elkészíteni."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tata Letak Bar Menu menampilkan gambar item bar menu, yang hanya dapat diambil app lewat Perekaman Layar di macOS."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il pannello «Layout della barra dei menu» mostra immagini dei tuoi elementi, che macOS lascia acquisire solo con la registrazione schermo."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "メニューバーレイアウトのパネルには、メニューバー項目の画像が表示されます。macOS では、この画像は画面収録の権限がある App しか取得できません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "메뉴 막대 레이아웃 패널에는 메뉴 막대 항목의 그림이 표시되며, macOS는 화면 기록 권한이 있는 앱만 이 그림을 가져오도록 허용합니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Het paneel Menubalkindeling toont afbeeldingen van je menubalkonderdelen, die macOS een app alleen laat maken met Schermopname."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Panel Układ paska menu pokazuje obrazy elementów paska menu, które macOS pozwala aplikacji robić tylko z uprawnieniem Nagrywanie ekranu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O painel Layout da Barra de Menus mostra imagens dos seus itens da barra de menus, que o macOS só permite a um app capturar com Gravação de Tela."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il champ «Disposiziun da la trav da menu» mussa maletgs da tes elements, ils quals macOS lascha far mo cun la Bildschirmaufnahme."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "На панели «Раскладка строки меню» показаны изображения элементов вашей строки меню, а macOS позволяет приложению получать их только при наличии доступа к записи экрана."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menyradslayout visar bilder av menyradsobjekt, som macOS bara låter en app ta med Skärminspelning."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menü Çubuğu Düzeni, macOS’in bir uygulamaya yalnızca Ekran Kaydı ile aldırdığı menü çubuğu öğesi resimlerini gösterir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "На панелі «Розкладка смуги меню» показано зображення елементів вашої смуги меню, а macOS дозволяє програмі отримувати їх лише за наявності доступу до запису екрана."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“菜单栏布局”面板会显示你的菜单栏项目的图像，macOS 只允许拥有“屏幕录制”权限的 App 截取这些图像。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「選單列佈局」面板會顯示選單列項目的圖片，而 macOS 只允許取得「螢幕錄影」權限的 App 擷取這些圖片。"
-          }
-        }
-      }
-    },
     "The color of the group's icon and name" : {
       "localizations" : {
         "cs" : {
@@ -75321,124 +74967,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar 與 %@ 都會嘗試管理選單列。它們會互相干擾，並可能導致指標無法按任何東西。holzBar 可以替你結束 %@。"
-          }
-        }
-      }
-    },
-    "holzBar can propose which items to hide, from what it knows of your apps. Nothing leaves your Mac, you decide, and you can undo it. You can do this any time in Menu Bar Layout." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar může navrhnout, které položky skrýt, podle toho, co ví o vašich aplikacích. Nic neopouští váš Mac, rozhodujete vy a můžete to vrátit. Můžete to udělat kdykoli v Uspořádání řádku nabídek."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar kann vorschlagen, welche Objekte ausgeblendet werden sollen, anhand dessen, was es über deine Apps weiss. Nichts verlässt deinen Mac, du entscheidest, und du kannst es rückgängig machen. Das geht jederzeit unter «Menüleistenlayout»."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar puede proponer qué elementos ocultar, según lo que sabe de tus apps. Nada sale de tu Mac, tú decides y puedes deshacerlo. Puedes hacerlo en cualquier momento en Disposición de la barra de menús."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar peut proposer quels éléments masquer, d’après ce qu’il sait de vos apps. Rien ne quitte votre Mac, vous décidez, et vous pouvez annuler. Vous pouvez le faire à tout moment dans « Disposition de la barre des menus »."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A holzBar javaslatot tehet az elrejtendő elemekre abból, amit az alkalmazásairól tud. Semmi sem hagyja el a Macet, Ön dönt, és visszavonhatja. Ezt bármikor megteheti a Menüsor elrendezése panelen."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar dapat menyarankan item yang disembunyikan berdasarkan apa yang diketahuinya tentang app Anda. Tidak ada yang meninggalkan Mac Anda, Anda yang memutuskan, dan Anda dapat mengurungkan. Anda dapat melakukannya kapan saja di Tata Letak Bar Menu."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar può proporre quali elementi nascondere, in base a ciò che sa delle tue app. Nulla lascia il tuo Mac, decidi tu e puoi annullare. Puoi farlo in qualsiasi momento in «Layout della barra dei menu»."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar は、あなたの App についての情報から、非表示にする項目を提案できます。情報が Mac の外に出ることはなく、決めるのはあなたで、元に戻すこともできます。この操作はいつでもメニューバーレイアウトから行えます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar는 사용자의 앱에 대해 알고 있는 정보를 바탕으로 숨길 항목을 제안할 수 있습니다. 어떤 정보도 Mac 밖으로 나가지 않으며, 결정은 직접 하고, 되돌릴 수도 있습니다. 언제든지 메뉴 막대 레이아웃에서 할 수 있습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar kan voorstellen welke onderdelen je kunt verbergen, op basis van wat het van je apps weet. Er verlaat niets je Mac, jij beslist en je kunt het herstellen. Je kunt dit altijd doen in Menubalkindeling."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar może zaproponować, które elementy ukryć, na podstawie tego, co wie o Twoich aplikacjach. Nic nie opuszcza Twojego Maca, Ty decydujesz i możesz to cofnąć. Możesz to zrobić w dowolnym momencie w Układzie paska menu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O holzBar pode propor quais itens ocultar, com base no que sabe sobre seus apps. Nada sai do seu Mac, você decide e pode desfazer. Você pode fazer isso a qualquer momento em Layout da Barra de Menus."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar po propuoner tge elements ch’èn d’zuppar, sin basa da quai ch’el sa da tias apps. Nagut na bandunescha tes Mac, ti decidas e ti pos revocar. Ti pos far quai a mintga mument sut «Disposiziun da la trav da menu»."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar может предложить, какие элементы скрыть, исходя из того, что ему известно о ваших приложениях. Ничто не покидает ваш Mac, решаете вы, и это можно отменить. Сделать это можно в любой момент в разделе «Раскладка строки меню»."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar kan föreslå vilka objekt som ska döljas utifrån det den vet om dina appar. Ingenting lämnar din Mac, du bestämmer och kan ångra. Du kan göra det när som helst i Menyradslayout."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar uygulamalarınız hakkında bildiklerine göre hangi öğelerin gizleneceğini önerebilir. Hiçbir şey Mac’inizden çıkmaz, siz karar verirsiniz ve geri alabilirsiniz. Bunu istediğiniz zaman Menü Çubuğu Düzeni’nde yapabilirsiniz."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar може запропонувати, які елементи приховати, виходячи з того, що йому відомо про ваші програми. Ніщо не залишає ваш Mac, вирішуєте ви, і це можна відмінити. Зробити це можна будь-коли в розділі «Розкладка смуги меню»."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar 可以根据它对你的 App 的了解，建议要隐藏哪些项目。任何内容都不会离开你的 Mac，由你决定，也可以撤销。你随时可以在“菜单栏布局”中进行此操作。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar 可根據對你 App 的了解，建議要隱藏哪些項目。不會有任何內容離開你的 Mac，由你決定，而且可以還原。你隨時可以在「選單列佈局」中進行。"
           }
         }
       }
@@ -147809,6 +147337,482 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "還沒有項目設有專屬快速鍵。"
+          }
+        }
+      }
+    },
+    "holzBar can propose which items to hide, from what it knows of your apps. Nothing leaves your Mac, you decide, and you can undo it. You can do this any time in holzBar's Layout settings." : {
+      "comment" : "Tidy-up offer alert, informative text",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar může navrhnout, které položky skrýt, podle toho, co ví o vašich aplikacích. Nic neopouští váš Mac, rozhodujete vy a můžete to vrátit. Můžete to udělat kdykoli v Uspořádání."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar kann vorschlagen, welche Elemente ausgeblendet werden sollen, anhand dessen, was es über deine Apps weiss. Nichts verlässt deinen Mac, du entscheidest, und du kannst es rückgängig machen. Das geht jederzeit unter «Anordnung»."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar puede proponer qué elementos ocultar, según lo que sabe de tus apps. Nada sale de tu Mac, tú decides y puedes deshacerlo. Puedes hacerlo en cualquier momento en Disposición."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar peut proposer quels éléments masquer, d’après ce qu’il sait de vos apps. Rien ne quitte votre Mac, vous décidez, et vous pouvez annuler. Vous pouvez le faire à tout moment dans « Disposition »."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar javaslatot tehet az elrejtendő elemekre abból, amit az alkalmazásairól tud. Semmi sem hagyja el a Macet, Ön dönt, és visszavonhatja. Ezt bármikor megteheti a Elrendezés panelen."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar dapat menyarankan item yang disembunyikan berdasarkan apa yang diketahuinya tentang app Anda. Tidak ada yang meninggalkan Mac Anda, Anda yang memutuskan, dan Anda dapat mengurungkan. Anda dapat melakukannya kapan saja di Tata Letak."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar può proporre quali elementi nascondere, in base a ciò che sa delle tue app. Nulla lascia il tuo Mac, decidi tu e puoi annullare. Puoi farlo in qualsiasi momento in «Disposizione»."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar は、あなたの App についての情報から、非表示にする項目を提案できます。情報が Mac の外に出ることはなく、決めるのはあなたで、元に戻すこともできます。この操作はいつでもレイアウトから行えます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar는 사용자의 앱에 대해 알고 있는 정보를 바탕으로 숨길 항목을 제안할 수 있습니다. 어떤 정보도 Mac 밖으로 나가지 않으며, 결정은 직접 하고, 되돌릴 수도 있습니다. 언제든지 레이아웃에서 할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar kan voorstellen welke onderdelen je kunt verbergen, op basis van wat het van je apps weet. Er verlaat niets je Mac, jij beslist en je kunt het herstellen. Je kunt dit altijd doen in Indeling."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar może zaproponować, które elementy ukryć, na podstawie tego, co wie o Twoich aplikacjach. Nic nie opuszcza Twojego Maca, Ty decydujesz i możesz to cofnąć. Możesz to zrobić w dowolnym momencie w ustawieniach „Układ” holzBar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar pode propor quais itens ocultar, com base no que sabe sobre seus apps. Nada sai do seu Mac, você decide e pode desfazer. Você pode fazer isso a qualquer momento em Layout."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar po propuoner tge elements ch’èn d’zuppar, sin basa da quai ch’el sa da tias apps. Nagut na bandunescha tes Mac, ti decidas e ti pos revocar. Ti pos far quai a mintga mument sut «Disposiziun»."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar может предложить, какие элементы скрыть, исходя из того, что ему известно о ваших приложениях. Ничто не покидает ваш Mac, решаете вы, и это можно отменить. Сделать это можно в любой момент в разделе «Раскладка»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar kan föreslå vilka objekt som ska döljas utifrån det den vet om dina appar. Ingenting lämnar din Mac, du bestämmer och kan ångra. Du kan göra det när som helst i Layout."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar uygulamalarınız hakkında bildiklerine göre hangi öğelerin gizleneceğini önerebilir. Hiçbir şey Mac’inizden çıkmaz, siz karar verirsiniz ve geri alabilirsiniz. Bunu istediğiniz zaman Düzen’nde yapabilirsiniz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar може запропонувати, які елементи приховати, виходячи з того, що йому відомо про ваші програми. Ніщо не залишає ваш Mac, вирішуєте ви, і це можна відмінити. Зробити це можна будь-коли в розділі «Розкладка»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 可以根据它对你的 App 的了解，建议要隐藏哪些项目。任何内容都不会离开你的 Mac，由你决定，也可以撤销。你随时可以在“布局”中进行此操作。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 可根據對你 App 的了解，建議要隱藏哪些項目。不會有任何內容離開你的 Mac，由你決定，而且可以還原。你隨時可以在「佈局」中進行。"
+          }
+        }
+      }
+    },
+    "Add items to this group in holzBar's Profiles & History settings." : {
+      "comment" : "Empty item group in the hub / groups view",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přidejte položky do této skupiny v nastavení Profily a historie v holzBar."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Füge in den holzBar-Einstellungen unter «Profile & Verlauf» Elemente zu dieser Gruppe hinzu."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añade elementos a este grupo en los ajustes «Perfiles e historial» de holzBar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajoutez des éléments à ce groupe dans les réglages « Profils et historique » de holzBar."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adjon hozzá elemeket ehhez a csoporthoz a holzBar Profilok és előzmények beállításaiban."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tambahkan item ke grup ini di Profil & Riwayat holzBar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi elementi a questo gruppo nelle impostazioni «Profili e cronologia» di holzBar."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このグループへの項目の追加は、holzBar のプロファイルと履歴設定で行います。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 그룹에 항목을 추가하려면 holzBar의 프로파일 및 기록 설정을 사용하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voeg onderdelen aan deze groep toe in de instellingen voor Profielen en geschiedenis van holzBar."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj elementy do tej grupy w ustawieniach „Profile i historia” holzBar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicione itens a este grupo nos ajustes do Perfis e histórico do holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agiunta elements a questa gruppa en ils parameters «Profils e istorgia» da holzBar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавляйте элементы в эту группу в настройках «Профили и история» holzBar."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lägg till objekt i den här gruppen i holzBars Profiler och historik."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Profiller ve Geçmiş’nde bu gruba öğe ekleyin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Додавайте елементи до цієї групи в параметрах «Профілі й історія» holzBar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请在 holzBar 的“配置文件与历史记录”设置中向此分组添加项目。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 holzBar 的「設定檔與記錄」設定中將項目加入此群組。"
+          }
+        }
+      }
+    },
+    "The Layout pane shows pictures of your menu bar items, which macOS lets an app take only with Screen Recording." : {
+      "comment" : "Screen Recording permission, reason of the Layout pane",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podokno Uspořádání zobrazuje obrázky položek řádku nabídek, které macOS aplikaci dovolí pořídit jen se Záznamem obrazovky."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Bereich «Anordnung» zeigt Bilder deiner Menüleistenelemente, die eine App unter macOS nur mit der Bildschirmaufnahme erstellen darf."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El panel Disposición muestra imágenes de tus elementos de la barra de menús, que macOS solo permite tomar a una app con Grabación de pantalla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sous-fenêtre « Disposition » affiche des images de vos éléments, que macOS ne laisse prendre qu'avec l'enregistrement de l'écran."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Elrendezés panel a menüsor-elemek képeit mutatja, amelyeket a macOS csak Képernyőfelvétellel enged egy alkalmazásnak elkészíteni."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tata Letak menampilkan gambar item bar menu, yang hanya dapat diambil app lewat Perekaman Layar di macOS."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il pannello «Disposizione» mostra immagini dei tuoi elementi, che macOS lascia acquisire solo con la registrazione schermo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "レイアウトのパネルには、メニューバー項目の画像が表示されます。macOS では、この画像は画面収録の権限がある App しか取得できません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "레이아웃 패널에는 메뉴 막대 항목의 그림이 표시되며, macOS는 화면 기록 권한이 있는 앱만 이 그림을 가져오도록 허용합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het paneel Indeling toont afbeeldingen van je menubalkonderdelen, die macOS een app alleen laat maken met Schermopname."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Panel Układ pokazuje obrazy elementów paska menu, które macOS pozwala aplikacji robić tylko z uprawnieniem Nagrywanie ekranu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O painel Layout mostra imagens dos seus itens da barra de menus, que o macOS só permite a um app capturar com Gravação de Tela."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il champ «Disposiziun» mussa maletgs da tes elements, ils quals macOS lascha far mo cun la Bildschirmaufnahme."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На панели «Раскладка» показаны изображения элементов вашей строки меню, а macOS позволяет приложению получать их только при наличии доступа к записи экрана."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layout visar bilder av menyradsobjekt, som macOS bara låter en app ta med Skärminspelning."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Düzen, macOS’in bir uygulamaya yalnızca Ekran Kaydı ile aldırdığı menü çubuğu öğesi resimlerini gösterir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На панелі «Розкладка» показано зображення елементів вашої смуги меню, а macOS дозволяє програмі отримувати їх лише за наявності доступу до запису екрана."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“布局”面板会显示你的菜单栏项目的图像，macOS 只允许拥有“屏幕录制”权限的 App 截取这些图像。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「佈局」面板會顯示選單列項目的圖片，而 macOS 只允許取得「螢幕錄影」權限的 App 擷取這些圖片。"
+          }
+        }
+      }
+    },
+    "Pictures of your menu bar items in the holzBar Shelf, the search and the Layout pane (on macOS 27 taken once per item), and a moving wallpaper beside a menu bar shape (before macOS 27)." : {
+      "comment" : "Screen Recording permission, summary",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obrázky položek řádku nabídek v holzBar Shelf, ve vyhledávání a v podokně Uspořádání (v macOS 27 pořízené jednou na položku) a pohyblivá tapeta vedle tvaru řádku nabídek (před macOS 27)."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilder deiner Menüleistenelemente im holzBar Shelf, in der Suche und im Bereich «Anordnung» (unter macOS 27 einmal pro Element) sowie ein bewegtes Hintergrundbild neben einer Menüleistenform (vor macOS 27)."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imágenes de los elementos de tu barra de menús en el holzBar Shelf, la búsqueda y el panel Disposición (en macOS 27 se toman una vez por elemento), y un fondo de escritorio en movimiento junto a una forma de la barra de menús (antes de macOS 27)."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Des images de vos éléments dans le holzBar Shelf, la recherche et la sous-fenêtre « Disposition » (sous macOS 27, une fois par élément), et un fond d'écran animé à côté d'une forme de barre des menus (avant macOS 27)."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A menüsor-elemek képei a holzBar Shelfben, a keresésben és a Elrendezés panelen (macOS 27 alatt elemenként egyszer készítve), valamint egy mozgó háttérkép a menüsor alakzata mellett (macOS 27 előtt)."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gambar item bar menu di holzBar Shelf, di pencarian, dan di Tata Letak (di macOS 27 diambil sekali per item), serta gambar desktop yang bergerak di samping bentuk bar menu (sebelum macOS 27)."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Immagini dei tuoi elementi in holzBar Shelf, nella ricerca e nel pannello «Disposizione» (su macOS 27 una volta per elemento) e uno sfondo animato accanto a una forma della barra dei menu (prima di macOS 27)."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf、検索、レイアウトのパネルに表示するメニューバー項目の画像（macOS 27 では項目ごとに 1 回取得）と、メニューバーのシェイプの横に表示する動く壁紙（macOS 27 より前）。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf, 검색, 레이아웃 패널에 표시되는 메뉴 막대 항목의 그림(macOS 27에서는 항목마다 한 번만 가져옴)과, 메뉴 막대 모양 옆에 표시되는 움직이는 배경화면(macOS 27 이전)."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afbeeldingen van je menubalkonderdelen in de holzBar Shelf, het zoeken en het paneel Indeling (op macOS 27 eenmaal per onderdeel gemaakt), en een bewegende achtergrond naast een menubalkvorm (vóór macOS 27)."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obrazy elementów paska menu w holzBar Shelf, w wyszukiwaniu i w panelu Układ (w macOS 27 robione raz na element) oraz ruchoma tapeta obok kształtu paska menu (przed macOS 27)."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imagens dos itens da sua barra de menus no holzBar Shelf, na busca e no painel Layout (no macOS 27 são capturadas uma vez por item), e um plano de fundo em movimento ao lado de uma forma da barra de menus (antes do macOS 27)."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maletgs da tes elements en il holzBar Shelf, en la tschertga ed en il champ «Disposiziun» (sut macOS 27 ina giada per element) ed in maletg dal fund en moviment sper ina furma da la trav da menu (avant macOS 27)."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изображения элементов строки меню в holzBar Shelf, в поиске и на панели «Раскладка» (на macOS 27 снимаются один раз для каждого элемента), а также анимированные обои рядом с формой строки меню (до macOS 27)."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilder av menyradsobjekt i holzBar Shelf, i sökningen och i Layout (på macOS 27 tagna en gång per objekt), samt en rörlig bakgrund bredvid menyradens form (före macOS 27)."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf’te, aramada ve Düzen’nde menü çubuğu öğelerinin resimleri (macOS 27’de öğe başına bir kez alınır) ve menü çubuğu şeklinin yanında hareketli bir masaüstü resmi (macOS 27 öncesi)."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зображення елементів смуги меню в holzBar Shelf, у пошуку й на панелі «Розкладка» (у macOS 27 знімаються один раз для кожного елемента), а також анімовані шпалери поруч із формою смуги меню (до macOS 27)."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf、搜索和“布局”面板中的菜单栏项目图像（在 macOS 27 上每个项目仅截取一次），以及菜单栏形状旁边的动态壁纸（macOS 27 之前）。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf、搜尋和「佈局」面板中的選單列項目圖片（在 macOS 27 上每個項目只擷取一次），以及選單列形狀旁的動態背景圖片（macOS 27 之前）。"
           }
         }
       }

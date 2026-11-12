@@ -37,7 +37,7 @@ enum TidyUpOffer {
         appState.activate(for: .settings)
         let alert = NSAlert()
         alert.messageText = String(localized: "Tidy up your menu bar?")
-        alert.informativeText = String(localized: "holzBar can propose which items to hide, from what it knows of your apps. Nothing leaves your Mac, you decide, and you can undo it. You can do this any time in Menu Bar Layout.")
+        alert.informativeText = String(localized: "holzBar can propose which items to hide, from what it knows of your apps. Nothing leaves your Mac, you decide, and you can undo it. You can do this any time in holzBar's Layout settings.")
         alert.addButton(withTitle: String(localized: "Tidy Up…"))
         alert.addButton(withTitle: String(localized: "Not Now"))
         guard alert.runModal() == .alertFirstButtonReturn else {

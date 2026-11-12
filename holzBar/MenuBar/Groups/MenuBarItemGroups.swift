@@ -321,7 +321,7 @@ private struct MenuBarItemGroupPanel: View {
                 .font(.headline)
                 .foregroundStyle(group.color.map { Color(nsColor: $0) } ?? .primary)
             if items.isEmpty {
-                Text("Add items to this group in holzBar's Menu Bar Layout settings.")
+                Text("Add items to this group in holzBar's Profiles & History settings.")
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
