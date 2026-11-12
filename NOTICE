@@ -40,6 +40,8 @@ one line per adapted file:
     (Copyright (C) 2026 Toni Förster).
   - holzBar/Core/UngovernedItemOwners.swift adapts the agentUngovernedOwners list of Thaw's
     packages/MenuBarModel/Sources/MenuBarModel/MenuBarItemTag.swift.
+  - holzBar/MenuBar/MacOS27/Core/OwnItemsCarry27.swift adapts the partial-scan merge of Thaw's
+    Thaw/Items/Model/MenuBarItemCache+Liveness.swift (Copyright (C) 2026 Toni Förster).
   - holzBar/Core/SecondaryMenuOwnership.swift adapts the Option rule of Thaw's
     Thaw/Input/Events/SecondaryMenuOwnership.swift (Copyright (C) 2026 Toni Förster).
 
