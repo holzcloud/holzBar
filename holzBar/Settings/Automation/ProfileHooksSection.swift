@@ -79,7 +79,17 @@ struct ProfileHooksSection: View {
             .settingsSubRow()
             SettingsButtonRow {
                 Button("Delete hook", role: .destructive) {
+                    // Acts at once; the undo toast puts it back at its place (D-04, D-16).
+                    guard let index = store.profileHooks.firstIndex(where: { $0.id == hook.id }) else {
+                        return
+                    }
                     store.removeProfileHook(id: hook.id)
+                    appState.layoutUndo.recordDeletion(
+                        String(localized: "\u{201C}\(URLPrompt.displayName(hook.scriptName))\u{201D} deleted"),
+                        place: .settings,
+                        restore: { store.insertProfileHook(hook, at: index) },
+                        deleteAgain: { store.removeProfileHook(id: hook.id) }
+                    )
                 }
             }
             .settingsSubRow()

@@ -40,6 +40,43 @@ struct AutomationRuleEditor: View {
         case runScript
     }
 
+    /// Deletes a condition at once; the undo toast puts it back at its place (D-04, D-16).
+    private func deleteClause(_ clause: AutomationClause) {
+        guard let index = rule.clauses.firstIndex(where: { $0.id == clause.id }) else {
+            return
+        }
+        rule.clauses.remove(at: index)
+        let ruleID = rule.id
+        let binding = $rule
+        let automation = appState.automation
+        // The editor's rule while it is shown (a sheet edits a copy until Save), else the
+        // stored rule with that identifier; a rule that is gone takes nothing back.
+        let change: (@escaping (inout AutomationRule) -> Void) -> Void = { edit in
+            if binding.wrappedValue.id == ruleID {
+                edit(&binding.wrappedValue)
+            } else if let ruleIndex = automation.rules.firstIndex(where: { $0.id == ruleID }) {
+                edit(&automation.rules[ruleIndex])
+            }
+        }
+        appState.layoutUndo.recordDeletion(
+            String(localized: "\u{201C}\(AutomationDescription.text(for: clause.condition).capitalizedFirst)\u{201D} deleted"),
+            place: .settings,
+            restore: {
+                change { rule in
+                    guard rule.clauses.count < 10, !rule.clauses.contains(where: { $0.id == clause.id }) else {
+                        return
+                    }
+                    DeletionUndo.reinsert(clause, at: index, into: &rule.clauses)
+                }
+            },
+            deleteAgain: {
+                change { rule in
+                    rule.clauses.removeAll { $0.id == clause.id }
+                }
+            }
+        )
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             SettingsRow(Text("Name")) {
@@ -55,7 +92,7 @@ struct AutomationRuleEditor: View {
             }
             ForEach($rule.clauses) { $clause in
                 AutomationConditionRow(condition: $clause.condition) {
-                    rule.clauses.removeAll { $0.id == clause.id }
+                    deleteClause(clause)
                 }
             }
             SettingsRow(
