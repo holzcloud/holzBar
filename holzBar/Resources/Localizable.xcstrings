@@ -15021,124 +15021,6 @@
         }
       }
     },
-    "A profile applied by a URL, a Shortcut or a Focus runs no hooks." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil použitý přes URL, Zkratku nebo Soustředění nespouští žádné háčky."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ein Profil, das durch eine URL, einen Kurzbefehl oder einen Fokus angewendet wird, führt keine Hooks aus."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un perfil aplicado mediante una URL, un atajo o un Modo de concentración no ejecuta ganchos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un profil appliqué par une URL, un raccourci ou un mode de concentration n’exécute aucun hook."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "URL-lel, parancsikonnal vagy Fókusszal alkalmazott profil nem futtat horgokat."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil yang diterapkan lewat URL, Pintasan, atau Fokus tidak menjalankan hook."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un profilo applicato da un URL, un comando rapido o un Focus non esegue alcun hook."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "URL、ショートカット、集中モードで適用したプロファイルはフックを実行しません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "URL, 단축어 또는 집중 모드로 적용한 프로파일은 훅을 실행하지 않습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Een profiel dat wordt toegepast via een URL, een opdracht of een Focus voert geen hooks uit."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil zastosowany przez adres URL, skrót lub tryb skupienia nie uruchamia hooków."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um perfil aplicado por uma URL, um Atalho ou um Foco não executa hooks."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In profil applitgà tras ina URL, in Shortcut u in focus n’exequescha nagins hooks."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Профиль, применённый по ссылке, через «Быстрые команды» или режим «Фокусирование», не запускает хуки."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En profil som tillämpas via en URL, en genväg eller ett Fokus kör inga hooks."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bir URL, bir Kestirme veya bir Odak ile uygulanan profil kanca çalıştırmaz."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Профіль, застосований за посиланням, через «Швидкі команди» або «Зосередження», не запускає хуки."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "通过 URL、快捷指令或专注模式应用的配置文件不会运行钩子。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "透過 URL、「捷徑」或「專注模式」套用的設定檔不會執行 Hook。"
-          }
-        }
-      }
-    },
     "A profile with the same name is replaced. Apply it later from here, or with holzbar://profile/<name>." : {
       "localizations" : {
         "cs" : {
@@ -16555,124 +16437,6 @@
         }
       }
     },
-    "Add Hook" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Přidat háček"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hook hinzufügen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Añadir gancho"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajouter un hook"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Horog hozzáadása"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tambah hook"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aggiungi hook"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フックを追加"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "훅 추가"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hook toevoegen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dodaj hook"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adicionar hook"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Agiuntar in hook"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Добавить хук"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lägg till en hook"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kanca ekle"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Додати хук"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "添加钩子"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "加入 Hook"
-          }
-        }
-      }
-    },
     "Add Widget" : {
       "localizations" : {
         "cs" : {
@@ -17145,124 +16909,6 @@
         }
       }
     },
-    "After Applying" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Po použití"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nach dem Anwenden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Después de aplicar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Après l’application"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alkalmazás után"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Setelah menerapkan"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dopo l’applicazione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "適用後"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "적용 후"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Na het toepassen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Po zastosowaniu"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Depois de aplicar"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suenter l’applicaziun"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "После применения"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Efter tillämpning"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uygulamadan sonra"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Після застосування"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "应用之后"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "套用後"
-          }
-        }
-      }
-    },
     "After the bar settled" : {
       "localizations" : {
         "cs" : {
@@ -17731,124 +17377,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "允許「螢幕錄影」⋯"
-          }
-        }
-      }
-    },
-    "Allow a script above first." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nejdřív povolte skript výše."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erlaube oben zuerst ein Skript."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Permite primero un script de arriba."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Autorisez d’abord un script plus haut."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Előbb engedélyezzen egy szkriptet fent."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Izinkan skrip di atas terlebih dahulu."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Consenti prima uno script qui sopra."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "先に上のスクリプトを許可してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "먼저 위의 스크립트를 허용하세요."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sta eerst een script hierboven toe."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Najpierw zezwól na skrypt powyżej."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Permita primeiro um script acima."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lubescha l’emprim in scrip survart."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сначала разрешите скрипт выше."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tillåt först ett skript ovan."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Önce yukarıdan bir komut dosyasına izin verin."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Спершу дозвольте скрипт вище."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "请先允许上方的脚本。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "請先允許上方的指令碼。"
           }
         }
       }
@@ -22687,124 +22215,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "電池電量"
-          }
-        }
-      }
-    },
-    "Before Applying" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Před použitím"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vor dem Anwenden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Antes de aplicar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Avant l’application"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alkalmazás előtt"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sebelum menerapkan"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prima dell’applicazione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "適用前"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "적용 전"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vóór het toepassen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przed zastosowaniem"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Antes de aplicar"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Avant l’applicaziun"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перед применением"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Före tillämpning"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uygulamadan önce"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перед застосуванням"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "应用之前"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "套用前"
           }
         }
       }
@@ -32481,124 +31891,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "「%@」的行程操作逾時"
-          }
-        }
-      }
-    },
-    "Every Profile" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Každý profil"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jedes Profil"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Todos los perfiles"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chaque profil"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Minden profil"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Semua profil"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ogni profilo"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "すべてのプロファイル"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "모든 프로파일"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elk profiel"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Każdy profil"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Todos os perfis"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mintga profil"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Все профили"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alla profiler"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tüm profiller"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Усі профілі"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "所有配置文件"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "所有設定檔"
           }
         }
       }
@@ -53253,124 +52545,6 @@
         }
       }
     },
-    "Profile Hooks" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Háčky profilu"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil-Hooks"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ganchos de perfil"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hooks de profil"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profilhorgok"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hook profil"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hook dei profili"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "プロファイルフック"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "프로파일 훅"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profielhooks"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hooki profilu"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hooks de perfil"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hooks da profil"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Хуки профиля"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profilens hooks"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil kancaları"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Хуки профілю"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "配置文件钩子"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "設定檔 Hook"
-          }
-        }
-      }
-    },
     "Profiles" : {
       "localizations" : {
         "cs" : {
@@ -55613,124 +54787,6 @@
         }
       }
     },
-    "Remove Approval" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Odebrat schválení"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erlaubnis entziehen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quitar aprobación"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retirer l’autorisation"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jóváhagyás eltávolítása"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hapus persetujuan"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rimuovi l’approvazione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "承認を取り消す"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "승인 제거"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verwijder goedkeuring"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usuń zatwierdzenie"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remover aprovação"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Allontanar la lubientscha"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Удалить одобрение"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ta bort godkännandet"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Onayı kaldır"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вилучити схвалення"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "移除批准"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "移除核准"
-          }
-        }
-      }
-    },
     "Remove Binding" : {
       "localizations" : {
         "cs" : {
@@ -55963,124 +55019,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "移除色標"
-          }
-        }
-      }
-    },
-    "Remove Hook" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Odebrat háček"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hook entfernen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quitar gancho"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retirer le hook"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Horog eltávolítása"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hapus hook"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rimuovi hook"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フックを削除"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "훅 제거"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verwijder hook"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usuń hook"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remover hook"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Allontanar il hook"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Удалить хук"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ta bort hooken"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kancayı kaldır"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вилучити хук"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "移除钩子"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "移除 Hook"
           }
         }
       }
@@ -59153,124 +58091,6 @@
         }
       }
     },
-    "Rules are stored on this Mac." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pravidla se ukládají na tomto Macu."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Regeln werden auf diesem Mac gespeichert."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Las reglas se guardan en este Mac."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les règles sont enregistrées sur ce Mac."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A szabályok ezen a Macen tárolódnak."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aturan disimpan di Mac ini."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le regole vengono salvate su questo Mac."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ルールはこの Mac に保存されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "규칙은 이 Mac에 저장됩니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Regels worden op deze Mac bewaard."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reguły są przechowywane na tym Macu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "As regras são armazenadas neste Mac."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Las reglas vegnan memorisadas sin quest Mac."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Правила хранятся на этом Mac."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Regler lagras på den här Macen."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kurallar bu Mac’te saklanır."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Правила зберігаються на цьому Mac."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "规则存储在这台 Mac 上。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "規則儲存在這台 Mac 上。"
-          }
-        }
-      }
-    },
     "Rules that use a script can be turned on only in holzBar's settings." : {
       "localizations" : {
         "cs" : {
@@ -59503,124 +58323,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "執行指令碼"
-          }
-        }
-      }
-    },
-    "Run a script you allowed before or after a layout profile is applied." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spustit skript, který jste dříve povolili, před použitím profilu uspořádání nebo po něm."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Führe ein Skript, das du erlaubt hast, vor oder nach dem Anwenden eines Layoutprofils aus."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ejecuta un script que hayas permitido antes o después de aplicar un perfil de disposición."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exécutez un script que vous avez autorisé avant ou après l’application d’un profil de disposition."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Korábban engedélyezett szkript futtatása egy elrendezésprofil alkalmazása előtt vagy után."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jalankan skrip yang sudah diizinkan sebelum atau sesudah profil tata letak diterapkan."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esegui uno script che hai consentito prima o dopo l’applicazione di un profilo di layout."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "レイアウトプロファイルを適用する前または後に、許可済みのスクリプトを実行します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "레이아웃 프로파일을 적용하기 전이나 후에 허용한 스크립트를 실행합니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voer een script uit dat je hebt toegestaan voor of na het toepassen van een indelingsprofiel."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uruchom skrypt, na który wcześniej zezwolono, przed zastosowaniem profilu układu lub po nim."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Executa um script que você permitiu antes ou depois de aplicar um perfil de layout."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exequescha in scrip che ti has lubì avant u suenter ch’in profil da layout vegn applitgà."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Запускает разрешённый вами скрипт до или после применения профиля раскладки."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kör ett tidigare tillåtet skript före eller efter att en layoutprofil tillämpas."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bir düzen profili uygulanmadan önce veya sonra daha önce izin verilmiş bir komut dosyası çalıştırın."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Запускає дозволений вами скрипт до або після застосування профілю розкладки."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在应用布局配置文件之前或之后，运行你已允许的脚本。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在套用佈局設定檔之前或之後，執行你已允許的指令碼。"
           }
         }
       }
@@ -60565,124 +59267,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "指令碼"
-          }
-        }
-      }
-    },
-    "Scripts run as you, with holzBar's permissions. macOS asks separately before a script controls another app. Only scripts in the folder you chose run, and only after you allowed their exact content." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skripty běží jako vy, s oprávněními holzBar. macOS se zvlášť zeptá, než skript začne ovládat jinou aplikaci. Spouštějí se jen skripty ve složce, kterou jste vybrali, a jen poté, co jste povolili jejich přesný obsah."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skripte laufen als du, mit den Berechtigungen von holzBar. macOS fragt separat nach, bevor ein Skript eine andere App steuert. Nur Skripte im gewählten Ordner laufen, und nur nachdem du ihren genauen Inhalt erlaubt hast."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los scripts se ejecutan como tú, con los permisos de holzBar. macOS pregunta por separado antes de que un script controle otra app. Solo se ejecutan los scripts de la carpeta que elegiste, y solo después de que permitas su contenido exacto."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les scripts s’exécutent comme vous, avec les autorisations de holzBar. macOS demande séparément avant qu’un script contrôle une autre app. Seuls les scripts du dossier que vous avez choisi s’exécutent, et seulement après que vous avez autorisé leur contenu exact."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A szkriptek Önként futnak, a holzBar engedélyeivel. A macOS külön rákérdez, mielőtt egy szkript másik alkalmazást vezérel. Csak a kiválasztott mappa szkriptjei futnak, és csak azután, hogy engedélyezte a pontos tartalmukat."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skrip berjalan sebagai Anda, dengan izin holzBar. macOS bertanya terpisah sebelum skrip mengendalikan app lain. Hanya skrip di folder yang Anda pilih yang berjalan, dan hanya setelah Anda mengizinkan isinya secara tepat."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli script vengono eseguiti come te, con le autorizzazioni di holzBar. macOS chiede separatamente prima che uno script controlli un’altra app. Vengono eseguiti solo gli script nella cartella che hai scelto, e solo dopo che hai consentito il loro contenuto esatto."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "スクリプトはあなたとして、holzBar の権限で実行されます。スクリプトが別の App を制御する前には、macOS が別途確認します。実行されるのは、選んだフォルダ内のスクリプトだけで、内容そのものを許可した後に限ります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "스크립트는 holzBar의 권한으로 사용자 본인 자격으로 실행됩니다. 스크립트가 다른 앱을 제어하기 전에 macOS가 별도로 확인합니다. 선택한 폴더에 있는 스크립트만 실행되며, 정확한 내용을 허용한 뒤에만 실행됩니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scripts draaien als jij, met de toestemmingen van holzBar. macOS vraagt apart toestemming voordat een script een andere app bestuurt. Alleen scripts in de map die je hebt gekozen draaien, en alleen nadat je hun exacte inhoud hebt toegestaan."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skrypty działają jako Ty, z uprawnieniami holzBar. macOS osobno pyta, zanim skrypt zacznie sterować inną aplikacją. Uruchamiane są tylko skrypty z wybranego folderu i tylko po zezwoleniu na ich dokładną zawartość."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os scripts são executados como você, com as permissões do holzBar. O macOS pergunta separadamente antes de um script controlar outro app. Somente os scripts da pasta que você escolheu são executados, e somente depois que você permitir o conteúdo exato deles."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ils scrips vegnan exequids sco ti, cun las permissiuns da holzBar. macOS dumonda separadamain, avant che in scrip controllescha in’autra app. Mo ils scrips en l’ordinatur tschernì vegnan exequids, e mo suenter che ti has lubì lur cuntegn exact."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Скрипты запускаются от вашего имени с разрешениями holzBar. Перед тем как скрипт начнёт управлять другим приложением, macOS отдельно запросит подтверждение. Запускаются только скрипты из выбранной вами папки и только после того, как вы разрешили их точное содержимое."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skript körs som du, med holzBars behörigheter. macOS frågar separat innan ett skript styr en annan app. Bara skript i mappen du väljer körs, och bara efter att du har tillåtit exakt det de innehåller."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Komut dosyaları sizin olarak, holzBar’ın izinleriyle çalışır. macOS, bir komut dosyası başka bir uygulamayı denetlemeden önce ayrıca sorar. Yalnızca seçtiğiniz klasördeki komut dosyaları çalışır ve yalnızca içeriklerine tam olarak izin verdikten sonra."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Скрипти запускаються від вашого імені з дозволами holzBar. Перш ніж скрипт почне керувати іншою програмою, macOS окремо запитає підтвердження. Запускаються лише скрипти з обраної вами папки і лише після того, як ви дозволили їхній точний вміст."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "脚本以你的身份运行，使用 holzBar 的权限。脚本控制其他 App 之前，macOS 会另行询问。只有你选取的文件夹中的脚本才会运行，并且仅在你允许其确切内容之后。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "指令碼會以你的身分、使用 holzBar 的權限執行。指令碼控制其他 App 之前，macOS 會另外詢問。只有你選擇的檔案夾中的指令碼才會執行，而且只有在你允許其確切內容之後。"
           }
         }
       }
@@ -72601,124 +71185,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "時間"
-          }
-        }
-      }
-    },
-    "Time limit: %lld s" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Časový limit: %lld s"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zeitlimit: %lld s"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Límite de tiempo: %lld s"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Limite de temps : %lld s"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Időkorlát: %lld mp"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Batas waktu: %lld dtk"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Limite di tempo: %lld s"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "制限時間: %lld 秒"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "시간 제한: %lld초"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tijdslimiet: %lld s"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Limit czasu: %lld s"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Limite de tempo: %lld s"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cunfin da temp: %lld s"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Лимит времени: %lld с"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tidsgräns: %lld s"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zaman aşımı: %lld sn"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ліміт часу: %lld с"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "时间限制：%lld 秒"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "時間限制：%lld 秒"
           }
         }
       }
@@ -139649,6 +138115,2981 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "刪除規則…"
+          }
+        }
+      }
+    },
+    "Revoke approval…" : {
+      "comment" : "Revoke sheet: button in Automation settings, Scripts",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odebrat povolení…"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaubnis entziehen …"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revocar permiso…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Révoquer l’autorisation…"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Engedély visszavonása…"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cabut izin…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revoca autorizzazione…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "許可を取り消す…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "허용 취소…"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toestemming intrekken…"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cofnij zezwolenie…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revogar permissão…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retrair la lubientscha…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отозвать разрешение…"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Återkalla tillåtelse…"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İzni geri al…"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скасувати дозвіл…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撤销允许…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撤銷允許⋯"
+          }
+        }
+      }
+    },
+    "Revoke this script's approval?" : {
+      "comment" : "Revoke sheet: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odebrat povolení tomuto skriptu?"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Erlaubnis für dieses Skript entziehen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Revocar el permiso de este script?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Révoquer l’autorisation de ce script ?"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visszavonja a szkript engedélyét?"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cabut izin skrip ini?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revocare l’autorizzazione di questo script?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このスクリプトの許可を取り消しますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 스크립트의 허용을 취소하시겠습니까?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De toestemming voor dit script intrekken?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cofnąć zezwolenie dla tego skryptu?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revogar a permissão deste script?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retrair la lubientscha da quest scrip?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отозвать разрешение для этого скрипта?"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Återkalla tillåtelsen för det här skriptet?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu komut dosyasının izni geri alınsın mı?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скасувати дозвіл для цього скрипта?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要撤销此脚本的允许吗？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要撤銷此指令碼的允許嗎？"
+          }
+        }
+      }
+    },
+    "“%@” no longer runs until you allow it again." : {
+      "comment" : "Revoke sheet: message, %@ is the script name",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ se přestane spouštět, dokud ho znovu nepovolíte."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ läuft nicht mehr, bis du es wieder erlaubst."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” dejará de ejecutarse hasta que lo permitas de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » ne s’exécute plus tant que vous ne l’autorisez pas de nouveau."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A(z) „%@” többé nem fut, amíg újra nem engedélyezi."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” tidak berjalan lagi sampai Anda mengizinkannya kembali."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» non verrà più eseguito finché non lo consenti di nuovo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」は、もう一度許可するまで実行されません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 허용하기 전까지 “%@”은(는) 실행되지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” wordt niet meer uitgevoerd totdat je het weer toestaat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” nie będzie się uruchamiać, dopóki znowu na to nie zezwolisz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” deixa de ser executado até você permiti-lo de novo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» na vegn betg pli exequì, fin che ti al lubeschas puspè."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» больше не запускается, пока вы не разрешите его снова."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "”%@” körs inte längre förrän du tillåter det igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”, siz yeniden izin verene kadar çalışmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» більше не запускається, доки ви не дозволите його знову."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在你再次允许之前，“%@”不会再运行。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在你再次允許之前，「%@」不會再執行。"
+          }
+        }
+      }
+    },
+    "Revoke Approval" : {
+      "comment" : "Revoke sheet: confirm button",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odebrat povolení"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaubnis entziehen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revocar permiso"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Révoquer l’autorisation"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Engedély visszavonása"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cabut izin"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revoca autorizzazione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "許可を取り消す"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "허용 취소"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toestemming intrekken"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cofnij zezwolenie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revogar permissão"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retrair la lubientscha"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отозвать разрешение"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Återkalla tillåtelse"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İzni geri al"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скасувати дозвіл"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撤销允许"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撤銷允許"
+          }
+        }
+      }
+    },
+    "Time limit" : {
+      "comment" : "Automation settings, Scripts: time limit for a script",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Časový limit"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeitlimit"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Límite de tiempo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limite de temps"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Időkorlát"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batas waktu"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limite di tempo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "制限時間"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간 제한"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tijdslimiet"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limit czasu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limite de tempo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limit da temp"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ограничение по времени"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidsgräns"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Süre sınırı"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ліміт часу"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "时间限制"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "時間限制"
+          }
+        }
+      }
+    },
+    "From 1 to 60 seconds. Then holzBar stops the script." : {
+      "comment" : "Automation settings, Scripts: time limit help",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Od 1 do 60 sekund. Poté holzBar skript zastaví."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von 1 bis 60 Sekunden. Danach beendet holzBar das Skript."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De 1 a 60 segundos. Después, holzBar detiene el script."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De 1 à 60 secondes. Ensuite, holzBar arrête le script."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 és 60 másodperc között. Utána a holzBar leállítja a szkriptet."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dari 1 sampai 60 detik. Setelah itu holzBar menghentikan skrip."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da 1 a 60 secondi. Poi holzBar interrompe lo script."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1秒から60秒まで。その後、holzBar がスクリプトを停止します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1초에서 60초까지입니다. 그 후 holzBar가 스크립트를 중지합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Van 1 tot 60 seconden. Daarna stopt holzBar het script."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Od 1 do 60 sekund. Potem holzBar zatrzymuje skrypt."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De 1 a 60 segundos. Depois, o holzBar interrompe o script."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da 1 fin 60 secundas. Silsuenter ferma holzBar il scrip."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "От 1 до 60 секунд. Затем holzBar останавливает скрипт."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Från 1 till 60 sekunder. Sedan stoppar holzBar skriptet."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 ile 60 saniye arası. Ardından holzBar komut dosyasını durdurur."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Від 1 до 60 секунд. Потім holzBar зупиняє скрипт."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 到 60 秒。之后 holzBar 会停止该脚本。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 到 60 秒。之後 holzBar 會停止該指令碼。"
+          }
+        }
+      }
+    },
+    "holzBar shows the folder, size and checksum and asks. Allow a script only if you wrote it or read it. macOS asks separately before it controls another app." : {
+      "comment" : "Automation settings, Scripts: search description of approval",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar zobrazí složku, velikost a kontrolní součet a zeptá se. Skript povolte, jen pokud jste ho napsali nebo přečetli. macOS se zvlášť zeptá, než začne ovládat jinou aplikaci."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar zeigt Ordner, Größe und Prüfsumme und fragt nach. Erlaube ein Skript nur, wenn du es geschrieben oder gelesen hast. Bevor es eine andere App steuert, fragt macOS eigens."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar muestra la carpeta, el tamaño y la suma de comprobación, y pregunta. Permite un script solo si lo escribiste o lo leíste. macOS pregunta por separado antes de que controle otra app."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar affiche le dossier, la taille et la somme de contrôle, puis demande. N’autorisez un script que si vous l’avez écrit ou lu. macOS demande séparément avant qu’il contrôle une autre app."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar megmutatja a mappát, a méretet és az ellenőrző összeget, és rákérdez. Csak akkor engedélyezzen szkriptet, ha Ön írta vagy olvasta el. A macOS külön rákérdez, mielőtt másik alkalmazást vezérel."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar menampilkan folder, ukuran, dan checksum lalu bertanya. Izinkan skrip hanya jika Anda yang menulis atau membacanya. macOS bertanya terpisah sebelum mengendalikan app lain."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar mostra cartella, dimensione e checksum e chiede conferma. Consenti uno script solo se lo hai scritto o letto. macOS chiede separatamente prima che controlli un’altra app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar はフォルダ、サイズ、チェックサムを表示して確認します。スクリプトは、自分で書いたか内容を読んだ場合にのみ許可してください。別の App を制御する前には、macOS が別途確認します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar가 폴더, 크기, 체크섬을 보여 주고 확인합니다. 직접 작성했거나 읽어 본 스크립트만 허용하세요. 다른 앱을 제어하기 전에 macOS가 별도로 확인합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar toont de map, de grootte en de controlesom en vraagt om bevestiging. Sta een script alleen toe als je het zelf hebt geschreven of gelezen. macOS vraagt apart toestemming voordat het een andere app bestuurt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar pokazuje folder, rozmiar i sumę kontrolną i pyta. Zezwalaj na skrypt tylko wtedy, gdy sam go napisałeś lub przeczytałeś. macOS osobno pyta, zanim skrypt zacznie sterować inną aplikacją."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar mostra a pasta, o tamanho e a soma de verificação e pergunta. Permita um script somente se você mesmo o escreveu ou o leu. O macOS pergunta separadamente antes de ele controlar outro app."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar mussa l’ordinatur, la grondezza e la summa da controlla e dumonda. Lubescha in scrip mo sche ti l’has scrit u legì. macOS dumonda separadamain, avant che quel controllescha in’autra app."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar показывает папку, размер и контрольную сумму и спрашивает. Разрешайте скрипт, только если вы сами его написали или прочитали. Перед тем как он начнёт управлять другим приложением, macOS отдельно запросит подтверждение."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar visar mappen, storleken och kontrollsumman och frågar. Tillåt ett skript bara om du har skrivit eller läst det. macOS frågar separat innan det styr en annan app."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar klasörü, boyutu ve sağlama toplamını gösterir ve sorar. Bir komut dosyasına yalnızca kendiniz yazdıysanız veya okuduysanız izin verin. macOS, başka bir uygulamayı denetlemeden önce ayrıca sorar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar показує папку, розмір і контрольну суму та запитує. Дозволяйте скрипт, лише якщо ви самі його написали або прочитали. Перш ніж він почне керувати іншою програмою, macOS окремо запитає підтвердження."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 会显示文件夹、大小和校验和并询问。仅当脚本是你自己编写或已阅读过时才允许。它控制其他 App 之前，macOS 会另行询问。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 會顯示檔案夾、大小和檢查碼並詢問。只有在你自己寫過或讀過指令碼時才允許。它控制其他 App 之前，macOS 會另外詢問。"
+          }
+        }
+      }
+    },
+    "Scripts run as you, with holzBar's permissions. Only scripts in this folder run, and only after you allowed their exact content." : {
+      "comment" : "Automation settings, Scripts: search description",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skripty běží jako vy, s oprávněními holzBar. Spouštějí se jen skripty v této složce, a to až poté, co povolíte jejich přesný obsah."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skripte laufen als du, mit den Rechten von holzBar. Nur Skripte in diesem Ordner laufen, und erst, wenn du ihren genauen Inhalt erlaubt hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los scripts se ejecutan como tú, con los permisos de holzBar. Solo se ejecutan los scripts de esta carpeta, y solo después de que permitas su contenido exacto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les scripts s’exécutent comme vous, avec les autorisations de holzBar. Seuls les scripts de ce dossier s’exécutent, et seulement après que vous avez autorisé leur contenu exact."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A szkriptek Ön néven futnak, a holzBar engedélyeivel. Csak az ebben a mappában lévő szkriptek futnak, és csak azután, hogy engedélyezte a pontos tartalmukat."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skrip berjalan sebagai Anda, dengan izin holzBar. Hanya skrip di folder ini yang berjalan, dan hanya setelah Anda mengizinkan isi persisnya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli script vengono eseguiti come te, con le autorizzazioni di holzBar. Vengono eseguiti solo gli script di questa cartella, e solo dopo che ne hai consentito il contenuto esatto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スクリプトはあなたとして、holzBar の権限で実行されます。このフォルダ内のスクリプトだけが、その正確な内容を許可した後にのみ実行されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스크립트는 사용자 본인 자격으로 holzBar의 권한으로 실행됩니다. 이 폴더의 스크립트만, 정확한 내용을 허용한 후에만 실행됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scripts draaien als jij, met de toestemmingen van holzBar. Alleen scripts in deze map worden uitgevoerd, en pas nadat je hun exacte inhoud hebt toegestaan."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skrypty działają jako Ty, z uprawnieniami holzBar. Działają tylko skrypty z tego folderu i tylko po tym, jak zezwolisz na ich dokładną zawartość."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os scripts são executados como você, com as permissões do holzBar. Só são executados os scripts desta pasta, e só depois de você permitir o conteúdo exato deles."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils scrips vegnan exequids sco ti, cun las permissiuns da holzBar. Be ils scrips da quest ordinatur vegnan exequids, e be suenter che ti has lubì lur cuntegn exact."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрипты запускаются от вашего имени с разрешениями holzBar. Запускаются только скрипты из этой папки, и только после того, как вы разрешили их точное содержимое."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skript körs som du, med holzBars behörigheter. Bara skript i den här mappen körs, och först när du har tillåtit deras exakta innehåll."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Komut dosyaları sizin olarak, holzBar’ın izinleriyle çalışır. Yalnızca bu klasördeki komut dosyaları çalışır ve yalnızca tam içeriklerine izin verdikten sonra."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрипти запускаються від вашого імені з дозволами holzBar. Запускаються лише скрипти з цієї папки, і лише після того, як ви дозволили їхній точний вміст."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "脚本以你的身份运行，使用 holzBar 的权限。只有此文件夹中的脚本会运行，且仅在你允许其确切内容之后。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指令碼以你的身分、使用 holzBar 的權限執行。只有此檔案夾中的指令碼會執行，且僅在你允許其確切內容之後。"
+          }
+        }
+      }
+    },
+    "With a new folder, every approval is removed. Each script in it needs your approval again." : {
+      "comment" : "Automation settings, Scripts: search description of the folder change",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "S novou složkou se odebere každé povolení. Každý skript v ní potřebuje vaše povolení znovu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit einem neuen Ordner verfällt jede Erlaubnis. Jedes Skript darin braucht deine Erlaubnis erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con una carpeta nueva se eliminan todos los permisos. Cada script que contiene necesita tu permiso de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avec un nouveau dossier, toutes les autorisations sont supprimées. Chaque script qu’il contient demande de nouveau votre autorisation."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Új mappa esetén minden engedély megszűnik. A benne lévő minden szkriptnek újra szüksége van az Ön engedélyére."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dengan folder baru, setiap izin dihapus. Setiap skrip di dalamnya memerlukan izin Anda lagi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con una nuova cartella, ogni autorizzazione viene rimossa. Ogni script al suo interno richiede di nuovo la tua autorizzazione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しいフォルダを選ぶと、すべての許可が解除されます。フォルダ内の各スクリプトは、あらためて許可が必要です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 폴더를 선택하면 모든 허용이 제거됩니다. 폴더 안의 각 스크립트는 다시 허용해야 합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bij een nieuwe map vervalt elke toestemming. Elk script erin heeft opnieuw jouw toestemming nodig."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przy nowym folderze wszystkie zezwolenia są usuwane. Każdy skrypt w nim wymaga ponownie Twojego zezwolenia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Com uma nova pasta, todas as permissões são removidas. Cada script nela precisa da sua permissão novamente."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cun in nov ordinatur vegnan stizzadas tut las lubientschas. Mintga scrip qua endadens dovra danovamain tia lubientscha."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При выборе новой папки все разрешения снимаются. Каждый скрипт в ней снова требует вашего разрешения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Med en ny mapp tas varje tillåtelse bort. Varje skript i den behöver din tillåtelse igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yeni bir klasörle her izin kaldırılır. İçindeki her komut dosyası yeniden izninizi gerektirir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Після вибору нової папки всі дозволи скасовуються. Кожен скрипт у ній знову потребує вашого дозволу."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用新文件夹后，所有允许都会被移除。其中的每个脚本都需要你再次允许。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用新檔案夾後，所有允許都會移除。其中的每個指令碼都需要你再次允許。"
+          }
+        }
+      }
+    },
+    "Scripts of the rules" : {
+      "comment" : "Automation settings, Scripts group title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skripty pravidel"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skripte der Regeln"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scripts de las reglas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scripts des règles"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A szabályok szkriptjei"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skrip aturan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Script delle regole"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ルールのスクリプト"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "규칙의 스크립트"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scripts van de regels"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skrypty reguł"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scripts das regras"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrips da las reglas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрипты правил"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skript för reglerna"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kuralların komut dosyaları"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрипти правил"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "规则的脚本"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "規則的指令碼"
+          }
+        }
+      }
+    },
+    "Reads the scripts folder again and checks every rule now, without waiting for the next change." : {
+      "comment" : "Automation settings, Scripts: check-now help",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Znovu načte složku skriptů a hned zkontroluje každé pravidlo, aniž by čekal na další změnu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liest den Skripte-Ordner neu und prüft jede Regel sofort, ohne auf die nächste Änderung zu warten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuelve a leer la carpeta de scripts y comprueba ahora cada regla, sin esperar al siguiente cambio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relit le dossier des scripts et vérifie chaque règle maintenant, sans attendre la prochaine modification."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Újra beolvassa a szkriptek mappáját, és azonnal ellenőrzi az összes szabályt, anélkül hogy a következő módosításra várna."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Membaca ulang folder skrip dan memeriksa setiap aturan sekarang, tanpa menunggu perubahan berikutnya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rilegge la cartella degli script e controlla subito ogni regola, senza attendere la prossima modifica."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スクリプトフォルダを再読み込みし、次の変更を待たずに今すぐすべてのルールを確認します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스크립트 폴더를 다시 읽고 다음 변경을 기다리지 않고 지금 모든 규칙을 확인합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leest de scriptsmap opnieuw en controleert nu elke regel, zonder op de volgende wijziging te wachten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponownie odczytuje folder skryptów i od razu sprawdza każdą regułę, bez czekania na kolejną zmianę."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lê a pasta de scripts de novo e verifica cada regra agora, sem esperar a próxima alteração."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legia danovamain l’ordinatur dals scrips e controlla uss mintga regla, senza spetgar la proxima midada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заново читает папку скриптов и сразу проверяет каждое правило, не дожидаясь следующего изменения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Läser skriptmappen igen och kontrollerar varje regel direkt, utan att vänta på nästa ändring."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Komut dosyaları klasörünü yeniden okur ve bir sonraki değişikliği beklemeden şimdi her kuralı denetler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заново зчитує папку скриптів і одразу перевіряє кожне правило, не чекаючи наступної зміни."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新读取脚本文件夹并立即检查每条规则，无需等待下一次更改。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新讀取指令碼檔案夾，並立即檢查每條規則，無需等待下一次變更。"
+          }
+        }
+      }
+    },
+    "Profile hooks" : {
+      "comment" : "Automation settings: Profile hooks group",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Háky profilů"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil-Hooks"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hooks de perfil"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hooks de profil"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profilhorgok"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hook profil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hook del profilo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイルフック"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로파일 훅"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profielhooks"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haki profili"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hooks de perfil"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hooks da profil"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хуки профилей"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profilhookar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil kancaları"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хуки профілів"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配置文件钩子"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定檔掛鉤"
+          }
+        }
+      }
+    },
+    "Timing" : {
+      "comment" : "Automation settings, Profile hooks: before or after applying",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Okamžik"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeitpunkt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Momento"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moment"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Időzítés"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waktu"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Momento"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タイミング"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시점"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moment"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moment"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Momento"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mument"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Момент"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidpunkt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zamanlama"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Момент"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "时机"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "時機"
+          }
+        }
+      }
+    },
+    "Before applying" : {
+      "comment" : "Automation settings, Profile hooks: timing choice",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Před použitím"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor dem Anwenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antes de aplicar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant l’application"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alkalmazás előtt"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sebelum diterapkan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima dell’applicazione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "適用前"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "적용 전"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vóór het toepassen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przed zastosowaniem"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antes de aplicar"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant l’applicaziun"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перед применением"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Före tillämpning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamadan önce"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перед застосуванням"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用前"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "套用前"
+          }
+        }
+      }
+    },
+    "After applying" : {
+      "comment" : "Automation settings, Profile hooks: timing choice",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po použití"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach dem Anwenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Después de aplicar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Après l’application"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alkalmazás után"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setelah diterapkan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dopo l’applicazione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "適用後"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "적용 후"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na het toepassen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po zastosowaniu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depois de aplicar"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suenter l’applicaziun"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "После применения"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Efter tillämpning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamadan sonra"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Після застосування"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用后"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "套用後"
+          }
+        }
+      }
+    },
+    "Every profile" : {
+      "comment" : "Automation settings, Profile hooks: profile choice",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Každý profil"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jedes Profil"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los perfiles"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tous les profils"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minden profil"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setiap profil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogni profilo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてのプロファイル"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 프로파일"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elk profiel"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Każdy profil"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos os perfis"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mintga profil"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Каждый профиль"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Varje profil"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her profil"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кожен профіль"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每个配置文件"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每個設定檔"
+          }
+        }
+      }
+    },
+    "Delete hook" : {
+      "comment" : "Automation settings, Profile hooks: delete button",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smazat hák"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hook löschen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar hook"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer le hook"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Horog törlése"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hapus hook"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina hook"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フックを削除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "훅 삭제"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder hook"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń hak"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluir hook"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stizzar il hook"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить хук"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta bort hook"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kancayı sil"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалити хук"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除钩子"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除掛鉤"
+          }
+        }
+      }
+    },
+    "Add hook" : {
+      "comment" : "Automation settings, Profile hooks: add button",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přidat hák"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hook hinzufügen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir hook"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter un hook"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Horog hozzáadása"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tambah hook"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi hook"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フックを追加"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "훅 추가"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voeg hook toe"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj hak"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar hook"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agiuntar in hook"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить хук"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lägg till hook"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kanca ekle"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Додати хук"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加钩子"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加入掛鉤"
+          }
+        }
+      }
+    },
+    "Runs an allowed script before or after a layout profile is applied. A profile applied by a URL, a Shortcut or a Focus runs no hooks. At most 50." : {
+      "comment" : "Automation settings, Profile hooks: description",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spustí povolený skript před použitím profilu rozvržení nebo po něm. Profil použitý přes URL, zkratku nebo Soustředění žádné háky nespouští. Nejvýše 50."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Führt ein erlaubtes Skript vor oder nach dem Anwenden eines Layoutprofils aus. Ein Profil, das eine URL, ein Kurzbefehl oder ein Fokus anwendet, führt keine Hooks aus. Höchstens 50."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ejecuta un script permitido antes o después de aplicar un perfil de diseño. Un perfil aplicado por una URL, un atajo o una Concentración no ejecuta ningún hook. Como máximo 50."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exécute un script autorisé avant ou après l’application d’un profil de disposition. Un profil appliqué par une URL, un raccourci ou une concentration n’exécute aucun hook. 50 au maximum."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Futtat egy engedélyezett szkriptet egy elrendezési profil alkalmazása előtt vagy után. Az URL-lel, paranccsal vagy Fókusszal alkalmazott profil nem futtat horgot. Legfeljebb 50."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menjalankan skrip yang diizinkan sebelum atau sesudah profil tata letak diterapkan. Profil yang diterapkan lewat URL, Pintasan, atau Fokus tidak menjalankan hook apa pun. Maksimal 50."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esegue uno script consentito prima o dopo l’applicazione di un profilo di layout. Un profilo applicato da un URL, un comando rapido o una Full immersion non esegue alcun hook. Al massimo 50."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "レイアウトプロファイルの適用前または適用後に、許可済みのスクリプトを実行します。URL、ショートカット、集中モードで適用されたプロファイルでは、フックは実行されません。最大50個です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "레이아웃 프로파일을 적용하기 전이나 후에 허용된 스크립트를 실행합니다. URL, 단축어 또는 집중 모드로 적용된 프로파일은 훅을 실행하지 않습니다. 최대 50개입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voert een toegestaan script uit vóór of nadat een indelingsprofiel wordt toegepast. Een profiel dat door een URL, een opdracht of een Focus wordt toegepast, voert geen hooks uit. Maximaal 50."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uruchamia dozwolony skrypt przed lub po zastosowaniu profilu układu. Profil zastosowany przez URL, skrót lub Skupienie nie uruchamia żadnych haków. Najwyżej 50."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Executa um script permitido antes ou depois de um perfil de layout ser aplicado. Um perfil aplicado por uma URL, um Atalho ou um Foco não executa nenhum hook. No máximo 50."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exequescha in scrip lubì avant u suenter l’applicaziun d’in profil da layout. In profil applitgà d’ina URL, d’in shortcut u d’in focus n’exequescha nagins hooks. Maximalmain 50."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запускает разрешённый скрипт до или после применения профиля раскладки. Профиль, применённый по URL, через быструю команду или «Фокусирование», хуки не запускает. Не более 50."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kör ett tillåtet skript före eller efter att en layoutprofil tillämpas. En profil som tillämpas av en URL, en genväg eller ett fokus kör inga hookar. Högst 50."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir yerleşim profili uygulanmadan önce veya sonra izin verilmiş bir komut dosyası çalıştırır. Bir URL, bir Kestirme veya bir Odak ile uygulanan profil hiçbir kanca çalıştırmaz. En fazla 50."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запускає дозволений скрипт до або після застосування профілю розкладки. Профіль, застосований через URL, швидку команду або «Зосередження», хуків не запускає. Не більше 50."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在应用布局配置文件之前或之后运行已允许的脚本。通过 URL、快捷指令或专注模式应用的配置文件不会运行任何钩子。最多 50 个。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在套用版面設定檔之前或之後執行已允許的指令碼。透過 URL、捷徑或專注模式套用的設定檔不會執行任何掛鉤。最多 50 個。"
+          }
+        }
+      }
+    },
+    "Allow a script in Scripts first." : {
+      "comment" : "Automation settings, Profile hooks: hint; Scripts is the pane name",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nejprve povolte skript v části „Skripty“."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaube zuerst ein Skript unter „Skripte“."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permite primero un script en “Scripts”."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autorisez d’abord un script dans « Scripts »."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Először engedélyezzen egy szkriptet a „Szkriptek” részben."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izinkan dulu sebuah skrip di “Skrip”."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consenti prima uno script in «Script»."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先に「スクリプト」でスクリプトを許可してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "먼저 “스크립트”에서 스크립트를 허용하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sta eerst een script toe onder “Scripts”."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najpierw zezwól na skrypt w sekcji „Skrypty”."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permita primeiro um script em “Scripts”."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lubescha l’emprim in scrip sut «Scrips»."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сначала разрешите скрипт в разделе «Скрипты»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tillåt först ett skript under ”Skript”."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Önce “Komut dosyaları” bölümünde bir komut dosyasına izin verin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спершу дозвольте скрипт у розділі «Скрипти»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请先在“脚本”中允许一个脚本。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請先在「指令碼」中允許一個指令碼。"
+          }
+        }
+      }
+    },
+    "Storage" : {
+      "comment" : "Automation settings: Storage group",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Úložiště"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speicherort"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Almacenamiento"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stockage"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tárolás helye"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Penyimpanan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archiviazione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存場所"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장 위치"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opslaglocatie"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miejsce przechowywania"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Armazenamento"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memorisaziun"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хранение"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lagringsplats"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depolama yeri"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сховище"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "存储位置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "儲存位置"
+          }
+        }
+      }
+    },
+    "Rules stay on this Mac. An exported settings file contains them, except rules that run a script." : {
+      "comment" : "Automation settings, Storage group: rules",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pravidla zůstávají na tomto Macu. Exportovaný soubor nastavení je obsahuje, kromě pravidel, která spouštějí skript."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regeln bleiben auf diesem Mac. Eine exportierte Einstellungsdatei enthält sie, außer Regeln, die ein Skript ausführen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las reglas se quedan en este Mac. Un archivo de ajustes exportado las contiene, salvo las reglas que ejecutan un script."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les règles restent sur ce Mac. Un fichier de réglages exporté les contient, sauf les règles qui exécutent un script."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A szabályok ezen a Macen maradnak. Az exportált beállításfájl tartalmazza őket, kivéve a szkriptet futtató szabályokat."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aturan tetap ada di Mac ini. File pengaturan yang diekspor memuatnya, kecuali aturan yang menjalankan skrip."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le regole restano su questo Mac. Un file di impostazioni esportato le contiene, tranne le regole che eseguono uno script."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ルールはこの Mac に残ります。書き出した設定ファイルには、スクリプトを実行するルールを除いて、ルールが含まれます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "규칙은 이 Mac에 남습니다. 내보낸 설정 파일에는 스크립트를 실행하는 규칙을 제외한 규칙이 들어 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regels blijven op deze Mac. Een geëxporteerd instellingenbestand bevat ze, behalve regels die een script uitvoeren."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reguły pozostają na tym Macu. Wyeksportowany plik ustawień je zawiera, z wyjątkiem reguł, które uruchamiają skrypt."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As regras ficam neste Mac. Um arquivo de ajustes exportado as contém, exceto as regras que executam um script."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las reglas restan sin quest Mac. In fieu d’empustaziuns exportà las cuntegna, cun excepziun da las reglas che exequeschan in scrip."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Правила остаются на этом Mac. Экспортированный файл настроек содержит их, кроме правил, запускающих скрипт."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regler stannar på den här Macen. En exporterad inställningsfil innehåller dem, utom regler som kör ett skript."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kurallar bu Mac’te kalır. Dışa aktarılan ayar dosyası, bir komut dosyası çalıştıran kurallar dışında bunları içerir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Правила залишаються на цьому Mac. Експортований файл налаштувань містить їх, крім правил, що запускають скрипт."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "规则保留在此 Mac 上。导出的设置文件包含这些规则，但运行脚本的规则除外。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "規則保留在這部 Mac 上。匯出的設定檔案包含這些規則，但執行指令碼的規則除外。"
+          }
+        }
+      }
+    },
+    "Scripts, approvals and hooks" : {
+      "comment" : "Automation settings, Storage group: row title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skripty, povolení a háky"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skripte, Erlaubnisse und Hooks"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scripts, permisos y hooks"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scripts, autorisations et hooks"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szkriptek, engedélyek és horgok"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skrip, izin, dan hook"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Script, autorizzazioni e hook"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スクリプト、許可、フック"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스크립트, 허용 및 훅"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scripts, toestemmingen en hooks"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skrypty, zezwolenia i haki"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scripts, permissões e hooks"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrips, lubientschas e hooks"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрипты, разрешения и хуки"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skript, tillåtelser och hookar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Komut dosyaları, izinler ve kancalar"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрипти, дозволи та хуки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "脚本、允许和钩子"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指令碼、允許和掛鉤"
+          }
+        }
+      }
+    },
+    "Only on this Mac" : {
+      "comment" : "Automation settings, Storage group: row value",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jen na tomto Macu"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur auf diesem Mac"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo en este Mac"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uniquement sur ce Mac"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Csak ezen a Macen"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hanya di Mac ini"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo su questo Mac"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この Mac のみ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 Mac에서만"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alleen op deze Mac"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tylko na tym Macu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Somente neste Mac"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Be sin quest Mac"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Только на этом Mac"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bara på den här Macen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yalnızca bu Mac’te"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лише на цьому Mac"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅限此 Mac"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "僅限這部 Mac"
+          }
+        }
+      }
+    },
+    "They are in the file Scripts.json in ~/Library/Application Support/holzBar and are never exported." : {
+      "comment" : "Automation settings, Storage group: row help",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jsou v souboru Scripts.json ve složce ~/Library/Application Support/holzBar a nikdy se neexportují."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie liegen in der Datei Scripts.json in ~/Library/Application Support/holzBar und werden nie exportiert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Están en el archivo Scripts.json en ~/Library/Application Support/holzBar y nunca se exportan."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils se trouvent dans le fichier Scripts.json dans ~/Library/Application Support/holzBar et ne sont jamais exportés."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A ~/Library/Application Support/holzBar mappában lévő Scripts.json fájlban vannak, és soha nem exportálódnak."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semuanya ada di file Scripts.json di ~/Library/Application Support/holzBar dan tidak pernah diekspor."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si trovano nel file Scripts.json in ~/Library/Application Support/holzBar e non vengono mai esportati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これらは ~/Library/Application Support/holzBar の Scripts.json ファイルにあり、書き出されることはありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "~/Library/Application Support/holzBar의 Scripts.json 파일에 있으며 내보내지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ze staan in het bestand Scripts.json in ~/Library/Application Support/holzBar en worden nooit geëxporteerd."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Znajdują się w pliku Scripts.json w ~/Library/Application Support/holzBar i nigdy nie są eksportowane."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eles estão no arquivo Scripts.json em ~/Library/Application Support/holzBar e nunca são exportados."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ellas sa chattan en la datoteca Scripts.json en ~/Library/Application Support/holzBar e na vegnan mai exportadas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Они находятся в файле Scripts.json в ~/Library/Application Support/holzBar и никогда не экспортируются."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De finns i filen Scripts.json i ~/Library/Application Support/holzBar och exporteras aldrig."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bunlar, ~/Library/Application Support/holzBar içindeki Scripts.json dosyasındadır ve asla dışa aktarılmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вони містяться у файлі Scripts.json у ~/Library/Application Support/holzBar і ніколи не експортуються."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "它们位于 ~/Library/Application Support/holzBar 中的 Scripts.json 文件内，且不会被导出。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "它們位於 ~/Library/Application Support/holzBar 中的 Scripts.json 檔案內，且不會被匯出。"
           }
         }
       }
