@@ -82,9 +82,14 @@ final class LayoutBarContainer: NSView {
         }
         let editor = appState.layoutEditor
         let imageCache = appState.imageCache
+        let navigationState = appState.navigationState
         setArrangedViews(items: editor.items(in: section))
         layoutArrangedViews()
         observers = [
+            // Layout's filter dims the tiles it leaves out (D-09).
+            ObservationLoop.observe { navigationState.layoutFilter } onChange: { [weak self] _ in
+                self?.applyFilter()
+            },
             // The drawing of the Layout pane, or the item cache while there is none.
             ObservationLoop.observe { editor.revision } onChange: { [weak self] _ in
                 guard let self else {
@@ -174,6 +179,20 @@ final class LayoutBarContainer: NSView {
     ///
     /// - Note: If the value of the container's ``canSetArrangedViews``
     ///   property is `false`, this function returns early.
+    /// Dims the tiles Layout's filter leaves out.
+    private func applyFilter() {
+        guard let filter = appState?.navigationState.layoutFilter else {
+            return
+        }
+        for view in arrangedViews {
+            view.isFilteredOut = !LayoutListFilter.matches(
+                query: filter,
+                itemName: view.item.displayName,
+                appName: view.item.sourceApplication?.localizedName
+            )
+        }
+    }
+
     func setArrangedViews(items: [MenuBarItem]?) {
         guard
             let appState,
@@ -202,6 +221,7 @@ final class LayoutBarContainer: NSView {
             }
         }
         arrangedViews = newViews
+        applyFilter()
         guard let focusedTag else {
             return
         }

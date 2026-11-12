@@ -21,13 +21,28 @@ struct LayoutListView: View {
     private var rows: [MenuBarItem] {
         // Reading the revision makes the list follow every change of the drawing or the bar.
         _ = editor.revision
+        let filter = appState.navigationState.layoutFilter
         return editor.availableSections.flatMap { section in
-            editor.items(in: section).filter { !$0.isControlItem }
+            editor.items(in: section).filter { item in
+                !item.isControlItem && LayoutListFilter.matches(
+                    query: filter,
+                    itemName: item.displayName,
+                    appName: item.sourceApplication?.localizedName
+                )
+            }
         }
     }
 
     var body: some View {
+        let rows = rows
         header
+        if rows.isEmpty, !appState.navigationState.layoutFilter.isEmpty {
+            SettingsEmptyRow(systemImage: "line.3.horizontal.decrease.circle", Text("No item matches the filter.")) {
+                Button("Clear Filter") {
+                    appState.navigationState.layoutFilter = ""
+                }
+            }
+        }
         ForEach(rows, id: \.tag) { item in
             row(for: item)
         }

@@ -71,6 +71,12 @@ struct MenuBarLayoutSettingsPane: View {
             .pickerStyle(.segmented)
             .labelsHidden()
             .fixedSize()
+            SettingsFilterField(
+                text: Bindable(appState.navigationState).layoutFilter,
+                prompt: Text("Filter"),
+                label: Text("Filter items")
+            )
+            .fixedSize()
             Spacer(minLength: 0)
             Button("Tidy Up…", systemImage: "wand.and.stars") {
                 appState.navigationState.isTidyUpPresented = true

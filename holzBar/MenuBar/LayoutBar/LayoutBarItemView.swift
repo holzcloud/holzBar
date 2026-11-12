@@ -87,6 +87,16 @@ final class LayoutBarItemView: NSView {
         }
     }
 
+    /// Whether Layout's filter leaves the item out: its picture is dimmed, and the tile stays
+    /// reachable and movable (D-09).
+    var isFilteredOut = false {
+        didSet {
+            if isFilteredOut != oldValue {
+                needsDisplay = true
+            }
+        }
+    }
+
     /// Creates a view that displays the given menu bar item.
     init(appState: AppState, item: MenuBarItem) {
         self.item = item
@@ -195,7 +205,10 @@ final class LayoutBarItemView: NSView {
         guard let displayImage else {
             return
         }
-        let fraction: CGFloat = isEnabled ? 1.0 : 0.67
+        var fraction: CGFloat = isEnabled ? 1.0 : 0.67
+        if isFilteredOut {
+            fraction *= HolzBarTheme.LayoutList.filteredOutOpacity
+        }
         guard displayImage.isTemplate else {
             displayImage.draw(in: bounds, from: .zero, operation: .sourceOver, fraction: fraction)
             return
