@@ -144,10 +144,7 @@ struct MenuBarLayoutSettingsPane: View {
     private var menuBarGroup: some View {
         SettingsGroup(SettingsCatalog.LayoutPane.menuBar, footnote: barsFootnote) {
             if !hasItems {
-                SettingsStateLine(.info, Text("Loading menu bar items…")) {
-                    ProgressView()
-                        .controlSize(.small)
-                }
+                MenuBarItemsLoadingState(style: .settingsRow, itemManager: appState.itemManager)
             }
             if appState.navigationState.layoutView == .list {
                 // The list in place of the three bars; the rows below stay (D-08).

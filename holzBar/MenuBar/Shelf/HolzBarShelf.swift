@@ -1067,24 +1067,22 @@ private struct HolzBarShelfContentView: View {
             Text("holzBar cannot display menu bar items for automatically hidden menu bars")
                 .padding(.horizontal, 10)
         } else if itemManager.itemCache.managedItems.isEmpty {
-            HStack {
-                Text("Loading menu bar items…")
-                ProgressView()
-                    .controlSize(.small)
-            }
-            .padding(.horizontal, 10)
+            MenuBarItemsLoadingState(style: .strip, itemManager: itemManager)
         } else if ScreenRecordingAccess.isGranted(appState), imageCache.cacheFailed(for: section) {
             if imageCache.isCapturing || !imageCache.hasCaptured {
                 // The pictures are still being taken: say so instead of reporting a failure.
+                MenuBarItemsLoadingState(style: .strip, itemManager: itemManager)
+            } else {
                 HStack {
-                    Text("Loading menu bar items…")
-                    ProgressView()
-                        .controlSize(.small)
+                    Text("macOS gave holzBar no pictures of these items.")
+                    Button("Try Again") {
+                        Task {
+                            await imageCache.updateCache()
+                        }
+                    }
+                    .controlSize(.small)
                 }
                 .padding(.horizontal, 10)
-            } else {
-                Text("Unable to display menu bar items")
-                    .padding(.horizontal, 10)
             }
         } else {
             // Without Screen Recording the items show their apps' icons (or the images chosen

@@ -82,11 +82,23 @@ struct LayoutBar: View {
 
     @ViewBuilder
     private var mainContent: some View {
-        if imageCache.cacheFailed(for: section) {
-            Text("Unable to display menu bar items")
-                .font(HolzBarTheme.Typography.body)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                .padding(HolzBarTheme.Spacing.sm)
+        // Without Screen Recording the tiles draw the apps' icons, so only a finished capture
+        // with the permission is a failure, as in the Shelf (D-26).
+        if
+            ScreenRecordingAccess.isGranted(appState),
+            imageCache.cacheFailed(for: section),
+            imageCache.hasCaptured,
+            !imageCache.isCapturing
+        {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                CompactEmptyState(message: Text("macOS gave holzBar no pictures of these items."))
+                Button("Try Again") {
+                    Task {
+                        await appState.imageCache.updateCache()
+                    }
+                }
+            }
+            .padding(HolzBarTheme.Spacing.sm)
         } else {
             // The hint lets every pointer event through to the strip.
             Representable(appState: appState, section: section, isDropTarget: $isDropTarget)
