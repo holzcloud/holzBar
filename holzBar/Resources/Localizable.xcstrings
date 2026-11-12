@@ -2479,124 +2479,6 @@
         }
       }
     },
-    "Add Replacement…" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Přidat náhradu…"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ersatz hinzufügen…"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Añadir sustituto…"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajouter un remplacement…"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Csere hozzáadása…"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tambah pengganti…"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aggiungi sostituto…"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "代替項目を追加…"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "대체 항목 추가…"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vervanging toevoegen…"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dodaj zamiennik…"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adicionar substituto…"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Agiuntar ina substituziun…"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Добавить замену…"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lägg till ersättning…"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Yedek ekle…"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Додати заміну…"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "添加替代项…"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "加入替代項目⋯"
-          }
-        }
-      }
-    },
     "AirDrop" : {
       "localizations" : {
         "cs" : {
@@ -6491,124 +6373,6 @@
         }
       }
     },
-    "Hide an Apple app's items in Menu Bar Layout, and keep the ones you want one click away here." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skryjte položky aplikace Apple v uspořádání řádku nabídek a ty, které chcete, mějte po ruce na jedno kliknutí."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Blende die Elemente einer Apple-App im Menüleistenlayout aus und halte hier die gewünschten einen Klick entfernt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oculta los elementos de una app de Apple en la disposición de la barra de menús y deja aquí a un clic los que quieras."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Masquez les éléments d’une app Apple dans la disposition de la barre des menus et gardez ici ceux que vous voulez à un clic."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rejtse el egy Apple-alkalmazás elemeit a Menüsor elrendezésében, a kívántakat pedig tartsa egy kattintásnyira itt."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sembunyikan item app Apple di Tata Letak Bar Menu dan simpan yang Anda inginkan satu klik dari sini."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nascondi gli elementi di un’app Apple nel layout della barra dei menu e tieni qui, a un clic, quelli che vuoi."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apple の App の項目はメニューバーのレイアウトで非表示にして、使いたいものだけをここからワンクリックで開けるようにします。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "메뉴 막대 레이아웃에서 Apple 앱의 항목을 숨기고, 필요한 항목은 여기에 두어 한 번의 클릭으로 열 수 있습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verberg de onderdelen van een Apple-app in Menubalkindeling en houd de onderdelen die je wilt hebben hier één klik weg."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ukryj elementy aplikacji Apple w układzie paska menu i miej te, które chcesz, pod ręką jednym kliknięciem."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oculte os itens de um app da Apple no Layout da Barra de Menus e mantenha aqui, a um clique, os que quiser."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zuppenta ils elements d’ina app Apple en la disposiziun da la trav da menu e tegna qua a in clic quels che ti vuls."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Скройте элементы приложений Apple в разделе «Раскладка строки меню» и оставьте здесь те, что нужны, — они будут доступны одним нажатием."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dölj en Apple-apps objekt i Menyradslayout och ha de du vill ha ett klick bort här."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bir Apple uygulamasının öğelerini Menü Çubuğu Düzeni’nde gizleyin, istediklerinizi burada bir tıklama uzakta tutun."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Приховайте елементи програм Apple в розділі «Розкладка смуги меню» і залиште тут ті, що потрібні, — вони будуть доступні одним клацанням."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在“菜单栏布局”中隐藏 Apple App 的项目，并把需要的项目留在这里，一键即可使用。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在「選單列佈局」中隱藏 Apple App 的項目，並將想要的項目留在這裡，一鍵即可使用。"
-          }
-        }
-      }
-    },
     "Hide Control Center" : {
       "localizations" : {
         "cs" : {
@@ -9437,124 +9201,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已靜音"
-          }
-        }
-      }
-    },
-    "Needs Bluetooth" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vyžaduje Bluetooth"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Braucht Bluetooth"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Requiere Bluetooth"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nécessite le Bluetooth"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bluetooth szükséges"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bluetooth diperlukan"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Richiede il Bluetooth"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bluetooth が必要"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bluetooth 필요"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Heeft Bluetooth nodig"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wymaga Bluetooth"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Requer Bluetooth"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dovra Bluetooth"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Требуется Bluetooth"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bluetooth krävs"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bluetooth gerekli"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Потрібен Bluetooth"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "需要蓝牙"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "需要藍牙"
           }
         }
       }
@@ -20917,124 +20563,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "App"
-          }
-        }
-      }
-    },
-    "Asks for Calendar access when you switch it on" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fragt nach Zugriff auf den Kalender, wenn du es einschaltest"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Demande l’accès au calendrier quand vous l’activez"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chiede l’accesso al calendario quando lo attivi"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dumonda l’access al chalender cur ti l’activeschas"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pide acceso al calendario al activarlo"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pede acesso ao calendário quando você o ativa"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "オンにするとカレンダーへのアクセスを求めます"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "开启时会请求日历访问权限"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "켤 때 캘린더 접근 권한을 요청합니다"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Запрашивает доступ к календарю при включении"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vraagt om toegang tot Agenda wanneer je het inschakelt"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prosi o dostęp do Kalendarza po włączeniu"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Při zapnutí požádá o přístup ke Kalendáři"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bekapcsoláskor hozzáférést kér a Naptárhoz"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ber om åtkomst till Kalender när den slås på"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Açıldığında Takvim erişimi ister"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Meminta akses ke Kalender saat diaktifkan"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Запитує доступ до календаря, коли ви його вмикаєте"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "開啟時會要求存取行事曆"
           }
         }
       }
@@ -42751,124 +42279,6 @@
         }
       }
     },
-    "Modules you can switch on appear here." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Moduly, které můžete zapnout, se zobrazí tady."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Module, die du einschalten kannst, erscheinen hier."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aquí aparecen los módulos que puedes activar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les modules que vous pouvez activer apparaissent ici."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A bekapcsolható modulok itt jelennek meg."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modul yang dapat Anda aktifkan muncul di sini."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "I moduli che puoi attivare compaiono qui."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "オンにできるモジュールがここに表示されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "켤 수 있는 모듈이 여기에 표시됩니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modules die je kunt inschakelen verschijnen hier."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Moduły, które możesz włączyć, pojawią się tutaj."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os módulos que você pode ativar aparecem aqui."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Moduls ch'ti pos activar cumparan qua."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Здесь появятся модули, которые можно включить."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De moduler du kan slå på visas här."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Açabileceğiniz modüller burada görünür."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Тут зʼявляться модулі, які можна ввімкнути."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "可开启的模块会显示在这里。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你可以開啟的模組會顯示在這裡。"
-          }
-        }
-      }
-    },
     "More" : {
       "localizations" : {
         "cs" : {
@@ -45815,124 +45225,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "沒有符合「%@」的選單列項目。"
-          }
-        }
-      }
-    },
-    "No modules" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Žádné moduly"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keine Module"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin módulos"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucun module"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nincsenek modulok"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tidak ada modul"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nessun modulo"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "モジュールなし"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "모듈 없음"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Geen modules"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak modułów"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nenhum módulo"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nagins moduls"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нет модулей"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inga moduler"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modül yok"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Немає модулів"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无模块"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "沒有模組"
           }
         }
       }
@@ -68121,124 +67413,6 @@
         }
       }
     },
-    "The pointer has to rest at the notch, or at the top centre on a display without one." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ukazatel musí setrvat u výřezu, nebo uprostřed nahoře na displeji bez výřezu."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Zeiger muss kurz an der Notch ruhen, oder oben in der Mitte auf einem Bildschirm ohne Notch."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El puntero debe quedarse quieto en el notch, o en el centro superior en una pantalla sin él."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le pointeur doit rester un instant sur l’encoche, ou en haut au centre sur un écran sans encoche."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Az egérmutatónak a notchnál kell megállnia, vagy notch nélküli kijelzőn felül középen."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Penunjuk mouse harus berhenti di notch, atau di tengah atas pada layar tanpa notch."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il puntatore deve fermarsi un momento sul notch, o in alto al centro su un display senza notch."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ポインタをノッチの位置、ノッチのないディスプレイでは上端の中央で止めておく必要があります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "포인터를 노치에 두어야 하며, 노치가 없는 디스플레이에서는 상단 가운데에 두어야 합니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De aanwijzer moet bij de notch blijven, of bovenaan in het midden op een beeldscherm zonder notch."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wskaźnik musi zatrzymać się przy notchu lub pośrodku u góry na wyświetlaczu bez notcha."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O ponteiro precisa ficar parado no notch, ou no centro superior em um monitor sem ele."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il cursur sto ruaussar in mument tar la notch, u survart en il mez sin in visur senza notch."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Указатель должен задержаться у выреза или, на дисплее без выреза, в верхней части по центру."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Muspekaren måste stanna vid notchen, eller överst i mitten på en skärm utan notch."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fare işaretçisi notch’ta veya notch’suz bir ekranda üst ortada durmalıdır."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вказівник має затриматися біля вирізу або, на дисплеї без вирізу, у верхній частині по центру."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "指针需要停留在刘海处；没有刘海的显示器上，则停留在顶部中央。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "指標必須停在瀏海處，或在沒有瀏海的顯示器上停在上方中央。"
-          }
-        }
-      }
-    },
     "The profile “%@” has %lld applications, %lld of them installed on this Mac. Importing adds it to your profiles; it moves nothing until you apply it." : {
       "localizations" : {
         "cs" : {
@@ -77321,124 +76495,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "系統項目被隱藏時，控制中心不會顯示相機與麥克風指示器；holzBar 會改為標記自己的圖像。"
-          }
-        }
-      }
-    },
-    "While items are hidden, macOS 27 ignores a click on the clock. holzBar lifts the hiding for a moment and clicks again, so Notification Center opens. Turn this off to leave the click to macOS; the clock then does nothing while items are hidden. It needs only the Accessibility permission holzBar has already." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dokud jsou položky skryté, macOS 27 ignoruje kliknutí na hodiny. holzBar skrytí na okamžik zruší a klikne znovu, takže se otevře Oznamovací centrum. Vypněte to, pokud chcete kliknutí ponechat macOS; hodiny pak nedělají nic, dokud jsou položky skryté. Potřebuje jen oprávnění Zpřístupnění, které holzBar už má."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Solange Elemente ausgeblendet sind, ignoriert macOS 27 einen Klick auf die Uhr. holzBar hebt das Ausblenden kurz auf und klickt erneut, damit sich die Mitteilungszentrale öffnet. Schalte dies aus, um den Klick macOS zu überlassen; die Uhr reagiert dann nicht, solange Elemente ausgeblendet sind. Es braucht nur die Bedienungshilfen-Berechtigung, die holzBar bereits hat."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mientras hay elementos ocultos, macOS 27 ignora un clic en el reloj. holzBar levanta la ocultación un momento y vuelve a hacer clic, así que se abre el Centro de notificaciones. Desactívalo para dejar el clic a macOS; entonces el reloj no hace nada mientras hay elementos ocultos. Solo necesita el permiso de Accesibilidad que holzBar ya tiene."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tant que des éléments sont masqués, macOS 27 ignore un clic sur l’horloge. holzBar lève un instant le masquage et clique à nouveau, ce qui ouvre le Centre de notifications. Désactivez cette option pour laisser le clic à macOS ; l’horloge ne réagit alors pas tant que des éléments sont masqués. Elle ne demande que l’autorisation d’accessibilité que holzBar a déjà."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Amíg az elemek rejtve vannak, a macOS 27 figyelmen kívül hagyja az órára kattintást. A holzBar egy pillanatra feloldja az elrejtést, és újra kattint, így megnyílik az Értesítési központ. Kapcsolja ki, ha a kattintást a macOS-re bízná; az óra ekkor nem csinál semmit, amíg az elemek rejtve vannak. Csak a holzBar által már birtokolt Kisegítő lehetőségek engedély kell hozzá."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Selama item tersembunyi, macOS 27 mengabaikan klik pada jam. holzBar membatalkan penyembunyian sesaat dan mengklik lagi, sehingga Pusat Notifikasi terbuka. Matikan jika Anda ingin menyerahkan klik kepada macOS; jam lalu tidak melakukan apa-apa selama item tersembunyi. Hanya memerlukan izin Aksesibilitas yang sudah dimiliki holzBar."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Finché ci sono elementi nascosti, macOS 27 ignora un clic sull’orologio. holzBar toglie per un attimo il nascondimento e fa clic di nuovo, così si apre il Centro Notifiche. Disattiva questa opzione per lasciare il clic a macOS; l’orologio non reagisce allora finché ci sono elementi nascosti. Serve solo l’autorizzazione di accessibilità che holzBar ha già."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "項目が非表示の間、macOS 27 は時計のクリックを無視します。holzBar は非表示を少しの間解除してもう一度クリックするので、通知センターが開きます。クリックを macOS に任せるにはオフにしてください。その場合、項目が非表示の間、時計は何も反応しません。必要なのは、holzBar がすでに持っているアクセシビリティの権限だけです。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "항목이 숨겨져 있는 동안 macOS 27은 시계 클릭을 무시합니다. holzBar가 잠시 숨김을 해제하고 다시 클릭하므로 알림 센터가 열립니다. 클릭을 macOS에 맡기려면 이 옵션을 끄세요. 그러면 항목이 숨겨져 있는 동안 시계는 아무 반응도 하지 않습니다. holzBar가 이미 가진 손쉬운 사용 권한만 필요합니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Terwijl onderdelen verborgen zijn, negeert macOS 27 een klik op de klok. holzBar heft het verbergen even op en klikt opnieuw, zodat het Meldingencentrum opent. Zet dit uit om de klik aan macOS over te laten; de klok doet dan niets zolang onderdelen verborgen zijn. Het heeft alleen de toestemming voor Toegankelijkheid nodig die holzBar al heeft."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gdy elementy są ukryte, macOS 27 ignoruje kliknięcie zegara. holzBar na chwilę wyłącza ukrywanie i klika ponownie, dzięki czemu otwiera się Centrum powiadomień. Wyłącz to, aby zostawić kliknięcie macOS; zegar nie robi wtedy nic, gdy elementy są ukryte. Wymaga tylko uprawnienia Dostępność, które holzBar już ma."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enquanto há itens ocultos, o macOS 27 ignora um clique no relógio. O holzBar suspende a ocultação por um momento e clica novamente, então a Central de Notificações abre. Desative para deixar o clique para o macOS; o relógio então não faz nada enquanto há itens ocultos. Requer apenas a permissão de Acessibilidade que o holzBar já tem."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entant che elements èn zuppads, ignorescha macOS 27 in clic sin l’ura. holzBar suspenda per in mument il zuppentar e fa danovamain in clic, uschia s’avra la Zentrala da annunzias. Deactivescha quai per laschar il clic a macOS; l’ura na reagescha lura betg entant che elements èn zuppads. I basegna mo l’autorisaziun d’accessibilitad che holzBar ha gia."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пока элементы скрыты, macOS 27 игнорирует нажатие на часы. holzBar ненадолго отменяет скрытие и нажимает снова, поэтому открывается Центр уведомлений. Выключите, чтобы оставить нажатие за macOS; тогда, пока элементы скрыты, часы не реагируют. Нужно только разрешение «Универсальный доступ», которое у holzBar уже есть."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Medan objekt är dolda ignorerar macOS 27 ett klick på klockan. holzBar upphäver döljningen ett ögonblick och klickar igen, så att Notiscenter öppnas. Stäng av det om du vill lämna klicket åt macOS; klockan gör då ingenting medan objekt är dolda. Det kräver bara behörigheten Hjälpmedel som holzBar redan har."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Öğeler gizliyken macOS 27 saate yapılan tıklamayı yok sayar. holzBar gizlemeyi bir an kaldırır ve yeniden tıklar, böylece Bildirim Merkezi açılır. Tıklamayı macOS’e bırakmak için kapatın; o zaman öğeler gizliyken saat hiçbir şey yapmaz. holzBar’ın zaten sahip olduğu Erişilebilirlik iznini gerektirir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Поки елементи приховано, macOS 27 ігнорує клацання по годиннику. holzBar ненадовго скасовує приховування й клацає знову, тож відкривається Центр сповіщень. Вимкніть, щоб залишити клацання за macOS; тоді, поки елементи приховано, годинник не реагує. Потрібен лише дозвіл «Доступність», який у holzBar уже є."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "隐藏项目期间，macOS 27 会忽略对时钟的点按。holzBar 会暂时取消隐藏并再次点按，从而打开通知中心。关闭此选项可将点按交给 macOS 处理；此时项目被隐藏期间，时钟不会有任何反应。它只需要 holzBar 已经拥有的“辅助功能”权限。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "項目被隱藏時，macOS 27 會忽略對時鐘的按一下。holzBar 會暫時解除隱藏並再按一次，因此通知中心得以打開。關閉此項可把按一下交還給 macOS；之後項目被隱藏時，時鐘就不會有反應。它只需要 holzBar 已有的「輔助使用」權限。"
           }
         }
       }
@@ -141090,6 +140146,1434 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "它們位於 ~/Library/Application Support/holzBar 中的 Scripts.json 檔案內，且不會被匯出。"
+          }
+        }
+      }
+    },
+    "macOS 27 only" : {
+      "comment" : "Modules settings pane",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pouze macOS 27"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nur macOS 27"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "solo macOS 27"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 uniquement"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "csak macOS 27"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hanya macOS 27"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "solo macOS 27"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 のみ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 전용"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "alleen macOS 27"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tylko macOS 27"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "somente macOS 27"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mo macOS 27"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "только macOS 27"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "endast macOS 27"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "yalnızca macOS 27"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "лише macOS 27"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅限 macOS 27"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "僅限 macOS 27"
+          }
+        }
+      }
+    },
+    "from macOS 26 · needs Accessibility" : {
+      "comment" : "Modules settings pane",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "od macOS 26 · vyžaduje Zpřístupnění"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ab macOS 26 · braucht Bedienungshilfen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "desde macOS 26 · requiere Accesibilidad"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dès macOS 26 · nécessite l’accessibilité"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 26-tól · Kisegítő lehetőségek szükségesek"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mulai macOS 26 · memerlukan Aksesibilitas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "da macOS 26 · richiede l’accessibilità"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 26 以降 · アクセシビリティが必要"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 26부터 · 손쉬운 사용 필요"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vanaf macOS 26 · heeft Toegankelijkheid nodig"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "od macOS 26 · wymaga Dostępności"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "a partir do macOS 26 · requer Acessibilidade"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "da macOS 26 · dovra Bedienungshilfen"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "с macOS 26 · нужен универсальный доступ"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "från macOS 26 · kräver Hjälpmedel"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 26'dan itibaren · Erişilebilirlik gerekli"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "від macOS 26 · потрібна доступність"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需 macOS 26 或更高 · 需要辅助功能"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需 macOS 26 或以上 · 需要輔助使用"
+          }
+        }
+      }
+    },
+    "asks for Calendar access" : {
+      "comment" : "Modules settings pane",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "žádá o přístup ke Kalendáři"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "fragt nach Kalenderzugriff"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pide acceso a Calendario"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "demande l’accès au calendrier"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hozzáférést kér a Naptárhoz"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "meminta akses Kalender"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "chiede l’accesso al calendario"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カレンダーへのアクセスを求めます"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "캘린더 접근 권한을 요청함"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vraagt om toegang tot Agenda"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "prosi o dostęp do Kalendarza"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pede acesso ao Calendário"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dumonda l’access al chalender"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "запрашивает доступ к Календарю"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ber om åtkomst till Kalender"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Takvim erişimi ister"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "запитує доступ до Календаря"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会请求日历访问权限"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "會要求行事曆存取權限"
+          }
+        }
+      }
+    },
+    "Downloads: folder access" : {
+      "comment" : "Modules settings pane",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stažené: přístup ke složce"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloads: Ordnerzugriff"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descargas: acceso a la carpeta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Téléchargements : accès au dossier"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letöltések: mappa-hozzáférés"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unduhan: akses folder"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download: accesso alla cartella"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ダウンロード: フォルダへのアクセス"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다운로드: 폴더 접근"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloads: toegang tot map"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pobrane: dostęp do folderu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloads: acesso à pasta"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telechargiadas: access a l’ordinatur"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загрузки: доступ к папке"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hämtade filer: mappåtkomst"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İndirilenler: klasör erişimi"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завантаження: доступ до папки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下载: 文件夹访问权限"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下載項目: 檔案夾存取權限"
+          }
+        }
+      }
+    },
+    "needs Bluetooth" : {
+      "comment" : "Modules settings pane",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vyžaduje Bluetooth"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "braucht Bluetooth"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "requiere Bluetooth"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nécessite Bluetooth"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth szükséges"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "memerlukan Bluetooth"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "richiede Bluetooth"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth が必要"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth 필요"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "heeft Bluetooth nodig"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wymaga Bluetooth"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "requer Bluetooth"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dovra Bluetooth"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "нужен Bluetooth"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "kräver Bluetooth"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth gerekli"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "потрібен Bluetooth"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要蓝牙"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要藍牙"
+          }
+        }
+      }
+    },
+    "needs Accessibility" : {
+      "comment" : "Modules settings pane",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vyžaduje Zpřístupnění"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "braucht Bedienungshilfen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "requiere Accesibilidad"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nécessite l’accessibilité"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kisegítő lehetőségek szükségesek"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "memerlukan Aksesibilitas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "richiede l’accessibilità"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクセシビリティが必要"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "손쉬운 사용 필요"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "heeft Toegankelijkheid nodig"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wymaga Dostępności"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "requer Acessibilidade"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dovra Bedienungshilfen"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "нужен универсальный доступ"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "kräver Hjälpmedel"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erişilebilirlik gerekli"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "потрібна доступність"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要辅助功能"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要輔助使用"
+          }
+        }
+      }
+    },
+    "Hub modules work only while the Notch hub is on." : {
+      "comment" : "Modules settings pane",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moduly centra fungují, jen když je zapnuté centrum u výřezu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Hub-Module arbeiten nur, solange der Notch-Hub an ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los módulos del hub solo funcionan mientras el centro del notch está activado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les modules du hub ne fonctionnent que lorsque le hub de l’encoche est activé."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A központ moduljai csak akkor működnek, ha a Notch-központ be van kapcsolva."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modul hub hanya bekerja saat Pusat Notch aktif."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I moduli dell’hub funzionano solo finché l’hub del notch è attivo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ハブのモジュールは、ノッチハブがオンの間だけ動作します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "허브 모듈은 노치 허브가 켜져 있는 동안에만 작동합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De hubmodules werken alleen als de Notch-hub aan staat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moduły centrum działają tylko wtedy, gdy centrum notcha jest włączone."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os módulos do hub só funcionam enquanto o hub do notch está ativado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils moduls dal hub funcziunan mo uschè ditg che la hub da la notch è activa."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модули центра работают, только пока включён центр у выреза."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hubbmodulerna fungerar bara medan Notchcentrum är på."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merkez modülleri yalnızca Notch Merkezi açıkken çalışır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модулі центру працюють, лише поки ввімкнено центр біля вирізу."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中心模块仅在刘海中心开启时工作。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中心模組僅在瀏海中心開啟時運作。"
+          }
+        }
+      }
+    },
+    "While items are hidden, macOS 27 ignores a click on the clock, so holzBar lifts the hiding for a moment and clicks again. When off, the clock does nothing then." : {
+      "comment" : "Modules settings pane",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dokud jsou položky skryté, macOS 27 ignoruje kliknutí na hodiny, a proto holzBar skrývání nakrátko zruší a klikne znovu. Když je vypnuto, hodiny pak nedělají nic."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solange Elemente ausgeblendet sind, ignoriert macOS 27 einen Klick auf die Uhr, darum hebt holzBar das Ausblenden kurz auf und klickt erneut. Aus: Die Uhr tut dann nichts."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mientras haya elementos ocultos, macOS 27 ignora un clic en el reloj, así que holzBar suspende la ocultación un momento y vuelve a hacer clic. Desactivado, el reloj no hace nada entonces."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tant que des éléments sont masqués, macOS 27 ignore un clic sur l’horloge ; holzBar lève donc brièvement le masquage et clique à nouveau. Désactivé, l’horloge ne fait alors rien."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amíg elemek el vannak rejtve, a macOS 27 figyelmen kívül hagyja az órára kattintást, ezért a holzBar rövid időre feloldja az elrejtést, és újra kattint. Kikapcsolva az óra ilyenkor nem csinál semmit."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selama item disembunyikan, macOS 27 mengabaikan klik pada jam, jadi holzBar menghentikan penyembunyian sejenak lalu mengeklik lagi. Jika nonaktif, jam tidak melakukan apa-apa saat itu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finché gli elementi sono nascosti, macOS 27 ignora un clic sull’orologio, quindi holzBar sospende brevemente il nascondimento e clicca di nuovo. Se disattivato, l’orologio non fa nulla."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目が非表示の間、macOS 27 は時計へのクリックを無視するため、holzBar は一時的に非表示を解除してもう一度クリックします。オフにすると、その場合は時計は何も起こりません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목이 숨겨져 있는 동안 macOS 27은 시계 클릭을 무시하므로 holzBar가 잠시 숨기기를 해제하고 다시 클릭합니다. 끄면 이때 시계는 아무 동작도 하지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zolang onderdelen verborgen zijn, negeert macOS 27 een klik op de klok. Daarom heft holzBar het verbergen even op en klikt opnieuw. Uit: de klok doet dan niets."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gdy elementy są ukryte, macOS 27 ignoruje kliknięcie zegara, więc holzBar na chwilę znosi ukrycie i klika ponownie. Po wyłączeniu zegar nic wtedy nie robi."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enquanto itens estiverem ocultos, o macOS 27 ignora um clique no relógio, então o holzBar suspende a ocultação por um instante e clica de novo. Desativado, o relógio não faz nada nesse caso."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uschè ditg che elements èn zuppads, ignorescha macOS 27 in clic sin l’ura; perquai interrumpa holzBar curt il zuppentar e clicca danovamain. Deactivà: l’ura na fa lura nagut."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока элементы скрыты, macOS 27 игнорирует щелчок по часам, поэтому holzBar ненадолго отменяет скрытие и щёлкает снова. Если выключено, часы в этом случае ничего не делают."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medan objekt är dolda ignorerar macOS 27 ett klick på klockan, så holzBar tar tillfälligt bort döljandet och klickar igen. När det är av gör klockan ingenting då."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öğeler gizliyken macOS 27 saate yapılan tıklamayı yok sayar; bu yüzden holzBar gizlemeyi kısa süreliğine kaldırır ve yeniden tıklar. Kapalıyken saat bu durumda hiçbir şey yapmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поки елементи приховано, macOS 27 ігнорує клацання по годиннику, тому holzBar на мить скасовує приховування і клацає знову. Якщо вимкнено, годинник тоді нічого не робить."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "项目被隐藏时，macOS 27 会忽略对时钟的点击，因此 holzBar 会暂时解除隐藏并再次点击。关闭后，此时点击时钟没有任何效果。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目被隱藏時，macOS 27 會忽略對時鐘的點按，因此 holzBar 會暫時解除隱藏並再次點按。關閉後，此時點按時鐘不會有任何作用。"
+          }
+        }
+      }
+    },
+    "Hide an Apple app's items in Layout, and keep the ones you want one click away here. At most six." : {
+      "comment" : "Modules settings pane",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skryjte položky aplikace Apple v Uspořádání a ty, které chcete mít na jedno kliknutí, ponechte tady. Nejvýše šest."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blende die Elemente einer Apple-App im Layout aus und halte hier die gewünschten einen Klick entfernt. Höchstens sechs."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oculta los elementos de una app de Apple en Disposición y deja aquí a un clic los que quieras. Como máximo seis."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquez les éléments d’une app Apple dans Disposition et gardez ici, à un clic, ceux que vous voulez. Six au maximum."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rejtsd el egy Apple-app elemeit az Elrendezésben, a kívántakat pedig tartsd itt egy kattintásnyira. Legfeljebb hatot."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sembunyikan item aplikasi Apple di Tata Letak, dan simpan yang Anda inginkan di sini, cukup sekali klik. Paling banyak enam."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi gli elementi di un’app Apple in Disposizione e tieni qui, a un clic di distanza, quelli che vuoi. Al massimo sei."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple の App の項目をレイアウトで非表示にし、ワンクリックで使いたい項目をここに残します。最大 6 つまで。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple 앱의 항목을 레이아웃에서 숨기고, 한 번의 클릭으로 열고 싶은 항목은 여기에 두세요. 최대 여섯 개입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verberg de onderdelen van een Apple-app in Indeling en houd de onderdelen die je wilt hier op één klik afstand. Maximaal zes."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukryj elementy aplikacji Apple w sekcji Układ, a te, które chcesz mieć pod ręką, zachowaj tutaj na jedno kliknięcie. Najwyżej sześć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oculte os itens de um app da Apple em Layout e mantenha aqui, a um clique, os que você quiser. No máximo seis."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuppa ils elements d’ina app Apple en la disposiziun e tegna qua ils giavischads a in clic distanza. Maximalmain sis."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрывайте элементы приложения Apple в разделе «Раскладка», а нужные оставляйте здесь на расстоянии одного щелчка. Не более шести."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dölj objekten i en Apple-app i Layout och behåll de du vill ha ett klick bort här. Högst sex."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir Apple uygulamasının öğelerini Düzen'de gizleyin ve istediklerinizi burada tek tıklık uzaklıkta tutun. En fazla altı."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приховуйте елементи програми Apple в розділі «Розкладка», а потрібні залишайте тут на відстані одного клацання. Не більше шести."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在布局中隐藏 Apple App 的项目，并在此保留你想一键访问的项目。最多六个。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在佈局中隱藏 Apple App 的項目，並在此保留你想一鍵使用的項目。最多六個。"
+          }
+        }
+      }
+    },
+    "Add…" : {
+      "comment" : "Modules settings pane",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přidat…"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hinzufügen…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter…"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hozzáadás…"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tambah…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "追加…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "추가…"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voeg toe…"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agiuntar…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить…"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lägg till…"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekle…"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Додати…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加入⋯"
+          }
+        }
+      }
+    },
+    "none yet" : {
+      "comment" : "Modules settings pane",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "zatím žádné"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "noch keine"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ninguno todavía"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "aucun pour l’instant"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "még nincs"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "belum ada"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ancora nessuno"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "まだありません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 없음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nog geen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "jeszcze brak"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nenhum ainda"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "anc nagins"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "пока нет"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "inga än"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "henüz yok"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "поки немає"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚無"
+          }
+        }
+      }
+    },
+    "The pointer has to rest at the notch, or at the top center on a display without one." : {
+      "comment" : "Modules settings pane",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukazatel musí setrvat u výřezu, nebo uprostřed nahoře na displeji bez výřezu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Zeiger muss kurz an der Notch ruhen, oder oben in der Mitte auf einem Bildschirm ohne Notch."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El puntero debe quedarse quieto en el notch, o en el centro superior en una pantalla sin él."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le pointeur doit rester un instant sur l’encoche, ou en haut au centre sur un écran sans encoche."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az egérmutatónak a notchnál kell megállnia, vagy notch nélküli kijelzőn felül középen."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Penunjuk mouse harus berhenti di notch, atau di tengah atas pada layar tanpa notch."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il puntatore deve fermarsi un momento sul notch, o in alto al centro su un display senza notch."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ポインタをノッチの位置、ノッチのないディスプレイでは上端の中央で止めておく必要があります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "포인터를 노치에 두어야 하며, 노치가 없는 디스플레이에서는 상단 가운데에 두어야 합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De aanwijzer moet bij de notch blijven, of bovenaan in het midden op een beeldscherm zonder notch."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wskaźnik musi zatrzymać się przy notchu lub pośrodku u góry na wyświetlaczu bez notcha."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O ponteiro precisa ficar parado no notch, ou no centro superior em um monitor sem ele."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il cursur sto ruaussar in mument tar la notch, u survart en il mez sin in visur senza notch."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Указатель должен задержаться у выреза или, на дисплее без выреза, в верхней части по центру."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muspekaren måste stanna vid notchen, eller överst i mitten på en skärm utan notch."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fare işaretçisi notch’ta veya notch’suz bir ekranda üst ortada durmalıdır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вказівник має затриматися біля вирізу або, на дисплеї без вирізу, у верхній частині по центру."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指针需要停留在刘海处；没有刘海的显示器上，则停留在顶部中央。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指標必須停在瀏海處，或在沒有瀏海的顯示器上停在上方中央。"
           }
         }
       }
