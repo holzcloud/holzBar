@@ -903,3 +903,18 @@ struct ItemsAreaInputs27Tests {
             != inputs(systemFrames: [battery.offsetBy(dx: -40, dy: 0), wifi, clock]))
     }
 }
+
+@Suite("Duplicate glyphs")
+struct DuplicateGlyph27Tests {
+    @Test("A glyph equal to a tile on the bar now is refused")
+    func bothOnBar() {
+        #expect(ItemImages27.duplicateGlyph(otherIsOnBar: true) == .refuse)
+    }
+
+    @Test("A glyph equal to the tile of an app that is not on the bar replaces that tile")
+    func otherNotOnBar() {
+        // Issue #130: Slack's glyph was stored on Amphetamine's tile once, and every later
+        // capture of Slack was refused, so Slack never got a tile of its own.
+        #expect(ItemImages27.duplicateGlyph(otherIsOnBar: false) == .replaceOther)
+    }
+}

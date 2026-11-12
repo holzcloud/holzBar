@@ -375,6 +375,21 @@ nonisolated enum ItemImages27 {
         return settled
     }
 
+    /// What a capture does with a glyph that equals the stored tile of another application.
+    enum DuplicateGlyph: Equatable {
+        /// Both tiles are on the bar now: the new glyph may be taken from the wrong place.
+        case refuse
+        /// The other application is not on the bar now, so its stored tile cannot be its own:
+        /// it was taken from the wrong place earlier (issue #130). That tile goes and the new
+        /// glyph is stored.
+        case replaceOther
+    }
+
+    /// Decides about a glyph that equals another application's stored tile.
+    static func duplicateGlyph(otherIsOnBar: Bool) -> DuplicateGlyph {
+        otherIsOnBar ? .refuse : .replaceOther
+    }
+
     /// Anything fainter than this is a trace of a neighbouring item, not the glyph.
     private static let visibleAlpha: UInt8 = 16
 

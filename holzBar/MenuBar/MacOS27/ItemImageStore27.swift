@@ -294,6 +294,9 @@ final class ItemImageStore27 {
             votes.dark += tileVotes.dark
         }
         let tone: ItemImages27.GlyphTone? = votes.light + votes.dark == 0 ? nil : (votes.light >= votes.dark ? .light : .dark)
+        // The tiles on the bar in this capture: a stored tile equal to a new glyph whose item is
+        // not among them cannot be its own (see `ItemImages27.duplicateGlyph`).
+        let onBar = Set(items.filter { $0.isOnScreen && !concealedPIDs.contains($0.ownerPID) }.map(\.tag.description))
         for item in items where item.isOnScreen && !item.isControlItem && !item.isWidget && !concealedPIDs.contains(item.ownerPID) {
             guard settled.contains(item.tag.description) else {
                 skipped += 1
@@ -307,12 +310,19 @@ final class ItemImageStore27 {
                 continue
             }
             let key = item.tag.description
-            // Two applications never draw the same glyph: one that another application's tile
-            // already shows was taken from the wrong place while the bar was still moving.
+            // Two applications never draw the same glyph: one of the two tiles was taken from the
+            // wrong place while the bar was still moving. With both on the bar now it may be this
+            // one; with the other app away, it is the stored one, which goes (issue #130).
             if let hash = Self.pixelHash(of: glyph), let owner = tileShowing(hash: hash, besides: key) {
-                skipped += 1
-                logger.debug("Item image refused: it equals the glyph of \(owner, privacy: .private)")
-                continue
+                switch ItemImages27.duplicateGlyph(otherIsOnBar: onBar.contains(owner)) {
+                case .refuse:
+                    skipped += 1
+                    logger.debug("Item image refused: it equals the glyph of \(owner, privacy: .private)")
+                    continue
+                case .replaceOther:
+                    logger.debug("Item image of \(owner, privacy: .private) dropped: it was another app's glyph")
+                    forget(key: owner)
+                }
             }
             store(glyph, scale: scale, key: key)
             stored += 1
@@ -544,6 +554,19 @@ final class ItemImageStore27 {
         hasher.combine(image.height)
         hasher.combine(data)
         return hasher.finalize()
+    }
+
+    /// Drops a stored tile, so its item is photographed again.
+    private func forget(key: String) {
+        glyphHashes[key] = nil
+        loaded[key] = nil
+        guard let entry = index.removeValue(forKey: key) else {
+            return
+        }
+        let file = directory.appending(path: entry.fileName)
+        performFileOperation {
+            try? FileManager.default.removeItem(at: file)
+        }
     }
 
     private func store(_ image: CGImage, scale: CGFloat, key: String) {
