@@ -7,6 +7,12 @@ import AppKit
 import Observation
 
 /// The model for app-wide navigation.
+/// What Layout shows: the bars as the menu bar does, or a list of every item (D-08).
+nonisolated enum LayoutPaneView: Hashable {
+    case bars
+    case list
+}
+
 @MainActor
 @Observable
 final class AppNavigationState {
@@ -28,6 +34,10 @@ final class AppNavigationState {
     let settingsSearch = SettingsSearchModel()
     /// Whether the Menu Bar Layout pane shows the clean-up assistant.
     var isTidyUpPresented = false
+    /// Whether Layout shows the bars or the list; lasts for the session, never stored (D-09).
+    var layoutView = LayoutPaneView.bars
+    /// The text of Layout's filter; lasts for the session, never stored (D-09).
+    var layoutFilter = ""
     /// The item whose rule ("Show Only When…") the Menu Bar Layout pane edits, if any.
     var itemRuleTarget: ItemRuleTarget?
 

@@ -62,6 +62,15 @@ struct MenuBarLayoutSettingsPane: View {
     /// Undo after it). The id lets a search hit scroll to it.
     private var topRow: some View {
         HStack(spacing: HolzBarTheme.SettingsKit.accessoryGap) {
+            Picker(selection: Bindable(appState.navigationState).layoutView) {
+                Text("Bars").tag(LayoutPaneView.bars)
+                Text("List").tag(LayoutPaneView.list)
+            } label: {
+                Text("Bars or list")
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .fixedSize()
             Spacer(minLength: 0)
             Button("Tidy Up…", systemImage: "wand.and.stars") {
                 appState.navigationState.isTidyUpPresented = true
@@ -132,14 +141,21 @@ struct MenuBarLayoutSettingsPane: View {
                         .controlSize(.small)
                 }
             }
-            layoutBar(for: .visible)
-            layoutBar(for: .hidden)
+            if appState.navigationState.layoutView == .list {
+                // The list in place of the three bars; the rows below stay (D-08).
+                LayoutListView()
+            } else {
+                layoutBar(for: .visible)
+                layoutBar(for: .hidden)
+            }
             SettingsToggleRow(
                 .layoutAlwaysHidden,
                 isOn: Bindable(appState.settings.advanced).enableAlwaysHiddenSection,
                 small: Text("third section")
             )
-            layoutBar(for: .alwaysHidden)
+            if appState.navigationState.layoutView == .bars {
+                layoutBar(for: .alwaysHidden)
+            }
             SettingsPickerRow(.layoutNewItems, selection: newItemsBinding) {
                 Text(NewItemsPlacement.visible.localized).tag(NewItemsPlacement.visible)
                 Text(NewItemsPlacement.hidden.localized).tag(NewItemsPlacement.hidden)

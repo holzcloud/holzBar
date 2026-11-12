@@ -226,6 +226,15 @@ enum HolzBarTheme {
         static let paneMarginBottom = CGFloat(DesignTokens.SettingsKit.paneMarginBottom)
     }
 
+    /// The measures of Layout's list view (mock-up 01, D-08).
+    enum LayoutList {
+        static let appColumnWidth = CGFloat(DesignTokens.LayoutList.appColumnWidth)
+        static let sectionColumnWidth = CGFloat(DesignTokens.LayoutList.sectionColumnWidth)
+        static let iconSize = CGFloat(DesignTokens.LayoutList.iconSize)
+        static let filterFieldMinWidth = CGFloat(DesignTokens.LayoutList.filterFieldMinWidth)
+        static let filteredOutOpacity = DesignTokens.LayoutList.filteredOutOpacity
+    }
+
     /// The measures and times of the undo toast (concept 9a, D-03, D-13).
     enum UndoToast {
         static let paddingVertical = CGFloat(DesignTokens.UndoToast.paddingVertical)

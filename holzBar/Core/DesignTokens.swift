@@ -462,6 +462,20 @@ nonisolated enum DesignTokens {
         static let paneMarginBottom: Double = 22
     }
 
+    /// The list view of Layout (mock-up 01, D-08).
+    nonisolated enum LayoutList {
+        /// The width of the App column (mock-up 01).
+        static let appColumnWidth: Double = 150
+        /// The width of the Section column (mock-up 01).
+        static let sectionColumnWidth: Double = 150
+        /// The size of an item's picture in a row.
+        static let iconSize: Double = 20
+        /// The least width of the filter field in Layout's top row.
+        static let filterFieldMinWidth: Double = 112
+        /// The opacity of a tile in the bars that the filter leaves out (D-09).
+        static let filteredOutOpacity: Double = 0.25
+    }
+
     /// The undo toast: a glass capsule with one sentence and an Undo button (concept 9a, D-13).
     nonisolated enum UndoToast {
         /// The vertical padding inside the capsule (D-13).

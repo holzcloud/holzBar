@@ -95,6 +95,53 @@ final class LayoutEditor {
         return MenuBarSection.Name.allCases.filter { $0 != .alwaysHidden || hasAlwaysHidden }
     }
 
+    /// The section an item is in, in the drawing or on the bar.
+    func section(of item: MenuBarItem) -> MenuBarSection.Name? {
+        MenuBarSection.Name.allCases.first { name in
+            items(in: name).contains { $0.tag == item.tag }
+        }
+    }
+
+    /// Why an item cannot be moved from the pane (the tile's own tooltip), or `nil` when it can.
+    func paneMoveRefusal(for item: MenuBarItem) -> String? {
+        if #available(macOS 27.0, *) {
+            if !item.isMovable {
+                return String(localized: "macOS 27 doesn't let apps hide this system item.")
+            }
+            if item.sourceApplication?.bundleIdentifier == nil {
+                return String(localized: "macOS 27 hides whole apps, and holzBar can't tell which app this item belongs to.")
+            }
+        } else if !item.isMovable {
+            return String(localized: "Menu bar item is not movable.")
+        }
+        return nil
+    }
+
+    /// Whether the list's pop-up and the tile may move the item now.
+    func canMoveFromPane(_ item: MenuBarItem) -> Bool {
+        !item.isControlItem && !isApplying && paneMoveRefusal(for: item) == nil
+    }
+
+    /// Moves an item to a section from the pane, the one path of the tiles, their VoiceOver
+    /// actions and the list (D-08): into the drawing while changes wait for Apply, else on the
+    /// bar at once, which records its undo.
+    ///
+    /// - Returns: `false` if the move was refused.
+    @discardableResult
+    func moveFromPane(_ item: MenuBarItem, to section: MenuBarSection.Name) -> Bool {
+        guard let appState else {
+            return false
+        }
+        if recordsChanges {
+            guard recordSection(of: item, to: section) else {
+                return false
+            }
+            LayoutBarItemView.announce(String(localized: "\(item.displayName) moved to \(section.displayString)"))
+            return true
+        }
+        return LayoutBarMoves.setSection(of: item, to: section, appState: appState)
+    }
+
     // MARK: Recording
 
     /// Moves an item to the end of a section in the drawing.

@@ -506,16 +506,10 @@ final class LayoutBarItemView: NSView {
         guard checkMovable(), let appState else {
             return
         }
-        if appState.layoutEditor.recordsChanges {
-            // Into the drawing; Apply lays the bar out.
-            if appState.layoutEditor.recordSection(of: item, to: section) {
-                Self.announce(String(localized: "\(item.displayName) moved to \(section.displayString)"))
-            } else {
-                NSSound.beep()
-            }
-            return
+        // The one path of the tiles, their VoiceOver actions and the list (D-08).
+        if !appState.layoutEditor.moveFromPane(item, to: section) {
+            NSSound.beep()
         }
-        LayoutBarMoves.setSection(of: item, to: section, appState: appState)
     }
 
     /// Asks VoiceOver to read a message.

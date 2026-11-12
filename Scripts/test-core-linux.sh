@@ -72,6 +72,7 @@ sources=(
   ItemRuleMemory
   ItemTimer
   LayoutDraft
+  LayoutList
   LayoutProfile
   LayoutProfileList
   LayoutSnapshot
@@ -197,6 +198,7 @@ tests=(
   ItemRuleMemoryTests
   ItemTimerTests
   LayoutDraftTests
+  LayoutListTests
   LayoutProfileListTests
   LayoutProfileTests
   LayoutSnapshotTests
