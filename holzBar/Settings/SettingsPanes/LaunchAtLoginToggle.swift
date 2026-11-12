@@ -7,11 +7,12 @@ import OSLog
 import ServiceManagement
 import SwiftUI
 
-/// The "Launch at login" toggle, backed by `SMAppService.mainApp`.
+/// The "Launch at login" rows of the Startup group, backed by `SMAppService.mainApp`.
 ///
-/// It is the same registration the LaunchAtLogin-Modern package made, so a user's
-/// setting carries over. The toggle always shows the real status, which the user may
-/// also change in System Settings › General › Login Items.
+/// It is the same registration the LaunchAtLogin-Modern package made, so a user's setting
+/// carries over. The switch always shows the real status, which the user may also change in
+/// System Settings › General › Login Items; while macOS waits for the user's approval, a sub row
+/// opens that place.
 struct LaunchAtLoginToggle: View {
     private static let logger = Logger(category: "LaunchAtLogin")
 
@@ -25,27 +26,22 @@ struct LaunchAtLoginToggle: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Toggle("Launch at login", isOn: isEnabled)
-            if status == .requiresApproval {
-                HStack {
-                    Text("Allow holzBar in System Settings to launch it at login.")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                    Button("Open Login Items Settings") {
-                        SMAppService.openSystemSettingsLoginItems()
-                    }
-                    .controlSize(.small)
-                }
-            }
-        }
-        .onAppear {
-            refresh()
-        }
-        .task {
-            for await _ in NotificationCenter.default.notifications(named: NSApplication.didBecomeActiveNotification) {
+        SettingsToggleRow(.generalLaunchAtLogin, isOn: isEnabled)
+            .onAppear {
                 refresh()
             }
+            .task {
+                for await _ in NotificationCenter.default.notifications(named: NSApplication.didBecomeActiveNotification) {
+                    refresh()
+                }
+            }
+        if status == .requiresApproval {
+            SettingsButtonRow(.generalAllowLoginItem) {
+                Button("Open System Settings") {
+                    SMAppService.openSystemSettingsLoginItems()
+                }
+            }
+            .settingsSubRow()
         }
     }
 

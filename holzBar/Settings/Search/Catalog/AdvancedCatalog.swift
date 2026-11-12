@@ -34,6 +34,9 @@ extension SettingsCatalog {
                 ]
             }
             entries += [
+                .advancedItemSpacing,
+                .advancedApplySpacing,
+                .advancedDefaultSpacing,
                 .advancedExportSettings,
                 .advancedImportSettings,
                 .advancedPermissionAccessibility,
@@ -147,5 +150,27 @@ extension SettingsEntry {
         group: SettingsCatalog.AdvancedPane.permissions,
         label: String(localized: "Bluetooth"),
         info: String(localized: "Accessory alerts shows which paired accessories are connected, and automation rules can react to a Bluetooth device.")
+    )
+
+    static let advancedItemSpacing = SettingsEntry(
+        id: "advancedItemSpacing",
+        pane: .advanced,
+        group: SettingsCatalog.AdvancedPane.itemSpacing,
+        label: String(localized: "Menu bar item spacing"),
+        info: String(localized: "Apply relaunches every app with a menu bar item; some you may need to relaunch yourself. You may need to log out and back in.")
+    )
+
+    static let advancedApplySpacing = SettingsEntry(
+        id: "advancedApplySpacing",
+        pane: .advanced,
+        group: SettingsCatalog.AdvancedPane.itemSpacing,
+        label: String(localized: "Apply spacing")
+    )
+
+    static let advancedDefaultSpacing = SettingsEntry(
+        id: "advancedDefaultSpacing",
+        pane: .advanced,
+        group: SettingsCatalog.AdvancedPane.itemSpacing,
+        label: String(localized: "Default spacing")
     )
 }

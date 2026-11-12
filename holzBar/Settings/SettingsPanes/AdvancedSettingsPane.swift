@@ -5,12 +5,14 @@
 
 import SwiftUI
 
-/// The rare settings: the menu bar's own behaviour, app menus, backing up settings and the
+/// The rare settings: the menu bar's own behaviour, app menus, item spacing, backing up settings and the
 /// permissions holzBar has or needs, on the settings kit.
 struct AdvancedSettingsPane: View {
     @Environment(AppState.self) var appState
     @Bindable var settings: AdvancedSettings
     @State private var revokingPermission: Permission?
+    @State private var tempItemSpacingOffset: Double = 0
+    @State private var isApplyingItemSpacingOffset = false
 
     var body: some View {
         SettingsPaneHost(.advanced) {
@@ -67,6 +69,49 @@ struct AdvancedSettingsPane: View {
                     .settingsDependent(on: settings.hideApplicationMenus)
                 }
             }
+            SettingsGroup(SettingsCatalog.AdvancedPane.itemSpacing) {
+                SettingsSliderRow(
+                    .advancedItemSpacing,
+                    value: $tempItemSpacingOffset,
+                    in: -16...16,
+                    step: 2,
+                    badge: .beta,
+                    valueLabel: { value in
+                        switch value {
+                        case -16: Text("none")
+                        case 0: Text("default")
+                        case 16: Text("max")
+                        default: Text(verbatim: value.formatted())
+                        }
+                    }
+                )
+                .settingsDependent(on: !isApplyingItemSpacingOffset)
+                .onAppear {
+                    tempItemSpacingOffset = appState.settings.general.itemSpacingOffset
+                }
+                SettingsButtonRow(.advancedApplySpacing) {
+                    if isApplyingItemSpacingOffset {
+                        ProgressView()
+                            .controlSize(.small)
+                    }
+                    Button("Apply") {
+                        applyTempItemSpacingOffset()
+                    }
+                    .disabled(
+                        isApplyingItemSpacingOffset
+                            || tempItemSpacingOffset == appState.settings.general.itemSpacingOffset
+                    )
+                }
+                .settingsSubRow()
+                SettingsButtonRow(.advancedDefaultSpacing) {
+                    Button("Reset") {
+                        tempItemSpacingOffset = 0
+                        applyTempItemSpacingOffset()
+                    }
+                    .disabled(isApplyingItemSpacingOffset || appState.settings.general.itemSpacingOffset == 0)
+                }
+                .settingsSubRow()
+            }
             SettingsGroup(SettingsCatalog.AdvancedPane.backUp) {
                 SettingsButtonRow(.advancedExportSettings) {
                     Button("Export…") {
@@ -118,6 +163,24 @@ struct AdvancedSettingsPane: View {
             true
         } else {
             false
+        }
+    }
+
+    // MARK: Item spacing
+
+    private func applyTempItemSpacingOffset() {
+        isApplyingItemSpacingOffset = true
+        appState.settings.general.itemSpacingOffset = tempItemSpacingOffset
+        Task {
+            // The spinner stops before the alert: the alert waits for the user, who may not
+            // see it while another app is active.
+            await SpacingRelaunch.apply {
+                try await appState.spacingManager.applyOffset()
+            } finished: {
+                isApplyingItemSpacingOffset = false
+            } reportFailure: { error in
+                await NSAlert(error: error).present(attachedTo: appState.navigationState.settingsWindow)
+            }
         }
     }
 
