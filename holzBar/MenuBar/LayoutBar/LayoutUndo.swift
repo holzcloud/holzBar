@@ -66,6 +66,8 @@ final class LayoutUndo {
     @ObservationIgnored private var tokens = [UUID: UndoToken]()
     /// The changes registered on the window as redos, by identifier.
     @ObservationIgnored private var redoChanges = [UUID: Change]()
+    /// The panel under the menu bar, made at the first toast there (D-33).
+    @ObservationIgnored private var panel: UndoToastPanel?
 
     func performSetup(with appState: AppState) {
         self.appState = appState
@@ -84,7 +86,7 @@ final class LayoutUndo {
         // A new change ends what could be redone, in the window's undo manager as here.
         redoChanges.removeAll()
         push(change)
-        toast = ToastContent(id: UUID(), sentence: change.sentence, isFailure: false, place: place)
+        setToast(ToastContent(id: UUID(), sentence: change.sentence, isFailure: false, place: resolved(place)))
         LayoutBarItemView.announce(change.sentence)
     }
 
@@ -115,7 +117,7 @@ final class LayoutUndo {
         // ⌘Z must not undo it a second time.
         unregister(change.id)
         let place = toast?.place ?? .settings
-        toast = nil
+        setToast(nil)
         Task {
             let isRestored = await change.perform()
             report(isRestored: isRestored, place: place)
@@ -125,11 +127,73 @@ final class LayoutUndo {
     /// Hides the toast with the given identifier, if it still shows.
     func dismissToast(id: UUID) {
         if toast?.id == id {
-            toast = nil
+            setToast(nil)
         }
     }
 
+    /// Takes a change out of the history without running it, for example when the notice it
+    /// belongs to was undone on its own.
+    func forget(id: UUID) {
+        guard history.remove(id: id) != nil else {
+            return
+        }
+        unregister(id)
+        canUndo = !history.isEmpty
+    }
+
+    /// Puts the sections of `before` back and tells whether everything is back: the undo of
+    /// Apply, Tidy Up, a suggestion and a profile (D-15).
+    func restoreArrangement(_ before: LayoutSnapshot) async -> Bool {
+        guard let appState else {
+            return true
+        }
+        appState.snapshots.willUndo()
+        let layout = appState.automation.removingControlledItems(from: LayoutProfile(
+            name: "",
+            itemSections: before.itemSections,
+            applicationSections: before.applicationSections,
+            knownApplications: before.knownApplications
+        ))
+        await appState.profiles.applyLayout(of: layout)?.value
+        if #available(macOS 27.0, *) {
+            appState.automation.itemsWereArrangedByHand()
+            try? await Task.sleep(for: Self.settleDelay27)
+            await appState.itemManager.cacheItemsRegardless()
+        }
+        return ArrangementUndo.isRestored(wanted: before, now: appState.snapshots.currentSnapshot(reason: .manual))
+    }
+
     // MARK: Private
+
+    /// Shows the toast and puts the menu bar panel up or away to match.
+    private func setToast(_ content: ToastContent?) {
+        toast = content
+        guard let appState else {
+            return
+        }
+        if content?.place == .menuBar {
+            let panel = panel ?? UndoToastPanel(undo: self)
+            self.panel = panel
+            panel.show(for: appState)
+        } else {
+            panel?.hide()
+        }
+    }
+
+    /// The place a toast shows: a host that is not on screen hands it to the menu bar.
+    private func resolved(_ place: Place) -> Place {
+        guard let appState else {
+            return place
+        }
+        switch place {
+        case .settings where !appState.navigationState.isSettingsPresented:
+            return .menuBar
+        case .appearanceEditor where !appState.menuBarManager.appearanceEditorPanel.isVisible:
+            return .menuBar
+        default:
+            return place
+        }
+    }
 
     /// Pushes a change into the history and onto the window's undo manager; a change that
     /// falls out of the history lets go of what it keeps.
@@ -170,7 +234,7 @@ final class LayoutUndo {
         tokens[id] = nil
         canUndo = !history.isEmpty
         let place = toast?.place ?? .settings
-        toast = nil
+        setToast(nil)
         // The inverse reads the state before anything moves.
         if let inverse = change.inverse(), let manager = windowUndoManager {
             if manager.isUndoing {
@@ -178,7 +242,7 @@ final class LayoutUndo {
                 register(inverse, on: manager)
             } else if manager.isRedoing {
                 push(inverse)
-                toast = ToastContent(id: UUID(), sentence: inverse.sentence, isFailure: false, place: place)
+                setToast(ToastContent(id: UUID(), sentence: inverse.sentence, isFailure: false, place: resolved(place)))
             }
         }
         Task {
@@ -198,30 +262,9 @@ final class LayoutUndo {
                 return arrangementChange(sentence, before: beforeSnapshot())
             },
             perform: { [weak self] in
-                await self?.restore(before) ?? true
+                await self?.restoreArrangement(before) ?? true
             }
         )
-    }
-
-    /// Puts the sections of `before` back and tells whether everything is back.
-    private func restore(_ before: LayoutSnapshot) async -> Bool {
-        guard let appState else {
-            return true
-        }
-        appState.snapshots.willUndo()
-        let layout = appState.automation.removingControlledItems(from: LayoutProfile(
-            name: "",
-            itemSections: before.itemSections,
-            applicationSections: before.applicationSections,
-            knownApplications: before.knownApplications
-        ))
-        await appState.profiles.applyLayout(of: layout)?.value
-        if #available(macOS 27.0, *) {
-            appState.automation.itemsWereArrangedByHand()
-            try? await Task.sleep(for: Self.settleDelay27)
-            await appState.itemManager.cacheItemsRegardless()
-        }
-        return ArrangementUndo.isRestored(wanted: before, now: appState.snapshots.currentSnapshot(reason: .manual))
     }
 
     /// Shows a toast when an undo could not put everything back; otherwise nothing (D-17).
@@ -230,7 +273,7 @@ final class LayoutUndo {
             return
         }
         let sentence = String(localized: "Some items could not be put back.")
-        toast = ToastContent(id: UUID(), sentence: sentence, isFailure: true, place: place)
+        setToast(ToastContent(id: UUID(), sentence: sentence, isFailure: true, place: resolved(place)))
         LayoutBarItemView.announce(sentence)
     }
 }
@@ -246,46 +289,57 @@ extension View {
 }
 
 private struct UndoToastModifier: ViewModifier {
-    private struct TimerKey: Equatable {
-        let id: UUID?
-        let isHovering: Bool
-    }
-
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var isHovering = false
 
     let undo: LayoutUndo
     let place: LayoutUndo.Place
 
-    private var content: LayoutUndo.ToastContent? {
-        undo.toast.flatMap { $0.place == place ? $0 : nil }
-    }
-
-    func body(content view: Content) -> some View {
-        view
+    func body(content: Content) -> some View {
+        let shown = undo.toast.flatMap { $0.place == place ? $0 : nil }
+        content
             .overlay(alignment: .bottom) {
-                if let content {
-                    toast(for: content)
-                        .onHover { isHovering = $0 }
+                if shown != nil {
+                    UndoToastView(undo: undo, place: place)
                         .padding(.bottom, HolzBarTheme.Spacing.lg)
                         .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
                 }
             }
             .animation(
                 HolzBarTheme.Motion.resolved(HolzBarTheme.Motion.smooth, reduceMotion: reduceMotion),
-                value: content
+                value: shown
             )
-            .task(id: TimerKey(id: content?.id, isHovering: isHovering)) {
-                guard let id = content?.id, !isHovering else {
-                    return
+    }
+}
+
+/// The undo toast of one place: the sentence with Undo, or the failure report. It goes after
+/// 5 s, and stays while the pointer rests on it; no timer runs while nothing shows (D-33).
+struct UndoToastView: View {
+    private struct TimerKey: Equatable {
+        let id: UUID?
+        let isHovering: Bool
+    }
+
+    @State private var isHovering = false
+
+    let undo: LayoutUndo
+    let place: LayoutUndo.Place
+
+    var body: some View {
+        if let content = undo.toast, content.place == place {
+            toast(for: content)
+                .onHover { isHovering = $0 }
+                .task(id: TimerKey(id: content.id, isHovering: isHovering)) {
+                    guard !isHovering else {
+                        return
+                    }
+                    do {
+                        try await Task.sleep(for: HolzBarTheme.UndoToast.duration)
+                    } catch {
+                        return
+                    }
+                    undo.dismissToast(id: content.id)
                 }
-                do {
-                    try await Task.sleep(for: HolzBarTheme.UndoToast.duration)
-                } catch {
-                    return
-                }
-                undo.dismissToast(id: id)
-            }
+        }
     }
 
     @ViewBuilder

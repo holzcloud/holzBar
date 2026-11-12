@@ -231,6 +231,8 @@ enum HolzBarTheme {
         static let paddingVertical = CGFloat(DesignTokens.UndoToast.paddingVertical)
         static let paddingHorizontal = CGFloat(DesignTokens.UndoToast.paddingHorizontal)
         static let gap = CGFloat(DesignTokens.UndoToast.gap)
+        static let menuBarGap = CGFloat(DesignTokens.UndoToast.menuBarGap)
+        static let screenMargin = CGFloat(DesignTokens.UndoToast.screenMargin)
         /// How long the toast with an Undo button stays.
         static let duration = Duration.seconds(DesignTokens.UndoToast.visibleSeconds)
         /// How long a plain toast stays.

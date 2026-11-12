@@ -422,5 +422,7 @@ struct DesignTokensTests {
         #expect(toast.gap == 10)
         #expect(toast.visibleSeconds == 5)
         #expect(toast.plainVisibleSeconds == 3)
+        #expect(toast.menuBarGap == 8)
+        #expect(toast.screenMargin == 8)
     }
 }

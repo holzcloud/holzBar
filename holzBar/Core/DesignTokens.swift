@@ -474,6 +474,10 @@ nonisolated enum DesignTokens {
         static let visibleSeconds: Double = 5
         /// How long a plain toast without an action stays, in seconds (concept 9, row `Toast`).
         static let plainVisibleSeconds: Double = 3
+        /// The gap between the menu bar and the toast of a change made there (D-14).
+        static let menuBarGap: Double = 8
+        /// The least distance between that toast and the screen's edge.
+        static let screenMargin: Double = 8
     }
 
     /// The sidebar and the window of the Settings window (concept 10, D-08, D-26).
