@@ -174,7 +174,7 @@ nonisolated extension MenuBarItemTag {
     /// The tag for holzBar's control item for the "Hidden" section.
     static let hiddenControlItem = MenuBarItemTag(controlItem: .hidden)
 
-    /// The tag for holzBar's control item for the "Always-Hidden" section.
+    /// The tag for holzBar's control item for the Always Hidden section.
     static let alwaysHiddenControlItem = MenuBarItemTag(controlItem: .alwaysHidden)
 
     // MARK: Other Special Items

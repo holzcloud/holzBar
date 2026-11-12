@@ -17617,124 +17617,6 @@
         }
       }
     },
-    "Always-Hidden" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vždy skryté"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Immer ausgeblendet"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Siempre oculto"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toujours masqué"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mindig rejtett"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Selalu tersembunyi"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sempre nascosto"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "常に非表示"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "항상 숨김"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Altijd verborgen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zawsze ukryte"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sempre oculto"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adina zuppà"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Всегда скрыто"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alltid dold"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Her zaman gizli"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Завжди приховано"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "始终隐藏"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "一律隱藏"
-          }
-        }
-      }
-    },
     "An app is in front" : {
       "localizations" : {
         "cs" : {
@@ -50421,124 +50303,6 @@
         }
       }
     },
-    "Remove this widget?" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Odebrat tento widget?"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dieses Widget entfernen?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Quitar este widget?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retirer ce widget ?"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eltávolítja ezt a widgetet?"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hapus widget ini?"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rimuovere questo widget?"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このウィジェットを削除しますか？"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 위젯을 제거하시겠습니까?"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deze widget verwijderen?"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usunąć ten widżet?"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remover este widget?"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Allontanar quest widget?"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Удалить этот виджет?"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ta bort den här widgeten?"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bu widget kaldırılsın mı?"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вилучити цей віджет?"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "要移除此小组件吗？"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "要移除此小工具嗎？"
-          }
-        }
-      }
-    },
     "Rename" : {
       "localizations" : {
         "cs" : {
@@ -57619,242 +57383,6 @@
         }
       }
     },
-    "Show the always-hidden section" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zobrazit sekci vždy skrytých"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Immer ausgeblendeten Bereich zeigen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostrar la sección siempre oculta"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afficher la section toujours masquée"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A mindig rejtett szakasz megjelenítése"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tampilkan bagian selalu tersembunyi"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostra la sezione sempre nascosta"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "常に非表示セクションを表示する"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“항상 숨김” 섹션 표시"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toon de altijd verborgen sectie"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pokaż sekcję zawsze ukrytych"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exibir a seção sempre oculta"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mussar la secziun adina zuppada"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Показывать раздел «Всегда скрыто»"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visa sektionen Alltid dolda"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Her zaman gizli bölümü göster"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Показувати розділ «Завжди приховано»"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "显示“始终隐藏”分区"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "顯示一律隱藏區段"
-          }
-        }
-      }
-    },
-    "Show the hidden section" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zobrazit sekci skrytých"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ausgeblendeten Bereich zeigen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostrar la sección oculta"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afficher la section masquée"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A rejtett szakasz megjelenítése"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tampilkan bagian tersembunyi"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostra la sezione nascosta"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "非表示セクションを表示する"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“숨김” 섹션 표시"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toon de verborgen sectie"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pokaż sekcję ukrytych"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exibir a seção oculta"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mussar la secziun zuppada"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Показывать раздел «Скрыто»"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visa sektionen Dolda"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gizli bölümü göster"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Показувати розділ «Приховано»"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "显示“隐藏”分区"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "顯示已隱藏區段"
-          }
-        }
-      }
-    },
     "Show the hidden section for a moment" : {
       "localizations" : {
         "cs" : {
@@ -61863,124 +61391,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "拖移時，指標必須停在瀏海處。"
-          }
-        }
-      }
-    },
-    "The profile “%@” has %lld applications, %lld of them installed on this Mac. Importing adds it to your profiles; it moves nothing until you apply it." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil „%@“ má aplikací: %lld, z toho %lld nainstalovaných na tomto Macu. Import ho přidá k vašim profilům; nic nepřesune, dokud ho nepoužijete."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das Profil „%@“ enthält %lld Apps, %lld davon sind auf diesem Mac installiert. Beim Importieren wird es zu deinen Profilen hinzugefügt; es verschiebt nichts, bis du es anwendest."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El perfil “%@” tiene %lld aplicaciones, %lld de ellas instaladas en este Mac. Al importarlo se añade a tus perfiles; no mueve nada hasta que lo apliques."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le profil « %@ » contient %lld apps, dont %lld sont installées sur ce Mac. L’importer l’ajoute à vos profils ; il ne déplace rien tant que vous ne l’appliquez pas."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A(z) „%@” profil alkalmazásainak száma: %lld, ebből %lld van telepítve ezen a Macen. Az importálás hozzáadja a profiljaihoz; semmit sem helyez át, amíg nem alkalmazza."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil “%@” memiliki %lld app, %lld di antaranya terpasang di Mac ini. Impor menambahkannya ke profil Anda; tidak ada yang dipindahkan sampai Anda menerapkannya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il profilo “%@” contiene %lld app, %lld delle quali sono installate su questo Mac. L’importazione lo aggiunge ai tuoi profili; non sposta nulla finché non lo applichi."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "プロファイル「%@」にはアプリケーションが %lld 個あり、そのうち %lld 個がこの Mac にインストールされています。読み込むとプロファイルに追加されますが、適用するまで何も移動しません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” 프로파일에는 앱이 %lld개 있으며, 그중 %lld개가 이 Mac에 설치되어 있습니다. 가져오면 내 프로파일에 추가되며, 적용하기 전에는 아무것도 옮기지 않습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Het profiel “%@” heeft %lld apps, waarvan %lld op deze Mac zijn geïnstalleerd. Importeren voegt het aan je profielen toe; het verplaatst niets totdat je het toepast."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil „%@” zawiera aplikacje: %lld, z czego %lld jest zainstalowanych na tym Macu. Import dodaje go do Twoich profili; nic nie przenosi, dopóki go nie zastosujesz."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O perfil “%@” tem %lld aplicativos, %lld deles instalados neste Mac. Importá-lo o adiciona aos seus perfis; ele não move nada até que você o aplique."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il profil «%@» cuntegna %lld apps, %lld da quellas èn installadas sin quest Mac. L’import al agiunta a tes profils; el na spusta nagut enfin che ti al applitgeschas."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "В профиле «%@» приложений: %lld, из них установлено на этом Mac: %lld. При импорте он добавляется к вашим профилям; пока вы его не примените, ничего не перемещается."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profilen ”%@” har %lld appar, %lld av dem installerade på den här Macen. Import lägger till den bland dina profiler; ingenting flyttas förrän du tillämpar den."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” profilinde %lld uygulama var, %lld tanesi bu Mac’te yüklü. İçe aktarma onu profillerinize ekler; siz uygulayana kadar hiçbir şey taşınmaz."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "У профілі «%@» програм: %lld, із них установлено на цьому Mac: %lld. Під час імпорту його додається до ваших профілів; доки ви його не застосуєте, нічого не переміщується."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "配置文件“%@”包含 %lld 个 App，其中 %lld 个已安装在这台 Mac 上。导入后它会加入你的配置文件；在你应用之前，不会移动任何内容。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "設定檔「%@」含有 %lld 個 App，其中 %lld 個已安裝在這台 Mac 上。輸入後會加到你的設定檔中；在你套用之前不會移動任何東西。"
           }
         }
       }
@@ -76741,124 +76151,6 @@
         }
       }
     },
-    "macOS stopped laying them out when holzBar freed the space beside the notch, and left no control to reach them. Quitting and reopening the application whose item is missing brings it back." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS je přestal rozmisťovat, když holzBar uvolnil místo vedle výřezu, a nenechal žádný ovládací prvek, jak se k nim dostat. Ukončením a znovu otevřením aplikace, jejíž položka chybí, se vrátí."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS hat sie nicht mehr angeordnet, als holzBar den Platz neben der Notch freigab, und keine Möglichkeit gelassen, sie zu erreichen. Beende die App, deren Element fehlt, und öffne sie erneut, dann ist es wieder da."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS dejó de colocarlos cuando holzBar liberó el espacio junto al notch, y no dejó ningún control para llegar a ellos. Cerrar y volver a abrir la aplicación cuyo elemento falta lo recupera."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS a cessé de les disposer quand holzBar a libéré l'espace près de l'encoche, sans laisser de moyen d'y accéder. Quittez puis rouvrez l'app dont l'élément manque pour le récupérer."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A macOS leállt az elrendezésükkel, amikor a holzBar felszabadította a notch melletti helyet, és nem hagyott vezérlőt az eléréshez. Annak az alkalmazásnak a bezárása és újranyitása, amelynek az eleme hiányzik, visszahozza."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS berhenti menempatkannya ketika holzBar mengosongkan ruang di samping notch dan tidak meninggalkan kontrol untuk menjangkaunya. Keluar lalu membuka lagi app yang itemnya hilang akan mengembalikannya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS ha smesso di disporli quando holzBar ha liberato lo spazio accanto al notch, senza lasciare un modo per raggiungerli. Esci e riapri l'app il cui elemento manca per farlo tornare."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar がノッチの隣の領域を空けたため、macOS はそれらの配置をやめ、アクセスする手段も残しませんでした。項目が見当たらないアプリケーションを終了して開き直すと、元に戻ります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar가 노치 옆 공간을 비우자 macOS가 해당 항목의 배치를 중단했고, 접근할 수 있는 컨트롤도 남기지 않았습니다. 항목이 없어진 앱을 종료한 뒤 다시 열면 복구됩니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS stopte met het plaatsen ervan toen holzBar de ruimte naast de notch vrijmaakte, en liet geen bediening over om ze te bereiken. Als je de app waarvan het onderdeel ontbreekt stopt en opnieuw opent, komt het terug."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS przestał je układać, gdy holzBar zwolnił miejsce obok notcha, i nie zostawił żadnej kontrolki, aby do nich dotrzeć. Zakończenie i ponowne otwarcie aplikacji, której elementu brakuje, przywraca go."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O macOS parou de posicioná-los quando o holzBar liberou o espaço ao lado do notch, e não deixou nenhum controle para acessá-los. Encerrar e reabrir o aplicativo cujo item está faltando o traz de volta."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS ha chalà da disponer els, cura che holzBar ha liberà la plazza sper la notch, e n'ha laschà nagina pussaivladad d'als cuntanscher. Termina l'app, da la quala l'element manca, ed avra la danovamain, lura è el puspè qua."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS перестала их размещать, когда holzBar освободил место рядом с вырезом, и не оставила способа до них добраться. Чтобы вернуть элемент, завершите приложение, у которого он пропал, и откройте его снова."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS slutade placera ut dem när holzBar frigjorde plats bredvid notchen och lämnade inget reglage för att nå dem. Att avsluta och öppna appen vars objekt saknas igen för dem tillbaka."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar notch’un yanındaki yeri boşaltınca macOS bunları yerleştirmeyi bıraktı ve onlara ulaşmak için hiçbir denetim bırakmadı. Öğesi eksik olan uygulamadan çıkıp onu yeniden açmak geri getirir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS перестала їх розміщувати, коли holzBar звільнив місце поруч із вирізом, і не залишила способу до них дістатися. Щоб повернути елемент, завершіть програму, в якої він зник, і відкрийте її знову."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar 腾出刘海旁边的空间后，macOS 就不再排列这些项目，也没有留下任何可以访问它们的控件。退出并重新打开缺少项目的 App 即可使其恢复。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "當 holzBar 騰出瀏海旁的空間時，macOS 停止排列它們，也沒有留下可觸及它們的控制項。結束並重新打開缺少項目的 App 即可讓它回來。"
-          }
-        }
-      }
-    },
     "macOS uses this combination for one of its own shortcuts. Choose another one." : {
       "localizations" : {
         "cs" : {
@@ -77563,242 +76855,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在此開始與結束時執行指令碼「%@」"
-          }
-        }
-      }
-    },
-    "show the always-hidden section" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "zobrazit sekci vždy skrytých"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "den immer ausgeblendeten Bereich zeigen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "mostrar la sección siempre oculta"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "afficher la section toujours masquée"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "a mindig rejtett szakasz megjelenítése"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "tampilkan bagian selalu tersembunyi"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "mostra la sezione sempre nascosta"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "常に非表示セクションを表示する"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“항상 숨김” 섹션 표시"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "toon de altijd verborgen sectie"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "pokaż sekcję zawsze ukrytych"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "exibir a seção sempre oculta"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "mussar la secziun adina zuppada"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "показать раздел «Всегда скрыто»"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "visa sektionen Alltid dolda"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "her zaman gizli bölümü göster"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "показати розділ «Завжди приховано»"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "显示“始终隐藏”分区"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "顯示一律隱藏區段"
-          }
-        }
-      }
-    },
-    "show the hidden section" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "zobrazit sekci skrytých"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "den ausgeblendeten Bereich zeigen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "mostrar la sección oculta"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "afficher la section masquée"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "a rejtett szakasz megjelenítése"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "tampilkan bagian tersembunyi"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "mostra la sezione nascosta"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "非表示セクションを表示する"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“숨김” 섹션 표시"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "toon de verborgen sectie"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "pokaż sekcję ukrytych"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "exibir a seção oculta"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "mussar la secziun zuppada"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "показать раздел «Скрыто»"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "visa sektionen Dolda"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "gizli bölümü göster"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "показати розділ «Приховано»"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "显示“隐藏”分区"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "顯示已隱藏區段"
           }
         }
       }
@@ -119507,125 +118563,6 @@
         }
       }
     },
-    "The file lists these applications and the section of each. It holds no display, Wi-Fi, hotkey or other setting. Switch an application off to leave it out." : {
-      "comment" : "Profiles & History pane, ShareProfileSheet.swift:22",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Soubor uvádí tyto aplikace a sekci každé z nich. Neobsahuje žádné nastavení displeje, Wi-Fi, klávesových zkratek ani jiné. Vypněte aplikaci, abyste ji vynechali."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Datei enthält diese Apps und deren Bereich. Sie enthält keine Bildschirm-, WLAN-, Tastenkürzel- oder andere Einstellungen. Schalte eine App aus, um sie wegzulassen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El archivo contiene estas apps y la sección de cada una. No contiene ningún ajuste de pantalla, Wi-Fi, atajo u otro. Desactiva una app para excluirla."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le fichier contient ces apps et la section de chacune. Il ne contient aucun réglage d’écran, de Wi-Fi, de raccourci ou autre. Désactivez une app pour l’exclure."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A fájl ezeket az alkalmazásokat és mindegyik szakaszát tartalmazza. Nem tartalmaz kijelző-, Wi-Fi-, gyorsbillentyű- vagy egyéb beállítást. Kapcsoljon ki egy alkalmazást, hogy kimaradjon."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "File ini berisi aplikasi ini dan bagian masing-masing. File ini tidak berisi pengaturan layar, Wi-Fi, pintasan, atau pengaturan lain. Matikan sebuah aplikasi untuk mengecualikannya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il file contiene queste app e la sezione di ciascuna. Non contiene impostazioni di display, Wi-Fi, scorciatoie o altro. Disattiva un’app per escluderla."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このファイルには、これらのアプリケーションとそれぞれのセクションが記載されます。ディスプレイ、Wi-Fi、ショートカットキーなどの設定は含まれません。含めたくないアプリケーションはオフにしてください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 파일에는 이 앱들과 각 앱의 섹션이 기록됩니다. 디스플레이, Wi-Fi, 단축키 등 다른 설정은 포함되지 않습니다. 제외할 앱은 끄세요."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Het bestand bevat deze apps en het gedeelte van elke app. Het bevat geen scherm-, Wi-Fi-, sneltoets- of andere instellingen. Zet een app uit om die weg te laten."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plik zawiera te aplikacje i sekcję każdej z nich. Nie zawiera ustawień wyświetlacza, Wi-Fi, skrótów ani innych. Wyłącz aplikację, aby ją pominąć."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O arquivo contém estes apps e a seção de cada um. Ele não contém ajustes de tela, Wi-Fi, atalhos ou outros. Desative um app para deixá-lo de fora."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La datoteca cuntegna questas apps e la secziun da mintgina. Ella na cuntegna naginas preferenzas da visur, Wi-Fi, scursanidas ni autras. Deactivescha ina app per l’exclude."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "В файле указаны эти приложения и раздел каждого из них. В нём нет настроек дисплея, Wi-Fi, горячих клавиш и других. Выключите приложение, чтобы исключить его."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filen innehåller dessa appar och sektionen för var och en. Den innehåller inga inställningar för skärm, Wi-Fi, kortkommandon eller andra. Stäng av en app för att utesluta den."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dosya bu uygulamaları ve her birinin bölümünü içerir. Ekran, Wi-Fi, kısayol veya başka ayar içermez. Bir uygulamayı hariç tutmak için kapatın."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "У файлі наведено ці застосунки та розділ кожного з них. У ньому немає налаштувань дисплея, Wi-Fi, гарячих клавіш чи інших. Вимкніть застосунок, щоб виключити його."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "文件会列出这些 App 及其所在区域。其中不含显示器、Wi-Fi、快捷键或其他设置。关闭某个 App 即可将其排除。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "檔案會列出這些 App 及其所屬區域。其中不含顯示器、Wi-Fi、快速鍵或其他設定。關閉某個 App 即可將其排除。"
-          }
-        }
-      }
-    },
     "%lld pt" : {
       "comment" : "Profiles & History pane, SpacersSection.swift:27",
       "localizations" : {
@@ -155739,6 +154676,958 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "尚無快照：holzBar 會在選單列穩定後以及每天建立一個。"
+          }
+        }
+      }
+    },
+    "Show the hidden items" : {
+      "comment" : "Rule editor: action pop-up entry",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobrazit skryté položky"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die ausgeblendeten Elemente zeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar los elementos ocultos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher les éléments masqués"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A rejtett elemek megjelenítése"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tampilkan item tersembunyi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra gli elementi nascosti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示の項目を表示する"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "숨긴 항목 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon de verborgen onderdelen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokaż ukryte elementy"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exibir os itens ocultos"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar ils elements zuppads"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать скрытые элементы"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visa dolda objekt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gizli öğeleri göster"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показувати приховані елементи"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示隐藏的项目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示已隱藏的項目"
+          }
+        }
+      }
+    },
+    "show the hidden items" : {
+      "comment" : "Rule sentence fragment (lower case, inside a sentence)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "zobrazit skryté položky"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "die ausgeblendeten Elemente zeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mostrar los elementos ocultos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "afficher les éléments masqués"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "a rejtett elemek megjelenítése"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tampilkan item tersembunyi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mostra gli elementi nascosti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示の項目を表示する"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "숨긴 항목 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "toon de verborgen onderdelen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pokaż ukryte elementy"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "exibir os itens ocultos"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mussar ils elements zuppads"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "показать скрытые элементы"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "visa dolda objekt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "gizli öğeleri göster"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "показати приховані елементи"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示隐藏的项目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示已隱藏的項目"
+          }
+        }
+      }
+    },
+    "show the always-hidden items" : {
+      "comment" : "Rule sentence fragment (lower case, inside a sentence)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "zobrazit vždy skryté položky"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "die immer ausgeblendeten Elemente zeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mostrar los elementos siempre ocultos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "afficher les éléments toujours masqués"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "a mindig rejtett elemek megjelenítése"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tampilkan item selalu tersembunyi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mostra gli elementi sempre nascosti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "常に非表示の項目を表示する"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항상 숨긴 항목 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "toon de altijd verborgen onderdelen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pokaż zawsze ukryte elementy"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "exibir os itens sempre ocultos"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mussar ils elements adina zuppads"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "показать всегда скрытые элементы"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "visa alltid dolda objekt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "her zaman gizli öğeleri göster"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "показати завжди приховані елементи"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示始终隐藏的项目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示一律隱藏的項目"
+          }
+        }
+      }
+    },
+    "The profile “%@” has %lld apps, %lld of them installed on this Mac. Importing adds it to your profiles; it moves nothing until you apply it." : {
+      "comment" : "Import profile sheet: same text with app instead of application",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil „%@“ má aplikací: %lld, z toho %lld nainstalovaných na tomto Macu. Import ho přidá k vašim profilům; nic nepřesune, dokud ho nepoužijete."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Profil „%@“ enthält %lld Apps, %lld davon sind auf diesem Mac installiert. Beim Importieren wird es zu deinen Profilen hinzugefügt; es verschiebt nichts, bis du es anwendest."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El perfil “%@” tiene %lld apps, %lld de ellas instaladas en este Mac. Al importarlo se añade a tus perfiles; no mueve nada hasta que lo apliques."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le profil « %@ » contient %lld apps, dont %lld sont installées sur ce Mac. L’importer l’ajoute à vos profils ; il ne déplace rien tant que vous ne l’appliquez pas."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A(z) „%@” profil alkalmazásainak száma: %lld, ebből %lld van telepítve ezen a Macen. Az importálás hozzáadja a profiljaihoz; semmit sem helyez át, amíg nem alkalmazza."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil “%@” memiliki %lld app, %lld di antaranya terpasang di Mac ini. Impor menambahkannya ke profil Anda; tidak ada yang dipindahkan sampai Anda menerapkannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il profilo “%@” contiene %lld app, %lld delle quali sono installate su questo Mac. L’importazione lo aggiunge ai tuoi profili; non sposta nulla finché non lo applichi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイル「%@」にはアプリが %lld 個あり、そのうち %lld 個がこの Mac にインストールされています。読み込むとプロファイルに追加されますが、適用するまで何も移動しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” 프로파일에는 앱이 %lld개 있으며, 그중 %lld개가 이 Mac에 설치되어 있습니다. 가져오면 내 프로파일에 추가되며, 적용하기 전에는 아무것도 옮기지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het profiel “%@” heeft %lld apps, waarvan %lld op deze Mac zijn geïnstalleerd. Importeren voegt het aan je profielen toe; het verplaatst niets totdat je het toepast."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil „%@” zawiera aplikacje: %lld, z czego %lld jest zainstalowanych na tym Macu. Import dodaje go do Twoich profili; nic nie przenosi, dopóki go nie zastosujesz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O perfil “%@” tem %lld apps, %lld deles instalados neste Mac. Importá-lo o adiciona aos seus perfis; ele não move nada até que você o aplique."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il profil «%@» cuntegna %lld apps, %lld da quellas èn installadas sin quest Mac. L’import al agiunta a tes profils; el na spusta nagut enfin che ti al applitgeschas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В профиле «%@» приложений: %lld, из них установлено на этом Mac: %lld. При импорте он добавляется к вашим профилям; пока вы его не примените, ничего не перемещается."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profilen ”%@” har %lld appar, %lld av dem installerade på den här Macen. Import lägger till den bland dina profiler; ingenting flyttas förrän du tillämpar den."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” profilinde %lld uygulama var, %lld tanesi bu Mac’te yüklü. İçe aktarma onu profillerinize ekler; siz uygulayana kadar hiçbir şey taşınmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У профілі «%@» програм: %lld, із них установлено на цьому Mac: %lld. Під час імпорту його додається до ваших профілів; доки ви його не застосуєте, нічого не переміщується."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配置文件“%@”包含 %lld 个 App，其中 %lld 个已安装在这台 Mac 上。导入后它会加入你的配置文件；在你应用之前，不会移动任何内容。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定檔「%@」含有 %lld 個 App，其中 %lld 個已安裝在這台 Mac 上。輸入後會加到你的設定檔中；在你套用之前不會移動任何東西。"
+          }
+        }
+      }
+    },
+    "The file lists these apps and the section of each. It holds no display, Wi-Fi, hotkey or other setting. Switch an app off to leave it out." : {
+      "comment" : "Share profile sheet: same text with app instead of application",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soubor uvádí tyto aplikace a sekci každé z nich. Neobsahuje žádné nastavení displeje, Wi-Fi, klávesových zkratek ani jiné. Vypněte aplikaci, abyste ji vynechali."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Datei enthält diese Apps und deren Bereich. Sie enthält keine Bildschirm-, WLAN-, Tastenkürzel- oder andere Einstellungen. Schalte eine App aus, um sie wegzulassen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo contiene estas apps y la sección de cada una. No contiene ningún ajuste de pantalla, Wi-Fi, atajo u otro. Desactiva una app para excluirla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le fichier contient ces apps et la section de chacune. Il ne contient aucun réglage d’écran, de Wi-Fi, de raccourci ou autre. Désactivez une app pour l’exclure."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A fájl ezeket az alkalmazásokat és mindegyik szakaszát tartalmazza. Nem tartalmaz kijelző-, Wi-Fi-, gyorsbillentyű- vagy egyéb beállítást. Kapcsoljon ki egy alkalmazást, hogy kimaradjon."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File ini berisi aplikasi ini dan bagian masing-masing. File ini tidak berisi pengaturan layar, Wi-Fi, pintasan, atau pengaturan lain. Matikan sebuah aplikasi untuk mengecualikannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il file contiene queste app e la sezione di ciascuna. Non contiene impostazioni di display, Wi-Fi, scorciatoie o altro. Disattiva un’app per escluderla."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このファイルには、これらのアプリとそれぞれのセクションが記載されます。ディスプレイ、Wi-Fi、ショートカットキーなどの設定は含まれません。含めたくないアプリはオフにしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 파일에는 이 앱들과 각 앱의 섹션이 기록됩니다. 디스플레이, Wi-Fi, 단축키 등 다른 설정은 포함되지 않습니다. 제외할 앱은 끄세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het bestand bevat deze apps en het gedeelte van elke app. Het bevat geen scherm-, Wi-Fi-, sneltoets- of andere instellingen. Zet een app uit om die weg te laten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plik zawiera te aplikacje i sekcję każdej z nich. Nie zawiera ustawień wyświetlacza, Wi-Fi, skrótów ani innych. Wyłącz aplikację, aby ją pominąć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O arquivo contém estes apps e a seção de cada um. Ele não contém ajustes de tela, Wi-Fi, atalhos ou outros. Desative um app para deixá-lo de fora."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La datoteca cuntegna questas apps e la secziun da mintgina. Ella na cuntegna naginas preferenzas da visur, Wi-Fi, scursanidas ni autras. Deactivescha ina app per l’exclude."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В файле указаны эти приложения и раздел каждого из них. В нём нет настроек дисплея, Wi-Fi, горячих клавиш и других. Выключите приложение, чтобы исключить его."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filen innehåller dessa appar och sektionen för var och en. Den innehåller inga inställningar för skärm, Wi-Fi, kortkommandon eller andra. Stäng av en app för att utesluta den."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dosya bu uygulamaları ve her birinin bölümünü içerir. Ekran, Wi-Fi, kısayol veya başka ayar içermez. Bir uygulamayı hariç tutmak için kapatın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У файлі наведено ці застосунки та розділ кожного з них. У ньому немає налаштувань дисплея, Wi-Fi, гарячих клавіш чи інших. Вимкніть застосунок, щоб виключити його."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件会列出这些 App 及其所在区域。其中不含显示器、Wi-Fi、快捷键或其他设置。关闭某个 App 即可将其排除。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "檔案會列出這些 App 及其所屬區域。其中不含顯示器、Wi-Fi、快速鍵或其他設定。關閉某個 App 即可將其排除。"
+          }
+        }
+      }
+    },
+    "macOS stopped laying them out when holzBar freed the space beside the notch, and left no control to reach them. Quitting and reopening the app whose item is missing brings it back." : {
+      "comment" : "Layout warning info: same text with app instead of application",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS je přestal rozmisťovat, když holzBar uvolnil místo vedle výřezu, a nenechal žádný ovládací prvek, jak se k nim dostat. Ukončením a znovu otevřením aplikace, jejíž položka chybí, se vrátí."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS hat sie nicht mehr angeordnet, als holzBar den Platz neben der Notch freigab, und keine Möglichkeit gelassen, sie zu erreichen. Beende die App, deren Element fehlt, und öffne sie erneut, dann ist es wieder da."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS dejó de colocarlos cuando holzBar liberó el espacio junto al notch, y no dejó ningún control para llegar a ellos. Cerrar y volver a abrir la app cuyo elemento falta lo recupera."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS a cessé de les disposer quand holzBar a libéré l'espace près de l'encoche, sans laisser de moyen d'y accéder. Quittez puis rouvrez l'app dont l'élément manque pour le récupérer."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A macOS leállt az elrendezésükkel, amikor a holzBar felszabadította a notch melletti helyet, és nem hagyott vezérlőt az eléréshez. Annak az alkalmazásnak a bezárása és újranyitása, amelynek az eleme hiányzik, visszahozza."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS berhenti menempatkannya ketika holzBar mengosongkan ruang di samping notch dan tidak meninggalkan kontrol untuk menjangkaunya. Keluar lalu membuka lagi app yang itemnya hilang akan mengembalikannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS ha smesso di disporli quando holzBar ha liberato lo spazio accanto al notch, senza lasciare un modo per raggiungerli. Esci e riapri l'app il cui elemento manca per farlo tornare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar がノッチの隣の領域を空けたため、macOS はそれらの配置をやめ、アクセスする手段も残しませんでした。項目が見当たらないアプリを終了して開き直すと、元に戻ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar가 노치 옆 공간을 비우자 macOS가 해당 항목의 배치를 중단했고, 접근할 수 있는 컨트롤도 남기지 않았습니다. 항목이 없어진 앱을 종료한 뒤 다시 열면 복구됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS stopte met het plaatsen ervan toen holzBar de ruimte naast de notch vrijmaakte, en liet geen bediening over om ze te bereiken. Als je de app waarvan het onderdeel ontbreekt stopt en opnieuw opent, komt het terug."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS przestał je układać, gdy holzBar zwolnił miejsce obok notcha, i nie zostawił żadnej kontrolki, aby do nich dotrzeć. Zakończenie i ponowne otwarcie aplikacji, której elementu brakuje, przywraca go."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O macOS parou de posicioná-los quando o holzBar liberou o espaço ao lado do notch, e não deixou nenhum controle para acessá-los. Encerrar e reabrir o app cujo item está faltando o traz de volta."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS ha chalà da disponer els, cura che holzBar ha liberà la plazza sper la notch, e n'ha laschà nagina pussaivladad d'als cuntanscher. Termina l'app, da la quala l'element manca, ed avra la danovamain, lura è el puspè qua."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS перестала их размещать, когда holzBar освободил место рядом с вырезом, и не оставила способа до них добраться. Чтобы вернуть элемент, завершите приложение, у которого он пропал, и откройте его снова."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS slutade placera ut dem när holzBar frigjorde plats bredvid notchen och lämnade inget reglage för att nå dem. Att avsluta och öppna appen vars objekt saknas igen för dem tillbaka."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar notch’un yanındaki yeri boşaltınca macOS bunları yerleştirmeyi bıraktı ve onlara ulaşmak için hiçbir denetim bırakmadı. Öğesi eksik olan uygulamadan çıkıp onu yeniden açmak geri getirir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS перестала їх розміщувати, коли holzBar звільнив місце поруч із вирізом, і не залишила способу до них дістатися. Щоб повернути елемент, завершіть програму, в якої він зник, і відкрийте її знову."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 腾出刘海旁边的空间后，macOS 就不再排列这些项目，也没有留下任何可以访问它们的控件。退出并重新打开缺少项目的 App 即可使其恢复。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當 holzBar 騰出瀏海旁的空間時，macOS 停止排列它們，也沒有留下可觸及它們的控制項。結束並重新打開缺少項目的 App 即可讓它回來。"
+          }
+        }
+      }
+    },
+    "Delete this widget?" : {
+      "comment" : "Confirmation title before a widget is deleted",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smazat tento widget?"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Widget löschen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar este widget?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer ce widget ?"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Törli ezt a widgetet?"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hapus widget ini?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminare questo widget?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このウィジェットを削除しますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 위젯을 삭제하시겠습니까?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze widget verwijderen?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć ten widżet?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluir este widget?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stizzar quest widget?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить этот виджет?"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta bort den här widgeten?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu widget silinsin mi?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалити цей віджет?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要删除此小组件吗？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要刪除此小工具嗎？"
+          }
+        }
+      }
+    },
+    "Delete %@" : {
+      "comment" : "VoiceOver label of the Delete button of an Apple item replacement; the placeholder is its name",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smazat %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ löschen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer %@"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ törlése"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hapus %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ を削除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 삭제"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder %@"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluir %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stizzar %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить %@"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta bort %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sil: %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалити %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除 %@"
           }
         }
       }
