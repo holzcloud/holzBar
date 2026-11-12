@@ -249,11 +249,23 @@ final class LayoutEditor {
         guard !isApplying else {
             return
         }
-        if let section = placement.section {
-            setNewItemsSection(section)
+        guard let appState else {
             return
         }
-        guard let appState else {
+        if let section = placement.section {
+            // The section new items land in already, chosen while "Where macOS puts them" is
+            // stored: the drawing would not change, so the choice is written at once (nothing
+            // moves) and the pop-up shows it (89-08 open point).
+            let landingNow = draft?.baselineNewItems ?? landing
+            if section == landingNow.name, appState.settings.advanced.newItemsPlacement == .systemDefault {
+                if let baseline = draft?.baselineNewItems {
+                    draft?.setNewItems(baseline)
+                }
+                appState.settings.advanced.newItemsPlacement = placement
+                cacheDidChange()
+                return
+            }
+            setNewItemsSection(section)
             return
         }
         if let baseline = draft?.baselineNewItems {
