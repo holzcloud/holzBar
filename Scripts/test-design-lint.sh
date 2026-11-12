@@ -8,8 +8,8 @@
 # It copies `.swiftlint.yml` into a temporary tree and writes fixtures there. A file under
 # `holzBar/Settings/` holds one line of every forbidden pattern, old and new; the settings-kit
 # lines are also written into a file of the Appearance editor folder and a hub module's
-# `…SettingsView.swift` (both reported), and into a hub runtime file, a Permissions file and
-# `UI/Design/` (none reported). Another file under `holzBar/Settings/` holds the allowed
+# `…SettingsView.swift` and the first-launch `PermissionsView.swift` (all reported), and into a
+# hub runtime file, another Permissions file and `UI/Design/` (none reported). Another file under `holzBar/Settings/` holds the allowed
 # forms. Then it runs SwiftLint over the tree and requires exactly the expected violations:
 # the count of every design rule is pinned, and every `design_*` rule of the configuration
 # must have a failing line in the Settings fixture, so a mistake in a regular expression, a
@@ -87,6 +87,7 @@ write_fixture holzBar/MenuBar/Appearance/MenuBarAppearanceEditor/BadEditor.swift
 write_fixture holzBar/MenuBar/NotchHub/Timers/TimersSettingsView.swift TimersSettingsView settings_forbidden_lines
 write_fixture holzBar/MenuBar/NotchHub/Timers/TimersRuntime.swift TimersRuntime settings_forbidden_lines
 write_fixture holzBar/Permissions/Quiet.swift Quiet settings_forbidden_lines
+write_fixture holzBar/Permissions/PermissionsView.swift PermissionsView settings_forbidden_lines
 
 cat > "$work/holzBar/Settings/Fine.swift" <<'EOF'
 //
@@ -175,18 +176,18 @@ expected_rules = {
     "design_raw_font": 1,
     "design_raw_color": 2,
     "design_corner_radius": 1,
-    "design_settings_raw_radius": 6,
-    "design_settings_toggle_style": 6,
-    "design_settings_bare_toggle": 3,
-    "design_settings_old_component": 9,
-    "design_settings_annotation": 6,
-    "design_settings_group_literal": 3,
+    "design_settings_raw_radius": 8,
+    "design_settings_toggle_style": 8,
+    "design_settings_bare_toggle": 4,
+    "design_settings_old_component": 12,
+    "design_settings_annotation": 8,
+    "design_settings_group_literal": 4,
 }
 check(configured == sorted(expected_rules), f"the configuration holds exactly the nine design rules (found {configured})")
 bad = [v for v in design if v["file"].endswith("/holzBar/Settings/Bad.swift")]
 for rule in configured:
     check(any(v["rule_id"] == rule for v in bad), f"{rule} has a failing line in the Settings fixture")
-check(len(design) == 37, f"exactly 37 design violations are reported (found {len(design)})")
+check(len(design) == 48, f"exactly 48 design violations are reported (found {len(design)})")
 for rule, expected in expected_rules.items():
     check(count(rule) == expected, f"{rule} is reported {expected} times (found {count(rule)})")
 old_rules = ("design_raw_font", "design_raw_color", "design_corner_radius")
@@ -199,6 +200,7 @@ for suffix in (
     "/holzBar/Settings/Bad.swift",
     "/holzBar/MenuBar/Appearance/MenuBarAppearanceEditor/BadEditor.swift",
     "/holzBar/MenuBar/NotchHub/Timers/TimersSettingsView.swift",
+    "/holzBar/Permissions/PermissionsView.swift",
 ):
     found = sum(1 for v in settings if v["file"].endswith(suffix))
     check(found == 11, f"{suffix} has 11 settings-kit violations (found {found})")
@@ -207,8 +209,8 @@ check(
     "the allowed forms (tokens, kit parts, comments, a checkmark Toggle in a Menu) are not reported",
 )
 check(
-    not any(v["file"].endswith("/TimersRuntime.swift") or "/Permissions/" in v["file"] for v in design),
-    "a hub runtime file and the Permissions window are not reported",
+    not any(v["file"].endswith("/TimersRuntime.swift") or v["file"].endswith("/Permissions/Quiet.swift") for v in design),
+    "a hub runtime file and another Permissions file are not reported",
 )
 check(
     not any("/UI/Design/" in v["file"] for v in design),

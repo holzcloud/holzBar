@@ -85,7 +85,7 @@ custom_rules:
     severity: error
   # The settings kit: Settings screens (the Settings folders, including the What's New window,
   # the Appearance editor and the hub modules' settings views) use only the kit in
-  # `UI/Design/SettingsKit/`. The first-launch Permissions window is a separate window.
+  # `UI/Design/SettingsKit/`, and so do the first-launch Permissions window and its shared row.
   design_settings_raw_radius:
     name: Raw radius in a Settings screen
     message: "Use a settings kit part or `HolzBarTheme.shape(_:)` with a `HolzBarTheme.Radius` token instead of a number"
@@ -94,7 +94,8 @@ custom_rules:
       - '.*/holzBar/Settings/.*'
       - '.*/holzBar/MenuBar/Appearance/MenuBarAppearanceEditor/.*'
       - '.*/holzBar/MenuBar/NotchHub/[^/]+/[^/]*SettingsView\.swift'
-    excluded: '.*/UI/Design/.*|.*/holzBar/Permissions/.*'
+      - '.*/holzBar/Permissions/Permissions?(View|Row)\.swift'
+    excluded: '.*/UI/Design/.*'
     excluded_match_kinds:
       - comment
       - doccomment
@@ -107,7 +108,8 @@ custom_rules:
       - '.*/holzBar/Settings/.*'
       - '.*/holzBar/MenuBar/Appearance/MenuBarAppearanceEditor/.*'
       - '.*/holzBar/MenuBar/NotchHub/[^/]+/[^/]*SettingsView\.swift'
-    excluded: '.*/UI/Design/.*|.*/holzBar/Permissions/.*'
+      - '.*/holzBar/Permissions/Permissions?(View|Row)\.swift'
+    excluded: '.*/UI/Design/.*'
     excluded_match_kinds:
       - comment
       - doccomment
@@ -120,7 +122,8 @@ custom_rules:
       - '.*/holzBar/Settings/.*'
       - '.*/holzBar/MenuBar/Appearance/MenuBarAppearanceEditor/.*'
       - '.*/holzBar/MenuBar/NotchHub/[^/]+/[^/]*SettingsView\.swift'
-    excluded: '.*/UI/Design/.*|.*/holzBar/Permissions/.*'
+      - '.*/holzBar/Permissions/Permissions?(View|Row)\.swift'
+    excluded: '.*/UI/Design/.*'
     excluded_match_kinds:
       - comment
       - doccomment
@@ -133,7 +136,8 @@ custom_rules:
       - '.*/holzBar/Settings/.*'
       - '.*/holzBar/MenuBar/Appearance/MenuBarAppearanceEditor/.*'
       - '.*/holzBar/MenuBar/NotchHub/[^/]+/[^/]*SettingsView\.swift'
-    excluded: '.*/UI/Design/.*|.*/holzBar/Permissions/.*'
+      - '.*/holzBar/Permissions/Permissions?(View|Row)\.swift'
+    excluded: '.*/UI/Design/.*'
     excluded_match_kinds:
       - comment
       - doccomment
@@ -146,7 +150,8 @@ custom_rules:
       - '.*/holzBar/Settings/.*'
       - '.*/holzBar/MenuBar/Appearance/MenuBarAppearanceEditor/.*'
       - '.*/holzBar/MenuBar/NotchHub/[^/]+/[^/]*SettingsView\.swift'
-    excluded: '.*/UI/Design/.*|.*/holzBar/Permissions/.*'
+      - '.*/holzBar/Permissions/Permissions?(View|Row)\.swift'
+    excluded: '.*/UI/Design/.*'
     excluded_match_kinds:
       - comment
       - doccomment
@@ -159,7 +164,8 @@ custom_rules:
       - '.*/holzBar/Settings/.*'
       - '.*/holzBar/MenuBar/Appearance/MenuBarAppearanceEditor/.*'
       - '.*/holzBar/MenuBar/NotchHub/[^/]+/[^/]*SettingsView\.swift'
-    excluded: '.*/UI/Design/.*|.*/holzBar/Permissions/.*'
+      - '.*/holzBar/Permissions/Permissions?(View|Row)\.swift'
+    excluded: '.*/UI/Design/.*'
     excluded_match_kinds:
       - comment
       - doccomment
