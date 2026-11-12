@@ -233,6 +233,7 @@ enum HolzBarTheme {
         static let iconSize = CGFloat(DesignTokens.LayoutList.iconSize)
         static let filterFieldMinWidth = CGFloat(DesignTokens.LayoutList.filterFieldMinWidth)
         static let filteredOutOpacity = DesignTokens.LayoutList.filteredOutOpacity
+        static let siblingRingWidth = CGFloat(DesignTokens.LayoutList.siblingRingWidth)
     }
 
     /// The measures and times of the undo toast (concept 9a, D-03, D-13).

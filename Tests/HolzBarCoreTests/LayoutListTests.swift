@@ -22,6 +22,15 @@ struct LayoutListTests {
         #expect(LayoutListFilter.matches(query: "STATS", itemName: "CPU", appName: "Stats"))
     }
 
+    @Test("The siblings of an app are the items with its key")
+    func siblings() {
+        let items: [(key: String, appKey: String?)] = [("cpu", "com.stats"), ("net", "com.stats"), ("clip", "com.maccy"), ("x", nil)]
+        #expect(SiblingGrouping.siblings(of: "com.stats", among: items) == ["cpu", "net"])
+        #expect(SiblingGrouping.siblings(of: "com.maccy", among: items) == ["clip"])
+        #expect(SiblingGrouping.siblings(of: nil, among: items).isEmpty)
+        #expect(SiblingGrouping.siblings(of: "com.none", among: items).isEmpty)
+    }
+
     @Test("An item without an app matches by its name only")
     func noApp() {
         #expect(!LayoutListFilter.matches(query: "stats", itemName: "CPU", appName: nil))

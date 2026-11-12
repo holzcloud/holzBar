@@ -21,3 +21,15 @@ nonisolated enum LayoutListFilter {
         return appName?.range(of: query, options: options) != nil
     }
 }
+
+/// The items of one app, which macOS 27 hides and shows together (D-11).
+nonisolated enum SiblingGrouping {
+    /// The keys of the items whose app key is `appKey`; none for a nil app key, and an item
+    /// without an app key never belongs to a group.
+    static func siblings(of appKey: String?, among items: [(key: String, appKey: String?)]) -> Set<String> {
+        guard let appKey else {
+            return []
+        }
+        return Set(items.filter { $0.appKey == appKey }.map(\.key))
+    }
+}

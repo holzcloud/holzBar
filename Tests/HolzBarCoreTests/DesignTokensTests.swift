@@ -422,6 +422,7 @@ struct DesignTokensTests {
         #expect(list.iconSize == 20)
         #expect(list.filterFieldMinWidth == 112)
         #expect(list.filteredOutOpacity == 0.25)
+        #expect(list.siblingRingWidth == 2)
     }
 
     @Test("The undo toast keeps the measures of the design concept")

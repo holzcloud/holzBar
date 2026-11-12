@@ -86,6 +86,10 @@ final class LayoutBarContainer: NSView {
         setArrangedViews(items: editor.items(in: section))
         layoutArrangedViews()
         observers = [
+            // On macOS 27 the items of the app under the pointer get a ring (D-11).
+            ObservationLoop.observe { editor.highlightedApp } onChange: { [weak self] _ in
+                self?.applySiblingHighlight()
+            },
             // Layout's filter dims the tiles it leaves out (D-09).
             ObservationLoop.observe { navigationState.layoutFilter } onChange: { [weak self] _ in
                 self?.applyFilter()
@@ -179,6 +183,18 @@ final class LayoutBarContainer: NSView {
     ///
     /// - Note: If the value of the container's ``canSetArrangedViews``
     ///   property is `false`, this function returns early.
+    /// Rings the tiles of the highlighted app.
+    private func applySiblingHighlight() {
+        let app = appState?.layoutEditor.highlightedApp
+        let siblings = SiblingGrouping.siblings(
+            of: app,
+            among: arrangedViews.map { (key: String($0.item.windowID), appKey: $0.item.layoutKey27) }
+        )
+        for view in arrangedViews {
+            view.isSiblingHighlighted = siblings.contains(String(view.item.windowID))
+        }
+    }
+
     /// Dims the tiles Layout's filter leaves out.
     private func applyFilter() {
         guard let filter = appState?.navigationState.layoutFilter else {
@@ -222,6 +238,7 @@ final class LayoutBarContainer: NSView {
         }
         arrangedViews = newViews
         applyFilter()
+        applySiblingHighlight()
         guard let focusedTag else {
             return
         }

@@ -13,6 +13,9 @@ import SwiftUI
 /// order, the items in their bar order; holzBar's own control items are not listed.
 struct LayoutListView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.colorScheme) private var colorScheme
+    /// The row whose pop-up has the keyboard focus, which highlights its app like the pointer.
+    @FocusState private var focusedRow: CGWindowID?
 
     private var editor: LayoutEditor {
         appState.layoutEditor
@@ -82,9 +85,36 @@ struct LayoutListView: View {
                     .frame(width: HolzBarTheme.LayoutList.appColumnWidth, alignment: .leading)
                 sectionPicker(for: item)
                     .frame(width: HolzBarTheme.LayoutList.sectionColumnWidth, alignment: .leading)
+                    .focused($focusedRow, equals: item.windowID)
+            }
+        }
+        .background {
+            // On macOS 27 the rows of the app under the pointer are tinted together (D-11).
+            if let app = editor.highlightedApp, item.layoutKey27 == app {
+                HolzBarTheme.Palette.accent.opacity(tintOpacity)
+            }
+        }
+        .onHover { isInside in
+            if isInside {
+                editor.highlightApp(of: item)
+            } else {
+                editor.clearHighlight(of: item)
+            }
+        }
+        .onChange(of: focusedRow == item.windowID) { _, isFocused in
+            if isFocused {
+                editor.highlightApp(of: item)
+            } else {
+                editor.clearHighlight(of: item)
             }
         }
         .accessibilityElement(children: .contain)
+    }
+
+    private var tintOpacity: Double {
+        colorScheme == .dark
+            ? HolzBarTheme.SettingsKit.accentFillDark
+            : HolzBarTheme.SettingsKit.accentFillLight
     }
 
     @ViewBuilder

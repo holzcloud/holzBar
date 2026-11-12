@@ -87,6 +87,19 @@ final class LayoutBarItemView: NSView {
         }
     }
 
+    /// Whether the item belongs to the app under the pointer (macOS 27, D-11): a ring in the
+    /// accent colour.
+    var isSiblingHighlighted = false {
+        didSet {
+            if isSiblingHighlighted != oldValue {
+                needsDisplay = true
+            }
+        }
+    }
+
+    /// The area that tells the pane which app the pointer is on.
+    private var hoverArea: NSTrackingArea?
+
     /// Whether Layout's filter leaves the item out: its picture is dimmed, and the tile stays
     /// reachable and movable (D-09).
     var isFilteredOut = false {
@@ -254,6 +267,12 @@ final class LayoutBarItemView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         if !isDraggingPlaceholder {
             drawDisplayImage()
+            if isSiblingHighlighted {
+                let ring = NSBezierPath(roundedRect: bounds.insetBy(dx: 1, dy: 1), xRadius: 4, yRadius: 4)
+                ring.lineWidth = HolzBarTheme.LayoutList.siblingRingWidth
+                NSColor(HolzBarTheme.Palette.accent).setStroke()
+                ring.stroke()
+            }
             if isControlledByRule {
                 drawRuleBadge()
             }
@@ -409,6 +428,40 @@ final class LayoutBarItemView: NSView {
     }
 
     override var acceptsFirstResponder: Bool { true }
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        if let hoverArea {
+            removeTrackingArea(hoverArea)
+        }
+        let area = NSTrackingArea(rect: .zero, options: [.mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect], owner: self)
+        addTrackingArea(area)
+        hoverArea = area
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        appState?.layoutEditor.highlightApp(of: item)
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        appState?.layoutEditor.clearHighlight(of: item)
+    }
+
+    override func becomeFirstResponder() -> Bool {
+        let didBecome = super.becomeFirstResponder()
+        if didBecome {
+            appState?.layoutEditor.highlightApp(of: item)
+        }
+        return didBecome
+    }
+
+    override func resignFirstResponder() -> Bool {
+        let didResign = super.resignFirstResponder()
+        if didResign {
+            appState?.layoutEditor.clearHighlight(of: item)
+        }
+        return didResign
+    }
 
     override var canBecomeKeyView: Bool { true }
 
@@ -692,6 +745,7 @@ extension LayoutBarItemView: NSDraggingSource {
 
         // A profile bound to a display or a Space waits until the drop.
         appState?.profiles.isLayoutDragInProgress = true
+        appState?.layoutEditor.highlightApp(of: item)
 
         // async to prevent the view from disappearing before the dragging image appears
         Task {
@@ -705,6 +759,7 @@ extension LayoutBarItemView: NSDraggingSource {
             // always remove container info at the end of a session
             oldContainerInfo = nil
             appState?.profiles.isLayoutDragInProgress = false
+            appState?.layoutEditor.clearHighlight(of: item)
             // The source row follows the item cache again: after a drop that moves the item
             // the move's cache change updates the rows. A drag that moved nothing (dropped
             // outside every row, cancelled, or refused by the row) puts them back to the

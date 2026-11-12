@@ -95,6 +95,26 @@ final class LayoutEditor {
         return MenuBarSection.Name.allCases.filter { $0 != .alwaysHidden || hasAlwaysHidden }
     }
 
+    /// The app whose items are highlighted together: the one under the pointer, the keyboard
+    /// selection or the drag (macOS 27, D-11).
+    private(set) var highlightedApp: String?
+
+    /// Highlights the items of the item's app; only on macOS 27, which hides whole apps.
+    func highlightApp(of item: MenuBarItem) {
+        if #available(macOS 27.0, *) {
+            if highlightedApp != item.layoutKey27 {
+                highlightedApp = item.layoutKey27
+            }
+        }
+    }
+
+    /// Ends the highlight, if it is the one of the item's app.
+    func clearHighlight(of item: MenuBarItem) {
+        if let key = item.layoutKey27, highlightedApp == key {
+            highlightedApp = nil
+        }
+    }
+
     /// The section an item is in, in the drawing or on the bar.
     func section(of item: MenuBarItem) -> MenuBarSection.Name? {
         MenuBarSection.Name.allCases.first { name in

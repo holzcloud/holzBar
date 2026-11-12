@@ -474,6 +474,8 @@ nonisolated enum DesignTokens {
         static let filterFieldMinWidth: Double = 112
         /// The opacity of a tile in the bars that the filter leaves out (D-09).
         static let filteredOutOpacity: Double = 0.25
+        /// The width of the ring around the items of the app under the pointer (macOS 27, D-11).
+        static let siblingRingWidth: Double = 2
     }
 
     /// The undo toast: a glass capsule with one sentence and an Undo button (concept 9a, D-13).
