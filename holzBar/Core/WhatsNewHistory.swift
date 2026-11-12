@@ -24,6 +24,60 @@ import Foundation
 nonisolated enum WhatsNewHistory {
     /// The releases, newest first.
     static let releases: [WhatsNewRelease] = [
+        WhatsNewRelease(version: "1.1.0",
+            new: [
+                WhatsNewItem(
+                    symbol: "gearshape",
+                    title: "Settings, redesigned",
+                    detail: "Eleven panes sorted by task, compact rows with their explanation one click away, and a search over every setting with ⌘F."
+                ),
+                WhatsNewItem(
+                    symbol: "list.bullet",
+                    title: "Layout as a list",
+                    detail: "Layout shows your items as bars or as a list, with a filter and a section menu for each item."
+                ),
+                WhatsNewItem(
+                    symbol: "arrow.uturn.backward",
+                    title: "Undo after every change",
+                    detail: "After a change of the layout, in Settings or in the menu bar, a notice offers Undo, and ⌘Z works too."
+                ),
+                WhatsNewItem(
+                    symbol: "hand.wave",
+                    title: "A short introduction",
+                    detail: "The first launch needs only Accessibility and then shows three short steps, which About shows again."
+                ),
+            ],
+            improved: [
+                WhatsNewItem(
+                    symbol: "contextualmenu.and.cursorarrow",
+                    title: "Move to",
+                    detail: "The menu of an item in Layout starts with Move to Visible, Hidden or Always Hidden."
+                ),
+                WhatsNewItem(
+                    symbol: "menubar.rectangle",
+                    title: "More in holzBar's menu",
+                    detail: "holzBar's menu has Arrange Menu Bar… and Profiles, which applies a profile in one click."
+                ),
+                WhatsNewItem(
+                    symbol: "rectangle.3.group",
+                    title: "Whole apps on macOS 27",
+                    detail: "On macOS 27, Layout highlights the items of one app together and says that macOS hides whole apps."
+                ),
+                WhatsNewItem(
+                    symbol: "trash.slash",
+                    title: "Deleting can be undone",
+                    detail: "A deleted condition, group, snapshot, mood or profile hook comes back with Undo."
+                ),
+            ],
+            fixed: [
+                WhatsNewFix(text: "The question to tidy up the menu bar no longer interrupts after the first launch; the suggestion waits in Layout."),
+                WhatsNewFix(text: "Loading the menu bar items no longer spins without end, and empty lists say what to do."),
+                WhatsNewFix(text: "The first launch no longer lists Calendar and Bluetooth; their modules ask when you switch them on."),
+                WhatsNewFix(text: "Turning off usage suggestions asks before it deletes the stored usage."),
+                WhatsNewFix(text: "The offer to use Screen Recording appears in holzBar's own look."),
+                WhatsNewFix(text: "holzBar uses one word for each thing: Always Hidden, apps, and Delete for what you made."),
+            ]
+        ),
         WhatsNewRelease(version: "1.0.5",
             improved: [
                 WhatsNewItem(

@@ -155631,6 +155631,2505 @@
           }
         }
       }
+    },
+    "Settings, redesigned" : {
+      "comment" : "What's New 1.1.0: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nastavení v novém"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen, neu gestaltet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes, rediseñados"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réglages, repensés"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beállítások, újratervezve"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pengaturan, didesain ulang"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impostazioni, riprogettate"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定を刷新"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정, 새롭게 디자인"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instellingen, opnieuw ontworpen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustawienia w nowej odsłonie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes, redesenhados"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parameters, concepids da nov"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки в новом облике"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inställningar, omgjorda"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayarlar, yeniden tasarlandı"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Параметри в новому вигляді"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置全新设计"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定全新設計"
+          }
+        }
+      }
+    },
+    "Eleven panes sorted by task, compact rows with their explanation one click away, and a search over every setting with ⌘F." : {
+      "comment" : "What's New 1.1.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jedenáct panelů seřazených podle úkolů, kompaktní řádky s vysvětlením na jedno kliknutí a vyhledávání ve všech nastaveních pomocí ⌘F."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elf Bereiche nach Aufgabe geordnet, kompakte Zeilen mit ihrer Erklärung einen Klick entfernt und eine Suche über alle Einstellungen mit ⌘F."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Once paneles ordenados por tarea, filas compactas con su explicación a un clic y una búsqueda en todos los ajustes con ⌘F."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onze volets classés par tâche, des lignes compactes dont l’explication est à un clic, et une recherche dans tous les réglages avec ⌘F."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tizenegy, feladat szerint rendezett panel, tömör sorok, amelyek magyarázata egy kattintásnyira van, és keresés az összes beállításban a ⌘F-fel."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sebelas panel diurutkan menurut tugas, baris ringkas dengan penjelasannya hanya satu klik, dan pencarian di semua pengaturan dengan ⌘F."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Undici pannelli ordinati per attività, righe compatte con la spiegazione a un clic di distanza e una ricerca in tutte le impostazioni con ⌘F."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作業ごとに整理された11のペイン、説明がワンクリックで開くコンパクトな行、⌘Fですべての設定を検索できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작업별로 정리된 열한 개의 패널, 한 번의 클릭으로 설명을 볼 수 있는 간결한 행, ⌘F로 모든 설정을 검색하는 기능을 제공합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elf onderdelen gesorteerd op taak, compacte rijen met de uitleg één klik verderop en een zoekfunctie voor alle instellingen met ⌘F."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jedenaście paneli uporządkowanych według zadań, zwarte wiersze z objaśnieniem o jedno kliknięcie dalej i wyszukiwanie we wszystkich ustawieniach przez ⌘F."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onze painéis organizados por tarefa, linhas compactas com a explicação a um clique e uma busca em todos os ajustes com ⌘F."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indesch panels ordinads tenor la lavur, lingias cumpactas cun l’explicaziun ad in clic distanza ed ina tschertga en tut ils parameters cun ⌘F."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Одиннадцать разделов по задачам, компактные строки с пояснением в один клик и поиск по всем настройкам через ⌘F."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elva paneler sorterade efter uppgift, kompakta rader med förklaringen ett klick bort och en sökning över alla inställningar med ⌘F."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Göreve göre sıralanmış on bir bölme, açıklaması bir tık ötede kompakt satırlar ve ⌘F ile tüm ayarlarda arama."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Одинадцять розділів за завданнями, компактні рядки з поясненням за один клік і пошук по всіх параметрах через ⌘F."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "十一个按任务分类的面板、一键即可查看说明的紧凑行，以及用 ⌘F 搜索所有设置。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "十一個依任務分類的面板、一鍵即可查看說明的精簡列，以及用 ⌘F 搜尋所有設定。"
+          }
+        }
+      }
+    },
+    "Layout as a list" : {
+      "comment" : "What's New 1.1.0: title; Layout is the Settings pane name",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uspořádání jako seznam"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anordnung als Liste"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disposición como lista"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disposition en liste"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elrendezés listaként"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tata Letak sebagai daftar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disposizione come elenco"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リスト形式のレイアウト"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "목록으로 보는 레이아웃"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indeling als lijst"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Układ jako lista"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layout como lista"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disposiziun sco glista"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Раскладка в виде списка"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layout som lista"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liste olarak Düzen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Розкладка у вигляді списку"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以列表显示布局"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以列表顯示佈局"
+          }
+        }
+      }
+    },
+    "Layout shows your items as bars or as a list, with a filter and a section menu for each item." : {
+      "comment" : "What's New 1.1.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Uspořádání“ zobrazuje vaše položky jako lišty nebo jako seznam, s filtrem a nabídkou sekce pro každou položku."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Anordnung“ zeigt deine Elemente als Leisten oder als Liste, mit einem Filter und einem Bereichsmenü für jedes Element."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Disposición” muestra tus elementos como barras o como lista, con un filtro y un menú de sección para cada elemento."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Disposition » affiche vos éléments en barres ou en liste, avec un filtre et un menu de section pour chaque élément."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az „Elrendezés” sávként vagy listaként mutatja az elemeket, szűrővel és szakaszmenüvel minden elemhez."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Tata Letak” menampilkan item Anda sebagai bar atau daftar, dengan filter dan menu bagian untuk setiap item."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Disposizione» mostra i tuoi elementi come barre o come elenco, con un filtro e un menu di sezione per ogni elemento."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「レイアウト」では、項目をバーまたはリストで表示でき、フィルタと各項目のセクションメニューが使えます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“레이아웃”은 항목을 막대 또는 목록으로 보여 주며, 필터와 각 항목의 섹션 메뉴를 제공합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Indeling” toont je onderdelen als balken of als lijst, met een filter en een sectiemenu voor elk onderdeel."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Układ” pokazuje Twoje elementy jako paski albo jako listę, z filtrem i menu sekcji dla każdego elementu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Layout” mostra seus itens como barras ou como lista, com um filtro e um menu de seção para cada item."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Disposiziun» mussa voss elements sco travs u sco glista, cun in filter ed in menu da secziun per mintga element."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Раскладка» показывает ваши элементы в виде полос или списка, с фильтром и меню раздела для каждого элемента."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "”Layout” visar dina objekt som staplar eller som lista, med ett filter och en sektionsmeny för varje objekt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Düzen”, öğelerinizi çubuk veya liste olarak gösterir; her öğe için bir filtre ve bölüm menüsü sunar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Розкладка» показує ваші елементи як смуги або як список, з фільтром і меню розділу для кожного елемента."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“布局”可将你的项目显示为栏条或列表，并为每个项目提供筛选和分区菜单。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「佈局」可將你的項目顯示為列條或列表，並為每個項目提供篩選和區域選單。"
+          }
+        }
+      }
+    },
+    "Undo after every change" : {
+      "comment" : "What's New 1.1.0: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zpět po každé změně"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widerrufen nach jeder Änderung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deshacer tras cada cambio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuler après chaque modification"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visszavonás minden módosítás után"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Urungkan setelah setiap perubahan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annulla dopo ogni modifica"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "変更のたびに取り消し"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "변경할 때마다 실행 취소"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ongedaan maken na elke wijziging"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cofnij po każdej zmianie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desfazer após cada alteração"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revocar suenter mintga midada"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмена после каждого изменения"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ångra efter varje ändring"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her değişiklikten sonra Geri Al"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скасування після кожної зміни"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每次更改后都可撤销"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每次更改後都能復原"
+          }
+        }
+      }
+    },
+    "After a change of the layout, in Settings or in the menu bar, a notice offers Undo, and ⌘Z works too." : {
+      "comment" : "What's New 1.1.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po změně uspořádání, v Nastavení nebo v řádku nabídek, nabídne oznámení „Zpět“ a funguje i ⌘Z."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach einer Änderung der Anordnung, in den Einstellungen oder in der Menüleiste, bietet ein Hinweis „Widerrufen“ an, und ⌘Z geht auch."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tras un cambio de la disposición, en Ajustes o en la barra de menús, un aviso ofrece “Deshacer”, y ⌘Z también funciona."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Après une modification de la disposition, dans les Réglages ou dans la barre des menus, un avis propose « Annuler », et ⌘Z fonctionne aussi."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az elrendezés módosítása után, a Beállításokban vagy a menüsorban, egy értesítés felkínálja a „Visszavonás” lehetőséget, és a ⌘Z is működik."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setelah tata letak diubah, di Pengaturan atau di bar menu, sebuah pemberitahuan menawarkan “Urungkan”, dan ⌘Z juga berfungsi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dopo una modifica della disposizione, nelle Impostazioni o nella barra dei menu, un avviso offre «Annulla», e funziona anche ⌘Z."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定またはメニューバーでレイアウトを変更すると、通知に「取り消す」が表示され、⌘Zでも取り消せます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정이나 메뉴 막대에서 레이아웃을 변경하면 알림에 “실행 취소”가 표시되며, ⌘Z도 사용할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na een wijziging van de indeling, in Instellingen of in de menubalk, biedt een melding “Ongedaan maken” aan, en ⌘Z werkt ook."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po zmianie układu, w Ustawieniach lub na pasku menu, komunikat oferuje „Cofnij”, a ⌘Z też działa."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Após uma alteração do layout, nos Ajustes ou na barra de menus, um aviso oferece “Desfazer”, e ⌘Z também funciona."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suenter ina midada da la disposiziun, en ils parameters u en la trav da menus, porscha ina remartga «Revocar», e ⌘Z funcziuna er."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "После изменения раскладки, в настройках или в строке меню, появляется уведомление с кнопкой «Отменить», а ⌘Z тоже работает."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Efter en ändring av layouten, i Inställningar eller i menyraden, erbjuder ett meddelande ”Ångra”, och ⌘Z fungerar också."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Düzen değiştiğinde, Ayarlar’da veya menü çubuğunda, bir bildirim “Geri Al” sunar ve ⌘Z de çalışır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Після зміни розкладки, в параметрах або в рядку меню, з’являється сповіщення із «Скасувати», а ⌘Z теж працює."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在设置或菜单栏中更改布局后，通知会提供“撤销”，⌘Z 同样有效。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在設定或選單列中更改佈局後，通知會提供「復原」，⌘Z 同樣有效。"
+          }
+        }
+      }
+    },
+    "A short introduction" : {
+      "comment" : "What's New 1.1.0: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Krátký úvod"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine kurze Einführung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una breve introducción"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une courte introduction"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rövid bevezető"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pengantar singkat"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una breve introduzione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "短い紹介"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "간단한 소개"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een korte introductie"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Krótkie wprowadzenie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma breve introdução"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina curta introducziun"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Краткое знакомство"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En kort introduktion"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kısa bir tanıtım"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коротке знайомство"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "简短的介绍"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "簡短的介紹"
+          }
+        }
+      }
+    },
+    "The first launch needs only Accessibility and then shows three short steps, which About shows again." : {
+      "comment" : "What's New 1.1.0: detail; Accessibility is the macOS permission, About the Settings pane",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "První spuštění vyžaduje jen Zpřístupnění a poté ukáže tři krátké kroky, které „O aplikaci“ ukáže znovu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der erste Start braucht nur die Bedienungshilfen und zeigt dann drei kurze Schritte, die „Über“ wieder zeigt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El primer arranque solo necesita Accesibilidad y luego muestra tres pasos breves, que “Acerca de” vuelve a mostrar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le premier lancement ne demande que l’Accessibilité, puis affiche trois courtes étapes que « À propos » peut réafficher."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az első indításhoz csak a Kisegítő lehetőségek kell, utána három rövid lépés jelenik meg, amelyet a „Névjegy” újra megmutat."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peluncuran pertama hanya memerlukan Aksesibilitas, lalu menampilkan tiga langkah singkat yang ditampilkan lagi oleh “Tentang”."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il primo avvio richiede solo Accessibilità e poi mostra tre brevi passaggi, che «Informazioni» mostra di nuovo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "初回起動で必要なのは「アクセシビリティ」だけで、続いて3つの短いステップが表示されます。「情報」でもう一度見られます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "첫 실행에는 “손쉬운 사용”만 필요하며, 이어서 짧은 세 단계가 표시됩니다. “정보”에서 다시 볼 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De eerste start vraagt alleen om Toegankelijkheid en toont daarna drie korte stappen, die “Over” opnieuw toont."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pierwsze uruchomienie wymaga tylko Dostępności, a potem pokazuje trzy krótkie kroki, które „Informacje” pokazują ponownie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A primeira abertura precisa só de Acessibilidade e depois mostra três passos curtos, que “Sobre” mostra de novo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’emprim start dovra mo Bedienungshilfen e mussa lura trais curts pass che «Davart» mussa danovamain."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При первом запуске нужен только «Универсальный доступ», затем показываются три коротких шага, которые «О программе» показывает снова."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Första starten behöver bara Hjälpmedel och visar sedan tre korta steg, som ”Om” visar igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İlk açılış yalnızca Erişilebilirlik ister ve ardından üç kısa adım gösterir; “Hakkında” bunları yeniden gösterir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Під час першого запуску потрібен лише «Доступність», а потім показано три короткі кроки, які «Про програму» показує знову."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "首次启动只需要“辅助功能”，然后显示三个简短步骤，可在“关于”中再次查看。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "首次啟動只需要「輔助使用」，然後顯示三個簡短步驟，可在「關於」中再次查看。"
+          }
+        }
+      }
+    },
+    "The menu of an item in Layout starts with Move to Visible, Hidden or Always Hidden." : {
+      "comment" : "What's New 1.1.0: detail; Visible, Hidden, Always Hidden are section names",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nabídka položky v „Uspořádání“ začíná „Přesunout do“ Viditelné, Skryté nebo Vždy skryté."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Menü eines Elements in „Anordnung“ beginnt mit „Bewegen nach“ Sichtbar, Ausgeblendet oder Immer ausgeblendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El menú de un elemento en “Disposición” empieza con “Mover a” Visible, Oculto o Siempre oculto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le menu d’un élément dans « Disposition » commence par « Déplacer vers » Visible, Masqué ou Toujours masqué."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egy elem menüje az „Elrendezés” alatt az „Áthelyezés ide” ponttal kezdődik: Látható, Rejtett vagy Mindig rejtett."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menu item di “Tata Letak” dimulai dengan “Pindahkan ke” Terlihat, Tersembunyi, atau Selalu tersembunyi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il menu di un elemento in «Disposizione» inizia con «Sposta in» Visibile, Nascosto o Sempre nascosto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「レイアウト」の項目のメニューは、「移動先」の表示、非表示、常に非表示から始まります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“레이아웃”에서 항목의 메뉴는 “이동”으로 시작하며 표시, 숨김, 항상 숨김 중에서 고를 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het menu van een onderdeel in “Indeling” begint met “Verplaats naar” Zichtbaar, Verborgen of Altijd verborgen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menu elementu w „Układzie” zaczyna się od „Przenieś do”: Widoczne, Ukryte lub Zawsze ukryte."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O menu de um item em “Layout” começa com “Mover para” Visível, Oculto ou Sempre oculto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il menu d’in element en «Disposiziun» cumenza cun «Spustar en» Visibel, Zuppà u Adina zuppà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Меню элемента в «Раскладке» начинается с «Переместить в»: Видимо, Скрыто или Всегда скрыто."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menyn för ett objekt i ”Layout” börjar med ”Flytta till” Synlig, Dold eller Alltid dold."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Düzen”deki bir öğenin menüsü “Taşı” ile başlar: Görünür, Gizli veya Her zaman gizli."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Меню елемента в «Розкладці» починається з «Перемістити в»: Видимі, Приховано або Завжди приховано."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“布局”中项目的菜单以“移到”可见、隐藏或始终隐藏开头。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「佈局」中項目的選單以「移到」可見、已隱藏或一律隱藏開頭。"
+          }
+        }
+      }
+    },
+    "More in holzBar's menu" : {
+      "comment" : "What's New 1.1.0: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Více v nabídce holzBar"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mehr im Menü von holzBar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más en el menú de holzBar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plus dans le menu de holzBar"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Több a holzBar menüjében"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lebih banyak di menu holzBar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di più nel menu di holzBar"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBarのメニューを充実"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 메뉴에 더 많은 기능"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meer in het menu van holzBar"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Więcej w menu holzBar"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mais no menu do holzBar"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dapli en il menu da holzBar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Больше в меню holzBar"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mer i menyn för holzBar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar menüsünde daha fazlası"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Більше в меню holzBar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 菜单中的更多功能"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 選單中的更多功能"
+          }
+        }
+      }
+    },
+    "holzBar's menu has Arrange Menu Bar… and Profiles, which applies a profile in one click." : {
+      "comment" : "What's New 1.1.0: detail; use the catalog's translations of the menu entries 'Arrange Menu Bar…' and 'Profiles'",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nabídka holzBar obsahuje „Uspořádat řádek nabídek…“ a „Profily“, které použijí profil jedním kliknutím."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Menü von holzBar hat „Menüleiste anordnen …“ und „Profile“, das ein Profil mit einem Klick anwendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El menú de holzBar tiene “Organizar la barra de menús…” y “Perfiles”, que aplica un perfil con un clic."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le menu de holzBar contient « Organiser la barre des menus… » et « Profils », qui applique un profil en un clic."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar menüje tartalmazza a „Menüsor elrendezése…” és a „Profilok” pontot, amely egy kattintással alkalmaz egy profilt."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menu holzBar memiliki “Atur Bar Menu…” dan “Profil”, yang menerapkan profil dengan satu klik."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il menu di holzBar contiene «Disponi barra dei menu…» e «Profili», che applica un profilo con un clic."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBarのメニューに「メニューバーを整理…」と「プロファイル」が加わり、ワンクリックでプロファイルを適用できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 메뉴에 “메뉴 막대 정리…”와 “프로파일”이 있으며, 프로파일을 한 번의 클릭으로 적용합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het menu van holzBar heeft “Menubalk ordenen…” en “Profielen”, waarmee je een profiel met één klik toepast."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menu holzBar zawiera „Uporządkuj pasek menu…” i „Profile”, które stosują profil jednym kliknięciem."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O menu do holzBar tem “Organizar a barra de menus…” e “Perfis”, que aplica um perfil com um clique."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il menu da holzBar cuntegna «Ordinar la trav da menus…» e «Profils» che applitgescha in profil cun in clic."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В меню holzBar есть «Упорядочить строку меню…» и «Профили», которые применяют профиль в один клик."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menyn för holzBar har ”Ordna menyraden…” och ”Profiler”, som tillämpar en profil med ett klick."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar menüsünde “Menü Çubuğunu Düzenle…” ve bir profili tek tıkla uygulayan “Profiller” bulunur."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Меню holzBar містить «Упорядкувати рядок меню…» і «Профілі», які застосовують профіль одним кліком."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 的菜单中新增“整理菜单栏…”和“配置文件”，可一键应用配置文件。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 的選單中新增「整理選單列⋯」和「設定檔」，可一鍵套用設定檔。"
+          }
+        }
+      }
+    },
+    "Whole apps on macOS 27" : {
+      "comment" : "What's New 1.1.0: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Celé aplikace v macOS 27"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ganze Apps unter macOS 27"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps enteras en macOS 27"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Des apps entières sous macOS 27"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egész alkalmazások macOS 27 alatt"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seluruh app di macOS 27"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App intere su macOS 27"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27でアプリ全体を扱う"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 앱 전체 처리"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hele apps op macOS 27"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Całe aplikacje w macOS 27"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps inteiros no macOS 27"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps entiras sin macOS 27"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приложения целиком в macOS 27"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hela appar i macOS 27"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de tüm uygulamalar"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Програми повністю в macOS 27"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 上的整个 App"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 上的整個 App"
+          }
+        }
+      }
+    },
+    "On macOS 27, Layout highlights the items of one app together and says that macOS hides whole apps." : {
+      "comment" : "What's New 1.1.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 „Uspořádání“ zvýrazní položky jedné aplikace společně a řekne, že macOS skrývá celé aplikace."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 hebt „Anordnung“ die Elemente einer App gemeinsam hervor und sagt, dass macOS ganze Apps ausblendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, “Disposición” resalta juntos los elementos de una app y dice que macOS oculta apps enteras."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, « Disposition » met en évidence ensemble les éléments d’une même app et indique que macOS masque des apps entières."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt az „Elrendezés” együtt emeli ki egy alkalmazás elemeit, és jelzi, hogy a macOS egész alkalmazásokat rejt el."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, “Tata Letak” menyorot item dari satu app bersama-sama dan menyatakan bahwa macOS menyembunyikan seluruh app."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, «Disposizione» evidenzia insieme gli elementi di una stessa app e indica che macOS nasconde app intere."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27では、「レイアウト」が同じアプリの項目をまとめて強調表示し、macOSがアプリ全体を非表示にすることを伝えます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 “레이아웃”은 한 앱의 항목을 함께 강조하고 macOS가 앱 전체를 숨긴다고 알려 줍니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 markeert “Indeling” de onderdelen van één app samen en meldt dat macOS hele apps verbergt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 „Układ” podświetla razem elementy jednej aplikacji i informuje, że macOS ukrywa całe aplikacje."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, “Layout” destaca juntos os itens de um app e informa que o macOS oculta apps inteiros."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 mussa «Disposiziun» ils elements d’ina app ensemen e di che macOS zuppa apps entiras."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 «Раскладка» выделяет вместе элементы одного приложения и сообщает, что macOS скрывает приложения целиком."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I macOS 27 markerar ”Layout” objekten för en app tillsammans och säger att macOS döljer hela appar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de “Düzen”, bir uygulamanın öğelerini birlikte vurgular ve macOS’un tüm uygulamaları gizlediğini söyler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 «Розкладка» виділяє разом елементи однієї програми й повідомляє, що macOS приховує програми повністю."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，“布局”会一并突出显示同一个 App 的项目，并说明 macOS 会隐藏整个 App。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，「佈局」會一併突出顯示同一個 App 的項目，並說明 macOS 會隱藏整個 App。"
+          }
+        }
+      }
+    },
+    "Deleting can be undone" : {
+      "comment" : "What's New 1.1.0: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smazání lze vrátit zpět"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löschen lässt sich widerrufen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar se puede deshacer"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La suppression peut être annulée"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A törlés visszavonható"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Penghapusan dapat diurungkan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’eliminazione si può annullare"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除を取り消せる"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "삭제를 되돌릴 수 있음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijderen kan ongedaan worden gemaakt"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuwanie można cofnąć"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluir pode ser desfeito"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stizzar po vegnir revocà"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удаление можно отменить"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borttagning kan ångras"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Silme geri alınabilir"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалення можна скасувати"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除可以撤销"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除可以復原"
+          }
+        }
+      }
+    },
+    "A deleted condition, group, snapshot, mood or profile hook comes back with Undo." : {
+      "comment" : "What's New 1.1.0: detail; use the catalog's words for condition, group, snapshot, mood, profile hook",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smazanou podmínku, skupinu, snímek, náladu nebo hák profilu vrátí „Zpět“."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine gelöschte Bedingung, Gruppe, Momentaufnahme, Stimmung oder ein Profil-Hook kommt mit „Widerrufen“ zurück."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una condición, grupo, instantánea, ambiente o hook de perfil eliminado vuelve con “Deshacer”."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une condition, un groupe, un instantané, une ambiance ou un hook de profil supprimé revient avec « Annuler »."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A törölt feltétel, csoport, pillanatkép, hangulat vagy profilhorog a „Visszavonás” gombbal visszatér."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kondisi, grup, snapshot, suasana, atau hook profil yang dihapus kembali dengan “Urungkan”."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una condizione, un gruppo, un’istantanea, un’atmosfera o un hook del profilo eliminati tornano con «Annulla»."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除した条件、グループ、スナップショット、ムード、プロファイルフックは、「取り消す」で元に戻ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "삭제한 조건, 그룹, 스냅샷, 분위기 또는 프로파일 훅은 “실행 취소”로 복원됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een verwijderde voorwaarde, groep, momentopname, stemming of profielhook komt terug met “Ongedaan maken”."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunięty warunek, grupa, migawka, nastrój lub hak profilu wraca po „Cofnij”."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma condição, grupo, instantâneo, clima ou hook de perfil excluído volta com “Desfazer”."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina cundiziun, ina gruppa, in snapshot, ina atmosfera u in hook da profil stizzà turna cun «Revocar»."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалённое условие, группа, снимок, настроение или хук профиля возвращается через «Отменить»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ett borttaget villkor, en grupp, ögonblicksbild, stämning eller profilhook kommer tillbaka med ”Ångra”."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Silinen bir koşul, grup, anlık görüntü, ruh hali veya profil kancası “Geri Al” ile geri gelir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалену умову, групу, знімок, настрій або хук профілю повертає «Скасувати»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除的条件、分组、快照、氛围或配置文件钩子可通过“撤销”恢复。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除的條件、群組、快照、心情或設定檔掛鉤可透過「復原」還原。"
+          }
+        }
+      }
+    },
+    "The question to tidy up the menu bar no longer interrupts after the first launch; the suggestion waits in Layout." : {
+      "comment" : "What's New 1.1.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otázka na uklizení řádku nabídek už po prvním spuštění nepřerušuje; návrh čeká v „Uspořádání“."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Frage zum Aufräumen der Menüleiste unterbricht nach dem ersten Start nicht mehr; der Vorschlag wartet in „Anordnung“."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La pregunta para ordenar la barra de menús ya no interrumpe tras el primer arranque; la sugerencia espera en “Disposición”."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La question pour ranger la barre des menus n’interrompt plus après le premier lancement ; la suggestion attend dans « Disposition »."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A menüsor rendbetételére vonatkozó kérdés az első indítás után már nem szakít félbe; a javaslat az „Elrendezésben” vár."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pertanyaan untuk merapikan bar menu tidak lagi mengganggu setelah peluncuran pertama; sarannya menunggu di “Tata Letak”."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La domanda per riordinare la barra dei menu non interrompe più dopo il primo avvio; il suggerimento aspetta in «Disposizione»."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メニューバーを整理するかどうかの質問が、初回起動後に割り込まなくなりました。提案は「レイアウト」で待機します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대를 정리할지 묻는 질문이 첫 실행 후에는 더 이상 끼어들지 않으며, 제안은 “레이아웃”에서 기다립니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De vraag om de menubalk op te ruimen onderbreekt na de eerste start niet meer; de suggestie wacht in “Indeling”."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pytanie o uporządkowanie paska menu nie przerywa już po pierwszym uruchomieniu; propozycja czeka w „Układzie”."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A pergunta para organizar a barra de menus não interrompe mais após a primeira abertura; a sugestão espera em “Layout”."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La dumonda da rumir si la trav da menus n’interrumpa betg pli suenter l’emprim start; la proposta spetga en «Disposiziun»."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вопрос об уборке в строке меню больше не прерывает работу после первого запуска; предложение ждёт в «Раскладке»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frågan om att städa upp menyraden avbryter inte längre efter första starten; förslaget väntar i ”Layout”."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menü çubuğunu toplama sorusu ilk açılıştan sonra artık sizi bölmez; öneri “Düzen”de bekler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запитання про впорядкування рядка меню більше не перериває після першого запуску; пропозиція чекає в «Розкладці»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "整理菜单栏的提问在首次启动后不再打断你；建议会留在“布局”中等候。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "整理選單列的提問在首次啟動後不再打斷你；建議會留在「佈局」中等候。"
+          }
+        }
+      }
+    },
+    "Loading the menu bar items no longer spins without end, and empty lists say what to do." : {
+      "comment" : "What's New 1.1.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Načítání položek řádku nabídek se už netočí donekonečna a prázdné seznamy říkají, co dělat."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Laden der Menüleistenelemente dreht sich nicht mehr endlos, und leere Listen sagen, was zu tun ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carga de los elementos de la barra de menús ya no gira sin fin, y las listas vacías dicen qué hacer."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le chargement des éléments de la barre des menus ne tourne plus sans fin, et les listes vides disent quoi faire."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A menüsor-elemek betöltése már nem pörög végtelenül, és az üres listák megmondják, mit kell tenni."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pemuatan item bar menu tidak lagi berputar tanpa akhir, dan daftar kosong menyebutkan apa yang harus dilakukan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il caricamento degli elementi della barra dei menu non gira più all’infinito, e gli elenchi vuoti dicono cosa fare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メニューバー項目の読み込みが延々と回り続けることがなくなり、空のリストにはすべきことが表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대 항목을 불러올 때 더 이상 끝없이 돌지 않으며, 빈 목록은 해야 할 일을 알려 줍니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het laden van de menubalkonderdelen draait niet meer eindeloos, en lege lijsten zeggen wat je moet doen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wczytywanie elementów paska menu nie kręci się już bez końca, a puste listy mówią, co zrobić."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O carregamento dos itens da barra de menus não gira mais sem parar, e listas vazias dizem o que fazer."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il chargiar ils elements da la trav da menus na sa rudlescha betg pli senza fin, ed las glistas vidas dian tge far."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загрузка элементов строки меню больше не крутится бесконечно, а пустые списки подсказывают, что делать."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inläsningen av menyradsobjekten snurrar inte längre utan slut, och tomma listor säger vad du ska göra."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menü çubuğu öğelerini yükleme artık sonsuza dek dönmez ve boş listeler ne yapılacağını söyler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завантаження елементів рядка меню більше не крутиться без кінця, а порожні списки підказують, що робити."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "菜单栏项目的载入不再无休止地转圈，空列表会说明该怎么做。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選單列項目的載入不再無止境地轉圈，空列表會說明該怎麼做。"
+          }
+        }
+      }
+    },
+    "The first launch no longer lists Calendar and Bluetooth; their modules ask when you switch them on." : {
+      "comment" : "What's New 1.1.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "První spuštění už nevypisuje Kalendář a Bluetooth; jejich moduly se zeptají, když je zapnete."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der erste Start listet Kalender und Bluetooth nicht mehr auf; ihre Module fragen, wenn du sie einschaltest."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El primer arranque ya no lista Calendario y Bluetooth; sus módulos preguntan cuando los activas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le premier lancement ne liste plus Calendrier et Bluetooth ; leurs modules demandent quand vous les activez."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az első indítás már nem listázza a Naptárt és a Bluetooth-t; a moduljaik bekapcsoláskor kérdeznek."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peluncuran pertama tidak lagi mencantumkan Kalender dan Bluetooth; modulnya bertanya saat Anda mengaktifkannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il primo avvio non elenca più Calendario e Bluetooth; i loro moduli chiedono quando li attivi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "初回起動で「カレンダー」とBluetoothが一覧に出なくなりました。モジュールをオンにしたときに許可を求めます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "첫 실행에서 더 이상 캘린더와 Bluetooth를 나열하지 않으며, 해당 모듈은 켤 때 허용을 요청합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De eerste start toont Agenda en Bluetooth niet meer; hun modules vragen het wanneer je ze inschakelt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pierwsze uruchomienie nie wypisuje już Kalendarza i Bluetooth; ich moduły pytają, gdy je włączysz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A primeira abertura não lista mais Calendário e Bluetooth; os módulos deles perguntam quando você os ativa."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’emprim start na glista betg pli Chalender e Bluetooth; lur moduls dumondan cura che vus als activais."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При первом запуске больше не перечисляются Календарь и Bluetooth; их модули спрашивают, когда вы их включаете."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Första starten listar inte längre Kalender och Bluetooth; deras moduler frågar när du slår på dem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İlk açılış artık Takvim ve Bluetooth’u listelemez; modülleri açtığınızda izin ister."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Під час першого запуску більше не перелічено Календар і Bluetooth; їхні модулі запитують, коли ви їх вмикаєте."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "首次启动不再列出日历和 Bluetooth；它们的模块会在你打开时再询问。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "首次啟動不再列出行事曆和 Bluetooth；它們的模組會在你開啟時再詢問。"
+          }
+        }
+      }
+    },
+    "Turning off usage suggestions asks before it deletes the stored usage." : {
+      "comment" : "What's New 1.1.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vypnutí návrhů podle používání se před smazáním uloženého používání zeptá."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Ausschalten der Nutzungsvorschläge fragt, bevor es die gespeicherte Nutzung löscht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al desactivar las sugerencias de uso se pregunta antes de eliminar el uso guardado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactiver les suggestions d’utilisation demande confirmation avant de supprimer l’utilisation enregistrée."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A használati javaslatok kikapcsolása rákérdez, mielőtt törölné a tárolt használatot."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mematikan saran penggunaan bertanya dulu sebelum menghapus data penggunaan yang tersimpan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattivando i suggerimenti d’uso viene chiesta conferma prima di eliminare l’uso memorizzato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用状況の提案をオフにすると、保存済みの使用状況を削除する前に確認します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용 제안을 끄면 저장된 사용 기록을 삭제하기 전에 먼저 묻습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het uitschakelen van gebruikssuggesties vraagt eerst, voordat het het opgeslagen gebruik verwijdert."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyłączenie sugestii użycia pyta, zanim usunie zapisane dane użycia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desativar as sugestões de uso pergunta antes de excluir o uso armazenado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deactivar las propostas d’utilisaziun dumonda avant che stizzar l’utilisaziun memorisada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При отключении подсказок по использованию приложение спрашивает, прежде чем удалить сохранённые данные об использовании."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "När du stänger av användningsförslag frågar appen innan den tar bort den sparade användningen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kullanım önerilerini kapatmak, saklanan kullanımı silmeden önce sorar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вимкнення підказок за використанням запитує, перш ніж видалити збережене використання."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭使用情况建议时，会先询问再删除已存储的使用情况。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關閉使用情況建議時，會先詢問再刪除已儲存的使用情況。"
+          }
+        }
+      }
+    },
+    "The offer to use Screen Recording appears in holzBar's own look." : {
+      "comment" : "What's New 1.1.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nabídka použít Záznam obrazovky se zobrazuje ve vlastním vzhledu holzBar."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Angebot, die Bildschirmaufnahme zu nutzen, erscheint im eigenen Aussehen von holzBar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La oferta de usar Grabación de pantalla aparece con el aspecto propio de holzBar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La proposition d’utiliser l’Enregistrement de l’écran s’affiche dans l’apparence propre à holzBar."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Képernyőfelvétel használatára szóló felkínálás a holzBar saját megjelenésében jelenik meg."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tawaran untuk menggunakan Perekaman Layar muncul dengan tampilan khas holzBar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La proposta di usare Registrazione schermo appare nell’aspetto proprio di holzBar."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「画面収録」を使う案内が、holzBar独自のデザインで表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“화면 기록”을 사용하라는 제안이 holzBar 고유의 모양으로 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het aanbod om Schermopname te gebruiken verschijnt in de eigen stijl van holzBar."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Propozycja użycia Nagrywania ekranu pojawia się we własnym wyglądzie holzBar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A oferta de usar Gravação de Tela aparece no visual próprio do holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’offerta d’utilisar Bildschirmaufnahme cumpara en l’aspect agen da holzBar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предложение использовать «Запись экрана» появляется в собственном оформлении holzBar."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erbjudandet att använda Skärminspelning visas i holzBars eget utseende."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran Kaydı’nı kullanma teklifi holzBar’ın kendi görünümüyle gösterilir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропозиція використати «Запис екрана» з’являється у власному вигляді holzBar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用“屏幕录制”的提示会以 holzBar 自己的外观显示。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用「螢幕錄影」的提示會以 holzBar 自己的外觀顯示。"
+          }
+        }
+      }
+    },
+    "holzBar uses one word for each thing: Always Hidden, apps, and Delete for what you made." : {
+      "comment" : "What's New 1.1.0: fix; Always Hidden and Delete as the catalog translates them",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar používá pro každou věc jedno slovo: Vždy skryté, aplikace a Smazat pro to, co jste vytvořili."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar nutzt ein Wort für jede Sache: Immer ausgeblendet, Apps und Löschen für das, was du gemacht hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar usa una palabra para cada cosa: Siempre oculto, apps y Eliminar para lo que has creado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar emploie un mot pour chaque chose : Toujours masqué, apps et Supprimer pour ce que vous avez créé."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar minden dologra egy szót használ: Mindig rejtett, alkalmazások és Törlés arra, amit Ön készített."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar memakai satu kata untuk setiap hal: Selalu tersembunyi, app, dan Hapus untuk yang Anda buat."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar usa una sola parola per ogni cosa: Sempre nascosto, app ed Elimina per ciò che hai creato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBarは各項目に1つの言葉を使います。「常に非表示」「アプリ」、作成したものの「削除」。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar는 각 대상에 하나의 단어를 사용합니다. 항상 숨김, 앱, 그리고 직접 만든 것에 대한 삭제입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar gebruikt één woord voor elk ding: Altijd verborgen, apps en Verwijder voor wat je hebt gemaakt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar używa jednego słowa na każdą rzecz: Zawsze ukryte, aplikacje i Usuń dla tego, co stworzono."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar usa uma palavra para cada coisa: Sempre oculto, apps e Excluir para o que você criou."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar duvra ina pawla per mintga chaussa: Adina zuppà, apps e Stizzar per quai che vus avais creà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar использует одно слово для каждой вещи: Всегда скрыто, приложения и Удалить для созданного вами."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar använder ett ord för varje sak: Alltid dold, appar och Ta bort för det du har skapat."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar her şey için tek bir sözcük kullanır: Her zaman gizli, uygulamalar ve oluşturduğunuz şeyler için Sil."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar використовує одне слово для кожної речі: Завжди приховано, програми та Видалити для створеного вами."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 对每件事物只用一个词：始终隐藏、App，以及用于你所创建内容的删除。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 對每件事物只用一個詞：一律隱藏、App，以及用於你所建立內容的刪除。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
