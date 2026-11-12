@@ -35,6 +35,7 @@ struct AutomationSettingsPane: View {
         SettingsPaneHost(.automation) {
             rulesGroup
             ScriptsSection(store: manager.scriptStore, manager: manager)
+            ProfileHooksSection(store: manager.scriptStore)
         }
         .holzBarConfirmation(
             isPresented: isConfirmingDeletion,
