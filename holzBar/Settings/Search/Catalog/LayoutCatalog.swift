@@ -19,6 +19,8 @@ extension SettingsCatalog {
 
         static let entries: [SettingsEntry] = {
             var entries: [SettingsEntry] = [
+                .layoutView,
+                .layoutFilter,
                 .layoutTidyUp,
                 .layoutUndo,
                 .layoutAlwaysHidden,
@@ -49,6 +51,22 @@ extension SettingsEntry {
         group: SettingsCatalog.LayoutPane.pane,
         label: String(localized: "Tidy Up"),
         info: String(localized: "Let holzBar propose which items to hide, from what it knows of the apps. You decide, and you can undo it.")
+    )
+
+    static let layoutView = SettingsEntry(
+        id: "layoutView",
+        pane: .layout,
+        group: SettingsCatalog.LayoutPane.pane,
+        label: String(localized: "Bars or list"),
+        info: String(localized: "Bars show the sections as the menu bar does. List shows every item with its app and a pop-up for its section, which also works with the keyboard and VoiceOver.")
+    )
+
+    static let layoutFilter = SettingsEntry(
+        id: "layoutFilter",
+        pane: .layout,
+        group: SettingsCatalog.LayoutPane.pane,
+        label: String(localized: "Filter items"),
+        info: String(localized: "Shows only the items whose name or app contains the text. In the bars, the others are dimmed.")
     )
 
     static let layoutUndo = SettingsEntry(

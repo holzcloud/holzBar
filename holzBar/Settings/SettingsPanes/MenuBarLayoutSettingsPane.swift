@@ -66,17 +66,19 @@ struct MenuBarLayoutSettingsPane: View {
                 Text("Bars").tag(LayoutPaneView.bars)
                 Text("List").tag(LayoutPaneView.list)
             } label: {
-                Text("Bars or list")
+                Text(SettingsEntry.layoutView.label)
             }
             .pickerStyle(.segmented)
             .labelsHidden()
             .fixedSize()
+            .id(SettingsEntry.layoutView.id)
             SettingsFilterField(
                 text: Bindable(appState.navigationState).layoutFilter,
                 prompt: Text("Filter"),
-                label: Text("Filter items")
+                label: Text(SettingsEntry.layoutFilter.label)
             )
             .fixedSize()
+            .id(SettingsEntry.layoutFilter.id)
             Spacer(minLength: 0)
             Button("Tidy Up…", systemImage: "wand.and.stars") {
                 appState.navigationState.isTidyUpPresented = true
@@ -187,12 +189,17 @@ struct MenuBarLayoutSettingsPane: View {
     }
 
     private var barsFootnote: Text {
+        let keys = Text("With the keyboard, ⌥ Option and an arrow key move the selected item, and ⌘1, ⌘2 and ⌘3 put it in a section.")
         if #available(macOS 27.0, *) {
-            Text("Drag an item into its section.")
+            return Text("Drag an item into its section.")
+                + Text(verbatim: " ")
+                + keys
         } else {
-            Text("Drag an item into its section.")
+            return Text("Drag an item into its section.")
                 + Text(verbatim: " ")
                 + Text("You can also ⌘ Command-drag an item in the menu bar: to the left of the holzBar icon, it is hidden.")
+                + Text(verbatim: " ")
+                + keys
         }
     }
 
