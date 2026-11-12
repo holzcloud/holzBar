@@ -72,7 +72,7 @@ enum CommandPaletteCommands {
         case .action(let action):
             action.perform(appState: appState)
         case .applyProfile(let name):
-            appState.profiles.apply(named: name)
+            appState.profiles.apply(named: name, undoPlace: .menuBar)
         case .applyMood(let name):
             appState.appearanceManager.applyMood(named: name)
         case .setRule(let id, let isEnabled):

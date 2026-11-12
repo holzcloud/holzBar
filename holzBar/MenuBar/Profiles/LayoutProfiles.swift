@@ -257,12 +257,15 @@ final class LayoutProfiles {
     ///   - runsHooks: Whether the profile's script hooks run and the apply counts as a
     ///     profile-change event for script conditions. A change from a URL command, a Shortcut or
     ///     the Focus filter passes `false` (D-12, T-11-M5).
-    func apply(named name: String, runsHooks: Bool = true) {
+    ///   - undoPlace: Where the undo toast shows, for an apply by the user (Settings, the
+    ///     profile's hotkey, the command palette, the icon menu); `nil` records nothing, as for
+    ///     rules, the Focus filter, bindings, URL commands and Shortcuts.
+    func apply(named name: String, runsHooks: Bool = true, undoPlace: LayoutUndo.Place? = nil) {
         guard let profile = self.profile(named: name) else {
             logger.warning("No layout profile named \(name, privacy: .private)")
             return
         }
-        apply(profile, runsHooks: runsHooks)
+        apply(profile, runsHooks: runsHooks, undoPlace: undoPlace)
     }
 
     /// A Focus filter turned on with a profile, or off (`nil`): applies the profile, and
@@ -285,14 +288,14 @@ final class LayoutProfiles {
     /// start once the items moved and are not awaited. A newer apply cancels one that still
     /// waits (D-13). Without hooks the profile is applied at once. The profile's name is never
     /// given to a script (D-06).
-    func apply(_ profile: LayoutProfile, runsHooks: Bool = true) {
+    func apply(_ profile: LayoutProfile, runsHooks: Bool = true, undoPlace: LayoutUndo.Place? = nil) {
         guard let appState else {
             return
         }
         pendingApply?.cancel()
         pendingApply = nil
         guard runsHooks else {
-            applyNow(profile, with: appState)
+            applyNow(profile, with: appState, undoPlace: undoPlace)
             return
         }
         let automation = appState.automation
@@ -302,7 +305,7 @@ final class LayoutProfiles {
             in: automation.scriptStore.profileHooks
         )
         guard !before.isEmpty else {
-            applyAndRunAfterHooks(profile, with: appState)
+            applyAndRunAfterHooks(profile, with: appState, undoPlace: undoPlace)
             return
         }
         logger.notice("Waiting for \(before.count, privacy: .public) script hooks before applying a profile")
@@ -321,14 +324,14 @@ final class LayoutProfiles {
                 logger.notice("The layout profile is gone; it is not applied")
                 return
             }
-            applyAndRunAfterHooks(current, with: appState)
+            applyAndRunAfterHooks(current, with: appState, undoPlace: undoPlace)
         }
     }
 
     /// Applies the profile, then starts its after hooks once the items moved, and tells the
     /// automation that a profile changed.
-    private func applyAndRunAfterHooks(_ profile: LayoutProfile, with appState: AppState) {
-        let moved = applyNow(profile, with: appState)
+    private func applyAndRunAfterHooks(_ profile: LayoutProfile, with appState: AppState, undoPlace: LayoutUndo.Place?) {
+        let moved = applyNow(profile, with: appState, undoPlace: undoPlace)
         let automation = appState.automation
         let after = ProfileHooks.scriptNames(
             for: profile.name,
@@ -344,15 +347,73 @@ final class LayoutProfiles {
         automation.profileDidChange()
     }
 
-    /// Makes the profile the current one and moves the items.
+    /// Makes the profile the current one and moves the items; with an undo place it records
+    /// the arrangement and the profile of before, so Undo brings both back (D-14, D-15).
     @discardableResult
-    private func applyNow(_ profile: LayoutProfile, with appState: AppState) -> Task<Void, Never>? {
+    private func applyNow(_ profile: LayoutProfile, with appState: AppState, undoPlace: LayoutUndo.Place? = nil) -> Task<Void, Never>? {
+        let undo = appState.layoutUndo
+        let before = undoPlace.map { _ in undo.beforeSnapshot() }
+        let previousName = currentProfileName
         currentProfileName = profile.name
         save()
         logger.notice("Applying layout profile \(profile.name, privacy: .private)")
         appState.snapshots.willApplyProfile()
         // Item rules win: the items a rule controls stay where their rule puts them.
-        return applyLayout(of: appState.automation.removingControlledItems(from: profile))
+        let moved = applyLayout(of: appState.automation.removingControlledItems(from: profile))
+        if let undoPlace, let before {
+            undo.record(profileChange(profile, before: before, previousName: previousName, appState: appState), place: undoPlace)
+        }
+        return moved
+    }
+
+    /// The undo of applying a profile: the profile and the sections of before come back; its
+    /// inverse applies the profile again, without hooks and without recording.
+    private func profileChange(
+        _ profile: LayoutProfile,
+        before: LayoutSnapshot,
+        previousName: String?,
+        appState: AppState
+    ) -> LayoutUndo.Change {
+        LayoutUndo.Change(
+            sentence: String(localized: "Profile \u{201C}\(profile.name)\u{201D} applied"),
+            actionName: String(localized: "Apply Profile"),
+            inverse: { [weak self] in
+                // The redo: applies the profile again; its own undo is built when it runs,
+                // from the arrangement and the profile of that moment.
+                LayoutUndo.Change(
+                    sentence: String(localized: "Profile \u{201C}\(profile.name)\u{201D} applied"),
+                    actionName: String(localized: "Apply Profile"),
+                    inverse: { [weak self] in
+                        guard let self else {
+                            return nil
+                        }
+                        return profileChange(
+                            profile,
+                            before: appState.layoutUndo.beforeSnapshot(),
+                            previousName: currentProfileName,
+                            appState: appState
+                        )
+                    },
+                    perform: { [weak self] in
+                        guard let self else {
+                            return true
+                        }
+                        await applyNow(profile, with: appState)?.value
+                        return true
+                    }
+                )
+            },
+            perform: { [weak self] in
+                self?.restoreCurrentProfileName(previousName)
+                return await appState.layoutUndo.restoreArrangement(before)
+            }
+        )
+    }
+
+    /// Makes the given profile the current one again, without moving anything.
+    private func restoreCurrentProfileName(_ name: String?) {
+        currentProfileName = name
+        save()
     }
 
     /// Moves the items to the sections the layout names, without changing which profile is

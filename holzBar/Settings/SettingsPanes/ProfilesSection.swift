@@ -213,7 +213,7 @@ private struct ProfileRows: View {
     var body: some View {
         SettingsButtonRow(Text(verbatim: profile.name), small: isCurrent ? Text("Applied") : nil) {
             Button("Apply") {
-                profiles.apply(profile)
+                profiles.apply(profile, undoPlace: .settings)
             }
         }
         .sheet(isPresented: $isSharing) {
