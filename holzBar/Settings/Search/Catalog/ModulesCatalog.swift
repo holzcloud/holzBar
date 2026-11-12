@@ -59,12 +59,20 @@ extension SettingsCatalog {
             .modulesNotchHubOpensOnHover,
             .modulesNotchHubDisplays,
             // Settings of the hub modules, in catalog order.
+            .modulesTimersFinishSound,
+            .modulesCalendarShowsAllDay,
+            .modulesCalendarCalendars,
+            .modulesLiveActivitiesCapture,
+            .modulesLiveActivitiesDownloads,
+            .modulesFileDropOpensOnDrag,
+            .modulesFileDropRemovesAfterDrop,
             .modulesDisplayControlsBrightness,
             .modulesAccessoryAlertsConnect,
             .modulesAccessoryAlertsDisconnect,
             .modulesAccessoryAlertsReadsBattery,
             .modulesAccessoryAlertsLowBattery,
             .modulesAccessoryAlertsLowBatteryLevel,
+            .modulesNotificationsExcludedApps,
             .modulesNowPlayingAppleMusic,
             .modulesNowPlayingSpotify,
             .modulesNowPlayingReadsAllApps,
@@ -172,6 +180,68 @@ extension SettingsEntry {
 
     // MARK: Settings of the hub modules
 
+    static let modulesTimersFinishSound = SettingsEntry(
+        id: "modulesTimersFinishSound",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Finish sound"),
+        info: String(localized: "Applies to the timers in the hub. The Timer widget in the menu bar always plays Glass."),
+        module: "timers"
+    )
+
+    static let modulesCalendarShowsAllDay = SettingsEntry(
+        id: "modulesCalendarShowsAllDay",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Show all-day events"),
+        module: "calendar"
+    )
+
+    static let modulesCalendarCalendars = SettingsEntry(
+        id: "modulesCalendarCalendars",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Calendars"),
+        info: String(localized: "A calendar you switch off is hidden only in the hub."),
+        module: "calendar"
+    )
+
+    static let modulesLiveActivitiesCapture = SettingsEntry(
+        id: "modulesLiveActivitiesCapture",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Camera and microphone in use"),
+        info: String(localized: "A capsule shows while another app uses the camera or the microphone. holzBar reads no audio or video."),
+        module: "live-activities"
+    )
+
+    static let modulesLiveActivitiesDownloads = SettingsEntry(
+        id: "modulesLiveActivitiesDownloads",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Downloads"),
+        info: String(localized: "Asks for access to your Downloads folder when you switch it on. holzBar never reads what you download."),
+        module: "live-activities"
+    )
+
+    static let modulesFileDropOpensOnDrag = SettingsEntry(
+        id: "modulesFileDropOpensOnDrag",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Open when you drag a file to the notch"),
+        info: String(localized: "The pointer has to rest at the notch while you drag."),
+        module: "file-drop"
+    )
+
+    static let modulesFileDropRemovesAfterDrop = SettingsEntry(
+        id: "modulesFileDropRemovesAfterDrop",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Remove a file from the stash after you dropped it"),
+        info: String(localized: "When off, a file stays in the stash until you remove it."),
+        module: "file-drop"
+    )
+
     static let modulesDisplayControlsBrightness = SettingsEntry(
         id: "modulesDisplayControlsBrightness",
         pane: .modules,
@@ -222,6 +292,15 @@ extension SettingsEntry {
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Low battery level"),
         module: "accessory-alerts"
+    )
+
+    static let modulesNotificationsExcludedApps = SettingsEntry(
+        id: "modulesNotificationsExcludedApps",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Excluded apps"),
+        info: String(localized: "Hide an app with the crossed-out eye on one of its notifications."),
+        module: "notifications"
     )
 
     static let modulesNowPlayingAppleMusic = SettingsEntry(
