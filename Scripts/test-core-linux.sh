@@ -121,6 +121,7 @@ sources=(
   ScriptLaunch
   ScriptOutput
   ScriptStorage
+  SecondaryMenuOwnership
   SettingsPaneID
   SettingsSchema
   SettingsSearch
@@ -246,6 +247,7 @@ tests=(
   ScriptLaunchTests
   ScriptOutputTests
   ScriptStorageTests
+  SecondaryMenuOwnershipTests
   SettingsPaneIDTests
   SettingsSchemaTests
   SettingsSearchTests

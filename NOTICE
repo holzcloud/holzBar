@@ -39,6 +39,8 @@ one line per adapted file:
     (Copyright (C) 2026 Toni Förster).
   - holzBar/Core/UngovernedItemOwners.swift adapts the agentUngovernedOwners list of Thaw's
     packages/MenuBarModel/Sources/MenuBarModel/MenuBarItemTag.swift.
+  - holzBar/Core/SecondaryMenuOwnership.swift adapts the Option rule of Thaw's
+    Thaw/Input/Events/SecondaryMenuOwnership.swift (Copyright (C) 2026 Toni Förster).
 
 holzBar links no third-party package; the adapted projects and their licenses are
 listed in the app under Settings, About, Acknowledgements.

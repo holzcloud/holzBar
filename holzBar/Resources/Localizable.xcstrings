@@ -52309,124 +52309,6 @@
         }
       }
     },
-    "Right-click in an empty area of the menu bar to display a minimal version of holzBar's menu. Disable this setting if you encounter conflicts with other apps." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kliknutím pravým tlačítkem do prázdné oblasti řádku nabídek zobrazíte minimální verzi nabídky holzBar. Pokud narazíte na konflikty s jinými aplikacemi, toto nastavení vypněte."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rechtsklick auf eine leere Stelle der Menüleiste zeigt eine kurze Version des holzBar-Menüs. Deaktiviere diese Einstellung bei Konflikten mit anderen Apps."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Haz clic derecho en un área vacía de la barra de menús para mostrar una versión mínima del menú de holzBar. Desactiva este ajuste si tienes conflictos con otras apps."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un clic droit dans une zone vide de la barre des menus affiche une version réduite du menu de holzBar. Désactivez ce réglage en cas de conflit avec d'autres apps."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jobb kattintással a menüsor egy üres területén megjelenítheti a holzBar menüjének minimális változatát. Kapcsolja ki ezt a beállítást, ha ütközést tapasztal más alkalmazásokkal."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Klik kanan area kosong di bar menu untuk menampilkan versi minimal menu holzBar. Matikan jika bentrok dengan app lain."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il clic destro in un'area vuota della barra dei menu mostra una versione ridotta del menu di holzBar. Disattiva questa impostazione in caso di conflitti con altre app."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "メニューバーの空いている部分を右クリックすると、holzBar のメニューの簡易版が表示されます。他の App と競合する場合は、この設定をオフにしてください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "메뉴 막대의 빈 영역을 오른쪽 클릭하면 holzBar 메뉴의 간소화된 버전이 표시됩니다. 다른 앱과 충돌하면 이 설정을 끄세요."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Klik met de rechtermuisknop in een leeg gebied van de menubalk om een minimale versie van het menu van holzBar te tonen. Zet deze instelling uit als je conflicten met andere apps hebt."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kliknij prawym przyciskiem w pustym miejscu paska menu, aby wyświetlić minimalną wersję menu holzBar. Wyłącz to ustawienie, jeśli występują konflikty z innymi aplikacjami."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clique com o botão direito em uma área vazia da barra de menus para exibir uma versão mínima do menu do holzBar. Desative este ajuste se tiver conflitos com outros apps."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In clic dretg en ina zona vida da la trav da menu mussa ina versiun curta dal menu da holzBar. Deactivescha quest parameter, sch'i dat conflicts cun autras apps."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нажмите правой кнопкой на пустой области строки меню, чтобы показать сокращённую версию меню holzBar. Отключите этот параметр, если возникают конфликты с другими приложениями."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Högerklicka på ett tomt område på menyraden för att visa en minimal version av holzBars meny. Stäng av det om det krockar med andra appar."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar menüsünün asgari bir sürümünü göstermek için menü çubuğunda boş bir alana sağ tıklayın. Başka uygulamalarla çakışıyorsa kapatın."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Клацніть правою кнопкою на порожній ділянці смуги меню, щоб показати скорочену версію меню holzBar. Вимкніть цей параметр, якщо виникають конфлікти з іншими програмами."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在菜单栏的空白区域右键点按，可显示 holzBar 菜单的精简版本。如果与其他 App 发生冲突，请关闭此设置。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在選單列的空白區域按一下滑鼠右鍵，可顯示 holzBar 選單的精簡版。如果與其他 App 發生衝突，請停用此設定。"
-          }
-        }
-      }
-    },
     "Round the screen corners" : {
       "localizations" : {
         "cs" : {
@@ -158008,6 +157890,124 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在 macOS 27 上，圖像與另一個 App 的圖塊相同的 App 會重新取得自己的圖像，沒有圖像的項目會顯示其 App 的圖像。"
+          }
+        }
+      }
+    },
+    "Right-click in an empty area of the menu bar to display a minimal version of holzBar's menu. From macOS 27.2, hold ⌥ Option as you right-click; a plain right-click opens Apple's menu. Disable this setting if you encounter conflicts with other apps." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kliknutím pravým tlačítkem do prázdné oblasti řádku nabídek zobrazíte minimální verzi nabídky holzBar. Od macOS 27.2 při kliknutí pravým tlačítkem držte ⌥ Option; prosté kliknutí pravým tlačítkem otevře nabídku Apple. Pokud narazíte na konflikty s jinými aplikacemi, toto nastavení vypněte."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rechtsklick auf eine leere Stelle der Menüleiste zeigt eine kurze Version des holzBar-Menüs. Ab macOS 27.2 halte beim Rechtsklick ⌥ Wahl gedrückt; ein einfacher Rechtsklick öffnet das Menü von Apple. Deaktiviere diese Einstellung bei Konflikten mit anderen Apps."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haz clic derecho en un área vacía de la barra de menús para mostrar una versión mínima del menú de holzBar. Desde macOS 27.2, mantén pulsada ⌥ Opción al hacer clic derecho; un clic derecho normal abre el menú de Apple. Desactiva este ajuste si tienes conflictos con otras apps."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic droit dans une zone vide de la barre des menus affiche une version réduite du menu de holzBar. Depuis macOS 27.2, maintenez ⌥ Option enfoncée pendant le clic droit ; un simple clic droit ouvre le menu d’Apple. Désactivez ce réglage en cas de conflit avec d'autres apps."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jobb kattintással a menüsor egy üres területén megjelenítheti a holzBar menüjének minimális változatát. A macOS 27.2-től tartsa lenyomva az ⌥ Option billentyűt a jobb kattintáskor; az egyszerű jobb kattintás az Apple menüjét nyitja meg. Kapcsolja ki ezt a beállítást, ha ütközést tapasztal más alkalmazásokkal."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klik kanan area kosong di bar menu untuk menampilkan versi minimal menu holzBar. Mulai macOS 27.2, tahan ⌥ Option saat klik kanan; klik kanan biasa membuka menu Apple. Matikan jika bentrok dengan app lain."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il clic destro in un'area vuota della barra dei menu mostra una versione ridotta del menu di holzBar. Da macOS 27.2, tieni premuto ⌥ Opzione mentre fai clic destro; un semplice clic destro apre il menu di Apple. Disattiva questa impostazione in caso di conflitti con altre app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メニューバーの空いている部分を右クリックすると、holzBar のメニューの簡易版が表示されます。macOS 27.2 以降では、⌥ Option を押しながら右クリックしてください。通常の右クリックでは Apple のメニューが開きます。他の App と競合する場合は、この設定をオフにしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대의 빈 영역을 오른쪽 클릭하면 holzBar 메뉴의 간소화된 버전이 표시됩니다. macOS 27.2부터는 ⌥ Option을 누른 채 오른쪽 클릭하세요. 그냥 오른쪽 클릭하면 Apple의 메뉴가 열립니다. 다른 앱과 충돌하면 이 설정을 끄세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klik met de rechtermuisknop in een leeg gebied van de menubalk om een minimale versie van het menu van holzBar te tonen. Houd vanaf macOS 27.2 ⌥ Option ingedrukt terwijl je met de rechtermuisknop klikt; een gewone rechterklik opent het menu van Apple. Zet deze instelling uit als je conflicten met andere apps hebt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kliknij prawym przyciskiem w pustym miejscu paska menu, aby wyświetlić minimalną wersję menu holzBar. Od macOS 27.2 przytrzymaj ⌥ Option podczas klikania prawym przyciskiem; zwykłe kliknięcie prawym przyciskiem otwiera menu Apple. Wyłącz to ustawienie, jeśli występują konflikty z innymi aplikacjami."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clique com o botão direito em uma área vazia da barra de menus para exibir uma versão mínima do menu do holzBar. A partir do macOS 27.2, mantenha ⌥ Option pressionada ao clicar com o botão direito; um clique direito simples abre o menu da Apple. Desative este ajuste se tiver conflitos com outros apps."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In clic dretg en ina zona vida da la trav da menu mussa ina versiun curta dal menu da holzBar. A partir da macOS 27.2 tegna ⌥ Opziun smatgà durant il clic dretg; in simpel clic dretg avra il menu dad Apple. Deactivescha quest parameter, sch'i dat conflicts cun autras apps."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите правой кнопкой на пустой области строки меню, чтобы показать сокращённую версию меню holzBar. Начиная с macOS 27.2, удерживайте ⌥ Option при нажатии правой кнопкой; простое нажатие правой кнопкой открывает меню Apple. Отключите этот параметр, если возникают конфликты с другими приложениями."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Högerklicka på ett tomt område på menyraden för att visa en minimal version av holzBars meny. Från macOS 27.2 håller du ned ⌥ Alternativ när du högerklickar; ett vanligt högerklick öppnar Apples meny. Stäng av det om det krockar med andra appar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar menüsünün asgari bir sürümünü göstermek için menü çubuğunda boş bir alana sağ tıklayın. macOS 27.2'den itibaren sağ tıklarken ⌥ Option tuşunu basılı tutun; düz bir sağ tıklama Apple'ın menüsünü açar. Başka uygulamalarla çakışıyorsa kapatın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Клацніть правою кнопкою на порожній ділянці смуги меню, щоб показати скорочену версію меню holzBar. Починаючи з macOS 27.2, утримуйте ⌥ Option під час клацання правою кнопкою; звичайне клацання правою кнопкою відкриває меню Apple. Вимкніть цей параметр, якщо виникають конфлікти з іншими програмами."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在菜单栏的空白区域右键点按，可显示 holzBar 菜单的精简版本。从 macOS 27.2 起，请按住 ⌥ Option 再右键点按；直接右键点按会打开 Apple 的菜单。如果与其他 App 发生冲突，请关闭此设置。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在選單列的空白區域按一下滑鼠右鍵，可顯示 holzBar 選單的精簡版。從 macOS 27.2 起，請按住 ⌥ Option 再按一下滑鼠右鍵；直接按一下滑鼠右鍵會打開 Apple 的選單。如果與其他 App 發生衝突，請停用此設定。"
           }
         }
       }
