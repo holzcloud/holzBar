@@ -435,6 +435,11 @@ private struct MenuBarSearchContentView: View {
                     performAction(for: item)
                 } content: {
                     MenuBarSearchItemView(item: item)
+                        .contextMenu {
+                            if let appState = itemManager.appState {
+                                MoveToMenuItems(item: item, section: name, appState: appState)
+                            }
+                        }
                 }
                 searchItems.append(SearchItem(listItem, item.displayName, frecency(of: item)))
             }
