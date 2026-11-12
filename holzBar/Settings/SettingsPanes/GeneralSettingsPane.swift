@@ -28,11 +28,6 @@ struct GeneralSettingsPane: View {
             HolzBarSection("Menu Bar Icon") {
                 holzBarIconOptions
             }
-            if #available(macOS 27.0, *) {
-                HolzBarSection("Showing Items") {
-                    clockOpensNotificationCenter
-                }
-            }
             HolzBarSection("Item Spacing") {
                 spacingOptions
             }
@@ -63,20 +58,6 @@ struct GeneralSettingsPane: View {
                 }
             }
             .annotation("A small number on the holzBar icon says how many items are hidden right now.")
-        }
-    }
-
-    // MARK: Clock
-
-    @ViewBuilder
-    private var clockOpensNotificationCenter: some View {
-        if #available(macOS 27.0, *) {
-            Toggle(isOn: $settings.clockOpensNotificationCenter) {
-                HStack(spacing: HolzBarTheme.Spacing.sm) {
-                    Text("Open Notification Center from the clock")
-                }
-            }
-            .annotation("While items are hidden, macOS 27 ignores a click on the clock. holzBar lifts the hiding for a moment and clicks again, so Notification Center opens. Turn this off to leave the click to macOS; the clock then does nothing while items are hidden. It needs only the Accessibility permission holzBar has already.")
         }
     }
 

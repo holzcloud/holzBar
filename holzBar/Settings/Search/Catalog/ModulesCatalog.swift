@@ -48,10 +48,25 @@ extension SettingsCatalog {
 
         /// The fixed rows inside the module rows' open areas and beside them. The plans of the
         /// module settings append their entries here.
-        static let rowEntries: [SettingsEntry] = []
+        static let rowEntries: [SettingsEntry] = [
+            .modulesClockOpensNotificationCenter,
+            .modulesAppleItemsHideClock,
+            .modulesAppleItemsHideControlCenter,
+            .modulesAppleItemsHideWiFi,
+            .modulesAppleItemsHideBattery,
+            .modulesAppleItemsReplacements,
+            .modulesNotchHubOpensOnHover,
+            .modulesNotchHubDisplays,
+        ]
 
         /// Whether a row entry belongs to a module this Mac can run.
         static func isAvailable(_ entry: SettingsEntry) -> Bool {
+            if entry.id == SettingsEntry.modulesClockOpensNotificationCenter.id {
+                if #available(macOS 27.0, *) {
+                    return true
+                }
+                return false
+            }
             guard
                 let moduleID = entry.module,
                 let module = ModuleCatalog.all.first(where: { $0.id == moduleID })
@@ -65,4 +80,73 @@ extension SettingsCatalog {
             ModuleCatalog.all.filter { isSupported($0) }.map { moduleEntry(for: $0) }
             + rowEntries.filter { isAvailable($0) }
     }
+}
+
+extension SettingsEntry {
+    static let modulesClockOpensNotificationCenter = SettingsEntry(
+        id: "modulesClockOpensNotificationCenter",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.menuBar,
+        label: String(localized: "Open Notification Center from the clock"),
+        info: String(localized: "While items are hidden, macOS 27 ignores a click on the clock, so holzBar lifts the hiding for a moment and clicks again. When off, the clock does nothing then.")
+    )
+
+    static let modulesAppleItemsHideClock = SettingsEntry(
+        id: "modulesAppleItemsHideClock",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.menuBar,
+        label: String(localized: "Hide the clock"),
+        module: AppleItems.moduleID
+    )
+
+    static let modulesAppleItemsHideControlCenter = SettingsEntry(
+        id: "modulesAppleItemsHideControlCenter",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.menuBar,
+        label: String(localized: "Hide Control Center"),
+        module: AppleItems.moduleID
+    )
+
+    static let modulesAppleItemsHideWiFi = SettingsEntry(
+        id: "modulesAppleItemsHideWiFi",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.menuBar,
+        label: String(localized: "Hide Wi-Fi"),
+        module: AppleItems.moduleID
+    )
+
+    static let modulesAppleItemsHideBattery = SettingsEntry(
+        id: "modulesAppleItemsHideBattery",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.menuBar,
+        label: String(localized: "Hide the battery"),
+        info: String(localized: "While a system item is hidden, Control Center does not show its camera and microphone indicator; holzBar marks its own icon instead."),
+        module: AppleItems.moduleID
+    )
+
+    static let modulesAppleItemsReplacements = SettingsEntry(
+        id: "modulesAppleItemsReplacements",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.menuBar,
+        label: String(localized: "Replacement items"),
+        info: String(localized: "Hide an Apple app's items in Layout, and keep the ones you want one click away here. At most six."),
+        module: AppleItems.moduleID
+    )
+
+    static let modulesNotchHubOpensOnHover = SettingsEntry(
+        id: "modulesNotchHubOpensOnHover",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Open on hover"),
+        info: String(localized: "The pointer has to rest at the notch, or at the top center on a display without one."),
+        module: NotchHubController.moduleID
+    )
+
+    static let modulesNotchHubDisplays = SettingsEntry(
+        id: "modulesNotchHubDisplays",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Show the hub on"),
+        module: NotchHubController.moduleID
+    )
 }

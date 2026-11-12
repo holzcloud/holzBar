@@ -30,6 +30,17 @@ struct ModulesSettingsPane: View {
         SettingsPaneHost(.modules) {
             SettingsGroup(SettingsCatalog.ModulesPane.menuBar) {
                 moduleList(in: .menuBar)
+                if #available(macOS 27.0, *) {
+                    // Beside Apple Items, not inside it: the switch works without the module.
+                    SettingsToggleRow(
+                        .modulesClockOpensNotificationCenter,
+                        isOn: Binding(
+                            get: { appState.settings.general.clockOpensNotificationCenter },
+                            set: { appState.settings.general.clockOpensNotificationCenter = $0 }
+                        ),
+                        small: Text("macOS 27 only")
+                    )
+                }
             }
             SettingsGroup(
                 SettingsCatalog.ModulesPane.notch,
