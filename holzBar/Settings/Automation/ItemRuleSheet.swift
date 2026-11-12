@@ -13,6 +13,8 @@ struct ItemRuleSheet: View {
     @Environment(\.dismiss) private var dismiss
     let target: ItemRuleTarget
     @State private var rule: AutomationRule?
+    @State private var isConfirmingDeletion = false
+    @State private var didDeleteRule = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.md) {
@@ -25,14 +27,15 @@ struct ItemRuleSheet: View {
                 .fixedSize(horizontal: false, vertical: true)
             if let binding = Binding($rule) {
                 ScrollView {
-                    AutomationRuleEditor(
-                        rule: binding,
-                        profileNames: [],
-                        focusesName: false,
-                        itemName: target.name
-                    ) {
-                        appState.automation.removeItemRule(forKey: target.key)
-                        dismiss()
+                    SettingsGroup {
+                        AutomationRuleEditor(
+                            rule: binding,
+                            profileNames: [],
+                            focusesName: false,
+                            itemName: target.name
+                        ) {
+                            isConfirmingDeletion = true
+                        }
                     }
                 }
                 .frame(minHeight: 220, maxHeight: 360)
@@ -55,6 +58,21 @@ struct ItemRuleSheet: View {
         }
         .padding(HolzBarTheme.Spacing.lg)
         .frame(width: 460)
+        .holzBarConfirmation(
+            isPresented: $isConfirmingDeletion,
+            title: Text("Delete this rule?"),
+            confirmTitle: "Delete",
+            isDestructive: true
+        ) {
+            appState.automation.removeItemRule(forKey: target.key)
+            didDeleteRule = true
+        }
+        .onChange(of: isConfirmingDeletion) {
+            // The sheet closes only once its confirmation is gone.
+            if !isConfirmingDeletion, didDeleteRule {
+                dismiss()
+            }
+        }
         .task {
             guard rule == nil else {
                 return

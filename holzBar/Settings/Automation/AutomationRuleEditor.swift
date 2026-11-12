@@ -64,38 +64,49 @@ struct AutomationRuleEditor: View {
             ) {
                 addConditionMenu
             }
-            heading("Then")
             if let itemName {
-                Text("\(itemName) is shown only while this is true.")
-                    .font(HolzBarTheme.Typography.callout)
-                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                SettingsValueRow(Text("Then"), value: Text("\(itemName) is shown only while this is true."))
                 if case .showItemOnlyWhile(let key, let hiding) = rule.action {
                     hidingPicker(key: key, hiding: hiding)
+                        .settingsSubRow()
                 }
             } else {
                 actionPicker
             }
             if itemName == nil, case .applyProfile(let name) = rule.action {
                 profilePicker(selection: name)
+                    .settingsSubRow()
             }
             if itemName == nil, case .applyMood(let name) = rule.action {
                 moodPicker(selection: name)
+                    .settingsSubRow()
             }
             if itemName == nil, case .showItemOnlyWhile(let key, let hiding) = rule.action {
                 itemPicker(key: key, hiding: hiding)
+                    .settingsSubRow()
             }
             if itemName == nil, case .runScript(let name) = rule.action {
                 scriptPicker(name: name)
+                    .settingsSubRow()
             }
             if itemName == nil, restoresApply {
                 if case .runScript = rule.action {
-                    Toggle("Also run it when the rule stops being true", isOn: $rule.restoresWhenEnded)
+                    SettingsToggleRow(
+                        Text("Also run it when the rule stops being true"),
+                        isOn: $rule.restoresWhenEnded,
+                        info: Text("The script then runs when the rule starts and when it ends.")
+                    )
                 } else {
-                    Toggle("When it stops being true, go back", isOn: $rule.restoresWhenEnded)
+                    SettingsToggleRow(
+                        Text("When it stops being true, go back"),
+                        isOn: $rule.restoresWhenEnded,
+                        info: Text("When the conditions stop being true, holzBar undoes what the rule did.")
+                    )
                 }
             }
-            Button(itemName == nil ? "Delete Rule" : "Remove Rule", role: .destructive, action: onDelete)
-                .padding(.top, HolzBarTheme.Spacing.xs)
+            SettingsButtonRow {
+                Button("Delete rule…", role: .destructive, action: onDelete)
+            }
         }
         .task {
             if focusesName {
@@ -143,15 +154,6 @@ struct AutomationRuleEditor: View {
         appState.activate(for: .settings)
         appState.automation.wifiMonitor.requestAuthorization()
         add(.wifiNetwork(name))
-    }
-
-    private func heading(_ key: LocalizedStringKey) -> some View {
-        Text(key)
-            .font(HolzBarTheme.Typography.caption)
-            .textCase(.uppercase)
-            .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-            .padding(.top, HolzBarTheme.Spacing.xs)
-            .accessibilityAddTraits(.isHeader)
     }
 
     // MARK: Conditions
@@ -329,7 +331,7 @@ struct AutomationRuleEditor: View {
     }
 
     private var actionPicker: some View {
-        Picker("Action", selection: actionChoice) {
+        SettingsPickerRow(Text("Then"), selection: actionChoice) {
             Text("Apply a layout profile").tag(ActionChoice.profile)
             Text("Switch to a mood").tag(ActionChoice.mood)
             Text("Show the hidden section").tag(ActionChoice.hiddenSection)
@@ -338,7 +340,7 @@ struct AutomationRuleEditor: View {
             Text("Turn Zen mode off").tag(ActionChoice.zenOff)
             Text("Keep the Mac awake").tag(ActionChoice.keepAwake)
             Text("Let the Mac sleep").tag(ActionChoice.allowSleep)
-            Text("Show an item only while this is true").tag(ActionChoice.showItem)
+            Text("Show a menu bar item only while this is true").tag(ActionChoice.showItem)
             Text("Run a script").tag(ActionChoice.runScript)
         }
     }
@@ -346,12 +348,10 @@ struct AutomationRuleEditor: View {
     @ViewBuilder
     private func profilePicker(selection name: String) -> some View {
         if profileNames.isEmpty {
-            Text("Save a layout profile in Menu Bar Layout first.")
-                .font(HolzBarTheme.Typography.caption)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+            SettingsStateLine(.info, Text("Save a layout profile in Profiles & History first."))
         } else {
-            Picker(
-                "Profile",
+            SettingsPickerRow(
+                Text("Profile"),
                 selection: Binding(
                     get: { name },
                     set: { rule.action = .applyProfile($0) }
@@ -368,12 +368,10 @@ struct AutomationRuleEditor: View {
     private func moodPicker(selection name: String) -> some View {
         let moods = appState.appearanceManager.moods
         if moods.isEmpty && name.isEmpty {
-            Text("Save a mood in Menu Bar Appearance first.")
-                .font(HolzBarTheme.Typography.caption)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+            SettingsStateLine(.info, Text("Save a mood in Appearance first."))
         } else {
-            Picker(
-                "Mood",
+            SettingsPickerRow(
+                Text("Mood"),
                 selection: Binding(
                     get: { name },
                     set: { rule.action = .applyMood($0) }
@@ -402,12 +400,10 @@ struct AutomationRuleEditor: View {
     private func scriptPicker(name: String) -> some View {
         let scripts = approvedScripts
         if scripts.isEmpty && name.isEmpty {
-            Text("Put a script in your scripts folder and allow it below first.")
-                .font(HolzBarTheme.Typography.caption)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+            SettingsStateLine(.info, Text("Put a script in your scripts folder and allow it in Scripts first."))
         } else {
-            Picker(
-                "Script",
+            SettingsPickerRow(
+                Text("Script"),
                 selection: Binding(
                     get: { name },
                     set: { rule.action = .runScript($0) }
@@ -445,8 +441,8 @@ struct AutomationRuleEditor: View {
     @ViewBuilder
     private func itemPicker(key: String, hiding: AutomationSection) -> some View {
         let choices = itemChoices
-        Picker(
-            "Item",
+        SettingsPickerRow(
+            Text("Menu bar item"),
             selection: Binding(
                 get: { key },
                 set: { rule.action = .showItemOnlyWhile(itemKey: $0, hiding: hiding) }
@@ -464,15 +460,15 @@ struct AutomationRuleEditor: View {
     }
 
     private func hidingPicker(key: String, hiding: AutomationSection) -> some View {
-        Picker(
-            "Otherwise hide it in",
+        SettingsPickerRow(
+            Text("Otherwise hide it in"),
             selection: Binding(
                 get: { hiding },
                 set: { rule.action = .showItemOnlyWhile(itemKey: key, hiding: $0) }
             )
         ) {
             Text("Hidden").tag(AutomationSection.hidden)
-            Text("Always-Hidden").tag(AutomationSection.alwaysHidden)
+            Text("Always Hidden").tag(AutomationSection.alwaysHidden)
         }
     }
 
