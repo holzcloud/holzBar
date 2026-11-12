@@ -305,6 +305,30 @@ final class LayoutBarItemView: NSView {
     /// The item's menu: its hotkey and the other settings of the item.
     private func makeContextMenu() -> NSMenu {
         let menu = NSMenu(title: item.displayName)
+        if let appState, !item.isControlItem {
+            // "Move to" first: the same move as the VoiceOver actions and the list (D-18).
+            let moveItem = NSMenuItem(title: String(localized: "Move to"), action: nil, keyEquivalent: "")
+            let sections = NSMenu(title: String(localized: "Move to"))
+            for name in appState.layoutEditor.availableSections {
+                let sectionItem = NSMenuItem(
+                    title: name.displayString,
+                    action: #selector(moveToSectionFromMenu(_:)),
+                    keyEquivalent: ""
+                )
+                sectionItem.target = self
+                sectionItem.tag = MenuBarSection.Name.allCases.firstIndex(of: name) ?? 0
+                sectionItem.state = name == section ? .on : .off
+                sections.addItem(sectionItem)
+            }
+            moveItem.submenu = sections
+            if !isEnabled {
+                // A pinned item, or one without an app on macOS 27; the tooltip says why.
+                moveItem.isEnabled = false
+                moveItem.toolTip = toolTip
+            }
+            menu.addItem(moveItem)
+            menu.addItem(.separator())
+        }
         let hotkeyItem = NSMenuItem(
             title: String(localized: "Set Hotkey…"),
             action: #selector(showHotkeyPopover),
@@ -374,6 +398,15 @@ final class LayoutBarItemView: NSView {
     }
 
     /// Lets the user choose an image for the item.
+    @objc private func moveToSectionFromMenu(_ sender: NSMenuItem) {
+        let names = MenuBarSection.Name.allCases
+        guard names.indices.contains(sender.tag), names[sender.tag] != section else {
+            return
+        }
+        let target = names[sender.tag]
+        move(to: target)
+    }
+
     @objc private func chooseImage() {
         appState?.itemIconStore.chooseImage(for: item)
     }

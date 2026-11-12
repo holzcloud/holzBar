@@ -175,6 +175,7 @@ struct MenuBarLayoutSettingsPane: View {
             .disabled(appState.layoutEditor.isApplying)
             if #available(macOS 27.0, *) {
                 SettingsNoteLine(Text("Items can be sorted by dragging them within a section."))
+                SettingsNoteLine(Text("macOS 27 hides whole apps: the items of one app always move together."))
             }
         }
     }
