@@ -92,6 +92,7 @@ struct TidyUpSheet: View {
         guard !chosen.isEmpty else {
             return
         }
+        let before = appState.layoutUndo.beforeSnapshot()
         appState.snapshots.willTidyUp()
         let layout = appState.profiles.currentLayout()
         var itemSections = layout.itemSections
@@ -110,6 +111,7 @@ struct TidyUpSheet: View {
             applicationSections: applicationSections,
             knownApplications: layout.knownApplications
         ))
+        appState.layoutUndo.recordArrangementChange(String(localized: "\(chosen.count) items hidden"), before: before, place: .settings)
     }
 }
 

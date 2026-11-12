@@ -414,7 +414,7 @@ enum LayoutBarMoves {
     /// A change whose undo puts the application into `target`; its inverse puts it back into
     /// `current`.
     @available(macOS 27.0, *)
-    private static func section27Change(
+    static func section27Change(
         to target: MacOS27Section,
         from current: MacOS27Section,
         for bundleID: String,
@@ -442,7 +442,7 @@ enum LayoutBarMoves {
     /// The application and section of every item in the cache (0 visible, 1 hidden, 2 always
     /// hidden).
     @available(macOS 27.0, *)
-    private static func sections27(_ appState: AppState) -> [(app: String?, section: Int)] {
+    static func sections27(_ appState: AppState) -> [(app: String?, section: Int)] {
         let cache = appState.itemManager.itemCache
         let names: [MenuBarSection.Name] = [.visible, .hidden, .alwaysHidden]
         return names.flatMap { name in
