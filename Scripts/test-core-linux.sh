@@ -20,6 +20,7 @@ scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 
 sources=(
+  AboutUpdateCommands
   AccessoryAlertOptions
   AccessoryBattery
   AccessoryDevice
@@ -147,6 +148,7 @@ sources=(
   ZenMode
 )
 tests=(
+  AboutUpdateCommandsTests
   AccessoryAlertOptionsTests
   AccessoryBatteryTests
   AccessoryDeviceTests

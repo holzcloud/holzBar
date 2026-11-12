@@ -1010,16 +1010,6 @@ final class ControlItem {
 
         menu.addItem(.separator())
 
-        let howToUpdateItem = NSMenuItem(
-            title: String(localized: "How to Update…"),
-            action: #selector(showHowToUpdate),
-            keyEquivalent: ""
-        )
-        howToUpdateItem.target = self
-        menu.addItem(howToUpdateItem)
-
-        menu.addItem(.separator())
-
         let quitItem = NSMenuItem(
             title: String(localized: "Quit holzBar"),
             action: #selector(NSApp.terminate),
@@ -1056,13 +1046,6 @@ final class ControlItem {
     /// Opens the menu bar search panel.
     @objc private func showSearchPanel() {
         appState?.menuBarManager.searchPanel.show()
-    }
-
-    /// Opens the releases page in the browser. Its notes carry the update
-    /// command, `brew update && brew upgrade --cask holzbar`. holzBar itself
-    /// makes no request: it never connects to the network.
-    @objc private func showHowToUpdate() {
-        NSWorkspace.shared.open(Constants.releasesURL)
     }
 }
 
