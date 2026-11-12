@@ -9,14 +9,19 @@ import SwiftUI
 /// this Mac. The feature is off until the user turns it on; the section says exactly what is
 /// stored, shows it, and forgets it in one click.
 struct UsageSuggestionsSection: View {
+    @Environment(AppState.self) private var appState
     @Bindable var usage: UsageStore
     @State private var isShowingData = false
     @State private var isConfirmingForget = false
+    @State private var isConfirmingTurnOff = false
+    /// Whether the tidy-up suggestion was answered; kept here so its line goes at once.
+    @State private var wasTidyUpAnswered = Defaults.bool(forKey: .cleanUpOffered)
 
     var body: some View {
         let summary = usage.counters.summary
         SettingsGroup(SettingsCatalog.LayoutPane.suggestions) {
-            SettingsToggleRow(.layoutSuggestRarelyUsed, isOn: $usage.isEnabled)
+            tidyUpLine
+            SettingsToggleRow(.layoutSuggestRarelyUsed, isOn: suggestionsBinding)
             if usage.isEnabled {
                 ForEach(usage.suggestions, id: \.windowID) { item in
                     SettingsButtonRow(Text("You have not opened \(item.displayName) in 14 days.")) {
@@ -54,6 +59,67 @@ struct UsageSuggestionsSection: View {
         ) {
             usage.forgetEverything()
         }
+        .holzBarConfirmation(
+            isPresented: $isConfirmingTurnOff,
+            title: Text("Turn off suggestions and forget the stored usage?"),
+            message: Text("The counts of every item are deleted. This cannot be undone."),
+            confirmTitle: "Turn Off and Forget",
+            isDestructive: true
+        ) {
+            usage.isEnabled = false
+        }
+    }
+
+    /// Turning the suggestions off deletes the stored usage, so it asks first while there is
+    /// some, as Forget everything… does (audit-ux A16).
+    private var suggestionsBinding: Binding<Bool> {
+        Binding(
+            get: { usage.isEnabled },
+            set: { isOn in
+                if !isOn, usage.counters.summary.items > 0 {
+                    isConfirmingTurnOff = true
+                } else {
+                    usage.isEnabled = isOn
+                }
+            }
+        )
+    }
+
+    /// The tidy-up suggestion as one line, in place of the old alert after launch (D-21). The
+    /// proposals are read only while the line can show, so a Mac that answered pays nothing.
+    @ViewBuilder
+    private var tidyUpLine: some View {
+        if !wasTidyUpAnswered, !appState.didImportPreviousSettings, appState.profiles.profiles.isEmpty {
+            let visibleCount = appState.itemManager.itemCache[.visible].filter { !$0.isControlItem }.count
+            let count = visibleCount >= TidyUpSuggestionPolicy.minimumVisibleItems
+                ? TidyUpEntry.proposals(from: appState).count
+                : 0
+            if TidyUpSuggestionPolicy.showsLine(
+                wasOffered: wasTidyUpAnswered,
+                hasImportedSettings: appState.didImportPreviousSettings,
+                hasProfiles: !appState.profiles.profiles.isEmpty,
+                visibleItemCount: visibleCount,
+                proposalCount: count
+            ) {
+                SettingsButtonRow(
+                    Text("holzBar suggests hiding \(count) items."),
+                    info: Text("holzBar suggests what works in the background; the clock, the battery and apps with messages stay. Nothing leaves your Mac, you decide, and you can undo it.")
+                ) {
+                    Button("View…") {
+                        answerTidyUp()
+                        appState.navigationState.isTidyUpPresented = true
+                    }
+                    Button("Not Now") {
+                        answerTidyUp()
+                    }
+                }
+            }
+        }
+    }
+
+    private func answerTidyUp() {
+        Defaults.set(true, forKey: .cleanUpOffered)
+        wasTidyUpAnswered = true
     }
 }
 

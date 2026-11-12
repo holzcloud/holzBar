@@ -72,7 +72,7 @@ private final class WhatsNewWindowModel {
     }
 
     private func windowVisibilityChanged(_ window: NSWindow) {
-        // The tidy-up offer waits while the window is on screen.
+        // Others can tell whether the window is on screen.
         if navigationState?.isWhatsNewPresented != window.isVisible {
             navigationState?.isWhatsNewPresented = window.isVisible
         }
