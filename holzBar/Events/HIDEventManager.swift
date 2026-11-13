@@ -119,7 +119,11 @@ final class HIDEventManager {
                 commandDragArmedStateMayHaveChanged()
             }
         case .rightMouseDown:
-            handleSecondaryContextMenu(appState: appState, screen: screen)
+            handleSecondaryContextMenu(
+                appState: appState,
+                screen: screen,
+                optionHeld: event.modifierFlags.contains(.option)
+            )
         default:
             return event
         }
@@ -461,8 +465,18 @@ extension HIDEventManager {
         }
 
         Task {
-            if NSEvent.heldModifierFlags == .control {
-                handleSecondaryContextMenu(appState: appState, screen: screen)
+            // A Control-click is a right-click. From macOS 27.2 it opens holzBar's menu only
+            // with ⌥ Option held as well (`SecondaryMenuOwnership`).
+            let heldFlags = NSEvent.heldModifierFlags
+            if
+                heldFlags == .control
+                    || (heldFlags == [.control, .option] && SecondaryMenuOwnership.systemOpensOwnMenu)
+            {
+                handleSecondaryContextMenu(
+                    appState: appState,
+                    screen: screen,
+                    optionHeld: heldFlags.contains(.option)
+                )
                 return
             }
 
@@ -579,10 +593,15 @@ extension HIDEventManager {
 
     // MARK: Handle Secondary Context Menu
 
-    private func handleSecondaryContextMenu(appState: AppState, screen: NSScreen) {
+    /// Opens holzBar's menu after a right-click on empty menu bar space.
+    ///
+    /// From macOS 27.2 a plain right-click there opens Apple's own menu, so holzBar's opens
+    /// only with ⌥ Option held (`SecondaryMenuOwnership`).
+    private func handleSecondaryContextMenu(appState: AppState, screen: NSScreen, optionHeld: Bool) {
         Task {
             guard
                 appState.settings.advanced.enableSecondaryContextMenu,
+                SecondaryMenuOwnership.opensHolzBarMenu(optionHeld: optionHeld),
                 isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen),
                 let mouseLocation = MouseHelpers.locationAppKit
             else {

@@ -99,6 +99,18 @@ nonisolated enum ItemIdentity {
         return learned
     }
 
+    /// Apps whose single item uses its whole title as an unread count, known from the start
+    /// because the learner cannot see them: QQ alternates between the placeholder `Item-0` and
+    /// a badge such as "99+" (a change the placeholder rule refuses to learn), and WeChat shows
+    /// only the count (adapted from Thaw's fixed list, GPL-3.0, see NOTICE).
+    static let knownTitleChangingOwners: Set<String> = ["com.tencent.qq", "com.tencent.xinWeChat"]
+
+    /// The apps keyed by position: the ones learned on this Mac and the known ones
+    /// (``knownTitleChangingOwners``).
+    static func titleChangingOwners(learned: Set<String>) -> Set<String> {
+        learned.union(knownTitleChangingOwners)
+    }
+
     /// Returns the key of each item, in the order of `items` (the bar's order, left to right).
     ///
     /// - The items of a namespace in `titleChangingOwners` are keyed by their position among

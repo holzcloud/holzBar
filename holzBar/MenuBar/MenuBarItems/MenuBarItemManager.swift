@@ -62,7 +62,7 @@ final class MenuBarItemManager {
     @ObservationIgnored private var isRehideWaitingForMoves = false
 
     /// The namespaces whose item titles change beyond their numbers (`ItemIdentity`).
-    @ObservationIgnored private(set) var titleChangingOwners = Set<String>()
+    @ObservationIgnored private(set) var titleChangingOwners = ItemIdentity.knownTitleChangingOwners
 
     /// The bar as last read, for learning which apps change their item titles.
     @ObservationIgnored private var previousIdentityItems: [ItemIdentity.Item]?
@@ -143,7 +143,9 @@ final class MenuBarItemManager {
     /// Sets up the manager.
     func performSetup(with appState: AppState) async {
         self.appState = appState
-        titleChangingOwners = Set(Defaults.array(forKey: .titleChangingItemOwners) as? [String] ?? [])
+        titleChangingOwners = ItemIdentity.titleChangingOwners(
+            learned: Set(Defaults.array(forKey: .titleChangingItemOwners) as? [String] ?? [])
+        )
         await cacheItemsRegardless()
         await reconcileSections(trigger: .launch)
         configureObservers(with: appState)

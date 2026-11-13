@@ -70,7 +70,7 @@ extension SettingsEntry {
         pane: .advanced,
         group: SettingsCatalog.AdvancedPane.menuBar,
         label: String(localized: "Right-click on empty menu bar opens holzBar's menu"),
-        info: String(localized: "Right-click in an empty area of the menu bar to display a minimal version of holzBar's menu. Disable this setting if you encounter conflicts with other apps.")
+        info: String(localized: "Right-click in an empty area of the menu bar to display a minimal version of holzBar's menu. From macOS 27.2, hold ⌥ Option as you right-click; a plain right-click opens Apple's menu. Disable this setting if you encounter conflicts with other apps.")
     )
 
     static let advancedKeepLiveActivities = SettingsEntry(

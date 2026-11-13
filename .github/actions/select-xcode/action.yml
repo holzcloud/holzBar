@@ -10,9 +10,9 @@ inputs:
     description: >-
       The Xcode version to select. It must be installed as
       /Applications/Xcode_VERSION.app. Xcode 27 is on the xcode-27 runner
-      image; 27.1 is its newest stable release (27.2 is still a release
-      candidate there), and the Swift toolchain pinned below compiles everything.
-    default: "27.1"
+      image; 27.2 (build 27B52) is its newest stable release, and the Swift
+      toolchain pinned below compiles everything.
+    default: "27.2"
   swift-version:
     description: >-
       The Swift release to install from swift.org, exactly as swift.org names

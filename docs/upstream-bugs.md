@@ -34,5 +34,8 @@ Issue numbers below refer to [jordanbaird/Ice](https://github.com/jordanbaird/Ic
 | Split shape on ultrawide and external displays | #94, #529, #573, #608 | Confirmed solved on a Mac in holzBar 0.0.6 |
 | Volume and brightness HUD hidden with its item on macOS 26 | #701, #719 | Confirmed solved on a Mac in holzBar 0.0.6 |
 | High CPU, energy or memory | #334, #479, #530, #578, #819 | Confirmed solved on a Mac in holzBar 0.0.6 |
+| Spacing relaunch stops at Control Center or the app itself, so later apps keep their old spacing | #1012 | Already correct in holzBar: `SpacingRelaunch.processesToRelaunch` (`holzBar/Core/SpacingRelaunch.swift`) skips holzBar, Control Center, SystemUIServer and MenuBarAgent one by one and keeps every other owner, and `MenuBarItemSpacingManager.swift` relaunches them all at once |
 
 Not bugs, or not in the app: #745 (thanks), #752, #774, #935 (website), #939 (project status), #966 (another fork), #976.
+
+Not applicable to holzBar: #1026 and #1027 (Menu Bar Layout never loads on ad hoc builds of macOS 26, because the menu bar item XPC service requires a peer of the same team). holzBar ships no XPC service: since 0.0.7-beta2 it looks up the items' apps itself (see `docs/signing.md`).

@@ -392,6 +392,17 @@ nonisolated enum MenuBarItemProvider27 {
                 CFGetTypeID(barValue) == AXUIElementGetTypeID(),
                 let children = elements(barValue as! AXUIElement, kAXChildrenAttribute) // swiftlint:disable:this force_cast
             else {
+                // macOS 27.2 can leave holzBar's own bar out of a read; holzBar still runs, so
+                // its items of the last read stand in (`OwnItemsCarry27`).
+                if
+                    pid == ownPID,
+                    let previous = lastRawByPID[pid],
+                    OwnItemsCarry27.carriesLastRead(barReturned: false, lastReadItemCount: previous.count)
+                {
+                    logger.debug("Item scan: holzBar's own bar was missing; its last items stand in")
+                    rawItems.append(contentsOf: previous)
+                    continue
+                }
                 // A busy process can miss the time limit for one read. Its items are still
                 // there, so the last answer stands for a few reads instead of dropping them
                 // from the Shelf and the layout until the next read.
@@ -423,7 +434,8 @@ nonisolated enum MenuBarItemProvider27 {
             carriedReads[pid] = nil
             let firstRawIndex = rawItems.count
             defer {
-                if pid != ownPID, bundleID != menuBarAgentBundleID {
+                // holzBar's own items are kept too, for a read that misses its bar.
+                if bundleID != menuBarAgentBundleID {
                     lastRawByPID[pid] = Array(rawItems[firstRawIndex...])
                 }
             }

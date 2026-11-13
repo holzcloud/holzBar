@@ -77,6 +77,9 @@ nonisolated enum WhatsNewHistory {
                 WhatsNewFix(text: "The offer to use Screen Recording appears in holzBar's own look."),
                 WhatsNewFix(text: "On macOS 27, an app whose picture matched another app's tile gets its own picture again, and items without a picture show their app's icon."),
                 WhatsNewFix(text: "holzBar uses one word for each thing: Always Hidden, apps, and Delete for what you made."),
+                WhatsNewFix(text: "On macOS 27.2, a right-click on an empty area of the menu bar opens Apple's menu again; hold ⌥ Option for holzBar's menu."),
+                WhatsNewFix(text: "QQ and WeChat no longer get a new item in Layout for each unread count."),
+                WhatsNewFix(text: "On macOS 27.2, holzBar's own items no longer drop out of Layout for a moment."),
             ]
         ),
         WhatsNewRelease(version: "1.0.5",
