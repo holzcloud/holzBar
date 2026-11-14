@@ -159898,6 +159898,478 @@
           }
         }
       }
+    },
+    "Notch hub, redesigned" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Centrum u výřezu, nově"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch-Hub, neu gestaltet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Centro del notch, rediseñado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hub de l’encoche, repensé"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch-központ, újratervezve"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pusat Notch, dirancang ulang"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hub del notch, ridisegnato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ノッチハブを刷新"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노치 허브 새 디자인"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch-hub, opnieuw ontworpen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Centrum notcha, od nowa"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hub do notch, redesenhado"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hub da la notch, creà da nov"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Центр у выреза в новом виде"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notchcentrum, omgjort"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch Merkezi yeniden tasarlandı"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Центр біля вирізу в новому вигляді"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刘海中心，全新设计"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "瀏海中心，全新設計"
+          }
+        }
+      }
+    },
+    "The hub grows out of the notch in black, opens on what is active with a line that says why, and shows every module as a round button." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Centrum vyrůstá z výřezu v černé barvě, otevře se na tom, co je aktivní, s řádkem, který říká proč, a každý modul ukazuje jako kulaté tlačítko."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Hub wächst in Schwarz aus der Notch heraus, öffnet sich auf dem, was aktiv ist, mit einer Zeile, die sagt, warum, und zeigt jedes Modul als runde Taste."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El centro crece desde el notch en negro, se abre con lo que está activo y una línea que explica por qué, y muestra cada módulo como un botón redondo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le hub sort de l’encoche en noir, s’ouvre sur ce qui est actif avec une ligne qui dit pourquoi, et montre chaque module sous forme de bouton rond."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A központ feketén nő ki a notchból, azon nyílik meg, ami aktív, egy sorral, amely megmondja, miért, és minden modult kerek gombként mutat."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pusat tumbuh dari notch dengan warna hitam, terbuka pada yang aktif dengan satu baris yang menjelaskan alasannya, dan menampilkan setiap modul sebagai tombol bulat."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’hub esce dal notch in nero, si apre su ciò che è attivo con una riga che spiega perché, e mostra ogni modulo come un pulsante rotondo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ハブは黒い形でノッチから広がり、アクティブなものを最初に開いて理由を1行で示し、すべてのモジュールを丸いボタンで表示します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "허브는 검은색으로 노치에서 자라나 활성 상태인 항목을 먼저 열고 이유를 한 줄로 알려 주며, 모든 모듈을 둥근 버튼으로 보여 줍니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De hub groeit in zwart uit de notch, opent op wat actief is met een regel die zegt waarom, en toont elke module als ronde knop."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Centrum wyrasta z notcha na czarno, otwiera się na tym, co jest aktywne, z wierszem wyjaśniającym dlaczego, i pokazuje każdy moduł jako okrągły przycisk."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O hub cresce do notch em preto, abre no que está ativo com uma linha que diz o motivo, e mostra cada módulo como um botão redondo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il hub crescha en nair or da la notch, s’avra sin quai che è activ cun ina lingia che di pertge, e mussa mintga modul sco buttun round."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Центр вырастает из выреза в чёрном цвете, открывается на том, что активно, со строкой о причине и показывает каждый модуль круглой кнопкой."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Centret växer svart ur notchen, öppnas på det som är aktivt med en rad som säger varför, och visar varje modul som en rund knapp."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merkez, notch’tan siyah olarak büyür, etkin olanla açılır, nedenini söyleyen bir satır gösterir ve her modülü yuvarlak bir düğme olarak sunar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Центр виростає з вирізу чорним, відкривається на тому, що активне, з рядком, який пояснює причину, і показує кожен модуль круглою кнопкою."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中心以黑色从刘海中生长出来，打开时显示当前活跃的内容，并用一行文字说明原因，每个模块都是一个圆形按钮。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中心以黑色從瀏海中長出，開啟時顯示目前活躍的內容，並以一行文字說明原因，每個模組都是一個圓形按鈕。"
+          }
+        }
+      }
+    },
+    "Live activities in the notch" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Živé aktivity ve výřezu"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live-Aktivitäten in der Notch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actividades en directo en el notch"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activités en direct dans l’encoche"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Élő tevékenységek a notchban"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktivitas Langsung di notch"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attività in tempo reale nel notch"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ノッチのライブアクティビティ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노치에서 보는 실시간 현황"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live-activiteiten in de notch"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktywności na żywo w notchu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atividades ao vivo no notch"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activitads en direct en la notch"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Текущие события в вырезе"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liveaktiviteter i notchen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch’ta Canlı Etkinlikler"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Живі активності у вирізі"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刘海中的实时活动"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "瀏海中的即時動態"
+          }
+        }
+      }
+    },
+    "A running timer, the camera, the microphone, a download or an accessory widens the notch at menu bar height instead of a capsule below it." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Výřez se ve výšce lišty nabídek rozšíří, když běží časovač, používá se kamera nebo mikrofon, probíhá stahování nebo je připojeno příslušenství, místo kapsle pod ním."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein laufender Timer, die Kamera, das Mikrofon, ein Download oder ein Zubehör verbreitert die Notch auf Menüleistenhöhe, statt eine Kapsel darunter zu zeigen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El notch se ensancha a la altura de la barra de menús para un temporizador en marcha, la cámara, el micrófono, una descarga o un accesorio, en lugar de una cápsula debajo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’encoche s’élargit à hauteur de la barre des menus pour un minuteur en cours, la caméra, le micro, un téléchargement ou un accessoire, au lieu d’une capsule en dessous."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Futó időzítő, kamera, mikrofon, letöltés vagy kiegészítő esetén a notch a menüsor magasságában kiszélesedik, ahelyett hogy alatta egy kapszula jelenne meg."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timer yang berjalan, kamera, mikrofon, unduhan, atau aksesori melebarkan notch setinggi bilah menu, bukan menampilkan kapsul di bawahnya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il notch si allarga all’altezza della barra dei menu per un timer in corso, la fotocamera, il microfono, un download o un accessorio, invece di una capsula sotto di esso."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実行中のタイマー、カメラ、マイク、ダウンロード、アクセサリがあると、下にカプセルを出す代わりに、メニューバーの高さでノッチが横に広がります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실행 중인 타이머, 카메라, 마이크, 다운로드 또는 액세서리가 있으면 아래에 캡슐을 띄우는 대신 메뉴 막대 높이에서 노치가 옆으로 넓어집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De notch wordt op menubalkhoogte breder voor een lopende timer, de camera, de microfoon, een download of een accessoire, in plaats van een capsule eronder."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch poszerza się na wysokości paska menu, gdy działa minutnik, kamera, mikrofon, pobieranie lub akcesorium, zamiast kapsuły pod nim."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O notch se alarga na altura da barra de menus para um temporizador em andamento, a câmera, o microfone, um download ou um acessório, em vez de uma cápsula abaixo dele."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La notch daventa pli lada a l’autezza da la bara dal menu per in temporisader ch’è en funcziun, la camera, il microfon, ina telechargiada u in accessori, empè d’ina capsula sutvart."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Работающий таймер, камера, микрофон, загрузка или аксессуар расширяют вырез на высоте строки меню вместо капсулы под ним."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notchen blir bredare i menyradens höjd för en pågående timer, kameran, mikrofonen, en hämtning eller ett tillbehör, i stället för en kapsel under den."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çalışan bir zamanlayıcı, kamera, mikrofon, indirme veya aksesuar olduğunda notch, altında bir kapsül göstermek yerine menü çubuğu yüksekliğinde genişler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Працюючий таймер, камера, мікрофон, завантаження чи аксесуар розширюють виріз на висоті рядка меню замість капсули під ним."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "运行中的计时器、摄像头、麦克风、下载或配件会让刘海在菜单栏高度向两侧变宽，而不是在下方显示一个胶囊。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "執行中的計時器、相機、麥克風、下載或配件會讓瀏海在選單列高度向兩側變寬，而不是在下方顯示一個膠囊。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
