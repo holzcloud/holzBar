@@ -56,6 +56,7 @@ extension SettingsCatalog {
             .modulesAppleItemsHideWiFi,
             .modulesAppleItemsHideBattery,
             .modulesAppleItemsReplacements,
+            .modulesNotchHubShowsActiveFirst,
             .modulesNotchHubOpensOnHover,
             .modulesNotchHubDisplays,
             // Settings of the hub modules, in catalog order.
@@ -159,6 +160,15 @@ extension SettingsEntry {
         label: String(localized: "Replacement items"),
         info: String(localized: "Hide an Apple app's items in Layout, and keep the ones you want one click away here. At most six."),
         module: AppleItems.moduleID
+    )
+
+    static let modulesNotchHubShowsActiveFirst = SettingsEntry(
+        id: "modulesNotchHubShowsActiveFirst",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Show what is active first"),
+        info: String(localized: "When the hub opens, a meeting within 15 minutes, a live activity or playing music comes first. When off, it opens on the module you chose last."),
+        module: NotchHubController.moduleID
     )
 
     static let modulesNotchHubOpensOnHover = SettingsEntry(

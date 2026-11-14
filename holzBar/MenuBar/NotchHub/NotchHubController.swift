@@ -392,7 +392,9 @@ final class NotchHubController: HubHost {
         }
         // What is in front is decided now, from what the modules hold in memory and before the
         // fit and the layout, which depend on it. Nothing is stored and nothing is logged.
-        model.beginOpening(HubContext.decide(model.contextInputs(now: .now, showsActiveFirst: true)))
+        // The setting is read once, now, and nothing follows it while the hub is open.
+        let showsActiveFirst = appState.settings.notchHub.showsActiveFirst
+        model.beginOpening(HubContext.decide(model.contextInputs(now: .now, showsActiveFirst: showsActiveFirst)))
         // The capsule and the hub are one panel: the capsule goes first.
         hideCompact()
         if trigger == .fileDrag {

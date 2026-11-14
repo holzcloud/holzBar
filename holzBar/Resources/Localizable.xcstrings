@@ -159191,6 +159191,242 @@
           }
         }
       }
+    },
+    "Show what is active first" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nejdřív zobrazit, co je aktivní"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktives zuerst zeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar primero lo que está activo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher d’abord ce qui est actif"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az aktív elem megjelenítése elsőként"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tampilkan yang aktif terlebih dahulu"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra prima ciò che è attivo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクティブなものを最初に表示"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "활성 항목을 먼저 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon eerst wat actief is"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najpierw pokazuj to, co aktywne"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar primeiro o que está ativo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar l’emprim ils elements activs"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сначала показывать активное"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visa det aktiva först"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Önce etkin olanı göster"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спершу показувати активне"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "优先显示活跃内容"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "優先顯示進行中的項目"
+          }
+        }
+      }
+    },
+    "When the hub opens, a meeting within 15 minutes, a live activity or playing music comes first. When off, it opens on the module you chose last." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po otevření centra se jako první zobrazí schůzka do 15 minut, živá aktivita nebo hrající hudba. Když je vypnuto, otevře se na naposledy zvoleném modulu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim Öffnen des Hubs kommt ein Meeting innerhalb von 15 Minuten, eine Live-Aktivität oder laufende Musik zuerst. Ausgeschaltet öffnet er beim zuletzt gewählten Modul."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al abrirse el centro, primero aparece una reunión en los próximos 15 minutos, una actividad en directo o música en reproducción. Si está desactivado, se abre en el último módulo elegido."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À l’ouverture du hub, une réunion dans les 15 minutes, une activité en direct ou une musique en cours passe en premier. Désactivé, il s’ouvre sur le dernier module choisi."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A központ megnyitásakor először a 15 percen belüli megbeszélés, az élő tevékenység vagy a szóló zene jelenik meg. Kikapcsolva az utoljára választott modulon nyílik meg."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saat pusat dibuka, rapat dalam 15 menit, aktivitas langsung, atau musik yang diputar tampil lebih dulu. Jika nonaktif, pusat terbuka pada modul yang terakhir Anda pilih."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All’apertura dell’hub vengono prima una riunione entro 15 minuti, un’attività in tempo reale o la musica in riproduzione. Se disattivato, si apre sull’ultimo modulo scelto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ハブを開くと、15分以内の会議、ライブアクティビティ、再生中の音楽が最初に表示されます。オフにすると、最後に選んだモジュールで開きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "허브를 열면 15분 이내의 회의, 실시간 현황 또는 재생 중인 음악이 먼저 표시됩니다. 끄면 마지막으로 선택한 모듈로 열립니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bij het openen van de hub komt een vergadering binnen 15 minuten, een live-activiteit of afspelende muziek eerst. Uitgeschakeld opent hij op de laatst gekozen module."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po otwarciu centrum jako pierwsze pojawia się spotkanie w ciągu 15 minut, aktywność na żywo lub grająca muzyka. Gdy wyłączone, otwiera się na ostatnio wybranym module."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ao abrir o hub, uma reunião em até 15 minutos, uma atividade ao vivo ou música tocando vem primeiro. Desativado, ele abre no último módulo escolhido."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cur che la hub s’avra, vegn emprim ina reuniun aint ils proxims 15 minutas, ina activitad en direct u musica che vegn sunada. Deactivà s’avra el sin l’ultim modul tschernì."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При открытии центра первыми показываются встреча в ближайшие 15 минут, текущее событие или играющая музыка. Если выключено, открывается последний выбранный модуль."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "När centret öppnas kommer ett möte inom 15 minuter, en liveaktivitet eller musik som spelas först. När det är av öppnas det på den modul du valde senast."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merkez açıldığında 15 dakika içindeki bir toplantı, bir canlı etkinlik veya çalan müzik öne çıkar. Kapalıyken en son seçtiğiniz modülde açılır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Під час відкриття центру першими показуються зустріч протягом 15 хвилин, жива активність або музика, що грає. Якщо вимкнено, відкривається останній обраний модуль."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开中心时，15 分钟内的会议、实时活动或正在播放的音乐会优先显示。关闭后，将打开你上次选择的模块。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟中心時，15 分鐘內的會議、即時動態或正在播放的音樂會優先顯示。關閉後，將開啟你上次選擇的模組。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
