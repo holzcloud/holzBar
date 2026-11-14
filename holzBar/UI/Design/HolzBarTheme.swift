@@ -375,6 +375,40 @@ enum HolzBarTheme {
         static let tileGap = CGFloat(DesignTokens.Hub.tileGap)
     }
 
+    // MARK: Notch hub island
+
+    /// The island of the Notch hub (concept section 10b): pure black, with plain parts on it.
+    enum Island {
+        /// The island's colour: pure black in every appearance.
+        static let surface = Color(DesignTokens.Island.surface)
+        /// The outline Increase Contrast adds to the lower edge.
+        static let edge = Color.white.opacity(DesignTokens.Island.edgeAlpha)
+        static let edgeWidth = CGFloat(DesignTokens.Island.edgeWidth)
+        /// The context line: its text and its symbol.
+        static let contextText = Color.white.opacity(DesignTokens.Island.contextTextAlpha)
+        static let contextFont = Typography.caption
+        static let contextSymbolFont = Font.system(size: CGFloat(DesignTokens.Island.contextSymbolSize))
+        /// The settings gear: its circle, its symbol and their colours.
+        static let gearSize = CGFloat(DesignTokens.Island.gearSize)
+        static let gearSymbolFont = Font.system(size: CGFloat(DesignTokens.Island.gearSymbolSize))
+        static let gearFill = Color.white.opacity(DesignTokens.Island.gearFillAlpha)
+        static let gearSymbol = Color.white.opacity(DesignTokens.Island.gearSymbolAlpha)
+        /// The module row's buttons: the idle button is white at 7 percent with a white 60 percent
+        /// symbol, the selected one is white with a black symbol.
+        static let buttonSymbolFont = Font.system(size: CGFloat(DesignTokens.Island.buttonSymbolSize))
+        static let buttonIdleSymbol = Color.white.opacity(DesignTokens.Island.buttonIdleSymbolAlpha)
+        static let buttonIdleFill = Color.white.opacity(DesignTokens.Island.buttonIdleFillAlpha)
+        static let buttonSelectedFill = Color.white
+        static let buttonSelectedSymbol = surface
+        static let buttonSizes = DesignTokens.Island.buttonSizes.map { CGFloat($0) }
+        static let buttonGap = CGFloat(DesignTokens.Island.buttonGap)
+        /// The live state: the activity's symbol and its short value.
+        static let liveSymbolFont = Font.system(size: CGFloat(DesignTokens.Island.liveSymbolSize))
+        static let liveValueFont = Font.system(size: CGFloat(DesignTokens.Island.liveValueSize), weight: .semibold)
+        /// The transparent margin of the panel while the shape animates.
+        static let transitionMargin = CGFloat(DesignTokens.Island.transitionMargin)
+    }
+
     // MARK: Motion
 
     enum Motion {
@@ -386,6 +420,33 @@ enum HolzBarTheme {
         static let hub = Animation.bouncy(duration: 0.4, extraBounce: 0.1)
         /// What Reduce Motion replaces every spring with.
         static let reduced = Animation.easeInOut(duration: 0.15)
+
+        /// The island opening (concept section 10b): the width and the height each have a spring.
+        static let islandOpenWidth = Animation.spring(
+            response: DesignTokens.Island.openWidthResponse,
+            dampingFraction: DesignTokens.Island.openWidthDamping
+        )
+        static let islandOpenHeight = Animation.spring(
+            response: DesignTokens.Island.openHeightResponse,
+            dampingFraction: DesignTokens.Island.openHeightDamping
+        )
+        /// The island closing into the notch, without overshoot.
+        static let islandClose = Animation.spring(
+            response: DesignTokens.Island.closeResponse,
+            dampingFraction: DesignTokens.Island.closeDamping
+        )
+        /// The content appearing a moment after the shape starts to grow.
+        static let islandContentIn = Animation.timingCurve(
+            DesignTokens.Island.contentCurve[0],
+            DesignTokens.Island.contentCurve[1],
+            DesignTokens.Island.contentCurve[2],
+            DesignTokens.Island.contentCurve[3],
+            duration: DesignTokens.Island.contentInDuration
+        ).delay(DesignTokens.Island.contentDelay)
+        /// The content leaving before the shape returns into the notch.
+        static let islandContentOut = Animation.easeIn(duration: DesignTokens.Island.contentOutDuration)
+        /// Switching modules inside the hub.
+        static let islandSwitch = Animation.easeOut(duration: DesignTokens.Island.switchDuration)
 
         /// The animation to use, given the user's Reduce Motion setting.
         static func resolved(_ animation: Animation, reduceMotion: Bool) -> Animation {
