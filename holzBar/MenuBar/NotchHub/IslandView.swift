@@ -35,6 +35,7 @@ struct IslandView: View {
         ZStack(alignment: .topLeading) {
             closingLayer
             island
+            topRow
             content
             moduleRow
         }
@@ -117,6 +118,22 @@ struct IslandView: View {
     }
 
     // MARK: The content
+
+    /// The status pills beside the notch and the settings gear below it, from the top of the
+    /// shape down to the end of the context-line row. It shows only while the hub is open, never in
+    /// the live state.
+    @ViewBuilder
+    private var topRow: some View {
+        if let layout = presentation.layout {
+            let area = NotchHubGeometry.Rect(
+                x: layout.shape.x,
+                y: layout.shape.y,
+                width: layout.shape.width,
+                height: layout.contextRow.maxY - layout.shape.y
+            )
+            staged(IslandTopRowView(model: model, layout: layout, host: host), in: area, alignment: .topLeading)
+        }
+    }
 
     /// The selected module's content or the Overview, in the layout's content rectangle.
     @ViewBuilder
