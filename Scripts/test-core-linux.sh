@@ -59,6 +59,7 @@ sources=(
   HolzBarShelfPlacement
   HolzBarShelfStyle
   HubActivityBoard
+  HubContext
   HubIslandPhase
   HubLiveState
   HubModuleLifecycle
@@ -194,6 +195,7 @@ tests=(
   HolzBarShelfPlacementTests
   HolzBarShelfStyleTests
   HubActivityBoardTests
+  HubContextTests
   HubIslandPhaseTests
   HubLiveStateTests
   HubModuleLifecycleTests
