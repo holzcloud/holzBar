@@ -16,9 +16,10 @@ import SwiftUI
 /// never connects to, searches for or pairs with one. It asks macOS for the Bluetooth permission
 /// once, here in ``init(appState:)`` and only while the state is not determined. Each report of
 /// the monitor goes through an ``AccessoryTracker``, whose events become ``LiveActivity`` values
-/// that are already finished, so the hub shows each as a capsule below the notch for five
-/// seconds. The devices connected when the module starts are the baseline and raise no alert.
-/// Device names live in memory only, are dropped in ``shutDown()`` and are never logged.
+/// that are already finished, so each alert widens the notch for five seconds, with its fixed
+/// short word and never the device's name; VoiceOver hears each once. The devices connected when
+/// the module starts are the baseline and raise no alert. Device names live in memory only, are
+/// dropped in ``shutDown()`` and are never logged.
 ///
 /// The battery half reads accessory levels through ``AccessoryBatterySource``, only while the
 /// setting "Read battery levels" is on. A read follows events: the power-source notification, a
@@ -168,9 +169,10 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
         )
     }
 
-    /// Tells VoiceOver about an alert, because a capsule that lasts five seconds is easy to
-    /// miss without sight. Nothing is posted while VoiceOver is off. The text is the one the
-    /// capsule shows and stays in the accessibility layer of this Mac; it is never logged.
+    /// Tells VoiceOver about an alert, because a state that lasts five seconds is easy to miss
+    /// without sight. Nothing is posted while VoiceOver is off. The text names the accessory, which
+    /// the widened notch never draws; it stays in the accessibility layer of this Mac and is never
+    /// logged.
     private func announce(_ alert: LiveActivity) {
         guard NSWorkspace.shared.isVoiceOverEnabled else {
             return

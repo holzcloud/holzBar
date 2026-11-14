@@ -11,12 +11,12 @@ import SwiftUI
 ///
 /// The hub creates it only while the hub and the module are both on and calls ``shutDown()``
 /// when either goes off, so nothing of the module exists while it is off. It turns what its
-/// sources report into ``LiveActivity`` values, which the hub shows as a capsule below the
-/// notch while it is closed and as a list in this module's tab. It has two sources, each with
-/// its own switch in ``LiveActivitiesSettings``: a camera or the microphone in use by another
-/// app, from listeners that need no permission, and the downloads in progress in the Downloads
-/// folder, which asks macOS for the folder when its switch is turned on. A source that is off
-/// does not exist.
+/// sources report into ``LiveActivity`` values. The hub shows the top activity by widening the
+/// notch while it is closed, and this module's list shows every module's activities (a running
+/// timer too, D-08), not only its own. It has two sources, each with its own switch in
+/// ``LiveActivitiesSettings``: a camera or the microphone in use by another app, from listeners
+/// that need no permission, and the downloads in progress in the Downloads folder, which asks
+/// macOS for the folder when its switch is turned on. A source that is off does not exist.
 @MainActor
 @Observable
 final class LiveActivitiesRuntime: HubModuleRuntime {

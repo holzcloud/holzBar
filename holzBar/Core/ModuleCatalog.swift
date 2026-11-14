@@ -73,7 +73,7 @@ nonisolated enum ModuleCatalog {
     /// while off. Calendar, another module of the hub, is off until the user switches it on, asks for
     /// Calendar access only then and creates no store, observer or wait while off. Live activities,
     /// a third module of the hub, is off until the user switches it on, has no permission on its row
-    /// and creates no source, capsule or wait while off. Display controls, a fourth module of the hub, is off until
+    /// and creates no source or wait while off. Display controls, a fourth module of the hub, is off until
     /// the user switches it on, asks for no permission and creates no runtime or CoreAudio listener while
     /// off. Now Playing, a fifth module of the hub, is off until the user switches it on, asks for no
     /// permission and creates no observer, runtime or model while off. The title and the summary are the English
@@ -132,7 +132,7 @@ nonisolated enum ModuleCatalog {
             area: .notch,
             symbol: "waveform",
             titleKey: "Live activities",
-            summaryKey: "Calls and downloads shown as a small capsule at the notch.",
+            summaryKey: "Calls and downloads shown beside the notch.",
             permission: nil
         ),
         ModuleDescriptor(

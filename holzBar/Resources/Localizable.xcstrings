@@ -159899,6 +159899,478 @@
           }
         }
       }
+    },
+    "The notch widens while another app uses the camera or the microphone. holzBar reads no audio or video." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Výřez se rozšíří, když jiná aplikace používá kameru nebo mikrofon. holzBar nečte žádný zvuk ani video."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Notch wird breiter, solange eine andere App die Kamera oder das Mikrofon verwendet. holzBar liest weder Ton noch Bild."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El notch se ensancha mientras otra app usa la cámara o el micrófono. holzBar no lee ni audio ni vídeo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’encoche s’élargit tant qu’une autre app utilise la caméra ou le micro. holzBar ne lit ni audio ni vidéo."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A notch kiszélesedik, amíg egy másik alkalmazás a kamerát vagy a mikrofont használja. A holzBar nem olvas hangot vagy videót."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch melebar saat app lain memakai kamera atau mikrofon. holzBar tidak membaca audio atau video apa pun."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il notch si allarga finché un’altra app usa la fotocamera o il microfono. holzBar non legge né audio né video."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ほかのAppがカメラまたはマイクを使用している間、ノッチが横に広がります。holzBarは音声も映像も読み取りません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 앱이 카메라나 마이크를 사용하는 동안 노치가 옆으로 넓어집니다. holzBar는 오디오나 비디오를 읽지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De notch wordt breder terwijl een andere app de camera of de microfoon gebruikt. holzBar leest geen audio of video."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch się poszerza, gdy inna aplikacja używa kamery lub mikrofonu. holzBar nie odczytuje dźwięku ani obrazu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O notch se alarga enquanto outro app usa a câmera ou o microfone. O holzBar não lê áudio nem vídeo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La notch daventa pli lada uschè ditg che in’autra app duvra la camera u il microfon. holzBar na legia ni audio ni video."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока другое приложение использует камеру или микрофон, вырез становится шире. holzBar не считывает ни звук, ни видео."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notchen blir bredare medan en annan app använder kameran eller mikrofonen. holzBar läser inget ljud eller någon video."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Başka bir uygulama kamerayı veya mikrofonu kullanırken notch genişler. holzBar hiçbir ses veya video okumaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поки інша програма використовує камеру чи мікрофон, виріз стає ширшим. holzBar не зчитує ні звук, ні відео."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当其他 App 使用摄像头或麦克风时，刘海会向两侧变宽。holzBar 不会读取音频或视频。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "其他 App 使用相機或麥克風時，瀏海會向兩側變寬。holzBar 不讀取任何音訊或影片。"
+          }
+        }
+      }
+    },
+    "The notch widens for five seconds and shows the accessory's symbol." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Výřez se na pět sekund rozšíří a ukáže symbol příslušenství."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Notch wird fünf Sekunden lang breiter und zeigt das Symbol des Zubehörs."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El notch se ensancha durante cinco segundos y muestra el símbolo del accesorio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’encoche s’élargit pendant cinq secondes et affiche le symbole de l’accessoire."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A notch öt másodpercre kiszélesedik, és megmutatja a tartozék szimbólumát."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch melebar selama lima detik dan menampilkan simbol aksesori."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il notch si allarga per cinque secondi e mostra il simbolo dell’accessorio."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ノッチが 5 秒間横に広がり、アクセサリのシンボルが表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노치가 5초 동안 넓어지며 액세서리의 기호가 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De notch wordt vijf seconden breder en toont het symbool van het accessoire."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch poszerza się na pięć sekund i pokazuje symbol akcesorium."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O notch se alarga por cinco segundos e mostra o símbolo do acessório."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La notch daventa pli lada durant tschintg secundas e mussa il simbol da l’accessori."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вырез на пять секунд становится шире и показывает символ аксессуара."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notchen blir bredare i fem sekunder och visar tillbehörets symbol."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch beş saniye boyunca genişler ve aksesuarın simgesini gösterir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виріз на пʼять секунд стає ширшим і показує символ аксесуара."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刘海会变宽五秒，并显示配件的符号。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "瀏海會變寬五秒鐘，並顯示配件的符號。"
+          }
+        }
+      }
+    },
+    "The notch widens for five seconds and shows the accessory's symbol. macOS asks for Bluetooth when the Notch hub is on." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Výřez se na pět sekund rozšíří a ukáže symbol příslušenství. macOS požádá o Bluetooth, když je zapnuté centrum u výřezu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Notch wird fünf Sekunden lang breiter und zeigt das Symbol des Zubehörs. macOS fragt nach Bluetooth, sobald der Notch-Hub an ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El notch se ensancha durante cinco segundos y muestra el símbolo del accesorio. macOS pedirá acceso a Bluetooth en cuanto el centro del notch esté activado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’encoche s’élargit pendant cinq secondes et affiche le symbole de l’accessoire. macOS demande l’accès au Bluetooth dès que le hub de l’encoche est activé."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A notch öt másodpercre kiszélesedik, és megmutatja a tartozék szimbólumát. A macOS Bluetooth-engedélyt kér, amikor a notch-központ be van kapcsolva."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch melebar selama lima detik dan menampilkan simbol aksesori. macOS meminta akses Bluetooth saat pusat notch diaktifkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il notch si allarga per cinque secondi e mostra il simbolo dell’accessorio. macOS chiede il Bluetooth non appena l’hub del notch è attivo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ノッチが 5 秒間横に広がり、アクセサリのシンボルが表示されます。 ノッチハブがオンになると、macOS が Bluetooth の使用許可を求めます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노치가 5초 동안 넓어지며 액세서리의 기호가 표시됩니다. 노치 허브가 켜지면 macOS가 Bluetooth 사용 권한을 요청합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De notch wordt vijf seconden breder en toont het symbool van het accessoire. macOS vraagt om Bluetooth wanneer de notch-hub aan staat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch poszerza się na pięć sekund i pokazuje symbol akcesorium. macOS zapyta o Bluetooth, gdy centrum notcha jest włączone."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O notch se alarga por cinco segundos e mostra o símbolo do acessório. O macOS pede acesso ao Bluetooth assim que o hub do notch estiver ativado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La notch daventa pli lada durant tschintg secundas e mussa il simbol da l’accessori. macOS dumonda davart Bluetooth uschespert che il hub da la notch è activà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вырез на пять секунд становится шире и показывает символ аксессуара. macOS запросит доступ к Bluetooth, как только центр у выреза будет включён."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notchen blir bredare i fem sekunder och visar tillbehörets symbol. macOS ber om Bluetooth-åtkomst när notchcentret är på."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch beş saniye boyunca genişler ve aksesuarın simgesini gösterir. Notch merkezi açıkken macOS Bluetooth erişimi ister."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виріз на пʼять секунд стає ширшим і показує символ аксесуара. macOS запитає доступ до Bluetooth, щойно центр біля вирізу буде ввімкнено."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刘海会变宽五秒，并显示配件的符号。刘海中心开启后，macOS 会请求使用蓝牙。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "瀏海會變寬五秒鐘，並顯示配件的符號。開啟「瀏海中心」時，macOS 會要求藍牙權限。"
+          }
+        }
+      }
+    },
+    "Calls and downloads shown beside the notch." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hovory a stahování zobrazené vedle výřezu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anrufe und Downloads neben der Notch."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Llamadas y descargas junto al notch."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appels et téléchargements à côté de l’encoche."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hívások és letöltések a notch mellett."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Panggilan dan unduhan di samping notch."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiamate e download accanto al notch."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通話やダウンロードを、ノッチの横に表示します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "통화와 다운로드를 노치 옆에 표시합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesprekken en downloads naast de notch."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Połączenia i pobierania pokazane obok notcha."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chamadas e downloads ao lado do notch."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clomadas e telechargiadas sper la notch."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Звонки и загрузки рядом с вырезом."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samtal och nedladdningar bredvid notchen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch’un yanında aramalar ve indirmeler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дзвінки та завантаження поруч із вирізом."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在刘海旁显示通话和下载。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通話與下載會顯示在瀏海旁。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

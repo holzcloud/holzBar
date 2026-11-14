@@ -26,7 +26,7 @@ struct AccessoryAlertsSettingsView: View {
                 .modulesAccessoryAlertsConnect,
                 isOn: $settings.connect,
                 info: access == .notDetermined
-                    ? Text("A capsule below the notch names the accessory for five seconds. macOS asks for Bluetooth when the Notch hub is on.")
+                    ? Text("The notch widens for five seconds and shows the accessory's symbol. macOS asks for Bluetooth when the Notch hub is on.")
                     : nil
             )
             SettingsToggleRow(.modulesAccessoryAlertsDisconnect, isOn: $settings.disconnect)

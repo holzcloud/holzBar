@@ -11,7 +11,7 @@
 // here is renamed, removed or re-typed once a module has shipped against it. A module is
 // three things: a ``ModuleDescriptor`` in ``ModuleCatalog`` (area notch; its place in the
 // list is its tab order), a ``HubModuleRegistration`` in ``HubModules`` and a class that
-// conforms to ``HubModuleRuntime``. A module never touches the panel, the tab strip or the
+// conforms to ``HubModuleRuntime``. A module never touches the panel, the module row or the
 // geometry, and the hub never imports a module.
 
 import CoreGraphics
@@ -79,7 +79,7 @@ struct HubTile {
     }
 }
 
-/// A module's small status in the hub's right wing, such as the battery or the time.
+/// A module's small status beside the notch in the open hub, such as the battery or the time.
 struct HubStatusPill {
     /// The name of an SF Symbol before the text, if any.
     var symbol: String?
@@ -146,23 +146,24 @@ protocol HubModuleRuntime: AnyObject {
     /// The colour of the module's tab and tile. The default is the accent.
     var tint: HubTint { get }
 
-    /// Whether the module has a tab in the icon strip. The default is `true`.
+    /// Whether the module has a button in the module row. The default is `true`.
     var offersTab: Bool { get }
 
     /// The module's card on the Overview, or `nil` for none. The hub reads it while it draws,
     /// so a tile that reads observable state follows it. The default is `nil`.
     var tile: HubTile? { get }
 
-    /// The module's status in the right wing, or `nil` for none. The default is `nil`.
+    /// The module's status as a pill beside the notch in the open hub, or `nil` for none; the Timers
+    /// module's pill shows left of the notch. The default is `nil`.
     var statusPill: HubStatusPill? { get }
 
     /// What is going on in the module, as plain values: a download, a camera in use, a timer.
-    /// The hub reads it while it is on, with the activities of every other module, and shows
-    /// the top one as a small capsule below the notch while the hub is closed, and the list in
-    /// the Live activities tab. The runtime keeps it current from observable state, so the hub
-    /// follows every change; it does no work for the hub. A file name or an event title in an
-    /// activity stays in memory: the capsule shows only titles, and nothing is logged or
-    /// stored. The default is none.
+    /// The hub reads it while it is on, with the activities of every other module: the top one
+    /// widens the notch while the hub is closed and shows only its symbol and short value, and the
+    /// Live activities module lists them all. The runtime keeps it current from observable state,
+    /// so the hub follows every change; it does no work for the hub. A file name or an event title
+    /// in an activity stays in memory: only the title is read by VoiceOver, and nothing is logged
+    /// or stored. The default is none.
     var activities: [LiveActivity] { get }
 
     /// What the module tells the hub's context, which decides what is in front when the hub opens:

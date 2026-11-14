@@ -221,7 +221,7 @@ extension SettingsEntry {
         pane: .modules,
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Camera and microphone in use"),
-        info: String(localized: "A capsule shows while another app uses the camera or the microphone. holzBar reads no audio or video."),
+        info: String(localized: "The notch widens while another app uses the camera or the microphone. holzBar reads no audio or video."),
         module: "live-activities"
     )
 
@@ -266,7 +266,7 @@ extension SettingsEntry {
         pane: .modules,
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Alert when an accessory connects"),
-        info: String(localized: "A capsule below the notch names the accessory for five seconds."),
+        info: String(localized: "The notch widens for five seconds and shows the accessory's symbol."),
         module: "accessory-alerts"
     )
 
