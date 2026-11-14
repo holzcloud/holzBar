@@ -1275,6 +1275,16 @@ final class NotchHubController: HubHost {
         }
     }
 
+    /// The active space changed: works out the live state again and brings the panel along. The
+    /// panel moves to the active space only when it is ordered to the front (`.moveToActiveSpace`),
+    /// and the placement usually stays the same, so `updateLive` would not do it.
+    private func activeSpaceDidChange() {
+        activitiesDidChange()
+        if livePlacement != nil, !isOpen {
+            panel?.orderFrontRegardless()
+        }
+    }
+
     /// Follows the active space and the displays, only while the live state shows: on either it
     /// works out again where, and whether, the live state shows.
     private func startLiveObservers() {
@@ -1282,7 +1292,7 @@ final class NotchHubController: HubHost {
             Task { [weak self] in
                 let center = NSWorkspace.shared.notificationCenter
                 for await _ in center.notifications(named: NSWorkspace.activeSpaceDidChangeNotification) {
-                    self?.activitiesDidChange()
+                    self?.activeSpaceDidChange()
                 }
             },
             Task { [weak self] in
