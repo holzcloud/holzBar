@@ -73,6 +73,11 @@ final class CalendarRuntime: HubModuleRuntime {
     /// The rows of the Calendar tab.
     private(set) var rows = [CalendarRowModel]()
 
+    /// Whether ``rows`` were read since the hub opened. The events are read only while the hub is
+    /// open, so a closed hub keeps rows that may be out of date; the context must not decide on
+    /// them (``contextSignal``).
+    private(set) var rowsAreFresh = false
+
     /// Whether events can be read.
     private(set) var authorization = CalendarAuthorization.current
 
@@ -201,6 +206,8 @@ final class CalendarRuntime: HubModuleRuntime {
                     && MeetingLinks.isJoinable(start: row.event.start, end: row.event.end, now: now)
                 return CalendarRowModel(row: row, link: link, isJoinable: isJoinable)
             }
+            // A read that ends after the hub closed is stale again by the next opening.
+            rowsAreFresh = isHubOpen
             logger.debug("Calendar events changed: \(selection.rows.count, privacy: .public) rows")
             armWait(until: selection.nextBoundary)
         }
@@ -256,9 +263,14 @@ final class CalendarRuntime: HubModuleRuntime {
     }
 
     /// What the hub's context reads: the times of the timed events the runtime holds, never
-    /// anything else of them. Nothing is read for it; all-day events are left out.
+    /// anything else of them. Nothing is read for it; all-day events are left out. Rows from an
+    /// earlier opening count as no meetings until this opening has read them: an event deleted or
+    /// moved since then must not bring the module to the front.
     var contextSignal: HubContext.Signal? {
-        .meetings(
+        guard rowsAreFresh else {
+            return .meetings([])
+        }
+        return .meetings(
             rows.compactMap { model in
                 let event = model.row.event
                 return event.isAllDay ? nil : HubContext.Meeting(start: event.start, end: event.end)
@@ -271,6 +283,7 @@ final class CalendarRuntime: HubModuleRuntime {
         guard isOpen else {
             waitTask?.cancel()
             waitTask = nil
+            rowsAreFresh = false
             return
         }
         // A change of access reloads by itself; otherwise the open hub reads again.
@@ -298,6 +311,7 @@ final class CalendarRuntime: HubModuleRuntime {
         permissionLoop = nil
         settingsLoop = nil
         rows = []
+        rowsAreFresh = false
         fetcher = nil
     }
 }
