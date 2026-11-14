@@ -7,15 +7,17 @@ import SwiftUI
 
 /// The Live activities tab: what is going on, with the top activity first.
 ///
-/// The list is the hub's board of the module's activities. A finished activity shows its own
-/// done title and symbol until it leaves; the view asks the system to draw it again at each of
-/// those moments, so it runs no timer and refreshes nothing in between.
+/// The list is the hub's board of every module's activities, from the hub itself
+/// (``HubHost/liveActivities``): a running timer shows here as well as in Timers, and an accessory
+/// alert shows for as long as it is live. Nothing is filtered by module (D-08). A finished
+/// activity shows its own done title and symbol until it leaves; the view asks the system to draw
+/// it again at each of those moments, so it runs no timer and refreshes nothing in between.
 struct LiveActivitiesBodyView: View {
-    let runtime: LiveActivitiesRuntime
+    let host: any HubHost
 
     var body: some View {
         TimelineView(.explicit(refreshDates)) { context in
-            content(HubActivityBoard.board(runtime.activities, now: context.date))
+            content(HubActivityBoard.board(host.liveActivities, now: context.date))
         }
         .frame(height: CGFloat(NotchHubGeometry.bodyHeight), alignment: .top)
     }
@@ -23,7 +25,7 @@ struct LiveActivitiesBodyView: View {
     /// Now, and each moment at which a finished activity leaves.
     private var refreshDates: [Date] {
         let now = Date.now
-        let expiries = runtime.activities
+        let expiries = host.liveActivities
             .compactMap { activity in activity.finishedAt?.addingTimeInterval(HubActivityBoard.finishedHold) }
             .filter { $0 > now }
             .sorted()

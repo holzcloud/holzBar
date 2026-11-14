@@ -127,9 +127,19 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
             let raisedAlert: LiveActivity
             switch event {
             case .connected(let device):
-                raisedAlert = alert(for: device, title: String(localized: "\(device.name) connected"), at: now)
+                raisedAlert = alert(
+                    for: device,
+                    title: String(localized: "\(device.name) connected"),
+                    shortWord: String(localized: "Connected"),
+                    at: now
+                )
             case .disconnected(let device):
-                raisedAlert = alert(for: device, title: String(localized: "\(device.name) disconnected"), at: now)
+                raisedAlert = alert(
+                    for: device,
+                    title: String(localized: "\(device.name) disconnected"),
+                    shortWord: String(localized: "Disconnected"),
+                    at: now
+                )
             }
             raised.append(raisedAlert)
             announce(raisedAlert)
@@ -140,8 +150,9 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
     }
 
     /// An alert: an activity that is finished when it is created, so the hub holds it for its
-    /// five seconds and drops it.
-    private func alert(for device: AccessoryDevice, title: String, at date: Date) -> LiveActivity {
+    /// five seconds and drops it. The title names the accessory, for VoiceOver and the list; the
+    /// short word is the fixed word the widened notch shows, never the name.
+    private func alert(for device: AccessoryDevice, title: String, shortWord: String, at date: Date) -> LiveActivity {
         LiveActivity(
             id: UUID().uuidString,
             moduleID: moduleID,
@@ -152,7 +163,8 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
             startedAt: date,
             finishedAt: date,
             tint: .accent,
-            announcesItself: true
+            announcesItself: true,
+            compactValue: shortWord
         )
     }
 
@@ -343,7 +355,8 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
                 startedAt: now,
                 finishedAt: now,
                 tint: isCritical ? .red : .amber,
-                announcesItself: true
+                announcesItself: true,
+                compactValue: battery.percentText
             )
             raised.append(lowAlert)
             announce(lowAlert)

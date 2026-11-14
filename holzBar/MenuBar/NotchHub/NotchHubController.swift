@@ -1287,6 +1287,10 @@ final class NotchHubController: HubHost {
         appState.openWindow(.settings)
     }
 
+    var liveActivities: [LiveActivity] {
+        model.activities
+    }
+
     func takeKeyboard() {
         guard isOpen, let panel else {
             return

@@ -119,10 +119,18 @@ protocol HubHost: AnyObject {
     /// hub makes its panel the key window, as it is for a hub opened by its hotkey, without
     /// making holzBar the active app. The default does nothing.
     func takeKeyboard()
+
+    /// Every live activity the hub's modules report now, in catalog order, whichever module
+    /// reports it: a running timer is in it as well as a camera in use. The Live activities module
+    /// lists them all. The values hold names and labels in memory only; they are never logged.
+    /// The default is none.
+    var liveActivities: [LiveActivity] { get }
 }
 
 extension HubHost {
     func takeKeyboard() {}
+
+    var liveActivities: [LiveActivity] { [] }
 }
 
 /// The running part of a hub module.

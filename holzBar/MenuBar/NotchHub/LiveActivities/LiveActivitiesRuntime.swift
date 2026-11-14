@@ -84,7 +84,8 @@ final class LiveActivitiesRuntime: HubModuleRuntime {
                     title: String(localized: "Camera in use"),
                     priority: 20,
                     startedAt: since,
-                    tint: .red
+                    tint: .red,
+                    compactValue: String(localized: "Camera")
                 )
             )
         }
@@ -98,7 +99,8 @@ final class LiveActivitiesRuntime: HubModuleRuntime {
                     title: String(localized: "Microphone in use"),
                     priority: 20,
                     startedAt: since,
-                    tint: .red
+                    tint: .red,
+                    compactValue: String(localized: "Microphone")
                 )
             )
         }
@@ -113,7 +115,8 @@ final class LiveActivitiesRuntime: HubModuleRuntime {
                     detail: item.name,
                     priority: 10,
                     startedAt: item.startedAt,
-                    tint: .accent
+                    tint: .accent,
+                    compactValue: String(localized: "Download")
                 )
             )
         }
@@ -129,7 +132,8 @@ final class LiveActivitiesRuntime: HubModuleRuntime {
                     priority: 10,
                     startedAt: item.startedAt,
                     finishedAt: item.finishedAt,
-                    tint: .green
+                    tint: .green,
+                    compactValue: String(localized: "Done")
                 )
             )
         }
@@ -155,7 +159,7 @@ final class LiveActivitiesRuntime: HubModuleRuntime {
     }
 
     func makeBody(host: any HubHost) -> AnyView {
-        AnyView(LiveActivitiesBodyView(runtime: self))
+        AnyView(LiveActivitiesBodyView(host: host))
     }
 
     /// Stops the sources and lets go of what they reported.
