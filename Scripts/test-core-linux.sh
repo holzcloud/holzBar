@@ -139,6 +139,7 @@ sources=(
   TimerBoard
   TimerFinishSound
   TimerInput
+  TimerLiveActivities
   UndoHistory
   UngovernedItemOwners
   URLCommand
@@ -266,6 +267,7 @@ tests=(
   TimerBoardTests
   TimerFinishSoundTests
   TimerInputTests
+  TimerLiveActivitiesTests
   UndoHistoryTests
   UngovernedItemOwnersTests
   URLCommandTests
