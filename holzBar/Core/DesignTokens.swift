@@ -294,6 +294,12 @@ nonisolated enum DesignTokens {
         /// Switching modules inside the hub: the content cross-fades while it rises this far.
         static let switchDuration: Double = 0.22
         static let switchRise: Double = 4
+        /// The fallback for a transition whose animation never reports that it ended
+        /// (``HubIslandPhase/completionFallbackDelay``): a spring counts as settled when its swing
+        /// has fallen to this share of its first one, and the wait adds this many seconds to the
+        /// longest motion.
+        static let settleThreshold: Double = 0.001
+        static let completionMargin: Double = 0.5
     }
 
     /// The gradient of fills that carry white text, the same in both appearances.

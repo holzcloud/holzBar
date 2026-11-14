@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import HolzBarCore
 
@@ -195,6 +196,90 @@ struct HubIslandPhaseTests {
         #expect(opening.target == .open)
         #expect(opening.generation == 3)
         #expect(opening.isLive)
+    }
+
+    @Test("A fallback completion of the current generation settles a transition whose animation never reported its end")
+    func fallbackSettlesTheCurrentGeneration() {
+        let opening = Phase.reduce(Phase.State(), .open)
+        let settled = Phase.reduce(opening, .animationFinished(generation: opening.generation))
+        #expect(!settled.isAnimating)
+        #expect(settled.hasShadow)
+        let closing = Phase.reduce(settled, .close)
+        let closed = Phase.reduce(closing, .animationFinished(generation: closing.generation))
+        #expect(closed.ordersOut)
+        #expect(!closed.isPanelVisible)
+    }
+
+    @Test("A late fallback completion of an old generation is ignored and cannot order out or settle the newer transition")
+    func lateFallbackOfAnOldGenerationIsIgnored() {
+        // The closing (generation 2) armed a fallback; the hub opens again (generation 3) before it fires.
+        let closing = Phase.reduce(state(.open, generation: 1), .close)
+        let reopened = Phase.reduce(closing, .open)
+        let late = Phase.reduce(reopened, .animationFinished(generation: closing.generation))
+        #expect(late == reopened)
+        #expect(late.isAnimating)
+        #expect(!late.ordersOut)
+        #expect(late.isPanelVisible)
+        // The newer transition's own fallback still settles it.
+        #expect(Phase.reduce(late, .animationFinished(generation: reopened.generation)).hasShadow)
+    }
+
+    @Test("The fallback after the real completion changes nothing, so it cannot order the panel out twice")
+    func fallbackAfterTheRealCompletionIsIgnored() {
+        let closing = Phase.reduce(state(.open, generation: 1), .close)
+        let closed = Phase.reduce(closing, .animationFinished(generation: closing.generation))
+        #expect(closed.ordersOut)
+        #expect(Phase.reduce(closed, .animationFinished(generation: closing.generation)) == closed)
+        // Nor does it undo a hub that opened again after the closing finished.
+        let reopened = Phase.reduce(closed, .open)
+        #expect(Phase.reduce(reopened, .animationFinished(generation: closing.generation)) == reopened)
+    }
+
+    @Test("A transition starts exactly when an animation runs with a new generation")
+    func startsTransition() {
+        let closed = Phase.State()
+        let opening = Phase.reduce(closed, .open)
+        #expect(Phase.startsTransition(from: closed, to: opening))
+        let settled = Phase.reduce(opening, .animationFinished(generation: opening.generation))
+        #expect(!Phase.startsTransition(from: opening, to: settled))
+        // A change of live that is only recorded while the hub is open starts nothing.
+        let recorded = Phase.reduce(settled, .liveChanged(true))
+        #expect(!Phase.startsTransition(from: settled, to: recorded))
+        // An event that changes nothing starts nothing.
+        #expect(!Phase.startsTransition(from: opening, to: Phase.reduce(opening, .open)))
+        // A turn around during a closing replaces the running animation with a new generation.
+        let closing = Phase.reduce(settled, .close)
+        #expect(Phase.startsTransition(from: closing, to: Phase.reduce(closing, .open)))
+    }
+
+    @Test("A spring's settling time follows the decay of its envelope")
+    func settlingTime() {
+        // Response 1 s, damping 0.5: the envelope falls to 1 / e after 1 / (0.5 * 2π) s.
+        let time = Phase.settlingTime(response: 1, damping: 0.5, threshold: exp(-1))
+        #expect(abs(time - 1 / (0.5 * 2 * Double.pi)) < 1e-9)
+        // A smaller threshold, a longer response and a lower damping each take longer.
+        #expect(Phase.settlingTime(response: 1, damping: 0.5, threshold: 0.001) > time)
+        #expect(Phase.settlingTime(response: 2, damping: 0.5, threshold: exp(-1)) > time)
+        #expect(Phase.settlingTime(response: 1, damping: 0.25, threshold: exp(-1)) > time)
+    }
+
+    @Test("The fallback waits longer than every spring and every content curve of the island, by the margin")
+    func fallbackDelayCoversTheLongestMotion() {
+        let island = DesignTokens.Island.self
+        let threshold = island.settleThreshold
+        let springs = [
+            Phase.settlingTime(response: island.openWidthResponse, damping: island.openWidthDamping, threshold: threshold),
+            Phase.settlingTime(response: island.openHeightResponse, damping: island.openHeightDamping, threshold: threshold),
+            island.contentOutDuration
+                + Phase.settlingTime(response: island.closeResponse, damping: island.closeDamping, threshold: threshold),
+            island.contentDelay + island.contentInDuration,
+        ]
+        let longest = springs.max() ?? 0
+        #expect(Phase.completionFallbackDelay >= longest + island.completionMargin - 1e-9)
+        #expect(Phase.completionFallbackDelay > springs.max() ?? 0)
+        // It is one wait of about a second, not a poll: longer than any motion, shorter than 3 s.
+        #expect(Phase.completionFallbackDelay > 1)
+        #expect(Phase.completionFallbackDelay < 3)
     }
 
     @Test("The targets are ordered closed, live, open")

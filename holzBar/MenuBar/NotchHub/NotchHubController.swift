@@ -107,6 +107,12 @@ final class NotchHubController: HubHost {
     /// completion goes through ``send(_:)``.
     @ObservationIgnored private var phase = HubIslandPhase.State()
 
+    /// The one-shot wait of the running transition: if SwiftUI never reports that its animation
+    /// ended (the system orders the window out mid-transition, a transaction animates nothing),
+    /// it settles the transition after ``HubIslandPhase/completionFallbackDelay``. One per
+    /// transition, replaced by the next one and cancelled by the completion; never a poll.
+    @ObservationIgnored private var settleFallbackTask: Task<Void, Never>?
+
     /// The shape the panel rests at once the running transition has ended: the open shape while
     /// the hub opens, the live shape while something is live and the hub is closed, else the seed,
     /// the notch's rectangle.
@@ -288,7 +294,9 @@ final class NotchHubController: HubHost {
             panel?.orderOut(nil)
             panel = nil
             presentation = nil
-            // Everything is released at once; a completion that is still on its way must be stale.
+            // Everything is released at once; a completion that is still on its way must be stale,
+            // and so must the fallback of the transition that was running.
+            cancelSettleFallback()
             var released = HubIslandPhase.State()
             released.generation = phase.generation + 1
             phase = released
@@ -612,11 +620,48 @@ final class NotchHubController: HubHost {
         guard next != phase else {
             return false
         }
+        let previous = phase
         phase = next
         if isOpen != next.isOpen {
             isOpen = next.isOpen
         }
+        if HubIslandPhase.startsTransition(from: previous, to: next) {
+            armSettleFallback(generation: next.generation)
+        } else if !next.isAnimating {
+            cancelSettleFallback()
+        }
         return true
+    }
+
+    /// Arms the one wait that settles the transition of `generation` when its animation never
+    /// reports the end, and drops the wait of the transition it replaces. The completion that
+    /// arrives first wins: the other finds the generation settled or replaced, which the reducer
+    /// ignores (``HubIslandPhase``, rule 1), so the panel is never ordered out twice and a newer
+    /// transition is never settled early.
+    private func armSettleFallback(generation: Int) {
+        settleFallbackTask?.cancel()
+        settleFallbackTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(HubIslandPhase.completionFallbackDelay))
+            guard !Task.isCancelled else {
+                return
+            }
+            self?.settleFallbackFired(generation: generation)
+        }
+    }
+
+    private func cancelSettleFallback() {
+        settleFallbackTask?.cancel()
+        settleFallbackTask = nil
+    }
+
+    /// The wait ran out: feeds the completion the animation did not report.
+    private func settleFallbackFired(generation: Int) {
+        settleFallbackTask = nil
+        guard generation == phase.generation, phase.isAnimating else {
+            return
+        }
+        logger.debug("An island animation did not report its end; the fallback settled it")
+        islandAnimationFinished(generation)
     }
 
     /// The end of a transition: the panel becomes exactly the shape it rests at, the window's

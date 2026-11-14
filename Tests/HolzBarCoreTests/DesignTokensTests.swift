@@ -349,6 +349,8 @@ struct DesignTokensTests {
         #expect(island.contentCurve == [0.2, 0.8, 0.2, 1])
         #expect(island.switchDuration == 0.22)
         #expect(island.switchRise == 4)
+        #expect(island.settleThreshold == 0.001)
+        #expect(island.completionMargin == 0.5)
     }
 
     @Test("The island keeps the concept's relations")

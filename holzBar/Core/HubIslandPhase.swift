@@ -28,6 +28,10 @@ import Foundation
 /// 6. The panel is on screen while the target is not closed or while an animation runs. It
 ///    orders out only when a closing to closed has finished. It has its shadow only when the
 ///    open shape has settled.
+/// 7. A completion that SwiftUI never reports is replaced by one timeout per transition
+///    (``completionFallbackDelay``), which the owner feeds in as the same
+///    ``Event/animationFinished(generation:)``; rule 1 makes it harmless when the real completion
+///    came first or a newer transition has replaced the generation.
 nonisolated enum HubIslandPhase {
     /// Where the island is, or is heading.
     nonisolated enum Target: Int, Comparable, Sendable {
@@ -127,6 +131,37 @@ nonisolated enum HubIslandPhase {
             return next
         }
     }
+
+    /// Whether going from one state to the next started a transition: an animation runs that
+    /// has a generation the previous state did not have. The owner arms the fallback for it.
+    static func startsTransition(from previous: State, to next: State) -> Bool {
+        next.isAnimating && next.generation != previous.generation
+    }
+
+    /// The seconds a damped spring needs until its swing has fallen to `threshold` of the first
+    /// one: `-ln(threshold) / (damping * 2π / response)`, the decay of its envelope. It is an
+    /// upper bound for the time SwiftUI takes to report the spring as removed.
+    static func settlingTime(response: Double, damping: Double, threshold: Double) -> Double {
+        let rate = max(damping, 0.01) * 2 * Double.pi / max(response, 0.01)
+        return -log(min(max(threshold, 1e-9), 0.999)) / rate
+    }
+
+    /// How long after a transition starts the fallback settles it when its animation has not
+    /// reported the end: the longest motion of the island (the opening's two springs, the
+    /// closing's spring after its delay, the content's curve after its delay) plus
+    /// ``DesignTokens/Island/completionMargin``. One wait per transition; it never repeats.
+    static let completionFallbackDelay: Double = {
+        let island = DesignTokens.Island.self
+        let threshold = island.settleThreshold
+        let longest = max(
+            settlingTime(response: island.openWidthResponse, damping: island.openWidthDamping, threshold: threshold),
+            settlingTime(response: island.openHeightResponse, damping: island.openHeightDamping, threshold: threshold),
+            island.contentOutDuration
+                + settlingTime(response: island.closeResponse, damping: island.closeDamping, threshold: threshold),
+            island.contentDelay + island.contentInDuration
+        )
+        return longest + island.completionMargin
+    }()
 
     /// Starts an animation towards a target, replacing any that runs.
     private static func starting(_ state: State, towards target: Target) -> State {
