@@ -37,6 +37,7 @@ sources=(
   BatteryLevel
   BuiltInItem
   CalendarEvent
+  CalendarReadFreshness
   CalendarSelection
   ClockClickPolicy
   CommandDragSection
@@ -174,6 +175,7 @@ tests=(
   BarClickTraceTests
   BatteryLevelTests
   BuiltInItemTests
+  CalendarReadFreshnessTests
   CalendarSelectionTests
   ClockClickPolicyTests
   CommandDragSectionTests
