@@ -37,6 +37,8 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
     static let maximumTitleLength = 80
     /// The most characters of a detail.
     static let maximumDetailLength = 200
+    /// The most characters of a short word.
+    static let maximumCompactValueLength = 16
     /// The range a progress is clamped into.
     static let progressRange: ClosedRange<Double> = 0...1
 
@@ -67,6 +69,7 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
     /// Whether the module that returned the activity speaks it to VoiceOver itself, so the
     /// capsule does not announce its title a second time.
     let announcesItself: Bool
+    let compactValue: String?
 
     /// A key that is unique across modules: the module's identifier and the activity's id.
     var key: String {
@@ -88,7 +91,8 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
         endsAt: Date? = nil,
         finishedAt: Date? = nil,
         tint: LiveActivityTint = .accent,
-        announcesItself: Bool = false
+        announcesItself: Bool = false,
+        compactValue: String? = nil
     ) {
         self.id = id
         self.moduleID = moduleID
@@ -105,5 +109,6 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
         self.finishedAt = finishedAt
         self.tint = tint
         self.announcesItself = announcesItself
+        self.compactValue = compactValue
     }
 }

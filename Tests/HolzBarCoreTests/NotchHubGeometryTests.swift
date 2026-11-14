@@ -359,4 +359,95 @@ struct NotchHubGeometryTests {
         let above = Geometry.Rect(x: 100, y: -3, width: 50, height: 20)
         #expect(Geometry.transitionFrame(from: above, to: above, displayWidth: 1000).y == 0)
     }
+
+    // MARK: Live state
+
+    @Test("Live, notched fixture A: at the top edge, the top row high, the notch plus 90 on each side, centred on the notch")
+    func liveNotched() throws {
+        let result = try #require(Geometry.live(display: notchedA))
+        let side = DesignTokens.Island.liveSideWidth
+        let radius = DesignTokens.Island.liveTopRadius
+        #expect(side == 90)
+        #expect(radius == 6)
+        // The black part is 663 - 90 ... 849 + 90, the bounds add the 6 point flare on each side.
+        #expect(result.shape == Geometry.Rect(x: 567, y: 0, width: 378, height: 32))
+        #expect(result.shape.x + result.shape.width / 2 == 756)
+        #expect(result.shape.minX + radius == 663 - side)
+        #expect(result.shape.maxX - radius == 849 + side)
+        #expect(result.hoverZone == result.shape)
+        // The areas keep the clearance to the notch and never touch it.
+        #expect(result.leading == Geometry.Rect(x: 573, y: 0, width: 82, height: 32))
+        #expect(result.trailing == Geometry.Rect(x: 857, y: 0, width: 82, height: 32))
+        #expect(result.leading.maxX == 663 - Geometry.clearance)
+        #expect(result.trailing.minX == 849 + Geometry.clearance)
+        let notch = Geometry.Rect(x: 663, y: 0, width: 186, height: 32)
+        #expect(!result.leading.intersects(notch))
+        #expect(!result.trailing.intersects(notch))
+    }
+
+    @Test("Live: never taller than the top row, on every notched fixture")
+    func liveNeverGrowsDownward() throws {
+        for display in [notchedA, notchedB, notchedC, notchless] {
+            let result = try #require(Geometry.live(display: display))
+            let full = try island(display)
+            #expect(result.shape.minY == 0)
+            #expect(result.shape.height == full.topRowHeight)
+            #expect(result.leading.height == full.topRowHeight)
+            #expect(result.trailing.height == full.topRowHeight)
+            #expect(result.shape.minX >= Geometry.screenMargin)
+            #expect(result.shape.maxX <= display.width - Geometry.screenMargin)
+            if let notch = full.notch {
+                #expect(!result.leading.intersects(notch))
+                #expect(!result.trailing.intersects(notch))
+                #expect(result.shape.width == notch.width + 2 * DesignTokens.Island.liveSideWidth + 2 * DesignTokens.Island.liveTopRadius)
+            }
+        }
+        #expect(try #require(Geometry.live(display: notchedC)).shape.height == 37)
+    }
+
+    @Test("Live, a display without a notch: centred at menu bar height, the areas half the clearance from the centre")
+    func liveNotchless() throws {
+        let result = try #require(Geometry.live(display: notchless))
+        // 90 on each side of the centre 1280, plus the flare.
+        #expect(result.shape == Geometry.Rect(x: 1184, y: 0, width: 192, height: 24))
+        #expect(result.leading == Geometry.Rect(x: 1190, y: 0, width: 86, height: 24))
+        #expect(result.trailing == Geometry.Rect(x: 1284, y: 0, width: 86, height: 24))
+        #expect(result.leading.maxX == 1280 - Geometry.clearance / 2)
+        #expect(result.trailing.minX == 1280 + Geometry.clearance / 2)
+        #expect(result.hoverZone == result.shape)
+    }
+
+    @Test("Live: a notch near an edge moves the shape into the margins, and a display that makes no sense has none")
+    func liveEdgesAndMalformed() throws {
+        let nearLeft = Geometry.Display(
+            width: 1512, height: 982, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 20, maxX: 206, height: 32)
+        )
+        let left = try #require(Geometry.live(display: nearLeft))
+        #expect(left.shape.minX == Geometry.screenMargin)
+        #expect(left.shape.width == 378)
+        #expect(left.leading.width == 0)
+        #expect(!left.leading.intersects(Geometry.Rect(x: 20, y: 0, width: 186, height: 32)))
+        let nearRight = Geometry.Display(
+            width: 1512, height: 982, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 1306, maxX: 1492, height: 32)
+        )
+        let right = try #require(Geometry.live(display: nearRight))
+        #expect(right.shape.maxX == 1512 - Geometry.screenMargin)
+        #expect(right.trailing.width == 0)
+        let unusable = [
+            Geometry.Display(width: 0, height: 982, menuBarHeight: 32, notch: nil),
+            Geometry.Display(width: .nan, height: 982, menuBarHeight: 32, notch: nil),
+            Geometry.Display(width: 1512, height: 0, menuBarHeight: 32, notch: nil),
+            Geometry.Display(width: 20, height: 982, menuBarHeight: 32, notch: nil),
+        ]
+        for display in unusable {
+            #expect(Geometry.live(display: display) == nil)
+        }
+        let malformed = Geometry.Display(
+            width: 1512, height: 982, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 663, maxX: 849, height: 0)
+        )
+        #expect(try #require(Geometry.live(display: malformed)).shape.width == 192)
+    }
 }

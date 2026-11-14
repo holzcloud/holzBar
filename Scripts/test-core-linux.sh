@@ -60,6 +60,7 @@ sources=(
   HolzBarShelfStyle
   HubActivityBoard
   HubIslandPhase
+  HubLiveState
   HubModuleLifecycle
   HubTabStrip
   InputMonitors
@@ -191,6 +192,7 @@ tests=(
   HolzBarShelfStyleTests
   HubActivityBoardTests
   HubIslandPhaseTests
+  HubLiveStateTests
   HubModuleLifecycleTests
   HubTabStripTests
   InputMonitorsTests

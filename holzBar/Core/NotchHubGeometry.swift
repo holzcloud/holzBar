@@ -110,7 +110,19 @@ nonisolated enum NotchHubGeometry {
         var hoverZone: Rect
     }
 
+    /// The live state: the notch widened at menu bar height.
+    nonisolated struct LiveLayout: Equatable, Sendable {
+        var shape: Rect
+        var leading: Rect
+        var trailing: Rect
+        var hoverZone: Rect
+    }
+
     // MARK: Layout
+
+    static func live(display: Display) -> LiveLayout? {
+        nil
+    }
 
     /// The open island on a display, or `nil` when the display has no usable size or the content
     /// height is not a number or negative.
