@@ -280,6 +280,11 @@ nonisolated enum NotchHubGeometry {
         return CompactLayout(silhouette: rect, hoverZone: rect)
     }
 
+    /// Stub for the RED run.
+    static func transitionFrame(from: Rect, to: Rect, displayWidth: Double) -> Rect {
+        to
+    }
+
     /// The same rectangle in AppKit's coordinates, whose origin is the bottom-left corner of the
     /// display. Only y changes.
     static func flipped(_ rect: Rect, displayHeight: Double) -> Rect {

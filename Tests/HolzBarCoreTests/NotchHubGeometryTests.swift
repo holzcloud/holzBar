@@ -331,4 +331,32 @@ struct NotchHubGeometryTests {
         #expect(Geometry.seed(display: notchless) == Geometry.Rect(x: 1180, y: 0, width: 200, height: 0))
         #expect(Geometry.seed(display: Geometry.Display(width: 0, height: 982, menuBarHeight: 32, notch: nil)) == nil)
     }
+
+    @Test("The transition frame is both shapes plus the margin on the sides and the bottom, kept inside the display")
+    func transitionFrameRules() throws {
+        let margin = DesignTokens.Island.transitionMargin
+        #expect(margin == 12)
+        // From the seed of display A to its open island.
+        let seed = try #require(Geometry.seed(display: notchedA))
+        let open = try island(notchedA).shape
+        let frame = Geometry.transitionFrame(from: seed, to: open, displayWidth: notchedA.width)
+        #expect(frame == Geometry.Rect(x: open.x - margin, y: 0, width: open.width + 2 * margin, height: open.height + margin))
+        // Closing is the same union the other way round.
+        #expect(Geometry.transitionFrame(from: open, to: seed, displayWidth: notchedA.width) == frame)
+        // Equal rectangles give that rectangle plus the margin.
+        let same = Geometry.Rect(x: 100, y: 0, width: 200, height: 50)
+        #expect(
+            Geometry.transitionFrame(from: same, to: same, displayWidth: 1000)
+                == Geometry.Rect(x: 88, y: 0, width: 224, height: 62)
+        )
+        // Never beyond the display's sides.
+        let atEdges = Geometry.Rect(x: 5, y: 0, width: 100, height: 40)
+        #expect(
+            Geometry.transitionFrame(from: atEdges, to: atEdges, displayWidth: 110)
+                == Geometry.Rect(x: 0, y: 0, width: 110, height: 52)
+        )
+        // Never above the top of the display.
+        let above = Geometry.Rect(x: 100, y: -3, width: 50, height: 20)
+        #expect(Geometry.transitionFrame(from: above, to: above, displayWidth: 1000).y == 0)
+    }
 }
