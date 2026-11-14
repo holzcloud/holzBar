@@ -37,15 +37,6 @@ nonisolated enum HubTabStrip {
         return tabs[index]
     }
 
-    /// The tab to show when the hub starts: the remembered one if it is a tab now, else the
-    /// Overview.
-    static func remembered(lastTab: String?, available: [String]) -> String {
-        guard let lastTab, allTabs(available).contains(lastTab) else {
-            return overviewID
-        }
-        return lastTab
-    }
-
     /// The Overview followed by the module tabs, each once.
     static func allTabs(_ moduleTabs: [String]) -> [String] {
         var seen: Set<String> = [overviewID]

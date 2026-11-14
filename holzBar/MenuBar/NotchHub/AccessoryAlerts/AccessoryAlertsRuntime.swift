@@ -206,18 +206,6 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
         return connected.isEmpty ? nil : Text(verbatim: connected.prefix(2).map(\.name).joined(separator: ", "))
     }
 
-    /// The lowest battery is shown while it is at or below the low-battery level.
-    var statusPill: HubStatusPill? {
-        guard let lowest = lowestBattery, lowest.percent <= lowLevel else {
-            return nil
-        }
-        return HubStatusPill(
-            symbol: "battery.25percent",
-            text: lowest.percentText,
-            accessibilityLabel: Text("\(lowest.name), battery \(lowest.percent) percent")
-        )
-    }
-
     private var lowestBattery: AccessoryBattery? {
         batteries.min { ($0.percent, $0.name, $0.id) < ($1.percent, $1.name, $1.id) }
     }

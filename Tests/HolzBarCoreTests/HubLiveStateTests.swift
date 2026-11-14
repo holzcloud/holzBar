@@ -83,7 +83,7 @@ struct HubLiveStateTests {
         #expect(blank.trailing == HubLiveState.Trailing.none)
     }
 
-    @Test("The symbol, the tint and the key are the top activity's, and the extra count is the board's hidden count")
+    @Test("The symbol and the tint are the top activity's, and the extra count is the board's hidden count")
     func topActivity() throws {
         let value = try #require(
             content([
@@ -94,7 +94,6 @@ struct HubLiveStateTests {
         )
         #expect(value.symbol == "battery.25")
         #expect(value.tint == .red)
-        #expect(value.activityKey == "live-activities/top")
         #expect(value.extraCount == 2)
         let single = try #require(content([activity("only")]))
         #expect(single.extraCount == 0)

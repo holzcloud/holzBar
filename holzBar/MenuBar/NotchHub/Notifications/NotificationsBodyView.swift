@@ -40,13 +40,6 @@ struct NotificationsBodyView: View {
             footer
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .onAppear {
-            runtime.markSeen()
-        }
-        .onChange(of: runtime.log.records.count) {
-            // The tab is on screen, so a notification that arrives now is seen.
-            runtime.markSeen()
-        }
     }
 
     // MARK: Footer

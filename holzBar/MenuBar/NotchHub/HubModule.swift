@@ -79,7 +79,7 @@ struct HubTile {
     }
 }
 
-/// A module's small status beside the notch in the open hub, such as the battery or the time.
+/// A module's small status left of the notch in the open hub, such as the time a timer ends.
 struct HubStatusPill {
     /// The name of an SF Symbol before the text, if any.
     var symbol: String?
@@ -153,8 +153,9 @@ protocol HubModuleRuntime: AnyObject {
     /// so a tile that reads observable state follows it. The default is `nil`.
     var tile: HubTile? { get }
 
-    /// The module's status as a pill beside the notch in the open hub, or `nil` for none; the Timers
-    /// module's pill shows left of the notch. The default is `nil`.
+    /// The module's status as a pill left of the notch in the open hub, or `nil` for none. Only the
+    /// Timers module has one: the other live activities show on the right (``activities``). The
+    /// default is `nil`.
     var statusPill: HubStatusPill? { get }
 
     /// What is going on in the module, as plain values: a download, a camera in use, a timer.

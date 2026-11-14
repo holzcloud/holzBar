@@ -379,20 +379,6 @@ final class NowPlayingRuntime: HubModuleRuntime {
         )
     }
 
-    /// The right wing's pill: the title, only while a song plays.
-    var statusPill: HubStatusPill? {
-        guard let event = current?.event, event.state == .playing else {
-            return nil
-        }
-        let title = event.track?.title ?? String(localized: "Unknown title")
-        let text = title.count > 18 ? String(title.prefix(17)) + "…" : title
-        return HubStatusPill(
-            symbol: "music.note",
-            text: text,
-            accessibilityLabel: Text("Now playing: \(title)")
-        )
-    }
-
     func makeBody(host: any HubHost) -> AnyView {
         AnyView(NowPlayingBodyView(runtime: self))
     }

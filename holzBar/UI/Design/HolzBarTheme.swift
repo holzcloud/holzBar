@@ -382,13 +382,10 @@ enum HolzBarTheme {
         static let buttonIdleFill = Color.white.opacity(DesignTokens.Island.buttonIdleFillAlpha)
         static let buttonSelectedFill = Color.white
         static let buttonSelectedSymbol = surface
-        static let buttonSizes = DesignTokens.Island.buttonSizes.map { CGFloat($0) }
         static let buttonGap = CGFloat(DesignTokens.Island.buttonGap)
         /// The live state: the activity's symbol and its short value.
         static let liveSymbolFont = Font.system(size: CGFloat(DesignTokens.Island.liveSymbolSize))
         static let liveValueFont = Font.system(size: CGFloat(DesignTokens.Island.liveValueSize), weight: .semibold)
-        /// The transparent margin of the panel while the shape animates.
-        static let transitionMargin = CGFloat(DesignTokens.Island.transitionMargin)
         /// The content's staging: it appears from this blur and scale, and rises this far when the
         /// module changes.
         static let contentBlur = CGFloat(DesignTokens.Island.contentBlur)

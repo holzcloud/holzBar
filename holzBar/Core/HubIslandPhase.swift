@@ -73,16 +73,6 @@ nonisolated enum HubIslandPhase {
         var ordersOut: Bool {
             target == .closed && !isAnimating
         }
-
-        /// Whether the open content shows.
-        var showsContent: Bool {
-            target == .open
-        }
-
-        /// Whether the live content shows.
-        var showsLiveContent: Bool {
-            target == .live
-        }
     }
 
     /// What can happen.

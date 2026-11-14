@@ -94,7 +94,8 @@ final class NotchHubModel {
         expiryCount &+= 1
     }
 
-    /// The status pills of the right wing, in catalog order.
+    /// The status pills the runtimes offer, in catalog order. Only the Timers module has one; the
+    /// island draws it left of the notch.
     var pills: [(id: String, pill: HubStatusPill)] {
         runtimes.compactMap { runtime in
             runtime.statusPill.map { (id: runtime.moduleID, pill: $0) }

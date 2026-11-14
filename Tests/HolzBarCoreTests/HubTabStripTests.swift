@@ -16,14 +16,6 @@ struct HubTabStripTests {
         #expect(HubTabStrip.step(from: "gone", by: 1, in: []) == "overview")
     }
 
-    @Test("The remembered tab is used when it is available, else the Overview")
-    func remembered() {
-        #expect(HubTabStrip.remembered(lastTab: "a", available: ["a", "b"]) == "a")
-        #expect(HubTabStrip.remembered(lastTab: "gone", available: ["a", "b"]) == "overview")
-        #expect(HubTabStrip.remembered(lastTab: nil, available: ["a"]) == "overview")
-        #expect(HubTabStrip.remembered(lastTab: "overview", available: []) == "overview")
-    }
-
     @Test("Selection falls back to the Overview for a tab that does not exist")
     func selectionFallback() {
         #expect(HubTabStrip.selection("b", moduleTabs: ["a", "b"]) == "b")

@@ -24,7 +24,6 @@ struct HubIslandPhaseTests {
         #expect(next.isOpen)
         #expect(!next.hasShadow)
         #expect(next.isPanelVisible)
-        #expect(next.showsContent)
         #expect(!next.ordersOut)
     }
 
@@ -49,7 +48,6 @@ struct HubIslandPhaseTests {
         #expect(closing.generation == 2)
         // From the first frame of closing the hub behaves as closed.
         #expect(!closing.isOpen)
-        #expect(!closing.showsContent)
         #expect(!closing.hasShadow)
         #expect(closing.isPanelVisible)
         #expect(!closing.ordersOut)
@@ -76,7 +74,7 @@ struct HubIslandPhaseTests {
         #expect(closing.generation == 2)
         #expect(!closing.isOpen)
         let live = Phase.reduce(closing, .animationFinished(generation: 2))
-        #expect(live.showsLiveContent)
+        #expect(live.target == .live)
         #expect(!live.ordersOut)
         #expect(!live.hasShadow)
         #expect(live.isPanelVisible)
@@ -135,7 +133,7 @@ struct HubIslandPhaseTests {
         #expect(toLive.isLive)
         #expect(toLive.isPanelVisible)
         let live = Phase.reduce(toLive, .animationFinished(generation: 1))
-        #expect(live.showsLiveContent)
+        #expect(live.target == .live)
         let toClosed = Phase.reduce(live, .liveChanged(false))
         #expect(toClosed.target == .closed)
         #expect(toClosed.isAnimating)
@@ -186,7 +184,7 @@ struct HubIslandPhaseTests {
         #expect(retargeted.generation == 3)
         #expect(retargeted.isLive)
         let live = Phase.reduce(retargeted, .animationFinished(generation: 3))
-        #expect(live.showsLiveContent)
+        #expect(live.target == .live)
         #expect(!live.ordersOut)
     }
 
@@ -197,7 +195,6 @@ struct HubIslandPhaseTests {
         #expect(opening.target == .open)
         #expect(opening.generation == 3)
         #expect(opening.isLive)
-        #expect(!opening.showsLiveContent)
     }
 
     @Test("The targets are ordered closed, live, open")

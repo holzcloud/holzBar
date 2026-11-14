@@ -40,9 +40,6 @@ nonisolated enum HubLiveState {
         var trailing: Trailing
         /// How many live activities are not the top one, for the `+n` badge.
         var extraCount: Int
-        /// The top activity's ``LiveActivity/key``, so the view can tell a change of activity
-        /// from a change of value.
-        var activityKey: String
     }
 
     /// The content for a board at a moment, or `nil` when nothing is live.
@@ -54,8 +51,7 @@ nonisolated enum HubLiveState {
             symbol: activity.symbol,
             tint: activity.tint,
             trailing: trailing(of: activity, now: now),
-            extraCount: board.hiddenCount,
-            activityKey: activity.key
+            extraCount: board.hiddenCount
         )
     }
 
