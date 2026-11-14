@@ -409,9 +409,6 @@ final class NotchHubController: HubHost {
         let showsActiveFirst = appState.settings.notchHub.showsActiveFirst
         let openedAt = Date.now
         model.beginOpening(HubContext.decide(model.contextInputs(now: openedAt, showsActiveFirst: showsActiveFirst)))
-        // The live state and the hub are one panel: the hub grows out of the live shape, which
-        // stops being a place the pointer can rest while the hub is open.
-        setLivePlacement(nil)
         if trigger == .fileDrag {
             // A file drag brings File drop to the front for this opening only (D-04).
             showDropTab()
@@ -435,6 +432,10 @@ final class NotchHubController: HubHost {
             model.endOpening()
             return
         }
+        // The live state and the hub are one panel: the hub grows out of the live shape, which
+        // stops being a place the pointer can rest while the hub is open. Taken away only now,
+        // when the hub is certain to open.
+        setLivePlacement(nil)
         let panel = panel ?? NotchHubPanel()
         self.panel = panel
         let presentation = ensurePresentation()
