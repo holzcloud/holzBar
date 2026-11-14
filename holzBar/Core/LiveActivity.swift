@@ -17,8 +17,9 @@ nonisolated enum LiveActivityKind: String, CaseIterable, Sendable {
     case other
 }
 
-/// The colour of an activity's symbol in the capsule and the tab. The cases map to colours of
-/// the theme, so an activity cannot bring a colour of its own.
+/// The colour of an activity's symbol in the widened notch, the open hub's right pill and the
+/// Live activities list. The cases map to colours of the theme, so an activity cannot bring a
+/// colour of its own.
 nonisolated enum LiveActivityTint: String, CaseIterable, Sendable {
     case accent
     case amber
@@ -29,9 +30,11 @@ nonisolated enum LiveActivityTint: String, CaseIterable, Sendable {
 /// Something that is going on, as a plain value: a camera in use, a download, a timer.
 ///
 /// A module of the Notch hub returns its activities through ``HubModuleRuntime/activities``;
-/// the hub shows the top one as a small capsule below the notch while it is closed, and the
-/// list in the Live activities tab. The value holds text that may be personal (a file name),
-/// so it is capped, stays in memory and is never logged. The capsule shows only the title.
+/// while the hub is closed it shows the top one by widening the notch at menu bar height, and
+/// the Live activities module lists them (concept section 10b). The widened notch and the open
+/// hub's right pill show only the symbol and ``compactValue`` (or the countdown or the
+/// percentage), never ``title`` or ``detail``. The value holds text that may be personal (a file
+/// name), so it is capped, stays in memory and is never logged.
 nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
     /// The most characters of a title.
     static let maximumTitleLength = 80
@@ -50,7 +53,8 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
     let kind: LiveActivityKind
     /// The name of an SF Symbol.
     let symbol: String
-    /// The short phrase the capsule shows, at most ``maximumTitleLength`` characters.
+    /// The short phrase VoiceOver hears once, and the list shows, at most
+    /// ``maximumTitleLength`` characters. The widened notch never draws it.
     let title: String
     /// One quiet extra line for the tab, such as a file name, at most
     /// ``maximumDetailLength`` characters, or `nil`.
@@ -66,9 +70,12 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
     /// ``HubActivityBoard/finishedHold`` seconds with its own done title and symbol.
     let finishedAt: Date?
     let tint: LiveActivityTint
-    /// Whether the module that returned the activity speaks it to VoiceOver itself, so the
-    /// capsule does not announce its title a second time.
+    /// Whether the module that returned the activity speaks it to VoiceOver itself, so the hub
+    /// does not announce its title a second time.
     let announcesItself: Bool
+    /// The short word the widened notch and the open hub's right pill show, such as "Camera" or
+    /// "Done", at most ``maximumCompactValueLength`` characters, never a name; `nil` where the
+    /// countdown or the percentage says it.
     let compactValue: String?
 
     /// A key that is unique across modules: the module's identifier and the activity's id.
@@ -76,7 +83,7 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
         "\(moduleID)/\(id)"
     }
 
-    /// Creates an activity. A title or detail beyond its cap is cut, a progress outside
+    /// Creates an activity. A title, detail or short word beyond its cap is cut, a progress outside
     /// ``progressRange`` is clamped into it and a progress that is not a number is dropped.
     init(
         id: String,
@@ -109,6 +116,6 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
         self.finishedAt = finishedAt
         self.tint = tint
         self.announcesItself = announcesItself
-        self.compactValue = compactValue
+        self.compactValue = compactValue.map { String($0.prefix(Self.maximumCompactValueLength)) }
     }
 }

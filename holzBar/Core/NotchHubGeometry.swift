@@ -12,7 +12,8 @@ import Foundation
 /// are the design's (concept section 10b, ``DesignTokens/Island``): the hub is the notch itself,
 /// growing, one black shape up to 640 points wide with concave top corners and rounded bottom
 /// corners, never narrower than the notch, a context line below the notch, one module's content
-/// and a row of module buttons. The notch itself is never hard-coded: it comes from the system's
+/// and a row of module buttons; while it is closed and something is live, the same shape is the
+/// notch widened at menu bar height (``live(display:)``). The notch itself is never hard-coded: it comes from the system's
 /// safe-area values (``notch(displayWidth:leftAreaWidth:rightAreaWidth:height:)``), and a value
 /// that makes no sense counts as no notch, so the hub hangs from the top centre.
 nonisolated enum NotchHubGeometry {
@@ -110,18 +111,67 @@ nonisolated enum NotchHubGeometry {
         var hoverZone: Rect
     }
 
-    /// The live state: the notch widened at menu bar height.
+    /// The live state: the notch widened at menu bar height (concept section 10b).
     nonisolated struct LiveLayout: Equatable, Sendable {
+        /// The whole shape, flares included, which is also the panel's frame.
         var shape: Rect
+        /// The area left of the notch where the live symbol goes; it ends ``clearance`` before the
+        /// notch (half of it from the centre without a notch).
         var leading: Rect
+        /// The area right of the notch where the live value goes.
         var trailing: Rect
+        /// Where the pointer rests to open the hub from the live state: the shape itself.
         var hoverZone: Rect
     }
 
     // MARK: Layout
 
+    /// The live state on a display, or `nil` when the display has no usable size.
+    ///
+    /// The shape starts at the top edge and is exactly the top row high, so it never grows
+    /// downward and never covers more of the menu bar than the notch's own row. Its black part
+    /// spans the notch plus ``DesignTokens/Island/liveSideWidth`` on each side, so the bounds add
+    /// ``DesignTokens/Island/liveTopRadius`` on each side for the concave flares; without a notch
+    /// the black part is centred on the display and reaches that far on each side of the centre.
+    /// The shape is kept ``screenMargin`` from the display's edges. The leading area ends
+    /// ``clearance`` before the notch and the trailing area starts ``clearance`` after it (half
+    /// of it from the centre without a notch); where the margin moves the shape, an area that
+    /// would reach into the notch is empty instead. The notch is judged as the island's layout
+    /// judges it.
     static func live(display: Display) -> LiveLayout? {
-        nil
+        guard
+            display.width.isFinite, display.width > 0,
+            display.height.isFinite, display.height > 0
+        else {
+            return nil
+        }
+        let capped = display.width - 2 * screenMargin
+        guard capped >= 1 else {
+            return nil
+        }
+        let notch = validated(display.notch, in: display.width)
+        let topRowHeight = resolvedTopRowHeight(of: display, notch: notch)
+
+        let radius = DesignTokens.Island.liveTopRadius
+        let notchWidth = notch.map { $0.maxX - $0.minX } ?? 0
+        let shapeWidth = min(notchWidth + 2 * DesignTokens.Island.liveSideWidth + 2 * radius, capped)
+        let centre = notch.map { ($0.minX + $0.maxX) / 2 } ?? display.width / 2
+        let upperBound = display.width - screenMargin - shapeWidth
+        let shapeX = min(max(centre - shapeWidth / 2, screenMargin), max(upperBound, screenMargin))
+        let shape = Rect(x: shapeX, y: 0, width: shapeWidth, height: topRowHeight)
+
+        let blackMinX = shape.minX + radius
+        let blackMaxX = shape.maxX - radius
+        let leadingEnd = notch.map { $0.minX - clearance } ?? centre - clearance / 2
+        let trailingStart = notch.map { $0.maxX + clearance } ?? centre + clearance / 2
+        let leadingX = min(blackMinX, leadingEnd)
+        let trailingEnd = max(blackMaxX, trailingStart)
+        return LiveLayout(
+            shape: shape,
+            leading: Rect(x: leadingX, y: 0, width: max(leadingEnd - leadingX, 0), height: topRowHeight),
+            trailing: Rect(x: trailingStart, y: 0, width: max(trailingEnd - trailingStart, 0), height: topRowHeight),
+            hoverZone: shape
+        )
     }
 
     /// The open island on a display, or `nil` when the display has no usable size or the content
