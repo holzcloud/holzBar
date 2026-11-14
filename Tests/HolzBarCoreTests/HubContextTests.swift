@@ -148,7 +148,8 @@ struct HubContextTests {
         #expect(!late.hasPick)
         #expect(late.front.reason == .meetingSoon)
         // After a late decision a pick still remembers its own module.
-        #expect(late.pick("timers", moduleTabs: tabs) == "timers")
+        let result1 = late.pick("timers", moduleTabs: tabs)
+        #expect(result1 == "timers")
         // A temporary pick sets hasPick, so no late decision follows it.
         var dragged = HubContext.Session(opening: HubContext.Decision(moduleID: HubTabStrip.overviewID, reason: .overview))
         dragged.pickTemporarily("timers", moduleTabs: tabs)
@@ -164,33 +165,41 @@ struct HubContextTests {
         let meetingNow = HubContext.Decision(moduleID: "calendar", reason: .meetingNow)
 
         var once = HubContext.Session(opening: overview)
-        #expect(once.reconsider(meetingSoon, elapsed: 1))
+        let result2 = once.reconsider(meetingSoon, elapsed: 1)
+        #expect(result2)
         #expect(once.hasReconsidered)
         #expect(once.front == meetingSoon)
-        #expect(!once.reconsider(meetingNow, elapsed: 0.5))
+        let result3 = once.reconsider(meetingNow, elapsed: 0.5)
+        #expect(!result3)
         #expect(once.front == meetingSoon)
 
         var picked = HubContext.Session(opening: overview)
         _ = picked.pick("timers", moduleTabs: tabs)
-        #expect(!picked.reconsider(meetingSoon, elapsed: 0.2))
+        let result4 = picked.reconsider(meetingSoon, elapsed: 0.2)
+        #expect(!result4)
         #expect(picked.front == HubContext.Decision(moduleID: "timers", reason: .chosen))
 
         var late = HubContext.Session(opening: overview)
-        #expect(!late.reconsider(meetingSoon, elapsed: 1.5))
+        let result5 = late.reconsider(meetingSoon, elapsed: 1.5)
+        #expect(!result5)
         #expect(late.front == overview)
         #expect(!late.hasReconsidered)
 
         var live = HubContext.Session(opening: overview)
-        #expect(!live.reconsider(HubContext.Decision(moduleID: "timers", reason: .liveActivity), elapsed: 0.2))
-        #expect(!live.reconsider(HubContext.Decision(moduleID: "now-playing", reason: .music), elapsed: 0.2))
+        let result6 = live.reconsider(HubContext.Decision(moduleID: "timers", reason: .liveActivity), elapsed: 0.2)
+        #expect(!result6)
+        let result7 = live.reconsider(HubContext.Decision(moduleID: "now-playing", reason: .music), elapsed: 0.2)
+        #expect(!result7)
         #expect(live.front == overview)
 
         var same = HubContext.Session(opening: meetingSoon)
-        #expect(!same.reconsider(meetingNow, elapsed: 0.2))
+        let result8 = same.reconsider(meetingNow, elapsed: 0.2)
+        #expect(!result8)
         #expect(same.front == meetingSoon)
 
         var notANumber = HubContext.Session(opening: overview)
-        #expect(!notANumber.reconsider(meetingSoon, elapsed: .nan))
+        let result9 = notANumber.reconsider(meetingSoon, elapsed: .nan)
+        #expect(!result9)
     }
 
     @Test("The constants: the Live activities module is in the catalog, the lead is 900 seconds, the window one second")
