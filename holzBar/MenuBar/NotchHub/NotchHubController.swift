@@ -32,7 +32,9 @@ import SwiftUI
 /// - a module's runtime, while the hub and the module are both on (``HubModuleLifecycle``);
 /// - the live state of the island, its two change tasks and its place in the hover zone, while
 ///   at least one activity is live and the hub is closed: the same shape and the same panel as the
-///   open hub, widened at menu bar height beside the notch.
+///   open hub, widened at menu bar height beside the notch, only over the free menu bar
+///   (``NotchHubLiveRoom``); the free span follows the application menu and the status items
+///   through the activity observation and one notification task, with no timer.
 ///
 /// Every wait is a one-shot task; there is no timer. The only wait the live activities own is
 /// one task until the next finished activity leaves, armed only while one exists.
@@ -192,11 +194,13 @@ final class NotchHubController: HubHost {
     // MARK: While the live state shows
 
     /// What the board of live activities is built from, and what decides whether the live state
-    /// may show: the activities, a fullscreen space and a menu bar the system hides.
+    /// may show and how wide: the activities, a fullscreen space, a menu bar the system hides and
+    /// the free menu bar beside the notch (`nil` while nothing is live, since it is then not read).
     private struct ActivityInputs: Equatable {
         var activities: [LiveActivity]
         var isFullscreenSpace: Bool
         var isMenuBarHidden: Bool
+        var liveRoom: NotchHubGeometry.LiveRoom?
     }
 
     /// Where the live state is while it shows.
@@ -209,6 +213,11 @@ final class NotchHubController: HubHost {
 
     /// The two tasks that follow space and display changes, only while the live state shows.
     @ObservationIgnored private var liveTasks = [Task<Void, Never>]()
+
+    /// Follows a read on macOS 27 that moved where the status items start although the item cache
+    /// compares equal (``Foundation/Notification/Name/menuBarItemsAreaDidChange27``), while the
+    /// module is on; the live state's width follows that edge.
+    @ObservationIgnored private var itemsAreaTask: Task<Void, Never>?
 
     /// The one wait of the live activities: until the next finished activity leaves.
     @ObservationIgnored private var expiryTask: Task<Void, Never>?
@@ -250,9 +259,15 @@ final class NotchHubController: HubHost {
                 self?.updateHover()
             }
             activitiesLoop = ObservationLoop.observe { [weak self] in
-                self?.activityInputs() ?? ActivityInputs(activities: [], isFullscreenSpace: false, isMenuBarHidden: false)
+                self?.activityInputs()
+                    ?? ActivityInputs(activities: [], isFullscreenSpace: false, isMenuBarHidden: false, liveRoom: nil)
             } onChange: { [weak self] _ in
                 self?.activitiesDidChange()
+            }
+            itemsAreaTask = Task { [weak self] in
+                for await _ in NotificationCenter.default.notifications(named: .menuBarItemsAreaDidChange27) {
+                    self?.activitiesDidChange()
+                }
             }
             reconcileRuntimes()
             updateHover()
@@ -262,6 +277,8 @@ final class NotchHubController: HubHost {
             dragLoop = nil
             settingsLoop = nil
             activitiesLoop = nil
+            itemsAreaTask?.cancel()
+            itemsAreaTask = nil
             cancelExpiry()
             stopHover()
             close()
@@ -523,7 +540,7 @@ final class NotchHubController: HubHost {
         let wasOpenedByDrag = openedBy == .fileDrag
         let screen = NSScreen.screens.first { $0.displayID == openScreenID }
         // The hub returns to the live state only where the live shape has a layout.
-        if phase.isLive, screen.flatMap({ NotchHubGeometry.live(display: Self.display(of: $0)) }) == nil {
+        if phase.isLive, screen.flatMap({ liveLayout(on: $0) }) == nil {
             send(.liveChanged(false))
         }
         send(.close)
@@ -556,7 +573,7 @@ final class NotchHubController: HubHost {
             islandAnimationFinished(phase.generation)
             return
         }
-        let live = phase.target == .live ? NotchHubGeometry.live(display: Self.display(of: screen)) : nil
+        let live = phase.target == .live ? liveLayout(on: screen) : nil
         let rest = live?.shape ?? seed
         let transition = NotchHubGeometry.transitionFrame(
             from: from,
@@ -1096,10 +1113,38 @@ final class NotchHubController: HubHost {
 
     /// Reads, in one place, what the live state depends on, so that the loop follows each of them.
     private func activityInputs() -> ActivityInputs {
-        ActivityInputs(
-            activities: model.activities,
+        let activities = model.activities
+        // The free menu bar is read only while something is live: it follows the application
+        // menu and the status items, and with nothing live it would be read for nothing.
+        var room: NotchHubGeometry.LiveRoom?
+        if !activities.isEmpty, let appState, let screen = liveCandidateScreen() {
+            room = NotchHubLiveRoom.room(on: screen, display: Self.display(of: screen), appState: appState)
+        }
+        return ActivityInputs(
+            activities: activities,
             isFullscreenSpace: appState?.activeSpace.isFullscreen ?? false,
-            isMenuBarHidden: appState?.menuBarManager.isMenuBarHiddenBySystem ?? false
+            isMenuBarHidden: appState?.menuBarManager.isMenuBarHiddenBySystem ?? false,
+            liveRoom: room
+        )
+    }
+
+    /// The display the live state would show on: the one the hub is open on, else the preferred one.
+    private func liveCandidateScreen() -> NSScreen? {
+        isOpen ? NSScreen.screens.first(where: { $0.displayID == openScreenID }) : preferredScreen()
+    }
+
+    /// The live state's layout on a screen: the shape that fits the free menu bar beside the
+    /// notch there (concept section 10b), or `nil` when the screen has no usable size or no side
+    /// has room. What is free is read from the application menu and the status items
+    /// (``NotchHubLiveRoom``).
+    private func liveLayout(on screen: NSScreen) -> NotchHubGeometry.LiveLayout? {
+        guard let appState else {
+            return nil
+        }
+        let display = Self.display(of: screen)
+        return NotchHubGeometry.live(
+            display: display,
+            room: NotchHubLiveRoom.room(on: screen, display: display, appState: appState)
         )
     }
 
@@ -1111,9 +1156,9 @@ final class NotchHubController: HubHost {
         guard
             board.compact != nil,
             let appState,
-            let screen = isOpen ? NSScreen.screens.first(where: { $0.displayID == openScreenID }) : preferredScreen(),
+            let screen = liveCandidateScreen(),
             NotchHubPolicy.blockReason(policyEnvironment(of: screen, appState: appState), trigger: .compact) == nil,
-            NotchHubGeometry.live(display: Self.display(of: screen)) != nil,
+            liveLayout(on: screen) != nil,
             NotchHubGeometry.seed(display: Self.display(of: screen)) != nil
         else {
             return nil
@@ -1177,7 +1222,7 @@ final class NotchHubController: HubHost {
     /// from the notch's rectangle, or from where a closing had got to.
     private func startLive(board: HubActivityBoard.Board, on screen: NSScreen, wasVisible: Bool) {
         let display = Self.display(of: screen)
-        guard let live = NotchHubGeometry.live(display: display), let seed = NotchHubGeometry.seed(display: display) else {
+        guard let live = liveLayout(on: screen), let seed = NotchHubGeometry.seed(display: display) else {
             // Not reachable: the screen was chosen because both exist. Never leave a phase that
             // nothing completes.
             islandAnimationFinished(phase.generation)
@@ -1226,7 +1271,7 @@ final class NotchHubController: HubHost {
     /// Follows the board while the live state shows, and moves the shape at once when the display
     /// or its menu bar changed.
     private func updateLive(board: HubActivityBoard.Board, on screen: NSScreen) {
-        guard let presentation, let live = NotchHubGeometry.live(display: Self.display(of: screen)) else {
+        guard let presentation, let live = liveLayout(on: screen) else {
             return
         }
         presentation.liveBoard = board

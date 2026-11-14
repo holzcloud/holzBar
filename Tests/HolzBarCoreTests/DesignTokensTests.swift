@@ -328,6 +328,8 @@ struct DesignTokensTests {
         #expect(island.buttonIdleSymbolAlpha == 0.6)
         #expect(island.buttonIdleFillAlpha == 0.07)
         #expect(island.liveSideWidth == 90)
+        #expect(island.liveContentGap == 4)
+        #expect(island.liveMinimumSideWidth == 36)
         #expect(island.liveSymbolSize == 16)
         #expect(island.liveValueSize == 12)
         #expect(island.edgeAlpha == 0.30)

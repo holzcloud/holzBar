@@ -21,7 +21,8 @@ extension LiveActivityTint {
 /// bar height (concept section 10b, "Live state").
 ///
 /// The top activity's symbol sits left of the camera, tinted by its kind, and its short value
-/// sits right of it, with a `+n` badge when more are live. Both come from ``HubLiveState``, so
+/// sits right of it, with a `+n` badge when more are live; a side that has no free menu bar
+/// (``NotchHubGeometry/live(display:room:)``) shows nothing. Both come from ``HubLiveState``, so
 /// the view never draws a title, a detail or a name: VoiceOver reads the title. The system draws a
 /// countdown itself, so holzBar runs no timer for it. The whole live shape is one button: a click
 /// on it asks the hub to open. The view is drawn over the black shape, which the island draws; it
@@ -62,24 +63,30 @@ struct IslandLiveView: View {
     @ViewBuilder
     private var content: some View {
         if let state = HubLiveState.make(board: board, now: .now) {
-            Image(systemName: state.symbol)
-                .font(HolzBarTheme.Island.liveSymbolFont)
-                .foregroundStyle(state.tint.color)
-                .accessibilityHidden(true)
-                .frame(width: CGFloat(layout.leading.width), height: CGFloat(layout.shape.height))
-                .offset(x: CGFloat(layout.leading.x - layout.shape.x))
-            HStack(spacing: HolzBarTheme.Spacing.xs) {
-                LiveValueText(trailing: state.trailing, font: HolzBarTheme.Island.liveValueFont)
-                if state.extraCount > 0 {
-                    badge(state.extraCount)
-                }
+            // A side whose menu bar is not free does not widen and shows nothing (concept section
+            // 10b, "Live state: free span only"): its area is empty.
+            if layout.leading.width > 0 {
+                Image(systemName: state.symbol)
+                    .font(HolzBarTheme.Island.liveSymbolFont)
+                    .foregroundStyle(state.tint.color)
+                    .accessibilityHidden(true)
+                    .frame(width: CGFloat(layout.leading.width), height: CGFloat(layout.shape.height))
+                    .offset(x: CGFloat(layout.leading.x - layout.shape.x))
             }
-            .frame(
-                width: CGFloat(layout.trailing.width),
-                height: CGFloat(layout.shape.height),
-                alignment: .leading
-            )
-            .offset(x: CGFloat(layout.trailing.x - layout.shape.x))
+            if layout.trailing.width > 0 {
+                HStack(spacing: HolzBarTheme.Spacing.xs) {
+                    LiveValueText(trailing: state.trailing, font: HolzBarTheme.Island.liveValueFont)
+                    if state.extraCount > 0 {
+                        badge(state.extraCount)
+                    }
+                }
+                .frame(
+                    width: CGFloat(layout.trailing.width),
+                    height: CGFloat(layout.shape.height),
+                    alignment: .leading
+                )
+                .offset(x: CGFloat(layout.trailing.x - layout.shape.x))
+            }
         }
     }
 

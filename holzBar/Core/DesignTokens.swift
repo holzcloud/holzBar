@@ -254,6 +254,12 @@ nonisolated enum DesignTokens {
         static let liveSideWidth: Double = 90
         static let liveSymbolSize: Double = 16
         static let liveValueSize: Double = 12
+        /// The live state grows only over the free menu bar beside the notch (concept section
+        /// 10b, 2026-11-14): the air kept to the nearest menu bar content, and the narrowest
+        /// black part on one side that still shows anything (the 8 pt clearance to the notch plus
+        /// 28 pt for the symbol or a short value). A side with less does not widen.
+        static let liveContentGap: Double = 4
+        static let liveMinimumSideWidth: Double = 36
 
         // MARK: Edge and margin
 

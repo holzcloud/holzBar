@@ -301,24 +301,36 @@ struct NotchHubGeometryTests {
         #expect(result.hoverZone == result.shape)
     }
 
-    @Test("Live: a notch near an edge moves the shape into the margins, and a display that makes no sense has none")
+    @Test("Live: a notch too near an edge has no room on that side, the other side keeps its full width")
     func liveEdgesAndMalformed() throws {
         let nearLeft = Geometry.Display(
             width: 1512, height: 982, menuBarHeight: 32,
             notch: Geometry.Notch(minX: 20, maxX: 206, height: 32)
         )
+        // 8 points are left between the margin and the notch: no side widens into the margin.
         let left = try #require(Geometry.live(display: nearLeft))
-        #expect(left.shape.minX == Geometry.screenMargin)
-        #expect(left.shape.width == 378)
+        #expect(left.shape.minX == 20)
+        #expect(left.shape.maxX == 206 + 90 + 6)
         #expect(left.leading.width == 0)
+        #expect(left.trailing.width > 0)
         #expect(!left.leading.intersects(Geometry.Rect(x: 20, y: 0, width: 186, height: 32)))
         let nearRight = Geometry.Display(
             width: 1512, height: 982, menuBarHeight: 32,
             notch: Geometry.Notch(minX: 1306, maxX: 1492, height: 32)
         )
         let right = try #require(Geometry.live(display: nearRight))
-        #expect(right.shape.maxX == 1512 - Geometry.screenMargin)
+        #expect(right.shape.maxX == 1492)
+        #expect(right.shape.minX == 1306 - 90 - 6)
         #expect(right.trailing.width == 0)
+        #expect(right.leading.width > 0)
+        // Roomy enough for the minimum but not for the full 90: the margin caps the side.
+        let tight = Geometry.Display(
+            width: 1512, height: 982, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 80, maxX: 266, height: 32)
+        )
+        let capped = try #require(Geometry.live(display: tight))
+        #expect(capped.shape.minX == Geometry.screenMargin)
+        // A display so narrow that nothing fits has none.
         let unusable = [
             Geometry.Display(width: 0, height: 982, menuBarHeight: 32, notch: nil),
             Geometry.Display(width: .nan, height: 982, menuBarHeight: 32, notch: nil),
@@ -333,5 +345,136 @@ struct NotchHubGeometryTests {
             notch: Geometry.Notch(minX: 663, maxX: 849, height: 0)
         )
         #expect(try #require(Geometry.live(display: malformed)).shape.width == 192)
+    }
+
+    // MARK: Live state: free span only
+
+    private func fullLive(_ display: Geometry.Display) throws -> Geometry.LiveLayout {
+        try #require(Geometry.live(display: display))
+    }
+
+    @Test("Live with full room on both sides is the full shape, as without a room")
+    func liveFullRoom() throws {
+        let room = Geometry.LiveRoom(left: 600, right: 600)
+        #expect(Geometry.live(display: notchedA, room: room) == (try fullLive(notchedA)))
+        #expect(Geometry.live(display: notchless, room: room) == (try fullLive(notchless)))
+        #expect(Geometry.live(display: notchedA, room: .unlimited) == (try fullLive(notchedA)))
+        // Exactly the black part and the flare is room enough for the full width.
+        let exact = Geometry.LiveRoom(left: 96, right: 96)
+        #expect(Geometry.live(display: notchedA, room: exact) == (try fullLive(notchedA)))
+    }
+
+    @Test("Live with partial room grows each side only as far as it is free, flare included")
+    func livePartialRoom() throws {
+        // Fixture A: notch 663 ... 849. 60 free on the left leaves 54 black and 6 flare; 70 on the
+        // right leaves 64 black and 6 flare.
+        let result = try #require(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: 60, right: 70)))
+        #expect(result.shape == Geometry.Rect(x: 603, y: 0, width: 849 + 70 - 603, height: 32))
+        #expect(result.shape.minX + DesignTokens.Island.liveTopRadius == 663 - 54)
+        #expect(result.shape.maxX - DesignTokens.Island.liveTopRadius == 849 + 64)
+        #expect(result.leading == Geometry.Rect(x: 609, y: 0, width: 663 - Geometry.clearance - 609, height: 32))
+        #expect(result.trailing.minX == 849 + Geometry.clearance)
+        #expect(result.trailing.maxX == 849 + 64)
+        #expect(result.hoverZone == result.shape)
+        // The shape stays inside the free span on both sides: nothing beyond the room is covered.
+        #expect(result.shape.minX >= 663 - 60)
+        #expect(result.shape.maxX <= 849 + 70)
+    }
+
+    @Test("Live: a side with no room does not widen and has no flare; the other side does")
+    func liveNoRoomOnOneSide() throws {
+        let rightOnly = try #require(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: 0, right: 600)))
+        #expect(rightOnly.shape == Geometry.Rect(x: 663, y: 0, width: 186 + 96, height: 32))
+        #expect(rightOnly.leading.width == 0)
+        #expect(rightOnly.trailing.width > 0)
+        let leftOnly = try #require(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: 600, right: 0)))
+        #expect(leftOnly.shape == Geometry.Rect(x: 849 - 186 - 96, y: 0, width: 186 + 96, height: 32))
+        #expect(leftOnly.trailing.width == 0)
+        #expect(leftOnly.leading.width > 0)
+        // Neither area reaches into the notch.
+        let notch = Geometry.Rect(x: 663, y: 0, width: 186, height: 32)
+        for layout in [rightOnly, leftOnly] {
+            #expect(!layout.leading.intersects(notch))
+            #expect(!layout.trailing.intersects(notch))
+        }
+    }
+
+    @Test("Live: the minimum is 36 points of black part per side, flare excluded")
+    func liveMinimumSide() throws {
+        let minimum = DesignTokens.Island.liveMinimumSideWidth
+        let flare = DesignTokens.Island.liveTopRadius
+        #expect(minimum == 36)
+        // Exactly the minimum plus the flare widens; a hair less does not.
+        let enough = Geometry.LiveRoom(left: minimum + flare, right: 0)
+        let widened = try #require(Geometry.live(display: notchedA, room: enough))
+        #expect(widened.shape.minX == 663 - minimum - flare)
+        #expect(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: minimum + flare - 0.1, right: 0)) == nil)
+    }
+
+    @Test("Live: no room on either side, or a room that is not a number, is no live state")
+    func liveNoRoomAtAll() throws {
+        #expect(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: 0, right: 0)) == nil)
+        #expect(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: 30, right: 41)) == nil)
+        #expect(Geometry.live(display: notchless, room: Geometry.LiveRoom(left: 0, right: 0)) == nil)
+        #expect(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: .nan, right: .nan)) == nil)
+        #expect(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: -50, right: -1)) == nil)
+        // One side not a number counts as none, the other still widens.
+        let one = try #require(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: .nan, right: 500)))
+        #expect(one.leading.width == 0)
+        #expect(one.trailing.width > 0)
+    }
+
+    @Test("Live without a notch follows the same rule, measured from the display's centre")
+    func liveNotchlessRoom() throws {
+        // Centre 1280. Partial room: 50 on the left leaves 44 black, 200 on the right the full 90.
+        let result = try #require(Geometry.live(display: notchless, room: Geometry.LiveRoom(left: 50, right: 200)))
+        #expect(result.shape == Geometry.Rect(x: 1280 - 50, y: 0, width: 50 + 96, height: 24))
+        #expect(result.shape.minX + DesignTokens.Island.liveTopRadius == 1280 - 44)
+        #expect(result.leading.maxX == 1280 - Geometry.clearance / 2)
+        #expect(result.trailing.minX == 1280 + Geometry.clearance / 2)
+        // No room on the left: the shape starts at the centre, with no flare on that side.
+        let rightOnly = try #require(Geometry.live(display: notchless, room: Geometry.LiveRoom(left: 0, right: 500)))
+        #expect(rightOnly.shape == Geometry.Rect(x: 1280, y: 0, width: 96, height: 24))
+        #expect(rightOnly.leading.width == 0)
+        // No room at all: none.
+        #expect(Geometry.live(display: notchless, room: Geometry.LiveRoom(left: 10, right: 10)) == nil)
+    }
+
+    @Test("The room comes from where the content is: the notch's edge to the content, less the gap")
+    func liveRoomFromContent() {
+        let gap = DesignTokens.Island.liveContentGap
+        #expect(gap == 4)
+        // Fixture A: the application menu ends at 500, the status items start at 1000.
+        let room = Geometry.liveRoom(display: notchedA, leftContentEnd: 500, rightContentStart: 1000)
+        #expect(room == Geometry.LiveRoom(left: 663 - 500 - gap, right: 1000 - gap - 849))
+        // Content that touches or reaches the notch leaves none; it never goes negative.
+        let covered = Geometry.liveRoom(display: notchedA, leftContentEnd: 700, rightContentStart: 800)
+        #expect(covered == Geometry.LiveRoom(left: 0, right: 0))
+        // A side that holds nothing is unlimited.
+        let empty = Geometry.liveRoom(display: notchedA, leftContentEnd: nil, rightContentStart: nil)
+        #expect(empty == .unlimited)
+        // Without a notch the measure starts at the display's centre.
+        let centre = Geometry.liveRoom(display: notchless, leftContentEnd: 400, rightContentStart: 2000)
+        #expect(centre == Geometry.LiveRoom(left: 1280 - 400 - gap, right: 2000 - gap - 1280))
+        // A position that is not a number covers its side.
+        let unknown = Geometry.liveRoom(display: notchedA, leftContentEnd: .nan, rightContentStart: .infinity)
+        #expect(unknown == Geometry.LiveRoom(left: 0, right: 0))
+        // A display that makes no sense has no room.
+        let broken = Geometry.Display(width: .nan, height: 982, menuBarHeight: 32, notch: nil)
+        #expect(Geometry.liveRoom(display: broken, leftContentEnd: nil, rightContentStart: nil) == Geometry.LiveRoom(left: 0, right: 0))
+    }
+
+    @Test("Live from real content: the shape never reaches the content on either side")
+    func liveNeverCoversContent() throws {
+        for (leftEnd, rightStart) in [(300.0, 1100.0), (600.0, 900.0), (500.0, 860.0), (655.0, 1000.0), (100.0, 1500.0)] {
+            let room = Geometry.liveRoom(display: notchedA, leftContentEnd: leftEnd, rightContentStart: rightStart)
+            let result = try #require(Geometry.live(display: notchedA, room: room))
+            // 663 and 849 are the notch's edges, the shape's edge where a side does not widen.
+            #expect(result.shape.minX >= leftEnd)
+            #expect(result.shape.maxX <= rightStart)
+        }
+        // No side has the minimum: the content is too near the notch on both.
+        let tight = Geometry.liveRoom(display: notchedA, leftContentEnd: 640, rightContentStart: 870)
+        #expect(Geometry.live(display: notchedA, room: tight) == nil)
     }
 }

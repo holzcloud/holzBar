@@ -17,8 +17,9 @@ import Foundation
 ///   and the height of that content (``contentHeight(overviewTileCount:preferred:)``);
 /// - the seed (``seed(display:)``), the shape every opening starts from;
 /// - the panel's frame while the island moves (``transitionFrame(from:to:displayWidth:)``);
-/// - the live state (``live(display:)``): while the hub is closed and something is live, the
-///   same shape is the notch widened at menu bar height.
+/// - the live state (``live(display:room:)``): while the hub is closed and something is live, the
+///   same shape is the notch widened at menu bar height, only over the free menu bar
+///   (``liveRoom(display:leftContentEnd:rightContentStart:)``).
 ///
 /// The notch itself is never hard-coded: it comes from the system's safe-area values
 /// (``notch(displayWidth:leftAreaWidth:rightAreaWidth:height:)``), and a value that makes no
@@ -106,21 +107,72 @@ nonisolated enum NotchHubGeometry {
         var hoverZone: Rect
     }
 
+    /// How much of the menu bar beside the notch is free, in points, measured from the notch's
+    /// edge (the display's centre without a notch) outward on each side: the space the live
+    /// state may widen into without covering anything (concept section 10b, 2026-11-14).
+    nonisolated struct LiveRoom: Equatable, Sendable {
+        var left: Double
+        var right: Double
+
+        /// Nothing limits either side but the maximum width and the display's margins: the
+        /// answer where holzBar does not know what the menu bar holds.
+        static let unlimited = LiveRoom(left: .infinity, right: .infinity)
+    }
+
     // MARK: Layout
 
-    /// The live state on a display, or `nil` when the display has no usable size.
+    /// The free room beside the notch from where the menu bar's content is, or `nil` for a side
+    /// that holds nothing.
+    ///
+    /// `leftContentEnd` is where the application menu ends and `rightContentStart` where the run
+    /// of status items starts, both in x from the display's left edge. Each side's room runs from
+    /// the notch's edge (the display's centre without a notch) to that content, less
+    /// ``DesignTokens/Island/liveContentGap``; a content that reaches the notch, or lies beyond
+    /// it, leaves none. A position that is not a number counts as covering its side (no room),
+    /// and a display that makes no sense has no room at all.
+    static func liveRoom(display: Display, leftContentEnd: Double?, rightContentStart: Double?) -> LiveRoom {
+        guard display.width.isFinite, display.width > 0 else {
+            return LiveRoom(left: 0, right: 0)
+        }
+        let notch = validated(display.notch, in: display.width)
+        let axisLeft = notch?.minX ?? display.width / 2
+        let axisRight = notch?.maxX ?? display.width / 2
+        let gap = DesignTokens.Island.liveContentGap
+        let left: Double
+        if let leftContentEnd {
+            left = leftContentEnd.isFinite ? max(axisLeft - (leftContentEnd + gap), 0) : 0
+        } else {
+            left = .infinity
+        }
+        let right: Double
+        if let rightContentStart {
+            right = rightContentStart.isFinite ? max((rightContentStart - gap) - axisRight, 0) : 0
+        } else {
+            right = .infinity
+        }
+        return LiveRoom(left: left, right: right)
+    }
+
+    /// The live state on a display, or `nil` when the display has no usable size or no side has
+    /// room for it.
     ///
     /// The shape starts at the top edge and is exactly the top row high, so it never grows
-    /// downward and never covers more of the menu bar than the notch's own row. Its black part
-    /// spans the notch plus ``DesignTokens/Island/liveSideWidth`` on each side, so the bounds add
-    /// ``DesignTokens/Island/liveTopRadius`` on each side for the concave flares; without a notch
-    /// the black part is centred on the display and reaches that far on each side of the centre.
-    /// The shape is kept ``screenMargin`` from the display's edges. The leading area ends
-    /// ``clearance`` before the notch and the trailing area starts ``clearance`` after it (half
-    /// of it from the centre without a notch); where the margin moves the shape, an area that
-    /// would reach into the notch is empty instead. The notch is judged as the island's layout
-    /// judges it.
-    static func live(display: Display) -> LiveLayout? {
+    /// downward and never covers more of the menu bar than the notch's own row. It grows only
+    /// over the free menu bar (concept section 10b, 2026-11-14): on each side its black part
+    /// reaches at most ``DesignTokens/Island/liveSideWidth`` beyond the notch (the display's
+    /// centre without a notch) and at most as far as `room` allows, and the bounds add
+    /// ``DesignTokens/Island/liveTopRadius`` for the concave flare, which must lie inside the room
+    /// as well. A side is also kept ``screenMargin`` from the display's edge. A side whose black
+    /// part would be narrower than ``DesignTokens/Island/liveMinimumSideWidth`` does not widen at
+    /// all: its edge is the notch's edge, it has no flare and its area is empty. The sides are
+    /// decided separately, so the shape need not be symmetric; when neither widens there is no
+    /// live state and the result is `nil`. The leading area ends ``clearance`` before the notch and
+    /// the trailing area starts ``clearance`` after it (half of it from the centre without a
+    /// notch). The notch is judged as the island's layout judges it.
+    ///
+    /// - Parameter room: The free menu bar on each side. A room that is not a number counts as
+    ///   none; the default is no limit but the maximum and the margins.
+    static func live(display: Display, room: LiveRoom = .unlimited) -> LiveLayout? {
         guard
             display.width.isFinite, display.width > 0,
             display.height.isFinite, display.height > 0
@@ -135,17 +187,21 @@ nonisolated enum NotchHubGeometry {
         let topRowHeight = resolvedTopRowHeight(of: display, notch: notch)
 
         let radius = DesignTokens.Island.liveTopRadius
-        let notchWidth = notch.map { $0.maxX - $0.minX } ?? 0
-        let shapeWidth = min(notchWidth + 2 * DesignTokens.Island.liveSideWidth + 2 * radius, capped)
-        let centre = notch.map { ($0.minX + $0.maxX) / 2 } ?? display.width / 2
-        let upperBound = display.width - screenMargin - shapeWidth
-        let shapeX = min(max(centre - shapeWidth / 2, screenMargin), max(upperBound, screenMargin))
-        let shape = Rect(x: shapeX, y: 0, width: shapeWidth, height: topRowHeight)
+        let axisLeft = notch?.minX ?? display.width / 2
+        let axisRight = notch?.maxX ?? display.width / 2
+        let leftBlack = blackWidth(room: room.left, limit: axisLeft - screenMargin)
+        let rightBlack = blackWidth(room: room.right, limit: display.width - screenMargin - axisRight)
+        guard leftBlack > 0 || rightBlack > 0 else {
+            return nil
+        }
+        let shapeMinX = axisLeft - (leftBlack > 0 ? leftBlack + radius : 0)
+        let shapeMaxX = axisRight + (rightBlack > 0 ? rightBlack + radius : 0)
+        let shape = Rect(x: shapeMinX, y: 0, width: shapeMaxX - shapeMinX, height: topRowHeight)
 
         let blackMinX = shape.minX + radius
         let blackMaxX = shape.maxX - radius
-        let leadingEnd = notch.map { $0.minX - clearance } ?? centre - clearance / 2
-        let trailingStart = notch.map { $0.maxX + clearance } ?? centre + clearance / 2
+        let leadingEnd = notch.map { $0.minX - clearance } ?? axisLeft - clearance / 2
+        let trailingStart = notch.map { $0.maxX + clearance } ?? axisRight + clearance / 2
         let leadingX = min(blackMinX, leadingEnd)
         let trailingEnd = max(blackMaxX, trailingStart)
         return LiveLayout(
@@ -315,6 +371,17 @@ nonisolated enum NotchHubGeometry {
     }
 
     // MARK: Helpers
+
+    /// How far the live state's black part reaches beyond the notch on one side: at most
+    /// ``DesignTokens/Island/liveSideWidth``, within the free `room` and the `limit` that keeps the
+    /// display's margin (the flare lies inside both), or 0 when that is narrower than
+    /// ``DesignTokens/Island/liveMinimumSideWidth``.
+    private static func blackWidth(room: Double, limit: Double) -> Double {
+        let free = room.isNaN ? 0 : room
+        let available = min(free, limit) - DesignTokens.Island.liveTopRadius
+        let width = min(DesignTokens.Island.liveSideWidth, available)
+        return width >= DesignTokens.Island.liveMinimumSideWidth ? width : 0
+    }
 
     /// The notch if it is finite, has a height and lies inside the display; otherwise `nil`.
     private static func validated(_ notch: Notch?, in displayWidth: Double) -> Notch? {
