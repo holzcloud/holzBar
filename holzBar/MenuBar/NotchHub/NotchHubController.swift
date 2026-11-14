@@ -95,6 +95,23 @@ final class NotchHubController: HubHost {
     /// What opened the hub, while it is open.
     @ObservationIgnored private var openedBy: NotchHubPolicy.Trigger?
 
+    // MARK: The island's phase
+
+    /// What the island is doing, decided only by ``HubIslandPhase``: every open, close and
+    /// completion goes through ``send(_:)``.
+    @ObservationIgnored private var phase = HubIslandPhase.State()
+
+    /// The shape the panel rests at once the running transition has ended: the open shape while
+    /// the hub opens, the seed, the notch's rectangle, while it closes.
+    @ObservationIgnored private var restShape: NotchHubGeometry.Rect?
+
+    /// The open shape while the hub is open and while a closing from it runs, so that a turn
+    /// around still covers everything the island has drawn.
+    @ObservationIgnored private var openShape: NotchHubGeometry.Rect?
+
+    /// The frame of the display the island is on, for the panel's frame in AppKit's coordinates.
+    @ObservationIgnored private var panelScreenFrame: CGRect?
+
     // MARK: Hover
 
     /// The hover zone of a display and where the display is.
@@ -242,6 +259,13 @@ final class NotchHubController: HubHost {
             panel?.orderOut(nil)
             panel = nil
             presentation = nil
+            // Everything is released at once; a completion that is still on its way must be stale.
+            var released = HubIslandPhase.State()
+            released.generation = phase.generation + 1
+            phase = released
+            restShape = nil
+            openShape = nil
+            panelScreenFrame = nil
         }
     }
 
@@ -386,38 +410,53 @@ final class NotchHubController: HubHost {
         self.panel = panel
         let presentation = presentation ?? IslandPresentation()
         self.presentation = presentation
-        let flipped = NotchHubGeometry.flipped(layout.shape, displayHeight: Double(screen.frame.height))
+        // A hub that opens again while it closes, on the same display, reuses the panel and its
+        // view: it turns around from where it is, without a flash.
+        let existing = phase.isPanelVisible && panelScreenFrame == screen.frame
+            ? panel.contentView as? IslandHostingView
+            : nil
+        let transition = NotchHubGeometry.transitionFrame(
+            from: (existing == nil ? nil : openShape) ?? seed,
+            to: layout.shape,
+            displayWidth: Double(screen.frame.width)
+        )
+        send(.open)
+        openShape = layout.shape
+        restShape = layout.shape
+        panelScreenFrame = screen.frame
+        panel.hasShadow = false
         panel.applyDarkAppearance()
         panel.acceptsKeyboard = trigger == .hotkey
         panel.onEscape = { [weak self] in
             self?.close()
         }
         presentation.takesKeyboard = trigger == .hotkey
-        presentation.show(seed: seed, canvas: layout.shape)
-        let hostingView = IslandHostingView(
-            view: IslandView(presentation: presentation, model: model, host: self)
-        )
-        panel.contentView = hostingView
-        panel.setFrame(
-            NSRect(
-                x: screen.frame.minX + flipped.x,
-                y: screen.frame.minY + flipped.y,
-                width: flipped.width,
-                height: flipped.height
-            ),
-            display: true
-        )
+        let hostingView: IslandHostingView
+        if let existing {
+            presentation.moveCanvas(transition)
+            hostingView = existing
+        } else {
+            presentation.show(seed: seed, canvas: transition)
+            hostingView = IslandHostingView(
+                view: IslandView(presentation: presentation, model: model, host: self)
+            )
+            panel.contentView = hostingView
+        }
+        setPanelFrame(transition, on: screen.frame)
         panel.orderFrontRegardless()
         if trigger == .hotkey {
             panel.makeKey()
         }
-        // Lay the closed shape out first, so that the opening starts from the notch.
+        // Lay the shape out first, without animation, so that the opening starts from the notch
+        // (or from where a closing had got to) and takes its own transaction.
         hostingView.layoutSubtreeIfNeeded()
         presentation.animateOpen(
             to: layout,
-            reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
-        )
-        isOpen = true
+            reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
+            generation: phase.generation
+        ) { [weak self] generation in
+            self?.islandAnimationFinished(generation)
+        }
         openedBy = trigger
         openScreenID = screen.displayID
         dragWatch?.hubOpened(byDrag: trigger == .fileDrag)
@@ -430,7 +469,9 @@ final class NotchHubController: HubHost {
         logger.debug("The Notch hub opened on display \(screen.displayID, privacy: .public)")
     }
 
-    /// Closes the hub. The panel stays for the next open, without content.
+    /// Closes the hub: the content leaves, then the island returns into the notch. From the first
+    /// frame of closing the hub behaves as closed; the panel is ordered out, and emptied, only
+    /// when the animation has finished (``islandAnimationFinished(_:)``).
     func close() {
         guard isOpen else {
             return
@@ -441,10 +482,9 @@ final class NotchHubController: HubHost {
         hoverIsArmed = false
         panel?.acceptsKeyboard = false
         panel?.onEscape = nil
-        panel?.orderOut(nil)
-        panel?.contentView = nil
         let wasOpenedByDrag = openedBy == .fileDrag
-        isOpen = false
+        let screen = NSScreen.screens.first { $0.displayID == openScreenID }
+        send(.close)
         openedBy = nil
         openScreenID = nil
         dragWatch?.hubClosed()
@@ -452,8 +492,99 @@ final class NotchHubController: HubHost {
             updateHover()
         }
         notifyRuntimes(isOpen: false)
-        // The capsule comes back when something is live.
-        activitiesDidChange()
+        animateClosing(on: screen)
+    }
+
+    /// Returns the island into the notch, or, when there is nothing to animate (the display is
+    /// gone), ends the closing at once.
+    private func animateClosing(on screen: NSScreen?) {
+        guard
+            let panel,
+            let presentation,
+            let screen,
+            let seed = NotchHubGeometry.seed(display: Self.display(of: screen)),
+            let from = openShape ?? restShape
+        else {
+            restShape = nil
+            islandAnimationFinished(phase.generation)
+            return
+        }
+        let transition = NotchHubGeometry.transitionFrame(
+            from: from,
+            to: seed,
+            displayWidth: Double(screen.frame.width)
+        )
+        restShape = seed
+        panelScreenFrame = screen.frame
+        panel.hasShadow = false
+        presentation.moveCanvas(transition)
+        setPanelFrame(transition, on: screen.frame)
+        // Take the larger canvas in its own transaction before the closing animates.
+        panel.contentView?.layoutSubtreeIfNeeded()
+        presentation.animateClose(
+            to: seed,
+            topRadius: DesignTokens.Island.notchTopRadius,
+            bottomRadius: DesignTokens.Island.notchBottomRadius,
+            reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
+            generation: phase.generation
+        ) { [weak self] generation in
+            self?.islandAnimationFinished(generation)
+        }
+    }
+
+    /// Applies an event to the island's phase and mirrors what the rest of the controller reads.
+    /// Returns whether the state changed: a completion that changes nothing is a stale one.
+    @discardableResult
+    private func send(_ event: HubIslandPhase.Event) -> Bool {
+        let next = HubIslandPhase.reduce(phase, event)
+        guard next != phase else {
+            return false
+        }
+        phase = next
+        if isOpen != next.isOpen {
+            isOpen = next.isOpen
+        }
+        return true
+    }
+
+    /// The end of a transition: the panel becomes exactly the shape it rests at, the window's
+    /// shadow comes back for the settled open shape, and a closed island's panel is ordered out
+    /// and emptied. A completion of a transition that a newer one replaced does nothing.
+    private func islandAnimationFinished(_ generation: Int) {
+        guard send(.animationFinished(generation: generation)), let panel else {
+            return
+        }
+        if phase.ordersOut {
+            panel.orderOut(nil)
+            panel.contentView = nil
+            openShape = nil
+            // The capsule comes back when something is live.
+            activitiesDidChange()
+            return
+        }
+        if let shape = restShape, let screenFrame = panelScreenFrame {
+            presentation?.moveCanvas(shape)
+            setPanelFrame(shape, on: screenFrame)
+            panel.contentView?.layoutSubtreeIfNeeded()
+        }
+        if phase.hasShadow {
+            panel.hasShadow = true
+            panel.invalidateShadow()
+        }
+    }
+
+    /// Sets the panel's frame from a rectangle in the display's coordinates.
+    private func setPanelFrame(_ shape: NotchHubGeometry.Rect, on screenFrame: CGRect) {
+        let flipped = NotchHubGeometry.flipped(shape, displayHeight: Double(screenFrame.height))
+        panel?.setFrame(
+            NSRect(
+                x: screenFrame.minX + flipped.x,
+                y: screenFrame.minY + flipped.y,
+                width: flipped.width,
+                height: flipped.height
+            ),
+            display: true
+        )
     }
 
     private func notifyRuntimes(isOpen: Bool) {
@@ -816,7 +947,7 @@ final class NotchHubController: HubHost {
         armExpiry(at: board.nextExpiry)
         guard
             board.compact != nil,
-            !isOpen,
+            !phase.isPanelVisible,
             let appState,
             let screen = preferredScreen(),
             NotchHubPolicy.blockReason(policyEnvironment(of: screen, appState: appState), trigger: .compact) == nil
@@ -896,7 +1027,8 @@ final class NotchHubController: HubHost {
             zone.compactZone = nil
             return zone
         }
-        guard !isOpen else {
+        // The island's panel, open or closing, is not the capsule's to take away.
+        guard !phase.isPanelVisible else {
             return
         }
         panel?.orderOut(nil)

@@ -49,6 +49,10 @@ final class IslandPresentation {
     var heightAnimation: Animation?
     var contentAnimation: Animation?
 
+    /// The generation of the transition that runs, so that a completion that arrives late never
+    /// changes the shape of a newer one.
+    @ObservationIgnored private var transitionGeneration = 0
+
     /// Puts the island in its closed shape, the seed, at once and without animation: the notch's
     /// rectangle with the notch's corners and no content.
     func show(seed: NotchHubGeometry.Rect, canvas: NotchHubGeometry.Rect) {
@@ -72,16 +76,101 @@ final class IslandPresentation {
     /// Opens the island to a layout: the shape widens with one spring and deepens with another,
     /// and the content follows 90 ms later (concept section 10b). With `reduceMotion` the shape
     /// takes its target at once and the content fades.
-    func animateOpen(to layout: NotchHubGeometry.IslandLayout, reduceMotion: Bool) {
-        self.layout = layout
-        widthAnimation = reduceMotion ? nil : HolzBarTheme.Motion.islandOpenWidth
-        heightAnimation = reduceMotion ? nil : HolzBarTheme.Motion.islandOpenHeight
-        contentAnimation = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandContentIn
-        centreX = layout.shape.x + layout.shape.width / 2
-        width = layout.shape.width
-        height = layout.shape.height
-        topRadius = DesignTokens.Island.openTopRadius
-        bottomRadius = DesignTokens.Island.openBottomRadius
-        contentShown = true
+    ///
+    /// `completion` runs once, with `generation`, when the whole transition has settled. Every
+    /// change goes through one `withAnimation` call, so that one transaction carries the
+    /// completion; a second, earlier change in the same turn would take the transaction for
+    /// itself.
+    func animateOpen(
+        to layout: NotchHubGeometry.IslandLayout,
+        reduceMotion: Bool,
+        generation: Int,
+        completion: @escaping @MainActor (Int) -> Void
+    ) {
+        transitionGeneration = generation
+        let driver = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandOpenHeight
+        withAnimation(driver, completionCriteria: .removed) {
+            self.layout = layout
+            widthAnimation = reduceMotion ? nil : HolzBarTheme.Motion.islandOpenWidth
+            heightAnimation = reduceMotion ? nil : HolzBarTheme.Motion.islandOpenHeight
+            contentAnimation = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandContentIn
+            centreX = layout.shape.x + layout.shape.width / 2
+            width = layout.shape.width
+            height = layout.shape.height
+            topRadius = DesignTokens.Island.openTopRadius
+            bottomRadius = DesignTokens.Island.openBottomRadius
+            contentShown = true
+        } completion: {
+            completion(generation)
+        }
+    }
+
+    /// Closes the island into `rest`, the notch's rectangle (concept section 10b): the content
+    /// goes first, in 0.12 s with its opacity and blur, then the shape returns with a spring that
+    /// does not overshoot. With `reduceMotion` only the content fades, in 0.15 s, and the shape
+    /// then takes `rest` at once.
+    ///
+    /// `completion` runs once, with `generation`, when the closing has finished. The shape of a
+    /// closing that a newer transition replaced is left alone.
+    func animateClose(
+        to rest: NotchHubGeometry.Rect,
+        topRadius: Double,
+        bottomRadius: Double,
+        reduceMotion: Bool,
+        generation: Int,
+        completion: @escaping @MainActor (Int) -> Void
+    ) {
+        transitionGeneration = generation
+        if reduceMotion {
+            withAnimation(HolzBarTheme.Motion.reduced, completionCriteria: .removed) {
+                widthAnimation = nil
+                heightAnimation = nil
+                contentAnimation = HolzBarTheme.Motion.reduced
+                contentShown = false
+            } completion: { [weak self] in
+                if let self, transitionGeneration == generation {
+                    takeShapeAtOnce(rest, topRadius: topRadius, bottomRadius: bottomRadius)
+                }
+                completion(generation)
+            }
+            return
+        }
+        let spring = HolzBarTheme.Motion.islandClose.delay(DesignTokens.Island.contentOutDuration)
+        withAnimation(spring, completionCriteria: .removed) {
+            widthAnimation = spring
+            heightAnimation = spring
+            contentAnimation = HolzBarTheme.Motion.islandContentOut
+            contentShown = false
+            centreX = rest.x + rest.width / 2
+            width = rest.width
+            height = rest.height
+            self.topRadius = topRadius
+            self.bottomRadius = bottomRadius
+        } completion: {
+            completion(generation)
+        }
+    }
+
+    /// Moves the canvas, the panel's frame, at once and without animation. What is drawn keeps
+    /// its place on the display.
+    func moveCanvas(_ rect: NotchHubGeometry.Rect) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            canvas = rect
+        }
+    }
+
+    /// Sets the shape and its radii at once, without animation.
+    private func takeShapeAtOnce(_ shape: NotchHubGeometry.Rect, topRadius: Double, bottomRadius: Double) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            centreX = shape.x + shape.width / 2
+            width = shape.width
+            height = shape.height
+            self.topRadius = topRadius
+            self.bottomRadius = bottomRadius
+        }
     }
 }
