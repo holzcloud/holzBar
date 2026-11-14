@@ -349,6 +349,11 @@ final class NowPlayingRuntime: HubModuleRuntime {
 
     // MARK: Hub
 
+    /// What the hub's context reads: whether something plays, never what.
+    var contextSignal: HubContext.Signal? {
+        .playing(current?.event.state == .playing)
+    }
+
     /// The Overview card: the state and the title of what plays, or a sentence when nothing does.
     var tile: HubTile? {
         guard let event = current?.event, event.state != .stopped else {

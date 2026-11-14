@@ -26,6 +26,8 @@ import SwiftUI
 ///   (``FileDragWatch``), while the hub is on and a module accepts file drags; it shares the
 ///   zones and the one-shot tasks of the hover;
 /// - the click monitor and the two change tasks, while the hub is open;
+/// - the late re-decision's observation and its one-second wait, only in the first second of an
+///   opening (``startLateDecision(openedAt:)``);
 /// - a module's runtime, while the hub and the module are both on (``HubModuleLifecycle``);
 /// - the compact capsule of the live activities, its two change tasks and its place in the
 ///   hover zone, while at least one activity is live and the hub is closed.
@@ -172,6 +174,13 @@ final class NotchHubController: HubHost {
     @ObservationIgnored private var outsideClickMonitor: EventMonitor?
 
     @ObservationIgnored private var openTasks = [Task<Void, Never>]()
+
+    /// Follows what the context reads in the first second of an opening, so that a meeting whose
+    /// events arrived late can come to the front once (D-03).
+    @ObservationIgnored private var lateDecisionLoop: ObservationLoop?
+
+    /// The one-shot wait that ends the late decision after ``HubContext/lateDecisionWindow``.
+    @ObservationIgnored private var lateDecisionTask: Task<Void, Never>?
 
     // MARK: While the capsule shows
 
@@ -394,7 +403,8 @@ final class NotchHubController: HubHost {
         // fit and the layout, which depend on it. Nothing is stored and nothing is logged.
         // The setting is read once, now, and nothing follows it while the hub is open.
         let showsActiveFirst = appState.settings.notchHub.showsActiveFirst
-        model.beginOpening(HubContext.decide(model.contextInputs(now: .now, showsActiveFirst: showsActiveFirst)))
+        let openedAt = Date.now
+        model.beginOpening(HubContext.decide(model.contextInputs(now: openedAt, showsActiveFirst: showsActiveFirst)))
         // The capsule and the hub are one panel: the capsule goes first.
         hideCompact()
         if trigger == .fileDrag {
@@ -482,6 +492,11 @@ final class NotchHubController: HubHost {
             // The hub a drag opened closes when the pointer leaves it, even without Open on hover.
             updateHover()
         }
+        // The one late re-decision starts before the modules are told, so that what they load
+        // is seen. A file drag's pick and the setting off leave nothing to decide again.
+        if showsActiveFirst, trigger != .fileDrag {
+            startLateDecision(openedAt: openedAt)
+        }
         startOpenObservers()
         notifyRuntimes(isOpen: true)
         logger.debug("The Notch hub opened on display \(screen.displayID, privacy: .public)")
@@ -495,6 +510,7 @@ final class NotchHubController: HubHost {
             return
         }
         stopOpenObservers()
+        endLateDecision()
         cancelHover()
         // The pointer may rest in the zone; the hub opens again only after it left.
         hoverIsArmed = false
@@ -651,6 +667,48 @@ final class NotchHubController: HubHost {
             task.cancel()
         }
         openTasks.removeAll()
+    }
+
+    // MARK: The late decision
+
+    /// Watches what the context reads for ``HubContext/lateDecisionWindow`` seconds after an
+    /// opening (D-03): the Calendar reads its events only while the hub is open, so they can arrive
+    /// a moment after it. When the context then decides on a meeting and nothing was picked, the
+    /// meeting comes to the front once. It is one observation and one one-shot wait, both gone
+    /// after one second at most; nothing is polled and nothing is read while the hub is closed.
+    ///
+    /// The content changes in place, as it does for a user's pick; the cross-fade and the height
+    /// spring of a module switch belong to every switch alike (Plan 91-07).
+    private func startLateDecision(openedAt: Date) {
+        endLateDecision()
+        let model = model
+        lateDecisionLoop = ObservationLoop.observe {
+            model.contextInputs(now: openedAt, showsActiveFirst: true)
+        } onChange: { [weak self] inputs in
+            self?.contextDidChange(inputs, openedAt: openedAt)
+        }
+        lateDecisionTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(HubContext.lateDecisionWindow))
+            guard !Task.isCancelled else {
+                return
+            }
+            self?.endLateDecision()
+        }
+    }
+
+    /// The context's inputs changed in the first second: decides once more.
+    private func contextDidChange(_ inputs: HubContext.Inputs, openedAt: Date) {
+        let elapsed = Date.now.timeIntervalSince(openedAt)
+        if model.reconsider(HubContext.decide(inputs), elapsed: elapsed) || model.session?.hasPick == true {
+            endLateDecision()
+        }
+    }
+
+    /// Ends the late decision: its wait is cancelled and its observation dropped.
+    private func endLateDecision() {
+        lateDecisionTask?.cancel()
+        lateDecisionTask = nil
+        lateDecisionLoop = nil
     }
 
     // MARK: Hover

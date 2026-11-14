@@ -255,6 +255,17 @@ final class CalendarRuntime: HubModuleRuntime {
         return HubTile(symbol: "calendar", title: Text("Next event"), value: value, detail: detail)
     }
 
+    /// What the hub's context reads: the times of the timed events the runtime holds, never
+    /// anything else of them. Nothing is read for it; all-day events are left out.
+    var contextSignal: HubContext.Signal? {
+        .meetings(
+            rows.compactMap { model in
+                let event = model.row.event
+                return event.isAllDay ? nil : HubContext.Meeting(start: event.start, end: event.end)
+            }
+        )
+    }
+
     func hubVisibilityDidChange(isOpen: Bool) {
         isHubOpen = isOpen
         guard isOpen else {
