@@ -20,6 +20,7 @@ struct IslandView: View {
     let host: any HubHost
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorSchemeContrast) private var contrast
     @FocusState private var hasKeyboardFocus: Bool
 
     private var canvasWidth: CGFloat {
@@ -32,6 +33,7 @@ struct IslandView: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
+            closingLayer
             island
             content
         }
@@ -55,6 +57,12 @@ struct IslandView: View {
                 hasKeyboardFocus = true
             }
         }
+        .onChange(of: presentation.takesKeyboard) { _, takesKeyboard in
+            // A hub that opens again while it closes keeps this view.
+            if takesKeyboard {
+                hasKeyboardFocus = true
+            }
+        }
         .accessibilityElement(children: .contain)
         .accessibilityLabel(Text("Notch hub"))
     }
@@ -67,20 +75,44 @@ struct IslandView: View {
 
     // MARK: The island
 
-    /// The black shape, centred at the top of the canvas. The width, the height and the corners
-    /// each carry the animation that belongs to them, so the island can widen with one spring and
-    /// deepen with another.
+    /// The transparent rest of the panel, under the island: a click in the margin of a transition
+    /// or in a concave cut-out closes the hub instead of being swallowed. At rest the panel is the
+    /// shape, so there is almost nothing of it.
+    private var closingLayer: some View {
+        Color.clear
+            .frame(width: canvasWidth, height: canvasHeight)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                host.close()
+            }
+            .accessibilityHidden(true)
+    }
+
+    /// The black shape, centred at the top of the canvas, with the lower-edge line under Increase
+    /// Contrast. The width, the height and the corners each carry the animation that belongs to
+    /// them, so the island can widen with one spring and deepen with another. Its hit area is the
+    /// shape itself: a click in a concave corner or beside a rounded bottom corner never reaches
+    /// the island, and the layer under it closes the hub.
     private var island: some View {
-        IslandShape(topRadius: CGFloat(presentation.topRadius), bottomRadius: CGFloat(presentation.bottomRadius))
-            .fill(HolzBarTheme.Island.surface)
-            .animation(presentation.heightAnimation, value: presentation.bottomRadius)
-            .frame(width: CGFloat(presentation.width))
-            .animation(presentation.widthAnimation, value: presentation.width)
-            .frame(height: CGFloat(presentation.height))
-            .animation(presentation.heightAnimation, value: presentation.height)
-            .offset(x: CGFloat(presentation.centreX - (presentation.canvas.x + presentation.canvas.width / 2)))
-            .animation(presentation.widthAnimation, value: presentation.centreX)
-            .frame(width: canvasWidth, height: canvasHeight, alignment: .top)
+        let topRadius = CGFloat(presentation.topRadius)
+        let bottomRadius = CGFloat(presentation.bottomRadius)
+        return ZStack {
+            IslandShape(topRadius: topRadius, bottomRadius: bottomRadius)
+                .fill(HolzBarTheme.Island.surface)
+            if contrast == .increased {
+                IslandLowerEdge(topRadius: topRadius, bottomRadius: bottomRadius)
+                    .stroke(HolzBarTheme.Island.edge, lineWidth: HolzBarTheme.Island.edgeWidth)
+            }
+        }
+        .animation(presentation.heightAnimation, value: presentation.bottomRadius)
+        .frame(width: CGFloat(presentation.width))
+        .animation(presentation.widthAnimation, value: presentation.width)
+        .frame(height: CGFloat(presentation.height))
+        .animation(presentation.heightAnimation, value: presentation.height)
+        .contentShape(IslandShape(topRadius: topRadius, bottomRadius: bottomRadius))
+        .offset(x: CGFloat(presentation.centreX - (presentation.canvas.x + presentation.canvas.width / 2)))
+        .animation(presentation.widthAnimation, value: presentation.centreX)
+        .frame(width: canvasWidth, height: canvasHeight, alignment: .top)
     }
 
     // MARK: The content
@@ -100,6 +132,8 @@ struct IslandView: View {
                     x: CGFloat(area.x - presentation.canvas.x),
                     y: CGFloat(area.y - presentation.canvas.y)
                 )
+                // The content never fades in as a view that is inserted; only its opacity moves.
+                .transition(.identity)
         }
     }
 
