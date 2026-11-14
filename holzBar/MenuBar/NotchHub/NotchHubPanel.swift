@@ -7,6 +7,11 @@ import AppKit
 
 /// The borderless panel the Notch hub is drawn in, above the menu bar.
 ///
+/// At rest its frame is exactly the island's shape; only while the shape animates is it larger,
+/// by the margin of the transition (concept section 10b). Its own shadow is off, because it would
+/// follow every frame of an animation; the controller turns it on, and works it out again, when the
+/// open shape has settled.
+///
 /// It is always dark: the hub continues the black of the hardware notch, in light mode too, so
 /// the panel fixes its own appearance. It never activates holzBar. It takes the keyboard only
 /// when the hotkey opened it, so that Esc and the arrow keys work there; a hub that hover
@@ -33,7 +38,7 @@ final class NotchHubPanel: NSPanel {
         animationBehavior = .none
         backgroundColor = .clear
         isOpaque = false
-        hasShadow = true
+        hasShadow = false
         level = .mainMenu + 2
         collectionBehavior = [.fullScreenAuxiliary, .ignoresCycle, .moveToActiveSpace]
         hidesOnDeactivate = false

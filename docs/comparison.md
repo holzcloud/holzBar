@@ -53,8 +53,8 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Timers, countdowns to a moment and a stopwatch in that hub (optional module, no permission) | ❌ | — | — | ✅ |
 | Next events and a Join button for meetings in that hub (optional module; Calendar access asked only when you switch it on) | ❌ | — | — | ✅ |
 | Now Playing in that hub (optional module; Music and Spotify without a permission, other apps with the opt-in Read all apps) | ❌ | — | — | ✅ |
-| A capsule at the notch for downloads and for a camera or microphone in use (optional module in that hub) | ❌ | — | — | ✅ |
-| Connection and low-battery alerts for AirPods and other accessories, as a capsule at the notch (optional module in that hub; Bluetooth asked only when you switch it on; battery levels use a macOS call that Apple does not document) | ❌ | — | — | ✅ |
+| The notch widens for downloads and for a camera or microphone in use (optional module in that hub) | ❌ | — | — | ✅ |
+| Connection and low-battery alerts for AirPods and other accessories, shown by widening the notch (optional module in that hub; Bluetooth asked only when you switch it on; battery levels use a macOS call that Apple does not document) | ❌ | — | — | ✅ |
 | A file stash at the notch: drag files in, drag them out later as copies (optional module in that hub, no permission) | ❌ | — | — | ✅ |
 | Volume and brightness sliders at the notch (optional module in that hub, no permission; brightness uses a macOS call that Apple does not document) | ❌ | — | — | ✅ |
 | The banners of your apps listed at the notch (optional module in that hub; read through Accessibility, kept in memory only, no Notifications permission; only what macOS shows on screen, and it follows a structure macOS may change) | ❌ | — | — | ✅ |
@@ -179,7 +179,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Notch hub (widgets, files, now playing in the notch) | Hub ✅, Timers ✅, Calendar ✅, Live activities ✅, File drop ✅, Display controls ✅, Accessory alerts ✅, Notifications ✅, Now Playing ✅, more modules 🔜 | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | Notch Mode (its own bar) |
 | Calendar and meeting link in the hub (reads your calendars on this Mac only) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Now Playing in the hub (Music and Spotify; any app with the opt-in Read all apps) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | media controls item | ❓ | menu bar item, not a hub | ❓ | ❓ | ❓ |
-| Live activities in the hub (a capsule at the notch while something is going on; holzBar's are downloads and a camera or microphone in use) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ❓ | camera/mic indicator item | ❓ | ❓ | ❓ | ❓ | ❓ |
+| Live activities in the hub (the notch widens while something is going on; holzBar's are running timers, downloads, a camera or microphone in use and accessory alerts) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ❓ | camera/mic indicator item | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Accessory alerts (connect, disconnect and low battery of AirPods and other accessories; holzBar's battery levels use a call that Apple does not document) | ✅ | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | System readouts in the menu bar (CPU, memory, network, disk) | 🔜 1.2.0; CPU, memory and disk as text widgets ✅ <sup>14</sup> | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Launcher, command bar | ✅ palette, 🔜 1.3.0 launcher | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | search panel | ❓ | ❓ | ❓ | ❓ | ✅ one hotkey opens the bar |

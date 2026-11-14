@@ -36,7 +36,7 @@ struct NowPlayingBodyView: View {
             }
         }
         .padding(.vertical, HolzBarTheme.Spacing.xxs)
-        .frame(height: CGFloat(NotchHubGeometry.bodyHeight), alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     private func playing(_ event: NowPlayingEvent) -> some View {

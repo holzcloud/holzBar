@@ -349,6 +349,17 @@ final class NowPlayingRuntime: HubModuleRuntime {
 
     // MARK: Hub
 
+    /// What the hub's context reads: whether something plays, never what.
+    var contextSignal: HubContext.Signal? {
+        .playing(current?.event.state == .playing)
+    }
+
+    /// The player cannot scroll, so it asks for the island's largest content height; it fitted the
+    /// old 200 point body.
+    var preferredContentHeight: Double? {
+        DesignTokens.Island.maximumContentHeight
+    }
+
     /// The Overview card: the state and the title of what plays, or a sentence when nothing does.
     var tile: HubTile? {
         guard let event = current?.event, event.state != .stopped else {
@@ -365,20 +376,6 @@ final class NowPlayingRuntime: HubModuleRuntime {
             title: event.state == .playing ? Text("Playing") : Text("Paused"),
             value: value,
             detail: event.track?.artist.map { Text(verbatim: $0) }
-        )
-    }
-
-    /// The right wing's pill: the title, only while a song plays.
-    var statusPill: HubStatusPill? {
-        guard let event = current?.event, event.state == .playing else {
-            return nil
-        }
-        let title = event.track?.title ?? String(localized: "Unknown title")
-        let text = title.count > 18 ? String(title.prefix(17)) + "…" : title
-        return HubStatusPill(
-            symbol: "music.note",
-            text: text,
-            accessibilityLabel: Text("Now playing: \(title)")
         )
     }
 

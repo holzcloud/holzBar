@@ -20,8 +20,8 @@ nonisolated enum NotchHubPolicy {
         case hover
         /// The user pressed the hotkey.
         case hotkey
-        /// The pointer rested on the live-activity capsule, or the user clicked it. It follows the
-        /// rules of ``hover`` in every way.
+        /// The pointer rested on the widened notch of a live activity, or the user clicked it. It
+        /// follows the rules of ``hover`` in every way.
         case compact
         /// A file is being dragged to the notch (File drop). It follows the rules of ``hover`` in
         /// every way.
@@ -100,7 +100,7 @@ nonisolated enum NotchHubPolicy {
     ///
     /// In order: the display is not allowed; a fullscreen space (hover always, the hotkey too
     /// unless ``hotkeyOpensInFullscreen``); the menu bar hidden by the system (the same rule);
-    /// the screen presented while ``blocksWhilePresenting``. The live-activity capsule's
+    /// the screen presented while ``blocksWhilePresenting``. The live state's
     /// ``Trigger/compact`` and a file drag's ``Trigger/fileDrag`` are judged exactly as
     /// ``Trigger/hover`` is.
     static func blockReason(_ environment: Environment, trigger: Trigger) -> BlockReason? {

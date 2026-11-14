@@ -46,6 +46,16 @@ nonisolated enum WhatsNewHistory {
                     title: "A short introduction",
                     detail: "The first launch needs only Accessibility and then shows three short steps, which About shows again."
                 ),
+                WhatsNewItem(
+                    symbol: "capsule.tophalf.filled",
+                    title: "Notch hub, redesigned",
+                    detail: "The hub grows out of the notch in black, opens on what is active with a line that says why, and shows every module as a round button."
+                ),
+                WhatsNewItem(
+                    symbol: "arrow.left.and.right",
+                    title: "Live activities in the notch",
+                    detail: "A running timer, the camera, the microphone, a download or an accessory widens the notch at menu bar height instead of a capsule below it."
+                ),
             ],
             improved: [
                 WhatsNewItem(

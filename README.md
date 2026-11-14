@@ -105,6 +105,7 @@ Details: [release notes](docs/release-notes/v1.1.0-beta1.md) · [full list](docs
 - **Layout as a list**: bars or a list of every item with its app and a section menu, a filter, and Move to at the top of each item's menu.
 - **Undo after every change**: a layout change in Settings or in the menu bar shows a notice with Undo for five seconds, and ⌘Z works too.
 - **A short introduction**: the first launch asks only for Accessibility, then shows three short steps that About shows again.
+- **Notch hub, redesigned**: grows out of the notch in black, opens on what is active with a line that says why, shows every module as a round button, and live activities widen the notch instead of a capsule below it.
 
 ### 1.0.5
 

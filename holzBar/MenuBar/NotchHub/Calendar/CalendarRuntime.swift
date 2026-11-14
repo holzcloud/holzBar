@@ -73,6 +73,11 @@ final class CalendarRuntime: HubModuleRuntime {
     /// The rows of the Calendar tab.
     private(set) var rows = [CalendarRowModel]()
 
+    /// Whether ``rows``, which are read only while the hub is open, may still decide what the
+    /// hub opens on at the next opening (``contextSignal``): they may until the event store or
+    /// the settings change, or the read gets old.
+    private(set) var freshness = CalendarReadFreshness()
+
     /// Whether events can be read.
     private(set) var authorization = CalendarAuthorization.current
 
@@ -160,8 +165,10 @@ final class CalendarRuntime: HubModuleRuntime {
 
     // MARK: Reading
 
-    /// The store changed: read again while the hub is open. A closed hub reads when it opens.
+    /// The store changed: what was read before cannot be trusted for the context, and the open
+    /// hub reads again. A closed hub reads nothing; it reads when it opens.
     private func storeDidChange() {
+        freshness.didChange()
         if isHubOpen {
             reload()
         }
@@ -175,6 +182,7 @@ final class CalendarRuntime: HubModuleRuntime {
         waitTask = nil
         guard authorization == .granted, let fetcher else {
             rows = []
+            freshness.reset()
             return
         }
         let settings = appState?.settings.calendar
@@ -183,6 +191,9 @@ final class CalendarRuntime: HubModuleRuntime {
         let calendar = Calendar.current
         let windowStart = calendar.startOfDay(for: .now)
         let windowEnd = NextEvents.windowEnd(now: .now, calendar: calendar)
+        // A read counts from its start, and only if nothing changed while it ran.
+        let readStart = Date.now
+        let readToken = freshness.token
         fetchTask = Task { [weak self] in
             let events = await fetcher.events(from: windowStart, to: windowEnd)
             guard !Task.isCancelled, let self else {
@@ -201,6 +212,7 @@ final class CalendarRuntime: HubModuleRuntime {
                     && MeetingLinks.isJoinable(start: row.event.start, end: row.event.end, now: now)
                 return CalendarRowModel(row: row, link: link, isJoinable: isJoinable)
             }
+            freshness.didRead(startedAt: readStart, token: readToken)
             logger.debug("Calendar events changed: \(selection.rows.count, privacy: .public) rows")
             armWait(until: selection.nextBoundary)
         }
@@ -255,6 +267,26 @@ final class CalendarRuntime: HubModuleRuntime {
         return HubTile(symbol: "calendar", title: Text("Next event"), value: value, detail: detail)
     }
 
+    /// What the hub's context reads: the times of the timed events the runtime holds, never
+    /// anything else of them. Nothing is read for it; all-day events are left out. Rows from an
+    /// earlier opening still decide at this opening while nothing says they are out of date (the
+    /// store reported no change since the read, the settings are the same and the read is not
+    /// older than ``CalendarReadFreshness/maximumAge``); the context then checks each meeting
+    /// against the clock, so one that has ended or is not near never decides. Otherwise they count
+    /// as no meetings until this opening has read them: an event deleted or moved since then must
+    /// not bring the module to the front.
+    var contextSignal: HubContext.Signal? {
+        guard freshness.mayDecide(now: .now) else {
+            return .meetings([])
+        }
+        return .meetings(
+            rows.compactMap { model in
+                let event = model.row.event
+                return event.isAllDay ? nil : HubContext.Meeting(start: event.start, end: event.end)
+            }
+        )
+    }
+
     func hubVisibilityDidChange(isOpen: Bool) {
         isHubOpen = isOpen
         guard isOpen else {
@@ -287,6 +319,7 @@ final class CalendarRuntime: HubModuleRuntime {
         permissionLoop = nil
         settingsLoop = nil
         rows = []
+        freshness.reset()
         fetcher = nil
     }
 }

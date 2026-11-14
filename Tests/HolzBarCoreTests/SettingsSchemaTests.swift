@@ -243,12 +243,13 @@ struct SettingsSchemaTests {
     @Test("The notch hub's settings travel with a settings file, and only the displays within their choices")
     func notchHubSettingsTravel() {
         #expect(Defaults.Key.importableKinds["NotchHubOpensOnHover"] == .bool)
+        #expect(Defaults.Key.importableKinds["NotchHubShowsActiveFirst"] == .bool)
         #expect(Defaults.Key.importableKinds["NotchHubDisplays"] == .number)
         let accepted = Defaults.Key.validatedSettings(
-            ["NotchHubOpensOnHover": false, "NotchHubDisplays": 2],
+            ["NotchHubOpensOnHover": false, "NotchHubShowsActiveFirst": false, "NotchHubDisplays": 2],
             ownBundleIdentifier: ownBundle
         )
-        #expect(accepted.accepted.keys.sorted() == ["NotchHubDisplays", "NotchHubOpensOnHover"])
+        #expect(accepted.accepted.keys.sorted() == ["NotchHubDisplays", "NotchHubOpensOnHover", "NotchHubShowsActiveFirst"])
         for refused: Double in [3, 1.5, .nan] {
             let result = Defaults.Key.validatedSettings(["NotchHubDisplays": refused], ownBundleIdentifier: ownBundle)
             #expect(result.accepted.isEmpty)

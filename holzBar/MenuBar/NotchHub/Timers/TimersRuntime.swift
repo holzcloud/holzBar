@@ -13,6 +13,11 @@ import SwiftUI
 /// when either goes off, so nothing of the module exists while it is off. Every change goes
 /// through the pure ``TimerBoard``; the alarm is armed from ``TimerBoard/nextDeadline`` after
 /// every change.
+///
+/// Its running and finished timers are live activities (``activities``): they widen the notch
+/// while the hub is closed, count for what the hub puts in front when it opens and also show in
+/// the Live activities list, besides this module (D-08). A paused timer and a stopwatch are not
+/// live.
 @MainActor
 @Observable
 final class TimersRuntime: HubModuleRuntime {
@@ -96,6 +101,17 @@ final class TimersRuntime: HubModuleRuntime {
     }
 
     // MARK: Hub
+
+    /// The running timers and the ones that have just ended, as live activities, through the pure
+    /// ``TimerLiveActivities``. It reads the observable ``board``, so the hub follows every change;
+    /// a timer's label stays in the detail and is never drawn beside the notch.
+    var activities: [LiveActivity] {
+        TimerLiveActivities.activities(
+            for: board,
+            moduleID: moduleID,
+            words: .init(running: String(localized: "Timer"), done: String(localized: "Done"))
+        )
+    }
 
     /// The Overview card: the leading timer, with its live remaining time.
     var tile: HubTile? {

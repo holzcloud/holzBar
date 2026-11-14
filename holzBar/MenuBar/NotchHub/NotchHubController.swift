@@ -25,10 +25,16 @@ import SwiftUI
 /// - the drag monitor, which tells a file dragged to the notch from other mouse drags
 ///   (``FileDragWatch``), while the hub is on and a module accepts file drags; it shares the
 ///   zones and the one-shot tasks of the hover;
-/// - the click monitor and the two change tasks, while the hub is open;
+/// - the click monitor, the two change tasks and the observation of the content's height, while
+///   the hub is open;
+/// - the late re-decision's observation and its one-second wait, only in the first second of an
+///   opening (``startLateDecision(openedAt:)``);
 /// - a module's runtime, while the hub and the module are both on (``HubModuleLifecycle``);
-/// - the compact capsule of the live activities, its two change tasks and its place in the
-///   hover zone, while at least one activity is live and the hub is closed.
+/// - the live state of the island, its two change tasks and its place in the hover zone, while
+///   at least one activity is live and the hub is closed: the same shape and the same panel as the
+///   open hub, widened at menu bar height beside the notch, only over the free menu bar
+///   (``NotchHubLiveRoom``); the free span follows the application menu and the status items
+///   through the activity observation and one notification task, with no timer.
 ///
 /// Every wait is a one-shot task; there is no timer. The only wait the live activities own is
 /// one task until the next finished activity leaves, armed only while one exists.
@@ -64,7 +70,7 @@ final class NotchHubController: HubHost {
     /// Follows the hub's own settings, while the hub is on.
     @ObservationIgnored private var settingsLoop: ObservationLoop?
 
-    /// Follows the live activities and what decides whether the capsule may show, while the hub
+    /// Follows the live activities and what decides whether the live state may show, while the hub
     /// is on.
     @ObservationIgnored private var activitiesLoop: ObservationLoop?
 
@@ -77,9 +83,12 @@ final class NotchHubController: HubHost {
     /// The panel, created by the first open and released when the module goes off.
     @ObservationIgnored private var panel: NotchHubPanel?
 
-    /// The frame of the hub's panel (the hub or the compact capsule, which are one panel)
-    /// while it is on screen, in AppKit coordinates; `nil` while it is not. The hit test of
-    /// show on click reads it: a click on a hub tab is not a click on empty menu bar space.
+    /// What the island in the panel shows and how it moves; it lives and goes with the panel.
+    @ObservationIgnored private var presentation: IslandPresentation?
+
+    /// The frame of the hub's panel (the open hub or the live state, which are one panel) while
+    /// it is on screen, in AppKit coordinates; `nil` while it is not. The hit test of show on
+    /// click reads it: a click on the hub is not a click on empty menu bar space.
     var visiblePanelFrame: CGRect? {
         guard let panel, panel.isVisible else {
             return nil
@@ -92,15 +101,39 @@ final class NotchHubController: HubHost {
     /// What opened the hub, while it is open.
     @ObservationIgnored private var openedBy: NotchHubPolicy.Trigger?
 
+    // MARK: The island's phase
+
+    /// What the island is doing, decided only by ``HubIslandPhase``: every open, close and
+    /// completion goes through ``send(_:)``.
+    @ObservationIgnored private var phase = HubIslandPhase.State()
+
+    /// The one-shot wait of the running transition: if SwiftUI never reports that its animation
+    /// ended (the system orders the window out mid-transition, a transaction animates nothing),
+    /// it settles the transition after ``HubIslandPhase/completionFallbackDelay``. One per
+    /// transition, replaced by the next one and cancelled by the completion; never a poll.
+    @ObservationIgnored private var settleFallbackTask: Task<Void, Never>?
+
+    /// The shape the panel rests at once the running transition has ended: the open shape while
+    /// the hub opens, the live shape while something is live and the hub is closed, else the seed,
+    /// the notch's rectangle.
+    @ObservationIgnored private var restShape: NotchHubGeometry.Rect?
+
+    /// The open shape while the hub is open and while a closing from it runs, so that a turn
+    /// around still covers everything the island has drawn.
+    @ObservationIgnored private var openShape: NotchHubGeometry.Rect?
+
+    /// The frame of the display the island is on, for the panel's frame in AppKit's coordinates.
+    @ObservationIgnored private var panelScreenFrame: CGRect?
+
     // MARK: Hover
 
     /// The hover zone of a display and where the display is.
     private struct Zone {
         var frame: CGRect
         var hoverZone: NotchHubGeometry.Rect
-        /// The compact capsule's rectangle while it shows on this display: the pointer resting
-        /// on it asks for the hub like the pointer at the notch.
-        var compactZone: NotchHubGeometry.Rect?
+        /// The live shape's rectangle while it shows on this display: the pointer resting on it
+        /// asks for the hub like the pointer at the notch.
+        var liveZone: NotchHubGeometry.Rect?
     }
 
     /// What decides whether the hover monitor and its zones exist.
@@ -153,30 +186,44 @@ final class NotchHubController: HubHost {
 
     @ObservationIgnored private var openTasks = [Task<Void, Never>]()
 
-    // MARK: While the capsule shows
+    /// Follows the height the content area needs, while the hub is open: another module, or a
+    /// module whose own height changes, resizes the island.
+    @ObservationIgnored private var contentLoop: ObservationLoop?
 
-    /// What the board of live activities is built from, and what decides whether the capsule
-    /// may show: the activities, a fullscreen space and a menu bar the system hides.
+    /// Follows what the context reads in the first second of an opening, so that a meeting whose
+    /// events arrived late can come to the front once (D-03).
+    @ObservationIgnored private var lateDecisionLoop: ObservationLoop?
+
+    /// The one-shot wait that ends the late decision after ``HubContext/lateDecisionWindow``.
+    @ObservationIgnored private var lateDecisionTask: Task<Void, Never>?
+
+    // MARK: While the live state shows
+
+    /// What the board of live activities is built from, and what decides whether the live state
+    /// may show and how wide: the activities, a fullscreen space, a menu bar the system hides and
+    /// the free menu bar beside the notch (`nil` while nothing is live, since it is then not read).
     private struct ActivityInputs: Equatable {
         var activities: [LiveActivity]
         var isFullscreenSpace: Bool
         var isMenuBarHidden: Bool
+        var liveRoom: NotchHubGeometry.LiveRoom?
     }
 
-    /// Where the capsule is while it shows.
-    private struct CompactPlacement {
+    /// Where the live state is while it shows.
+    private struct LivePlacement {
         var screenID: CGDirectDisplayID
-        var hoverZone: NotchHubGeometry.Rect
+        var layout: NotchHubGeometry.LiveLayout
     }
 
-    /// The width the capsule asks the geometry for; the geometry keeps it within its limits.
-    private static let compactContentWidth: Double = 240
+    @ObservationIgnored private var livePlacement: LivePlacement?
 
-    @ObservationIgnored private var compactPlacement: CompactPlacement?
-    @ObservationIgnored private var compactHostingView: NotchHubCompactHostingView?
+    /// The two tasks that follow space and display changes, only while the live state shows.
+    @ObservationIgnored private var liveTasks = [Task<Void, Never>]()
 
-    /// The two tasks that follow space and display changes, only while the capsule shows.
-    @ObservationIgnored private var compactTasks = [Task<Void, Never>]()
+    /// Follows a read on macOS 27 that moved where the status items start although the item cache
+    /// compares equal (``Foundation/Notification/Name/menuBarItemsAreaDidChange27``), while the
+    /// module is on; the live state's width follows that edge.
+    @ObservationIgnored private var itemsAreaTask: Task<Void, Never>?
 
     /// The one wait of the live activities: until the next finished activity leaves.
     @ObservationIgnored private var expiryTask: Task<Void, Never>?
@@ -218,9 +265,15 @@ final class NotchHubController: HubHost {
                 self?.updateHover()
             }
             activitiesLoop = ObservationLoop.observe { [weak self] in
-                self?.activityInputs() ?? ActivityInputs(activities: [], isFullscreenSpace: false, isMenuBarHidden: false)
+                self?.activityInputs()
+                    ?? ActivityInputs(activities: [], isFullscreenSpace: false, isMenuBarHidden: false, liveRoom: nil)
             } onChange: { [weak self] _ in
                 self?.activitiesDidChange()
+            }
+            itemsAreaTask = Task { [weak self] in
+                for await _ in NotificationCenter.default.notifications(named: .menuBarItemsAreaDidChange27) {
+                    self?.activitiesDidChange()
+                }
             }
             reconcileRuntimes()
             updateHover()
@@ -230,14 +283,28 @@ final class NotchHubController: HubHost {
             dragLoop = nil
             settingsLoop = nil
             activitiesLoop = nil
+            itemsAreaTask?.cancel()
+            itemsAreaTask = nil
             cancelExpiry()
-            hideCompact()
             stopHover()
             close()
+            model.endOpening()
             // The hub is off, so the plan stops every runtime before the panel goes.
             reconcileRuntimes()
             panel?.orderOut(nil)
             panel = nil
+            presentation = nil
+            // Everything is released at once; a completion that is still on its way must be stale,
+            // and so must the fallback of the transition that was running.
+            cancelSettleFallback()
+            var released = HubIslandPhase.State()
+            released.generation = phase.generation + 1
+            phase = released
+            restShape = nil
+            openShape = nil
+            panelScreenFrame = nil
+            // After the close above, which may have set the live state's place again.
+            hideLive()
         }
     }
 
@@ -316,7 +383,7 @@ final class NotchHubController: HubHost {
         }
     }
 
-    /// The display the hotkey opens the hub on, and the capsule shows on: the one under the
+    /// The display the hotkey opens the hub on, and the live state shows on: the one under the
     /// pointer when the setting includes it, else the first one it includes.
     private func preferredScreen() -> NSScreen? {
         if let screen = NSScreen.screenWithMouse, isIncluded(screen) {
@@ -349,45 +416,104 @@ final class NotchHubController: HubHost {
             logger.debug("The Notch hub stays closed: \(reason.rawValue, privacy: .public)")
             return
         }
+        let display = Self.display(of: screen)
         guard
-            let layout = NotchHubGeometry.layout(
-                display: Self.display(of: screen),
-                content: NotchHubGeometry.Content(bodyHeight: NotchHubGeometry.bodyHeight)
-            )
+            NotchHubGeometry.island(
+                display: display,
+                contentHeight: DesignTokens.Island.contentHeight,
+                width: DesignTokens.Island.baseWidth
+            ) != nil,
+            let seed = NotchHubGeometry.seed(display: display)
         else {
             logger.debug("The Notch hub has no layout for this screen")
             return
         }
-        // The capsule and the hub are one panel: the capsule goes first.
-        hideCompact()
+        // What is in front is decided now, from what the modules hold in memory and before the
+        // fit and the layout, which depend on it. Nothing is stored and nothing is logged.
+        // The setting is read once, now, and nothing follows it while the hub is open.
+        let showsActiveFirst = appState.settings.notchHub.showsActiveFirst
+        let openedAt = Date.now
+        model.beginOpening(HubContext.decide(model.contextInputs(now: openedAt, showsActiveFirst: showsActiveFirst)))
         if trigger == .fileDrag {
+            // A file drag brings File drop to the front for this opening only (D-04).
             showDropTab()
         }
+        // The hub widens first, the buttons step down next and the row scrolls last, for the
+        // modules that are on now; the row keeps those buttons while the hub is open.
+        let fit = HubModuleRow.fit(
+            count: model.allTabIDs.count,
+            baseWidth: DesignTokens.Island.baseWidth,
+            maxWidth: min(DesignTokens.Island.maximumWidth, display.width - 2 * NotchHubGeometry.screenMargin)
+        )
+        // The content's height follows what is selected, which a file drag has just changed.
+        guard
+            let layout = NotchHubGeometry.island(
+                display: display,
+                contentHeight: currentContentHeight(),
+                width: fit.hubWidth,
+                buttonSize: fit.buttonSize
+            )
+        else {
+            model.endOpening()
+            return
+        }
+        // The live state and the hub are one panel: the hub grows out of the live shape, which
+        // stops being a place the pointer can rest while the hub is open. Taken away only now,
+        // when the hub is certain to open.
+        setLivePlacement(nil)
         let panel = panel ?? NotchHubPanel()
         self.panel = panel
-        let flipped = NotchHubGeometry.flipped(layout.silhouette, displayHeight: Double(screen.frame.height))
+        let presentation = ensurePresentation()
+        presentation.rowFit = fit
+        presentation.rowIDs = model.allTabIDs
+        presentation.openingCount &+= 1
+        // A hub that opens again while it closes, or from the live state, on the same display,
+        // reuses the panel and its view: it grows from the shape that is there, without a flash.
+        let existing = phase.isPanelVisible && panelScreenFrame == screen.frame
+            ? panel.contentView as? IslandHostingView
+            : nil
+        let transition = NotchHubGeometry.transitionFrame(
+            from: (existing == nil ? nil : openShape ?? restShape) ?? seed,
+            to: layout.shape,
+            displayWidth: Double(screen.frame.width)
+        )
+        send(.open)
+        openShape = layout.shape
+        restShape = layout.shape
+        panelScreenFrame = screen.frame
+        panel.hasShadow = false
         panel.applyDarkAppearance()
         panel.acceptsKeyboard = trigger == .hotkey
         panel.onEscape = { [weak self] in
             self?.close()
         }
-        panel.contentView = NotchHubHostingView(
-            view: NotchHubView(layout: layout, model: model, host: self, takesKeyboard: trigger == .hotkey)
-        )
-        panel.setFrame(
-            NSRect(
-                x: screen.frame.minX + flipped.x,
-                y: screen.frame.minY + flipped.y,
-                width: flipped.width,
-                height: flipped.height
-            ),
-            display: true
-        )
+        presentation.takesKeyboard = trigger == .hotkey
+        let hostingView: IslandHostingView
+        if let existing {
+            presentation.moveCanvas(transition)
+            hostingView = existing
+        } else {
+            presentation.show(seed: seed, canvas: transition)
+            hostingView = IslandHostingView(
+                view: IslandView(presentation: presentation, model: model, host: self)
+            )
+            panel.contentView = hostingView
+        }
+        setPanelFrame(transition, on: screen.frame)
         panel.orderFrontRegardless()
         if trigger == .hotkey {
             panel.makeKey()
         }
-        isOpen = true
+        // Lay the shape out first, without animation, so that the opening starts from the notch
+        // (or from where a closing had got to) and takes its own transaction.
+        hostingView.layoutSubtreeIfNeeded()
+        presentation.animateOpen(
+            to: layout,
+            reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
+            generation: phase.generation
+        ) { [weak self] generation in
+            self?.islandAnimationFinished(generation)
+        }
         openedBy = trigger
         openScreenID = screen.displayID
         dragWatch?.hubOpened(byDrag: trigger == .fileDrag)
@@ -395,26 +521,37 @@ final class NotchHubController: HubHost {
             // The hub a drag opened closes when the pointer leaves it, even without Open on hover.
             updateHover()
         }
+        // The one late re-decision starts before the modules are told, so that what they load
+        // is seen. A file drag's pick and the setting off leave nothing to decide again.
+        if showsActiveFirst, trigger != .fileDrag {
+            startLateDecision(openedAt: openedAt)
+        }
         startOpenObservers()
         notifyRuntimes(isOpen: true)
         logger.debug("The Notch hub opened on display \(screen.displayID, privacy: .public)")
     }
 
-    /// Closes the hub. The panel stays for the next open, without content.
+    /// Closes the hub: the content leaves, then the island returns into the notch. From the first
+    /// frame of closing the hub behaves as closed; the panel is ordered out, and emptied, only
+    /// when the animation has finished (``islandAnimationFinished(_:)``).
     func close() {
         guard isOpen else {
             return
         }
         stopOpenObservers()
+        endLateDecision()
         cancelHover()
         // The pointer may rest in the zone; the hub opens again only after it left.
         hoverIsArmed = false
         panel?.acceptsKeyboard = false
         panel?.onEscape = nil
-        panel?.orderOut(nil)
-        panel?.contentView = nil
         let wasOpenedByDrag = openedBy == .fileDrag
-        isOpen = false
+        let screen = NSScreen.screens.first { $0.displayID == openScreenID }
+        // The hub returns to the live state only where the live shape has a layout.
+        if phase.isLive, screen.flatMap({ liveLayout(on: $0) }) == nil {
+            send(.liveChanged(false))
+        }
+        send(.close)
         openedBy = nil
         openScreenID = nil
         dragWatch?.hubClosed()
@@ -422,8 +559,164 @@ final class NotchHubController: HubHost {
             updateHover()
         }
         notifyRuntimes(isOpen: false)
-        // The capsule comes back when something is live.
-        activitiesDidChange()
+        animateClosing(on: screen)
+    }
+
+    /// Returns the island into the notch, or, while something is live, into the live shape; when
+    /// there is nothing to animate (the display is gone), ends the closing at once.
+    private func animateClosing(on screen: NSScreen?) {
+        guard
+            let panel,
+            let presentation,
+            let screen,
+            let seed = NotchHubGeometry.seed(display: Self.display(of: screen)),
+            let from = openShape ?? restShape
+        else {
+            if phase.target == .live {
+                // Nothing can be drawn for the live state either.
+                send(.liveChanged(false))
+            }
+            setLivePlacement(nil)
+            restShape = nil
+            islandAnimationFinished(phase.generation)
+            return
+        }
+        let live = phase.target == .live ? liveLayout(on: screen) : nil
+        let rest = live?.shape ?? seed
+        let transition = NotchHubGeometry.transitionFrame(
+            from: from,
+            to: rest,
+            displayWidth: Double(screen.frame.width)
+        )
+        restShape = rest
+        panelScreenFrame = screen.frame
+        panel.hasShadow = false
+        presentation.moveCanvas(transition)
+        setPanelFrame(transition, on: screen.frame)
+        // Take the larger canvas in its own transaction before the closing animates.
+        panel.contentView?.layoutSubtreeIfNeeded()
+        if let live {
+            // The hub closes into the live state: what it will show is ready when it has settled.
+            presentation.liveLayout = live
+            presentation.liveBoard = model.board(now: .now)
+            setLivePlacement(LivePlacement(screenID: screen.displayID, layout: live))
+        }
+        presentation.animateClose(
+            to: rest,
+            topRadius: live == nil ? DesignTokens.Island.notchTopRadius : DesignTokens.Island.liveTopRadius,
+            bottomRadius: live == nil ? DesignTokens.Island.notchBottomRadius : DesignTokens.Island.liveBottomRadius,
+            reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
+            generation: phase.generation
+        ) { [weak self] generation in
+            self?.islandAnimationFinished(generation)
+        }
+    }
+
+    /// Applies an event to the island's phase and mirrors what the rest of the controller reads.
+    /// Returns whether the state changed: a completion that changes nothing is a stale one.
+    @discardableResult
+    private func send(_ event: HubIslandPhase.Event) -> Bool {
+        let next = HubIslandPhase.reduce(phase, event)
+        guard next != phase else {
+            return false
+        }
+        let previous = phase
+        phase = next
+        if isOpen != next.isOpen {
+            isOpen = next.isOpen
+        }
+        if HubIslandPhase.startsTransition(from: previous, to: next) {
+            armSettleFallback(generation: next.generation)
+        } else if !next.isAnimating {
+            cancelSettleFallback()
+        }
+        return true
+    }
+
+    /// Arms the one wait that settles the transition of `generation` when its animation never
+    /// reports the end, and drops the wait of the transition it replaces. The completion that
+    /// arrives first wins: the other finds the generation settled or replaced, which the reducer
+    /// ignores (``HubIslandPhase``, rule 1), so the panel is never ordered out twice and a newer
+    /// transition is never settled early.
+    private func armSettleFallback(generation: Int) {
+        settleFallbackTask?.cancel()
+        settleFallbackTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(HubIslandPhase.completionFallbackDelay))
+            guard !Task.isCancelled else {
+                return
+            }
+            self?.settleFallbackFired(generation: generation)
+        }
+    }
+
+    private func cancelSettleFallback() {
+        settleFallbackTask?.cancel()
+        settleFallbackTask = nil
+    }
+
+    /// The wait ran out: feeds the completion the animation did not report.
+    private func settleFallbackFired(generation: Int) {
+        settleFallbackTask = nil
+        guard generation == phase.generation, phase.isAnimating else {
+            return
+        }
+        logger.debug("An island animation did not report its end; the fallback settled it")
+        islandAnimationFinished(generation)
+    }
+
+    /// The end of a transition: the panel becomes exactly the shape it rests at, the window's
+    /// shadow comes back for the settled open shape, the live content shows on a settled live
+    /// shape, and a closed island's panel is ordered out and emptied. A completion of a transition
+    /// that a newer one replaced does nothing.
+    private func islandAnimationFinished(_ generation: Int) {
+        guard send(.animationFinished(generation: generation)) else {
+            return
+        }
+        if !phase.isOpen {
+            // The hub has closed: what the opening had in front is over.
+            model.endOpening()
+        }
+        guard let panel else {
+            return
+        }
+        if phase.ordersOut {
+            panel.orderOut(nil)
+            panel.contentView = nil
+            openShape = nil
+            // What the policy reads when asked may have changed while the hub was shown.
+            activitiesDidChange()
+            return
+        }
+        if let shape = restShape, let screenFrame = panelScreenFrame {
+            presentation?.moveCanvas(shape)
+            setPanelFrame(shape, on: screenFrame)
+            panel.contentView?.layoutSubtreeIfNeeded()
+        }
+        if phase.hasShadow {
+            panel.hasShadow = true
+            panel.invalidateShadow()
+        }
+        if phase.target == .live {
+            // The hub has closed into the live state: its parts are gone and the live content
+            // shows. The display may have changed while the hub was open.
+            openShape = nil
+            presentation?.settleLive(reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
+            activitiesDidChange()
+        }
+    }
+
+    /// Sets the panel's frame from a rectangle in the display's coordinates.
+    private func setPanelFrame(_ shape: NotchHubGeometry.Rect, on screenFrame: CGRect) {
+        let flipped = NotchHubGeometry.flipped(shape, displayHeight: Double(screenFrame.height))
+        panel?.setFrame(
+            NSRect(
+                x: screenFrame.minX + flipped.x,
+                y: screenFrame.minY + flipped.y,
+                width: flipped.width,
+                height: flipped.height
+            ),
+            display: true
+        )
     }
 
     private func notifyRuntimes(isOpen: Bool) {
@@ -434,7 +727,60 @@ final class NotchHubController: HubHost {
 
     // MARK: While open
 
-    /// Starts what closes the hub: a click outside, a change of space and a change of displays.
+    /// The height the content area needs for what is selected: the module's own, between the
+    /// standard height and the largest, or the Overview's rows of cards.
+    private func currentContentHeight() -> Double {
+        NotchHubGeometry.contentHeight(
+            overviewTileCount: model.selectedRuntime == nil ? model.tiles.count : nil,
+            preferred: model.selectedRuntime?.preferredContentHeight
+        )
+    }
+
+    /// The content's height changed while the hub is open: the island is laid out again at the
+    /// same width and the shape's lower edge springs to the new height. The panel takes a frame
+    /// that covers the old shape and the new one, so that a spring's overshoot is never clipped;
+    /// when the animation has settled the panel is exactly the new shape (``islandAnimationFinished(_:)``).
+    private func contentHeightDidChange() {
+        guard
+            isOpen,
+            let panel,
+            let presentation,
+            let screen = NSScreen.screens.first(where: { $0.displayID == openScreenID }),
+            let from = openShape ?? restShape,
+            let layout = NotchHubGeometry.island(
+                display: Self.display(of: screen),
+                contentHeight: currentContentHeight(),
+                width: presentation.rowFit.hubWidth,
+                buttonSize: presentation.rowFit.buttonSize
+            ),
+            layout.shape != from
+        else {
+            return
+        }
+        let transition = NotchHubGeometry.transitionFrame(
+            from: from,
+            to: layout.shape,
+            displayWidth: Double(screen.frame.width)
+        )
+        send(.resize)
+        openShape = layout.shape
+        restShape = layout.shape
+        panel.hasShadow = false
+        presentation.moveCanvas(transition)
+        setPanelFrame(transition, on: screen.frame)
+        // Take the larger canvas in its own transaction before the shape animates.
+        panel.contentView?.layoutSubtreeIfNeeded()
+        presentation.animateResize(
+            to: layout,
+            reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
+            generation: phase.generation
+        ) { [weak self] generation in
+            self?.islandAnimationFinished(generation)
+        }
+    }
+
+    /// Starts what closes the hub: a click outside, a change of space and a change of displays,
+    /// and what follows the content's height.
     private func startOpenObservers() {
         stopOpenObservers()
         let monitor = EventMonitor.global(for: [.leftMouseDown, .rightMouseDown, .otherMouseDown]) { [weak self] _ in
@@ -456,15 +802,63 @@ final class NotchHubController: HubHost {
                 }
             },
         ]
+        contentLoop = ObservationLoop.observe { [weak self] in
+            self?.currentContentHeight() ?? DesignTokens.Island.contentHeight
+        } onChange: { [weak self] _ in
+            self?.contentHeightDidChange()
+        }
     }
 
     private func stopOpenObservers() {
+        contentLoop = nil
         outsideClickMonitor?.stop()
         outsideClickMonitor = nil
         for task in openTasks {
             task.cancel()
         }
         openTasks.removeAll()
+    }
+
+    // MARK: The late decision
+
+    /// Watches what the context reads for ``HubContext/lateDecisionWindow`` seconds after an
+    /// opening (D-03): the Calendar reads its events only while the hub is open, so they can arrive
+    /// a moment after it. When the context then decides on a meeting and nothing was picked, the
+    /// meeting comes to the front once. It is one observation and one one-shot wait, both gone
+    /// after one second at most; nothing is polled and nothing is read while the hub is closed.
+    ///
+    /// The content switches as it does for a user's pick: it cross-fades, and the island follows
+    /// the new content's height (``startOpenObservers()``).
+    private func startLateDecision(openedAt: Date) {
+        endLateDecision()
+        let model = model
+        lateDecisionLoop = ObservationLoop.observe {
+            model.contextInputs(now: openedAt, showsActiveFirst: true)
+        } onChange: { [weak self] inputs in
+            self?.contextDidChange(inputs, openedAt: openedAt)
+        }
+        lateDecisionTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(HubContext.lateDecisionWindow))
+            guard !Task.isCancelled else {
+                return
+            }
+            self?.endLateDecision()
+        }
+    }
+
+    /// The context's inputs changed in the first second: decides once more.
+    private func contextDidChange(_ inputs: HubContext.Inputs, openedAt: Date) {
+        let elapsed = Date.now.timeIntervalSince(openedAt)
+        if model.reconsider(HubContext.decide(inputs), elapsed: elapsed) || model.session?.hasPick == true {
+            endLateDecision()
+        }
+    }
+
+    /// Ends the late decision: its wait is cancelled and its observation dropped.
+    private func endLateDecision() {
+        lateDecisionTask?.cancel()
+        lateDecisionTask = nil
+        lateDecisionLoop = nil
     }
 
     // MARK: Hover
@@ -534,17 +928,18 @@ final class NotchHubController: HubHost {
         zones.removeAll()
         for screen in NSScreen.screens where isIncluded(screen) {
             guard
-                let layout = NotchHubGeometry.layout(
+                let layout = NotchHubGeometry.island(
                     display: Self.display(of: screen),
-                    content: NotchHubGeometry.Content(bodyHeight: NotchHubGeometry.bodyHeight)
+                    contentHeight: DesignTokens.Island.contentHeight,
+                    width: DesignTokens.Island.baseWidth
                 )
             else {
                 continue
             }
             zones[screen.displayID] = Zone(frame: screen.frame, hoverZone: layout.hoverZone)
         }
-        if let placement = compactPlacement {
-            zones[placement.screenID]?.compactZone = placement.hoverZone
+        if let placement = livePlacement {
+            zones[placement.screenID]?.liveZone = placement.layout.hoverZone
         }
     }
 
@@ -566,8 +961,8 @@ final class NotchHubController: HubHost {
                 displayMaxY: Double(zone.frame.maxY)
             )
             let isInHubZone = zone.hoverZone.contains(x: local.x, y: local.y)
-            let isInCompactZone = zone.compactZone?.contains(x: local.x, y: local.y) ?? false
-            if isInHubZone || isInCompactZone {
+            let isInLiveZone = zone.liveZone?.contains(x: local.x, y: local.y) ?? false
+            if isInHubZone || isInLiveZone {
                 pointer.isInZone = true
                 zoneScreenID = id
             }
@@ -734,19 +1129,20 @@ final class NotchHubController: HubHost {
         }
     }
 
-    /// Shows the tab of the first module that accepts file drags.
+    /// Brings the tab of the first module that accepts file drags to the front for this opening
+    /// only: the pick is a file drag's, not the user's, and is never remembered (D-04).
     private func showDropTab() {
         guard let module = model.runtimes.first(where: { $0.acceptsFileDrags }),
               model.selectedID != module.moduleID
         else {
             return
         }
-        select(moduleID: module.moduleID)
+        model.selectTemporarily(module.moduleID)
     }
 
     // MARK: Live activities
 
-    /// What the policy needs to know about the Mac when the hub or the capsule would show: read
+    /// What the policy needs to know about the Mac when the hub or the live state would show: read
     /// when asked, never followed.
     private func policyEnvironment(of screen: NSScreen, appState: AppState) -> NotchHubPolicy.Environment {
         NotchHubPolicy.Environment(
@@ -760,126 +1156,235 @@ final class NotchHubController: HubHost {
         )
     }
 
-    /// Reads, in one place, what the capsule depends on, so that the loop follows each of them.
+    /// Reads, in one place, what the live state depends on, so that the loop follows each of them.
     private func activityInputs() -> ActivityInputs {
-        ActivityInputs(
-            activities: model.activities,
+        let activities = model.activities
+        // The free menu bar is read only while something is live: it follows the application
+        // menu and the status items, and with nothing live it would be read for nothing.
+        var room: NotchHubGeometry.LiveRoom?
+        if !activities.isEmpty, let appState, let screen = liveCandidateScreen() {
+            room = NotchHubLiveRoom.room(on: screen, display: Self.display(of: screen), appState: appState)
+        }
+        return ActivityInputs(
+            activities: activities,
             isFullscreenSpace: appState?.activeSpace.isFullscreen ?? false,
-            isMenuBarHidden: appState?.menuBarManager.isMenuBarHiddenBySystem ?? false
+            isMenuBarHidden: appState?.menuBarManager.isMenuBarHiddenBySystem ?? false,
+            liveRoom: room
         )
     }
 
-    /// Works out the board and shows, moves or hides the capsule. Called when an activity
-    /// changes, when a fullscreen space or the hidden menu bar changes, when the hub closes,
-    /// when a finished activity leaves and when a space or the displays change while the
-    /// capsule shows.
+    /// The display the live state would show on: the one the hub is open on, else the preferred one.
+    private func liveCandidateScreen() -> NSScreen? {
+        isOpen ? NSScreen.screens.first(where: { $0.displayID == openScreenID }) : preferredScreen()
+    }
+
+    /// The live state's layout on a screen: the shape that fits the free menu bar beside the
+    /// notch there (concept section 10b), or `nil` when the screen has no usable size or no side
+    /// has room. What is free is read from the application menu and the status items
+    /// (``NotchHubLiveRoom``).
+    private func liveLayout(on screen: NSScreen) -> NotchHubGeometry.LiveLayout? {
+        guard let appState else {
+            return nil
+        }
+        let display = Self.display(of: screen)
+        return NotchHubGeometry.live(
+            display: display,
+            room: NotchHubLiveRoom.room(on: screen, display: display, appState: appState)
+        )
+    }
+
+    /// The display the live state shows on, or `nil` when it must not show: nothing is live, the
+    /// policy lets the hub not open there (fullscreen, a hidden menu bar, presenting, an excluded
+    /// display) or the display has no layout. While the hub is open that is the display it is open
+    /// on, else the preferred one.
+    private func liveScreen(for board: HubActivityBoard.Board) -> NSScreen? {
+        guard
+            board.compact != nil,
+            let appState,
+            let screen = liveCandidateScreen(),
+            NotchHubPolicy.blockReason(policyEnvironment(of: screen, appState: appState), trigger: .compact) == nil,
+            liveLayout(on: screen) != nil,
+            NotchHubGeometry.seed(display: Self.display(of: screen)) != nil
+        else {
+            return nil
+        }
+        return screen
+    }
+
+    /// Works out the board and tells the island's phase whether something is live: the live state
+    /// starts, moves, ends or only follows the board. Called when an activity changes, when a
+    /// fullscreen space or the hidden menu bar changes, when a finished activity leaves, when the
+    /// hub has closed and when a space or the displays change while the live state shows.
     ///
-    /// The capsule shows only while an activity is live, the hub is closed and the policy lets
-    /// the hub open on the display.
+    /// The live state shows only while an activity is live, the hub is closed and the policy lets
+    /// the hub open on the display. While the hub is open the answer is only recorded: the hub
+    /// closes into the live state when something is live.
     private func activitiesDidChange() {
         guard isActive else {
-            hideCompact()
+            hideLive()
             return
         }
         let board = model.board(now: .now)
         armExpiry(at: board.nextExpiry)
-        guard
-            board.compact != nil,
-            !isOpen,
-            let appState,
-            let screen = preferredScreen(),
-            NotchHubPolicy.blockReason(policyEnvironment(of: screen, appState: appState), trigger: .compact) == nil
-        else {
-            hideCompact()
-            return
+        let screen = liveScreen(for: board)
+        let before = phase.target
+        let wasVisible = phase.isPanelVisible
+        send(.liveChanged(screen != nil))
+        switch (before, phase.target) {
+        case (.closed, .live):
+            if let screen {
+                startLive(board: board, on: screen, wasVisible: wasVisible)
+            }
+        case (.live, .live):
+            if let screen {
+                updateLive(board: board, on: screen)
+            }
+        case (.live, .closed):
+            endLive()
+        default:
+            break
         }
-        showCompact(board: board, on: screen)
     }
 
-    /// Hangs the capsule below the notch of the screen, or updates it where it already is. The
-    /// capsule is the hub's panel in a smaller frame: no second window exists.
-    private func showCompact(board: HubActivityBoard.Board, on screen: NSScreen) {
-        guard
-            let layout = NotchHubGeometry.compactLayout(
-                display: Self.display(of: screen),
-                contentWidth: Self.compactContentWidth
-            )
-        else {
-            hideCompact()
-            return
+    /// Creates what the island shows and how it moves, once, with the live shape's click.
+    private func ensurePresentation() -> IslandPresentation {
+        if let presentation {
+            return presentation
         }
-        let view = NotchHubCompactView(board: board) { [weak self] in
+        let presentation = IslandPresentation()
+        presentation.onLiveTap = { [weak self] in
             // The click is handled after the view's own action has returned, because opening
-            // the hub replaces the view.
+            // the hub changes the view.
             Task { @MainActor in
-                self?.compactWasClicked()
+                self?.liveWasClicked()
             }
+        }
+        self.presentation = presentation
+        return presentation
+    }
+
+    /// Widens the closed island, or the notch, to the live shape: the hub's own panel and view,
+    /// from the notch's rectangle, or from where a closing had got to.
+    private func startLive(board: HubActivityBoard.Board, on screen: NSScreen, wasVisible: Bool) {
+        let display = Self.display(of: screen)
+        guard let live = liveLayout(on: screen), let seed = NotchHubGeometry.seed(display: display) else {
+            // Not reachable: the screen was chosen because both exist. Never leave a phase that
+            // nothing completes.
+            islandAnimationFinished(phase.generation)
+            return
         }
         let panel = panel ?? NotchHubPanel()
         self.panel = panel
-        if let hostingView = compactHostingView {
-            hostingView.rootView = view
+        let presentation = ensurePresentation()
+        let existing = wasVisible && panelScreenFrame == screen.frame ? panel.contentView as? IslandHostingView : nil
+        restShape = live.shape
+        openShape = nil
+        panelScreenFrame = screen.frame
+        panel.hasShadow = false
+        panel.applyDarkAppearance()
+        panel.acceptsKeyboard = false
+        panel.onEscape = nil
+        presentation.takesKeyboard = false
+        if existing == nil {
+            let transition = NotchHubGeometry.transitionFrame(
+                from: seed,
+                to: live.shape,
+                displayWidth: Double(screen.frame.width)
+            )
+            presentation.show(seed: seed, canvas: transition)
+            presentation.liveBoard = board
+            panel.contentView = IslandHostingView(
+                view: IslandView(presentation: presentation, model: model, host: self)
+            )
+            setPanelFrame(transition, on: screen.frame)
+            panel.orderFrontRegardless()
+            // Lay the notch's shape out first, without animation, so that the widening starts from it.
+            panel.contentView?.layoutSubtreeIfNeeded()
         } else {
-            let hostingView = NotchHubCompactHostingView(view: view)
-            compactHostingView = hostingView
-            panel.applyDarkAppearance()
-            panel.acceptsKeyboard = false
-            panel.onEscape = nil
-            panel.contentView = hostingView
-            startCompactObservers()
+            presentation.liveBoard = board
         }
-        let flipped = NotchHubGeometry.flipped(layout.silhouette, displayHeight: Double(screen.frame.height))
-        panel.setFrame(
-            NSRect(
-                x: screen.frame.minX + flipped.x,
-                y: screen.frame.minY + flipped.y,
-                width: flipped.width,
-                height: flipped.height
-            ),
-            display: true
-        )
-        panel.orderFrontRegardless()
-        compactPlacement = CompactPlacement(screenID: screen.displayID, hoverZone: layout.hoverZone)
-        zones = zones.mapValues { zone in
-            var zone = zone
-            zone.compactZone = nil
-            return zone
+        presentation.animateLive(
+            to: live,
+            reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
+            generation: phase.generation
+        ) { [weak self] generation in
+            self?.islandAnimationFinished(generation)
         }
-        zones[screen.displayID]?.compactZone = layout.hoverZone
+        setLivePlacement(LivePlacement(screenID: screen.displayID, layout: live))
     }
 
-    /// Takes the capsule away and ends what exists only while it shows. Does nothing to the
-    /// panel while the hub is open.
-    private func hideCompact() {
-        for task in compactTasks {
-            task.cancel()
-        }
-        compactTasks.removeAll()
-        guard compactPlacement != nil else {
+    /// Follows the board while the live state shows, and moves the shape at once when the display
+    /// or its menu bar changed.
+    private func updateLive(board: HubActivityBoard.Board, on screen: NSScreen) {
+        guard let presentation, let live = liveLayout(on: screen) else {
             return
         }
-        compactPlacement = nil
-        compactHostingView = nil
-        zones = zones.mapValues { zone in
-            var zone = zone
-            zone.compactZone = nil
-            return zone
-        }
-        guard !isOpen else {
+        presentation.liveBoard = board
+        if let placement = livePlacement, placement.screenID == screen.displayID, placement.layout == live {
             return
         }
-        panel?.orderOut(nil)
-        panel?.contentView = nil
+        restShape = live.shape
+        panelScreenFrame = screen.frame
+        presentation.placeLive(live, canvas: live.shape)
+        setPanelFrame(live.shape, on: screen.frame)
+        setLivePlacement(LivePlacement(screenID: screen.displayID, layout: live))
     }
 
-    /// Follows the active space and the displays, only while the capsule shows: on either it
-    /// works out again where, and whether, the capsule shows.
-    private func startCompactObservers() {
-        compactTasks = [
+    /// Nothing is live any more: the shape returns into the notch and the panel goes when it has
+    /// settled.
+    private func endLive() {
+        let screen = livePlacement.flatMap { placement in
+            NSScreen.screens.first { $0.displayID == placement.screenID }
+        }
+        setLivePlacement(nil)
+        animateClosing(on: screen)
+    }
+
+    /// Takes the live state away and ends what exists only while it shows. It leaves the panel
+    /// alone: the island's phase orders it out when the shape has settled closed.
+    private func hideLive() {
+        setLivePlacement(nil)
+    }
+
+    /// Sets where the live state is, or `nil`. The live shape's rectangle is a place the pointer
+    /// can rest to open the hub; the two tasks that follow space and display changes exist only
+    /// while it is set.
+    private func setLivePlacement(_ placement: LivePlacement?) {
+        livePlacement = placement
+        for id in zones.keys {
+            zones[id]?.liveZone = nil
+        }
+        guard let placement else {
+            for task in liveTasks {
+                task.cancel()
+            }
+            liveTasks.removeAll()
+            return
+        }
+        zones[placement.screenID]?.liveZone = placement.layout.hoverZone
+        if liveTasks.isEmpty {
+            startLiveObservers()
+        }
+    }
+
+    /// The active space changed: works out the live state again and brings the panel along. The
+    /// panel moves to the active space only when it is ordered to the front (`.moveToActiveSpace`),
+    /// and the placement usually stays the same, so `updateLive` would not do it.
+    private func activeSpaceDidChange() {
+        activitiesDidChange()
+        if livePlacement != nil, !isOpen {
+            panel?.orderFrontRegardless()
+        }
+    }
+
+    /// Follows the active space and the displays, only while the live state shows: on either it
+    /// works out again where, and whether, the live state shows.
+    private func startLiveObservers() {
+        liveTasks = [
             Task { [weak self] in
                 let center = NSWorkspace.shared.notificationCenter
                 for await _ in center.notifications(named: NSWorkspace.activeSpaceDidChangeNotification) {
-                    self?.activitiesDidChange()
+                    self?.activeSpaceDidChange()
                 }
             },
             Task { [weak self] in
@@ -891,9 +1396,9 @@ final class NotchHubController: HubHost {
         ]
     }
 
-    /// Opens the hub on the capsule's display.
-    private func compactWasClicked() {
-        guard let screenID = compactPlacement?.screenID else {
+    /// Opens the hub on the live shape's display.
+    private func liveWasClicked() {
+        guard let screenID = livePlacement?.screenID else {
             return
         }
         open(on: NSScreen.screens.first { $0.displayID == screenID }, trigger: .compact)
@@ -944,6 +1449,10 @@ final class NotchHubController: HubHost {
         appState.navigationState.openModuleSettings(moduleID)
         appState.activate(for: .settings)
         appState.openWindow(.settings)
+    }
+
+    var liveActivities: [LiveActivity] {
+        model.activities
     }
 
     func takeKeyboard() {

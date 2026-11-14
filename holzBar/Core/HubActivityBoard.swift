@@ -30,7 +30,8 @@ nonisolated enum HubActivityBoard {
     nonisolated struct Board: Equatable, Sendable {
         /// The activities the tab lists, in order, at most ``HubActivityBoard/maximumListed``.
         var listed: [LiveActivity]
-        /// The activity the capsule shows, or `nil` when nothing is live.
+        /// The top live activity, which the closed hub shows by widening the notch, or `nil` when
+        /// nothing is live.
         var compact: LiveActivity?
         /// How many live activities are not the compact one.
         var hiddenCount: Int

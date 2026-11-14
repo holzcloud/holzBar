@@ -335,44 +335,62 @@ enum HolzBarTheme {
 
     /// The Notch hub is always dark; these values are drawn on its ground.
     enum Hub {
-        /// The silhouette's colour at the top, pure black, and at the bottom, a dark blue-grey.
+        /// The ground, pure black.
         static let top = Color(DesignTokens.Hub.top)
-        static let bottom = Color(DesignTokens.Hub.bottom)
-        /// Black fading to a dark blue-grey, from the top to the bottom.
-        static let silhouetteGradient = LinearGradient(
-            colors: [top, bottom],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        /// The same fade with a bottom that lets glass show through.
-        static let translucentGradient = LinearGradient(
-            colors: [top, bottom.opacity(DesignTokens.Hub.bottomAlphaOnGlass)],
-            startPoint: .top,
-            endPoint: .bottom
-        )
         /// Text on the hub's ground.
         static let pillText = Color.white
         /// White at 70 percent, the colour of a module without one of its own.
         static let neutral = Color.white.opacity(DesignTokens.Hub.neutralAlpha)
-        static let tabSize = CGSize(width: DesignTokens.Hub.tabWidth, height: DesignTokens.Hub.tabHeight)
-        static let tabRadius = CGFloat(DesignTokens.Hub.tabRadius)
-        /// The space between two tabs of the row, and between the parts of the right group.
-        static let tabGap = CGFloat(DesignTokens.Hub.tabGap)
+        /// A status pill's height, the space between the parts of the right group, its fill and
+        /// its text.
+        static let pillHeight = CGFloat(DesignTokens.Hub.pillHeight)
         static let pillSpacing = CGFloat(DesignTokens.Hub.pillSpacing)
-        static let settingsButtonSize = CGFloat(DesignTokens.Hub.settingsButtonSize)
         static let pillFill = Color.white.opacity(DesignTokens.Hub.pillFillAlpha)
-        static let selectedTabFillOpacity = DesignTokens.Hub.selectedTabFillAlpha
-        static let idleTabFill = Color.white.opacity(DesignTokens.Hub.idleTabFillAlpha)
-        static let idleTabSymbol = Color.white.opacity(DesignTokens.Hub.idleTabSymbolAlpha)
         static let pillFont = Font.system(size: CGFloat(DesignTokens.Hub.pillTextSize), weight: .semibold)
-        static let tabSymbolFont = Font.system(size: CGFloat(DesignTokens.Hub.tabSymbolSize))
-        /// The compact live-activity capsule: the activity's symbol and its phrase.
+        /// A quiet tile on the ground, such as the missing artwork of Now Playing.
+        static let idleTabFill = Color.white.opacity(DesignTokens.Hub.idleTabFillAlpha)
+        /// The symbols of the Now Playing and Display controls modules.
         static let compactSymbolFont = Font.system(size: CGFloat(DesignTokens.Hub.compactSymbolSize))
-        static let compactTitleFont = Font.system(size: CGFloat(DesignTokens.Hub.compactTitleSize), weight: .semibold)
         /// The words in the File drop tab's outline while a file is dragged over it.
         static let fileDropLabelFont = Font.system(size: CGFloat(DesignTokens.Hub.fileDropLabelSize), weight: .semibold)
         static let columns = DesignTokens.Hub.columns
         static let tileGap = CGFloat(DesignTokens.Hub.tileGap)
+    }
+
+    // MARK: Notch hub island
+
+    /// The island of the Notch hub (concept section 10b): pure black, with plain parts on it.
+    enum Island {
+        /// The island's colour: pure black in every appearance.
+        static let surface = Color(DesignTokens.Island.surface)
+        /// The outline Increase Contrast adds to the lower edge.
+        static let edge = Color.white.opacity(DesignTokens.Island.edgeAlpha)
+        static let edgeWidth = CGFloat(DesignTokens.Island.edgeWidth)
+        /// The context line: its text and its symbol.
+        static let contextText = Color.white.opacity(DesignTokens.Island.contextTextAlpha)
+        static let contextFont = Typography.caption
+        static let contextSymbolFont = Font.system(size: CGFloat(DesignTokens.Island.contextSymbolSize))
+        /// The settings gear: its circle, its symbol and their colours.
+        static let gearSize = CGFloat(DesignTokens.Island.gearSize)
+        static let gearSymbolFont = Font.system(size: CGFloat(DesignTokens.Island.gearSymbolSize))
+        static let gearFill = Color.white.opacity(DesignTokens.Island.gearFillAlpha)
+        static let gearSymbol = Color.white.opacity(DesignTokens.Island.gearSymbolAlpha)
+        /// The module row's buttons: the idle button is white at 7 percent with a white 60 percent
+        /// symbol, the selected one is white with a black symbol.
+        static let buttonSymbolFont = Font.system(size: CGFloat(DesignTokens.Island.buttonSymbolSize))
+        static let buttonIdleSymbol = Color.white.opacity(DesignTokens.Island.buttonIdleSymbolAlpha)
+        static let buttonIdleFill = Color.white.opacity(DesignTokens.Island.buttonIdleFillAlpha)
+        static let buttonSelectedFill = Color.white
+        static let buttonSelectedSymbol = surface
+        static let buttonGap = CGFloat(DesignTokens.Island.buttonGap)
+        /// The live state: the activity's symbol and its short value.
+        static let liveSymbolFont = Font.system(size: CGFloat(DesignTokens.Island.liveSymbolSize))
+        static let liveValueFont = Font.system(size: CGFloat(DesignTokens.Island.liveValueSize), weight: .semibold)
+        /// The content's staging: it appears from this blur and scale, and rises this far when the
+        /// module changes.
+        static let contentBlur = CGFloat(DesignTokens.Island.contentBlur)
+        static let contentScale = CGFloat(DesignTokens.Island.contentScale)
+        static let switchRise = CGFloat(DesignTokens.Island.switchRise)
     }
 
     // MARK: Motion
@@ -382,10 +400,35 @@ enum HolzBarTheme {
         static let smooth = Animation.smooth(duration: 0.3)
         /// Switches and chips.
         static let snappy = Animation.snappy
-        /// The Notch hub opening, the one place the design uses a bounce.
-        static let hub = Animation.bouncy(duration: 0.4, extraBounce: 0.1)
         /// What Reduce Motion replaces every spring with.
         static let reduced = Animation.easeInOut(duration: 0.15)
+
+        /// The island opening (concept section 10b): the width and the height each have a spring.
+        static let islandOpenWidth = Animation.spring(
+            response: DesignTokens.Island.openWidthResponse,
+            dampingFraction: DesignTokens.Island.openWidthDamping
+        )
+        static let islandOpenHeight = Animation.spring(
+            response: DesignTokens.Island.openHeightResponse,
+            dampingFraction: DesignTokens.Island.openHeightDamping
+        )
+        /// The island closing into the notch, without overshoot.
+        static let islandClose = Animation.spring(
+            response: DesignTokens.Island.closeResponse,
+            dampingFraction: DesignTokens.Island.closeDamping
+        )
+        /// The content appearing a moment after the shape starts to grow.
+        static let islandContentIn = Animation.timingCurve(
+            DesignTokens.Island.contentCurve[0],
+            DesignTokens.Island.contentCurve[1],
+            DesignTokens.Island.contentCurve[2],
+            DesignTokens.Island.contentCurve[3],
+            duration: DesignTokens.Island.contentInDuration
+        ).delay(DesignTokens.Island.contentDelay)
+        /// The content leaving before the shape returns into the notch.
+        static let islandContentOut = Animation.easeIn(duration: DesignTokens.Island.contentOutDuration)
+        /// Switching modules inside the hub.
+        static let islandSwitch = Animation.easeOut(duration: DesignTokens.Island.switchDuration)
 
         /// The animation to use, given the user's Reduce Motion setting.
         static func resolved(_ animation: Animation, reduceMotion: Bool) -> Animation {

@@ -27,7 +27,7 @@ struct DisplayControlsBodyView: View {
             .frame(maxWidth: .infinity, alignment: .top)
         }
         .scrollIndicators(.hidden)
-        .frame(height: CGFloat(NotchHubGeometry.bodyHeight), alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .onAppear {
             runtime.refresh()
         }

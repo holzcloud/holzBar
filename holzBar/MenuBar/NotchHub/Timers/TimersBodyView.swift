@@ -34,12 +34,18 @@ struct TimersBodyView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: HolzBarTheme.Spacing.lg) {
-            form
-                .frame(width: 300)
+            // The form is taller than the standard content height, so it scrolls inside it; the
+            // padding keeps the focus rings of its fields inside the scroll view.
+            ScrollView {
+                form
+                    .padding(HolzBarTheme.Spacing.xxs)
+            }
+            .scrollIndicators(.hidden)
+            .frame(width: 300)
             list
         }
         .padding(.vertical, HolzBarTheme.Spacing.xxs)
-        .frame(height: CGFloat(NotchHubGeometry.bodyHeight), alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .onChange(of: focus) { _, field in
             if field != nil {
                 host.takeKeyboard()

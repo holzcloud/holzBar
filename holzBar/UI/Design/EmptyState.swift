@@ -7,11 +7,15 @@ import SwiftUI
 
 /// What a screen shows when there is nothing to show yet: a symbol, a title, one sentence
 /// and, if useful, one button.
+///
+/// The compact form lays the same parts out in one row, for an area that is wide and short, such
+/// as the content area of the Notch hub's island.
 struct EmptyState: View {
     private let systemImage: String
     private let title: Text
     private let message: Text
     private let actionTitle: LocalizedStringKey?
+    private let isCompact: Bool
     private let action: (() -> Void)?
 
     init(
@@ -19,16 +23,53 @@ struct EmptyState: View {
         title: Text,
         message: Text,
         actionTitle: LocalizedStringKey? = nil,
+        isCompact: Bool = false,
         action: (() -> Void)? = nil
     ) {
         self.systemImage = systemImage
         self.title = title
         self.message = message
         self.actionTitle = actionTitle
+        self.isCompact = isCompact
         self.action = action
     }
 
     var body: some View {
+        if isCompact {
+            compactBody
+        } else {
+            regularBody
+        }
+    }
+
+    private var compactBody: some View {
+        HStack(spacing: HolzBarTheme.Spacing.md) {
+            Image(systemName: systemImage)
+                .font(.system(size: 28))
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(HolzBarTheme.Palette.accent)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.hairline) {
+                title
+                    .font(HolzBarTheme.Typography.headline)
+                    .foregroundStyle(HolzBarTheme.Palette.text)
+                message
+                    .font(HolzBarTheme.Typography.callout)
+                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                    .multilineTextAlignment(.leading)
+            }
+            if let actionTitle, let action {
+                Button(actionTitle, action: action)
+                    .buttonStyle(.borderedProminent)
+                    .tint(HolzBarTheme.Palette.accent)
+            }
+        }
+        .padding(HolzBarTheme.Spacing.sm)
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .contain)
+    }
+
+    private var regularBody: some View {
         VStack(spacing: HolzBarTheme.Spacing.sm) {
             Image(systemName: systemImage)
                 .font(.system(size: 28))

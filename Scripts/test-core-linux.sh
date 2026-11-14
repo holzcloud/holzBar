@@ -37,6 +37,7 @@ sources=(
   BatteryLevel
   BuiltInItem
   CalendarEvent
+  CalendarReadFreshness
   CalendarSelection
   ClockClickPolicy
   CommandDragSection
@@ -59,7 +60,12 @@ sources=(
   HolzBarShelfPlacement
   HolzBarShelfStyle
   HubActivityBoard
+  HubContext
+  HubIslandPhase
+  HubLiveState
   HubModuleLifecycle
+  HubModuleRow
+  HubStatusPills
   HubTabStrip
   InputMonitors
   InterfaceWindowRule
@@ -137,6 +143,7 @@ sources=(
   TimerBoard
   TimerFinishSound
   TimerInput
+  TimerLiveActivities
   UndoHistory
   UngovernedItemOwners
   URLCommand
@@ -168,6 +175,7 @@ tests=(
   BarClickTraceTests
   BatteryLevelTests
   BuiltInItemTests
+  CalendarReadFreshnessTests
   CalendarSelectionTests
   ClockClickPolicyTests
   CommandDragSectionTests
@@ -189,7 +197,12 @@ tests=(
   HolzBarShelfPlacementTests
   HolzBarShelfStyleTests
   HubActivityBoardTests
+  HubContextTests
+  HubIslandPhaseTests
+  HubLiveStateTests
   HubModuleLifecycleTests
+  HubModuleRowTests
+  HubStatusPillsTests
   HubTabStripTests
   InputMonitorsTests
   InterfaceWindowRuleTests
@@ -262,6 +275,7 @@ tests=(
   TimerBoardTests
   TimerFinishSoundTests
   TimerInputTests
+  TimerLiveActivitiesTests
   UndoHistoryTests
   UngovernedItemOwnersTests
   URLCommandTests

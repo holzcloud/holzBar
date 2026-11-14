@@ -16,9 +16,10 @@ import SwiftUI
 /// never connects to, searches for or pairs with one. It asks macOS for the Bluetooth permission
 /// once, here in ``init(appState:)`` and only while the state is not determined. Each report of
 /// the monitor goes through an ``AccessoryTracker``, whose events become ``LiveActivity`` values
-/// that are already finished, so the hub shows each as a capsule below the notch for five
-/// seconds. The devices connected when the module starts are the baseline and raise no alert.
-/// Device names live in memory only, are dropped in ``shutDown()`` and are never logged.
+/// that are already finished, so each alert widens the notch for five seconds, with its fixed
+/// short word and never the device's name; VoiceOver hears each once. The devices connected when
+/// the module starts are the baseline and raise no alert. Device names live in memory only, are
+/// dropped in ``shutDown()`` and are never logged.
 ///
 /// The battery half reads accessory levels through ``AccessoryBatterySource``, only while the
 /// setting "Read battery levels" is on. A read follows events: the power-source notification, a
@@ -127,9 +128,19 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
             let raisedAlert: LiveActivity
             switch event {
             case .connected(let device):
-                raisedAlert = alert(for: device, title: String(localized: "\(device.name) connected"), at: now)
+                raisedAlert = alert(
+                    for: device,
+                    title: String(localized: "\(device.name) connected"),
+                    shortWord: String(localized: "Connected"),
+                    at: now
+                )
             case .disconnected(let device):
-                raisedAlert = alert(for: device, title: String(localized: "\(device.name) disconnected"), at: now)
+                raisedAlert = alert(
+                    for: device,
+                    title: String(localized: "\(device.name) disconnected"),
+                    shortWord: String(localized: "Disconnected"),
+                    at: now
+                )
             }
             raised.append(raisedAlert)
             announce(raisedAlert)
@@ -140,8 +151,9 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
     }
 
     /// An alert: an activity that is finished when it is created, so the hub holds it for its
-    /// five seconds and drops it.
-    private func alert(for device: AccessoryDevice, title: String, at date: Date) -> LiveActivity {
+    /// five seconds and drops it. The title names the accessory, for VoiceOver and the list; the
+    /// short word is the fixed word the widened notch shows, never the name.
+    private func alert(for device: AccessoryDevice, title: String, shortWord: String, at date: Date) -> LiveActivity {
         LiveActivity(
             id: UUID().uuidString,
             moduleID: moduleID,
@@ -152,13 +164,15 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
             startedAt: date,
             finishedAt: date,
             tint: .accent,
-            announcesItself: true
+            announcesItself: true,
+            compactValue: shortWord
         )
     }
 
-    /// Tells VoiceOver about an alert, because a capsule that lasts five seconds is easy to
-    /// miss without sight. Nothing is posted while VoiceOver is off. The text is the one the
-    /// capsule shows and stays in the accessibility layer of this Mac; it is never logged.
+    /// Tells VoiceOver about an alert, because a state that lasts five seconds is easy to miss
+    /// without sight. Nothing is posted while VoiceOver is off. The text names the accessory, which
+    /// the widened notch never draws; it stays in the accessibility layer of this Mac and is never
+    /// logged.
     private func announce(_ alert: LiveActivity) {
         guard NSWorkspace.shared.isVoiceOverEnabled else {
             return
@@ -190,18 +204,6 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
             return Text(verbatim: "\(lowest.name) \(lowest.percentText)")
         }
         return connected.isEmpty ? nil : Text(verbatim: connected.prefix(2).map(\.name).joined(separator: ", "))
-    }
-
-    /// The lowest battery is shown while it is at or below the low-battery level.
-    var statusPill: HubStatusPill? {
-        guard let lowest = lowestBattery, lowest.percent <= lowLevel else {
-            return nil
-        }
-        return HubStatusPill(
-            symbol: "battery.25percent",
-            text: lowest.percentText,
-            accessibilityLabel: Text("\(lowest.name), battery \(lowest.percent) percent")
-        )
     }
 
     private var lowestBattery: AccessoryBattery? {
@@ -343,7 +345,8 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
                 startedAt: now,
                 finishedAt: now,
                 tint: isCritical ? .red : .amber,
-                announcesItself: true
+                announcesItself: true,
+                compactValue: battery.percentText
             )
             raised.append(lowAlert)
             announce(lowAlert)

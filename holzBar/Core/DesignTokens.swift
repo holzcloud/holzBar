@@ -128,52 +128,25 @@ nonisolated enum DesignTokens {
     /// The opacity of the Preview badge's tint behind its text.
     static let badgeFillAlpha: Double = 0.15
 
-    /// The Notch hub, which is always dark: its ground, its parts and the strength of its small
-    /// texts. The sizes and alphas are the design's numbers for the hub and its widget card.
+    /// The Notch hub, which is always dark: its ground, the parts its modules share and the
+    /// strength of their small texts. The sizes and alphas are the design's numbers for the hub
+    /// and its widget card; the island's own shape, rows and motion are `Island`.
     nonisolated enum Hub {
-        /// The silhouette at the top: pure black, one object with the hardware notch.
+        /// The ground: pure black, one object with the hardware notch.
         static let top = RGB.black
-        /// The silhouette at the bottom: a dark blue-grey. Tuned on a Mac.
-        static let bottom = RGB(hex: 0x111A2B)
-        /// How opaque the silhouette is at the bottom where glass shows through. Tuned on a Mac.
-        static let bottomAlphaOnGlass: Double = 0.55
-        /// An icon strip tab.
-        static let tabWidth: Double = 30
-        static let tabHeight: Double = 24
-        static let tabRadius: Double = 8
-        /// The widths the whole row of tabs steps down through before any tab goes into the More
-        /// menu: 30 points, then 28, then 26, the smallest. The height stays 24 and the hit area
-        /// stays the whole top row.
-        static let tabWidthSteps: [Double] = [30, 28, 26]
-        /// The space between two tabs of the row.
-        static let tabGap: Double = 2
-        /// The round settings button of the right wing.
-        static let settingsButtonSize: Double = 24
-        /// What a status pill is estimated to need, so that the row of tabs can leave room for the
-        /// pills without measuring them: a conservative width per character of the pill's text
-        /// (11 point semibold with monospaced digits is about 6.6 points wide), the symbol, the
-        /// space between symbol and text, and the padding on both sides of the pill.
-        static let pillCharacterWidth: Double = 7
-        static let pillSymbolWidth: Double = 14
-        static let pillInnerSpacing = Spacing.xxs
-        static let pillPadding = Spacing.xs
-        /// The space between the parts of the right group: the pills and the settings button.
+        /// The height of a status pill beside the notch.
+        static let pillHeight: Double = 24
+        /// The space between the parts of the right group: the pill and its count.
         static let pillSpacing = Spacing.xs
         /// The fill of a status pill: white at 9 percent.
         static let pillFillAlpha: Double = 0.09
-        /// The fill of a tab: tinted when selected, white at 8 percent otherwise.
-        static let selectedTabFillAlpha: Double = 0.18
+        /// The fill of a quiet tile on the hub's ground, such as the missing artwork: white at 8 percent.
         static let idleTabFillAlpha: Double = 0.08
-        /// The symbol of a tab that is not selected.
-        static let idleTabSymbolAlpha: Double = 0.6
         /// The colour of a module without one of its own: white at 70 percent.
         static let neutralAlpha: Double = 0.7
-        /// The type sizes of the wings' parts.
+        /// The type size of a status pill, and the size of a module's own symbols.
         static let pillTextSize: Double = 11
-        static let tabSymbolSize: Double = 13
-        /// The type sizes of the compact live-activity capsule: the symbol and the phrase.
         static let compactSymbolSize: Double = 16
-        static let compactTitleSize: Double = 12
         /// The widget card: radius, padding, the gap between cards and the columns of a row.
         static let tileRadius: Double = 14
         static let tilePadding: Double = 10
@@ -205,6 +178,128 @@ nonisolated enum DesignTokens {
         static let fileDropLabelAlpha: Double = 0.85
         /// The black behind those words, so they read over the tiles.
         static let fileDropScrimAlpha: Double = 0.6
+    }
+
+    /// The Notch hub's island (concept section 10b): the hub is the notch itself, growing, one
+    /// pure black shape. Every number of the shape, its rows, its motion and its staging is here
+    /// and pinned by a test; the views read them through `HolzBarTheme.Island` and
+    /// `HolzBarTheme.Motion`, the geometry (`NotchHubGeometry`) reads them from here.
+    nonisolated enum Island {
+        /// The island's colour: pure black, so the shape and the camera housing are one object.
+        /// No glass, no gradient, no stroke; it stays black in light mode.
+        static let surface = RGB.black
+
+        // MARK: Shape
+
+        /// The concave top corners and the rounded bottom corners of the open island.
+        static let openTopRadius: Double = 14
+        static let openBottomRadius: Double = 40
+        /// The corners of the live state, the notch widened at menu bar height.
+        static let liveTopRadius: Double = 6
+        static let liveBottomRadius: Double = 16
+        /// The corners of the closed shape, the notch's own rectangle, where every animation
+        /// starts and ends.
+        static let notchTopRadius: Double = 6
+        static let notchBottomRadius: Double = 10
+
+        // MARK: Size
+
+        /// The width of the open island, and the most it grows to when the module row needs room.
+        static let baseWidth: Double = 560
+        static let maximumWidth: Double = 640
+        /// The inner padding of the black body, on each side.
+        static let sidePadding: Double = 16
+
+        // MARK: Rows
+
+        /// The space between the top row and the context line's row, and the row's height.
+        static let contextGap: Double = 8
+        static let contextRowHeight: Double = 22
+        /// The context line: white at 55 percent, with a 13 point symbol.
+        static let contextTextAlpha: Double = 0.55
+        static let contextSymbolSize: Double = 13
+        /// The settings gear at the right end of the context line's row: its circle, its symbol
+        /// (13 points, white at 60 percent) and its fill (white at 9 percent).
+        static let gearSize: Double = 24
+        static let gearSymbolSize: Double = 13
+        static let gearFillAlpha: Double = 0.09
+        static let gearSymbolAlpha: Double = 0.6
+
+        // MARK: Content
+
+        /// The content area's height for a module, and for an Overview of rows of cards: a row
+        /// of cards is 92 points high with 6 points between rows, and the area never exceeds 190.
+        static let contentHeight: Double = 110
+        static let overviewRowHeight: Double = 92
+        static let overviewRowGap: Double = 6
+        static let maximumContentHeight: Double = 190
+
+        // MARK: Module row
+
+        /// The space above the module row and below it, up to the island's bottom edge.
+        static let rowGap: Double = 12
+        static let rowBottom: Double = 12
+        /// The sizes the buttons of the module row step down through, and the space between them.
+        static let buttonSizes: [Double] = [30, 26]
+        static let buttonGap: Double = 6
+        /// A module's symbol in its button, and the idle button's symbol and fill alphas.
+        static let buttonSymbolSize: Double = 16
+        static let buttonIdleSymbolAlpha: Double = 0.6
+        static let buttonIdleFillAlpha: Double = 0.07
+
+        // MARK: Live state
+
+        /// How far the live state reaches beyond the notch, on each side, and the sizes of its
+        /// symbol and its value.
+        static let liveSideWidth: Double = 90
+        static let liveSymbolSize: Double = 16
+        static let liveValueSize: Double = 12
+        /// The live state grows only over the free menu bar beside the notch (concept section
+        /// 10b, 2026-11-14): the air kept to the nearest menu bar content, and the narrowest
+        /// black part on one side that still shows anything (the 8 pt clearance to the notch plus
+        /// 28 pt for the symbol or a short value). A side with less does not widen.
+        static let liveContentGap: Double = 4
+        static let liveMinimumSideWidth: Double = 36
+
+        // MARK: Edge and margin
+
+        /// The outline Increase Contrast adds to the lower edge only: white at 30 percent, 1 point.
+        static let edgeAlpha: Double = 0.30
+        static let edgeWidth: Double = 1
+        /// The transparent margin of the panel on the sides and the bottom while the shape
+        /// animates, so that an overshoot is never clipped.
+        static let transitionMargin: Double = 12
+
+        // MARK: Motion
+
+        /// Opening: the width and the height each have their own spring, so the island widens a
+        /// little before it deepens and overshoots slightly. The numbers are a spring's response
+        /// (seconds) and damping fraction.
+        static let openWidthResponse: Double = 0.42
+        static let openWidthDamping: Double = 0.72
+        static let openHeightResponse: Double = 0.48
+        static let openHeightDamping: Double = 0.74
+        /// Closing: the shape returns into the notch without overshoot.
+        static let closeResponse: Double = 0.34
+        static let closeDamping: Double = 0.9
+        /// The content appears this long after the shape starts to grow, from a blur and a
+        /// smaller scale, with a curve that takes this long; it leaves faster.
+        static let contentDelay: Double = 0.09
+        static let contentInDuration: Double = 0.3
+        static let contentOutDuration: Double = 0.12
+        static let contentBlur: Double = 10
+        static let contentScale: Double = 0.94
+        /// The control points of the content's curve (a cubic bezier).
+        static let contentCurve: [Double] = [0.2, 0.8, 0.2, 1]
+        /// Switching modules inside the hub: the content cross-fades while it rises this far.
+        static let switchDuration: Double = 0.22
+        static let switchRise: Double = 4
+        /// The fallback for a transition whose animation never reports that it ended
+        /// (``HubIslandPhase/completionFallbackDelay``): a spring counts as settled when its swing
+        /// has fallen to this share of its first one, and the wait adds this many seconds to the
+        /// longest motion.
+        static let settleThreshold: Double = 0.001
+        static let completionMargin: Double = 0.5
     }
 
     /// The gradient of fills that carry white text, the same in both appearances.

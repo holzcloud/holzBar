@@ -22,7 +22,8 @@ struct NotificationsBodyView: View {
                 EmptyState(
                     systemImage: "bell.badge",
                     title: Text("No notifications yet"),
-                    message: Text("Banners that macOS shows appear here while the hub is on. Nothing is stored.")
+                    message: Text("Banners that macOS shows appear here while the hub is on. Nothing is stored."),
+                    isCompact: true
                 )
                 .frame(maxHeight: .infinity)
             } else {
@@ -38,15 +39,7 @@ struct NotificationsBodyView: View {
             }
             footer
         }
-        .frame(maxWidth: .infinity, alignment: .top)
-        .frame(height: CGFloat(NotchHubGeometry.bodyHeight), alignment: .top)
-        .onAppear {
-            runtime.markSeen()
-        }
-        .onChange(of: runtime.log.records.count) {
-            // The tab is on screen, so a notification that arrives now is seen.
-            runtime.markSeen()
-        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     // MARK: Footer

@@ -18,7 +18,7 @@ import SwiftUI
 /// the hub is open, CoreAudio listeners tell it of a change made elsewhere (a volume key, the
 /// menu bar, another device becoming the default); they are removed the moment the hub closes.
 /// Nothing is polled. The output's name is read for the open tab only; it is kept in memory and
-/// never logged, and neither the tile nor the pill carries it.
+/// never logged, and the tile does not carry it.
 ///
 /// The brightness of each display macOS can change is read when the hub opens and after each
 /// own change; no change notification is registered and nothing is polled. That part uses a
@@ -245,18 +245,6 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             value: String(DisplayControlsLevel.percent(volume)),
             unit: Text(verbatim: "%"),
             fraction: volume
-        )
-    }
-
-    /// The pill beside the notch while the output is muted. No name.
-    var statusPill: HubStatusPill? {
-        guard isMuted else {
-            return nil
-        }
-        return HubStatusPill(
-            symbol: "speaker.slash.fill",
-            text: String(localized: "Muted"),
-            accessibilityLabel: Text("Muted")
         )
     }
 

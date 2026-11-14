@@ -259,18 +259,17 @@ struct DesignTokensTests {
         }
     }
 
-    @Test("The hub ground is black at the top and a dark blue-grey below")
+    @Test("The hub's ground is pure black, the island's colour")
     func hubGround() {
         #expect(Tokens.Hub.top == .black)
-        #expect(Tokens.Hub.bottom.relativeLuminance < 0.02)
-        #expect(Tokens.Hub.bottom.relativeLuminance > Tokens.Hub.top.relativeLuminance)
+        #expect(Tokens.Hub.top == Tokens.Island.surface)
     }
 
     @Test("The hub's small texts keep 4.5:1 under Increase Contrast, which makes them stronger")
     func hubTextContrast() {
-        // Over the ground, and over a widget card on it in its most opaque form.
+        // Over the black ground, and over a widget card on it in its most opaque form.
         let card = Tokens.Tint(color: .white, alpha: Tokens.Hub.tileFillAlphaOpaque)
-        let grounds = [Tokens.Hub.top, Tokens.Hub.bottom, card.over(Tokens.Hub.bottom)]
+        let grounds = [Tokens.Hub.top, card.over(Tokens.Hub.top)]
         for alpha in [Tokens.Hub.tileLabelAlphaIncreased, Tokens.Hub.tileDetailAlphaIncreased] {
             let text = Tokens.Tint(color: .white, alpha: alpha)
             for ground in grounds {
@@ -285,21 +284,90 @@ struct DesignTokensTests {
 
     @Test("The hub's sizes equal the design's numbers")
     func hubSizes() {
-        #expect(Tokens.Hub.tabWidth == 30)
-        #expect(Tokens.Hub.tabHeight == 24)
-        #expect(Tokens.Hub.tabRadius == 8)
-        #expect(Tokens.Hub.tabGap == 2)
-        #expect(Tokens.Hub.tabWidthSteps == [30, 28, 26])
-        #expect(Tokens.Hub.tabWidthSteps.first == Tokens.Hub.tabWidth)
-        #expect(Tokens.Hub.settingsButtonSize == 24)
+        #expect(Tokens.Hub.pillHeight == 24)
         #expect(Tokens.Hub.pillFillAlpha == 0.09)
         #expect(Tokens.Hub.tileRadius == 14)
         #expect(Tokens.Hub.columns == 4)
         #expect(Tokens.Hub.tileGap == 6)
         #expect(Tokens.Hub.tilePadding == 10)
         // Hit targets of at least 24 points.
-        #expect(Tokens.Hub.tabHeight >= Tokens.minimumTargetSize)
-        #expect(Tokens.Hub.settingsButtonSize >= Tokens.minimumTargetSize)
+        #expect(Tokens.Hub.pillHeight >= Tokens.minimumTargetSize)
+        #expect(Tokens.Island.gearSize >= Tokens.minimumTargetSize)
+    }
+
+    @Test("The island's numbers equal section 10b")
+    func islandNumbers() {
+        let island = Tokens.Island.self
+        #expect(island.surface == .black)
+        #expect(island.openTopRadius == 14)
+        #expect(island.openBottomRadius == 40)
+        #expect(island.liveTopRadius == 6)
+        #expect(island.liveBottomRadius == 16)
+        #expect(island.notchTopRadius == 6)
+        #expect(island.notchBottomRadius == 10)
+        #expect(island.baseWidth == 560)
+        #expect(island.maximumWidth == 640)
+        #expect(island.sidePadding == 16)
+        #expect(island.contextGap == 8)
+        #expect(island.contextRowHeight == 22)
+        #expect(island.contextTextAlpha == 0.55)
+        #expect(island.contextSymbolSize == 13)
+        #expect(island.gearSize == 24)
+        #expect(island.gearSymbolSize == 13)
+        #expect(island.gearFillAlpha == 0.09)
+        #expect(island.gearSymbolAlpha == 0.6)
+        #expect(island.contentHeight == 110)
+        #expect(island.overviewRowHeight == 92)
+        #expect(island.overviewRowGap == 6)
+        #expect(island.maximumContentHeight == 190)
+        #expect(island.rowGap == 12)
+        #expect(island.rowBottom == 12)
+        #expect(island.buttonSizes == [30, 26])
+        #expect(island.buttonGap == 6)
+        #expect(island.buttonSymbolSize == 16)
+        #expect(island.buttonIdleSymbolAlpha == 0.6)
+        #expect(island.buttonIdleFillAlpha == 0.07)
+        #expect(island.liveSideWidth == 90)
+        #expect(island.liveContentGap == 4)
+        #expect(island.liveMinimumSideWidth == 36)
+        #expect(island.liveSymbolSize == 16)
+        #expect(island.liveValueSize == 12)
+        #expect(island.edgeAlpha == 0.30)
+        #expect(island.edgeWidth == 1)
+        #expect(island.transitionMargin == 12)
+        #expect(island.openWidthResponse == 0.42)
+        #expect(island.openWidthDamping == 0.72)
+        #expect(island.openHeightResponse == 0.48)
+        #expect(island.openHeightDamping == 0.74)
+        #expect(island.closeResponse == 0.34)
+        #expect(island.closeDamping == 0.9)
+        #expect(island.contentDelay == 0.09)
+        #expect(island.contentInDuration == 0.3)
+        #expect(island.contentOutDuration == 0.12)
+        #expect(island.contentBlur == 10)
+        #expect(island.contentScale == 0.94)
+        #expect(island.contentCurve == [0.2, 0.8, 0.2, 1])
+        #expect(island.switchDuration == 0.22)
+        #expect(island.switchRise == 4)
+        #expect(island.settleThreshold == 0.001)
+        #expect(island.completionMargin == 0.5)
+    }
+
+    @Test("The island keeps the concept's relations")
+    func islandRelations() {
+        let island = Tokens.Island.self
+        for size in island.buttonSizes + [island.gearSize] {
+            #expect(size >= Tokens.minimumTargetSize)
+        }
+        #expect(island.buttonSizes.first == 30)
+        #expect(island.buttonSizes == island.buttonSizes.sorted(by: >))
+        #expect(island.maximumWidth >= island.baseWidth)
+        #expect(2 * island.overviewRowHeight + island.overviewRowGap == island.maximumContentHeight)
+        #expect(island.contentHeight <= island.maximumContentHeight)
+        #expect(island.openWidthDamping < 1)
+        #expect(island.openHeightDamping < 1)
+        #expect(island.closeDamping > island.openWidthDamping)
+        #expect(island.contentScale < 1)
     }
 
     @Test("The floating bar's shadow is the design's numbers and fits the panel's insets")

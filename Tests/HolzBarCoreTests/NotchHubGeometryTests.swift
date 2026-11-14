@@ -21,166 +21,12 @@ struct NotchHubGeometryTests {
         notch: Geometry.Notch(minX: 642, maxX: 828, height: 37)
     )
     private let notchless = Geometry.Display(width: 2560, height: 1440, menuBarHeight: 24, notch: nil)
-    private let content = Geometry.Content(bodyHeight: 120)
-
-    private func layout(_ display: Geometry.Display) throws -> Geometry.Layout {
-        try #require(Geometry.layout(display: display, content: content))
-    }
-
-    @Test("A notched display: the silhouette is centred on the notch, 640 wide, and the wings sit beside it")
-    func notchedFixtureA() throws {
-        let result = try layout(notchedA)
-        #expect(result.silhouette.x == 436)
-        #expect(result.silhouette.y == 0)
-        #expect(result.silhouette.width == 640)
-        #expect(result.topRowHeight == 32)
-        let left = try #require(result.leftWing)
-        let right = try #require(result.rightWing)
-        #expect(left.maxX == 655)
-        #expect(right.minX == 857)
-        #expect(left.minX == 464)
-        #expect(right.maxX == 1048)
-        #expect(left.height == 32 && right.height == 32)
-        #expect(result.notch == Geometry.Rect(x: 663, y: 0, width: 186, height: 32))
-        #expect(result.hoverZone == result.notch)
-    }
-
-    @Test("The top row follows the larger of the menu bar and the notch, and the body starts 12 below it")
-    func topRowAndBody() throws {
-        let b = try layout(notchedB)
-        #expect(b.silhouette.x == 544)
-        #expect(b.topRowHeight == 32)
-        #expect(b.body.y == 44)
-        let c = try layout(notchedC)
-        #expect(c.silhouette.x == 415)
-        #expect(c.topRowHeight == 37)
-        #expect(c.body.y == 49)
-        let tall = Geometry.Display(
-            width: 1512, height: 982, menuBarHeight: 30,
-            notch: Geometry.Notch(minX: 663, maxX: 849, height: 38)
-        )
-        #expect(try layout(tall).topRowHeight == 38)
-    }
-
-    @Test("A display without a notch: the hub hangs from the top centre with a thin hover zone")
-    func notchlessFixture() throws {
-        let result = try layout(notchless)
-        #expect(result.silhouette.x == 960)
-        #expect(result.silhouette.width == 640)
-        #expect(result.notch == nil)
-        #expect(result.topRowHeight == 24)
-        let left = try #require(result.leftWing)
-        let right = try #require(result.rightWing)
-        #expect(left.maxX == 1276)
-        #expect(right.minX == 1284)
-        #expect(result.hoverZone == Geometry.Rect(x: 1180, y: 0, width: 200, height: 3))
-    }
-
-    @Test("Nothing but the hover zone touches the notch: the wings keep 8 points and the body lies below")
-    func clearanceOfTheNotch() throws {
-        for display in [notchedA, notchedB, notchedC] {
-            let result = try layout(display)
-            let notch = try #require(display.notch)
-            let inflated = Geometry.Rect(
-                x: notch.minX - Geometry.clearance,
-                y: 0,
-                width: notch.maxX - notch.minX + 2 * Geometry.clearance,
-                height: notch.height
-            )
-            #expect(result.leftWing.map { !$0.intersects(inflated) } ?? true)
-            #expect(result.rightWing.map { !$0.intersects(inflated) } ?? true)
-            #expect(!result.body.intersects(inflated))
-            #expect(result.body.minY >= notch.height + Geometry.bodyGap)
-        }
-    }
-
-    @Test("A narrow display has no wings, and the silhouette stays 12 points from both edges")
-    func narrowDisplay() throws {
-        let narrow = Geometry.Display(
-            width: 440, height: 800, menuBarHeight: 32,
-            notch: Geometry.Notch(minX: 127, maxX: 313, height: 32)
-        )
-        let result = try layout(narrow)
-        #expect(result.leftWing == nil)
-        #expect(result.rightWing == nil)
-        #expect(result.silhouette.width == 416)
-        #expect(result.silhouette.x == 12)
-        #expect(result.silhouette.maxX == 428)
-    }
-
-    @Test("A notch near an edge moves the silhouette into the display")
-    func notchNearAnEdge() throws {
-        let display = Geometry.Display(
-            width: 900, height: 600, menuBarHeight: 32,
-            notch: Geometry.Notch(minX: 20, maxX: 120, height: 32)
-        )
-        let result = try layout(display)
-        #expect(result.silhouette.x == 12)
-        #expect(result.silhouette.maxX <= 900 - 12)
-        #expect(result.leftWing == nil)
-    }
-
-    @Test("A malformed notch counts as none, and a display without a usable size has no layout")
-    func malformedValues() throws {
-        let malformed: [Geometry.Notch] = [
-            Geometry.Notch(minX: 300, maxX: 300, height: 32),
-            Geometry.Notch(minX: 400, maxX: 300, height: 32),
-            Geometry.Notch(minX: 663, maxX: 2000, height: 32),
-            Geometry.Notch(minX: -5, maxX: 100, height: 32),
-            Geometry.Notch(minX: 663, maxX: 849, height: 0),
-            Geometry.Notch(minX: .nan, maxX: 849, height: 32),
-            Geometry.Notch(minX: 663, maxX: .infinity, height: 32),
-            Geometry.Notch(minX: 663, maxX: 849, height: .nan),
-        ]
-        let reference = try layout(Geometry.Display(width: 1512, height: 982, menuBarHeight: 32, notch: nil))
-        for notch in malformed {
-            let display = Geometry.Display(width: 1512, height: 982, menuBarHeight: 32, notch: notch)
-            #expect(try layout(display) == reference)
-        }
-        let unusable = [
-            Geometry.Display(width: 0, height: 982, menuBarHeight: 32, notch: nil),
-            Geometry.Display(width: .nan, height: 982, menuBarHeight: 32, notch: nil),
-            Geometry.Display(width: 1512, height: 0, menuBarHeight: 32, notch: nil),
-            Geometry.Display(width: 1512, height: .infinity, menuBarHeight: 32, notch: nil),
-            Geometry.Display(width: 20, height: 982, menuBarHeight: 32, notch: nil),
-        ]
-        for display in unusable {
-            #expect(Geometry.layout(display: display, content: content) == nil)
-        }
-        #expect(Geometry.layout(display: notchedA, content: Geometry.Content(bodyHeight: .nan)) == nil)
-    }
-
     @Test("A menu bar height that makes no sense falls back to a usable top row")
     func menuBarHeightFallback() throws {
         let display = Geometry.Display(width: 1512, height: 982, menuBarHeight: .nan, notch: nil)
-        #expect(try layout(display).topRowHeight == Geometry.fallbackMenuBarHeight)
+        #expect(try island(display).topRowHeight == Geometry.fallbackMenuBarHeight)
         let negative = Geometry.Display(width: 1512, height: 982, menuBarHeight: -3, notch: nil)
-        #expect(try layout(negative).topRowHeight == Geometry.fallbackMenuBarHeight)
-    }
-
-    @Test("The body's height is the content's, the silhouette ends 16 below it, and the width never exceeds 640")
-    func bodyAndSilhouette() throws {
-        for display in [notchedA, notchedB, notchedC, notchless] {
-            let result = try layout(display)
-            #expect(result.body.height == 120)
-            // The side walls stand 28 inside the bounds (the concave corners flare over that
-            // width), and the body keeps 16 from them.
-            #expect(result.body.x == result.silhouette.x + 28 + 16)
-            #expect(result.body.width == result.silhouette.width - 2 * (28 + 16))
-            #expect(result.silhouette.maxY == result.body.maxY + 16)
-            #expect(result.silhouette.width <= 640)
-        }
-    }
-
-    @Test("The body area is 200 points: two rows of 92-point cards and a gap fit, and the silhouette follows")
-    func fixedBodyArea() throws {
-        #expect(Geometry.bodyHeight == 200)
-        #expect(2 * 92 + DesignTokens.Hub.tileGap <= Geometry.bodyHeight)
-        let result = try #require(
-            Geometry.layout(display: notchedA, content: Geometry.Content(bodyHeight: Geometry.bodyHeight))
-        )
-        #expect(result.body.height == 200)
-        #expect(result.silhouette.height == result.topRowHeight + 12 + 200 + 16)
+        #expect(try island(negative).topRowHeight == Geometry.fallbackMenuBarHeight)
     }
 
     @Test("The notch comes from the widths of the areas beside it, and only when both are known")
@@ -215,76 +61,112 @@ struct NotchHubGeometryTests {
 
     @Test("The constants equal the design's numbers")
     func constants() {
-        #expect(Geometry.maximumWidth == 640)
         #expect(Geometry.clearance == 8)
-        #expect(Geometry.bodyGap == 12)
-        #expect(Geometry.topCornerRadius == 28)
-        #expect(Geometry.bottomCornerRadius == 30)
-        #expect(Geometry.bodyInset == 16)
-        #expect(Geometry.bottomPadding == 16)
-        #expect(Geometry.minimumWingWidth == 96)
         #expect(Geometry.screenMargin == 12)
+        #expect(Geometry.hoverZoneWidth == 200)
+        #expect(Geometry.hoverZoneHeight == 3)
+        #expect(Geometry.fallbackMenuBarHeight == 24)
     }
 
-    // MARK: Compact capsule
+    // MARK: Island
 
-    @Test("Compact, notched fixture A: begins at the notch's lower edge, centred on it, at least the notch plus 24")
-    func compactNotched() throws {
-        let result = try #require(Geometry.compactLayout(display: notchedA, contentWidth: 240))
-        #expect(result.silhouette == Geometry.Rect(x: 636, y: 32, width: 240, height: 30))
-        #expect(result.hoverZone == result.silhouette)
-        // Centred on the notch's centre, 756.
-        #expect(result.silhouette.x + result.silhouette.width / 2 == 756)
-        let narrow = try #require(Geometry.compactLayout(display: notchedA, contentWidth: 100))
-        #expect(narrow.silhouette.width == 210)
-        #expect(narrow.silhouette.x == 651)
-        let wide = try #require(Geometry.compactLayout(display: notchedA, contentWidth: 400))
-        #expect(wide.silhouette.width == 280)
-        #expect(wide.silhouette.x == 616)
-        #expect(wide.silhouette.y == 32)
-        #expect(wide.silhouette.height == 30)
+    private func island(
+        _ display: Geometry.Display,
+        contentHeight: Double = DesignTokens.Island.contentHeight,
+        width: Double = DesignTokens.Island.baseWidth,
+        buttonSize: Double = 30
+    ) throws -> Geometry.IslandLayout {
+        try #require(
+            Geometry.island(display: display, contentHeight: contentHeight, width: width, buttonSize: buttonSize)
+        )
     }
 
-    @Test("Compact, a display without a notch: 200 wide at the narrowest, centred, below the menu bar")
-    func compactNotchless() throws {
-        let result = try #require(Geometry.compactLayout(display: notchless, contentWidth: 150))
-        #expect(result.silhouette == Geometry.Rect(x: 1180, y: 24, width: 200, height: 30))
+    @Test("Island, notched fixture A: 560 by 226 at the top, centred on the notch, the hover zone is the notch")
+    func islandNotchedFixtureA() throws {
+        let result = try island(notchedA)
+        #expect(result.shape == Geometry.Rect(x: 476, y: 0, width: 560, height: 226))
+        #expect(result.shape.x + result.shape.width / 2 == 756)
+        #expect(result.topRowHeight == 32)
+        #expect(result.notch == Geometry.Rect(x: 663, y: 0, width: 186, height: 32))
+        #expect(result.hoverZone == result.notch)
     }
 
-    @Test("Compact: the capsule lies below the top row, so it never overlaps the notch or a menu bar item")
-    func compactNeverOverTheBar() throws {
+    @Test("Island: the width grows to the notch plus the two flares, is capped at 640 and the margins, and NaN is 560")
+    func islandWidthRules() throws {
+        let tiny = try island(notchedA, width: 100)
+        #expect(tiny.shape.width == 186 + 2 * 14)
+        #expect(tiny.shape.x == 649)
+        #expect(try island(notchedA, width: -5).shape.width == 214)
+        #expect(try island(notchedA, width: 900).shape.width == 640)
+        #expect(try island(notchedA, width: .infinity).shape.width == 640)
+        #expect(try island(notchedA, width: .nan).shape.width == 560)
+        // A narrow display keeps 12 points to both edges.
+        let narrow = Geometry.Display(
+            width: 440, height: 800, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 127, maxX: 313, height: 32)
+        )
+        let clamped = try island(narrow, width: 640)
+        #expect(clamped.shape.width == 416)
+        #expect(clamped.shape.x == 12)
+        // A notch near an edge moves the island into the display.
+        let edge = Geometry.Display(
+            width: 900, height: 600, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 20, maxX: 120, height: 32)
+        )
+        let moved = try island(edge)
+        #expect(moved.shape.x == 12)
+        #expect(moved.shape.maxX <= 900 - 12)
+    }
+
+    @Test("Island: the context row, the content and the module row stack inside the black body")
+    func islandRowsInsideTheBody() throws {
         for display in [notchedA, notchedB, notchedC, notchless] {
-            let result = try #require(Geometry.compactLayout(display: display, contentWidth: 240))
-            let full = try layout(display)
-            #expect(result.silhouette.minY == full.topRowHeight)
-            if let notch = full.notch {
-                #expect(!result.silhouette.intersects(notch))
-                #expect(result.silhouette.minX <= notch.minX - Geometry.compactNotchMargin / 2)
-                #expect(result.silhouette.maxX >= notch.maxX + Geometry.compactNotchMargin / 2)
+            let result = try island(display)
+            let inset = DesignTokens.Island.openTopRadius + DesignTokens.Island.sidePadding
+            let bodyX = result.shape.x + inset
+            let bodyWidth = result.shape.width - 2 * inset
+            #expect(result.contextRow.y == result.topRowHeight + 8)
+            #expect(result.contextRow.height == 22)
+            #expect(result.content.y == result.contextRow.maxY)
+            #expect(result.content.height == 110)
+            #expect(result.moduleRow.height == 30)
+            #expect(result.moduleRow.maxY == result.shape.maxY - 12)
+            #expect(result.moduleRow.minY == result.content.maxY + 12)
+            for row in [result.contextRow, result.content, result.moduleRow] {
+                #expect(row.x == bodyX)
+                #expect(row.width == bodyWidth)
             }
-            #expect(result.silhouette.minX >= Geometry.screenMargin)
-            #expect(result.silhouette.maxX <= display.width - Geometry.screenMargin)
+            if let notch = result.notch {
+                #expect(!result.contextRow.intersects(notch))
+            }
         }
     }
 
-    @Test("Compact: the top row is the notch when it is taller than the menu bar")
-    func compactBelowATallNotch() throws {
+    @Test("Island, a display without a notch: centred on the display, the top row is the menu bar, a thin hover zone")
+    func islandNotchless() throws {
+        let result = try island(notchless)
+        #expect(result.shape == Geometry.Rect(x: 1000, y: 0, width: 560, height: 24 + 8 + 22 + 110 + 12 + 30 + 12))
+        #expect(result.notch == nil)
+        #expect(result.topRowHeight == 24)
+        #expect(result.hoverZone == Geometry.Rect(x: 1180, y: 0, width: 200, height: 3))
+    }
+
+    @Test("Island: the height follows the content's height and the module row's button size")
+    func islandHeightFollowsTheContent() throws {
+        #expect(try island(notchedA, contentHeight: 190).shape.height == 306)
+        #expect(try island(notchedA, buttonSize: 26).shape.height == 222)
         let tall = Geometry.Display(
             width: 1512, height: 982, menuBarHeight: 30,
             notch: Geometry.Notch(minX: 663, maxX: 849, height: 38)
         )
-        #expect(try #require(Geometry.compactLayout(display: tall, contentWidth: 240)).silhouette.y == 38)
+        #expect(try island(tall).topRowHeight == 38)
+        #expect(try island(tall).shape.height == 232)
     }
 
-    @Test("Compact: a malformed notch counts as none, and a display without a usable size has no capsule")
-    func compactMalformed() throws {
-        let reference = try #require(
-            Geometry.compactLayout(
-                display: Geometry.Display(width: 1512, height: 982, menuBarHeight: 32, notch: nil),
-                contentWidth: 240
-            )
-        )
-        let malformed: [Geometry.Notch] = [
+    @Test("Island: a malformed notch counts as none, and a display or a content height that makes no sense has no island")
+    func islandMalformed() throws {
+        let reference = try island(Geometry.Display(width: 1512, height: 982, menuBarHeight: 32, notch: nil))
+        let malformed = [
             Geometry.Notch(minX: 300, maxX: 300, height: 32),
             Geometry.Notch(minX: 663, maxX: 2000, height: 32),
             Geometry.Notch(minX: 663, maxX: 849, height: 0),
@@ -292,7 +174,7 @@ struct NotchHubGeometryTests {
         ]
         for notch in malformed {
             let display = Geometry.Display(width: 1512, height: 982, menuBarHeight: 32, notch: notch)
-            #expect(Geometry.compactLayout(display: display, contentWidth: 240) == reference)
+            #expect(try island(display) == reference)
         }
         let unusable = [
             Geometry.Display(width: 0, height: 982, menuBarHeight: 32, notch: nil),
@@ -302,163 +184,297 @@ struct NotchHubGeometryTests {
             Geometry.Display(width: 20, height: 982, menuBarHeight: 32, notch: nil),
         ]
         for display in unusable {
-            #expect(Geometry.compactLayout(display: display, contentWidth: 240) == nil)
+            #expect(Geometry.island(display: display, contentHeight: 110, width: 560) == nil)
         }
+        #expect(Geometry.island(display: notchedA, contentHeight: .nan, width: 560) == nil)
+        #expect(Geometry.island(display: notchedA, contentHeight: -1, width: 560) == nil)
     }
 
-    @Test("Compact: a narrow display clamps the width into the margins, and a width that is no number is the narrowest")
-    func compactNarrowDisplayAndOddWidths() throws {
-        let narrow = Geometry.Display(width: 300, height: 800, menuBarHeight: 24, notch: nil)
-        let clamped = try #require(Geometry.compactLayout(display: narrow, contentWidth: 280))
-        #expect(clamped.silhouette.width == 276)
-        #expect(clamped.silhouette.x == 12)
-        let nan = try #require(Geometry.compactLayout(display: notchedA, contentWidth: .nan))
-        #expect(nan.silhouette.width == 210)
-        let infinite = try #require(Geometry.compactLayout(display: notchedA, contentWidth: .infinity))
-        #expect(infinite.silhouette.width == 280)
-        let negative = try #require(Geometry.compactLayout(display: notchedA, contentWidth: -50))
-        #expect(negative.silhouette.width == 210)
+    @Test("The content height: 110 for a module, 110 to 190 by preference, the Overview by its rows of cards")
+    func contentHeightRules() {
+        #expect(Geometry.contentHeight(overviewTileCount: nil) == 110)
+        #expect(Geometry.contentHeight(overviewTileCount: nil, preferred: 160) == 160)
+        #expect(Geometry.contentHeight(overviewTileCount: nil, preferred: 300) == 190)
+        #expect(Geometry.contentHeight(overviewTileCount: nil, preferred: 50) == 110)
+        #expect(Geometry.contentHeight(overviewTileCount: nil, preferred: .nan) == 110)
+        #expect(Geometry.contentHeight(overviewTileCount: 0) == 190)
+        #expect(Geometry.contentHeight(overviewTileCount: -3) == 190)
+        for count in 1...4 {
+            #expect(Geometry.contentHeight(overviewTileCount: count) == 110)
+        }
+        for count in 5...8 {
+            #expect(Geometry.contentHeight(overviewTileCount: count) == 190)
+        }
+        #expect(Geometry.contentHeight(overviewTileCount: 40) == 190)
     }
 
-    @Test("Compact: a notch near an edge moves the capsule into the display")
-    func compactNearAnEdge() throws {
-        let display = Geometry.Display(
-            width: 900, height: 600, menuBarHeight: 32,
-            notch: Geometry.Notch(minX: 20, maxX: 120, height: 32)
+    @Test("The seed is the notch's rectangle, or a flat strip at the top centre without a notch")
+    func seedRules() {
+        #expect(Geometry.seed(display: notchedA) == Geometry.Rect(x: 663, y: 0, width: 186, height: 32))
+        #expect(Geometry.seed(display: notchedC) == Geometry.Rect(x: 642, y: 0, width: 186, height: 37))
+        #expect(Geometry.seed(display: notchless) == Geometry.Rect(x: 1180, y: 0, width: 200, height: 0))
+        #expect(Geometry.seed(display: Geometry.Display(width: 0, height: 982, menuBarHeight: 32, notch: nil)) == nil)
+    }
+
+    @Test("The transition frame is both shapes plus the margin on the sides and the bottom, kept inside the display")
+    func transitionFrameRules() throws {
+        let margin = DesignTokens.Island.transitionMargin
+        #expect(margin == 12)
+        // From the seed of display A to its open island.
+        let seed = try #require(Geometry.seed(display: notchedA))
+        let open = try island(notchedA).shape
+        let frame = Geometry.transitionFrame(from: seed, to: open, displayWidth: notchedA.width)
+        #expect(frame == Geometry.Rect(x: open.x - margin, y: 0, width: open.width + 2 * margin, height: open.height + margin))
+        // Closing is the same union the other way round.
+        #expect(Geometry.transitionFrame(from: open, to: seed, displayWidth: notchedA.width) == frame)
+        // Equal rectangles give that rectangle plus the margin.
+        let same = Geometry.Rect(x: 100, y: 0, width: 200, height: 50)
+        #expect(
+            Geometry.transitionFrame(from: same, to: same, displayWidth: 1000)
+                == Geometry.Rect(x: 88, y: 0, width: 224, height: 62)
         )
-        let result = try #require(Geometry.compactLayout(display: display, contentWidth: 240))
-        #expect(result.silhouette.x == 12)
-        #expect(result.silhouette.maxX <= 900 - 12)
-    }
-
-    @Test("The compact constants equal the design's numbers")
-    func compactConstants() {
-        #expect(Geometry.compactHeight == 30)
-        #expect(Geometry.compactMinimumWidth == 200)
-        #expect(Geometry.compactMaximumWidth == 280)
-        #expect(Geometry.compactNotchMargin == 24)
-        #expect(Geometry.compactTopRadius == 12)
-        #expect(Geometry.compactBottomRadius == 18)
-    }
-
-    // MARK: The tab row over a matrix of displays
-
-    private static let none: [HubTabStrip.Pill] = []
-    private static let muted = [HubTabStrip.Pill(textLength: 5, hasSymbol: true)]
-    private static let crowdedPills = [
-        HubTabStrip.Pill(textLength: 5, hasSymbol: true),
-        HubTabStrip.Pill(textLength: 5, hasSymbol: true),
-        HubTabStrip.Pill(textLength: 18, hasSymbol: true),
-    ]
-
-    /// Every tab of the row as a rectangle in the display's coordinates, the More button
-    /// included, the way the views place them: the left group from the left wing's left edge,
-    /// the right group from the right wing's notch side.
-    private func tabRects(
-        _ row: HubTabStrip.Row,
-        layout: Geometry.Layout
-    ) -> (left: [Geometry.Rect], right: [Geometry.Rect]) {
-        func rects(_ count: Int, from wing: Geometry.Rect?) -> [Geometry.Rect] {
-            guard let wing else {
-                return []
-            }
-            return (0..<count).map { index in
-                Geometry.Rect(
-                    x: wing.x + Double(index) * (row.tabWidth + DesignTokens.Hub.tabGap),
-                    y: 0,
-                    width: row.tabWidth,
-                    height: DesignTokens.Hub.tabHeight
-                )
-            }
-        }
-        return (
-            rects(row.left.count + (row.moreWing == .left ? 1 : 0), from: layout.leftWing),
-            rects(row.right.count + (row.moreWing == .right ? 1 : 0), from: layout.rightWing)
+        // Never beyond the display's sides.
+        let atEdges = Geometry.Rect(x: 5, y: 0, width: 100, height: 40)
+        #expect(
+            Geometry.transitionFrame(from: atEdges, to: atEdges, displayWidth: 110)
+                == Geometry.Rect(x: 0, y: 0, width: 110, height: 52)
         )
+        // Never above the top of the display.
+        let above = Geometry.Rect(x: 100, y: -3, width: 50, height: 20)
+        #expect(Geometry.transitionFrame(from: above, to: above, displayWidth: 1000).y == 0)
     }
 
-    @Test("displayMatrix: the tab row never leaves its wing, never meets the pills or the notch's clearance")
-    func displayMatrix() throws {
-        let displays: [(name: String, display: Geometry.Display)] = [
-            ("14 inch", notchedA),
-            ("16 inch", notchedB),
-            ("13 inch Air", notchedC),
-            ("external 1920", Geometry.Display(width: 1920, height: 1080, menuBarHeight: 24, notch: nil)),
-            ("external 1280", Geometry.Display(width: 1280, height: 800, menuBarHeight: 24, notch: nil)),
-            ("600 wide", Geometry.Display(width: 600, height: 400, menuBarHeight: 24, notch: nil)),
+    // MARK: Live state
+
+    @Test("Live, notched fixture A: at the top edge, the top row high, the notch plus 90 on each side, centred on the notch")
+    func liveNotched() throws {
+        let result = try #require(Geometry.live(display: notchedA))
+        let side = DesignTokens.Island.liveSideWidth
+        let radius = DesignTokens.Island.liveTopRadius
+        #expect(side == 90)
+        #expect(radius == 6)
+        // The black part is 663 - 90 ... 849 + 90, the bounds add the 6 point flare on each side.
+        #expect(result.shape == Geometry.Rect(x: 567, y: 0, width: 378, height: 32))
+        #expect(result.shape.x + result.shape.width / 2 == 756)
+        #expect(result.shape.minX + radius == 663 - side)
+        #expect(result.shape.maxX - radius == 849 + side)
+        #expect(result.hoverZone == result.shape)
+        // The areas keep the clearance to the notch and never touch it.
+        #expect(result.leading == Geometry.Rect(x: 573, y: 0, width: 82, height: 32))
+        #expect(result.trailing == Geometry.Rect(x: 857, y: 0, width: 82, height: 32))
+        #expect(result.leading.maxX == 663 - Geometry.clearance)
+        #expect(result.trailing.minX == 849 + Geometry.clearance)
+        let notch = Geometry.Rect(x: 663, y: 0, width: 186, height: 32)
+        #expect(!result.leading.intersects(notch))
+        #expect(!result.trailing.intersects(notch))
+    }
+
+    @Test("Live: never taller than the top row, on every notched fixture")
+    func liveNeverGrowsDownward() throws {
+        for display in [notchedA, notchedB, notchedC, notchless] {
+            let result = try #require(Geometry.live(display: display))
+            let full = try island(display)
+            #expect(result.shape.minY == 0)
+            #expect(result.shape.height == full.topRowHeight)
+            #expect(result.leading.height == full.topRowHeight)
+            #expect(result.trailing.height == full.topRowHeight)
+            #expect(result.shape.minX >= Geometry.screenMargin)
+            #expect(result.shape.maxX <= display.width - Geometry.screenMargin)
+            if let notch = full.notch {
+                #expect(!result.leading.intersects(notch))
+                #expect(!result.trailing.intersects(notch))
+                #expect(result.shape.width == notch.width + 2 * DesignTokens.Island.liveSideWidth + 2 * DesignTokens.Island.liveTopRadius)
+            }
+        }
+        #expect(try #require(Geometry.live(display: notchedC)).shape.height == 37)
+    }
+
+    @Test("Live, a display without a notch: centred at menu bar height, the areas half the clearance from the centre")
+    func liveNotchless() throws {
+        let result = try #require(Geometry.live(display: notchless))
+        // 90 on each side of the centre 1280, plus the flare.
+        #expect(result.shape == Geometry.Rect(x: 1184, y: 0, width: 192, height: 24))
+        #expect(result.leading == Geometry.Rect(x: 1190, y: 0, width: 86, height: 24))
+        #expect(result.trailing == Geometry.Rect(x: 1284, y: 0, width: 86, height: 24))
+        #expect(result.leading.maxX == 1280 - Geometry.clearance / 2)
+        #expect(result.trailing.minX == 1280 + Geometry.clearance / 2)
+        #expect(result.hoverZone == result.shape)
+    }
+
+    @Test("Live: a notch too near an edge has no room on that side, the other side keeps its full width")
+    func liveEdgesAndMalformed() throws {
+        let nearLeft = Geometry.Display(
+            width: 1512, height: 982, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 20, maxX: 206, height: 32)
+        )
+        // 8 points are left between the margin and the notch: no side widens into the margin.
+        let left = try #require(Geometry.live(display: nearLeft))
+        #expect(left.shape.minX == 20)
+        #expect(left.shape.maxX == 206 + 90 + 6)
+        #expect(left.leading.width == 0)
+        #expect(left.trailing.width > 0)
+        #expect(!left.leading.intersects(Geometry.Rect(x: 20, y: 0, width: 186, height: 32)))
+        let nearRight = Geometry.Display(
+            width: 1512, height: 982, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 1306, maxX: 1492, height: 32)
+        )
+        let right = try #require(Geometry.live(display: nearRight))
+        #expect(right.shape.maxX == 1492)
+        #expect(right.shape.minX == 1306 - 90 - 6)
+        #expect(right.trailing.width == 0)
+        #expect(right.leading.width > 0)
+        // Roomy enough for the minimum but not for the full 90: the margin caps the side.
+        let tight = Geometry.Display(
+            width: 1512, height: 982, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 80, maxX: 266, height: 32)
+        )
+        let capped = try #require(Geometry.live(display: tight))
+        #expect(capped.shape.minX == Geometry.screenMargin)
+        // A display so narrow that nothing fits has none.
+        let unusable = [
+            Geometry.Display(width: 0, height: 982, menuBarHeight: 32, notch: nil),
+            Geometry.Display(width: .nan, height: 982, menuBarHeight: 32, notch: nil),
+            Geometry.Display(width: 1512, height: 0, menuBarHeight: 32, notch: nil),
+            Geometry.Display(width: 20, height: 982, menuBarHeight: 32, notch: nil),
         ]
-        let pillSets = [Self.none, Self.muted, Self.crowdedPills]
-        let modules = ["a", "b", "c", "d", "e", "f", "g", "h"]
-        let allTabs = HubTabStrip.allTabs(modules)
-        let smallest = try #require(DesignTokens.Hub.tabWidthSteps.last)
+        for display in unusable {
+            #expect(Geometry.live(display: display) == nil)
+        }
+        let malformed = Geometry.Display(
+            width: 1512, height: 982, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 663, maxX: 849, height: 0)
+        )
+        #expect(try #require(Geometry.live(display: malformed)).shape.width == 192)
+    }
 
-        for (name, display) in displays {
-            let result = try layout(display)
-            let inflated = result.notch.map {
-                Geometry.Rect(
-                    x: $0.minX - Geometry.clearance,
-                    y: 0,
-                    width: $0.width + 2 * Geometry.clearance,
-                    height: $0.height
-                )
-            }
-            for pills in pillSets {
-                let reserved = HubTabStrip.rightReservedWidth(pills: pills)
-                let row = HubTabStrip.row(
-                    moduleTabs: modules, selected: "overview",
-                    leftWingWidth: result.leftWing?.width ?? 0,
-                    rightWingWidth: result.rightWing?.width ?? 0,
-                    rightReservedWidth: reserved
-                )
-                let context = "\(name), \(pills.count) pills"
-                // Each tab appears exactly once.
-                #expect(Set(row.left + row.right + row.overflow) == Set(allTabs), "\(context)")
-                #expect((row.left + row.right + row.overflow).count == allTabs.count, "\(context)")
-                // A menu appears only at the smallest width.
-                #expect(row.overflow.isEmpty || row.tabWidth == smallest, "\(context)")
-                #expect(row.overflow.isEmpty == (row.moreWing == nil), "\(context)")
-                // Nothing is placed in a wing that does not exist.
-                #expect(result.leftWing != nil || (row.left.isEmpty && row.moreWing != .left), "\(context)")
-                #expect(result.rightWing != nil || (row.right.isEmpty && row.moreWing != .right), "\(context)")
+    // MARK: Live state: free span only
 
-                let rects = tabRects(row, layout: result)
-                if let left = result.leftWing, let last = rects.left.last {
-                    #expect(last.maxX <= left.maxX, "\(context)")
-                }
-                if let right = result.rightWing, let last = rects.right.last {
-                    #expect(last.maxX <= right.maxX - reserved - DesignTokens.Hub.tabGap + 0.0001, "\(context)")
-                    #expect(last.maxX <= right.maxX, "\(context)")
-                }
-                if let inflated {
-                    for rect in rects.left + rects.right {
-                        #expect(!rect.intersects(inflated), "\(context)")
-                    }
-                }
-            }
+    private func fullLive(_ display: Geometry.Display) throws -> Geometry.LiveLayout {
+        try #require(Geometry.live(display: display))
+    }
+
+    @Test("Live with full room on both sides is the full shape, as without a room")
+    func liveFullRoom() throws {
+        let room = Geometry.LiveRoom(left: 600, right: 600)
+        #expect(Geometry.live(display: notchedA, room: room) == (try fullLive(notchedA)))
+        #expect(Geometry.live(display: notchless, room: room) == (try fullLive(notchless)))
+        #expect(Geometry.live(display: notchedA, room: .unlimited) == (try fullLive(notchedA)))
+        // Exactly the black part and the flare is room enough for the full width.
+        let exact = Geometry.LiveRoom(left: 96, right: 96)
+        #expect(Geometry.live(display: notchedA, room: exact) == (try fullLive(notchedA)))
+    }
+
+    @Test("Live with partial room grows each side only as far as it is free, flare included")
+    func livePartialRoom() throws {
+        // Fixture A: notch 663 ... 849. 60 free on the left leaves 54 black and 6 flare; 70 on the
+        // right leaves 64 black and 6 flare.
+        let result = try #require(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: 60, right: 70)))
+        #expect(result.shape == Geometry.Rect(x: 603, y: 0, width: 849 + 70 - 603, height: 32))
+        #expect(result.shape.minX + DesignTokens.Island.liveTopRadius == 663 - 54)
+        #expect(result.shape.maxX - DesignTokens.Island.liveTopRadius == 849 + 64)
+        #expect(result.leading == Geometry.Rect(x: 609, y: 0, width: 663 - Geometry.clearance - 609, height: 32))
+        #expect(result.trailing.minX == 849 + Geometry.clearance)
+        #expect(result.trailing.maxX == 849 + 64)
+        #expect(result.hoverZone == result.shape)
+        // The shape stays inside the free span on both sides: nothing beyond the room is covered.
+        #expect(result.shape.minX >= 663 - 60)
+        #expect(result.shape.maxX <= 849 + 70)
+    }
+
+    @Test("Live: a side with no room does not widen and has no flare; the other side does")
+    func liveNoRoomOnOneSide() throws {
+        let rightOnly = try #require(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: 0, right: 600)))
+        #expect(rightOnly.shape == Geometry.Rect(x: 663, y: 0, width: 186 + 96, height: 32))
+        #expect(rightOnly.leading.width == 0)
+        #expect(rightOnly.trailing.width > 0)
+        let leftOnly = try #require(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: 600, right: 0)))
+        #expect(leftOnly.shape == Geometry.Rect(x: 849 - 186 - 96, y: 0, width: 186 + 96, height: 32))
+        #expect(leftOnly.trailing.width == 0)
+        #expect(leftOnly.leading.width > 0)
+        // Neither area reaches into the notch.
+        let notch = Geometry.Rect(x: 663, y: 0, width: 186, height: 32)
+        for layout in [rightOnly, leftOnly] {
+            #expect(!layout.leading.intersects(notch))
+            #expect(!layout.trailing.intersects(notch))
         }
     }
 
-    @Test("displayMatrix: with the Muted pill every tab is visible in one row on the usual MacBook and external displays")
-    func displayMatrixEverythingFits() throws {
-        let modules = ["a", "b", "c", "d", "e", "f", "g", "h"]
-        let displays = [
-            notchedA,
-            notchedB,
-            notchedC,
-            Geometry.Display(width: 1920, height: 1080, menuBarHeight: 24, notch: nil),
-        ]
-        for display in displays {
-            let result = try layout(display)
-            let row = HubTabStrip.row(
-                moduleTabs: modules, selected: "overview",
-                leftWingWidth: result.leftWing?.width ?? 0,
-                rightWingWidth: result.rightWing?.width ?? 0,
-                rightReservedWidth: HubTabStrip.rightReservedWidth(pills: Self.muted)
-            )
-            #expect(row.overflow.isEmpty)
-            #expect(row.moreWing == nil)
-            #expect(row.left.count + row.right.count == 9)
-            #expect(row.left.first == "overview")
+    @Test("Live: the minimum is 36 points of black part per side, flare excluded")
+    func liveMinimumSide() throws {
+        let minimum = DesignTokens.Island.liveMinimumSideWidth
+        let flare = DesignTokens.Island.liveTopRadius
+        #expect(minimum == 36)
+        // Exactly the minimum plus the flare widens; a hair less does not.
+        let enough = Geometry.LiveRoom(left: minimum + flare, right: 0)
+        let widened = try #require(Geometry.live(display: notchedA, room: enough))
+        #expect(widened.shape.minX == 663 - minimum - flare)
+        #expect(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: minimum + flare - 0.1, right: 0)) == nil)
+    }
+
+    @Test("Live: no room on either side, or a room that is not a number, is no live state")
+    func liveNoRoomAtAll() throws {
+        #expect(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: 0, right: 0)) == nil)
+        #expect(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: 30, right: 41)) == nil)
+        #expect(Geometry.live(display: notchless, room: Geometry.LiveRoom(left: 0, right: 0)) == nil)
+        #expect(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: .nan, right: .nan)) == nil)
+        #expect(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: -50, right: -1)) == nil)
+        // One side not a number counts as none, the other still widens.
+        let one = try #require(Geometry.live(display: notchedA, room: Geometry.LiveRoom(left: .nan, right: 500)))
+        #expect(one.leading.width == 0)
+        #expect(one.trailing.width > 0)
+    }
+
+    @Test("Live without a notch follows the same rule, measured from the display's centre")
+    func liveNotchlessRoom() throws {
+        // Centre 1280. Partial room: 50 on the left leaves 44 black, 200 on the right the full 90.
+        let result = try #require(Geometry.live(display: notchless, room: Geometry.LiveRoom(left: 50, right: 200)))
+        #expect(result.shape == Geometry.Rect(x: 1280 - 50, y: 0, width: 50 + 96, height: 24))
+        #expect(result.shape.minX + DesignTokens.Island.liveTopRadius == 1280 - 44)
+        #expect(result.leading.maxX == 1280 - Geometry.clearance / 2)
+        #expect(result.trailing.minX == 1280 + Geometry.clearance / 2)
+        // No room on the left: the shape starts at the centre, with no flare on that side.
+        let rightOnly = try #require(Geometry.live(display: notchless, room: Geometry.LiveRoom(left: 0, right: 500)))
+        #expect(rightOnly.shape == Geometry.Rect(x: 1280, y: 0, width: 96, height: 24))
+        #expect(rightOnly.leading.width == 0)
+        // No room at all: none.
+        #expect(Geometry.live(display: notchless, room: Geometry.LiveRoom(left: 10, right: 10)) == nil)
+    }
+
+    @Test("The room comes from where the content is: the notch's edge to the content, less the gap")
+    func liveRoomFromContent() {
+        let gap = DesignTokens.Island.liveContentGap
+        #expect(gap == 4)
+        // Fixture A: the application menu ends at 500, the status items start at 1000.
+        let room = Geometry.liveRoom(display: notchedA, leftContentEnd: 500, rightContentStart: 1000)
+        #expect(room == Geometry.LiveRoom(left: 663 - 500 - gap, right: 1000 - gap - 849))
+        // Content that touches or reaches the notch leaves none; it never goes negative.
+        let covered = Geometry.liveRoom(display: notchedA, leftContentEnd: 700, rightContentStart: 800)
+        #expect(covered == Geometry.LiveRoom(left: 0, right: 0))
+        // A side that holds nothing is unlimited.
+        let empty = Geometry.liveRoom(display: notchedA, leftContentEnd: nil, rightContentStart: nil)
+        #expect(empty == .unlimited)
+        // Without a notch the measure starts at the display's centre.
+        let centre = Geometry.liveRoom(display: notchless, leftContentEnd: 400, rightContentStart: 2000)
+        #expect(centre == Geometry.LiveRoom(left: 1280 - 400 - gap, right: 2000 - gap - 1280))
+        // A position that is not a number covers its side.
+        let unknown = Geometry.liveRoom(display: notchedA, leftContentEnd: .nan, rightContentStart: .infinity)
+        #expect(unknown == Geometry.LiveRoom(left: 0, right: 0))
+        // A display that makes no sense has no room.
+        let broken = Geometry.Display(width: .nan, height: 982, menuBarHeight: 32, notch: nil)
+        #expect(Geometry.liveRoom(display: broken, leftContentEnd: nil, rightContentStart: nil) == Geometry.LiveRoom(left: 0, right: 0))
+    }
+
+    @Test("Live from real content: the shape never reaches the content on either side")
+    func liveNeverCoversContent() throws {
+        for (leftEnd, rightStart) in [(300.0, 1100.0), (600.0, 900.0), (500.0, 860.0), (655.0, 1000.0), (100.0, 1500.0)] {
+            let room = Geometry.liveRoom(display: notchedA, leftContentEnd: leftEnd, rightContentStart: rightStart)
+            let result = try #require(Geometry.live(display: notchedA, room: room))
+            // 663 and 849 are the notch's edges, the shape's edge where a side does not widen.
+            #expect(result.shape.minX >= leftEnd)
+            #expect(result.shape.maxX <= rightStart)
         }
+        // No side has the minimum: the content is too near the notch on both.
+        let tight = Geometry.liveRoom(display: notchedA, leftContentEnd: 640, rightContentStart: 870)
+        #expect(Geometry.live(display: notchedA, room: tight) == nil)
     }
 }
