@@ -134,7 +134,38 @@ nonisolated enum NotchHubGeometry {
         var hoverZone: Rect
     }
 
+    /// The rectangles of the open island, relative to the display (concept section 10b).
+    nonisolated struct IslandLayout: Equatable, Sendable {
+        /// The whole shape, flares included, which is also the panel's frame at rest.
+        var shape: Rect
+        /// The notch's rectangle, if the display has one. Nothing is placed in it.
+        var notch: Rect?
+        var topRowHeight: Double
+        var contextRow: Rect
+        var content: Rect
+        var moduleRow: Rect
+        /// Where the pointer rests to open the hub.
+        var hoverZone: Rect
+    }
+
     // MARK: Layout
+
+    static func island(
+        display: Display,
+        contentHeight: Double,
+        width: Double,
+        buttonSize: Double = DesignTokens.Island.buttonSizes[0]
+    ) -> IslandLayout? {
+        nil
+    }
+
+    static func contentHeight(overviewTileCount: Int?, preferred: Double? = nil) -> Double {
+        0
+    }
+
+    static func seed(display: Display) -> Rect? {
+        nil
+    }
 
     /// The notch from the widths of the unobscured areas beside it, as
     /// `NSScreen.auxiliaryTopLeftArea` and `auxiliaryTopRightArea` report them, or `nil` for a

@@ -341,6 +341,154 @@ struct NotchHubGeometryTests {
         #expect(Geometry.compactBottomRadius == 18)
     }
 
+    // MARK: Island
+
+    private func island(
+        _ display: Geometry.Display,
+        contentHeight: Double = DesignTokens.Island.contentHeight,
+        width: Double = DesignTokens.Island.baseWidth,
+        buttonSize: Double = 30
+    ) throws -> Geometry.IslandLayout {
+        try #require(
+            Geometry.island(display: display, contentHeight: contentHeight, width: width, buttonSize: buttonSize)
+        )
+    }
+
+    @Test("Island, notched fixture A: 560 by 226 at the top, centred on the notch, the hover zone is the notch")
+    func islandNotchedFixtureA() throws {
+        let result = try island(notchedA)
+        #expect(result.shape == Geometry.Rect(x: 476, y: 0, width: 560, height: 226))
+        #expect(result.shape.x + result.shape.width / 2 == 756)
+        #expect(result.topRowHeight == 32)
+        #expect(result.notch == Geometry.Rect(x: 663, y: 0, width: 186, height: 32))
+        #expect(result.hoverZone == result.notch)
+    }
+
+    @Test("Island: the width grows to the notch plus the two flares, is capped at 640 and the margins, and NaN is 560")
+    func islandWidthRules() throws {
+        let tiny = try island(notchedA, width: 100)
+        #expect(tiny.shape.width == 186 + 2 * 14)
+        #expect(tiny.shape.x == 649)
+        #expect(try island(notchedA, width: -5).shape.width == 214)
+        #expect(try island(notchedA, width: 900).shape.width == 640)
+        #expect(try island(notchedA, width: .infinity).shape.width == 640)
+        #expect(try island(notchedA, width: .nan).shape.width == 560)
+        // A narrow display keeps 12 points to both edges.
+        let narrow = Geometry.Display(
+            width: 440, height: 800, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 127, maxX: 313, height: 32)
+        )
+        let clamped = try island(narrow, width: 640)
+        #expect(clamped.shape.width == 416)
+        #expect(clamped.shape.x == 12)
+        // A notch near an edge moves the island into the display.
+        let edge = Geometry.Display(
+            width: 900, height: 600, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 20, maxX: 120, height: 32)
+        )
+        let moved = try island(edge)
+        #expect(moved.shape.x == 12)
+        #expect(moved.shape.maxX <= 900 - 12)
+    }
+
+    @Test("Island: the context row, the content and the module row stack inside the black body")
+    func islandRowsInsideTheBody() throws {
+        for display in [notchedA, notchedB, notchedC, notchless] {
+            let result = try island(display)
+            let inset = DesignTokens.Island.openTopRadius + DesignTokens.Island.sidePadding
+            let bodyX = result.shape.x + inset
+            let bodyWidth = result.shape.width - 2 * inset
+            #expect(result.contextRow.y == result.topRowHeight + 8)
+            #expect(result.contextRow.height == 22)
+            #expect(result.content.y == result.contextRow.maxY)
+            #expect(result.content.height == 110)
+            #expect(result.moduleRow.height == 30)
+            #expect(result.moduleRow.maxY == result.shape.maxY - 12)
+            #expect(result.moduleRow.minY == result.content.maxY + 12)
+            for row in [result.contextRow, result.content, result.moduleRow] {
+                #expect(row.x == bodyX)
+                #expect(row.width == bodyWidth)
+            }
+            if let notch = result.notch {
+                #expect(!result.contextRow.intersects(notch))
+            }
+        }
+    }
+
+    @Test("Island, a display without a notch: centred on the display, the top row is the menu bar, a thin hover zone")
+    func islandNotchless() throws {
+        let result = try island(notchless)
+        #expect(result.shape == Geometry.Rect(x: 1000, y: 0, width: 560, height: 24 + 8 + 22 + 110 + 12 + 30 + 12))
+        #expect(result.notch == nil)
+        #expect(result.topRowHeight == 24)
+        #expect(result.hoverZone == Geometry.Rect(x: 1180, y: 0, width: 200, height: 3))
+    }
+
+    @Test("Island: the height follows the content's height and the module row's button size")
+    func islandHeightFollowsTheContent() throws {
+        #expect(try island(notchedA, contentHeight: 190).shape.height == 306)
+        #expect(try island(notchedA, buttonSize: 26).shape.height == 222)
+        let tall = Geometry.Display(
+            width: 1512, height: 982, menuBarHeight: 30,
+            notch: Geometry.Notch(minX: 663, maxX: 849, height: 38)
+        )
+        #expect(try island(tall).topRowHeight == 38)
+        #expect(try island(tall).shape.height == 232)
+    }
+
+    @Test("Island: a malformed notch counts as none, and a display or a content height that makes no sense has no island")
+    func islandMalformed() throws {
+        let reference = try island(Geometry.Display(width: 1512, height: 982, menuBarHeight: 32, notch: nil))
+        let malformed = [
+            Geometry.Notch(minX: 300, maxX: 300, height: 32),
+            Geometry.Notch(minX: 663, maxX: 2000, height: 32),
+            Geometry.Notch(minX: 663, maxX: 849, height: 0),
+            Geometry.Notch(minX: .nan, maxX: 849, height: 32),
+        ]
+        for notch in malformed {
+            let display = Geometry.Display(width: 1512, height: 982, menuBarHeight: 32, notch: notch)
+            #expect(try island(display) == reference)
+        }
+        let unusable = [
+            Geometry.Display(width: 0, height: 982, menuBarHeight: 32, notch: nil),
+            Geometry.Display(width: .nan, height: 982, menuBarHeight: 32, notch: nil),
+            Geometry.Display(width: 1512, height: 0, menuBarHeight: 32, notch: nil),
+            Geometry.Display(width: 1512, height: .infinity, menuBarHeight: 32, notch: nil),
+            Geometry.Display(width: 20, height: 982, menuBarHeight: 32, notch: nil),
+        ]
+        for display in unusable {
+            #expect(Geometry.island(display: display, contentHeight: 110, width: 560) == nil)
+        }
+        #expect(Geometry.island(display: notchedA, contentHeight: .nan, width: 560) == nil)
+        #expect(Geometry.island(display: notchedA, contentHeight: -1, width: 560) == nil)
+    }
+
+    @Test("The content height: 110 for a module, 110 to 190 by preference, the Overview by its rows of cards")
+    func contentHeightRules() {
+        #expect(Geometry.contentHeight(overviewTileCount: nil) == 110)
+        #expect(Geometry.contentHeight(overviewTileCount: nil, preferred: 160) == 160)
+        #expect(Geometry.contentHeight(overviewTileCount: nil, preferred: 300) == 190)
+        #expect(Geometry.contentHeight(overviewTileCount: nil, preferred: 50) == 110)
+        #expect(Geometry.contentHeight(overviewTileCount: nil, preferred: .nan) == 110)
+        #expect(Geometry.contentHeight(overviewTileCount: 0) == 190)
+        #expect(Geometry.contentHeight(overviewTileCount: -3) == 190)
+        for count in 1...4 {
+            #expect(Geometry.contentHeight(overviewTileCount: count) == 110)
+        }
+        for count in 5...8 {
+            #expect(Geometry.contentHeight(overviewTileCount: count) == 190)
+        }
+        #expect(Geometry.contentHeight(overviewTileCount: 40) == 190)
+    }
+
+    @Test("The seed is the notch's rectangle, or a flat strip at the top centre without a notch")
+    func seedRules() {
+        #expect(Geometry.seed(display: notchedA) == Geometry.Rect(x: 663, y: 0, width: 186, height: 32))
+        #expect(Geometry.seed(display: notchedC) == Geometry.Rect(x: 642, y: 0, width: 186, height: 37))
+        #expect(Geometry.seed(display: notchless) == Geometry.Rect(x: 1180, y: 0, width: 200, height: 0))
+        #expect(Geometry.seed(display: Geometry.Display(width: 0, height: 982, menuBarHeight: 32, notch: nil)) == nil)
+    }
+
     // MARK: The tab row over a matrix of displays
 
     private static let none: [HubTabStrip.Pill] = []
