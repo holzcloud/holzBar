@@ -345,13 +345,13 @@ nonisolated extension Defaults {
         case fileDropRemovesAfterDrop = "FileDropRemovesAfterDrop"
 
         // MARK: Accessory Alerts
-        /// Whether the Accessory alerts module raises a capsule alert when an accessory connects
-        /// (a boolean, on by default).
+        /// Whether the Accessory alerts module widens the notch for an alert when an accessory
+        /// connects (a boolean, on by default).
         case accessoryAlertsOnConnect = "AccessoryAlertsOnConnect"
-        /// Whether the Accessory alerts module raises a capsule alert when an accessory
+        /// Whether the Accessory alerts module widens the notch for an alert when an accessory
         /// disconnects (a boolean, off by default: AirPods in their case disconnect often).
         case accessoryAlertsOnDisconnect = "AccessoryAlertsOnDisconnect"
-        /// Whether the Accessory alerts module raises a capsule alert when an accessory's
+        /// Whether the Accessory alerts module widens the notch for an alert when an accessory's
         /// battery is low (a boolean, on by default).
         case accessoryAlertsOnLowBattery = "AccessoryAlertsOnLowBattery"
         /// The level, in percent, at or below which an accessory's battery is low (a number

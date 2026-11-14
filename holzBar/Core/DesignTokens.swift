@@ -128,52 +128,25 @@ nonisolated enum DesignTokens {
     /// The opacity of the Preview badge's tint behind its text.
     static let badgeFillAlpha: Double = 0.15
 
-    /// The Notch hub, which is always dark: its ground, its parts and the strength of its small
-    /// texts. The sizes and alphas are the design's numbers for the hub and its widget card.
+    /// The Notch hub, which is always dark: its ground, the parts its modules share and the
+    /// strength of their small texts. The sizes and alphas are the design's numbers for the hub
+    /// and its widget card; the island's own shape, rows and motion are `Island`.
     nonisolated enum Hub {
-        /// The silhouette at the top: pure black, one object with the hardware notch.
+        /// The ground: pure black, one object with the hardware notch.
         static let top = RGB.black
-        /// The silhouette at the bottom: a dark blue-grey. Tuned on a Mac.
-        static let bottom = RGB(hex: 0x111A2B)
-        /// How opaque the silhouette is at the bottom where glass shows through. Tuned on a Mac.
-        static let bottomAlphaOnGlass: Double = 0.55
-        /// An icon strip tab.
-        static let tabWidth: Double = 30
-        static let tabHeight: Double = 24
-        static let tabRadius: Double = 8
-        /// The widths the whole row of tabs steps down through before any tab goes into the More
-        /// menu: 30 points, then 28, then 26, the smallest. The height stays 24 and the hit area
-        /// stays the whole top row.
-        static let tabWidthSteps: [Double] = [30, 28, 26]
-        /// The space between two tabs of the row.
-        static let tabGap: Double = 2
-        /// The round settings button of the right wing.
-        static let settingsButtonSize: Double = 24
-        /// What a status pill is estimated to need, so that the row of tabs can leave room for the
-        /// pills without measuring them: a conservative width per character of the pill's text
-        /// (11 point semibold with monospaced digits is about 6.6 points wide), the symbol, the
-        /// space between symbol and text, and the padding on both sides of the pill.
-        static let pillCharacterWidth: Double = 7
-        static let pillSymbolWidth: Double = 14
-        static let pillInnerSpacing = Spacing.xxs
-        static let pillPadding = Spacing.xs
-        /// The space between the parts of the right group: the pills and the settings button.
+        /// The height of a status pill beside the notch.
+        static let pillHeight: Double = 24
+        /// The space between the parts of the right group: the pill and its count.
         static let pillSpacing = Spacing.xs
         /// The fill of a status pill: white at 9 percent.
         static let pillFillAlpha: Double = 0.09
-        /// The fill of a tab: tinted when selected, white at 8 percent otherwise.
-        static let selectedTabFillAlpha: Double = 0.18
+        /// The fill of a quiet tile on the hub's ground, such as the missing artwork: white at 8 percent.
         static let idleTabFillAlpha: Double = 0.08
-        /// The symbol of a tab that is not selected.
-        static let idleTabSymbolAlpha: Double = 0.6
         /// The colour of a module without one of its own: white at 70 percent.
         static let neutralAlpha: Double = 0.7
-        /// The type sizes of the wings' parts.
+        /// The type size of a status pill, and the size of a module's own symbols.
         static let pillTextSize: Double = 11
-        static let tabSymbolSize: Double = 13
-        /// The type sizes of the compact live-activity capsule: the symbol and the phrase.
         static let compactSymbolSize: Double = 16
-        static let compactTitleSize: Double = 12
         /// The widget card: radius, padding, the gap between cards and the columns of a row.
         static let tileRadius: Double = 14
         static let tilePadding: Double = 10

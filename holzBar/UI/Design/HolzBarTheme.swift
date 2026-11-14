@@ -335,40 +335,22 @@ enum HolzBarTheme {
 
     /// The Notch hub is always dark; these values are drawn on its ground.
     enum Hub {
-        /// The silhouette's colour at the top, pure black, and at the bottom, a dark blue-grey.
+        /// The ground, pure black.
         static let top = Color(DesignTokens.Hub.top)
-        static let bottom = Color(DesignTokens.Hub.bottom)
-        /// Black fading to a dark blue-grey, from the top to the bottom.
-        static let silhouetteGradient = LinearGradient(
-            colors: [top, bottom],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        /// The same fade with a bottom that lets glass show through.
-        static let translucentGradient = LinearGradient(
-            colors: [top, bottom.opacity(DesignTokens.Hub.bottomAlphaOnGlass)],
-            startPoint: .top,
-            endPoint: .bottom
-        )
         /// Text on the hub's ground.
         static let pillText = Color.white
         /// White at 70 percent, the colour of a module without one of its own.
         static let neutral = Color.white.opacity(DesignTokens.Hub.neutralAlpha)
-        static let tabSize = CGSize(width: DesignTokens.Hub.tabWidth, height: DesignTokens.Hub.tabHeight)
-        static let tabRadius = CGFloat(DesignTokens.Hub.tabRadius)
-        /// The space between two tabs of the row, and between the parts of the right group.
-        static let tabGap = CGFloat(DesignTokens.Hub.tabGap)
+        /// A status pill's height, the space between the parts of the right group, its fill and
+        /// its text.
+        static let pillHeight = CGFloat(DesignTokens.Hub.pillHeight)
         static let pillSpacing = CGFloat(DesignTokens.Hub.pillSpacing)
-        static let settingsButtonSize = CGFloat(DesignTokens.Hub.settingsButtonSize)
         static let pillFill = Color.white.opacity(DesignTokens.Hub.pillFillAlpha)
-        static let selectedTabFillOpacity = DesignTokens.Hub.selectedTabFillAlpha
-        static let idleTabFill = Color.white.opacity(DesignTokens.Hub.idleTabFillAlpha)
-        static let idleTabSymbol = Color.white.opacity(DesignTokens.Hub.idleTabSymbolAlpha)
         static let pillFont = Font.system(size: CGFloat(DesignTokens.Hub.pillTextSize), weight: .semibold)
-        static let tabSymbolFont = Font.system(size: CGFloat(DesignTokens.Hub.tabSymbolSize))
-        /// The compact live-activity capsule: the activity's symbol and its phrase.
+        /// A quiet tile on the ground, such as the missing artwork of Now Playing.
+        static let idleTabFill = Color.white.opacity(DesignTokens.Hub.idleTabFillAlpha)
+        /// The symbols of the Now Playing and Display controls modules.
         static let compactSymbolFont = Font.system(size: CGFloat(DesignTokens.Hub.compactSymbolSize))
-        static let compactTitleFont = Font.system(size: CGFloat(DesignTokens.Hub.compactTitleSize), weight: .semibold)
         /// The words in the File drop tab's outline while a file is dragged over it.
         static let fileDropLabelFont = Font.system(size: CGFloat(DesignTokens.Hub.fileDropLabelSize), weight: .semibold)
         static let columns = DesignTokens.Hub.columns

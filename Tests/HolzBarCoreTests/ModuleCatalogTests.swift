@@ -74,6 +74,8 @@ struct ModuleCatalogTests {
         // Off until the user switches it on.
         #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
         #expect(ModuleCatalog.enabledIdentifiers(["notch-hub"], knownTo: ModuleCatalog.all) == ["notch-hub"])
+        // The redesigned hub carries the Preview badge until it has been tested on a Mac.
+        #expect(hub.isPreview)
     }
 
     @Test("Timers is a module of the notch area without a permission, after the hub")

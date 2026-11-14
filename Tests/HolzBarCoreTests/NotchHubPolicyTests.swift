@@ -158,7 +158,7 @@ struct NotchHubPolicyTests {
         #expect(zone.contains(x: top.x, y: top.y))
     }
 
-    @Test("The capsule's trigger is judged exactly as a hover is, in every environment")
+    @Test("The live state's trigger is judged exactly as a hover is, in every environment")
     func compactTriggerEqualsHover() {
         let flags = [false, true]
         for fullscreen in flags {
@@ -185,12 +185,12 @@ struct NotchHubPolicyTests {
         #expect(Policy.blockReason(clear, trigger: .compact) == nil)
     }
 
-    @Test("A hub opened from the capsule closes on leaving like one opened by hover, and the hotkey's does not")
+    @Test("A hub opened from the live state closes on leaving like one opened by hover, and the hotkey's does not")
     func compactClosesOnLeave() {
         #expect(Policy.Trigger.compact.closesOnLeave)
         #expect(Policy.Trigger.hover.closesOnLeave)
         #expect(!Policy.Trigger.hotkey.closesOnLeave)
-        // The pointer rule itself is unchanged: in the zone (extended by the capsule) it opens,
+        // The pointer rule itself is unchanged: in the zone (extended by the live state's zone) it opens,
         // and away from both it closes a hub that closes on leaving.
         #expect(Policy.hoverDesired(pointer: inZone, isOpen: false, closesOnLeave: false) == .open)
         #expect(

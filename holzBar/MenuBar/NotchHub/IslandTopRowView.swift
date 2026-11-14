@@ -127,7 +127,7 @@ struct IslandTopRowView: View {
 
     /// A pill's height and the centre of the top row: the pills sit in the row beside the notch.
     private var pillHeight: CGFloat {
-        HolzBarTheme.Hub.tabSize.height
+        HolzBarTheme.Hub.pillHeight
     }
 
     private var topRowCentreOffset: CGFloat {

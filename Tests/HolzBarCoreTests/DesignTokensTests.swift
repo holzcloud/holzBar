@@ -259,18 +259,17 @@ struct DesignTokensTests {
         }
     }
 
-    @Test("The hub ground is black at the top and a dark blue-grey below")
+    @Test("The hub's ground is pure black, the island's colour")
     func hubGround() {
         #expect(Tokens.Hub.top == .black)
-        #expect(Tokens.Hub.bottom.relativeLuminance < 0.02)
-        #expect(Tokens.Hub.bottom.relativeLuminance > Tokens.Hub.top.relativeLuminance)
+        #expect(Tokens.Hub.top == Tokens.Island.surface)
     }
 
     @Test("The hub's small texts keep 4.5:1 under Increase Contrast, which makes them stronger")
     func hubTextContrast() {
-        // Over the ground, and over a widget card on it in its most opaque form.
+        // Over the black ground, and over a widget card on it in its most opaque form.
         let card = Tokens.Tint(color: .white, alpha: Tokens.Hub.tileFillAlphaOpaque)
-        let grounds = [Tokens.Hub.top, Tokens.Hub.bottom, card.over(Tokens.Hub.bottom)]
+        let grounds = [Tokens.Hub.top, card.over(Tokens.Hub.top)]
         for alpha in [Tokens.Hub.tileLabelAlphaIncreased, Tokens.Hub.tileDetailAlphaIncreased] {
             let text = Tokens.Tint(color: .white, alpha: alpha)
             for ground in grounds {
@@ -285,21 +284,15 @@ struct DesignTokensTests {
 
     @Test("The hub's sizes equal the design's numbers")
     func hubSizes() {
-        #expect(Tokens.Hub.tabWidth == 30)
-        #expect(Tokens.Hub.tabHeight == 24)
-        #expect(Tokens.Hub.tabRadius == 8)
-        #expect(Tokens.Hub.tabGap == 2)
-        #expect(Tokens.Hub.tabWidthSteps == [30, 28, 26])
-        #expect(Tokens.Hub.tabWidthSteps.first == Tokens.Hub.tabWidth)
-        #expect(Tokens.Hub.settingsButtonSize == 24)
+        #expect(Tokens.Hub.pillHeight == 24)
         #expect(Tokens.Hub.pillFillAlpha == 0.09)
         #expect(Tokens.Hub.tileRadius == 14)
         #expect(Tokens.Hub.columns == 4)
         #expect(Tokens.Hub.tileGap == 6)
         #expect(Tokens.Hub.tilePadding == 10)
         // Hit targets of at least 24 points.
-        #expect(Tokens.Hub.tabHeight >= Tokens.minimumTargetSize)
-        #expect(Tokens.Hub.settingsButtonSize >= Tokens.minimumTargetSize)
+        #expect(Tokens.Hub.pillHeight >= Tokens.minimumTargetSize)
+        #expect(Tokens.Island.gearSize >= Tokens.minimumTargetSize)
     }
 
     @Test("The island's numbers equal section 10b")
