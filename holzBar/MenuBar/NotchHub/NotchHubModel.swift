@@ -11,7 +11,13 @@ import Observation
 ///
 /// The model holds no timer and starts nothing. The controller sets the runtimes; a view that
 /// reads the model follows them, and a tile or a pill that reads observable state follows
-/// that state. The last selected tab is kept on this Mac (it is never exported).
+/// that state.
+///
+/// What is in front is decided per opening (``HubContext``): while the hub is open, a
+/// ``HubContext/Session`` holds the module in front, which the context chose, or the user picked,
+/// or a file drag brought forward for this opening only. Only a user's pick is remembered as the
+/// module chosen last, and only on this Mac (it is never exported); the context's decision, its
+/// one late re-decision and a file drag's temporary pick are never stored.
 @MainActor
 @Observable
 final class NotchHubModel {
@@ -23,11 +29,15 @@ final class NotchHubModel {
     private(set) var expiryCount = 0
 
     /// The tab the user chose last, which may not be available now: a module that is off has
-    /// no tab, and its tab comes back with it.
-    private var chosenID: String
+    /// no tab, and its tab comes back with it. Only a user's pick sets it.
+    private var lastChosenID: String
+
+    /// What the open hub has in front, from the opening until the hub has closed; `nil` while it
+    /// is closed.
+    private(set) var session: HubContext.Session?
 
     init() {
-        chosenID = Defaults.string(forKey: .notchHubLastTab) ?? HubTabStrip.overviewID
+        lastChosenID = Defaults.string(forKey: .notchHubLastTab) ?? HubTabStrip.overviewID
     }
 
     /// The modules that offer a tab, in catalog order.
@@ -35,9 +45,15 @@ final class NotchHubModel {
         runtimes.filter(\.offersTab).map(\.moduleID)
     }
 
-    /// The selected tab, always one that exists: the Overview where the chosen tab is gone.
+    /// The selected tab, always one that exists: the Overview where the tab in front is gone.
+    /// While the hub is open it is the session's front module, else the module chosen last.
     var selectedID: String {
-        HubTabStrip.selection(chosenID, moduleTabs: tabModuleIDs)
+        HubTabStrip.selection(session?.front.moduleID ?? lastChosenID, moduleTabs: tabModuleIDs)
+    }
+
+    /// Why the module in front is in front, while the hub is open.
+    var frontReason: HubContext.Reason? {
+        session?.front.reason
     }
 
     /// The selected module's runtime, or `nil` while the Overview is selected.
@@ -85,10 +101,51 @@ final class NotchHubModel {
         }
     }
 
-    /// Selects a tab and remembers it. An identifier that is not a tab selects the Overview.
+    /// Starts what one opening has in front with the context's decision. The decision is not
+    /// remembered.
+    func beginOpening(_ decision: HubContext.Decision) {
+        session = HubContext.Session(opening: decision)
+    }
+
+    /// Ends what the opening had in front, once the hub has closed.
+    func endOpening() {
+        session = nil
+    }
+
+    /// The context's inputs at a moment: the tabs, what the modules tell, the owner of the top
+    /// live activity and the module chosen last. It reads only what the modules already hold in
+    /// memory.
+    func contextInputs(now: Date, showsActiveFirst: Bool) -> HubContext.Inputs {
+        HubContext.Inputs(
+            now: now,
+            moduleTabs: tabModuleIDs,
+            signals: runtimes.compactMap { runtime in
+                runtime.contextSignal.map { HubContext.ModuleSignal(moduleID: runtime.moduleID, signal: $0) }
+            },
+            liveOwner: board(now: now).compact?.moduleID,
+            lastChosen: lastChosenID,
+            showsActiveFirst: showsActiveFirst
+        )
+    }
+
+    /// The user picks a tab: it stays in front until the hub closes and is remembered as the
+    /// module chosen last. An identifier that is not a tab selects the Overview.
     func select(_ id: String) {
-        let selected = HubTabStrip.selection(id, moduleTabs: tabModuleIDs)
-        chosenID = selected
+        let selected = session?.pick(id, moduleTabs: tabModuleIDs)
+            ?? HubTabStrip.selection(id, moduleTabs: tabModuleIDs)
+        lastChosenID = selected
         Defaults.set(selected, forKey: .notchHubLastTab)
+    }
+
+    /// Brings a tab to the front for this opening only, as a file drag does: nothing is
+    /// remembered. Without an opening it does nothing.
+    func selectTemporarily(_ id: String) {
+        session?.pickTemporarily(id, moduleTabs: tabModuleIDs)
+    }
+
+    /// Lets the context decide once more, for a meeting whose events arrived late. Returns
+    /// whether the decision took the front.
+    func reconsider(_ decision: HubContext.Decision, elapsed: TimeInterval) -> Bool {
+        session?.reconsider(decision, elapsed: elapsed) ?? false
     }
 }

@@ -254,6 +254,7 @@ final class NotchHubController: HubHost {
             hideCompact()
             stopHover()
             close()
+            model.endOpening()
             // The hub is off, so the plan stops every runtime before the panel goes.
             reconcileRuntimes()
             panel?.orderOut(nil)
@@ -389,9 +390,13 @@ final class NotchHubController: HubHost {
             logger.debug("The Notch hub has no layout for this screen")
             return
         }
+        // What is in front is decided now, from what the modules hold in memory and before the
+        // fit and the layout, which depend on it. Nothing is stored and nothing is logged.
+        model.beginOpening(HubContext.decide(model.contextInputs(now: .now, showsActiveFirst: true)))
         // The capsule and the hub are one panel: the capsule goes first.
         hideCompact()
         if trigger == .fileDrag {
+            // A file drag brings File drop to the front for this opening only (D-04).
             showDropTab()
         }
         // The hub widens first, the buttons step down next and the row scrolls last, for the
@@ -412,6 +417,7 @@ final class NotchHubController: HubHost {
                 buttonSize: fit.buttonSize
             )
         else {
+            model.endOpening()
             return
         }
         let panel = panel ?? NotchHubPanel()
@@ -419,6 +425,7 @@ final class NotchHubController: HubHost {
         let presentation = presentation ?? IslandPresentation()
         self.presentation = presentation
         presentation.rowFit = fit
+        presentation.openingCount &+= 1
         // A hub that opens again while it closes, on the same display, reuses the panel and its
         // view: it turns around from where it is, without a flash.
         let existing = phase.isPanelVisible && panelScreenFrame == screen.frame
@@ -560,7 +567,14 @@ final class NotchHubController: HubHost {
     /// shadow comes back for the settled open shape, and a closed island's panel is ordered out
     /// and emptied. A completion of a transition that a newer one replaced does nothing.
     private func islandAnimationFinished(_ generation: Int) {
-        guard send(.animationFinished(generation: generation)), let panel else {
+        guard send(.animationFinished(generation: generation)) else {
+            return
+        }
+        if !phase.isOpen {
+            // The hub has closed: what the opening had in front is over.
+            model.endOpening()
+        }
+        guard let panel else {
             return
         }
         if phase.ordersOut {
@@ -905,14 +919,15 @@ final class NotchHubController: HubHost {
         }
     }
 
-    /// Shows the tab of the first module that accepts file drags.
+    /// Brings the tab of the first module that accepts file drags to the front for this opening
+    /// only: the pick is a file drag's, not the user's, and is never remembered (D-04).
     private func showDropTab() {
         guard let module = model.runtimes.first(where: { $0.acceptsFileDrags }),
               model.selectedID != module.moduleID
         else {
             return
         }
-        select(moduleID: module.moduleID)
+        model.selectTemporarily(module.moduleID)
     }
 
     // MARK: Live activities

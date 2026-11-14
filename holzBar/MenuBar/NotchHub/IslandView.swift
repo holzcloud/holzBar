@@ -14,6 +14,10 @@ import SwiftUI
 /// never stretches with the shape: it appears a moment after the shape starts to grow, from a blur
 /// and a smaller scale; under Reduce Motion nothing blurs or scales and only the opacity changes.
 /// The arrow keys step through the modules while the hub has the keyboard, and Esc closes it.
+///
+/// A context line below the notch says why the module in front is in front, in one fixed sentence
+/// per reason (``HubContext/Reason``) that never names an event, a track or a file. VoiceOver is
+/// told it once for each opening.
 struct IslandView: View {
     let presentation: IslandPresentation
     let model: NotchHubModel
@@ -22,6 +26,9 @@ struct IslandView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorSchemeContrast) private var contrast
     @FocusState private var hasKeyboardFocus: Bool
+
+    /// The opening whose context line VoiceOver was last told.
+    @State private var announcedOpening = 0
 
     private var canvasWidth: CGFloat {
         CGFloat(presentation.canvas.width)
@@ -36,6 +43,7 @@ struct IslandView: View {
             closingLayer
             island
             topRow
+            contextLine
             content
             moduleRow
         }
@@ -58,6 +66,11 @@ struct IslandView: View {
             if presentation.takesKeyboard {
                 hasKeyboardFocus = true
             }
+            announceContextLine()
+        }
+        .onChange(of: presentation.openingCount) {
+            // A hub that opens again while it closes keeps this view.
+            announceContextLine()
         }
         .onChange(of: presentation.takesKeyboard) { _, takesKeyboard in
             // A hub that opens again while it closes keeps this view.
@@ -67,6 +80,16 @@ struct IslandView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel(Text("Notch hub"))
+    }
+
+    /// Tells VoiceOver why the module is in front, once for each opening; a later change of the
+    /// line during the same opening is not announced.
+    private func announceContextLine() {
+        guard presentation.openingCount != announcedOpening, let reason = model.frontReason else {
+            return
+        }
+        announcedOpening = presentation.openingCount
+        AccessibilityNotification.Announcement(reason.line).post()
     }
 
     /// Moves to the next or previous tab, wrapping.
@@ -135,6 +158,19 @@ struct IslandView: View {
         }
     }
 
+    /// The context line, centred in its row below the notch and clear of the gear at the row's end.
+    @ViewBuilder
+    private var contextLine: some View {
+        if let area = presentation.layout?.contextRow, let reason = model.frontReason {
+            let room = CGFloat(area.width) - 2 * (HolzBarTheme.Island.gearSize + HolzBarTheme.Spacing.xs)
+            staged(
+                IslandContextLine(line: reason.line, maxWidth: max(room, 0)),
+                in: area,
+                alignment: .center
+            )
+        }
+    }
+
     /// The selected module's content or the Overview, in the layout's content rectangle.
     @ViewBuilder
     private var content: some View {
@@ -187,6 +223,42 @@ struct IslandView: View {
             .scrollIndicators(.hidden)
         } else {
             HubOverviewView(model: model, host: host)
+        }
+    }
+}
+
+/// The context line: a small sparkles symbol and one fixed sentence in quiet white. It stays one
+/// line, shrinks a little before it truncates, and its tooltip carries the full text.
+private struct IslandContextLine: View {
+    let line: String
+    let maxWidth: CGFloat
+
+    var body: some View {
+        HStack(spacing: HolzBarTheme.Spacing.xs) {
+            Image(systemName: "sparkles")
+                .font(HolzBarTheme.Island.contextSymbolFont)
+                .accessibilityHidden(true)
+            Text(line)
+                .font(HolzBarTheme.Island.contextFont)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+        }
+        .foregroundStyle(HolzBarTheme.Island.contextText)
+        .frame(maxWidth: maxWidth)
+        .help(line)
+    }
+}
+
+/// The sentence that says why a module is in front. Never a name, a title or a file.
+private extension HubContext.Reason {
+    var line: String {
+        switch self {
+        case .meetingSoon: String(localized: "In front because your meeting starts soon")
+        case .meetingNow: String(localized: "In front because your meeting is on")
+        case .liveActivity: String(localized: "In front because something is running")
+        case .music: String(localized: "In front because music is playing")
+        case .overview: String(localized: "Overview: nothing is active right now")
+        case .chosen: String(localized: "Chosen by you")
         }
     }
 }

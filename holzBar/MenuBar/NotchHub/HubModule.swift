@@ -157,6 +157,12 @@ protocol HubModuleRuntime: AnyObject {
     /// stored. The default is none.
     var activities: [LiveActivity] { get }
 
+    /// What the module tells the hub's context, which decides what is in front when the hub opens:
+    /// the times of its timed meetings or whether something plays, never a title or a name. The
+    /// hub reads it while the hub is on and only from what the module already holds in memory;
+    /// the module reads nothing more for it. The default is none.
+    var contextSignal: HubContext.Signal? { get }
+
     /// Whether the module wants the hub to open, on the module's tab, when a file is dragged to
     /// the notch. The hub reads it when the runtimes or this value change, and watches for file
     /// drags only while some runtime answers `true`. The default is `false`.
@@ -185,6 +191,8 @@ extension HubModuleRuntime {
     var statusPill: HubStatusPill? { nil }
 
     var activities: [LiveActivity] { [] }
+
+    var contextSignal: HubContext.Signal? { nil }
 
     var acceptsFileDrags: Bool { false }
 

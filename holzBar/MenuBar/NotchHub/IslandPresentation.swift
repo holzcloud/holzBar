@@ -52,6 +52,9 @@ final class IslandPresentation {
     /// Whether the island takes the keyboard: the hotkey opened the hub.
     var takesKeyboard = false
 
+    /// Counts the openings, so that the view says the context line once for each of them.
+    var openingCount = 0
+
     /// The animation of the next change of the width (and the centre), of the height (and the
     /// radii) and of the content; `nil` means the change happens at once.
     var widthAnimation: Animation?
