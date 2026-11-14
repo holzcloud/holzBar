@@ -280,9 +280,21 @@ nonisolated enum NotchHubGeometry {
         return CompactLayout(silhouette: rect, hoverZone: rect)
     }
 
-    /// Stub for the RED run.
+    /// The panel's frame while the island animates from one shape to another: both shapes and
+    /// ``DesignTokens/Island/transitionMargin`` more on the left, the right and the bottom, so
+    /// that a spring's overshoot is never clipped. It never reaches above the top of the display
+    /// or beyond its sides. At rest the panel is exactly the shape and this is not used.
     static func transitionFrame(from: Rect, to: Rect, displayWidth: Double) -> Rect {
-        to
+        let margin = DesignTokens.Island.transitionMargin
+        var minX = min(from.minX, to.minX) - margin
+        var maxX = max(from.maxX, to.maxX) + margin
+        if displayWidth.isFinite {
+            minX = max(minX, 0)
+            maxX = min(maxX, displayWidth)
+        }
+        let minY = max(min(from.minY, to.minY), 0)
+        let maxY = max(from.maxY, to.maxY) + margin
+        return Rect(x: minX, y: minY, width: max(maxX - minX, 0), height: max(maxY - minY, 0))
     }
 
     /// The same rectangle in AppKit's coordinates, whose origin is the bottom-left corner of the
