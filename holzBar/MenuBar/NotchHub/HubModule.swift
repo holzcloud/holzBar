@@ -172,6 +172,13 @@ protocol HubModuleRuntime: AnyObject {
     /// the module reads nothing more for it. The default is none.
     var contextSignal: HubContext.Signal? { get }
 
+    /// The height in points the module's body needs when it cannot scroll, such as a player. The
+    /// hub keeps it between the standard height and the largest one that fits the island
+    /// (``DesignTokens/Island``); a body that scrolls leaves it out, gets the standard height and
+    /// scrolls inside it. The hub reads it when the module's tab is selected, and the island follows
+    /// a change of it while the hub is open. The default is none.
+    var preferredContentHeight: Double? { get }
+
     /// Whether the module wants the hub to open, on the module's tab, when a file is dragged to
     /// the notch. The hub reads it when the runtimes or this value change, and watches for file
     /// drags only while some runtime answers `true`. The default is `false`.
@@ -202,6 +209,8 @@ extension HubModuleRuntime {
     var activities: [LiveActivity] { [] }
 
     var contextSignal: HubContext.Signal? { nil }
+
+    var preferredContentHeight: Double? { nil }
 
     var acceptsFileDrags: Bool { false }
 

@@ -74,11 +74,18 @@ final class IslandPresentation {
     /// Counts the openings, so that the view says the context line once for each of them.
     var openingCount = 0
 
+    /// Where the module row's top is, in display coordinates. It follows the layout when the hub
+    /// opens, and the shape's lower edge when the height changes while the hub is open, so the row
+    /// rides on the bottom edge as the shape springs.
+    var moduleRowY: Double = 0
+
     /// The animation of the next change of the width (and the centre), of the height (and the
-    /// radii) and of the content; `nil` means the change happens at once.
+    /// radii), of the content and of the module row's place; `nil` means the change happens at
+    /// once.
     var widthAnimation: Animation?
     var heightAnimation: Animation?
     var contentAnimation: Animation?
+    var rowAnimation: Animation?
 
     /// The generation of the transition that runs, so that a completion that arrives late never
     /// changes the shape of a newer one.
@@ -123,8 +130,13 @@ final class IslandPresentation {
     ) {
         transitionGeneration = generation
         let driver = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandOpenHeight
+        // A row that is already on screen (a hub that opens again while it closes) springs to its
+        // new place; one that appears is placed at once.
+        let rowMoves = self.layout != nil && !reduceMotion
         withAnimation(driver, completionCriteria: .removed) {
             self.layout = layout
+            moduleRowY = layout.moduleRow.y
+            rowAnimation = rowMoves ? HolzBarTheme.Motion.islandOpenHeight : nil
             widthAnimation = reduceMotion ? nil : HolzBarTheme.Motion.islandOpenWidth
             heightAnimation = reduceMotion ? nil : HolzBarTheme.Motion.islandOpenHeight
             contentAnimation = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandContentIn
@@ -137,6 +149,41 @@ final class IslandPresentation {
             topRadius = DesignTokens.Island.openTopRadius
             bottomRadius = DesignTokens.Island.openBottomRadius
             contentShown = true
+        } completion: {
+            completion(generation)
+        }
+    }
+
+    /// Follows a change of the content's height while the hub is open (concept section 10b,
+    /// "Motion"): the shape's lower edge takes the new layout with the opening's height spring, and
+    /// the module row rides on it. The width and the radii stay as they are. With `reduceMotion` the
+    /// height changes at once and the completion runs at once.
+    ///
+    /// `completion` runs once, with `generation`, when the shape has settled.
+    func animateResize(
+        to layout: NotchHubGeometry.IslandLayout,
+        reduceMotion: Bool,
+        generation: Int,
+        completion: @escaping @MainActor (Int) -> Void
+    ) {
+        transitionGeneration = generation
+        if reduceMotion {
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                self.layout = layout
+                moduleRowY = layout.moduleRow.y
+                height = layout.shape.height
+            }
+            completion(generation)
+            return
+        }
+        withAnimation(HolzBarTheme.Motion.islandOpenHeight, completionCriteria: .removed) {
+            self.layout = layout
+            heightAnimation = HolzBarTheme.Motion.islandOpenHeight
+            rowAnimation = HolzBarTheme.Motion.islandOpenHeight
+            moduleRowY = layout.moduleRow.y
+            height = layout.shape.height
         } completion: {
             completion(generation)
         }

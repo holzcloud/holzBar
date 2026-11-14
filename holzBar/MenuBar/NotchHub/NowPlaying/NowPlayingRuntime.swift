@@ -354,6 +354,12 @@ final class NowPlayingRuntime: HubModuleRuntime {
         .playing(current?.event.state == .playing)
     }
 
+    /// The player cannot scroll, so it asks for the island's largest content height; it fitted the
+    /// old 200 point body.
+    var preferredContentHeight: Double? {
+        DesignTokens.Island.maximumContentHeight
+    }
+
     /// The Overview card: the state and the title of what plays, or a sentence when nothing does.
     var tile: HubTile? {
         guard let event = current?.event, event.state != .stopped else {

@@ -10,10 +10,16 @@ import SwiftUI
 ///
 /// The island is one shape with no glass, no gradient and no stroke, black in every appearance, so
 /// that it and the camera housing are one object. Its width and height each follow their own
-/// animation (``IslandPresentation``). The content sits at a fixed rectangle of the layout and
-/// never stretches with the shape: it appears a moment after the shape starts to grow, from a blur
-/// and a smaller scale; under Reduce Motion nothing blurs or scales and only the opacity changes.
-/// The arrow keys step through the modules while the hub has the keyboard, and Esc closes it.
+/// animation (``IslandPresentation``). The content sits at a rectangle of the layout and never
+/// stretches with the shape: it appears a moment after the shape starts to grow, from a blur and a
+/// smaller scale; under Reduce Motion nothing blurs or scales and only the opacity changes.
+///
+/// The island shows one module at a time. Every body fills the content rectangle and scrolls
+/// inside it when it needs more. Choosing another module cross-fades the content while it rises a
+/// few points; when the new content has another height the shape follows with the opening's
+/// spring, and the module row rides on its lower edge. Under Reduce Motion the height changes at
+/// once and the content only fades. The arrow keys step through the modules while the hub has the
+/// keyboard, and Esc closes it.
 ///
 /// While the hub is closed and something is live, the same shape is the notch widened at menu bar
 /// height and ``IslandLiveView`` draws the top activity on it. VoiceOver is told once when a new
@@ -213,7 +219,13 @@ struct IslandView: View {
     @ViewBuilder
     private var moduleRow: some View {
         if let area = presentation.layout?.moduleRow {
-            staged(IslandModuleRowView(model: model, fit: presentation.rowFit), in: area, alignment: .center)
+            // The row's place is the animated one, so it rides on the shape's lower edge.
+            staged(
+                IslandModuleRowView(model: model, fit: presentation.rowFit),
+                in: area,
+                alignment: .center,
+                top: presentation.moduleRowY
+            )
         }
     }
 
@@ -240,10 +252,15 @@ struct IslandView: View {
     /// Places a part of the island at its rectangle of the layout, relative to the canvas, and
     /// stages it with the content: it appears after the shape starts to grow, from a blur and a
     /// smaller scale, and leaves first.
+    ///
+    /// A part that rides on the shape's lower edge passes its own `top`, in display coordinates,
+    /// instead of the rectangle's, and it moves with the animation of
+    /// ``IslandPresentation/rowAnimation``.
     private func staged(
         _ part: some View,
         in area: NotchHubGeometry.Rect,
-        alignment: Alignment
+        alignment: Alignment,
+        top: Double? = nil
     ) -> some View {
         let isShown = presentation.contentShown
         return part
@@ -254,25 +271,47 @@ struct IslandView: View {
             .animation(presentation.contentAnimation, value: isShown)
             .offset(
                 x: CGFloat(area.x - presentation.canvas.x),
-                y: CGFloat(area.y - presentation.canvas.y)
+                y: CGFloat((top ?? area.y) - presentation.canvas.y)
             )
+            .animation(presentation.rowAnimation, value: top)
             // A part never fades in as a view that is inserted; only its opacity moves.
             .transition(.identity)
     }
 
-    /// The Overview, or the selected module's body. Both fill the content area, and a body that
-    /// needs more scrolls inside it.
-    @ViewBuilder
+    /// The Overview, or the selected module's body, one at a time. Both fill the content area, and
+    /// a body that needs more scrolls inside it. Choosing another module cross-fades them: the new
+    /// content rises into place while it fades in, the old one fades out. Under Reduce Motion
+    /// the content only fades.
     private var selectedContent: some View {
+        ZStack(alignment: .top) {
+            selectedBody
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .id(model.selectedID)
+                .transition(switchTransition)
+        }
+        .animation(reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandSwitch, value: model.selectedID)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .clipped()
+    }
+
+    @ViewBuilder
+    private var selectedBody: some View {
         if let runtime = model.selectedRuntime {
-            ScrollView {
-                runtime.makeBody(host: host)
-                    .frame(maxWidth: .infinity, alignment: .topLeading)
-            }
-            .scrollIndicators(.hidden)
+            runtime.makeBody(host: host)
         } else {
             HubOverviewView(model: model, host: host)
         }
+    }
+
+    /// The new content fades in while it rises into place; the old content only fades out.
+    private var switchTransition: AnyTransition {
+        if reduceMotion {
+            return .opacity
+        }
+        return .asymmetric(
+            insertion: .opacity.combined(with: .offset(y: DesignTokens.Island.switchRise)),
+            removal: .opacity
+        )
     }
 }
 

@@ -25,7 +25,8 @@ import SwiftUI
 /// - the drag monitor, which tells a file dragged to the notch from other mouse drags
 ///   (``FileDragWatch``), while the hub is on and a module accepts file drags; it shares the
 ///   zones and the one-shot tasks of the hover;
-/// - the click monitor and the two change tasks, while the hub is open;
+/// - the click monitor, the two change tasks and the observation of the content's height, while
+///   the hub is open;
 /// - the late re-decision's observation and its one-second wait, only in the first second of an
 ///   opening (``startLateDecision(openedAt:)``);
 /// - a module's runtime, while the hub and the module are both on (``HubModuleLifecycle``);
@@ -176,6 +177,10 @@ final class NotchHubController: HubHost {
     @ObservationIgnored private var outsideClickMonitor: EventMonitor?
 
     @ObservationIgnored private var openTasks = [Task<Void, Never>]()
+
+    /// Follows the height the content area needs, while the hub is open: another module, or a
+    /// module whose own height changes, resizes the island.
+    @ObservationIgnored private var contentLoop: ObservationLoop?
 
     /// Follows what the context reads in the first second of an opening, so that a meeting whose
     /// events arrived late can come to the front once (D-03).
@@ -422,9 +427,7 @@ final class NotchHubController: HubHost {
         guard
             let layout = NotchHubGeometry.island(
                 display: display,
-                contentHeight: NotchHubGeometry.contentHeight(
-                    overviewTileCount: model.selectedRuntime == nil ? model.tiles.count : nil
-                ),
+                contentHeight: currentContentHeight(),
                 width: fit.hubWidth,
                 buttonSize: fit.buttonSize
             )
@@ -660,7 +663,60 @@ final class NotchHubController: HubHost {
 
     // MARK: While open
 
-    /// Starts what closes the hub: a click outside, a change of space and a change of displays.
+    /// The height the content area needs for what is selected: the module's own, between the
+    /// standard height and the largest, or the Overview's rows of cards.
+    private func currentContentHeight() -> Double {
+        NotchHubGeometry.contentHeight(
+            overviewTileCount: model.selectedRuntime == nil ? model.tiles.count : nil,
+            preferred: model.selectedRuntime?.preferredContentHeight
+        )
+    }
+
+    /// The content's height changed while the hub is open: the island is laid out again at the
+    /// same width and the shape's lower edge springs to the new height. The panel takes a frame
+    /// that covers the old shape and the new one, so that a spring's overshoot is never clipped;
+    /// when the animation has settled the panel is exactly the new shape (``islandAnimationFinished(_:)``).
+    private func contentHeightDidChange() {
+        guard
+            isOpen,
+            let panel,
+            let presentation,
+            let screen = NSScreen.screens.first(where: { $0.displayID == openScreenID }),
+            let from = openShape ?? restShape,
+            let layout = NotchHubGeometry.island(
+                display: Self.display(of: screen),
+                contentHeight: currentContentHeight(),
+                width: presentation.rowFit.hubWidth,
+                buttonSize: presentation.rowFit.buttonSize
+            ),
+            layout.shape != from
+        else {
+            return
+        }
+        let transition = NotchHubGeometry.transitionFrame(
+            from: from,
+            to: layout.shape,
+            displayWidth: Double(screen.frame.width)
+        )
+        send(.resize)
+        openShape = layout.shape
+        restShape = layout.shape
+        panel.hasShadow = false
+        presentation.moveCanvas(transition)
+        setPanelFrame(transition, on: screen.frame)
+        // Take the larger canvas in its own transaction before the shape animates.
+        panel.contentView?.layoutSubtreeIfNeeded()
+        presentation.animateResize(
+            to: layout,
+            reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
+            generation: phase.generation
+        ) { [weak self] generation in
+            self?.islandAnimationFinished(generation)
+        }
+    }
+
+    /// Starts what closes the hub: a click outside, a change of space and a change of displays,
+    /// and what follows the content's height.
     private func startOpenObservers() {
         stopOpenObservers()
         let monitor = EventMonitor.global(for: [.leftMouseDown, .rightMouseDown, .otherMouseDown]) { [weak self] _ in
@@ -682,9 +738,15 @@ final class NotchHubController: HubHost {
                 }
             },
         ]
+        contentLoop = ObservationLoop.observe { [weak self] in
+            self?.currentContentHeight() ?? DesignTokens.Island.contentHeight
+        } onChange: { [weak self] _ in
+            self?.contentHeightDidChange()
+        }
     }
 
     private func stopOpenObservers() {
+        contentLoop = nil
         outsideClickMonitor?.stop()
         outsideClickMonitor = nil
         for task in openTasks {
@@ -701,8 +763,8 @@ final class NotchHubController: HubHost {
     /// meeting comes to the front once. It is one observation and one one-shot wait, both gone
     /// after one second at most; nothing is polled and nothing is read while the hub is closed.
     ///
-    /// The content changes in place, as it does for a user's pick; the cross-fade and the height
-    /// spring of a module switch belong to every switch alike (Plan 91-07).
+    /// The content switches as it does for a user's pick: it cross-fades, and the island follows
+    /// the new content's height (``startOpenObservers()``).
     private func startLateDecision(openedAt: Date) {
         endLateDecision()
         let model = model
