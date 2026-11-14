@@ -417,7 +417,7 @@ final class NotchHubController: HubHost {
             showDropTab()
         }
         // The hub widens first, the buttons step down next and the row scrolls last, for the
-        // modules that are on now; a change while the hub is open waits for the next opening.
+        // modules that are on now; the row keeps those buttons while the hub is open.
         let fit = HubModuleRow.fit(
             count: model.allTabIDs.count,
             baseWidth: DesignTokens.Island.baseWidth,
@@ -439,6 +439,7 @@ final class NotchHubController: HubHost {
         self.panel = panel
         let presentation = ensurePresentation()
         presentation.rowFit = fit
+        presentation.rowIDs = model.allTabIDs
         presentation.openingCount &+= 1
         // A hub that opens again while it closes, or from the live state, on the same display,
         // reuses the panel and its view: it grows from the shape that is there, without a flash.

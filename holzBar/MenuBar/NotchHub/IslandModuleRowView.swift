@@ -15,6 +15,11 @@ import SwiftUI
 /// accessibility group; the arrow keys of the island step through its buttons.
 struct IslandModuleRowView: View {
     let model: NotchHubModel
+
+    /// The modules the row was fitted for when the hub opened. A module that is off now is left
+    /// out; one switched on since then waits for the next opening, because the fit was measured
+    /// for the old count.
+    let ids: [String]
     let fit: HubModuleRow.Fit
 
     var body: some View {
@@ -34,7 +39,7 @@ struct IslandModuleRowView: View {
 
     private var buttons: some View {
         HStack(spacing: HolzBarTheme.Island.buttonGap) {
-            ForEach(model.allTabIDs, id: \.self) { id in
+            ForEach(ids.filter(model.allTabIDs.contains), id: \.self) { id in
                 button(for: id)
             }
         }

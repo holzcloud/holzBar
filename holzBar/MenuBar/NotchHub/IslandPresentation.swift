@@ -45,13 +45,17 @@ final class IslandPresentation {
     var layout: NotchHubGeometry.IslandLayout?
 
     /// How the row of module buttons is drawn: the buttons' size, and whether it scrolls. Worked
-    /// out when the hub opens; a module switched on or off while it is open changes the row at
-    /// the next opening.
+    /// out when the hub opens, for the modules that are on then; a module switched on while it is
+    /// open joins the row at the next opening, one switched off leaves it at once.
     var rowFit = HubModuleRow.Fit(
         buttonSize: DesignTokens.Island.buttonSizes.first ?? 30,
         hubWidth: DesignTokens.Island.baseWidth,
         scrolls: false
     )
+
+    /// The buttons the row was fitted for, in order: the ids of the modules that were on when the
+    /// hub opened, so the row always draws as many buttons as ``rowFit`` was measured for.
+    var rowIDs: [String] = []
 
     /// What the live state shows: the board of the live activities and the widened shape's layout.
     /// While the hub is open the board is not kept up to date; it is set again when the hub

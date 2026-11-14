@@ -221,7 +221,7 @@ struct IslandView: View {
         if let area = presentation.layout?.moduleRow {
             // The row's place is the animated one, so it rides on the shape's lower edge.
             staged(
-                IslandModuleRowView(model: model, fit: presentation.rowFit),
+                IslandModuleRowView(model: model, ids: presentation.rowIDs, fit: presentation.rowFit),
                 in: area,
                 alignment: .center,
                 top: presentation.moduleRowY
