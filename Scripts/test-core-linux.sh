@@ -63,6 +63,7 @@ sources=(
   HubLiveState
   HubModuleLifecycle
   HubModuleRow
+  HubStatusPills
   HubTabStrip
   InputMonitors
   InterfaceWindowRule
@@ -197,6 +198,7 @@ tests=(
   HubLiveStateTests
   HubModuleLifecycleTests
   HubModuleRowTests
+  HubStatusPillsTests
   HubTabStripTests
   InputMonitorsTests
   InterfaceWindowRuleTests
