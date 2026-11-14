@@ -11,7 +11,8 @@ import SwiftUI
 /// (``HubHost/liveActivities``): a running timer shows here as well as in Timers, and an accessory
 /// alert shows for as long as it is live. Nothing is filtered by module (D-08). A finished
 /// activity shows its own done title and symbol until it leaves; the view asks the system to draw
-/// it again at each of those moments, so it runs no timer and refreshes nothing in between.
+/// it again at each of those moments, so it runs no timer and refreshes nothing in between. The
+/// list fills the island's content area and scrolls inside it.
 struct LiveActivitiesBodyView: View {
     let host: any HubHost
 
@@ -19,7 +20,7 @@ struct LiveActivitiesBodyView: View {
         TimelineView(.explicit(refreshDates)) { context in
             content(HubActivityBoard.board(host.liveActivities, now: context.date))
         }
-        .frame(height: CGFloat(NotchHubGeometry.bodyHeight), alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     /// Now, and each moment at which a finished activity leaves.
@@ -40,13 +41,16 @@ struct LiveActivitiesBodyView: View {
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-                ForEach(board.listed) { activity in
-                    row(activity)
+            ScrollView {
+                VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
+                    ForEach(board.listed) { activity in
+                        row(activity)
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .padding(.vertical, HolzBarTheme.Spacing.xxs)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .padding(.vertical, HolzBarTheme.Spacing.xxs)
+            .scrollIndicators(.hidden)
         }
     }
 

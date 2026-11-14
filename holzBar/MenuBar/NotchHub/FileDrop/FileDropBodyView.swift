@@ -20,8 +20,7 @@ struct FileDropBodyView: View {
 
     var body: some View {
         content
-            .frame(maxWidth: .infinity, alignment: .top)
-            .frame(height: CGFloat(NotchHubGeometry.bodyHeight), alignment: .top)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .contentShape(Rectangle())
             .overlay { dropOutline }
             .dropDestination(for: URL.self) { urls, _ in
@@ -38,7 +37,8 @@ struct FileDropBodyView: View {
             EmptyState(
                 systemImage: "tray.and.arrow.down",
                 title: Text("Drop files here"),
-                message: Text("They stay here until you drag them out or remove them.")
+                message: Text("They stay here until you drag them out or remove them."),
+                isCompact: true
             )
             .frame(maxHeight: .infinity)
         } else {

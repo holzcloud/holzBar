@@ -9,13 +9,20 @@ import Foundation
 ///
 /// The origin is the top-left corner of the display and y grows downward; the panel converts
 /// the result to AppKit's bottom-left origin with ``flipped(_:displayHeight:)``. The numbers
-/// are the design's (concept section 10b, ``DesignTokens/Island``): the hub is the notch itself,
-/// growing, one black shape up to 640 points wide with concave top corners and rounded bottom
-/// corners, never narrower than the notch, a context line below the notch, one module's content
-/// and a row of module buttons; while it is closed and something is live, the same shape is the
-/// notch widened at menu bar height (``live(display:)``). The notch itself is never hard-coded: it comes from the system's
-/// safe-area values (``notch(displayWidth:leftAreaWidth:rightAreaWidth:height:)``), and a value
-/// that makes no sense counts as no notch, so the hub hangs from the top centre.
+/// are the design's (concept section 10b, ``DesignTokens/Island``). It holds:
+///
+/// - the open island (``island(display:contentHeight:width:buttonSize:)``): one black shape up to
+///   640 points wide with concave top corners and rounded bottom corners, never narrower than the
+///   notch, a context line below the notch, one module's content and a row of module buttons,
+///   and the height of that content (``contentHeight(overviewTileCount:preferred:)``);
+/// - the seed (``seed(display:)``), the shape every opening starts from;
+/// - the panel's frame while the island moves (``transitionFrame(from:to:displayWidth:)``);
+/// - the live state (``live(display:)``): while the hub is closed and something is live, the
+///   same shape is the notch widened at menu bar height.
+///
+/// The notch itself is never hard-coded: it comes from the system's safe-area values
+/// (``notch(displayWidth:leftAreaWidth:rightAreaWidth:height:)``), and a value that makes no
+/// sense counts as no notch, so the hub hangs from the top centre.
 nonisolated enum NotchHubGeometry {
     // MARK: Constants
 
@@ -27,25 +34,8 @@ nonisolated enum NotchHubGeometry {
     static let hoverZoneWidth: Double = 200
     /// The height of the hover zone on a display without a notch: the top edge of the screen.
     static let hoverZoneHeight: Double = 3
-    /// The height of the body, the same for every tab so the hub never resizes when a tab
-    /// changes: two rows of widget cards (92 points and a gap of 6 fit in 190) and room to
-    /// breathe. A body that needs more scrolls.
-    static let bodyHeight: Double = 200
     /// The height of the top row where the display reports no usable menu bar height.
     static let fallbackMenuBarHeight: Double = 24
-    /// The height of the compact capsule.
-    static let compactHeight: Double = 30
-    /// The narrowest the compact capsule gets, where the notch allows.
-    static let compactMinimumWidth: Double = 200
-    /// The widest the compact capsule gets.
-    static let compactMaximumWidth: Double = 280
-    /// The space the compact capsule keeps beyond the notch's width, so it is never narrower
-    /// than the notch plus this.
-    static let compactNotchMargin: Double = 24
-    /// The radius of the compact capsule's concave corners at the top.
-    static let compactTopRadius: Double = 12
-    /// The radius of the compact capsule's corners at the bottom.
-    static let compactBottomRadius: Double = 18
 
     // MARK: Values
 
@@ -87,14 +77,6 @@ nonisolated enum NotchHubGeometry {
         /// The height of the menu bar; the top row is at least as tall as the notch.
         var menuBarHeight: Double
         var notch: Notch?
-    }
-
-    /// The compact capsule of the live activities, relative to the display.
-    nonisolated struct CompactLayout: Equatable, Sendable {
-        /// The capsule, which is also the panel's frame.
-        var silhouette: Rect
-        /// Where the pointer rests to open the hub from the capsule: the capsule itself.
-        var hoverZone: Rect
     }
 
     /// The rectangles of the open island, relative to the display (concept section 10b).
@@ -307,39 +289,6 @@ nonisolated enum NotchHubGeometry {
             return nil
         }
         return validated(Notch(minX: leftAreaWidth, maxX: displayWidth - rightAreaWidth, height: height), in: displayWidth)
-    }
-
-    /// The compact capsule of the live activities on a display, or `nil` when the display has
-    /// no usable size.
-    ///
-    /// The capsule hangs from the lower edge of the notch, or of the menu bar where there is no
-    /// notch, so it never lies over a menu bar item. It is ``compactHeight`` high and as wide as
-    /// `contentWidth`, within ``compactMinimumWidth`` (or the notch plus ``compactNotchMargin``,
-    /// if that is wider) and ``compactMaximumWidth`` and inside the display's margins. It is
-    /// centred on the notch, or on the display, and kept ``screenMargin`` from the edges. A width
-    /// that is not a number counts as the narrowest. The notch is judged as the island's layout
-    /// judges it.
-    static func compactLayout(display: Display, contentWidth: Double) -> CompactLayout? {
-        guard
-            display.width.isFinite, display.width > 0,
-            display.height.isFinite, display.height > 0
-        else {
-            return nil
-        }
-        let available = display.width - 2 * screenMargin
-        guard available >= 1 else {
-            return nil
-        }
-        let notch = validated(display.notch, in: display.width)
-        let narrowest = max(compactMinimumWidth, (notch.map { $0.maxX - $0.minX } ?? 0) + compactNotchMargin)
-        let requested = contentWidth.isNaN ? narrowest : contentWidth
-        let width = min(min(max(requested, narrowest), compactMaximumWidth), available)
-
-        let centre = notch.map { ($0.minX + $0.maxX) / 2 } ?? display.width / 2
-        let upperBound = display.width - screenMargin - width
-        let x = min(max(centre - width / 2, screenMargin), max(upperBound, screenMargin))
-        let rect = Rect(x: x, y: resolvedTopRowHeight(of: display, notch: notch), width: width, height: compactHeight)
-        return CompactLayout(silhouette: rect, hoverZone: rect)
     }
 
     /// The panel's frame while the island animates from one shape to another: both shapes and

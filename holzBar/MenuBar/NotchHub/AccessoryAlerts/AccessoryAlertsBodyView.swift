@@ -69,8 +69,7 @@ struct AccessoryAlertsBodyView: View {
 
     var body: some View {
         content
-            .frame(maxWidth: .infinity, alignment: .top)
-            .frame(height: CGFloat(NotchHubGeometry.bodyHeight), alignment: .top)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     @ViewBuilder
@@ -81,12 +80,14 @@ struct AccessoryAlertsBodyView: View {
                 systemImage: "airpods",
                 title: Text("Accessories"),
                 message: Text("holzBar may not use Bluetooth, so connection alerts are off."),
-                actionTitle: "Open Bluetooth Settings"
+                actionTitle: "Open Bluetooth Settings",
+                isCompact: true
             ) {
                 if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Bluetooth") {
                     NSWorkspace.shared.open(url)
                 }
             }
+            .frame(maxHeight: .infinity)
         } else {
             VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
                 if rows.isEmpty {
