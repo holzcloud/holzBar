@@ -268,6 +268,10 @@ struct IslandView: View {
             .blur(radius: reduceMotion || isShown ? 0 : HolzBarTheme.Island.contentBlur)
             .scaleEffect(reduceMotion || isShown ? 1 : HolzBarTheme.Island.contentScale, anchor: .top)
             .opacity(isShown ? 1 : 0)
+            // A part at opacity 0 still takes clicks and stays in the accessibility tree: while the
+            // island closes, or has not yet faded the content in, it must be neither.
+            .allowsHitTesting(isShown)
+            .accessibilityHidden(!isShown)
             .animation(presentation.contentAnimation, value: isShown)
             .offset(
                 x: CGFloat(area.x - presentation.canvas.x),
