@@ -23,9 +23,8 @@ enum NotchHubLiveRoom {
     ///   Accessibility read yet, or one so long that it reaches the notch, which
     ///   ``ApplicationMenuFrames`` reports as none) counts as covering the side.
     /// - Right: where the run of status items starts. On macOS 27 the backend's read can be
-    ///   missing (no items read yet); then the side counts as free up to the maximum width,
-    ///   which is the live state's behaviour before this rule, because there is nothing to
-    ///   measure against on that path.
+    ///   missing (no items read yet); then the side counts as covering until the first read,
+    ///   so the widened notch never covers an item it cannot see.
     static func room(on screen: NSScreen, display: NotchHubGeometry.Display, appState: AppState) -> NotchHubGeometry.LiveRoom {
         let displayBounds = CGDisplayBounds(screen.displayID)
         let leftContentEnd: Double = if let menu = appState.applicationMenuFrames.frame(for: screen) {
@@ -41,7 +40,8 @@ enum NotchHubLiveRoom {
     }
 
     /// Where the run of status items starts on the screen, in x from the display's left edge, or
-    /// `nil` when nothing is known or nothing is there.
+    /// `nil` when nothing is there (the side is free), not a number when nothing is known yet
+    /// (the side counts as covered).
     private static func itemsStart(on screen: NSScreen, displayBounds: CGRect, appState: AppState) -> Double? {
         let itemManager = appState.itemManager
         // Reading the cache makes a caller's observation follow the item list on every backend.
@@ -50,8 +50,10 @@ enum NotchHubLiveRoom {
             return Double(edge - displayBounds.minX)
         }
         guard MenuBarBackendKind.current != .accessibility27 else {
-            // macOS 27 without a read: no position is available on this path.
-            return nil
+            // macOS 27 without a read: no position is known yet, so the side counts as covered
+            // (not a number) until the first read of the items area arrives; that read posts
+            // `menuBarItemsAreaDidChange27`, which lays the live shape out again.
+            return .nan
         }
         // Before macOS 27 the item windows are the truth. A window that is not wholly on this
         // display is not an item of its bar (a collapsed divider reaches far to the left).
