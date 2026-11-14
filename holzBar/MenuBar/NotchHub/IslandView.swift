@@ -15,6 +15,10 @@ import SwiftUI
 /// and a smaller scale; under Reduce Motion nothing blurs or scales and only the opacity changes.
 /// The arrow keys step through the modules while the hub has the keyboard, and Esc closes it.
 ///
+/// While the hub is closed and something is live, the same shape is the notch widened at menu bar
+/// height and ``IslandLiveView`` draws the top activity on it. VoiceOver is told once when a new
+/// activity comes to the top.
+///
 /// A context line below the notch says why the module in front is in front, in one fixed sentence
 /// per reason (``HubContext/Reason``) that never names an event, a track or a file. VoiceOver is
 /// told it once for each opening.
@@ -29,6 +33,9 @@ struct IslandView: View {
 
     /// The opening whose context line VoiceOver was last told.
     @State private var announcedOpening = 0
+
+    /// The live activity VoiceOver was last told about.
+    @State private var announcedLiveKey: String?
 
     private var canvasWidth: CGFloat {
         CGFloat(presentation.canvas.width)
@@ -46,6 +53,8 @@ struct IslandView: View {
             contextLine
             content
             moduleRow
+            liveContent
+                .animation(presentation.liveContentAnimation, value: presentation.showsLiveContent)
         }
         .frame(width: canvasWidth, height: canvasHeight, alignment: .topLeading)
         .environment(\.colorScheme, .dark)
@@ -67,10 +76,14 @@ struct IslandView: View {
                 hasKeyboardFocus = true
             }
             announceContextLine()
+            announceLiveActivity()
         }
         .onChange(of: presentation.openingCount) {
             // A hub that opens again while it closes keeps this view.
             announceContextLine()
+        }
+        .onChange(of: presentation.liveBoard?.compact?.key) {
+            announceLiveActivity()
         }
         .onChange(of: presentation.takesKeyboard) { _, takesKeyboard in
             // A hub that opens again while it closes keeps this view.
@@ -90,6 +103,22 @@ struct IslandView: View {
         }
         announcedOpening = presentation.openingCount
         AccessibilityNotification.Announcement(reason.line).post()
+    }
+
+    /// Tells VoiceOver once that an activity started or came to the top. The activity's own title
+    /// is read; an alert that announces itself is not read twice.
+    private func announceLiveActivity() {
+        guard let activity = presentation.liveBoard?.compact else {
+            announcedLiveKey = nil
+            return
+        }
+        guard activity.key != announcedLiveKey else {
+            return
+        }
+        announcedLiveKey = activity.key
+        if !activity.announcesItself {
+            AccessibilityNotification.Announcement(activity.title).post()
+        }
     }
 
     /// Moves to the next or previous tab, wrapping.
@@ -185,6 +214,26 @@ struct IslandView: View {
     private var moduleRow: some View {
         if let area = presentation.layout?.moduleRow {
             staged(IslandModuleRowView(model: model, fit: presentation.rowFit), in: area, alignment: .center)
+        }
+    }
+
+    /// The live state: the top activity's symbol and short value on the widened notch, over the
+    /// shape's own rectangle. It shows only while the hub is closed.
+    @ViewBuilder
+    private var liveContent: some View {
+        if presentation.showsLiveContent, let board = presentation.liveBoard, let live = presentation.liveLayout {
+            IslandLiveView(
+                board: board,
+                layout: live,
+                origin: CGPoint(
+                    x: live.shape.x - presentation.canvas.x,
+                    y: live.shape.y - presentation.canvas.y
+                )
+            ) {
+                presentation.onLiveTap?()
+            }
+            // It fades in and out with the animation of ``IslandPresentation/liveContentAnimation``.
+            .transition(.opacity)
         }
     }
 

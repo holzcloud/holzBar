@@ -17,6 +17,10 @@ import SwiftUI
 /// `withAnimation` keeps the width's spring and the height's spring apart: two changes in one turn
 /// would otherwise share the transaction of the first.
 ///
+/// In the live state, while the hub is closed and something is live, the same shape is the notch
+/// widened at menu bar height (``animateLive(to:reduceMotion:generation:completion:)``); the live
+/// content is what ``IslandLiveView`` draws on it.
+///
 /// Positions are in the display's coordinates (origin top-left, y down), like ``NotchHubGeometry``;
 /// the panel's frame, the canvas, is the box everything is drawn in.
 @MainActor
@@ -48,6 +52,21 @@ final class IslandPresentation {
         hubWidth: DesignTokens.Island.baseWidth,
         scrolls: false
     )
+
+    /// What the live state shows: the board of the live activities and the widened shape's layout.
+    /// While the hub is open the board is not kept up to date; it is set again when the hub
+    /// closes into the live state.
+    var liveBoard: HubActivityBoard.Board?
+    var liveLayout: NotchHubGeometry.LiveLayout?
+
+    /// Whether the live content is shown: it appears while the shape widens and leaves first.
+    var showsLiveContent = false
+
+    /// The animation of the next change of ``showsLiveContent``.
+    var liveContentAnimation: Animation?
+
+    /// Called when the live shape is clicked; the controller opens the hub.
+    @ObservationIgnored var onLiveTap: (@MainActor () -> Void)?
 
     /// Whether the island takes the keyboard: the hotkey opened the hub.
     var takesKeyboard = false
@@ -82,6 +101,9 @@ final class IslandPresentation {
             bottomRadius = DesignTokens.Island.notchBottomRadius
             contentShown = false
             layout = nil
+            showsLiveContent = false
+            liveLayout = nil
+            liveBoard = nil
         }
     }
 
@@ -106,6 +128,9 @@ final class IslandPresentation {
             widthAnimation = reduceMotion ? nil : HolzBarTheme.Motion.islandOpenWidth
             heightAnimation = reduceMotion ? nil : HolzBarTheme.Motion.islandOpenHeight
             contentAnimation = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandContentIn
+            // The live content, if it shows, leaves at once as the shape starts to grow.
+            liveContentAnimation = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandContentOut
+            showsLiveContent = false
             centreX = layout.shape.x + layout.shape.width / 2
             width = layout.shape.width
             height = layout.shape.height
@@ -117,7 +142,8 @@ final class IslandPresentation {
         }
     }
 
-    /// Closes the island into `rest`, the notch's rectangle (concept section 10b): the content
+    /// Closes the island into `rest`, the notch's rectangle or, while something is live, the live
+    /// shape (concept section 10b); the radii are those of that shape. The content
     /// goes first, in 0.12 s with its opacity and blur, then the shape returns with a spring that
     /// does not overshoot. With `reduceMotion` only the content fades, in 0.15 s, and the shape
     /// then takes `rest` at once.
@@ -139,6 +165,8 @@ final class IslandPresentation {
                 heightAnimation = nil
                 contentAnimation = HolzBarTheme.Motion.reduced
                 contentShown = false
+                liveContentAnimation = HolzBarTheme.Motion.reduced
+                showsLiveContent = false
             } completion: { [weak self] in
                 if let self, transitionGeneration == generation {
                     takeShapeAtOnce(rest, topRadius: topRadius, bottomRadius: bottomRadius)
@@ -153,6 +181,8 @@ final class IslandPresentation {
             heightAnimation = spring
             contentAnimation = HolzBarTheme.Motion.islandContentOut
             contentShown = false
+            liveContentAnimation = HolzBarTheme.Motion.islandContentOut
+            showsLiveContent = false
             centreX = rest.x + rest.width / 2
             width = rest.width
             height = rest.height
@@ -161,6 +191,60 @@ final class IslandPresentation {
         } completion: {
             completion(generation)
         }
+    }
+
+    /// Widens the closed island to the live shape (concept section 10b, "Live state"): the width
+    /// takes the opening's spring, the height is the top row's at once, so the shape never grows
+    /// downward, and the live content appears with the content's curve. With `reduceMotion` the
+    /// shape takes its target at once and the content fades.
+    ///
+    /// `completion` runs once, with `generation`, when the transition has settled.
+    func animateLive(
+        to live: NotchHubGeometry.LiveLayout,
+        reduceMotion: Bool,
+        generation: Int,
+        completion: @escaping @MainActor (Int) -> Void
+    ) {
+        transitionGeneration = generation
+        let driver = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandOpenWidth
+        withAnimation(driver, completionCriteria: .removed) {
+            liveLayout = live
+            widthAnimation = reduceMotion ? nil : HolzBarTheme.Motion.islandOpenWidth
+            heightAnimation = nil
+            liveContentAnimation = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandContentIn
+            centreX = live.shape.x + live.shape.width / 2
+            width = live.shape.width
+            height = live.shape.height
+            topRadius = DesignTokens.Island.liveTopRadius
+            bottomRadius = DesignTokens.Island.liveBottomRadius
+            showsLiveContent = true
+        } completion: {
+            completion(generation)
+        }
+    }
+
+    /// Puts the island at the live shape at once, without animation, with the canvas the panel has.
+    /// It is for a live shape that moves (another display, another menu bar height).
+    func placeLive(_ live: NotchHubGeometry.LiveLayout, canvas: NotchHubGeometry.Rect) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            self.canvas = canvas
+            liveLayout = live
+            centreX = live.shape.x + live.shape.width / 2
+            width = live.shape.width
+            height = live.shape.height
+            topRadius = DesignTokens.Island.liveTopRadius
+            bottomRadius = DesignTokens.Island.liveBottomRadius
+        }
+    }
+
+    /// The island has settled in the live shape: the parts of the open island are gone and the live
+    /// content shows (it fades in when the island closed into the live shape).
+    func settleLive(reduceMotion: Bool) {
+        liveContentAnimation = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandContentIn
+        showsLiveContent = true
+        layout = nil
     }
 
     /// Moves the canvas, the panel's frame, at once and without animation. What is drawn keeps
