@@ -421,8 +421,6 @@ enum HolzBarTheme {
         static let smooth = Animation.smooth(duration: 0.3)
         /// Switches and chips.
         static let snappy = Animation.snappy
-        /// The Notch hub opening, the one place the design uses a bounce.
-        static let hub = Animation.bouncy(duration: 0.4, extraBounce: 0.1)
         /// What Reduce Motion replaces every spring with.
         static let reduced = Animation.easeInOut(duration: 0.15)
 

@@ -564,9 +564,10 @@ final class NotchHubController: HubHost {
         zones.removeAll()
         for screen in NSScreen.screens where isIncluded(screen) {
             guard
-                let layout = NotchHubGeometry.layout(
+                let layout = NotchHubGeometry.island(
                     display: Self.display(of: screen),
-                    content: NotchHubGeometry.Content(bodyHeight: NotchHubGeometry.bodyHeight)
+                    contentHeight: DesignTokens.Island.contentHeight,
+                    width: DesignTokens.Island.baseWidth
                 )
             else {
                 continue

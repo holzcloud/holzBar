@@ -18,26 +18,10 @@ import Foundation
 nonisolated enum NotchHubGeometry {
     // MARK: Constants
 
-    /// The widest the hub gets.
-    static let maximumWidth: Double = 640
     /// The space kept to the notch's left and right edges.
     static let clearance: Double = 8
-    /// The space between the top row and the body.
-    static let bodyGap: Double = 12
-    /// The radius of the concave corners at the top, which run into the menu bar.
-    static let topCornerRadius: Double = 28
-    /// The radius of the corners at the bottom.
-    static let bottomCornerRadius: Double = 30
-    /// The space between the silhouette's side walls and the body. The walls stand
-    /// ``topCornerRadius`` inside the silhouette's bounds, because the concave top corners
-    /// flare outward over that width.
-    static let bodyInset: Double = 16
-    /// The space between the body and the silhouette's bottom edge.
-    static let bottomPadding: Double = 16
     /// The space kept to the display's left and right edges.
     static let screenMargin: Double = 12
-    /// A wing narrower than this is not drawn.
-    static let minimumWingWidth: Double = 96
     /// The width of the hover zone on a display without a notch.
     static let hoverZoneWidth: Double = 200
     /// The height of the hover zone on a display without a notch: the top edge of the screen.
@@ -102,28 +86,6 @@ nonisolated enum NotchHubGeometry {
         /// The height of the menu bar; the top row is at least as tall as the notch.
         var menuBarHeight: Double
         var notch: Notch?
-    }
-
-    /// What the body holds.
-    nonisolated struct Content: Equatable, Sendable {
-        var bodyHeight: Double
-    }
-
-    /// The rectangles of the hub, relative to the display.
-    nonisolated struct Layout: Equatable, Sendable {
-        /// The whole shape, which is also the panel's frame.
-        var silhouette: Rect
-        /// The notch's rectangle, if the display has one. Nothing is placed in it.
-        var notch: Rect?
-        /// The left wing, at menu bar height, or `nil` where it would be narrower than
-        /// ``NotchHubGeometry/minimumWingWidth``.
-        var leftWing: Rect?
-        /// The right wing, or `nil` where it would be too narrow.
-        var rightWing: Rect?
-        var body: Rect
-        /// Where the pointer rests to open the hub.
-        var hoverZone: Rect
-        var topRowHeight: Double
     }
 
     /// The compact capsule of the live activities, relative to the display.
@@ -285,59 +247,6 @@ nonisolated enum NotchHubGeometry {
         return validated(Notch(minX: leftAreaWidth, maxX: displayWidth - rightAreaWidth, height: height), in: displayWidth)
     }
 
-    /// The layout of the hub on a display, or `nil` when the display has no usable size.
-    ///
-    /// A notch that is not finite, not inside the display or without a height counts as none.
-    static func layout(display: Display, content: Content) -> Layout? {
-        guard
-            display.width.isFinite, display.width > 0,
-            display.height.isFinite, display.height > 0,
-            content.bodyHeight.isFinite, content.bodyHeight >= 0
-        else {
-            return nil
-        }
-        let width = min(maximumWidth, display.width - 2 * screenMargin)
-        guard width >= 1 else {
-            return nil
-        }
-        let notch = validated(display.notch, in: display.width)
-        let topRowHeight = resolvedTopRowHeight(of: display, notch: notch)
-
-        let centre = notch.map { ($0.minX + $0.maxX) / 2 } ?? display.width / 2
-        let upperBound = display.width - screenMargin - width
-        let silhouetteX = min(max(centre - width / 2, screenMargin), max(upperBound, screenMargin))
-
-        let body = Rect(
-            x: silhouetteX + topCornerRadius + bodyInset,
-            y: topRowHeight + bodyGap,
-            width: width - 2 * (topCornerRadius + bodyInset),
-            height: content.bodyHeight
-        )
-        let silhouette = Rect(x: silhouetteX, y: 0, width: width, height: body.maxY + bottomPadding)
-
-        let leftStart = silhouette.minX + topCornerRadius
-        let rightEnd = silhouette.maxX - topCornerRadius
-        let leftEnd = notch.map { $0.minX - clearance } ?? centre - clearance / 2
-        let rightStart = notch.map { $0.maxX + clearance } ?? centre + clearance / 2
-
-        let notchRect = notch.map { Rect(x: $0.minX, y: 0, width: $0.maxX - $0.minX, height: $0.height) }
-        let hoverZone = notchRect ?? Rect(
-            x: centre - hoverZoneWidth / 2,
-            y: 0,
-            width: hoverZoneWidth,
-            height: hoverZoneHeight
-        )
-        return Layout(
-            silhouette: silhouette,
-            notch: notchRect,
-            leftWing: wing(from: leftStart, to: leftEnd, height: topRowHeight),
-            rightWing: wing(from: rightStart, to: rightEnd, height: topRowHeight),
-            body: body,
-            hoverZone: hoverZone,
-            topRowHeight: topRowHeight
-        )
-    }
-
     /// The compact capsule of the live activities on a display, or `nil` when the display has
     /// no usable size.
     ///
@@ -346,7 +255,7 @@ nonisolated enum NotchHubGeometry {
     /// `contentWidth`, within ``compactMinimumWidth`` (or the notch plus ``compactNotchMargin``,
     /// if that is wider) and ``compactMaximumWidth`` and inside the display's margins. It is
     /// centred on the notch, or on the display, and kept ``screenMargin`` from the edges. A width
-    /// that is not a number counts as the narrowest. The notch is judged as ``layout(display:content:)``
+    /// that is not a number counts as the narrowest. The notch is judged as the island's layout
     /// judges it.
     static func compactLayout(display: Display, contentWidth: Double) -> CompactLayout? {
         guard
@@ -399,13 +308,5 @@ nonisolated enum NotchHubGeometry {
             ? display.menuBarHeight
             : fallbackMenuBarHeight
         return max(menuBarHeight, notch?.height ?? 0)
-    }
-
-    private static func wing(from start: Double, to end: Double, height: Double) -> Rect? {
-        let width = end - start
-        guard width >= minimumWingWidth else {
-            return nil
-        }
-        return Rect(x: start, y: 0, width: width, height: height)
     }
 }

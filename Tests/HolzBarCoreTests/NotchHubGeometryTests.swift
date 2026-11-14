@@ -21,166 +21,12 @@ struct NotchHubGeometryTests {
         notch: Geometry.Notch(minX: 642, maxX: 828, height: 37)
     )
     private let notchless = Geometry.Display(width: 2560, height: 1440, menuBarHeight: 24, notch: nil)
-    private let content = Geometry.Content(bodyHeight: 120)
-
-    private func layout(_ display: Geometry.Display) throws -> Geometry.Layout {
-        try #require(Geometry.layout(display: display, content: content))
-    }
-
-    @Test("A notched display: the silhouette is centred on the notch, 640 wide, and the wings sit beside it")
-    func notchedFixtureA() throws {
-        let result = try layout(notchedA)
-        #expect(result.silhouette.x == 436)
-        #expect(result.silhouette.y == 0)
-        #expect(result.silhouette.width == 640)
-        #expect(result.topRowHeight == 32)
-        let left = try #require(result.leftWing)
-        let right = try #require(result.rightWing)
-        #expect(left.maxX == 655)
-        #expect(right.minX == 857)
-        #expect(left.minX == 464)
-        #expect(right.maxX == 1048)
-        #expect(left.height == 32 && right.height == 32)
-        #expect(result.notch == Geometry.Rect(x: 663, y: 0, width: 186, height: 32))
-        #expect(result.hoverZone == result.notch)
-    }
-
-    @Test("The top row follows the larger of the menu bar and the notch, and the body starts 12 below it")
-    func topRowAndBody() throws {
-        let b = try layout(notchedB)
-        #expect(b.silhouette.x == 544)
-        #expect(b.topRowHeight == 32)
-        #expect(b.body.y == 44)
-        let c = try layout(notchedC)
-        #expect(c.silhouette.x == 415)
-        #expect(c.topRowHeight == 37)
-        #expect(c.body.y == 49)
-        let tall = Geometry.Display(
-            width: 1512, height: 982, menuBarHeight: 30,
-            notch: Geometry.Notch(minX: 663, maxX: 849, height: 38)
-        )
-        #expect(try layout(tall).topRowHeight == 38)
-    }
-
-    @Test("A display without a notch: the hub hangs from the top centre with a thin hover zone")
-    func notchlessFixture() throws {
-        let result = try layout(notchless)
-        #expect(result.silhouette.x == 960)
-        #expect(result.silhouette.width == 640)
-        #expect(result.notch == nil)
-        #expect(result.topRowHeight == 24)
-        let left = try #require(result.leftWing)
-        let right = try #require(result.rightWing)
-        #expect(left.maxX == 1276)
-        #expect(right.minX == 1284)
-        #expect(result.hoverZone == Geometry.Rect(x: 1180, y: 0, width: 200, height: 3))
-    }
-
-    @Test("Nothing but the hover zone touches the notch: the wings keep 8 points and the body lies below")
-    func clearanceOfTheNotch() throws {
-        for display in [notchedA, notchedB, notchedC] {
-            let result = try layout(display)
-            let notch = try #require(display.notch)
-            let inflated = Geometry.Rect(
-                x: notch.minX - Geometry.clearance,
-                y: 0,
-                width: notch.maxX - notch.minX + 2 * Geometry.clearance,
-                height: notch.height
-            )
-            #expect(result.leftWing.map { !$0.intersects(inflated) } ?? true)
-            #expect(result.rightWing.map { !$0.intersects(inflated) } ?? true)
-            #expect(!result.body.intersects(inflated))
-            #expect(result.body.minY >= notch.height + Geometry.bodyGap)
-        }
-    }
-
-    @Test("A narrow display has no wings, and the silhouette stays 12 points from both edges")
-    func narrowDisplay() throws {
-        let narrow = Geometry.Display(
-            width: 440, height: 800, menuBarHeight: 32,
-            notch: Geometry.Notch(minX: 127, maxX: 313, height: 32)
-        )
-        let result = try layout(narrow)
-        #expect(result.leftWing == nil)
-        #expect(result.rightWing == nil)
-        #expect(result.silhouette.width == 416)
-        #expect(result.silhouette.x == 12)
-        #expect(result.silhouette.maxX == 428)
-    }
-
-    @Test("A notch near an edge moves the silhouette into the display")
-    func notchNearAnEdge() throws {
-        let display = Geometry.Display(
-            width: 900, height: 600, menuBarHeight: 32,
-            notch: Geometry.Notch(minX: 20, maxX: 120, height: 32)
-        )
-        let result = try layout(display)
-        #expect(result.silhouette.x == 12)
-        #expect(result.silhouette.maxX <= 900 - 12)
-        #expect(result.leftWing == nil)
-    }
-
-    @Test("A malformed notch counts as none, and a display without a usable size has no layout")
-    func malformedValues() throws {
-        let malformed: [Geometry.Notch] = [
-            Geometry.Notch(minX: 300, maxX: 300, height: 32),
-            Geometry.Notch(minX: 400, maxX: 300, height: 32),
-            Geometry.Notch(minX: 663, maxX: 2000, height: 32),
-            Geometry.Notch(minX: -5, maxX: 100, height: 32),
-            Geometry.Notch(minX: 663, maxX: 849, height: 0),
-            Geometry.Notch(minX: .nan, maxX: 849, height: 32),
-            Geometry.Notch(minX: 663, maxX: .infinity, height: 32),
-            Geometry.Notch(minX: 663, maxX: 849, height: .nan),
-        ]
-        let reference = try layout(Geometry.Display(width: 1512, height: 982, menuBarHeight: 32, notch: nil))
-        for notch in malformed {
-            let display = Geometry.Display(width: 1512, height: 982, menuBarHeight: 32, notch: notch)
-            #expect(try layout(display) == reference)
-        }
-        let unusable = [
-            Geometry.Display(width: 0, height: 982, menuBarHeight: 32, notch: nil),
-            Geometry.Display(width: .nan, height: 982, menuBarHeight: 32, notch: nil),
-            Geometry.Display(width: 1512, height: 0, menuBarHeight: 32, notch: nil),
-            Geometry.Display(width: 1512, height: .infinity, menuBarHeight: 32, notch: nil),
-            Geometry.Display(width: 20, height: 982, menuBarHeight: 32, notch: nil),
-        ]
-        for display in unusable {
-            #expect(Geometry.layout(display: display, content: content) == nil)
-        }
-        #expect(Geometry.layout(display: notchedA, content: Geometry.Content(bodyHeight: .nan)) == nil)
-    }
-
     @Test("A menu bar height that makes no sense falls back to a usable top row")
     func menuBarHeightFallback() throws {
         let display = Geometry.Display(width: 1512, height: 982, menuBarHeight: .nan, notch: nil)
-        #expect(try layout(display).topRowHeight == Geometry.fallbackMenuBarHeight)
+        #expect(try island(display).topRowHeight == Geometry.fallbackMenuBarHeight)
         let negative = Geometry.Display(width: 1512, height: 982, menuBarHeight: -3, notch: nil)
-        #expect(try layout(negative).topRowHeight == Geometry.fallbackMenuBarHeight)
-    }
-
-    @Test("The body's height is the content's, the silhouette ends 16 below it, and the width never exceeds 640")
-    func bodyAndSilhouette() throws {
-        for display in [notchedA, notchedB, notchedC, notchless] {
-            let result = try layout(display)
-            #expect(result.body.height == 120)
-            // The side walls stand 28 inside the bounds (the concave corners flare over that
-            // width), and the body keeps 16 from them.
-            #expect(result.body.x == result.silhouette.x + 28 + 16)
-            #expect(result.body.width == result.silhouette.width - 2 * (28 + 16))
-            #expect(result.silhouette.maxY == result.body.maxY + 16)
-            #expect(result.silhouette.width <= 640)
-        }
-    }
-
-    @Test("The body area is 200 points: two rows of 92-point cards and a gap fit, and the silhouette follows")
-    func fixedBodyArea() throws {
-        #expect(Geometry.bodyHeight == 200)
-        #expect(2 * 92 + DesignTokens.Hub.tileGap <= Geometry.bodyHeight)
-        let result = try #require(
-            Geometry.layout(display: notchedA, content: Geometry.Content(bodyHeight: Geometry.bodyHeight))
-        )
-        #expect(result.body.height == 200)
-        #expect(result.silhouette.height == result.topRowHeight + 12 + 200 + 16)
+        #expect(try island(negative).topRowHeight == Geometry.fallbackMenuBarHeight)
     }
 
     @Test("The notch comes from the widths of the areas beside it, and only when both are known")
@@ -215,15 +61,12 @@ struct NotchHubGeometryTests {
 
     @Test("The constants equal the design's numbers")
     func constants() {
-        #expect(Geometry.maximumWidth == 640)
         #expect(Geometry.clearance == 8)
-        #expect(Geometry.bodyGap == 12)
-        #expect(Geometry.topCornerRadius == 28)
-        #expect(Geometry.bottomCornerRadius == 30)
-        #expect(Geometry.bodyInset == 16)
-        #expect(Geometry.bottomPadding == 16)
-        #expect(Geometry.minimumWingWidth == 96)
         #expect(Geometry.screenMargin == 12)
+        #expect(Geometry.hoverZoneWidth == 200)
+        #expect(Geometry.hoverZoneHeight == 3)
+        #expect(Geometry.fallbackMenuBarHeight == 24)
+        #expect(Geometry.bodyHeight == 200)
     }
 
     // MARK: Compact capsule
@@ -255,7 +98,7 @@ struct NotchHubGeometryTests {
     func compactNeverOverTheBar() throws {
         for display in [notchedA, notchedB, notchedC, notchless] {
             let result = try #require(Geometry.compactLayout(display: display, contentWidth: 240))
-            let full = try layout(display)
+            let full = try island(display)
             #expect(result.silhouette.minY == full.topRowHeight)
             if let notch = full.notch {
                 #expect(!result.silhouette.intersects(notch))
@@ -487,126 +330,5 @@ struct NotchHubGeometryTests {
         #expect(Geometry.seed(display: notchedC) == Geometry.Rect(x: 642, y: 0, width: 186, height: 37))
         #expect(Geometry.seed(display: notchless) == Geometry.Rect(x: 1180, y: 0, width: 200, height: 0))
         #expect(Geometry.seed(display: Geometry.Display(width: 0, height: 982, menuBarHeight: 32, notch: nil)) == nil)
-    }
-
-    // MARK: The tab row over a matrix of displays
-
-    private static let none: [HubTabStrip.Pill] = []
-    private static let muted = [HubTabStrip.Pill(textLength: 5, hasSymbol: true)]
-    private static let crowdedPills = [
-        HubTabStrip.Pill(textLength: 5, hasSymbol: true),
-        HubTabStrip.Pill(textLength: 5, hasSymbol: true),
-        HubTabStrip.Pill(textLength: 18, hasSymbol: true),
-    ]
-
-    /// Every tab of the row as a rectangle in the display's coordinates, the More button
-    /// included, the way the views place them: the left group from the left wing's left edge,
-    /// the right group from the right wing's notch side.
-    private func tabRects(
-        _ row: HubTabStrip.Row,
-        layout: Geometry.Layout
-    ) -> (left: [Geometry.Rect], right: [Geometry.Rect]) {
-        func rects(_ count: Int, from wing: Geometry.Rect?) -> [Geometry.Rect] {
-            guard let wing else {
-                return []
-            }
-            return (0..<count).map { index in
-                Geometry.Rect(
-                    x: wing.x + Double(index) * (row.tabWidth + DesignTokens.Hub.tabGap),
-                    y: 0,
-                    width: row.tabWidth,
-                    height: DesignTokens.Hub.tabHeight
-                )
-            }
-        }
-        return (
-            rects(row.left.count + (row.moreWing == .left ? 1 : 0), from: layout.leftWing),
-            rects(row.right.count + (row.moreWing == .right ? 1 : 0), from: layout.rightWing)
-        )
-    }
-
-    @Test("displayMatrix: the tab row never leaves its wing, never meets the pills or the notch's clearance")
-    func displayMatrix() throws {
-        let displays: [(name: String, display: Geometry.Display)] = [
-            ("14 inch", notchedA),
-            ("16 inch", notchedB),
-            ("13 inch Air", notchedC),
-            ("external 1920", Geometry.Display(width: 1920, height: 1080, menuBarHeight: 24, notch: nil)),
-            ("external 1280", Geometry.Display(width: 1280, height: 800, menuBarHeight: 24, notch: nil)),
-            ("600 wide", Geometry.Display(width: 600, height: 400, menuBarHeight: 24, notch: nil)),
-        ]
-        let pillSets = [Self.none, Self.muted, Self.crowdedPills]
-        let modules = ["a", "b", "c", "d", "e", "f", "g", "h"]
-        let allTabs = HubTabStrip.allTabs(modules)
-        let smallest = try #require(DesignTokens.Hub.tabWidthSteps.last)
-
-        for (name, display) in displays {
-            let result = try layout(display)
-            let inflated = result.notch.map {
-                Geometry.Rect(
-                    x: $0.minX - Geometry.clearance,
-                    y: 0,
-                    width: $0.width + 2 * Geometry.clearance,
-                    height: $0.height
-                )
-            }
-            for pills in pillSets {
-                let reserved = HubTabStrip.rightReservedWidth(pills: pills)
-                let row = HubTabStrip.row(
-                    moduleTabs: modules, selected: "overview",
-                    leftWingWidth: result.leftWing?.width ?? 0,
-                    rightWingWidth: result.rightWing?.width ?? 0,
-                    rightReservedWidth: reserved
-                )
-                let context = "\(name), \(pills.count) pills"
-                // Each tab appears exactly once.
-                #expect(Set(row.left + row.right + row.overflow) == Set(allTabs), "\(context)")
-                #expect((row.left + row.right + row.overflow).count == allTabs.count, "\(context)")
-                // A menu appears only at the smallest width.
-                #expect(row.overflow.isEmpty || row.tabWidth == smallest, "\(context)")
-                #expect(row.overflow.isEmpty == (row.moreWing == nil), "\(context)")
-                // Nothing is placed in a wing that does not exist.
-                #expect(result.leftWing != nil || (row.left.isEmpty && row.moreWing != .left), "\(context)")
-                #expect(result.rightWing != nil || (row.right.isEmpty && row.moreWing != .right), "\(context)")
-
-                let rects = tabRects(row, layout: result)
-                if let left = result.leftWing, let last = rects.left.last {
-                    #expect(last.maxX <= left.maxX, "\(context)")
-                }
-                if let right = result.rightWing, let last = rects.right.last {
-                    #expect(last.maxX <= right.maxX - reserved - DesignTokens.Hub.tabGap + 0.0001, "\(context)")
-                    #expect(last.maxX <= right.maxX, "\(context)")
-                }
-                if let inflated {
-                    for rect in rects.left + rects.right {
-                        #expect(!rect.intersects(inflated), "\(context)")
-                    }
-                }
-            }
-        }
-    }
-
-    @Test("displayMatrix: with the Muted pill every tab is visible in one row on the usual MacBook and external displays")
-    func displayMatrixEverythingFits() throws {
-        let modules = ["a", "b", "c", "d", "e", "f", "g", "h"]
-        let displays = [
-            notchedA,
-            notchedB,
-            notchedC,
-            Geometry.Display(width: 1920, height: 1080, menuBarHeight: 24, notch: nil),
-        ]
-        for display in displays {
-            let result = try layout(display)
-            let row = HubTabStrip.row(
-                moduleTabs: modules, selected: "overview",
-                leftWingWidth: result.leftWing?.width ?? 0,
-                rightWingWidth: result.rightWing?.width ?? 0,
-                rightReservedWidth: HubTabStrip.rightReservedWidth(pills: Self.muted)
-            )
-            #expect(row.overflow.isEmpty)
-            #expect(row.moreWing == nil)
-            #expect(row.left.count + row.right.count == 9)
-            #expect(row.left.first == "overview")
-        }
     }
 }

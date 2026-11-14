@@ -18,13 +18,13 @@ extension LiveActivityTint {
     }
 }
 
-/// The shape of the compact live-activity capsule: the hub's silhouette with the smaller radii
+/// The shape of the compact live-activity capsule: the island's shape with the smaller radii
 /// of the compact state, concave at the top and rounder at the bottom.
 nonisolated private struct NotchHubCompactSilhouette: Shape {
     func path(in rect: CGRect) -> Path {
-        NotchHubSilhouette(
-            topRadius: NotchHubGeometry.compactTopRadius,
-            bottomRadius: NotchHubGeometry.compactBottomRadius
+        IslandShape(
+            topRadius: CGFloat(NotchHubGeometry.compactTopRadius),
+            bottomRadius: CGFloat(NotchHubGeometry.compactBottomRadius)
         )
         .path(in: rect)
     }
