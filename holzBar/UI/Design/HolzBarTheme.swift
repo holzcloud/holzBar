@@ -407,6 +407,11 @@ enum HolzBarTheme {
         static let liveValueFont = Font.system(size: CGFloat(DesignTokens.Island.liveValueSize), weight: .semibold)
         /// The transparent margin of the panel while the shape animates.
         static let transitionMargin = CGFloat(DesignTokens.Island.transitionMargin)
+        /// The content's staging: it appears from this blur and scale, and rises this far when the
+        /// module changes.
+        static let contentBlur = CGFloat(DesignTokens.Island.contentBlur)
+        static let contentScale = CGFloat(DesignTokens.Island.contentScale)
+        static let switchRise = CGFloat(DesignTokens.Island.switchRise)
     }
 
     // MARK: Motion

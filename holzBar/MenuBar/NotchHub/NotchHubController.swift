@@ -77,6 +77,9 @@ final class NotchHubController: HubHost {
     /// The panel, created by the first open and released when the module goes off.
     @ObservationIgnored private var panel: NotchHubPanel?
 
+    /// What the island in the panel shows and how it moves; it lives and goes with the panel.
+    @ObservationIgnored private var presentation: IslandPresentation?
+
     /// The frame of the hub's panel (the hub or the compact capsule, which are one panel)
     /// while it is on screen, in AppKit coordinates; `nil` while it is not. The hit test of
     /// show on click reads it: a click on a hub tab is not a click on empty menu bar space.
@@ -238,6 +241,7 @@ final class NotchHubController: HubHost {
             reconcileRuntimes()
             panel?.orderOut(nil)
             panel = nil
+            presentation = nil
         }
     }
 
@@ -349,11 +353,14 @@ final class NotchHubController: HubHost {
             logger.debug("The Notch hub stays closed: \(reason.rawValue, privacy: .public)")
             return
         }
+        let display = Self.display(of: screen)
         guard
-            let layout = NotchHubGeometry.layout(
-                display: Self.display(of: screen),
-                content: NotchHubGeometry.Content(bodyHeight: NotchHubGeometry.bodyHeight)
-            )
+            NotchHubGeometry.island(
+                display: display,
+                contentHeight: DesignTokens.Island.contentHeight,
+                width: DesignTokens.Island.baseWidth
+            ) != nil,
+            let seed = NotchHubGeometry.seed(display: display)
         else {
             logger.debug("The Notch hub has no layout for this screen")
             return
@@ -363,17 +370,34 @@ final class NotchHubController: HubHost {
         if trigger == .fileDrag {
             showDropTab()
         }
+        // The content's height follows what is selected, which a file drag has just changed.
+        guard
+            let layout = NotchHubGeometry.island(
+                display: display,
+                contentHeight: NotchHubGeometry.contentHeight(
+                    overviewTileCount: model.selectedRuntime == nil ? model.tiles.count : nil
+                ),
+                width: DesignTokens.Island.baseWidth
+            )
+        else {
+            return
+        }
         let panel = panel ?? NotchHubPanel()
         self.panel = panel
-        let flipped = NotchHubGeometry.flipped(layout.silhouette, displayHeight: Double(screen.frame.height))
+        let presentation = presentation ?? IslandPresentation()
+        self.presentation = presentation
+        let flipped = NotchHubGeometry.flipped(layout.shape, displayHeight: Double(screen.frame.height))
         panel.applyDarkAppearance()
         panel.acceptsKeyboard = trigger == .hotkey
         panel.onEscape = { [weak self] in
             self?.close()
         }
-        panel.contentView = NotchHubHostingView(
-            view: NotchHubView(layout: layout, model: model, host: self, takesKeyboard: trigger == .hotkey)
+        presentation.takesKeyboard = trigger == .hotkey
+        presentation.show(seed: seed, canvas: layout.shape)
+        let hostingView = IslandHostingView(
+            view: IslandView(presentation: presentation, model: model, host: self)
         )
+        panel.contentView = hostingView
         panel.setFrame(
             NSRect(
                 x: screen.frame.minX + flipped.x,
@@ -387,6 +411,12 @@ final class NotchHubController: HubHost {
         if trigger == .hotkey {
             panel.makeKey()
         }
+        // Lay the closed shape out first, so that the opening starts from the notch.
+        hostingView.layoutSubtreeIfNeeded()
+        presentation.animateOpen(
+            to: layout,
+            reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        )
         isOpen = true
         openedBy = trigger
         openScreenID = screen.displayID
