@@ -36,6 +36,7 @@ struct IslandView: View {
             closingLayer
             island
             content
+            moduleRow
         }
         .frame(width: canvasWidth, height: canvasHeight, alignment: .topLeading)
         .environment(\.colorScheme, .dark)
@@ -121,20 +122,40 @@ struct IslandView: View {
     @ViewBuilder
     private var content: some View {
         if let area = presentation.layout?.content {
-            let isShown = presentation.contentShown
-            selectedContent
-                .frame(width: CGFloat(area.width), height: CGFloat(area.height), alignment: .top)
-                .blur(radius: reduceMotion || isShown ? 0 : HolzBarTheme.Island.contentBlur)
-                .scaleEffect(reduceMotion || isShown ? 1 : HolzBarTheme.Island.contentScale, anchor: .top)
-                .opacity(isShown ? 1 : 0)
-                .animation(presentation.contentAnimation, value: isShown)
-                .offset(
-                    x: CGFloat(area.x - presentation.canvas.x),
-                    y: CGFloat(area.y - presentation.canvas.y)
-                )
-                // The content never fades in as a view that is inserted; only its opacity moves.
-                .transition(.identity)
+            staged(selectedContent, in: area, alignment: .top)
         }
+    }
+
+    /// The row of module buttons, in the layout's module row rectangle; it comes and goes with
+    /// the content.
+    @ViewBuilder
+    private var moduleRow: some View {
+        if let area = presentation.layout?.moduleRow {
+            staged(IslandModuleRowView(model: model, fit: presentation.rowFit), in: area, alignment: .center)
+        }
+    }
+
+    /// Places a part of the island at its rectangle of the layout, relative to the canvas, and
+    /// stages it with the content: it appears after the shape starts to grow, from a blur and a
+    /// smaller scale, and leaves first.
+    private func staged(
+        _ part: some View,
+        in area: NotchHubGeometry.Rect,
+        alignment: Alignment
+    ) -> some View {
+        let isShown = presentation.contentShown
+        return part
+            .frame(width: CGFloat(area.width), height: CGFloat(area.height), alignment: alignment)
+            .blur(radius: reduceMotion || isShown ? 0 : HolzBarTheme.Island.contentBlur)
+            .scaleEffect(reduceMotion || isShown ? 1 : HolzBarTheme.Island.contentScale, anchor: .top)
+            .opacity(isShown ? 1 : 0)
+            .animation(presentation.contentAnimation, value: isShown)
+            .offset(
+                x: CGFloat(area.x - presentation.canvas.x),
+                y: CGFloat(area.y - presentation.canvas.y)
+            )
+            // A part never fades in as a view that is inserted; only its opacity moves.
+            .transition(.identity)
     }
 
     /// The Overview, or the selected module's body. Both fill the content area, and a body that

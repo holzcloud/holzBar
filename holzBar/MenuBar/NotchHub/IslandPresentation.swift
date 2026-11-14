@@ -40,6 +40,15 @@ final class IslandPresentation {
     /// The rectangles the open island is laid out in, or `nil` while it has none.
     var layout: NotchHubGeometry.IslandLayout?
 
+    /// How the row of module buttons is drawn: the buttons' size, and whether it scrolls. Worked
+    /// out when the hub opens; a module switched on or off while it is open changes the row at
+    /// the next opening.
+    var rowFit = HubModuleRow.Fit(
+        buttonSize: DesignTokens.Island.buttonSizes.first ?? 30,
+        hubWidth: DesignTokens.Island.baseWidth,
+        scrolls: false
+    )
+
     /// Whether the island takes the keyboard: the hotkey opened the hub.
     var takesKeyboard = false
 

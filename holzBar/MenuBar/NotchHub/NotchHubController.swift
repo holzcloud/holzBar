@@ -394,6 +394,13 @@ final class NotchHubController: HubHost {
         if trigger == .fileDrag {
             showDropTab()
         }
+        // The hub widens first, the buttons step down next and the row scrolls last, for the
+        // modules that are on now; a change while the hub is open waits for the next opening.
+        let fit = HubModuleRow.fit(
+            count: model.allTabIDs.count,
+            baseWidth: DesignTokens.Island.baseWidth,
+            maxWidth: min(DesignTokens.Island.maximumWidth, display.width - 2 * NotchHubGeometry.screenMargin)
+        )
         // The content's height follows what is selected, which a file drag has just changed.
         guard
             let layout = NotchHubGeometry.island(
@@ -401,7 +408,8 @@ final class NotchHubController: HubHost {
                 contentHeight: NotchHubGeometry.contentHeight(
                     overviewTileCount: model.selectedRuntime == nil ? model.tiles.count : nil
                 ),
-                width: DesignTokens.Island.baseWidth
+                width: fit.hubWidth,
+                buttonSize: fit.buttonSize
             )
         else {
             return
@@ -410,6 +418,7 @@ final class NotchHubController: HubHost {
         self.panel = panel
         let presentation = presentation ?? IslandPresentation()
         self.presentation = presentation
+        presentation.rowFit = fit
         // A hub that opens again while it closes, on the same display, reuses the panel and its
         // view: it turns around from where it is, without a flash.
         let existing = phase.isPanelVisible && panelScreenFrame == screen.frame
