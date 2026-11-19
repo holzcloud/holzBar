@@ -58,6 +58,14 @@ final class Concealer27 {
     /// worked out again for them, though they went to the visible section. For diagnostics.
     @ObservationIgnored private(set) var lateAllowlistRefreshes = 0
 
+    /// Visible applications whose items MenuBarAgent hides anyway (``HiddenAnyway27``), from the
+    /// last settled reads while concealing. For diagnostics: nothing acts on it, and it is never
+    /// written to the layout.
+    @ObservationIgnored private(set) var hiddenAnyway = Set<String>()
+
+    /// The suspects of the last settled read, which the next read confirms or drops.
+    @ObservationIgnored private var hiddenAnywaySuspects = Set<String>()
+
     /// When the last concealment change landed on the bar, which is when the bar last started
     /// moving.
     @ObservationIgnored private var lastChangeAt = ContinuousClock.now
@@ -517,6 +525,7 @@ final class Concealer27 {
             await self?.checkStuckOverflow()
             await self?.checkNotchCover()
             await self?.checkOwnIcon()
+            await self?.checkHiddenAnyway(mayReadAgain: true)
             await self?.readUnreadConcealed()
         }
         return true
@@ -694,6 +703,66 @@ final class Concealer27 {
         logger.notice("holzBar's icon was missing when a capture started, putting it back")
         didReinsertIcon = true
         appState.menuBarManager.controlItem(withName: .visible)?.reinsert()
+    }
+
+    /// Notes the visible applications whose items MenuBarAgent hides anyway, and logs each one
+    /// once, when a second read confirms it.
+    ///
+    /// Runs after each settled read while concealing. MenuBarAgent hides an item whose
+    /// application it could not tell, whatever the allowlist holds, and the assertion has no
+    /// key that could keep it (``HiddenAnyway27``). Nothing acts on the answer: it goes to the
+    /// log, with the application private, and its count to Copy Diagnostics. A suspect seen for
+    /// the first time is read again a second later, once, so it is confirmed without waiting
+    /// for the next change of concealment.
+    ///
+    /// - Parameter mayReadAgain: Whether a new suspect may start that one more read.
+    private func checkHiddenAnyway(mayReadAgain: Bool) async {
+        guard
+            let appState,
+            isConcealing,
+            !applyLedger.hasPending,
+            let screen = NSScreen.screenWithActiveMenuBar
+        else {
+            return
+        }
+        let displayBounds = CGDisplayBounds(screen.displayID)
+        let ownPID = ProcessInfo.processInfo.processIdentifier
+        // A system item the user hid is concealed like an application and may keep a stale
+        // frame too, so the system items count as drawn only while none is hidden.
+        let systemItemsDrawn = appState.appleItems.concealedSystemItems(in: appState).isEmpty
+        let items = await MenuBarItemProvider27.items()
+        // Concealment may have changed during the read; the next settled read looks again.
+        guard isConcealing, !applyLedger.hasPending else {
+            return
+        }
+        let drawn = items.compactMap { item -> HiddenAnyway27.DrawnItem? in
+            guard item.isOnScreen, displayBounds.intersects(item.bounds), !concealedPIDs.contains(item.ownerPID) else {
+                return nil
+            }
+            if item.ownerPID == ownPID {
+                return HiddenAnyway27.DrawnItem(bundleID: nil, frame: item.bounds)
+            }
+            let owner = item.tag.namespace.description
+            guard owner != MenuBarItemProvider27.menuBarAgentBundleID else {
+                return systemItemsDrawn ? HiddenAnyway27.DrawnItem(bundleID: nil, frame: item.bounds) : nil
+            }
+            return HiddenAnyway27.DrawnItem(bundleID: owner, frame: item.bounds)
+        }
+        let suspects = HiddenAnyway27.suspects(among: drawn)
+        let confirmed = HiddenAnyway27.confirmed(current: suspects, previous: hiddenAnywaySuspects)
+        hiddenAnywaySuspects = suspects
+        for bundleID in confirmed.subtracting(hiddenAnyway).sorted() {
+            logger.notice("MenuBarAgent does not draw the item of visible application \(bundleID, privacy: .private(mask: .hash)), which the allowlist keeps; its frame lies on another item")
+        }
+        hiddenAnyway = confirmed
+        guard mayReadAgain, !suspects.subtracting(confirmed).isEmpty else {
+            return
+        }
+        // Not awaited, so the rest of the settled read is not held up.
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(1))
+            await self?.checkHiddenAnyway(mayReadAgain: false)
+        }
     }
 
     /// How many times an application's activation moved the active menu bar to another display

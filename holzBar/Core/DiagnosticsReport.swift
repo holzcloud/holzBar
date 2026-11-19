@@ -50,7 +50,7 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// switch is off, so the report stays as it was. Never a name.
     var lastCommandDrag = ""
     /// What the hiding fixes of 1.0.5 did, in fixed words and counts
-    /// (``DiagnosticsReport/hidingSummary27(reveal:agentRestarts:lateAllowlist:youngRetries:forcedReads:heldBack:notchRechecks:)``
+    /// (``DiagnosticsReport/hidingSummary27(reveal:agentRestarts:lateAllowlist:youngRetries:forcedReads:heldBack:notchRechecks:hiddenAnyway:)``
     /// or ``DiagnosticsReport/hidingSummaryBefore27(anchor:iconPutBack:)``), such as `anchor
     /// icon, icon put back 0`. Empty keeps the report as it was. Never a name.
     var hiding = ""
@@ -83,9 +83,9 @@ nonisolated enum DiagnosticsReport {
     /// time, two-digit reads and `ignored: not an app item`).
     static let maximumLastCommandDragLength = 80
 
-    /// The longest text kept for the Hiding line (the longest reveal word and six counts, each
+    /// The longest text kept for the Hiding line (the longest reveal word and seven counts, each
     /// capped at five digits, fit with their words).
-    static let maximumHidingLength = 160
+    static let maximumHidingLength = 180
 
     /// The longest text kept for a field.
     static let maximumFieldLength = 40
@@ -135,9 +135,10 @@ nonisolated enum DiagnosticsReport {
         return lines.joined(separator: "\n")
     }
 
-    /// The Hiding line on macOS 27: the reveal state the concealment follows and how often the
+    /// The Hiding line on macOS 27: the reveal state the concealment follows, how often the
     /// fixes of 1.0.5 acted (MenuBarAgent restarts, allowlist refreshes for apps read late, young
-    /// apps asked again, reads forced and held back by busy apps, notch rechecks).
+    /// apps asked again, reads forced and held back by busy apps, notch rechecks) and how many
+    /// visible apps MenuBarAgent hides anyway (`HiddenAnyway27`, a count, never a name).
     ///
     /// - Parameter reveal: One of the fixed words `all hidden`, `hidden revealed`, `all revealed`.
     static func hidingSummary27(
@@ -147,7 +148,8 @@ nonisolated enum DiagnosticsReport {
         youngRetries: Int,
         forcedReads: Int,
         heldBack: Int,
-        notchRechecks: Int
+        notchRechecks: Int,
+        hiddenAnyway: Int
     ) -> String {
         [
             "reveal \(word(reveal))",
@@ -157,6 +159,7 @@ nonisolated enum DiagnosticsReport {
             "forced reads \(count(forcedReads))",
             "held back \(count(heldBack))",
             "notch rechecks \(count(notchRechecks))",
+            "hidden anyway \(count(hiddenAnyway))",
         ].joined(separator: ", ")
     }
 

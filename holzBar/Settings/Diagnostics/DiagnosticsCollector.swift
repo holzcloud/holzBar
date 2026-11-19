@@ -89,7 +89,8 @@ enum DiagnosticsCollector {
     }
 
     /// What the hiding fixes of 1.0.5 did, in fixed words and counts: on macOS 27 the reveal
-    /// state and the counters of the concealment, the item reads and the Accessibility scan;
+    /// state, the counters of the concealment, the item reads and the Accessibility scan, and the
+    /// number of visible apps MenuBarAgent hides anyway;
     /// before macOS 27 the anchor of the last menu bar hit test and the icons put back. It
     /// reads counters only, never an item or an app.
     private static func hidingWords(_ appState: AppState) -> String {
@@ -108,7 +109,8 @@ enum DiagnosticsCollector {
                 youngRetries: MenuBarItemProvider27.youngRetries,
                 forcedReads: itemManager.forcedItemReads,
                 heldBack: itemManager.heldBackItemReads,
-                notchRechecks: concealer.notchRechecks
+                notchRechecks: concealer.notchRechecks,
+                hiddenAnyway: concealer.hiddenAnyway.count
             )
         }
         return DiagnosticsReport.hidingSummaryBefore27(

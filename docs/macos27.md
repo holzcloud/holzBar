@@ -80,9 +80,9 @@ holzBar stores only which system items you hid and your replacements' symbols an
 
 holzBar hides whole applications through an assertion that names, by bundle identifier, the apps that stay visible. Since 1.0.5 an app that launches while items are hidden and is to stay visible (a new app when new items go to Visible or where macOS puts them, or a helper app inside another app, such as a login item) is added to it at once, so its item appears within about a second. An app that is slow to answer Accessibility right after it starts is asked again at every read for its first 30 seconds instead of being skipped for minutes. When an app such as Slack or an Electron app changes its items often, holzBar reads every app for it at most once every 30 seconds. If `MenuBarAgent` restarts, holzBar applies the hiding again with fresh assertions.
 
-Items of processes without a bundle identifier, such as some script-based apps, cannot be named in the assertion: while holzBar hides any app, they stay hidden and are not listed in the holzBar Shelf. They come back while holzBar hides nothing.
+Items of processes without a bundle identifier, such as some script-based apps, cannot be named in the assertion: while holzBar hides any app, they stay hidden and are not listed in the holzBar Shelf. They come back while holzBar hides nothing. The same happens to an app's item when `MenuBarAgent` could not tell which app it belongs to, although the app has a bundle identifier (seen with a device management agent started at login): the assertion offers no other way to keep it, so it stays hidden while holzBar hides any app, even in Visible. holzBar notices such an item when the place macOS last drew it is taken by another item, and notes it in its log.
 
-Settings → About → Copy Diagnostics has a Hiding line with the reveal state and counts of these events (agent restarts, late refreshes, young retries, forced and held-back reads, notch rechecks), never an app name.
+Settings → About → Copy Diagnostics has a Hiding line with the reveal state and counts of these events (agent restarts, late refreshes, young retries, forced and held-back reads, notch rechecks) and of visible apps hidden anyway, never an app name.
 
 ## Updating from macOS 26
 
