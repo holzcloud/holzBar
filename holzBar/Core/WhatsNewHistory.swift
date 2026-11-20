@@ -74,6 +74,11 @@ nonisolated enum WhatsNewHistory {
                     detail: "On macOS 27, Layout highlights the items of one app together and says that macOS hides whole apps."
                 ),
                 WhatsNewItem(
+                    symbol: "square.on.square.dashed",
+                    title: "Stand-in icons",
+                    detail: "On macOS 27, an app outside the Applications folder whose menu bar icon macOS hides while holzBar hides items gets a stand-in that opens its menu."
+                ),
+                WhatsNewItem(
                     symbol: "trash.slash",
                     title: "Deleting can be undone",
                     detail: "A deleted condition, group, snapshot, mood or profile hook comes back with Undo."
@@ -88,6 +93,7 @@ nonisolated enum WhatsNewHistory {
                 WhatsNewFix(text: "On macOS 27, an app whose picture matched another app's tile gets its own picture again, and items without a picture show their app's icon."),
                 WhatsNewFix(text: "holzBar uses one word for each thing: Always Hidden, apps, and Delete for what you made."),
                 WhatsNewFix(text: "On macOS 27.2, a right-click on an empty area of the menu bar opens Apple's menu again; hold ⌥ Option for holzBar's menu."),
+                WhatsNewFix(text: "On macOS 27, the items of an app outside the Applications folder open from the holzBar Shelf, search and hotkeys."),
                 WhatsNewFix(text: "QQ and WeChat no longer get a new item in Layout for each unread count."),
                 WhatsNewFix(text: "On macOS 27.2, holzBar's own items no longer drop out of Layout for a moment."),
             ]
