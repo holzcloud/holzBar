@@ -69,4 +69,62 @@ nonisolated enum HiddenAnyway27 {
     static func confirmed(current: Set<String>, previous: Set<String>) -> Set<String> {
         current.intersection(previous)
     }
+
+    /// The applications ``confirmed(current:previous:)`` named, kept while they run but not for
+    /// good.
+    ///
+    /// A confirmation can be wrong: the overlap tolerance is a measured 6 points, and an item
+    /// that resizes or a stale frame can overlap twice in a row. An application that is
+    /// confirmed is also not concealed by holzBar, so every later settled read sees its item;
+    /// when ``dropAfterCleanReads`` such reads in a row show it with no overlap, it is dropped,
+    /// and a real case is confirmed again the next time its frame overlaps. An application the
+    /// install location names unnameable (``UnnameableApps27``) never depends on this set.
+    nonisolated struct Confirmed: Equatable, Sendable {
+        /// How many settled reads in a row may draw an application's item clear of every other
+        /// before it is dropped.
+        static let dropAfterCleanReads = 3
+
+        /// Settled reads in a row without an overlap, by bundle identifier.
+        private var cleanReads = [String: Int]()
+
+        /// The confirmed applications.
+        var bundleIDs: Set<String> {
+            Set(cleanReads.keys)
+        }
+
+        /// Takes in one settled read.
+        ///
+        /// - Parameters:
+        ///   - confirmed: The applications this read confirmed.
+        ///   - suspects: Every suspect of this read.
+        ///   - drawn: The applications whose items this read took for drawn. A confirmed
+        ///     application missing from it (concealed, off the display) keeps its count.
+        /// - Returns: The applications dropped by this read.
+        @discardableResult
+        mutating func update(confirmed: Set<String>, suspects: Set<String>, drawn: Set<String>) -> Set<String> {
+            var dropped = Set<String>()
+            for (bundleID, clean) in cleanReads {
+                if suspects.contains(bundleID) {
+                    cleanReads[bundleID] = 0
+                } else if drawn.contains(bundleID) {
+                    if clean + 1 >= Self.dropAfterCleanReads {
+                        cleanReads[bundleID] = nil
+                        dropped.insert(bundleID)
+                    } else {
+                        cleanReads[bundleID] = clean + 1
+                    }
+                }
+            }
+            for bundleID in confirmed {
+                cleanReads[bundleID] = 0
+            }
+            return dropped
+        }
+
+        /// Forgets the applications that are no longer running.
+        mutating func keepOnly(running: some Collection<String>) {
+            let running = Set(running)
+            cleanReads = cleanReads.filter { running.contains($0.key) }
+        }
+    }
 }

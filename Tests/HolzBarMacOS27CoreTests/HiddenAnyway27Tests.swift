@@ -103,4 +103,67 @@ struct HiddenAnyway27Tests {
         #expect(HiddenAnyway27.confirmed(current: ["a", "b"], previous: ["a"]) == ["a"])
         #expect(HiddenAnyway27.confirmed(current: [], previous: ["a"]).isEmpty)
     }
+
+    // MARK: Confirmed
+
+    @Test("A confirmed application is kept while a read shows its overlap")
+    func confirmedKeptWhileOverlapping() {
+        var confirmed = HiddenAnyway27.Confirmed()
+        confirmed.update(confirmed: ["a"], suspects: ["a"], drawn: ["a", "b"])
+        for _ in 0 ..< 10 {
+            #expect(confirmed.update(confirmed: ["a"], suspects: ["a"], drawn: ["a", "b"]).isEmpty)
+        }
+        #expect(confirmed.bundleIDs == ["a"])
+    }
+
+    @Test("A false positive is dropped after clean settled reads in a row")
+    func confirmedDroppedWhenClean() {
+        var confirmed = HiddenAnyway27.Confirmed()
+        confirmed.update(confirmed: ["a"], suspects: ["a"], drawn: ["a"])
+        for _ in 1 ..< HiddenAnyway27.Confirmed.dropAfterCleanReads {
+            #expect(confirmed.update(confirmed: [], suspects: [], drawn: ["a"]).isEmpty)
+            #expect(confirmed.bundleIDs == ["a"])
+        }
+        #expect(confirmed.update(confirmed: [], suspects: [], drawn: ["a"]) == ["a"])
+        #expect(confirmed.bundleIDs.isEmpty)
+    }
+
+    @Test("A suspect read in between restarts the count")
+    func confirmedCountRestarts() {
+        var confirmed = HiddenAnyway27.Confirmed()
+        confirmed.update(confirmed: ["a"], suspects: ["a"], drawn: ["a"])
+        for _ in 1 ..< HiddenAnyway27.Confirmed.dropAfterCleanReads {
+            confirmed.update(confirmed: [], suspects: [], drawn: ["a"])
+        }
+        // One read finds the overlap again (not yet confirmed twice): the count starts over.
+        confirmed.update(confirmed: [], suspects: ["a"], drawn: ["a"])
+        for _ in 1 ..< HiddenAnyway27.Confirmed.dropAfterCleanReads {
+            confirmed.update(confirmed: [], suspects: [], drawn: ["a"])
+        }
+        #expect(confirmed.bundleIDs == ["a"])
+    }
+
+    @Test("A read that does not draw the application leaves its count alone")
+    func confirmedKeptWhenNotDrawn() {
+        var confirmed = HiddenAnyway27.Confirmed()
+        confirmed.update(confirmed: ["a"], suspects: ["a"], drawn: ["a"])
+        for _ in 0 ..< 20 {
+            #expect(confirmed.update(confirmed: [], suspects: [], drawn: ["b"]).isEmpty)
+        }
+        #expect(confirmed.bundleIDs == ["a"])
+    }
+
+    @Test("An application that quit is forgotten, and one dropped can be confirmed again")
+    func confirmedQuitAndAgain() {
+        var confirmed = HiddenAnyway27.Confirmed()
+        confirmed.update(confirmed: ["a", "b"], suspects: ["a", "b"], drawn: ["a", "b"])
+        confirmed.keepOnly(running: ["b"])
+        #expect(confirmed.bundleIDs == ["b"])
+        for _ in 0 ..< HiddenAnyway27.Confirmed.dropAfterCleanReads {
+            confirmed.update(confirmed: [], suspects: [], drawn: ["b"])
+        }
+        #expect(confirmed.bundleIDs.isEmpty)
+        confirmed.update(confirmed: ["b"], suspects: ["b"], drawn: ["b"])
+        #expect(confirmed.bundleIDs == ["b"])
+    }
 }

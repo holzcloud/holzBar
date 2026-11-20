@@ -66,10 +66,11 @@ final class Concealer27 {
     /// The suspects of the last settled read, which the next read confirms or drops.
     @ObservationIgnored private var hiddenAnywaySuspects = Set<String>()
 
-    /// Applications HiddenAnyway27 confirmed at some read, kept while they run, so an
-    /// application found by its overlap stays unnameable even when a later read, with its
-    /// frame moved, no longer finds the overlap.
-    @ObservationIgnored private var confirmedUnnameable = Set<String>()
+    /// Applications HiddenAnyway27 confirmed, kept while they run, so an application found by
+    /// its overlap stays unnameable even when a read, with its frame moved, no longer finds
+    /// the overlap; a few settled reads in a row that draw its item clear of every other drop
+    /// it again (``HiddenAnyway27/Confirmed``), so a false positive does not stay for good.
+    @ObservationIgnored private var confirmedUnnameable = HiddenAnyway27.Confirmed()
 
     /// Process identifiers of visible applications MenuBarAgent cannot name by their install
     /// location (``UnnameableApps27``). It hides their items while anything is concealed, though
@@ -701,7 +702,7 @@ final class Concealer27 {
             return
         }
         let applications = NSWorkspace.shared.runningApplications
-        confirmedUnnameable.formIntersection(applications.compactMap(\.bundleIdentifier))
+        confirmedUnnameable.keepOnly(running: applications.compactMap(\.bundleIdentifier))
         var byPID = [pid_t: NSRunningApplication]()
         for application in applications {
             byPID[application.processIdentifier] = application
@@ -717,7 +718,7 @@ final class Concealer27 {
             }
             owners.append(UnnameableApps27.Owner(bundleID: bundleID, bundlePath: UnnameableApps27.rulePath(of: application.bundleURL)))
         }
-        let visible = UnnameableApps27.owners(owners, confirmed: confirmedUnnameable)
+        let visible = UnnameableApps27.owners(owners, confirmed: confirmedUnnameable.bundleIDs)
         if visible != unnameableVisible {
             unnameableVisible = visible
         }
@@ -860,7 +861,14 @@ final class Concealer27 {
             logger.notice("MenuBarAgent does not draw the item of visible application \(bundleID, privacy: .private(mask: .hash)), which the allowlist keeps; its frame lies on another item")
         }
         hiddenAnyway = confirmed
-        confirmedUnnameable.formUnion(confirmed)
+        let dropped = confirmedUnnameable.update(
+            confirmed: confirmed,
+            suspects: suspects,
+            drawn: Set(drawn.compactMap(\.bundleID))
+        )
+        for bundleID in dropped.sorted() {
+            logger.notice("Visible application \(bundleID, privacy: .private(mask: .hash)) is drawn clear of every other item again, so it counts as named")
+        }
         refreshUnnameable()
         guard mayReadAgain, !suspects.subtracting(confirmed).isEmpty else {
             return
@@ -1314,7 +1322,7 @@ final class Concealer27 {
         guard let app, let bundleID = app.bundleIdentifier else {
             return false
         }
-        return confirmedUnnameable.contains(bundleID)
+        return confirmedUnnameable.bundleIDs.contains(bundleID)
             || UnnameableApps27.isUnnameable(bundleID: bundleID, bundlePath: UnnameableApps27.rulePath(of: app.bundleURL))
     }
 
