@@ -15,6 +15,10 @@ struct UnnameableApps27Tests {
         "/System/Applications/Mail.app",
         "/System/Library/CoreServices/TextInputMenuAgent.app",
         "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app",
+        "/System/Volumes/Data/Applications/Y.app",
+        "/system/volumes/data/applications/Y.app",
+        "/System/Volumes/Data/Applications/Utilities/Tool.app",
+        "/System/Volumes/Data/System/Library/CoreServices/Agent.app",
     ])
     func named(path: String) {
         #expect(!isUnnameable(path))
@@ -26,9 +30,23 @@ struct UnnameableApps27Tests {
         "/Applications.old/App.app",
         "/Library/Application Support/Vendor/Agent.app",
         "/Applications/../opt/vendor/Agent.app",
+        "/System/Volumes/Data/opt/vendor/Agent.app",
+        "/System/Volumes/Data/Users/someone/Applications/X.app",
+        "/System/Volumes/Data/Applications.old/X.app",
+        "/System/Volumes/Data",
+        "/System/Volumes/Update/Agent.app",
+        "/System/Volumes/VM/Agent.app",
+        "/System/Volumes/Data/../Update/Agent.app",
     ])
     func unnameable(path: String) {
         #expect(isUnnameable(path))
+    }
+
+    @Test("A path below the data volume is judged by the path below it, not as /System")
+    func dataVolumeFirmlink() {
+        #expect(!isUnnameable("/System/Volumes/Data/Applications/Y.app"))
+        #expect(isUnnameable("/System/Volumes/Data/opt/vendor/Agent.app"))
+        #expect(isUnnameable("/System/Volumes/Data/Users/x/Applications/X.app"))
     }
 
     @Test("Without a bundle path the rule cannot name the app")

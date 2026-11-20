@@ -707,7 +707,7 @@ final class Concealer27 {
             else {
                 continue
             }
-            owners.append(UnnameableApps27.Owner(bundleID: bundleID, bundlePath: application.bundleURL?.path))
+            owners.append(UnnameableApps27.Owner(bundleID: bundleID, bundlePath: UnnameableApps27.rulePath(of: application.bundleURL)))
         }
         let visible = UnnameableApps27.owners(owners, confirmed: confirmedUnnameable)
         if visible != unnameableVisible {
@@ -1307,7 +1307,7 @@ final class Concealer27 {
             return false
         }
         return confirmedUnnameable.contains(bundleID)
-            || UnnameableApps27.isUnnameable(bundleID: bundleID, bundlePath: app.bundleURL?.path)
+            || UnnameableApps27.isUnnameable(bundleID: bundleID, bundlePath: UnnameableApps27.rulePath(of: app.bundleURL))
     }
 
     /// Puts applications that holzBar has not seen before into the section chosen
@@ -1558,5 +1558,14 @@ extension MacOS27Section {
         case .hidden: self = .hidden
         case .alwaysHidden: self = .alwaysHidden
         }
+    }
+}
+
+extension UnnameableApps27 {
+    /// The path of a bundle for ``isUnnameable(bundleID:bundlePath:)``, with symlinks resolved:
+    /// an application reached through `/Applications/Agent.app -> /opt/vendor/Agent.app` runs
+    /// from where the link points. Reads the disk, so it stays out of the pure rule.
+    nonisolated static func rulePath(of bundleURL: URL?) -> String? {
+        bundleURL?.resolvingSymlinksInPath().path(percentEncoded: false)
     }
 }

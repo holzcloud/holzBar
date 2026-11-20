@@ -33,17 +33,43 @@ nonisolated enum UnnameableApps27 {
     /// The folders MenuBarAgent names applications from, lowercased with a trailing slash.
     private static let namedPrefixes = ["/applications/", "/system/"]
 
+    /// The data volume's firmlink prefix, lowercased. `/System/Volumes/Data/<path>` is the same
+    /// folder as `/<path>`, so what lies below it is judged by the path below it.
+    private static let dataVolume = "/system/volumes/data"
+
+    /// The other volumes under `/System/Volumes` are not the system folder. The one exception
+    /// is the cryptex of the system applications, which are system apps (Safari).
+    private static let volumes = "/system/volumes"
+    private static let systemCryptexes = "/system/volumes/preboot/cryptexes/"
+
     /// Whether MenuBarAgent cannot name the application with the given bundle.
     ///
     /// The path is standardised first (`..` and `.` resolved) and compared without regard to
     /// case, and a prefix must end at a folder boundary, so `/Applications.old` is not
-    /// `/Applications`. An application with no bundle path or no bundle identifier cannot be
-    /// named either; no caller asks about a process without a bundle identifier.
+    /// `/Applications`. A path below `/System/Volumes/Data` is the firmlinked data volume and is
+    /// judged by the path below it (`/System/Volumes/Data/Applications/X.app` is
+    /// `/Applications/X.app`, `/System/Volumes/Data/opt/X.app` is `/opt/X.app`). Symlinks are
+    /// not resolved here, which would read the disk; a caller that wants the real location
+    /// passes the path from `resolvingSymlinksInPath()`. An application with no bundle path or
+    /// no bundle identifier cannot be named either; no caller asks about a process without a
+    /// bundle identifier.
     static func isUnnameable(bundleID: String?, bundlePath: String?) -> Bool {
         guard bundleID != nil, let bundlePath else {
             return true
         }
-        let path = URL(fileURLWithPath: bundlePath).standardizedFileURL.path.lowercased()
+        var path = URL(fileURLWithPath: bundlePath).standardizedFileURL.path.lowercased()
+        if path == dataVolume {
+            return true
+        }
+        if path.hasPrefix(dataVolume + "/") {
+            path.removeFirst(dataVolume.count)
+        }
+        if path.hasPrefix(systemCryptexes) {
+            return false
+        }
+        if path == volumes || path.hasPrefix(volumes + "/") {
+            return true
+        }
         return !namedPrefixes.contains { path.hasPrefix($0) }
     }
 

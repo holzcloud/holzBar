@@ -49,7 +49,7 @@ final class StandInItems27: NSObject {
         }
         let isNameable = !UnnameableApps27.isUnnameable(
             bundleID: Bundle.main.bundleIdentifier,
-            bundlePath: Bundle.main.bundleURL.path
+            bundlePath: UnnameableApps27.rulePath(of: Bundle.main.bundleURL)
         )
         guard isNameable else {
             logger.notice("holzBar runs outside /Applications, so macOS conceals its own items too and stand-in icons stay off")
