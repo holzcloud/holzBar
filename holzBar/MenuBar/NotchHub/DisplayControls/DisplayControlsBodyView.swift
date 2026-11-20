@@ -101,7 +101,7 @@ struct DisplayControlsBodyView: View {
                 }
             case .doesNotAnswer:
                 caption(Text("This display does not answer DDC. Turn on DDC/CI in the display's own menu."))
-            case .indistinguishable:
+            case .notPaired, .indistinguishable:
                 caption(Text("macOS cannot change this display from here"))
             case .unavailable:
                 caption(Text("External monitor control is not available on this Mac. Restart holzBar to try again."))

@@ -100,8 +100,11 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             case reading
             /// The monitor answered and its controls are in ``values``.
             case ready
-            /// The monitor gave no answer, or no DDC channel could be paired with it.
+            /// The monitor was asked and gave no answer.
             case doesNotAnswer
+            /// No DDC channel could be paired with the monitor, so it was never asked: turning
+            /// DDC/CI on in its menu would change nothing.
+            case notPaired
             /// The monitor cannot be told from an identical one, so it is never read or written.
             case indistinguishable
             /// The part switched itself off, or this Mac cannot run it.
@@ -475,8 +478,11 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             case .answered(let controls):
                 updated.state = .ready
                 updated.values = Dictionary(uniqueKeysWithValues: controls.map { ($0.control, $0) })
-            case .noAnswer:
+            case .noAnswer(tried: true):
                 updated.state = .doesNotAnswer
+                updated.values = [:]
+            case .noAnswer(tried: false):
+                updated.state = .notPaired
                 updated.values = [:]
             case .indistinguishable:
                 updated.state = .indistinguishable
