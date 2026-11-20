@@ -5,9 +5,10 @@
 
 import SwiftUI
 
-/// The Display controls tab: a brightness slider for each display macOS can change, a card with
-/// a slider for each control of each external monitor that answers DDC/CI, then a slider row
-/// for the volume of the Mac's sound output.
+/// The Display controls tab: the volume of the Mac's sound output on top, then one card for each
+/// display, the one the hub opened on first: a brightness slider for a display macOS can change,
+/// a slider for each control of an external monitor that answers DDC/CI, or, while the External
+/// monitors setting is off, a hint with a button that opens the setting.
 ///
 /// The row follows the concept's slider row: a 28 pt slot with a 16 pt symbol, the name, the
 /// system slider and the value in a 44 pt column. The hub is always dark, so the row uses fixed
@@ -15,6 +16,7 @@ import SwiftUI
 /// reads it again when the hub opens.
 struct DisplayControlsBodyView: View {
     let runtime: DisplayControlsRuntime
+    let host: any HubHost
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.colorSchemeContrast) private var contrast
@@ -22,8 +24,8 @@ struct DisplayControlsBodyView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: Row.gap) {
-                displayCards
                 volumeRow
+                displayCards
             }
             .frame(maxWidth: .infinity, alignment: .top)
         }
@@ -98,6 +100,9 @@ struct DisplayControlsBodyView: View {
                 caption(Text("macOS cannot change this display from here"))
             case .unavailable:
                 caption(Text("External monitor control is not available on this Mac. Restart holzBar to try again."))
+            case .switchedOff:
+                caption(Text("Turn on External monitors in Settings to control this display"))
+                openSettingsButton
             }
         }
     }
@@ -165,6 +170,25 @@ struct DisplayControlsBodyView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.leading, Row.slot + HolzBarTheme.Spacing.xs)
             .padding(.bottom, HolzBarTheme.Spacing.xxs)
+    }
+
+    /// The button of a switched-off card: the hub's pill, which closes the hub and opens the
+    /// module's settings, where External monitors is. It changes no setting.
+    private var openSettingsButton: some View {
+        Button {
+            host.openSettings(for: DisplayControlsRuntime.identifier)
+        } label: {
+            Text("Open Settings")
+                .font(HolzBarTheme.Hub.pillFont)
+                .foregroundStyle(HolzBarTheme.Hub.pillText)
+                .padding(.horizontal, HolzBarTheme.Spacing.sm)
+                .frame(height: HolzBarTheme.Hub.pillHeight)
+                .background(HolzBarTheme.Hub.pillFill, in: Capsule())
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .padding(.leading, Row.slot + HolzBarTheme.Spacing.xs)
+        .padding(.bottom, HolzBarTheme.Spacing.xxs)
     }
 
     /// One level row of an external monitor: the control's symbol in the 28 pt slot (the mute

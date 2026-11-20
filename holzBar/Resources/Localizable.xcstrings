@@ -161318,6 +161318,124 @@
           }
         }
       }
+    },
+    "Turn on External monitors in Settings to control this display" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapněte v nastavení „Externí monitory“ a budete moci tento displej ovládat"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schalte „Externe Monitore“ in den Einstellungen ein, um diesen Bildschirm zu steuern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activa «Monitores externos» en Ajustes para controlar esta pantalla"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active « Écrans externes » dans les réglages pour commander cet écran"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapcsold be a „Külső monitorok” beállítást a Beállításokban a kijelző vezérléséhez"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktifkan “Monitor eksternal” di pengaturan untuk mengontrol layar ini"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attiva «Monitor esterni» nelle impostazioni per controllare questo schermo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この画面を操作するには、設定で「外部モニター」をオンにしてください"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 디스플레이를 제어하려면 설정에서 ‘외부 모니터’를 켜세요"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zet ‘Externe monitoren’ aan in de instellingen om deze monitor te bedienen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Włącz „Monitory zewnętrzne” w ustawieniach, aby sterować tym monitorem"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ative «Monitores externos» em Ajustes para controlar esta tela"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activescha «Monituors externs» en las configuraziuns per controllar quest visur"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Включите «Внешние мониторы» в настройках, чтобы управлять этим дисплеем"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slå på ”Externa bildskärmar” i inställningarna för att styra den här skärmen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu ekranı denetlemek için ayarlarda “Harici monitörler”i aç"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Увімкніть «Зовнішні монітори» в параметрах, щоб керувати цим дисплеєм"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在设置中打开“外接显示器”以控制此显示器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在設定中開啟「外接顯示器」以控制此顯示器"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

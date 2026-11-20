@@ -75,8 +75,8 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         var value: Double?
     }
 
-    /// The displays and their brightness, the built-in one first. Empty while the setting is off
-    /// or the brightness part is unavailable.
+    /// The displays and their brightness, in the order of the screens. Empty while the setting
+    /// is off or the brightness part is unavailable.
     private(set) var displays: [DisplayBrightness] = []
 
     /// Whether the Brightness setting was on when the brightness was last read.
@@ -86,8 +86,8 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// the result of loading the brightness wrapper.
     private(set) var gate = PrivateFeatureGate(isEnabled: false, load: .loaded)
 
-    /// The displays in the order the tab shows them: the built-in one first, then the others in
-    /// the order of the screens, each identifier once.
+    /// The displays in the order the tab shows them: the one the hub opened on first, then the
+    /// others in the order of the screens, each identifier once.
     private(set) var displayOrder: [CGDirectDisplayID] = []
 
     /// One external monitor macOS cannot change itself, and what the module knows of it.
@@ -104,12 +104,17 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             case indistinguishable
             /// The part switched itself off, or this Mac cannot run it.
             case unavailable
+            /// The External monitors setting is off: the card only says how to turn it on.
+            case switchedOff
         }
 
         let id: CGDirectDisplayID
         /// The monitor's name, for the open tab only.
         var name: String
         var state: State
+        /// Whether the card shows its reading indicator: a first read without values has lasted
+        /// longer than ``DDCTiming/readingIndicatorDelay``.
+        var showsReadingIndicator = false
         /// The controls the monitor reported, with the raw value and the maximum of each.
         var values: [DDCControl: DDCControlValue]
     }
@@ -249,9 +254,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
                 value: value
             ))
         }
-        // The built-in display first, the others in the order of the screens.
-        let ordered = found.filter(\.isBuiltIn) + found.filter { !$0.isBuiltIn }
-        displays = gate.isAvailable ? ordered : []
+        displays = gate.isAvailable ? found : []
     }
 
     /// Sets the brightness of a display. The level shown afterwards is the one read back, not
@@ -300,11 +303,13 @@ final class DisplayControlsRuntime: HubModuleRuntime {
 
     // MARK: External monitors
 
-    /// Works out the order of the tab's cards: the built-in display first, then the others.
+    /// Works out the order of the tab's cards: the display the hub opened on first, then the
+    /// others in the order macOS lists the screens. The built-in display is not forced to the top.
     private func refreshDisplayOrder() {
-        var seen = Set<CGDirectDisplayID>()
-        let ids = NSScreen.screens.map(\.displayID).filter { seen.insert($0).inserted }
-        displayOrder = ids.filter { CGDisplayIsBuiltin($0) != 0 } + ids.filter { CGDisplayIsBuiltin($0) == 0 }
+        displayOrder = DisplayControlsOrder.ordered(
+            NSScreen.screens.map(\.displayID),
+            first: appState?.notchHub.screenID
+        )
     }
 
     /// Reads the controls of every external monitor macOS cannot change itself. With the External
@@ -312,19 +317,23 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// runs on the bus; a survey of this opening that is still running is left alone.
     func refreshExternalMonitors() {
         let isEnabled = appState?.settings.displayControls.showsExternalMonitors ?? false
+        let names = Dictionary(
+            NSScreen.screens.map { ($0.displayID, $0.localizedName) },
+            uniquingKeysWith: { first, _ in first }
+        )
         guard PrivateFeatureGate.shouldLoad(isEnabled: isEnabled) else {
             ddcGate.setEnabled(false, load: .loaded)
             ddcPolicy = DDCFailurePolicy()
             cancelExternalWork()
             bus = nil
-            externals = []
+            // Only names and screen identifiers are read: nothing of the DDC part is created or
+            // looked up, the cards just say how to turn the part on.
+            externals = externalCandidates().map {
+                ExternalMonitor(id: $0.id, name: names[$0.id] ?? "", state: .switchedOff, values: [:])
+            }
             return
         }
         let candidates = externalCandidates()
-        let names = Dictionary(
-            NSScreen.screens.map { ($0.displayID, $0.localizedName) },
-            uniquingKeysWith: { first, _ in first }
-        )
         // Once switched off by itself the part stays off until the user switches it off and on;
         // the cards of the monitors say so.
         if case .unavailable(let reason) = ddcGate.state, reason != .switchedOff {
@@ -657,8 +666,8 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         )
     }
 
-    func makeBody(host _: any HubHost) -> AnyView {
-        AnyView(DisplayControlsBodyView(runtime: self))
+    func makeBody(host: any HubHost) -> AnyView {
+        AnyView(DisplayControlsBodyView(runtime: self, host: host))
     }
 
     /// Stops the listeners and every transfer, and releases the state and the bus.
