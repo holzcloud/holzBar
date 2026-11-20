@@ -5,8 +5,9 @@
 
 import SwiftUI
 
-/// The Display controls tab: a brightness slider for each display macOS can change, then a
-/// slider row for the volume of the Mac's sound output.
+/// The Display controls tab: a brightness slider for each display macOS can change, a card with
+/// its own brightness slider for each external monitor that answers DDC/CI, then a slider row
+/// for the volume of the Mac's sound output.
 ///
 /// The row follows the concept's slider row: a 28 pt slot with a 16 pt symbol, the name, the
 /// system slider and the value in a 44 pt column. The hub is always dark, so the row uses fixed
@@ -21,7 +22,7 @@ struct DisplayControlsBodyView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: Row.gap) {
-                brightnessRows
+                displayCards
                 volumeRow
             }
             .frame(maxWidth: .infinity, alignment: .top)
@@ -47,24 +48,122 @@ struct DisplayControlsBodyView: View {
         runtime.plan != .unsupported && runtime.volume != nil
     }
 
-    /// The brightness rows: one per display, a sentence when the part is unavailable, nothing
-    /// while the Brightness setting is off.
+    /// The display cards in the tab's order: an external monitor's card where the module controls
+    /// it over DDC, else the display's brightness row; a sentence when the brightness part is
+    /// unavailable, nothing for a display while the Brightness setting is off.
     @ViewBuilder
-    private var brightnessRows: some View {
-        if runtime.showsBrightness {
-            if runtime.gate.isAvailable {
-                ForEach(runtime.displays) { display in
-                    brightnessRow(display)
-                }
-            } else {
-                card {
-                    Text("Brightness is not available on this Mac")
-                        .font(HolzBarTheme.Typography.caption)
-                        .foregroundStyle(HolzBarTheme.Hub.neutral)
-                        .frame(maxWidth: .infinity, minHeight: Row.height, alignment: .leading)
-                }
+    private var displayCards: some View {
+        if runtime.showsBrightness, !runtime.gate.isAvailable {
+            card {
+                Text("Brightness is not available on this Mac")
+                    .font(HolzBarTheme.Typography.caption)
+                    .foregroundStyle(HolzBarTheme.Hub.neutral)
+                    .frame(maxWidth: .infinity, minHeight: Row.height, alignment: .leading)
             }
         }
+        ForEach(runtime.displayOrder, id: \.self) { id in
+            if let monitor = runtime.externals.first(where: { $0.id == id }) {
+                externalCard(monitor)
+            } else if runtime.showsBrightness, runtime.gate.isAvailable,
+                      let display = runtime.displays.first(where: { $0.id == id }) {
+                brightnessRow(display)
+            }
+        }
+    }
+
+    /// An external monitor's card: a header with its name and the Preview badge, then the rows
+    /// of the controls it reported. The rows carry no visible name; the symbol says which control
+    /// it is and the name is the accessibility label and the tooltip.
+    private func externalCard(_ monitor: DisplayControlsRuntime.ExternalMonitor) -> some View {
+        card {
+            HStack(spacing: HolzBarTheme.Spacing.xs) {
+                Text(verbatim: monitor.name)
+                    .font(HolzBarTheme.Typography.callout)
+                    .foregroundStyle(HolzBarTheme.Hub.neutral)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                PreviewBadge()
+                    .fixedSize()
+                Spacer(minLength: 0)
+            }
+            .frame(height: Row.slot)
+            if monitor.values[.brightness] != nil {
+                levelRow(
+                    symbol: "sun.max.fill",
+                    label: String(localized: "Brightness"),
+                    control: .brightness,
+                    monitor: monitor,
+                    range: DisplayControlsLevel.minimumBrightness...1
+                )
+            }
+        }
+    }
+
+    /// One level row of an external monitor: the control's symbol in the 28 pt slot, the slider
+    /// and the value. The slider shows the level requested while it moves and the level the
+    /// monitor reports afterwards.
+    private func levelRow(
+        symbol: String,
+        label: String,
+        control: DDCControl,
+        monitor: DisplayControlsRuntime.ExternalMonitor,
+        range: ClosedRange<Double>
+    ) -> some View {
+        let shown = runtime.externalLevel(control: control, display: monitor.id) ?? range.lowerBound
+        return HStack(spacing: HolzBarTheme.Spacing.xs) {
+            Image(systemName: symbol)
+                .font(HolzBarTheme.Hub.compactSymbolFont)
+                .foregroundStyle(HolzBarTheme.Hub.pillText)
+                .frame(width: Row.slot, height: Row.slot)
+                .help(label)
+                .accessibilityHidden(true)
+            Slider(value: externalLevel(control: control, monitor: monitor, fallback: range.lowerBound), in: range)
+                .tint(HolzBarTheme.Palette.accent)
+                .accessibilityLabel(Text(verbatim: "\(label), \(monitor.name)"))
+                .accessibilityValue(Text("\(DisplayControlsLevel.percent(shown)) percent"))
+                .accessibilityAdjustableAction { direction in
+                    switch direction {
+                    case .increment: runtime.adjustExternalLevel(by: 1, control: control, display: monitor.id)
+                    case .decrement: runtime.adjustExternalLevel(by: -1, control: control, display: monitor.id)
+                    @unknown default: break
+                    }
+                }
+                .onKeyPress(.leftArrow) { stepExternal(-1, control: control, monitor: monitor) }
+                .onKeyPress(.downArrow) { stepExternal(-1, control: control, monitor: monitor) }
+                .onKeyPress(.rightArrow) { stepExternal(1, control: control, monitor: monitor) }
+                .onKeyPress(.upArrow) { stepExternal(1, control: control, monitor: monitor) }
+            Text(verbatim: "\(DisplayControlsLevel.percent(shown)) %")
+                .font(HolzBarTheme.Typography.mono.monospacedDigit())
+                .foregroundStyle(HolzBarTheme.Hub.neutral)
+                .frame(width: Row.valueWidth, alignment: .trailing)
+                .accessibilityHidden(true)
+        }
+        .frame(height: Row.height)
+    }
+
+    /// The slider's value: the level requested or reported, requested through the runtime.
+    private func externalLevel(
+        control: DDCControl,
+        monitor: DisplayControlsRuntime.ExternalMonitor,
+        fallback: Double
+    ) -> Binding<Double> {
+        Binding(
+            get: { runtime.externalLevel(control: control, display: monitor.id) ?? fallback },
+            set: { runtime.setExternalLevel($0, control: control, display: monitor.id) }
+        )
+    }
+
+    /// An arrow key steps an external monitor's level by 5 percent when its slider has focus.
+    private func stepExternal(
+        _ steps: Int,
+        control: DDCControl,
+        monitor: DisplayControlsRuntime.ExternalMonitor
+    ) -> KeyPress.Result {
+        guard runtime.externalLevel(control: control, display: monitor.id) != nil else {
+            return .ignored
+        }
+        runtime.adjustExternalLevel(by: steps, control: control, display: monitor.id)
+        return .handled
     }
 
     /// One display's brightness: a slider where macOS can change it, a caption where it cannot.

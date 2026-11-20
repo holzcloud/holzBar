@@ -68,6 +68,7 @@ extension SettingsCatalog {
             .modulesFileDropOpensOnDrag,
             .modulesFileDropRemovesAfterDrop,
             .modulesDisplayControlsBrightness,
+            .modulesDisplayControlsExternalMonitors,
             .modulesAccessoryAlertsConnect,
             .modulesAccessoryAlertsDisconnect,
             .modulesAccessoryAlertsReadsBattery,
@@ -258,6 +259,15 @@ extension SettingsEntry {
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Brightness"),
         info: String(localized: "Uses a private macOS interface. It switches itself off if macOS changes it."),
+        module: "display-controls"
+    )
+
+    static let modulesDisplayControlsExternalMonitors = SettingsEntry(
+        id: "modulesDisplayControlsExternalMonitors",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "External monitors (DDC)"),
+        info: String(localized: "Sets brightness, contrast and volume of external monitors that support DDC. Uses a private macOS interface. It switches itself off if macOS changes it."),
         module: "display-controls"
     )
 

@@ -160610,6 +160610,242 @@
           }
         }
       }
+    },
+    "External monitors (DDC)" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Externí monitory (DDC)"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Externe Monitore (DDC)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monitores externos (DDC)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Écrans externes (DDC)"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Külső monitorok (DDC)"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monitor eksternal (DDC)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monitor esterni (DDC)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外部モニター (DDC)"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "외부 모니터 (DDC)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Externe monitoren (DDC)"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monitory zewnętrzne (DDC)"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monitores externos (DDC)"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monituors externs (DDC)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Внешние мониторы (DDC)"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Externa bildskärmar (DDC)"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harici monitörler (DDC)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зовнішні монітори (DDC)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外接显示器 (DDC)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外接顯示器 (DDC)"
+          }
+        }
+      }
+    },
+    "Sets brightness, contrast and volume of external monitors that support DDC. Uses a private macOS interface. It switches itself off if macOS changes it." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nastavuje jas, kontrast a hlasitost externích monitorů, které podporují DDC. Používá soukromé rozhraní macOS. Samo se vypne, pokud ho macOS změní."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stellt Helligkeit, Kontrast und Lautstärke externer Monitore ein, die DDC unterstützen. Nutzt eine private macOS-Schnittstelle. Sie schaltet sich selbst ab, wenn macOS sie ändert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajusta el brillo, el contraste y el volumen de los monitores externos compatibles con DDC. Usa una interfaz privada de macOS. Se desactiva sola si macOS la cambia."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Règle la luminosité, le contraste et le volume des écrans externes compatibles DDC. Utilise une interface privée de macOS. Elle se désactive d'elle-même si macOS la modifie."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beállítja a DDC-t támogató külső monitorok fényerejét, kontrasztját és hangerejét. A macOS privát felületét használja. Magától kikapcsol, ha a macOS megváltoztatja."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mengatur kecerahan, kontras, dan volume monitor eksternal yang mendukung DDC. Memakai antarmuka pribadi macOS. Mati sendiri jika macOS mengubahnya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta luminosità, contrasto e volume dei monitor esterni che supportano DDC. Usa un'interfaccia privata di macOS. Si disattiva da sola se macOS la cambia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DDC に対応した外部モニターの輝度、コントラスト、音量を調整します。macOS の非公開インターフェイスを使用します。macOS が変更した場合は自動的にオフになります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DDC를 지원하는 외부 모니터의 밝기, 대비, 음량을 조절합니다. macOS의 비공개 인터페이스를 사용합니다. macOS에서 변경하면 자동으로 꺼집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stelt helderheid, contrast en volume in van externe monitoren die DDC ondersteunen. Gebruikt een privé-interface van macOS. Het schakelt zichzelf uit als macOS het wijzigt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustawia jasność, kontrast i głośność zewnętrznych monitorów obsługujących DDC. Używa prywatnego interfejsu macOS. Wyłącza się samo, jeśli macOS go zmieni."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajusta o brilho, o contraste e o volume de monitores externos compatíveis com DDC. Usa uma interface privada do macOS. Desliga-se sozinha se o macOS a alterar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regla la glischur, il contrast ed il volum da monituors externs che sustegnan DDC. Duvra ina interfascha privata da macOS. Ella sa deactiveschescha sezza sch'macOS la midada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Управляет яркостью, контрастом и громкостью внешних мониторов с поддержкой DDC. Использует закрытый интерфейс macOS. Отключается сама, если macOS его изменит."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ställer in ljusstyrka, kontrast och volym för externa bildskärmar som stöder DDC. Använder ett privat macOS-gränssnitt. Stängs av av sig självt om macOS ändrar det."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DDC destekleyen harici monitörlerin parlaklığını, kontrastını ve sesini ayarlar. macOS’in özel bir arayüzünü kullanır. macOS bunu değiştirirse kendiliğinden kapanır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Керує яскравістю, контрастом і гучністю зовнішніх моніторів, що підтримують DDC. Використовує закритий інтерфейс macOS. Вимикається сама, якщо macOS його змінить."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调节支持 DDC 的外接显示器的亮度、对比度和音量。使用 macOS 的私有接口。如果 macOS 更改了该接口，它会自动关闭。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "調整支援 DDC 的外接顯示器的亮度、對比度和音量。使用 macOS 的私有介面。如果 macOS 更改了該介面，它會自動關閉。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
