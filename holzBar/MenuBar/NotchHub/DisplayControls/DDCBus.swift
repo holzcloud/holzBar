@@ -168,6 +168,22 @@ actor DDCBus {
         return nil
     }
 
+    /// Sets a control of a display to a raw value. Refuses (returns `false`) unless that display
+    /// and control were read successfully in this session, and keeps the value at or below the
+    /// maximum that read reported. A request can only be built from a ``DDCControl``, so the
+    /// input source can never be written.
+    func write(_ control: DDCControl, raw: UInt16, to display: UInt32) -> Bool {
+        guard
+            let functions = loaded?.functions,
+            let endpoint = endpoint(for: display),
+            let maximum = readControls[display]?[control]
+        else {
+            return false
+        }
+        let request = DDCPacket.setRequest(control, value: min(raw, maximum))
+        return IOAVServiceBridge.send(request, endpoint: endpoint, functions: functions)
+    }
+
     /// The channel paired with a display, or `nil` when it has none.
     private func endpoint(for display: UInt32) -> IOAVServiceBridge.Endpoint? {
         guard let index = pairing.pairs[display], endpoints.indices.contains(index) else {

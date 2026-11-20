@@ -43,12 +43,20 @@ nonisolated enum DDCPacket {
     /// The opcode of Get VCP Feature.
     private static let getOpcode: UInt8 = 0x01
 
+    /// The opcode of Set VCP Feature.
+    private static let setOpcode: UInt8 = 0x03
+
     /// The start of every checksum: the monitor's address 0x6E and the source address 0x51.
     private static let checksumSeed: UInt8 = 0x6E ^ 0x51
 
     /// The frame that asks a monitor for the current and the maximum value of a control.
     static func getRequest(_ control: DDCControl) -> [UInt8] {
         framed(opcode: getOpcode, parameters: [control.rawValue])
+    }
+
+    /// The frame that sets a control to a raw value, sent big endian.
+    static func setRequest(_ control: DDCControl, value: UInt16) -> [UInt8] {
+        framed(opcode: setOpcode, parameters: [control.rawValue, UInt8(value >> 8), UInt8(value & 0xFF)])
     }
 
     private static func framed(opcode: UInt8, parameters: [UInt8]) -> [UInt8] {

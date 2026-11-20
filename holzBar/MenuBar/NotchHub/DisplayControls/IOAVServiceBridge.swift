@@ -143,6 +143,12 @@ nonisolated enum IOAVServiceBridge {
         return reply
     }
 
+    /// Writes a request that has no reply, such as a Set VCP: only the write cycles of
+    /// ``transfer(_:replyLength:endpoint:functions:)``. Returns `false` when a write fails.
+    static func send(_ request: [UInt8], endpoint: Endpoint, functions: Functions) -> Bool {
+        write(request, to: endpoint, using: functions)
+    }
+
     private static func write(_ request: [UInt8], to endpoint: Endpoint, using functions: Functions) -> Bool {
         var frame = request
         for _ in 0..<DDCTiming.writeCycles {

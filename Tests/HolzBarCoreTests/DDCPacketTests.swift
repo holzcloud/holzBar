@@ -11,6 +11,22 @@ struct DDCPacketTests {
         #expect(DDCPacket.getRequest(.mute) == [0x82, 0x01, 0x8D, 0x31])
     }
 
+    @Test("A Set VCP request carries the code and the value, big endian, with the checksum")
+    func setRequests() {
+        #expect(DDCPacket.setRequest(.brightness, value: 50) == [0x84, 0x03, 0x10, 0x00, 0x32, 0x9A])
+        #expect(DDCPacket.setRequest(.volume, value: 30) == [0x84, 0x03, 0x62, 0x00, 0x1E, 0xC4])
+        #expect(DDCPacket.setRequest(.mute, value: 1) == [0x84, 0x03, 0x8D, 0x00, 0x01, 0x34])
+        #expect(DDCPacket.setRequest(.mute, value: 2) == [0x84, 0x03, 0x8D, 0x00, 0x02, 0x37])
+    }
+
+    @Test("A value above 255 is sent in both bytes")
+    func wideSetRequest() {
+        let request = DDCPacket.setRequest(.contrast, value: 0x0123)
+        #expect(request[3] == 0x01)
+        #expect(request[4] == 0x23)
+        #expect(request.count == 6)
+    }
+
     @Test("Only brightness, contrast, volume and mute can be requested, never the input source")
     func onlyFourControls() {
         #expect(DDCControl.allCases.map(\.rawValue) == [0x10, 0x12, 0x62, 0x8D])
