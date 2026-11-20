@@ -28,7 +28,8 @@ import SwiftUI
 /// the open tab and are never logged.
 ///
 /// External monitors are a separate part, behind their own setting (External monitors, off by
-/// default) and their own ``ddcGate``. It talks DDC/CI to a monitor through the private
+/// default) and their own ``ddcGate``. A monitor's card shows only the controls it lists in its
+/// capabilities string and confirms by a value read; the string is read once per hub opening. It talks DDC/CI to a monitor through the private
 /// interface of ``IOAVServiceBridge``, on the ``DDCBus``'s own queue, so no transfer ever blocks
 /// the main actor. The state of each monitor is read when the hub opens or the tab appears and
 /// once after a change; nothing is polled, and the CoreAudio listener refreshes only the Mac's
@@ -142,6 +143,11 @@ final class DisplayControlsRuntime: HubModuleRuntime {
 
     /// The bus, created when the part first runs and dropped with it.
     @ObservationIgnored private var bus: DDCBus?
+
+    /// The number of hub openings so far. The bus reads each monitor's capabilities once per
+    /// opening: a survey of the same opening (the tab appearing again) reuses them, a new
+    /// opening reads them afresh.
+    private(set) var hubOpening = 0
 
     /// Counts the openings and surveys; a result with another number is dropped.
     @ObservationIgnored private var ddcGeneration = 0
@@ -344,6 +350,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         }
         let bus = bus ?? DDCBus()
         self.bus = bus
+        let opening = hubOpening
         surveyTask = Task { [weak self] in
             let load = await bus.load()
             guard !Task.isCancelled, let self, self.ddcGeneration == generation else {
@@ -354,7 +361,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
                 self.markExternalsUnavailable()
                 return
             }
-            let reports = await bus.survey(candidates)
+            let reports = await bus.survey(candidates, opening: opening)
             guard !Task.isCancelled, self.ddcGeneration == generation else {
                 return
             }
@@ -475,6 +482,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// one read-back sets the level shown to what the monitor reports.
     func setExternalLevel(_ level: Double, control: DDCControl, display: CGDirectDisplayID) {
         guard
+            control != .mute,
             ddcGate.isAvailable,
             let bus,
             let value = externals.first(where: { $0.id == display && $0.state == .ready })?.values[control]
@@ -482,7 +490,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             return
         }
         let key = ExternalControl(display: display, control: control)
-        let floor = control == .brightness ? DDCLevel.brightnessFloor : 0
+        let floor = DDCLevel.floor(for: control)
         let kept = max(DisplayControlsLevel.clamped(level), floor)
         requestedLevels[key] = kept
         let raw = DDCLevel.raw(fromLevel: kept, maximum: value.maximum, floor: floor)
@@ -571,6 +579,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// when it closes.
     func hubVisibilityDidChange(isOpen: Bool) {
         if isOpen {
+            hubOpening += 1
             refresh()
             listener.start { [weak self] in
                 self?.refreshVolume()

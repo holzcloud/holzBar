@@ -39,6 +39,14 @@ struct DDCPacketTests {
         #expect(DDCPacket.mcdpChipAddress == 0xB7)
         #expect(DDCPacket.dataAddress == 0x51)
         #expect(DDCPacket.getReplyLength == 11)
+        #expect(DDCPacket.capabilitiesReplyLength == 38)
+    }
+
+    @Test("A capabilities request carries the offset, big endian, with the checksum")
+    func capabilitiesRequests() {
+        #expect(DDCPacket.capabilitiesRequest(offset: 0) == [0x83, 0xF3, 0x00, 0x00, 0x4F])
+        #expect(DDCPacket.capabilitiesRequest(offset: 32) == [0x83, 0xF3, 0x00, 0x20, 0x6F])
+        #expect(DDCPacket.capabilitiesRequest(offset: 0x0140)[2...3] == [0x01, 0x40])
     }
 
     @Test("The timing is the one measured on a monitor that drops the first write")

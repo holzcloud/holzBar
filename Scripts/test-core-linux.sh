@@ -43,6 +43,7 @@ sources=(
   CommandDragSection
   ControlCenterControl
   ControlItemOrder
+  DDCCapabilities
   DDCDisplayMatch
   DDCFailurePolicy
   DDCLevel
@@ -187,6 +188,7 @@ tests=(
   CommandDragSectionTests
   ControlCenterControlTests
   ControlItemOrderTests
+  DDCCapabilitiesTests
   DDCDisplayMatchTests
   DDCFailurePolicyTests
   DDCLevelTests

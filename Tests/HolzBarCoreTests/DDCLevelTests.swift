@@ -34,4 +34,29 @@ struct DDCLevelTests {
         #expect(Level.level(raw: 60, maximum: 50) == 1)
         #expect(Level.level(raw: 5, maximum: 0) == nil)
     }
+
+    @Test("The contrast has the same 2 percent floor as the brightness, volume and mute have none")
+    func floors() {
+        #expect(Level.contrastFloor == 0.02)
+        #expect(Level.floor(for: .brightness) == Level.brightnessFloor)
+        #expect(Level.floor(for: .contrast) == 0.02)
+        #expect(Level.floor(for: .volume) == 0)
+        #expect(Level.floor(for: .mute) == 0)
+        #expect(Level.raw(fromLevel: 0, maximum: 50, floor: Level.contrastFloor) == 1)
+        #expect(Level.raw(fromLevel: 0, maximum: 100, floor: Level.floor(for: .volume)) == 0)
+    }
+
+    @Test("Only the raw value 1 means muted; 0 is what a never muted monitor may report")
+    func muteReading() {
+        #expect(Level.isMuted(raw: 1))
+        #expect(!Level.isMuted(raw: 0))
+        #expect(!Level.isMuted(raw: 2))
+        #expect(!Level.isMuted(raw: 255))
+    }
+
+    @Test("Mute writes 1 and unmute writes 2")
+    func muteWriting() {
+        #expect(Level.muteRaw(true) == 1)
+        #expect(Level.muteRaw(false) == 2)
+    }
 }

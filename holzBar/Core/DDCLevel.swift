@@ -16,6 +16,31 @@ nonisolated enum DDCLevel {
     /// monitor's backlight that is scaled, never a software dimming.
     static let brightnessFloor = DisplayControlsLevel.minimumBrightness
 
+    /// The lowest contrast the module sets: 2 percent of the monitor's own maximum, so a slip
+    /// cannot make the screen unreadable.
+    static let contrastFloor = DisplayControlsLevel.minimumBrightness
+
+    /// The lowest level the module sets for a control: the floor for brightness and contrast, 0
+    /// for volume and mute.
+    static func floor(for control: DDCControl) -> Double {
+        switch control {
+        case .brightness: brightnessFloor
+        case .contrast: contrastFloor
+        case .volume, .mute: 0
+        }
+    }
+
+    /// Whether the raw value of the mute control means muted. Only 1 does: a monitor that has
+    /// never been muted may report 0 (a Samsung S34C65xV does), and 2 is unmuted.
+    static func isMuted(raw: UInt16) -> Bool {
+        raw == 1
+    }
+
+    /// The raw value that mutes (1) or unmutes (2) a monitor, as MCCS 2.x defines it.
+    static func muteRaw(_ muted: Bool) -> UInt16 {
+        muted ? 1 : 2
+    }
+
     /// The raw value for a level. The level is kept between 0 and 1, raised to `floor`, scaled
     /// to `maximum` and rounded. With a floor above 0 and a maximum above 0 the result is at
     /// least 1, so a coarse scale (a maximum of 3) never rounds the floor down to off.

@@ -80,6 +80,14 @@ actor DDCBus {
     /// written only after it was read, and never above its maximum.
     private var readControls = [UInt32: [DDCControl: UInt16]]()
 
+    /// The capabilities of each display read in the current hub opening, `nil` inside when the
+    /// string could not be read or parsed (so the fallback is not retried when the tab appears
+    /// again). Memory only, and emptied when a new hub opening starts.
+    private var capabilitiesCache = [UInt32: Set<UInt8>?]()
+
+    /// The hub opening the capabilities cache belongs to.
+    private var cachedOpening: Int?
+
     /// Looks the functions up, the first time only; later calls return the same result. On a
     /// Mac that is not Apple silicon nothing is looked up. The framework is always present, so
     /// the answer is `.loaded` or `.symbolMissing`.
@@ -93,19 +101,28 @@ actor DDCBus {
         return attempt.result
     }
 
-    /// Pairs the given displays with DDC channels and reads the brightness of each paired
-    /// display. The registry is walked the first time and again only when the set of display
-    /// identifiers differs from the last survey. Stops early when the calling task is
-    /// cancelled.
-    func survey(_ displays: [DDCDisplayMatch.Display]) -> [DDCDisplayReport] {
+    /// Pairs the given displays with DDC channels and reads every control each paired display
+    /// has: brightness, contrast, volume and mute. A display's capabilities string decides
+    /// which controls are tried and a value read confirms each one; without a readable string
+    /// brightness is read first and the display gets the controls that answer. The registry is
+    /// walked the first time and again only when the set of display identifiers differs from
+    /// the last survey. `opening` is the number of the hub opening: a new number empties the
+    /// capabilities cache, so every opening reads them afresh and the surveys of one opening
+    /// reuse them. Stops early when the calling task is cancelled.
+    func survey(_ displays: [DDCDisplayMatch.Display], opening: Int) -> [DDCDisplayReport] {
         guard let functions = loaded?.functions else {
             return displays.map { DDCDisplayReport(id: $0.id, outcome: .noAnswer(tried: false)) }
+        }
+        if cachedOpening != opening {
+            capabilitiesCache = [:]
+            cachedOpening = opening
         }
         let identifiers = Set(displays.map(\.id))
         if surveyedIDs != identifiers {
             endpoints = IOAVServiceBridge.endpoints(using: functions)
             surveyedIDs = identifiers
             readControls = [:]
+            capabilitiesCache = [:]
         }
         pairing = DDCDisplayMatch.match(displays: displays, framebuffers: endpoints.map(\.framebuffer))
 
@@ -118,17 +135,85 @@ actor DDCBus {
             if pairing.indistinguishable.contains(display.id) {
                 outcome = .indistinguishable
             } else if pairing.pairs[display.id] != nil {
-                if let value = read(.brightness, of: display.id) {
-                    outcome = .answered([value])
-                } else {
-                    outcome = .noAnswer(tried: true)
-                }
+                outcome = surveyControls(of: display.id)
             } else {
                 outcome = .noAnswer(tried: false)
             }
             reports.append(DDCDisplayReport(id: display.id, outcome: outcome))
         }
         return reports
+    }
+
+    /// The controls of one paired display that answer. With the capabilities string the
+    /// candidates it lists are read; without it brightness is read first, and a display that
+    /// does not answer it is not asked for more. The order of reads is brightness, contrast,
+    /// volume, mute. Only a display with a row to show counts as having answered.
+    private func surveyControls(of display: UInt32) -> DDCDisplayReport.Outcome {
+        var confirmed = [DDCControlValue]()
+        if let candidates = DDCCapabilities.candidates(listed: capabilities(of: display)) {
+            confirmed = candidates.compactMap { read($0, of: display) }
+        } else if let brightness = read(.brightness, of: display) {
+            confirmed = [brightness] + [DDCControl.contrast, .volume, .mute].compactMap { read($0, of: display) }
+        }
+        let shown = DDCCapabilities.rows(confirmed: Set(confirmed.map(\.control)))
+        return shown.isEmpty ? .noAnswer(tried: true) : .answered(confirmed)
+    }
+
+    /// The VCP codes a display's capabilities string lists, or `nil` when the string could not
+    /// be read or parsed. Read once per hub opening (the cache is emptied by the next opening's
+    /// survey) and kept in memory only; a failed read is kept too, so it is not retried while
+    /// the opening lasts. Fragments are read from offset 0 until the string is complete, each
+    /// checked by ``DDCCapabilities``, with the same retries as a value read.
+    func capabilities(of display: UInt32) -> Set<UInt8>? {
+        if let cached = capabilitiesCache[display] {
+            return cached
+        }
+        guard let functions = loaded?.functions, let endpoint = endpoint(for: display) else {
+            return nil
+        }
+        var assembler = DDCCapabilities.Assembler()
+        while !assembler.isComplete {
+            guard !Task.isCancelled else {
+                return nil
+            }
+            guard let data = readFragment(at: assembler.nextOffset, endpoint: endpoint, functions: functions) else {
+                // A cancelled read says nothing about the monitor, so it is not remembered.
+                if !Task.isCancelled {
+                    capabilitiesCache[display] = .some(nil)
+                }
+                return nil
+            }
+            assembler.append(data)
+        }
+        let listed = DDCCapabilities.parse(assembler.text)
+        capabilitiesCache[display] = .some(listed)
+        return listed
+    }
+
+    /// One fragment of the capabilities string, tried up to ``DDCTiming/attempts`` times.
+    private func readFragment(
+        at offset: UInt16,
+        endpoint: IOAVServiceBridge.Endpoint,
+        functions: IOAVServiceBridge.Functions
+    ) -> [UInt8]? {
+        let request = DDCPacket.capabilitiesRequest(offset: offset)
+        for attempt in 0..<DDCTiming.attempts {
+            guard !Task.isCancelled else {
+                return nil
+            }
+            if attempt > 0 {
+                usleep(DDCTiming.retryWait)
+            }
+            if let bytes = IOAVServiceBridge.transfer(
+                request,
+                replyLength: DDCPacket.capabilitiesReplyLength,
+                endpoint: endpoint,
+                functions: functions
+            ), let data = DDCCapabilities.fragment(bytes, expectingOffset: offset) {
+                return data
+            }
+        }
+        return nil
     }
 
     /// Reads a control of a display. Tries up to ``DDCTiming/attempts`` transfers and accepts

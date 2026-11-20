@@ -6,7 +6,7 @@
 import SwiftUI
 
 /// The Display controls tab: a brightness slider for each display macOS can change, a card with
-/// its own brightness slider for each external monitor that answers DDC/CI, then a slider row
+/// a slider for each control of each external monitor that answers DDC/CI, then a slider row
 /// for the volume of the Mac's sound output.
 ///
 /// The row follows the concept's slider row: a 28 pt slot with a 16 pt symbol, the name, the
@@ -89,14 +89,8 @@ struct DisplayControlsBodyView: View {
             .frame(height: Row.slot)
             switch monitor.state {
             case .reading, .ready:
-                if monitor.values[.brightness] != nil {
-                    levelRow(
-                        symbol: "sun.max.fill",
-                        label: String(localized: "Brightness"),
-                        control: .brightness,
-                        monitor: monitor,
-                        range: DisplayControlsLevel.minimumBrightness...1
-                    )
+                ForEach(DDCCapabilities.rows(confirmed: Set(monitor.values.keys)), id: \.self) { control in
+                    externalRow(control, monitor: monitor)
                 }
             case .doesNotAnswer:
                 caption(Text("This display does not answer DDC. Turn on DDC/CI in the display's own menu."))
@@ -105,6 +99,32 @@ struct DisplayControlsBodyView: View {
             case .unavailable:
                 caption(Text("External monitor control is not available on this Mac. Restart holzBar to try again."))
             }
+        }
+    }
+
+    /// The row of one confirmed control of an external monitor. Brightness and contrast have a
+    /// floor of 2 percent, so a slip cannot make the screen unreadable.
+    @ViewBuilder
+    private func externalRow(_ control: DDCControl, monitor: DisplayControlsRuntime.ExternalMonitor) -> some View {
+        switch control {
+        case .brightness:
+            levelRow(
+                symbol: "sun.max.fill",
+                label: String(localized: "Brightness"),
+                control: .brightness,
+                monitor: monitor,
+                range: DDCLevel.brightnessFloor...1
+            )
+        case .contrast:
+            levelRow(
+                symbol: "circle.lefthalf.filled",
+                label: String(localized: "Contrast"),
+                control: .contrast,
+                monitor: monitor,
+                range: DDCLevel.contrastFloor...1
+            )
+        case .volume, .mute:
+            EmptyView()
         }
     }
 
