@@ -160016,6 +160016,244 @@
           }
         }
       }
+    },
+    "Stand-ins for icons macOS hides" : {
+      "comment" : "Layout switch on macOS 27: holzBar draws a stand-in icon for a visible app whose icon macOS hides anyway",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zástupné ikony za ikony, které macOS skrývá"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Platzhalter für Symbole, die macOS ausblendet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sustitutos de los iconos que macOS oculta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Substituts pour les icônes que macOS masque"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Helyettesítő ikonok a macOS által elrejtett ikonokhoz"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ikon pengganti untuk ikon yang disembunyikan macOS"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostituti per le icone che macOS nasconde"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS が隠すアイコンの代替アイコン"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS가 숨기는 아이콘의 대체 아이콘"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vervangers voor symbolen die macOS verbergt"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zastępcze ikony dla ikon ukrywanych przez macOS"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Substitutos para ícones que o macOS oculta"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Substituts per ils simbols che macOS zuppenta"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заменители для значков, которые скрывает macOS"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ersättare för ikoner som macOS döljer"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS’in gizlediği simgeler için yedek simgeler"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Замінники для значків, які ховає macOS"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "为 macOS 隐藏的图标显示替身"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "為 macOS 隱藏的圖像顯示替身"
+          }
+        }
+      }
+    },
+    "Some apps outside the Applications folder lose their menu bar icon while holzBar hides anything, even in Visible. holzBar then shows a stand-in in its place: click it to open the app's menu." : {
+      "comment" : "Info text of the stand-in icons switch in Layout (macOS 27)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Některé aplikace mimo složku Aplikace ztratí ikonu v řádku nabídek, dokud holzBar cokoli skrývá, i ve Viditelných. holzBar pak na jejich místě zobrazí zástupnou ikonu: kliknutím na ni otevřete nabídku aplikace."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einige Apps außerhalb des Ordners „Programme“ verlieren ihr Menüleistensymbol, solange holzBar etwas ausblendet, auch unter „Sichtbar“. holzBar zeigt dann an ihrer Stelle einen Platzhalter: Klicke darauf, um das Menü der App zu öffnen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Algunas apps fuera de la carpeta Aplicaciones pierden su icono de la barra de menús mientras holzBar oculta algo, incluso en Visible. holzBar muestra entonces un sustituto en su lugar: haz clic en él para abrir el menú de la app."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certaines apps situées hors du dossier Applications perdent leur icône de la barre des menus tant que holzBar masque quelque chose, même dans Visible. holzBar affiche alors un substitut à sa place : cliquez dessus pour ouvrir le menu de l'app."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Néhány, az Alkalmazások mappán kívüli alkalmazás elveszíti a menüsor-ikonját, amíg a holzBar bármit elrejt, még a Látható szakaszban is. A holzBar ilyenkor helyettesítő ikont mutat a helyén: kattintson rá az alkalmazás menüjének megnyitásához."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beberapa app di luar folder Aplikasi kehilangan ikon bar menunya selama holzBar menyembunyikan sesuatu, bahkan di Terlihat. holzBar lalu menampilkan ikon pengganti di tempatnya: klik untuk membuka menu app."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alcune app fuori dalla cartella Applicazioni perdono l'icona nella barra dei menu finché holzBar nasconde qualcosa, anche in Visibile. holzBar mostra allora un sostituto al suo posto: fai clic su di esso per aprire il menu dell'app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「アプリケーション」フォルダ外の一部の App は、holzBar が何かを隠している間、「表示」にあってもメニューバーのアイコンが表示されなくなります。その場合、holzBar が代わりのアイコンを表示します。クリックすると、その App のメニューが開きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "응용 프로그램 폴더 밖에 있는 일부 앱은 holzBar가 무언가를 숨기는 동안 ‘표시’에 있어도 메뉴 막대 아이콘이 사라집니다. 이때 holzBar가 그 자리에 대체 아이콘을 표시합니다. 클릭하면 해당 앱의 메뉴가 열립니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sommige apps buiten de map Programma’s verliezen hun menubalksymbool zolang holzBar iets verbergt, ook onder Zichtbaar. holzBar toont dan een vervanger op die plek: klik erop om het menu van de app te openen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niektóre aplikacje spoza folderu Programy tracą ikonę na pasku menu, gdy holzBar cokolwiek ukrywa, nawet w sekcji Widoczne. holzBar pokazuje wtedy w jej miejscu ikonę zastępczą: kliknij ją, aby otworzyć menu aplikacji."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alguns apps fora da pasta Aplicativos perdem o ícone na barra de menus enquanto o holzBar oculta qualquer item, mesmo em Visível. O holzBar mostra então um substituto no lugar: clique nele para abrir o menu do app."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intgins apps ordaifer la mappa Applicaziuns perdan lur simbol en la trav da menu uschè ditg che holzBar zuppenta insatge, era en Visibel. holzBar mussa lura en sia plaza in substitut: clicca sin el per avrir il menu da l'app."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Некоторые приложения вне папки «Программы» теряют значок в строке меню, пока holzBar что-либо скрывает, даже в разделе «Видимо». Тогда holzBar показывает на его месте заменитель: нажмите на него, чтобы открыть меню приложения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vissa appar utanför mappen Program förlorar sin ikon i menyraden medan holzBar döljer något, även i Synlig. holzBar visar då en ersättare på dess plats: klicka på den för att öppna appens meny."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamalar klasörü dışındaki bazı uygulamalar, holzBar bir şeyi gizlerken, Görünür bölümünde olsalar bile menü çubuğu simgelerini kaybeder. holzBar bu durumda yerine bir yedek simge gösterir: uygulamanın menüsünü açmak için tıklayın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Деякі програми поза папкою «Програми» втрачають значок у смузі меню, поки holzBar щось ховає, навіть у розділі «Видимі». Тоді holzBar показує на його місці замінник: клацніть його, щоб відкрити меню програми."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“应用程序”文件夹之外的某些 App 在 holzBar 隐藏任何内容时，即使位于“可见”中，也会失去菜单栏图标。此时 holzBar 会在原位显示一个替身图标：点按它即可打开该 App 的菜单。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「應用程式」檔案夾以外的某些 App，在 holzBar 隱藏任何項目時，即使位於「可見」中，也會失去選單列圖像。此時 holzBar 會在原處顯示替身圖像：按一下即可開啟該 App 的選單。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -155,10 +155,18 @@ final class AccessibilityBackend27: MenuBarBackend {
     }
 
     /// The cached items, as `ItemHitTest27` takes them.
+    ///
+    /// A stand-in icon is holzBar's own item that the provider never reads, so its frame is added
+    /// here: a click on it lies inside the items area and never counts as one on the empty bar.
     private func hitTestItems(appState: AppState) -> [ItemHitTest27.Item] {
-        appState.itemManager.itemCache.managedItems.map { item in
+        var items = appState.itemManager.itemCache.managedItems.map { item in
             ItemHitTest27.Item(frame: item.bounds, ownerPID: item.ownerPID, isOnScreen: item.isOnScreen)
         }
+        let ownPID = ProcessInfo.processInfo.processIdentifier
+        items += appState.standInFrames27().map { frame in
+            ItemHitTest27.Item(frame: frame, ownerPID: ownPID, isOnScreen: true)
+        }
+        return items
     }
 
     /// The frames MenuBarAgent draws on the display under the point, when that display's bar
