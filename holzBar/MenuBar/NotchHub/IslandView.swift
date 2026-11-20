@@ -11,8 +11,9 @@ import SwiftUI
 /// The island is one shape with no glass, no gradient and no stroke, black in every appearance, so
 /// that it and the camera housing are one object. Its width and height each follow their own
 /// animation (``IslandPresentation``). The content sits at a rectangle of the layout and never
-/// stretches with the shape: it appears a moment after the shape starts to grow, from a blur and a
-/// smaller scale; under Reduce Motion nothing blurs or scales and only the opacity changes.
+/// stretches with the shape, but it is cut to the shape, so nothing shows beyond the black while
+/// the shape grows or returns: it appears a moment after the shape starts to grow, from a blur and
+/// a smaller scale; under Reduce Motion nothing blurs or scales and only the opacity changes.
 ///
 /// The island shows one module at a time. Every body fills the content rectangle and scrolls
 /// inside it when it needs more. Choosing another module cross-fades the content while it rises a
@@ -55,10 +56,21 @@ struct IslandView: View {
         ZStack(alignment: .topLeading) {
             closingLayer
             island
-            topRow
-            contextLine
-            content
-            moduleRow
+            // The open island's parts are cut to the animated shape, so they never show beyond
+            // the black while it is still growing out of the notch or returning into it.
+            ZStack(alignment: .topLeading) {
+                topRow
+                contextLine
+                content
+                moduleRow
+            }
+            .frame(width: canvasWidth, height: canvasHeight, alignment: .topLeading)
+            .mask(alignment: .topLeading) {
+                silhouette(IslandShape(
+                    topRadius: CGFloat(presentation.topRadius),
+                    bottomRadius: CGFloat(presentation.bottomRadius)
+                ))
+            }
             liveContent
                 .animation(presentation.liveContentAnimation, value: presentation.showsLiveContent)
         }
@@ -156,23 +168,35 @@ struct IslandView: View {
     private var island: some View {
         let topRadius = CGFloat(presentation.topRadius)
         let bottomRadius = CGFloat(presentation.bottomRadius)
-        return ZStack {
-            IslandShape(topRadius: topRadius, bottomRadius: bottomRadius)
-                .fill(HolzBarTheme.Island.surface)
-            if contrast == .increased {
-                IslandLowerEdge(topRadius: topRadius, bottomRadius: bottomRadius)
-                    .stroke(HolzBarTheme.Island.edge, lineWidth: HolzBarTheme.Island.edgeWidth)
+        return silhouette(
+            ZStack {
+                IslandShape(topRadius: topRadius, bottomRadius: bottomRadius)
+                    .fill(HolzBarTheme.Island.surface)
+                if contrast == .increased {
+                    IslandLowerEdge(topRadius: topRadius, bottomRadius: bottomRadius)
+                        .stroke(HolzBarTheme.Island.edge, lineWidth: HolzBarTheme.Island.edgeWidth)
+                }
             }
-        }
-        .animation(presentation.heightAnimation, value: presentation.bottomRadius)
-        .frame(width: CGFloat(presentation.width))
-        .animation(presentation.widthAnimation, value: presentation.width)
-        .frame(height: CGFloat(presentation.height))
-        .animation(presentation.heightAnimation, value: presentation.height)
-        .contentShape(IslandShape(topRadius: topRadius, bottomRadius: bottomRadius))
-        .offset(x: CGFloat(presentation.centreX - (presentation.canvas.x + presentation.canvas.width / 2)))
-        .animation(presentation.widthAnimation, value: presentation.centreX)
-        .frame(width: canvasWidth, height: canvasHeight, alignment: .top)
+        )
+    }
+
+    /// Places `shape` where the island is and gives it the island's motion: the width, the height
+    /// and the corners each carry the animation that belongs to them. The black island and the
+    /// mask of its parts both go through here, so the parts are cut to exactly the shape on screen.
+    private func silhouette(_ shape: some View) -> some View {
+        shape
+            .animation(presentation.heightAnimation, value: presentation.bottomRadius)
+            .frame(width: CGFloat(presentation.width))
+            .animation(presentation.widthAnimation, value: presentation.width)
+            .frame(height: CGFloat(presentation.height))
+            .animation(presentation.heightAnimation, value: presentation.height)
+            .contentShape(IslandShape(
+                topRadius: CGFloat(presentation.topRadius),
+                bottomRadius: CGFloat(presentation.bottomRadius)
+            ))
+            .offset(x: CGFloat(presentation.centreX - (presentation.canvas.x + presentation.canvas.width / 2)))
+            .animation(presentation.widthAnimation, value: presentation.centreX)
+            .frame(width: canvasWidth, height: canvasHeight, alignment: .top)
     }
 
     // MARK: The content
