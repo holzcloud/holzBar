@@ -44,6 +44,7 @@ sources=(
   ControlCenterControl
   ControlItemOrder
   DDCDisplayMatch
+  DDCFailurePolicy
   DDCLevel
   DDCPacket
   DDCReply
@@ -187,6 +188,7 @@ tests=(
   ControlCenterControlTests
   ControlItemOrderTests
   DDCDisplayMatchTests
+  DDCFailurePolicyTests
   DDCLevelTests
   DDCPacketTests
   DDCReplyTests
