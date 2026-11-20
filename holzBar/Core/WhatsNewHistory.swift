@@ -24,6 +24,19 @@ import Foundation
 nonisolated enum WhatsNewHistory {
     /// The releases, newest first.
     static let releases: [WhatsNewRelease] = [
+        WhatsNewRelease(version: "1.1.1",
+            new: [
+                WhatsNewItem(
+                    symbol: "display",
+                    title: "External monitors",
+                    detail: "Display controls sets the brightness, contrast, volume and mute of external monitors that support DDC, with its own switch in the module's settings."
+                ),
+            ],
+            fixed: [
+                WhatsNewFix(text: "The Notch hub's content no longer shows outside its black shape while it opens or closes."),
+                WhatsNewFix(text: "With the holzBar Shelf limited to some displays, the other displays always show every menu bar item, unless they are set to Collapse."),
+            ]
+        ),
         WhatsNewRelease(version: "1.1.0",
             new: [
                 WhatsNewItem(

@@ -161672,6 +161672,482 @@
           }
         }
       }
+    },
+    "External monitors" : {
+      "comment" : "What's New 1.1.1: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Externí monitory"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Externe Monitore"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monitores externos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Écrans externes"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Külső monitorok"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monitor eksternal"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monitor esterni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外部モニター"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "외부 모니터"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Externe monitoren"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monitory zewnętrzne"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monitores externos"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monituors externs"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Внешние мониторы"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Externa bildskärmar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harici monitörler"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зовнішні монітори"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外接显示器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外接顯示器"
+          }
+        }
+      }
+    },
+    "Display controls sets the brightness, contrast, volume and mute of external monitors that support DDC, with its own switch in the module's settings." : {
+      "comment" : "What's New 1.1.1: detail; Display controls is the module name, use the catalog's translation",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ovládání displeje nastavuje jas, kontrast, hlasitost a ztlumení externích monitorů, které podporují DDC, s vlastním přepínačem v nastavení modulu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anzeigesteuerung stellt Helligkeit, Kontrast, Lautstärke und Stummschaltung externer Monitore ein, die DDC unterstützen, mit einem eigenen Schalter in den Einstellungen des Moduls."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controles de pantalla ajusta el brillo, el contraste, el volumen y el silencio de los monitores externos compatibles con DDC, con su propio interruptor en los ajustes del módulo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contrôles d’affichage règle la luminosité, le contraste, le volume et le mode muet des écrans externes compatibles DDC, avec son propre interrupteur dans les réglages du module."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Kijelzővezérlők beállítja a DDC-t támogató külső monitorok fényerejét, kontrasztját, hangerejét és némítását, a modul beállításaiban saját kapcsolóval."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontrol Layar mengatur kecerahan, kontras, volume, dan bisu monitor eksternal yang mendukung DDC, dengan sakelar tersendiri di pengaturan modul."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controlli dello schermo imposta luminosità, contrasto, volume e silenziamento dei monitor esterni che supportano DDC, con un interruttore proprio nelle impostazioni del modulo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ディスプレイコントロールは、DDC に対応した外部モニターの輝度、コントラスト、音量、ミュートを調整します。モジュールの設定に専用のスイッチがあります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "디스플레이 제어는 DDC를 지원하는 외부 모니터의 밝기, 대비, 음량, 음소거를 조절하며, 모듈 설정에 전용 스위치가 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schermbediening stelt helderheid, contrast, volume en dempen in van externe monitoren die DDC ondersteunen, met een eigen schakelaar in de instellingen van de module."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sterowanie wyświetlaczem ustawia jasność, kontrast, głośność i wyciszenie monitorów zewnętrznych obsługujących DDC, z własnym przełącznikiem w ustawieniach modułu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controles de tela ajusta o brilho, o contraste, o volume e o silenciamento de monitores externos compatíveis com DDC, com um interruptor próprio nos ajustes do módulo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controlls da la visualisaziun regla la glischur, il contrast, il volum e la deactivaziun dal tun da monituors externs che sustegnan DDC, cun in agen interrutur en las configuraziuns dal modul."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Управление дисплеем» регулирует яркость, контрастность, громкость и отключение звука внешних мониторов с поддержкой DDC; у него есть собственный переключатель в настройках модуля."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skärmkontroller ställer in ljusstyrka, kontrast, volym och ljud av för externa bildskärmar som stöder DDC, med en egen strömbrytare i modulens inställningar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran Denetimleri, DDC destekleyen harici monitörlerin parlaklığını, kontrastını, sesini ve sessize almayı ayarlar; modülün ayarlarında kendi anahtarı vardır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Керування дисплеєм» налаштовує яскравість, контрастність, гучність і вимкнення звуку зовнішніх моніторів, що підтримують DDC, з власним перемикачем у параметрах модуля."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示控制可调节支持 DDC 的外接显示器的亮度、对比度、音量和静音，并在模块设置中有自己的开关。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示器控制可調整支援 DDC 的外接顯示器的亮度、對比度、音量和靜音，並在模組設定中有自己的開關。"
+          }
+        }
+      }
+    },
+    "The Notch hub's content no longer shows outside its black shape while it opens or closes." : {
+      "comment" : "What's New 1.1.1: fix; Notch hub as the catalog translates it",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obsah centra u výřezu se při otevírání a zavírání už nezobrazuje mimo svůj černý tvar."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Inhalt des Notch-Hubs erscheint beim Öffnen und Schließen nicht mehr außerhalb seiner schwarzen Form."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El contenido del centro del notch ya no se muestra fuera de su forma negra mientras se abre o se cierra."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le contenu du hub de l’encoche n’apparaît plus en dehors de sa forme noire pendant son ouverture ou sa fermeture."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Notch-központ tartalma megnyitás és bezárás közben már nem jelenik meg a fekete alakzatán kívül."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Isi Pusat Notch tidak lagi tampil di luar bentuk hitamnya saat dibuka atau ditutup."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il contenuto del hub del notch non appare più fuori dalla sua forma nera mentre si apre o si chiude."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ノッチハブの内容が、開閉中に黒い形の外にはみ出して表示されなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노치 허브의 내용이 열리거나 닫히는 동안 검은 모양 밖으로 표시되지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De inhoud van de Notch-hub verschijnt niet meer buiten zijn zwarte vorm terwijl hij opent of sluit."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zawartość centrum notcha nie wychodzi już poza jego czarny kształt podczas otwierania i zamykania."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O conteúdo do hub do notch não aparece mais fora da sua forma preta enquanto ele abre ou fecha."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il cuntegn dal hub da la notch na vegn pli mussà ordaifer sia furma nera durant ch'el s'avra u ch'el serra."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Содержимое центра у выреза больше не выходит за его чёрную форму при открытии и закрытии."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Innehållet i Notchcentrumet visas inte längre utanför dess svarta form medan det öppnas eller stängs."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch Merkezi’nin içeriği açılırken veya kapanırken artık siyah şeklinin dışında görünmüyor."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вміст центру біля вирізу більше не виходить за межі його чорної форми під час відкриття та закриття."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刘海中心的内容在打开或关闭时，不再显示在其黑色形状之外。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "瀏海中心的內容在開啟或關閉時，不再顯示在其黑色形狀之外。"
+          }
+        }
+      }
+    },
+    "With the holzBar Shelf limited to some displays, the other displays always show every menu bar item, unless they are set to Collapse." : {
+      "comment" : "What's New 1.1.1: fix; holzBar Shelf stays, Collapse as the catalog translates it",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Když je holzBar Shelf omezen na některé displeje, ostatní displeje vždy zobrazují všechny položky řádku nabídek, pokud nejsou nastaveny na Sbalit."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ist das holzBar Shelf auf einige Bildschirme beschränkt, zeigen die anderen Bildschirme immer jedes Menüleistenelement, außer sie sind auf Einklappen gestellt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si el holzBar Shelf está limitado a algunas pantallas, las demás pantallas muestran siempre todos los elementos de la barra de menús, salvo que estén en Plegar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quand le holzBar Shelf est limité à certains écrans, les autres écrans affichent toujours tous les éléments de la barre des menus, sauf s’ils sont réglés sur Replier."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ha a holzBar Shelf csak néhány kijelzőre van korlátozva, a többi kijelző mindig minden menüsor-elemet megjelenít, hacsak nincs Összecsukásra állítva."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jika holzBar Shelf dibatasi pada beberapa layar, layar lainnya selalu menampilkan setiap item bar menu, kecuali diatur ke Ciutkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se holzBar Shelf è limitato ad alcuni schermi, gli altri schermi mostrano sempre tutti gli elementi della barra dei menu, a meno che non siano impostati su Comprimi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf を一部のディスプレイに限定した場合、それ以外のディスプレイは「折りたたむ」に設定されていない限り、すべてのメニューバー項目を常に表示します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf를 일부 디스플레이로 제한하면, 나머지 디스플레이는 '접기'로 설정하지 않는 한 모든 메뉴 막대 항목을 항상 표시합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als de holzBar Shelf tot enkele beeldschermen is beperkt, tonen de andere beeldschermen altijd alle menubalkonderdelen, tenzij ze op Vouw samen staan."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gdy holzBar Shelf jest ograniczony do niektórych wyświetlaczy, pozostałe wyświetlacze zawsze pokazują wszystkie elementy paska menu, chyba że ustawiono dla nich Zwiń."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Com o holzBar Shelf limitado a algumas telas, as outras telas sempre mostram todos os itens da barra de menus, a menos que estejam em Recolher."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sch'il holzBar Shelf è limità a tscherts visurs, mussan ils auters visurs adina tut ils elements da la trav da menu, nun ch'els sajan reglads sin Plajar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Если holzBar Shelf ограничен несколькими дисплеями, остальные дисплеи всегда показывают все элементы строки меню, если для них не выбрано «Свернуть»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "När holzBar Shelf är begränsat till vissa skärmar visar de andra skärmarna alltid alla menyradsobjekt, om de inte är inställda på Fäll ihop."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf bazı ekranlarla sınırlandığında, diğer ekranlar Daralt olarak ayarlanmadıkça her menü çubuğu öğesini her zaman gösterir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Якщо holzBar Shelf обмежено кількома дисплеями, інші дисплеї завжди показують усі елементи смуги меню, якщо для них не вибрано «Згорнути»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当 holzBar Shelf 仅限于部分显示器时，其他显示器始终显示所有菜单栏项目，除非它们被设为“折叠”。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當 holzBar Shelf 僅限於部分顯示器時，其他顯示器一律顯示所有選單列項目，除非它們設為「收合」。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
