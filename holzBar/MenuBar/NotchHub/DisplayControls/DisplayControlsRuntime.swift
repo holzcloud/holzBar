@@ -412,7 +412,8 @@ final class DisplayControlsRuntime: HubModuleRuntime {
 
     /// Takes the reports of a survey into ``externals`` and tells the gate what happened. A
     /// monitor that gave no answer says so on its card and never counts on its own; the survey
-    /// counts as one failure only when no monitor answered at all.
+    /// counts as one failure only when no monitor answered and one of the monitors it asked had
+    /// answered earlier in this session (``DDCFailurePolicy``).
     private func apply(_ reports: [DDCDisplayReport]) {
         var tried = Set<UInt32>()
         var answered = Set<UInt32>()

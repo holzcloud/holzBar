@@ -5,10 +5,34 @@ import Testing
 struct DDCFailurePolicyTests {
     typealias Event = DDCFailurePolicy.Event
 
-    @Test("A survey that asked one display and got no answer is one failure")
-    func surveyWithoutAnswer() {
+    @Test("A survey that asked a display that never answered counts for nothing")
+    func surveyWithoutAnswerFromANewDisplay() {
         var policy = DDCFailurePolicy()
         let event = policy.surveyEnded(tried: [1], answered: [])
+        #expect(event == .none)
+    }
+
+    @Test("A survey that asked a display that answered earlier and got no answer is one failure")
+    func surveyWithoutAnswerFromAKnownDisplay() {
+        var policy = DDCFailurePolicy()
+        _ = policy.surveyEnded(tried: [1], answered: [1])
+        let event = policy.surveyEnded(tried: [1], answered: [])
+        #expect(event == .failure)
+    }
+
+    @Test("A survey that asked only displays that never answered counts for nothing, also next to a known one that was not asked")
+    func surveyWithoutAnswerFromOtherDisplays() {
+        var policy = DDCFailurePolicy()
+        _ = policy.surveyEnded(tried: [2], answered: [2])
+        let event = policy.surveyEnded(tried: [1], answered: [])
+        #expect(event == .none)
+    }
+
+    @Test("A survey that asked a known and a new display and got no answer is one failure")
+    func surveyWithoutAnswerFromAKnownAndANewDisplay() {
+        var policy = DDCFailurePolicy()
+        _ = policy.surveyEnded(tried: [2], answered: [2])
+        let event = policy.surveyEnded(tried: [1, 2], answered: [])
         #expect(event == .failure)
     }
 
@@ -28,14 +52,37 @@ struct DDCFailurePolicyTests {
         #expect(event == .none)
     }
 
-    @Test("Three surveys in a row without an answer switch the gate off for the session")
+    @Test("A single monitor with DDC/CI off never switches the gate off, however often it is asked")
+    func aSingleSilentMonitorNeverSwitchesOff() {
+        var policy = DDCFailurePolicy()
+        var gate = PrivateFeatureGate(isEnabled: true, load: .loaded)
+        for _ in 0..<10 {
+            apply(policy.surveyEnded(tried: [1], answered: []), to: &gate)
+        }
+        #expect(gate.isAvailable)
+    }
+
+    @Test("Three surveys in a row without an answer from a monitor that answered before switch the gate off for the session")
     func threeSurveysSwitchOff() {
         var policy = DDCFailurePolicy()
         var gate = PrivateFeatureGate(isEnabled: true, load: .loaded)
+        apply(policy.surveyEnded(tried: [1], answered: [1]), to: &gate)
         for _ in 0..<3 {
             apply(policy.surveyEnded(tried: [1], answered: []), to: &gate)
         }
         #expect(gate.state == .unavailable(.failedRepeatedly))
+    }
+
+    @Test("A monitor that was silent from the start and starts to answer later is a success, not a failure")
+    func aSilentMonitorThatStartsToAnswer() {
+        var policy = DDCFailurePolicy()
+        var gate = PrivateFeatureGate(isEnabled: true, load: .loaded)
+        for _ in 0..<2 {
+            apply(policy.surveyEnded(tried: [1], answered: []), to: &gate)
+        }
+        apply(policy.surveyEnded(tried: [1], answered: [1]), to: &gate)
+        #expect(gate.isAvailable)
+        #expect(policy.hasAnswered(1))
     }
 
     @Test("A monitor without DDC never switches off a working second monitor")
