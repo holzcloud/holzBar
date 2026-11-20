@@ -113,6 +113,7 @@ struct DefaultsKeyNamesTests {
         "SmartCategories",
         "SpacerCount",
         "SpacerWidth",
+        "StandInIcons",
         "SyncsSettingsWithICloud",
         "SystemItemsMayHide",
         "TempShowInterval",

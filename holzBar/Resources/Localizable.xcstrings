@@ -160016,6 +160016,601 @@
           }
         }
       }
+    },
+    "Stand-ins for icons macOS hides" : {
+      "comment" : "Layout switch on macOS 27: holzBar draws a stand-in icon for a visible app whose icon macOS hides anyway",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zástupné ikony za ikony, které macOS skrývá"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Platzhalter für Symbole, die macOS ausblendet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sustitutos de los iconos que macOS oculta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Substituts pour les icônes que macOS masque"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Helyettesítő ikonok a macOS által elrejtett ikonokhoz"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ikon pengganti untuk ikon yang disembunyikan macOS"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostituti per le icone che macOS nasconde"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS が隠すアイコンの代替アイコン"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS가 숨기는 아이콘의 대체 아이콘"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vervangers voor symbolen die macOS verbergt"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zastępcze ikony dla ikon ukrywanych przez macOS"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Substitutos para ícones que o macOS oculta"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Substituts per ils simbols che macOS zuppenta"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заменители для значков, которые скрывает macOS"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ersättare för ikoner som macOS döljer"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS’in gizlediği simgeler için yedek simgeler"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Замінники для значків, які ховає macOS"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "为 macOS 隐藏的图标显示替身"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "為 macOS 隱藏的圖像顯示替身"
+          }
+        }
+      }
+    },
+    "Some apps outside the Applications folder lose their menu bar icon while holzBar hides anything, even in Visible. holzBar then shows a stand-in in its place: click it to open the app's menu." : {
+      "comment" : "Info text of the stand-in icons switch in Layout (macOS 27)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Některé aplikace mimo složku Aplikace ztratí ikonu v řádku nabídek, dokud holzBar cokoli skrývá, i ve Viditelných. holzBar pak na jejich místě zobrazí zástupnou ikonu: kliknutím na ni otevřete nabídku aplikace."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einige Apps außerhalb des Ordners „Programme“ verlieren ihr Menüleistensymbol, solange holzBar etwas ausblendet, auch unter „Sichtbar“. holzBar zeigt dann an ihrer Stelle einen Platzhalter: Klicke darauf, um das Menü der App zu öffnen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Algunas apps fuera de la carpeta Aplicaciones pierden su icono de la barra de menús mientras holzBar oculta algo, incluso en Visible. holzBar muestra entonces un sustituto en su lugar: haz clic en él para abrir el menú de la app."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certaines apps situées hors du dossier Applications perdent leur icône de la barre des menus tant que holzBar masque quelque chose, même dans Visible. holzBar affiche alors un substitut à sa place : cliquez dessus pour ouvrir le menu de l'app."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Néhány, az Alkalmazások mappán kívüli alkalmazás elveszíti a menüsor-ikonját, amíg a holzBar bármit elrejt, még a Látható szakaszban is. A holzBar ilyenkor helyettesítő ikont mutat a helyén: kattintson rá az alkalmazás menüjének megnyitásához."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beberapa app di luar folder Aplikasi kehilangan ikon bar menunya selama holzBar menyembunyikan sesuatu, bahkan di Terlihat. holzBar lalu menampilkan ikon pengganti di tempatnya: klik untuk membuka menu app."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alcune app fuori dalla cartella Applicazioni perdono l'icona nella barra dei menu finché holzBar nasconde qualcosa, anche in Visibile. holzBar mostra allora un sostituto al suo posto: fai clic su di esso per aprire il menu dell'app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「アプリケーション」フォルダ外の一部の App は、holzBar が何かを隠している間、「表示」にあってもメニューバーのアイコンが表示されなくなります。その場合、holzBar が代わりのアイコンを表示します。クリックすると、その App のメニューが開きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "응용 프로그램 폴더 밖에 있는 일부 앱은 holzBar가 무언가를 숨기는 동안 ‘표시’에 있어도 메뉴 막대 아이콘이 사라집니다. 이때 holzBar가 그 자리에 대체 아이콘을 표시합니다. 클릭하면 해당 앱의 메뉴가 열립니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sommige apps buiten de map Programma’s verliezen hun menubalksymbool zolang holzBar iets verbergt, ook onder Zichtbaar. holzBar toont dan een vervanger op die plek: klik erop om het menu van de app te openen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niektóre aplikacje spoza folderu Programy tracą ikonę na pasku menu, gdy holzBar cokolwiek ukrywa, nawet w sekcji Widoczne. holzBar pokazuje wtedy w jej miejscu ikonę zastępczą: kliknij ją, aby otworzyć menu aplikacji."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alguns apps fora da pasta Aplicativos perdem o ícone na barra de menus enquanto o holzBar oculta qualquer item, mesmo em Visível. O holzBar mostra então um substituto no lugar: clique nele para abrir o menu do app."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intgins apps ordaifer la mappa Applicaziuns perdan lur simbol en la trav da menu uschè ditg che holzBar zuppenta insatge, era en Visibel. holzBar mussa lura en sia plaza in substitut: clicca sin el per avrir il menu da l'app."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Некоторые приложения вне папки «Программы» теряют значок в строке меню, пока holzBar что-либо скрывает, даже в разделе «Видимо». Тогда holzBar показывает на его месте заменитель: нажмите на него, чтобы открыть меню приложения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vissa appar utanför mappen Program förlorar sin ikon i menyraden medan holzBar döljer något, även i Synlig. holzBar visar då en ersättare på dess plats: klicka på den för att öppna appens meny."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamalar klasörü dışındaki bazı uygulamalar, holzBar bir şeyi gizlerken, Görünür bölümünde olsalar bile menü çubuğu simgelerini kaybeder. holzBar bu durumda yerine bir yedek simge gösterir: uygulamanın menüsünü açmak için tıklayın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Деякі програми поза папкою «Програми» втрачають значок у смузі меню, поки holzBar щось ховає, навіть у розділі «Видимі». Тоді holzBar показує на його місці замінник: клацніть його, щоб відкрити меню програми."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“应用程序”文件夹之外的某些 App 在 holzBar 隐藏任何内容时，即使位于“可见”中，也会失去菜单栏图标。此时 holzBar 会在原位显示一个替身图标：点按它即可打开该 App 的菜单。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「應用程式」檔案夾以外的某些 App，在 holzBar 隱藏任何項目時，即使位於「可見」中，也會失去選單列圖像。此時 holzBar 會在原處顯示替身圖像：按一下即可開啟該 App 的選單。"
+          }
+        }
+      }
+    },
+    "Stand-in icons" : {
+      "comment" : "What's New: title of the 1.1.0 item about stand-in icons on macOS 27.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zástupné ikony"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stellvertreter-Symbole"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iconos sustitutos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icônes de remplacement"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Helyettesítő ikonok"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ikon pengganti"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icone sostitutive"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "代わりのアイコン"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대체 아이콘"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vervangende symbolen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ikony zastępcze"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ícones substitutos"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icons da substituziun"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Значки-заменители"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ersättningssymboler"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yedek simgeler"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Значки-замінники"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "替身图标"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "替身圖像"
+          }
+        }
+      }
+    },
+    "On macOS 27, an app outside the Applications folder whose menu bar icon macOS hides while holzBar hides items gets a stand-in that opens its menu." : {
+      "comment" : "What's New: detail of the 1.1.0 item about stand-in icons on macOS 27.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 dostane aplikace mimo složku Aplikace, jejíž ikonu na řádku nabídek macOS skryje, zatímco holzBar skrývá položky, zástupnou ikonu, která otevře její nabídku."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 erhält eine App außerhalb des Ordners „Programme“, deren Menüleistensymbol macOS ausblendet, während holzBar Objekte ausblendet, einen Stellvertreter, der ihr Menü öffnet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, una app fuera de la carpeta Aplicaciones cuyo icono de la barra de menús oculta macOS mientras holzBar oculta elementos recibe un sustituto que abre su menú."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sur macOS 27, une app située hors du dossier Applications, dont macOS masque l’icône de la barre des menus pendant que holzBar masque des éléments, reçoit une icône de remplacement qui ouvre son menu."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt az Alkalmazások mappán kívüli app, amelynek menüsor-ikonját a macOS elrejti, amíg a holzBar elemeket rejt el, egy helyettesítő ikont kap, amely megnyitja a menüjét."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, app di luar folder Aplikasi yang ikon bar menunya disembunyikan macOS saat holzBar menyembunyikan item akan mendapat ikon pengganti yang membuka menunya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, un’app fuori dalla cartella Applicazioni la cui icona nella barra dei menu viene nascosta da macOS mentre holzBar nasconde elementi riceve un’icona sostitutiva che ne apre il menu."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 では、holzBar が項目を隠している間に macOS がメニューバーのアイコンを隠してしまう「アプリケーション」フォルダ外のアプリに、そのメニューを開く代わりのアイコンが表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 holzBar가 항목을 가리는 동안 macOS가 메뉴 막대 아이콘을 가리는 응용 프로그램 폴더 밖의 앱에는 해당 메뉴를 여는 대체 아이콘이 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 krijgt een app buiten de map Apps, waarvan macOS het menubalksymbool verbergt terwijl holzBar onderdelen verbergt, een vervanger die het menu ervan opent."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 aplikacja spoza folderu Aplikacje, której ikonę na pasku menu macOS ukrywa, gdy holzBar ukrywa elementy, otrzymuje ikonę zastępczą otwierającą jej menu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, um app fora da pasta Aplicativos cujo ícone da barra de menus o macOS oculta enquanto o holzBar oculta itens ganha um substituto que abre o menu dele."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 survegn ina app ordaifor l’ordinatur Applicaziuns, da la quala macOS zuppenta l’icon en la trav da menus durant che holzBar zuppenta elements, in icon da substituziun che avra ses menu."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 приложение вне папки «Программы», значок которого в строке меню macOS скрывает, пока holzBar скрывает объекты, получает значок-заменитель, открывающий его меню."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I macOS 27 får en app utanför mappen Program, vars menyradssymbol macOS döljer medan holzBar döljer objekt, en ersättare som öppnar dess meny."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de, holzBar öğeleri gizlerken menü çubuğu simgesini macOS’in gizlediği Uygulamalar klasörü dışındaki bir uygulama, menüsünü açan bir yedek simge alır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 програма поза папкою «Програми», значок якої в рядку меню macOS приховує, поки holzBar приховує обʼєкти, отримує значок-замінник, що відкриває її меню."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，若某个位于“应用程序”文件夹之外的 App 在 holzBar 隐藏项目时被 macOS 隐藏了菜单栏图标，它会获得一个可打开其菜单的替身图标。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，若某個位於「應用程式」檔案夾之外的 App 在 holzBar 隱藏項目時被 macOS 隱藏了選單列圖像，它會獲得一個可打開其選單的替身圖像。"
+          }
+        }
+      }
+    },
+    "On macOS 27, the items of an app outside the Applications folder open from the holzBar Shelf, search and hotkeys." : {
+      "comment" : "What's New: 1.1.0 fix about opening items of apps outside the Applications folder on macOS 27.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 se položky aplikace mimo složku Aplikace otevírají z holzBar Shelf, z hledání a klávesovými zkratkami."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 öffnen sich die Objekte einer App außerhalb des Ordners „Programme“ aus dem holzBar Shelf, der Suche und per Tastenkürzel."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, los elementos de una app fuera de la carpeta Aplicaciones se abren desde el holzBar Shelf, la búsqueda y los atajos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sur macOS 27, les éléments d’une app située hors du dossier Applications s’ouvrent depuis le holzBar Shelf, la recherche et les raccourcis."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt az Alkalmazások mappán kívüli app elemei megnyílnak a holzBar Shelfből, a keresésből és billentyűparancsokkal."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, item app di luar folder Aplikasi terbuka dari holzBar Shelf, pencarian, dan pintasan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, gli elementi di un’app fuori dalla cartella Applicazioni si aprono dal holzBar Shelf, dalla ricerca e dalle abbreviazioni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 で、「アプリケーション」フォルダ外のアプリの項目を holzBar Shelf、検索、ショートカットから開けるようになりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 응용 프로그램 폴더 밖에 있는 앱의 항목을 holzBar Shelf, 검색 및 단축키로 열 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 openen de onderdelen van een app buiten de map Apps vanuit de holzBar Shelf, de zoekfunctie en sneltoetsen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 elementy aplikacji spoza folderu Aplikacje otwierają się z holzBar Shelf, wyszukiwania i skrótów klawiszowych."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, os itens de um app fora da pasta Aplicativos abrem pelo holzBar Shelf, pela busca e por atalhos."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 s’avran ils elements d’ina app ordaifor l’ordinatur Applicaziuns dal holzBar Shelf, da la tschertga e cun scursanidas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 объекты приложения вне папки «Программы» открываются из holzBar Shelf, поиска и по сочетаниям клавиш."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I macOS 27 öppnas objekten i en app utanför mappen Program från holzBar Shelf, sökningen och kortkommandon."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de, Uygulamalar klasörü dışındaki bir uygulamanın öğeleri holzBar Shelf’ten, aramadan ve kısayollarla açılır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 обʼєкти програми поза папкою «Програми» відкриваються з holzBar Shelf, пошуку та за допомогою скорочень."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，“应用程序”文件夹之外的 App 的项目可从 holzBar Shelf、搜索和快捷键打开。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，「應用程式」檔案夾之外的 App 的項目可從 holzBar Shelf、搜尋和快速鍵打開。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -355,7 +355,25 @@ final class ItemImageStore27 {
         // and a half later, long after the capture judged the bar settled. So each application
         // is captured once its show has landed, not on a timer; until then its item's frame is
         // where it was last drawn, and another item may stand there.
-        for bundleID in bundleIDs.sorted().prefix(Self.photographsPerPass) {
+        let pass = Array(bundleIDs.sorted().prefix(Self.photographsPerPass))
+        // MenuBarAgent draws the items of an application it cannot name (`UnnameableApps27`)
+        // only while nothing is concealed, so those are photographed together under one release
+        // of every concealment.
+        let unnameable = appState.concealer27.isConcealing
+            ? Set(items.compactMap { item -> String? in
+                appState.concealer27.isUnnameable(item.sourceApplication) ? item.sourceApplication?.bundleIdentifier : nil
+            })
+            : []
+        let released = pass.filter { unnameable.contains($0) }
+        if !released.isEmpty {
+            let concealer = appState.concealer27
+            await ReleaseHold27.withHold(
+                begin: { await concealer.holdReleased() },
+                end: { concealer.endHoldReleased() },
+                body: { landed in await photographReleased(released, landed: landed, appState: appState) }
+            )
+        }
+        for bundleID in pass where !unnameable.contains(bundleID) {
             let shown = await appState.concealer27.showTemporarily(bundleID: bundleID)
             if shown {
                 // A shown item is drawn 0.4–0.6 s after the change that allows it lands (measured).
@@ -374,6 +392,25 @@ final class ItemImageStore27 {
                 bundleID: bundleID,
                 now: ProcessInfo.processInfo.systemUptime,
                 stored: shown && hasImage(forBundleID: bundleID)
+            )
+        }
+    }
+
+    /// Photographs the applications whose items a release of every concealment drew, in one
+    /// capture, once the release has landed.
+    private func photographReleased(_ bundleIDs: [String], landed: Bool, appState: AppState) async {
+        if landed {
+            // A released item is drawn 0.4–0.6 s after the change lands (measured).
+            try? await Task.sleep(for: .milliseconds(600))
+            await captureActiveMenuBar(appState: appState, force: true)
+        } else {
+            logger.debug("Photographing items skipped, the release did not land in time")
+        }
+        for bundleID in bundleIDs {
+            photoSchedule.recordAttempt(
+                bundleID: bundleID,
+                now: ProcessInfo.processInfo.systemUptime,
+                stored: landed && hasImage(forBundleID: bundleID)
             )
         }
     }

@@ -169,6 +169,9 @@ nonisolated extension Defaults {
         /// Whether a Command-drag of an app's item across the holzBar icon sets the app's section
         /// (macOS 27; on by default).
         case commandDragSetsSection = "CommandDragSetsSection"
+        /// Whether holzBar draws a stand-in icon for a visible app whose icon macOS 27 hides
+        /// anyway (on by default).
+        case standInIcons = "StandInIcons"
         /// What each display does with the hidden items, by display UUID (`DisplayBehaviors`).
         /// Stays on this Mac.
         case displayBehaviors = "DisplayBehaviors"
@@ -437,6 +440,7 @@ nonisolated extension Defaults.Key {
             .clockOpensNotificationCenter,
             .appliesLayoutChangesImmediately,
             .commandDragSetsSection,
+            .standInIcons,
             .showsNotchOverflowInShelf,
             .shelfFindsByTyping,
             .shelfAlwaysHiddenFoldOpen,

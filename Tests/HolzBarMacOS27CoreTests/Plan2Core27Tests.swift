@@ -96,6 +96,51 @@ struct PhotoSchedule27Tests {
         #expect(!schedule.mayPhotograph(bundleID: "ru.keepcoder.Telegram", now: 44))
         #expect(schedule.mayPhotograph(bundleID: "ru.keepcoder.Telegram", now: 45))
     }
+
+    @Test("Failed attempts back off, doubling up to the usual interval")
+    func backsOff() {
+        var schedule = PhotoSchedule27()
+        var now: TimeInterval = 0
+        var waits = [TimeInterval]()
+        for _ in 0 ..< 7 {
+            schedule.recordAttempt(bundleID: "com.example.agent", now: now, stored: false)
+            // The first moment the application may be photographed again.
+            let wait = (1 ... 700).first { schedule.mayPhotograph(bundleID: "com.example.agent", now: now + TimeInterval($0)) }
+            waits.append(TimeInterval(wait ?? -1))
+            now += TimeInterval(wait ?? 0)
+        }
+        #expect(waits == [45, 90, 180, 360, 600, 600, 600])
+    }
+
+    @Test("A stored image ends the back-off")
+    func storedResets() {
+        var schedule = PhotoSchedule27()
+        schedule.recordAttempt(bundleID: "com.example.agent", now: 0, stored: false)
+        schedule.recordAttempt(bundleID: "com.example.agent", now: 45, stored: false)
+        schedule.recordAttempt(bundleID: "com.example.agent", now: 135, stored: true)
+        #expect(!schedule.mayPhotograph(bundleID: "com.example.agent", now: 734))
+        #expect(schedule.mayPhotograph(bundleID: "com.example.agent", now: 735))
+        schedule.recordAttempt(bundleID: "com.example.agent", now: 735, stored: false)
+        #expect(schedule.mayPhotograph(bundleID: "com.example.agent", now: 780))
+    }
+
+    @Test("The back-off of one application leaves the others alone")
+    func backOffIsPerApplication() {
+        var schedule = PhotoSchedule27()
+        for step in 0 ..< 3 {
+            schedule.recordAttempt(bundleID: "com.example.agent", now: TimeInterval(step), stored: false)
+        }
+        schedule.recordAttempt(bundleID: "com.example.other", now: 0, stored: false)
+        #expect(schedule.mayPhotograph(bundleID: "com.example.other", now: 45))
+        #expect(!schedule.mayPhotograph(bundleID: "com.example.agent", now: 45))
+    }
+
+    @Test("The retry delay never overflows")
+    func delayIsCapped() {
+        #expect(PhotoSchedule27.retryDelay(afterFailures: 1) == 45)
+        #expect(PhotoSchedule27.retryDelay(afterFailures: 2) == 90)
+        #expect(PhotoSchedule27.retryDelay(afterFailures: 1000) == 600)
+    }
 }
 
 @Suite("ItemClick27")

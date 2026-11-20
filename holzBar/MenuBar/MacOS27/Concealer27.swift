@@ -58,6 +58,38 @@ final class Concealer27 {
     /// worked out again for them, though they went to the visible section. For diagnostics.
     @ObservationIgnored private(set) var lateAllowlistRefreshes = 0
 
+    /// Visible applications whose items MenuBarAgent hides anyway (``HiddenAnyway27``), from the
+    /// last settled reads while concealing. It feeds ``unnameableVisible`` (and so Copy
+    /// Diagnostics) and is never written to the layout.
+    @ObservationIgnored private(set) var hiddenAnyway = Set<String>()
+
+    /// The suspects of the last settled read, which the next read confirms or drops.
+    @ObservationIgnored private var hiddenAnywaySuspects = Set<String>()
+
+    /// Applications HiddenAnyway27 confirmed, kept while they run, so an application found by
+    /// its overlap stays unnameable even when a read, with its frame moved, no longer finds
+    /// the overlap; a few settled reads in a row that draw its item clear of every other drop
+    /// it again (``HiddenAnyway27/Confirmed``), so a false positive does not stay for good.
+    @ObservationIgnored private var confirmedUnnameable = HiddenAnyway27.Confirmed()
+
+    /// Process identifiers of visible applications MenuBarAgent cannot name by their install
+    /// location (``UnnameableApps27``). It hides their items while anything is concealed, though
+    /// they are visible, and keeps their frames where they were last drawn, so while concealing
+    /// they count as concealed for the hit test, image capture and the notch cover. Never the
+    /// ones ``HiddenAnyway27`` confirmed: it skips concealed processes, so counting them would
+    /// undo their own detection.
+    @ObservationIgnored private var unnameablePIDs = Set<pid_t>()
+
+    /// Bundle identifiers of the visible applications MenuBarAgent cannot name, found by the
+    /// install location or confirmed by ``HiddenAnyway27``, in the order of the bar.
+    private(set) var unnameableVisible = [String]()
+
+    /// The release-all holds live; see ``holdReleased()``.
+    @ObservationIgnored private var releaseHold = ReleaseHold27()
+
+    /// Whether a release-all hold is live: every hidden item is drawn meanwhile.
+    private(set) var isHoldingRelease = false
+
     /// When the last concealment change landed on the bar, which is when the bar last started
     /// moving.
     @ObservationIgnored private var lastChangeAt = ContinuousClock.now
@@ -103,6 +135,14 @@ final class Concealer27 {
     /// with every click on a system item.
     var concealsThroughSuspensions: Bool {
         suspendedConcealment.conceals(isConcealing: isConcealing)
+    }
+
+    /// Whether every concealment is released right now, so MenuBarAgent draws every hidden
+    /// item: a release-all hold (``holdReleased()``) or a suspension that lifted concealment
+    /// (`suspend`, `suspendReleased`). What draws a copy of a real item, a stand-in, must wait
+    /// for the end of either, or the icon is doubled.
+    var isReleasedForAnyReason: Bool {
+        isHoldingRelease || suspendedConcealment.liftsConcealment
     }
 
     /// Process identifiers of the applications meant to be concealed right now.
@@ -280,6 +320,14 @@ final class Concealer27 {
                 update()
             }
         )
+        // The applications MenuBarAgent cannot name follow the items of every read; nothing is
+        // polled.
+        observers.append(
+            ObservationLoop.observe { appState.itemManager.itemCache } onChange: { [weak self] _ in
+                self?.refreshUnnameable()
+            }
+        )
+        refreshUnnameable()
         // A layout saved while the section was on, also one a settings import brought (an import
         // relaunches holzBar), is folded the same way.
         if !advanced.enableAlwaysHiddenSection {
@@ -470,14 +518,15 @@ final class Concealer27 {
         }
         notchCoverBasis = sectionConcealed
         // Applications concealed for the notch join whatever the sections conceal.
-        let target = NotchCover27.adding(
+        // A release-all hold empties the target, whatever the sections conceal.
+        let target = releaseHold.target(NotchCover27.adding(
             notchConcealed.subtracting(temporarilyShown.keys),
             to: ConcealmentPlanner27.concealedSets(
                 layout: layout,
                 state: state,
                 temporarilyShown: Set(temporarilyShown.keys)
             )
-        )
+        ))
         let concealed = ConcealmentPlanner27.effectivelyConcealed(sets: target)
         if concealed != lastConcealed {
             lastConcealed = concealed
@@ -486,7 +535,7 @@ final class Concealer27 {
         }
         isConcealing = !target.isEmpty
         defer { MenuBarItemProvider27.setConcealedPIDs(concealedPIDs) }
-        concealedPIDs = Self.processIdentifiers(of: concealed, among: applications)
+        concealedPIDs = concealedProcessIdentifiers(of: concealed, among: applications)
         stateGeneration += 1
         let generation = stateGeneration
         let previous = applyTask
@@ -517,6 +566,7 @@ final class Concealer27 {
             await self?.checkStuckOverflow()
             await self?.checkNotchCover()
             await self?.checkOwnIcon()
+            await self?.checkHiddenAnyway(mayReadAgain: true)
             await self?.readUnreadConcealed()
         }
         return true
@@ -540,12 +590,24 @@ final class Concealer27 {
             return
         }
         probedPIDs.formUnion(unread)
-        let bundleIDs = Set(
-            applications
-                .filter { unread.contains($0.processIdentifier) }
-                .compactMap(\.bundleIdentifier)
-        )
+        let unreadApplications = applications.filter { unread.contains($0.processIdentifier) }
+        let bundleIDs = Set(unreadApplications.compactMap(\.bundleIdentifier))
         guard !bundleIDs.isEmpty else {
+            return
+        }
+        // Allowing an application does not bring back the items of one MenuBarAgent cannot name
+        // (``UnnameableApps27``): the whole pass is read with every concealment released.
+        if unreadApplications.contains(where: { isUnnameable($0) }) {
+            logger.debug("Releasing every concealment for a first read of \(unread.count, privacy: .public) concealed applications")
+            await ReleaseHold27.withHold(
+                begin: { await holdReleased() },
+                end: { endHoldReleased() },
+                body: { _ in
+                    // The items are drawn 0.4–0.6 s after the change lands (measured).
+                    try? await Task.sleep(for: .milliseconds(900))
+                    await appState.itemManager.cacheItemsRegardless()
+                }
+            )
             return
         }
         logger.debug("Showing \(unread.count, privacy: .public) concealed applications for a first read of their items")
@@ -612,7 +674,7 @@ final class Concealer27 {
             let concealed = controller.liveConcealed
             lastConcealed = concealed
             isConcealing = controller.isActive
-            concealedPIDs = Self.processIdentifiers(of: concealed, among: NSWorkspace.shared.runningApplications)
+            concealedPIDs = concealedProcessIdentifiers(of: concealed, among: NSWorkspace.shared.runningApplications)
             MenuBarItemProvider27.setConcealedPIDs(concealedPIDs)
             return
         }
@@ -621,6 +683,59 @@ final class Concealer27 {
             try? await Task.sleep(for: .seconds(1))
             self?.update()
         }
+    }
+
+    /// The process identifiers to treat as concealed: those of the given applications that are
+    /// running and, while concealing, the visible applications MenuBarAgent cannot name.
+    private func concealedProcessIdentifiers(of bundleIDs: Set<String>, among applications: [NSRunningApplication]) -> Set<pid_t> {
+        let identifiers = Self.processIdentifiers(of: bundleIDs, among: applications)
+        return isConcealing ? identifiers.union(unnameablePIDs) : identifiers
+    }
+
+    /// Works out which visible applications MenuBarAgent cannot name, from the items of the last
+    /// read: the rule of ``UnnameableApps27`` plus the applications ``HiddenAnyway27`` confirmed
+    /// while they run. Reads one snapshot of the running applications; nothing is polled.
+    ///
+    /// An application without a bundle identifier is skipped: holzBar does not read its items.
+    private func refreshUnnameable() {
+        guard let appState else {
+            return
+        }
+        let applications = NSWorkspace.shared.runningApplications
+        confirmedUnnameable.keepOnly(running: applications.compactMap(\.bundleIdentifier))
+        var byPID = [pid_t: NSRunningApplication]()
+        for application in applications {
+            byPID[application.processIdentifier] = application
+        }
+        var owners = [UnnameableApps27.Owner]()
+        for item in appState.itemManager.itemCache[.visible] where !item.isControlItem && !item.isWidget {
+            guard
+                let pid = item.sourcePID,
+                let application = byPID[pid],
+                let bundleID = application.bundleIdentifier
+            else {
+                continue
+            }
+            owners.append(UnnameableApps27.Owner(bundleID: bundleID, bundlePath: UnnameableApps27.rulePath(of: application.bundleURL)))
+        }
+        let visible = UnnameableApps27.owners(owners, confirmed: confirmedUnnameable.bundleIDs)
+        if visible != unnameableVisible {
+            unnameableVisible = visible
+        }
+        // The pids of the applications the rule alone names.
+        let byRule = Set(owners.filter { UnnameableApps27.isUnnameable(bundleID: $0.bundleID, bundlePath: $0.bundlePath) }.map(\.bundleID))
+        let pids = Set(applications.compactMap { application in
+            application.bundleIdentifier.flatMap { byRule.contains($0) ? application.processIdentifier : nil }
+        })
+        guard pids != unnameablePIDs else {
+            return
+        }
+        unnameablePIDs = pids
+        guard isConcealing else {
+            return
+        }
+        concealedPIDs = concealedProcessIdentifiers(of: lastConcealed, among: applications)
+        MenuBarItemProvider27.setConcealedPIDs(concealedPIDs)
     }
 
     /// The process identifiers of the given applications that are running.
@@ -694,6 +809,75 @@ final class Concealer27 {
         logger.notice("holzBar's icon was missing when a capture started, putting it back")
         didReinsertIcon = true
         appState.menuBarManager.controlItem(withName: .visible)?.reinsert()
+    }
+
+    /// Notes the visible applications whose items MenuBarAgent hides anyway, and logs each one
+    /// once, when a second read confirms it.
+    ///
+    /// Runs after each settled read while concealing. MenuBarAgent hides an item whose
+    /// application it could not tell, whatever the allowlist holds, and the assertion has no
+    /// key that could keep it (``HiddenAnyway27``). Nothing acts on the answer: it goes to the
+    /// log, with the application private, and its count to Copy Diagnostics. A suspect seen for
+    /// the first time is read again a second later, once, so it is confirmed without waiting
+    /// for the next change of concealment.
+    ///
+    /// - Parameter mayReadAgain: Whether a new suspect may start that one more read.
+    private func checkHiddenAnyway(mayReadAgain: Bool) async {
+        guard
+            let appState,
+            isConcealing,
+            !applyLedger.hasPending,
+            let screen = NSScreen.screenWithActiveMenuBar
+        else {
+            return
+        }
+        let displayBounds = CGDisplayBounds(screen.displayID)
+        let ownPID = ProcessInfo.processInfo.processIdentifier
+        // A system item the user hid is concealed like an application and may keep a stale
+        // frame too, so the system items count as drawn only while none is hidden.
+        let systemItemsDrawn = appState.appleItems.concealedSystemItems(in: appState).isEmpty
+        let items = await MenuBarItemProvider27.items()
+        // Concealment may have changed during the read; the next settled read looks again.
+        guard isConcealing, !applyLedger.hasPending else {
+            return
+        }
+        let drawn = items.compactMap { item -> HiddenAnyway27.DrawnItem? in
+            guard item.isOnScreen, displayBounds.intersects(item.bounds), !concealedPIDs.contains(item.ownerPID) else {
+                return nil
+            }
+            if item.ownerPID == ownPID {
+                return HiddenAnyway27.DrawnItem(bundleID: nil, frame: item.bounds)
+            }
+            let owner = item.tag.namespace.description
+            guard owner != MenuBarItemProvider27.menuBarAgentBundleID else {
+                return systemItemsDrawn ? HiddenAnyway27.DrawnItem(bundleID: nil, frame: item.bounds) : nil
+            }
+            return HiddenAnyway27.DrawnItem(bundleID: owner, frame: item.bounds)
+        }
+        let suspects = HiddenAnyway27.suspects(among: drawn)
+        let confirmed = HiddenAnyway27.confirmed(current: suspects, previous: hiddenAnywaySuspects)
+        hiddenAnywaySuspects = suspects
+        for bundleID in confirmed.subtracting(hiddenAnyway).sorted() {
+            logger.notice("MenuBarAgent does not draw the item of visible application \(bundleID, privacy: .private(mask: .hash)), which the allowlist keeps; its frame lies on another item")
+        }
+        hiddenAnyway = confirmed
+        let dropped = confirmedUnnameable.update(
+            confirmed: confirmed,
+            suspects: suspects,
+            drawn: Set(drawn.compactMap(\.bundleID))
+        )
+        for bundleID in dropped.sorted() {
+            logger.notice("Visible application \(bundleID, privacy: .private(mask: .hash)) is drawn clear of every other item again, so it counts as named")
+        }
+        refreshUnnameable()
+        guard mayReadAgain, !suspects.subtracting(confirmed).isEmpty else {
+            return
+        }
+        // Not awaited, so the rest of the settled read is not held up.
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(1))
+            await self?.checkHiddenAnyway(mayReadAgain: false)
+        }
     }
 
     /// How many times an application's activation moved the active menu bar to another display
@@ -1100,6 +1284,48 @@ final class Concealer27 {
         endTemporaryShow(bundleIDs: CollectionOfOne(bundleID))
     }
 
+    /// Releases every concealment and returns once MenuBarAgent applied the change, so the items
+    /// of applications it cannot name (``UnnameableApps27``) are drawn where they can be clicked
+    /// or photographed.
+    ///
+    /// Use it only through ``ReleaseHold27/withHold(begin:end:body:)``, which ends the hold on
+    /// every path. While a hold lasts every hidden item is drawn, which is the accepted cost; it
+    /// is kept as short as the menu stays open. Holds nest: concealment returns when the last
+    /// one ends.
+    ///
+    /// - Returns: Whether the change landed: `false` when concealment is paused or unavailable,
+    ///   the apply failed, or it took longer than 3 s. The hold is taken either way.
+    func holdReleased() async -> Bool {
+        releaseHold.begin()
+        isHoldingRelease = true
+        let carrying = applyLedger.nextApply
+        guard applyChanges() else {
+            return false
+        }
+        return await waitForApply(carrying)
+    }
+
+    /// Ends one ``holdReleased()``; concealment returns with the last one.
+    func endHoldReleased() {
+        guard releaseHold.end() else {
+            logger.fault("A release-all hold was ended that was never taken")
+            return
+        }
+        isHoldingRelease = releaseHold.isHeld
+        update()
+    }
+
+    /// Whether MenuBarAgent cannot name the application's items (``UnnameableApps27``): it runs
+    /// from outside `/Applications` and `/System`, or ``HiddenAnyway27`` confirmed it.
+    /// An application without a bundle identifier never is: holzBar does not read its items.
+    func isUnnameable(_ app: NSRunningApplication?) -> Bool {
+        guard let app, let bundleID = app.bundleIdentifier else {
+            return false
+        }
+        return confirmedUnnameable.bundleIDs.contains(bundleID)
+            || UnnameableApps27.isUnnameable(bundleID: bundleID, bundlePath: UnnameableApps27.rulePath(of: app.bundleURL))
+    }
+
     /// Puts applications that holzBar has not seen before into the section chosen
     /// in the settings (jordanbaird/Ice#6, jordanbaird/Ice#767).
     ///
@@ -1348,5 +1574,14 @@ extension MacOS27Section {
         case .hidden: self = .hidden
         case .alwaysHidden: self = .alwaysHidden
         }
+    }
+}
+
+extension UnnameableApps27 {
+    /// The path of a bundle for ``isUnnameable(bundleID:bundlePath:)``, with symlinks resolved:
+    /// an application reached through `/Applications/Agent.app -> /opt/vendor/Agent.app` runs
+    /// from where the link points. Reads the disk, so it stays out of the pure rule.
+    nonisolated static func rulePath(of bundleURL: URL?) -> String? {
+        bundleURL?.resolvingSymlinksInPath().path(percentEncoded: false)
     }
 }

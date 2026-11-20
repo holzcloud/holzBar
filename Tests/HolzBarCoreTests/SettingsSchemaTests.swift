@@ -181,6 +181,19 @@ struct SettingsSchemaTests {
         #expect(refused.ignored == ["CommandDragSetsSection"])
     }
 
+    @Test("The stand-in switch travels with a settings file, as a Boolean only")
+    func standInIconsSwitchTravels() {
+        #expect(Defaults.Key.standInIcons.rawValue == "StandInIcons")
+        #expect(Defaults.Key.standInIcons.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.standInIcons))
+        #expect(Defaults.Key.importableKinds["StandInIcons"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(["StandInIcons": false], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["StandInIcons"])
+        let refused = Defaults.Key.validatedSettings(["StandInIcons": "yes"], ownBundleIdentifier: ownBundle)
+        #expect(refused.accepted.isEmpty)
+        #expect(refused.ignored == ["StandInIcons"])
+    }
+
     @Test("The all-day setting travels and the hidden calendars do not")
     func calendarSettings() {
         #expect(Defaults.Key.importableKinds["CalendarShowsAllDay"] == .bool)

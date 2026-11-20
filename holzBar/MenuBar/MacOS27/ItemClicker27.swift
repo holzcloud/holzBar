@@ -46,6 +46,12 @@ enum ItemClicker27 {
         await activateMenuBarIfNeeded(shelfDisplayID: shelfDisplayID, appState: appState)
 
         let concealer = appState.concealer27
+        // MenuBarAgent cannot name this application's item, so allowing the application would
+        // not bring it back: every concealment is released instead (``UnnameableApps27``).
+        if concealer.isConcealing, concealer.isUnnameable(item.sourceApplication) {
+            await clickUnnameable(item: item, mouseButton: mouseButton, appState: appState)
+            return
+        }
         let shown = await concealer.showTemporarily(bundleID: bundleID)
         if shown {
             // A shown item is drawn 0.4–0.6 s after the change that allows it lands (measured).
@@ -82,8 +88,85 @@ enum ItemClicker27 {
         }
 
         // A click returns at once, and a press blocks only while a menu is open. Keep the
-        // application shown until the menu or panel that opened is gone, watched on the panel
-        // watch schedule (4 times a second for 10 s, then once a second, for up to 10 minutes).
+        // application shown until the menu or panel that opened is gone.
+        await waitForMenuToClose(ownerPID: ownerPID, baseline: baseline)
+        // "Hide opened items again after" counts from here, when the menu has closed
+        // (THAW-13). One bounded wait; opening the item again meanwhile shows it once more,
+        // and it stays until that show ends too.
+        let delay = min(max(appState.settings.advanced.tempShowInterval, 0), 30)
+        if delay > 0 {
+            try? await Task.sleep(for: .seconds(delay))
+        }
+        concealer.endTemporaryShow(bundleID: bundleID)
+    }
+
+    /// Opens the menu of an item MenuBarAgent cannot name, which stays hidden while holzBar
+    /// conceals anything: every concealment is released, the item is clicked where it is drawn,
+    /// and concealment returns as soon as the menu has closed.
+    ///
+    /// The hold ends when the menu is gone, with no extra delay, so that every hidden item is
+    /// drawn for as short a time as possible. An item not drawn within 3 s of the release is
+    /// reported as failed, and it is never clicked twice: a second click would close its menu
+    /// or toggle its action.
+    private static func clickUnnameable(item: MenuBarItem, mouseButton: CGMouseButton, appState: AppState) async {
+        let concealer = appState.concealer27
+        await ReleaseHold27.withHold(
+            begin: { await concealer.holdReleased() },
+            end: { concealer.endHoldReleased() },
+            body: { landed in await clickReleased(item: item, mouseButton: mouseButton, landed: landed) }
+        )
+    }
+
+    /// The work inside the hold of ``clickUnnameable(item:mouseButton:appState:)``: waits for the
+    /// item to be drawn, clicks it once and waits for its menu to close.
+    private static func clickReleased(item: MenuBarItem, mouseButton: CGMouseButton, landed: Bool) async {
+        guard landed else {
+            logger.notice("The release for \(item.logString, privacy: .private(mask: .hash)) did not land")
+            reportFailure("release refused")
+            return
+        }
+        // A released item is drawn 0.4–0.6 s after the change lands (measured).
+        let landedAt = ContinuousClock.now
+        // A cancelled task stops waiting and never clicks; the hold still ends once, in
+        // `ReleaseHold27.withHold`.
+        do {
+            try await Task.sleep(for: .milliseconds(600))
+        } catch {
+            return
+        }
+        var drawn: MenuBarItem?
+        while true {
+            drawn = await MenuBarItemProvider27.items().first { $0.windowID == item.windowID && $0.isOnScreen }
+            if drawn != nil || ContinuousClock.now - landedAt >= drawBudget {
+                break
+            }
+            do {
+                try await Task.sleep(for: .milliseconds(300))
+            } catch {
+                return
+            }
+        }
+        guard !Task.isCancelled else {
+            return
+        }
+        guard let drawn else {
+            logger.notice("\(item.logString, privacy: .private(mask: .hash)) was not drawn after the release")
+            reportFailure("released, not drawn")
+            return
+        }
+        let ownerPID = item.ownerPID
+        let baseline = Set(menuLevelWindows().map(\.windowID).map(Int.init))
+        postClick(at: CGPoint(x: drawn.bounds.midX, y: drawn.bounds.midY), mouseButton: mouseButton)
+        lastClick = "released, clicked"
+        await waitForMenuToClose(ownerPID: ownerPID, baseline: baseline)
+    }
+
+    /// How long an item is waited for after the release that should draw it.
+    private static let drawBudget = Duration.seconds(3)
+
+    /// Waits until the menu or panel an item opened is gone, watched on the panel watch
+    /// schedule (4 times a second for 10 s, then once a second, for up to 10 minutes).
+    private static func waitForMenuToClose(ownerPID: Int32, baseline: Set<Int>) async {
         try? await Task.sleep(for: .milliseconds(400))
         let watchStart = ContinuousClock.now
         while
@@ -96,14 +179,6 @@ enum ItemClicker27 {
                 break
             }
         }
-        // "Hide opened items again after" counts from here, when the menu has closed
-        // (THAW-13). One bounded wait; opening the item again meanwhile shows it once more,
-        // and it stays until that show ends too.
-        let delay = min(max(appState.settings.advanced.tempShowInterval, 0), 30)
-        if delay > 0 {
-            try? await Task.sleep(for: .seconds(delay))
-        }
-        concealer.endTemporaryShow(bundleID: bundleID)
     }
 
     /// Makes the menu bar of the holzBar Shelf's display the active one, where it is not: a

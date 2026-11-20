@@ -31,6 +31,7 @@ extension SettingsCatalog {
             // one this Mac does not show.
             if MenuBarBackendKind.current == .accessibility27 {
                 entries.append(.layoutCommandDragSetsSection)
+                entries.append(.layoutStandInIcons)
             }
             entries += [
                 .layoutSuggestRarelyUsed,
@@ -107,6 +108,14 @@ extension SettingsEntry {
         group: SettingsCatalog.LayoutPane.changes,
         label: String(localized: "Set the section with ⌘ Command-drag"),
         info: String(localized: "Hold ⌘ Command and drag an item in the menu bar across the holzBar icon: to the left of it, its app is hidden; to the right of it, visible. Off: the drag only reorders the bar.")
+    )
+
+    static let layoutStandInIcons = SettingsEntry(
+        id: "layoutStandInIcons",
+        pane: .layout,
+        group: SettingsCatalog.LayoutPane.changes,
+        label: String(localized: "Stand-ins for icons macOS hides"),
+        info: String(localized: "Some apps outside the Applications folder lose their menu bar icon while holzBar hides anything, even in Visible. holzBar then shows a stand-in in its place: click it to open the app's menu.")
     )
 
     static let layoutSuggestRarelyUsed = SettingsEntry(
