@@ -56,7 +56,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | The notch widens for downloads and for a camera or microphone in use (optional module in that hub) | ❌ | — | — | ✅ |
 | Connection and low-battery alerts for AirPods and other accessories, shown by widening the notch (optional module in that hub; Bluetooth asked only when you switch it on; battery levels use a macOS call that Apple does not document) | ❌ | — | — | ✅ |
 | A file stash at the notch: drag files in, drag them out later as copies (optional module in that hub, no permission) | ❌ | — | — | ✅ |
-| Volume and brightness sliders at the notch (optional module in that hub, no permission; brightness uses a macOS call that Apple does not document) | ❌ | — | — | ✅ |
+| Volume and brightness sliders at the notch, and brightness, contrast, volume and mute of external monitors over DDC (optional module in that hub, no permission; brightness and external monitors use macOS calls that Apple does not document) | ❌ | — | — | ✅ |
 | The banners of your apps listed at the notch (optional module in that hub; read through Accessibility, kept in memory only, no Notifications permission; only what macOS shows on screen, and it follows a structure macOS may change) | ❌ | — | — | ✅ |
 | Show or hide a single item while a condition holds (a VPN is connected, an app is running) | ❌ | ✅ | — | ✅ |
 | Automatic layout snapshots with a one-click restore | — | — | — | ✅ |

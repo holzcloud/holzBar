@@ -72,6 +72,7 @@ Researched on 9 October 2026 from each project's own pages and repositories. A d
 | Layout as a list with a filter and a section menu per item | no | - | - | yes |
 | Undo after every layout change, also in the menu bar | no | in the layout editor | - | yes |
 | Short introduction after the first launch | no | - | - | yes |
+| Brightness, contrast and volume of external monitors over DDC (optional) | no | - | - | yes |
 | Network connections | Sparkle updates | Sparkle updates | vendor says none | none, enforced by CI |
 | Dependencies, Swift | 5 packages, Swift 5 | 9 packages, Swift 6 | closed | none, Swift 6 |
 | Build provenance | no | Cosign, SLSA | - | SLSA Build Level 3 |
@@ -97,6 +98,13 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 > **macOS 27:** while holzBar hides menu bar items, Control Centre does not draw its camera, microphone and screen recording indicator. holzBar cannot prevent this, so it puts a dot on its own icon while the microphone (orange) or camera (green) is in use. [Details](docs/macos27.md#camera-and-microphone-indicator)
 
 ## What's new
+
+### 1.1.1 beta
+
+Details: [release notes](docs/release-notes/v1.1.1-beta1.md) · [full list](docs/features.md#new-in-111)
+
+- **External monitors**: brightness, contrast, volume and mute of external monitors that support DDC, in the Display controls module, off until you switch it on.
+- **Fixes**: the hub's content no longer shows outside its black shape while it opens or closes, and with the holzBar Shelf limited to some displays, the other displays always show every menu bar item.
 
 ### 1.1.0
 
