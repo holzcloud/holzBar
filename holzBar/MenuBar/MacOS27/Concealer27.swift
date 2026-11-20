@@ -136,6 +136,14 @@ final class Concealer27 {
         suspendedConcealment.conceals(isConcealing: isConcealing)
     }
 
+    /// Whether every concealment is released right now, so MenuBarAgent draws every hidden
+    /// item: a release-all hold (``holdReleased()``) or a suspension that lifted concealment
+    /// (`suspend`, `suspendReleased`). What draws a copy of a real item, a stand-in, must wait
+    /// for the end of either, or the icon is doubled.
+    var isReleasedForAnyReason: Bool {
+        isHoldingRelease || suspendedConcealment.liftsConcealment
+    }
+
     /// Process identifiers of the applications meant to be concealed right now.
     private(set) var concealedPIDs = Set<pid_t>()
 

@@ -84,7 +84,7 @@ final class StandInItems27: NSObject {
         }
         let concealer = appState.concealer27
         _ = concealer.concealsThroughSuspensions
-        _ = concealer.isHoldingRelease
+        _ = concealer.isReleasedForAnyReason
         guard !concealer.unnameableVisible.isEmpty else {
             return true
         }
@@ -104,7 +104,7 @@ final class StandInItems27: NSObject {
             holzBarIsNameable: true,
             unnameableVisible: concealer.unnameableVisible,
             isConcealing: concealer.concealsThroughSuspensions,
-            isHoldingRelease: concealer.isHoldingRelease
+            isHoldingRelease: concealer.isReleasedForAnyReason
         )
         var planned = [(bundleID: String, application: NSRunningApplication)]()
         for bundleID in plan.bundleIDs {

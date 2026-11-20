@@ -19,7 +19,7 @@ nonisolated enum StandIns27 {
         /// While a hold lasts they stay in the plan, so a stand-in keeps its place.
         var bundleIDs: [String]
         /// Whether the stand-ins are drawn: only while something is concealed and no
-        /// release-all hold draws the real items.
+        /// release of every concealment (a hold or a suspension) draws the real items.
         var isShown: Bool
     }
 
@@ -34,7 +34,8 @@ nonisolated enum StandIns27 {
     ///     it does not, the bar conceals holzBar's own items too, stand-ins included.
     ///   - unnameableVisible: The bundle identifiers of those applications, in bar order.
     ///   - isConcealing: Whether anything is concealed (counting suspensions).
-    ///   - isHoldingRelease: Whether a release-all hold draws every item.
+    ///   - isHoldingRelease: Whether every concealment is released, so every item is drawn: a
+    ///     release-all hold, or a suspension that lifted concealment.
     static func plan(
         isEnabled: Bool,
         holzBarIsNameable: Bool,
