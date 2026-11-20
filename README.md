@@ -42,19 +42,16 @@ If you looked for an Ice fork that runs on macOS 27, or a free Bartender alterna
 
 <table>
 <tr>
-<td width="50%" valign="top"><b>Layout</b>: drag items into sections<br><img src="Resources/Screenshots/settings-layout.png" alt="holzBar settings, Layout: drag menu bar icons into the visible, hidden and always-hidden sections"></td>
+<td width="50%" valign="top"><b>Showing &amp; Hiding</b>: click, hover, scroll, rehide<br><img src="Resources/Screenshots/settings-showing-hiding.png" alt="holzBar settings, Showing & Hiding pane: show on click, hover or scroll, open hidden items in the menu bar, automatic rehide with the Smart strategy, Zen mode, Touch ID and the animation styles"></td>
 <td width="50%" valign="top"><b>Appearance</b>: moods, tint, border, shapes, a black bar<br><img src="Resources/Screenshots/settings-appearance.png" alt="holzBar settings, Appearance pane: moods, the menu bar shape, light and dark, tint, shadow and border"></td>
 </tr>
-</table>
-
-<table>
 <tr>
-<td width="50%" valign="top"><b>Notch hub, Overview — one tile per module</b><br><img src="Resources/Screenshots/hub-overview.jpg" alt="The notch hub open at the notch: tabs for the modules, and tiles for the next calendar event, the volume, the connected accessories and what is playing"></td>
-<td width="50%" valign="top"><b>Modules — Accessory alerts, Notifications, Now Playing</b><br><img src="Resources/Screenshots/settings-modules-accessories.jpg" alt="holzBar settings, Modules pane: Accessory alerts with the low battery level, Notifications with Excluded apps, and Now Playing with Music, Spotify and Read all apps"></td>
+<td width="50%" valign="top"><b>Notch hub</b>: one black shape that grows out of the notch<br><img src="Resources/Screenshots/hub-display.png" alt="The Display controls module in the notch hub: a brightness slider for the built-in display and the volume of the Mac's speakers, with the round module buttons below"></td>
+<td width="50%" valign="top"><b>Modules</b>: every module with its own switch<br><img src="Resources/Screenshots/settings-modules.png" alt="holzBar settings, Modules pane: Widgets, Drag in the Menu Bar, Apple Items, then the Notch hub and its eight modules, each with its own switch"></td>
 </tr>
 </table>
 
-More screenshots in the [gallery](docs/features.md#gallery), including the [notch hub and its modules](docs/features.md#notch-hub-and-modules).
+More screenshots in the [gallery](docs/features.md#gallery).
 
 ## How it compares
 
@@ -101,58 +98,26 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ### 1.1.1 beta
 
-Details: [release notes](docs/release-notes/v1.1.1-beta1.md) · [full list](docs/features.md#new-in-111)
+- **External monitors**: brightness, contrast, volume and mute over DDC, in Display controls, off until you switch it on
+- **Fixed**: the hub's opening animation; with the Shelf on some displays only, the others show every item
 
-- **External monitors**: brightness, contrast, volume and mute of external monitors that support DDC, in the Display controls module, off until you switch it on.
-- **Fixes**: the hub's content no longer shows outside its black shape while it opens or closes, and with the holzBar Shelf limited to some displays, the other displays always show every menu bar item.
+[Release notes](docs/release-notes/v1.1.1-beta1.md)
 
 ### 1.1.0
 
-Details: [release notes](docs/release-notes/v1.1.0.md) · [full list](docs/features.md#new-in-110)
+- **Settings, redesigned**: eleven panes by task, search with ⌘F
+- **Layout as a list**: filter, section menu and Move to per item
+- **Undo** after every change, also with ⌘Z
+- **Notch hub, redesigned**: grows out of the notch, opens on what is active
+- **Short introduction** at the first launch, only Accessibility asked
+- **macOS 27**: whole apps highlighted in Layout, stand-in icons for apps outside Applications
+- **Fixed**: tidy-up question, endless loading, right-click on macOS 27.2
 
-- **Settings, redesigned**: eleven panes sorted by task, compact rows with an info button, and a search over every setting with ⌘F.
-- **Layout as a list**: bars or a list of every item with its app and a section menu, a filter, and Move to at the top of each item's menu.
-- **Undo after every change**: a layout change in Settings or in the menu bar shows a notice with Undo for five seconds, and ⌘Z works too; a deleted condition, group, snapshot, mood or profile hook comes back with Undo.
-- **A short introduction**: the first launch asks only for Accessibility, then shows three short steps that About shows again.
-- **Notch hub, redesigned**: grows out of the notch in black, opens on what is active with a line that says why, shows every module as a round button, and live activities widen the notch instead of a capsule below it.
-- **More in holzBar's menu**: Arrange Menu Bar… opens Layout, and Profiles applies a profile in one click.
-- **Whole apps on macOS 27**: Layout highlights the items of one app together and says that macOS hides whole apps.
-- **Stand-in icons**: on macOS 27, an app outside the Applications folder whose icon macOS hides while holzBar hides items gets a stand-in that opens its menu.
-- **Fixes**: the tidy-up question waits in Layout, loading the menu bar items no longer spins without end, a right-click on an empty area of the menu bar opens Apple's menu again on macOS 27.2 (hold ⌥ Option for holzBar's), and on macOS 27 apps outside the Applications folder open from the Shelf, search and hotkeys.
-
-### 1.0.5
-
-Details: [release notes](docs/release-notes/v1.0.5.md) · [full list](docs/features.md#new-in-105)
-
-- **Command-drag across the holzBar icon**: on macOS 27, dragging an item with ⌘ Command across the holzBar icon hides its app (to the left) or shows it (to the right), with Undo in Layout.
-- **Fixes**: rules no longer reveal hidden apps on macOS 27, rehiding waits for open menus, the ⌘ Command-drag respects the Touch ID lock and Zen mode, and the holzBar icon can no longer get lost in the hidden section.
-
-### 1.0.4
-
-Details: [release notes](docs/release-notes/v1.0.4.md) · [full list](docs/features.md#new-in-104)
-
-- **Order inside sections**: on macOS 26 and earlier, items keep their order inside each section and go back to their place when they reappear.
-- **Safer URL commands**: while Zen mode is on, `holzbar://application-menus/toggle` is ignored, and a burst of commands from another app is limited.
-- **Fixes**: no moves while the menu bar settles after a display change, slow-starting apps such as OneDrive are placed once they run, items with a live value in their title keep their place, and Wine or CrossOver tray icons are left alone.
+[Release notes](docs/release-notes/v1.1.0.md) · [full list](docs/features.md#new-in-110)
 
 ### Earlier releases
 
-- **1.0.3** ([notes](docs/release-notes/v1.0.3.md)): apps already running at launch appear in the Shelf, no "Unable to display menu bar items" while pictures are taken, and a tile no longer shows another app's icon.
-- **1.0.2** ([notes](docs/release-notes/v1.0.2.md)): a more compact What's New window, a smaller permissions window, and a click on the holzBar icon no longer opens another item's menu, such as Wi-Fi.
-- **1.0.1** ([notes](docs/release-notes/v1.0.1.md), [details](docs/features.md#new-in-101)): the What's New window, a tab for every version, with a switch under Settings → General → Startup.
-- **1.0.0** ([notes](docs/release-notes/v1.0.0.md), [details](docs/features.md#new-in-100)):
-  - Notch hub: eight optional modules (Now Playing, Calendar, Timers, Live activities, File drop, Display controls, Accessory alerts, Notifications), each off until you switch it on in Settings → Modules.
-  - Menu bar and Shelf: a count badge on the icon, sorting in Layout and drop to hide on macOS 27, Apple Items in the Shelf, hidden items that stay listed, hub tabs in one row.
-  - 20 languages: nine new translations, all machine-made ([how they are reviewed](docs/translations.md)).
-- **0.0.13** ([notes](docs/release-notes/v0.0.13.md), [details](docs/features.md#new-in-0013)):
-  - Shelf: type to find an item, a fold tile for always-hidden items ("+3"), dimmed apps that are not running, drag to reorder.
-  - Built-in items and app launchers in the Widgets module: Focus, AirDrop, media controls, fast user switching, a timer.
-  - Layout editor draws first and applies in one pass; animation and icon styles as picture cards.
-  - Per-display behaviour, short names in the search (`bt`, `wlan`, `dnd`) and 11 languages.
-- **0.0.12** ([notes](docs/release-notes/v0.0.12.md), [details](docs/features.md#new-in-0012)): Apple Items, the notch hub, Smart Categories in the search, a floating Shelf and a glass command palette.
-- **0.0.11** ([notes](docs/release-notes/v0.0.11.md), [details](docs/features.md#new-in-0011)): the bar's items slide in and out on macOS 26, a new glass look for Search and Hints, shared design tokens.
-- **0.0.9** ([notes](docs/release-notes/v0.0.9.md), [details](docs/features.md#new-in-009)): a Modules pane, a command palette, an AppleScript dictionary, moods, grid and column layouts for the Shelf, sound and Bluetooth conditions for rules, usage suggestions.
-- **0.0.8** ([notes](docs/release-notes/v0.0.8.md), [details](docs/features.md#new-in-008)): rules, scripts, widgets, layout snapshots, a Touch ID lock, menu bar styles, dragging without ⌘ and macOS 27's overflow button.
+1.0.5 · 1.0.4 · 1.0.3 · 1.0.2 · 1.0.1 · 1.0.0 and older: see the [release notes](docs/release-notes/) and the [full feature list](docs/features.md).
 
 **Planned, not available yet:** more modules for the notch hub. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
 
