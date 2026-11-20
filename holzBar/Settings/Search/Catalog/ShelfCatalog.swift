@@ -61,7 +61,7 @@ extension SettingsEntry {
         pane: .shelf,
         group: SettingsCatalog.ShelfPane.useOn,
         label: String(localized: "Use holzBar Shelf on"),
-        info: String(localized: "On other displays, hidden menu bar items are shown in the menu bar itself.")
+        info: String(localized: "On other displays, hidden menu bar items always stay shown in the menu bar.")
     )
 
     static let shelfNotchOverflow = SettingsEntry(

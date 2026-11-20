@@ -110,7 +110,7 @@ extension SettingsEntry {
         pane: .showingAndHiding,
         group: SettingsCatalog.ShowingAndHidingPane.displays,
         label: String(localized: "Hidden items per display"),
-        info: String(localized: "Always show everything keeps every section shown on that display. Collapse keeps hidden items hidden there; only the holzBar icon and the hotkeys show them. Neither applies with the holzBar Shelf.")
+        info: String(localized: "Always show everything keeps every section shown on that display. Collapse keeps hidden items hidden there; only the holzBar icon and the hotkeys show them. Neither applies on a display that uses the holzBar Shelf; the other displays show everything unless you choose Collapse.")
     )
 
     static let hidingZenMode = SettingsEntry(

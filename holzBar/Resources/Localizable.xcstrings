@@ -43577,120 +43577,120 @@
         }
       }
     },
-    "On other displays, hidden menu bar items are shown in the menu bar itself." : {
+    "On other displays, hidden menu bar items always stay shown in the menu bar." : {
       "localizations" : {
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Na ostatních displejích se skryté položky řádku nabídek zobrazují přímo v řádku nabídek."
+            "value" : "Na ostatních displejích zůstávají skryté položky řádku nabídek vždy zobrazené v řádku nabídek."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Auf anderen Bildschirmen werden ausgeblendete Elemente direkt in der Menüleiste eingeblendet."
+            "value" : "Auf anderen Bildschirmen bleiben ausgeblendete Elemente immer in der Menüleiste sichtbar."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "En las demás pantallas, los elementos ocultos de la barra de menús se muestran en la propia barra de menús."
+            "value" : "En las demás pantallas, los elementos ocultos de la barra de menús siempre permanecen visibles en la barra de menús."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sur les autres écrans, les éléments masqués s'affichent dans la barre des menus elle-même."
+            "value" : "Sur les autres écrans, les éléments masqués restent toujours affichés dans la barre des menus."
           }
         },
         "hu" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Más kijelzőkön a rejtett menüsor-elemek magán a menüsoron jelennek meg."
+            "value" : "Más kijelzőkön a rejtett menüsor-elemek mindig láthatók maradnak a menüsoron."
           }
         },
         "id" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Di layar lain, item bar menu yang tersembunyi muncul di bar menu itu sendiri."
+            "value" : "Di layar lain, item bar menu yang tersembunyi selalu tetap tampil di bar menu."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sugli altri monitor gli elementi nascosti vengono mostrati nella barra dei menu stessa."
+            "value" : "Sugli altri monitor gli elementi nascosti restano sempre visibili nella barra dei menu."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "他のディスプレイでは、非表示のメニューバー項目はメニューバー自体に表示されます。"
+            "value" : "他のディスプレイでは、非表示のメニューバー項目は常にメニューバーに表示されたままになります。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "다른 디스플레이에서는 숨겨진 메뉴 막대 항목이 메뉴 막대 자체에 표시됩니다."
+            "value" : "다른 디스플레이에서는 숨겨진 메뉴 막대 항목이 항상 메뉴 막대에 표시됩니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Op andere beeldschermen worden verborgen menubalkonderdelen in de menubalk zelf getoond."
+            "value" : "Op andere beeldschermen blijven verborgen menubalkonderdelen altijd zichtbaar in de menubalk."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Na innych wyświetlaczach ukryte elementy paska menu są pokazywane w samym pasku menu."
+            "value" : "Na innych wyświetlaczach ukryte elementy paska menu zawsze pozostają widoczne w pasku menu."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nos outros monitores, os itens ocultos da barra de menus são exibidos na própria barra de menus."
+            "value" : "Nos outros monitores, os itens ocultos da barra de menus ficam sempre visíveis na barra de menus."
           }
         },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sin auters monitors vegnan ils elements zuppads mussads directamain en la trav da menu."
+            "value" : "Sin auters monitors restan ils elements zuppads adina visibels en la trav da menu."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "На других дисплеях скрытые элементы строки меню показываются прямо в строке меню."
+            "value" : "На других дисплеях скрытые элементы строки меню всегда остаются видимыми в строке меню."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "På andra skärmar visas de dolda menyradsobjekten på själva menyraden."
+            "value" : "På andra skärmar förblir de dolda menyradsobjekten alltid synliga på menyraden."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Diğer ekranlarda gizli menü çubuğu öğeleri menü çubuğunun kendisinde görünür."
+            "value" : "Diğer ekranlarda gizli menü çubuğu öğeleri her zaman menü çubuğunda görünür kalır."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "На інших дисплеях приховані елементи смуги меню показуються просто в смузі меню."
+            "value" : "На інших дисплеях приховані елементи смуги меню завжди залишаються видимими в смузі меню."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在其他显示器上，隐藏的菜单栏项目会显示在菜单栏本身中。"
+            "value" : "在其他显示器上，隐藏的菜单栏项目始终显示在菜单栏中。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在其他顯示器上，隱藏的選單列項目會顯示在選單列本身。"
+            "value" : "在其他顯示器上，隱藏的選單列項目一律保持顯示在選單列中。"
           }
         }
       }
@@ -111668,121 +111668,120 @@
         }
       }
     },
-    "Always show everything keeps every section shown on that display. Collapse keeps hidden items hidden there; only the holzBar icon and the hotkeys show them. Neither applies with the holzBar Shelf." : {
-      "comment" : "Showing & Hiding pane, ShowingAndHidingCatalog.swift:113",
+    "Always show everything keeps every section shown on that display. Collapse keeps hidden items hidden there; only the holzBar icon and the hotkeys show them. Neither applies on a display that uses the holzBar Shelf; the other displays show everything unless you choose Collapse." : {
       "localizations" : {
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vždy zobrazovat vše ponechá na tom displeji všechny sekce zobrazené. Sbalit tam nechá skryté položky skryté; zobrazí je jen ikona holzBar a klávesové zkratky. Nic z toho neplatí s holzBar Shelf."
+            "value" : "Vždy zobrazovat vše ponechá na tom displeji všechny sekce zobrazené. Sbalit tam nechá skryté položky skryté; zobrazí je jen ikona holzBar a klávesové zkratky. Nic z toho neplatí na displeji, který používá holzBar Shelf; ostatní displeje zobrazují vše, pokud nezvolíte Sbalit."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Immer alles anzeigen lässt auf diesem Bildschirm jeden Bereich sichtbar. Einklappen lässt ausgeblendete Elemente dort ausgeblendet; nur das holzBar-Symbol und die Tastenkürzel zeigen sie. Beides gilt nicht mit dem holzBar Shelf."
+            "value" : "Immer alles anzeigen lässt auf diesem Bildschirm jeden Bereich sichtbar. Einklappen lässt ausgeblendete Elemente dort ausgeblendet; nur das holzBar-Symbol und die Tastenkürzel zeigen sie. Beides gilt nicht auf einem Bildschirm mit dem holzBar Shelf; die anderen Bildschirme zeigen alles, außer du wählst Einklappen."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mostrar siempre todo mantiene cada sección visible en esa pantalla. Plegar mantiene allí ocultos los elementos ocultos; solo el icono de holzBar y los atajos los muestran. Ninguna de las dos opciones se aplica con el holzBar Shelf."
+            "value" : "Mostrar siempre todo mantiene cada sección visible en esa pantalla. Plegar mantiene allí ocultos los elementos ocultos; solo el icono de holzBar y los atajos los muestran. Ninguna de las dos opciones se aplica en una pantalla que usa el holzBar Shelf; las demás pantallas lo muestran todo, salvo que elijas Plegar."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toujours tout afficher garde chaque section affichée sur cet écran. Replier y garde les éléments masqués ; seuls l’icône holzBar et les raccourcis les affichent. Aucun des deux ne s’applique avec le holzBar Shelf."
+            "value" : "Toujours tout afficher garde chaque section affichée sur cet écran. Replier y garde les éléments masqués ; seuls l’icône holzBar et les raccourcis les affichent. Aucun des deux ne s’applique sur un écran qui utilise le holzBar Shelf ; les autres écrans affichent tout, sauf si vous choisissez Replier."
           }
         },
         "hu" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A Mindig minden látszik minden szakaszt megjelenítve tart azon a kijelzőn. Az Összecsukás ott rejtve tartja a rejtett elemeket; csak a holzBar ikon és a gyorsbillentyűk jelenítik meg őket. Egyik sem érvényes a holzBar Shelf mellett."
+            "value" : "A Mindig minden látszik minden szakaszt megjelenítve tart azon a kijelzőn. Az Összecsukás ott rejtve tartja a rejtett elemeket; csak a holzBar ikon és a gyorsbillentyűk jelenítik meg őket. Egyik sem érvényes a holzBar Shelfet használó kijelzőn; a többi kijelző mindent mutat, hacsak nem az Összecsukást választod."
           }
         },
         "id" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Selalu tampilkan semuanya menjaga setiap bagian tetap tampil di layar itu. Ciutkan menjaga item tersembunyi tetap tersembunyi di sana; hanya ikon holzBar dan pintasan yang menampilkannya. Keduanya tidak berlaku dengan holzBar Shelf."
+            "value" : "Selalu tampilkan semuanya menjaga setiap bagian tetap tampil di layar itu. Ciutkan menjaga item tersembunyi tetap tersembunyi di sana; hanya ikon holzBar dan pintasan yang menampilkannya. Keduanya tidak berlaku di layar yang memakai holzBar Shelf; layar lainnya menampilkan semuanya kecuali Anda memilih Ciutkan."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mostra sempre tutto mantiene visibile ogni sezione su quello schermo. Comprimi mantiene nascosti gli elementi nascosti; solo l’icona di holzBar e le scorciatoie li mostrano. Nessuna delle due vale con holzBar Shelf."
+            "value" : "Mostra sempre tutto mantiene visibile ogni sezione su quello schermo. Comprimi mantiene nascosti gli elementi nascosti; solo l’icona di holzBar e le scorciatoie li mostrano. Nessuna delle due vale su uno schermo che usa holzBar Shelf; gli altri schermi mostrano tutto, a meno che tu non scelga Comprimi."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「常にすべて表示」はそのディスプレイですべてのセクションを表示したままにします。「折りたたむ」は非表示の項目を隠したままにし、holzBar のアイコンとショートカットだけが表示できます。どちらも holzBar Shelf では適用されません。"
+            "value" : "「常にすべて表示」はそのディスプレイですべてのセクションを表示したままにします。「折りたたむ」は非表示の項目を隠したままにし、holzBar のアイコンとショートカットだけが表示できます。どちらも holzBar Shelf を使うディスプレイでは適用されません。その他のディスプレイでは、「折りたたむ」を選ばない限りすべて表示されます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "'항상 모두 표시'는 해당 디스플레이에서 모든 섹션을 계속 표시합니다. '접기'는 숨겨진 항목을 숨긴 채로 두며, holzBar 아이콘과 단축키로만 표시할 수 있습니다. 둘 다 holzBar Shelf에는 적용되지 않습니다."
+            "value" : "'항상 모두 표시'는 해당 디스플레이에서 모든 섹션을 계속 표시합니다. '접기'는 숨겨진 항목을 숨긴 채로 두며, holzBar 아이콘과 단축키로만 표시할 수 있습니다. 둘 다 holzBar Shelf를 사용하는 디스플레이에는 적용되지 않으며, 다른 디스플레이는 '접기'를 선택하지 않는 한 모두 표시합니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toon altijd alles houdt elke sectie op dat beeldscherm zichtbaar. Vouw samen houdt verborgen onderdelen daar verborgen; alleen het holzBar-symbool en de sneltoetsen tonen ze. Beide gelden niet met de holzBar Shelf."
+            "value" : "Toon altijd alles houdt elke sectie op dat beeldscherm zichtbaar. Vouw samen houdt verborgen onderdelen daar verborgen; alleen het holzBar-symbool en de sneltoetsen tonen ze. Beide gelden niet op een beeldscherm dat de holzBar Shelf gebruikt; de andere beeldschermen tonen alles, tenzij je Vouw samen kiest."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zawsze pokazuj wszystko zostawia na tym wyświetlaczu każdą sekcję widoczną. Zwiń zostawia tam ukryte elementy ukryte; pokazują je tylko ikona holzBar i skróty. Żadne z nich nie dotyczy holzBar Shelf."
+            "value" : "Zawsze pokazuj wszystko zostawia na tym wyświetlaczu każdą sekcję widoczną. Zwiń zostawia tam ukryte elementy ukryte; pokazują je tylko ikona holzBar i skróty. Żadne z nich nie dotyczy wyświetlacza, który używa holzBar Shelf; pozostałe wyświetlacze pokazują wszystko, chyba że wybierzesz Zwiń."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sempre mostrar tudo mantém todas as seções visíveis nesse monitor. Recolher mantém lá os itens ocultos; só o ícone do holzBar e os atalhos os mostram. Nenhum dos dois vale com o holzBar Shelf."
+            "value" : "Sempre mostrar tudo mantém todas as seções visíveis nesse monitor. Recolher mantém lá os itens ocultos; só o ícone do holzBar e os atalhos os mostram. Nenhum dos dois vale em um monitor que usa o holzBar Shelf; os outros monitores mostram tudo, a menos que você escolha Recolher."
           }
         },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Adina mussar tut tegna mussada mintga secziun sin quel monitur. Plajar tegna là ils elements zuppads zuppads; be l'icona holzBar e las scursanidas als mussan. Nagin dals dus na vala cun il holzBar Shelf."
+            "value" : "Adina mussar tut tegna mussada mintga secziun sin quel monitur. Plajar tegna là ils elements zuppads zuppads; be l'icona holzBar e las scursanidas als mussan. Nagin dals dus na vala sin in monitur che dovra il holzBar Shelf; ils auters monitors mussan tut, nun che ti tschernas Plajar."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "«Всегда показывать всё» оставляет все разделы видимыми на этом дисплее. «Свернуть» оставляет скрытые элементы скрытыми; их показывают только значок holzBar и сочетания клавиш. Ни то, ни другое не действует с holzBar Shelf."
+            "value" : "«Всегда показывать всё» оставляет все разделы видимыми на этом дисплее. «Свернуть» оставляет скрытые элементы скрытыми; их показывают только значок holzBar и сочетания клавиш. Ни то, ни другое не действует на дисплее с holzBar Shelf; остальные дисплеи показывают всё, если не выбрать «Свернуть»."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alltid allt synligt håller varje sektion synlig på den skärmen. Fäll ihop håller dolda objekt dolda där; bara holzBar-symbolen och kortkommandona visar dem. Ingetdera gäller med holzBar Shelf."
+            "value" : "Alltid allt synligt håller varje sektion synlig på den skärmen. Fäll ihop håller dolda objekt dolda där; bara holzBar-symbolen och kortkommandona visar dem. Ingetdera gäller på en skärm som använder holzBar Shelf; de andra skärmarna visar allt om du inte väljer Fäll ihop."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Her zaman her şey görünür, o ekranda her bölümü görünür tutar. Daralt, gizli öğeleri orada gizli tutar; onları yalnızca holzBar simgesi ve kısayollar gösterir. İkisi de holzBar Shelf ile geçerli değildir."
+            "value" : "Her zaman her şey görünür, o ekranda her bölümü görünür tutar. Daralt, gizli öğeleri orada gizli tutar; onları yalnızca holzBar simgesi ve kısayollar gösterir. İkisi de holzBar Shelf kullanan bir ekranda geçerli değildir; diğer ekranlar, Daralt'ı seçmediğiniz sürece her şeyi gösterir."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "«Завжди показувати все» залишає всі розділи видимими на цьому дисплеї. «Згорнути» залишає приховані елементи прихованими; їх показують лише значок holzBar і комбінації клавіш. Жодне з двох не діє з holzBar Shelf."
+            "value" : "«Завжди показувати все» залишає всі розділи видимими на цьому дисплеї. «Згорнути» залишає приховані елементи прихованими; їх показують лише значок holzBar і комбінації клавіш. Жодне з двох не діє на дисплеї з holzBar Shelf; інші дисплеї показують усе, якщо не вибрати «Згорнути»."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“始终显示全部”会让该显示器上的每个分区保持显示。“折叠”会让隐藏项目在该显示器上保持隐藏，只有 holzBar 图标和快捷键能显示它们。两者都不适用于 holzBar Shelf。"
+            "value" : "“始终显示全部”会让该显示器上的每个分区保持显示。“折叠”会让隐藏项目在该显示器上保持隐藏，只有 holzBar 图标和快捷键能显示它们。两者都不适用于使用 holzBar Shelf 的显示器；其他显示器会显示全部，除非你选择“折叠”。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「一律顯示全部」會讓該顯示器上的每個區段保持顯示。「收合」會讓隱藏項目在該顯示器上保持隱藏，只有 holzBar 圖示和快速鍵能顯示它們。兩者都不適用於 holzBar Shelf。"
+            "value" : "「一律顯示全部」會讓該顯示器上的每個區段保持顯示。「收合」會讓隱藏項目在該顯示器上保持隱藏，只有 holzBar 圖示和快速鍵能顯示它們。兩者都不適用於使用 holzBar Shelf 的顯示器；其他顯示器會顯示全部，除非你選擇「收合」。"
           }
         }
       }
