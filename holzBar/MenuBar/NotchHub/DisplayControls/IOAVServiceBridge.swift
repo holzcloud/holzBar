@@ -268,7 +268,7 @@ nonisolated enum IOAVServiceBridge {
         guard IORegistryEntryGetName(entry, &buffer) == KERN_SUCCESS else {
             return nil
         }
-        return String(decoding: buffer.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }, as: UTF8.self)
+        return String(bytes: buffer.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }, encoding: .utf8)
     }
 
     private static func property(of entry: io_registry_entry_t, _ key: String) -> Any? {
