@@ -490,6 +490,22 @@ nonisolated struct PhotoSchedule27 {
 
     private var nextAttempts = [String: TimeInterval]()
 
+    /// How many attempts in a row came away with no image, by application.
+    private var failures = [String: Int]()
+
+    /// The wait before the next try after the given number of failures in a row: the retry
+    /// interval, doubled with every further failure and capped at the usual interval. An
+    /// application whose item can never be captured (the pass of an application macOS cannot
+    /// name releases every concealment, so all hidden items flash each time) is then tried
+    /// 45, 90, 180 and 360 seconds later, and every ten minutes after that, not every 45
+    /// seconds for good.
+    static func retryDelay(afterFailures failures: Int) -> TimeInterval {
+        guard failures > 1 else {
+            return retryInterval
+        }
+        return min(retryInterval * Double(1 << min(failures - 1, 16)), minimumInterval)
+    }
+
     func mayPhotograph(bundleID: String, now: TimeInterval) -> Bool {
         guard let next = nextAttempts[bundleID] else {
             return true
@@ -498,6 +514,13 @@ nonisolated struct PhotoSchedule27 {
     }
 
     mutating func recordAttempt(bundleID: String, now: TimeInterval, stored: Bool = true) {
-        nextAttempts[bundleID] = now + (stored ? Self.minimumInterval : Self.retryInterval)
+        if stored {
+            failures[bundleID] = nil
+            nextAttempts[bundleID] = now + Self.minimumInterval
+        } else {
+            let count = (failures[bundleID] ?? 0) + 1
+            failures[bundleID] = count
+            nextAttempts[bundleID] = now + Self.retryDelay(afterFailures: count)
+        }
     }
 }
