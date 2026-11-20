@@ -125,6 +125,9 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// The level requested while a DDC slider moves, until the read-back after its last change.
     private(set) var requestedLevels: [ExternalControl: Double] = [:]
 
+    /// The mute state requested while a monitor's mute write is pending, until the read-back.
+    private(set) var requestedMutes: [CGDirectDisplayID: Bool] = [:]
+
     /// A control of one external monitor.
     struct ExternalControl: Hashable, Sendable {
         let display: CGDirectDisplayID
@@ -507,6 +510,45 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         }
     }
 
+    /// Whether an external monitor is muted as the button shows it: the state requested while a
+    /// write is pending, else the one the monitor reported.
+    func isExternalMuted(display: CGDirectDisplayID) -> Bool {
+        if let requested = requestedMutes[display] {
+            return requested
+        }
+        guard let value = externals.first(where: { $0.id == display })?.values[.mute] else {
+            return false
+        }
+        return DDCLevel.isMuted(raw: value.current)
+    }
+
+    /// Mutes or unmutes an external monitor. Only a monitor that confirmed mute by a value read
+    /// is written (the bus refuses any other). The button shows the request at once; the write
+    /// goes through the control's coalescer, and about 0.3 s later the mute is read back and the
+    /// state shown becomes what the monitor reports.
+    func setExternalMuted(_ muted: Bool, display: CGDirectDisplayID) {
+        guard
+            ddcGate.isAvailable,
+            let bus,
+            externals.first(where: { $0.id == display && $0.state == .ready })?.values[.mute] != nil
+        else {
+            return
+        }
+        let key = ExternalControl(display: display, control: .mute)
+        requestedMutes[display] = muted
+        var channel = channels[key] ?? Channel()
+        channel.settle?.cancel()
+        channel.settle = nil
+        let startsWriter = channel.coalescer.submit(DDCLevel.muteRaw(muted))
+        channels[key] = channel
+        if startsWriter {
+            let generation = ddcGeneration
+            channels[key]?.writer = Task { [weak self] in
+                await self?.runWriter(key, on: bus, generation: generation)
+            }
+        }
+    }
+
     /// Moves the level shown by steps of 5 percent, for the keyboard and VoiceOver.
     func adjustExternalLevel(by steps: Int, control: DDCControl, display: CGDirectDisplayID) {
         guard let shown = externalLevel(control: control, display: display) else {
@@ -546,6 +588,9 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             if let value, self.ddcGate.isAvailable, let index = self.externals.firstIndex(where: { $0.id == key.display }) {
                 self.externals[index].values[key.control] = value
                 self.requestedLevels[key] = nil
+                if key.control == .mute {
+                    self.requestedMutes[key.display] = nil
+                }
             }
         }
     }
@@ -562,6 +607,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         }
         channels = [:]
         requestedLevels = [:]
+        requestedMutes = [:]
     }
 
     private func clear() {

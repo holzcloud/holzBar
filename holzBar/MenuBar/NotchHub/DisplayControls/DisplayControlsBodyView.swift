@@ -123,9 +123,36 @@ struct DisplayControlsBodyView: View {
                 monitor: monitor,
                 range: DDCLevel.contrastFloor...1
             )
-        case .volume, .mute:
+        case .volume:
+            levelRow(
+                symbol: "speaker.wave.2.fill",
+                label: String(localized: "Volume"),
+                control: .volume,
+                monitor: monitor,
+                range: 0...1,
+                showsMute: DDCCapabilities.showsMute(confirmed: Set(monitor.values.keys))
+            )
+        case .mute:
             EmptyView()
         }
+    }
+
+    /// The mute button of an external monitor's volume row, in the 28 pt slot. The state is the
+    /// symbol, never the colour; the button is selected for VoiceOver while the monitor is muted.
+    private func externalMuteButton(_ monitor: DisplayControlsRuntime.ExternalMonitor) -> some View {
+        let isMuted = runtime.isExternalMuted(display: monitor.id)
+        return Button {
+            runtime.setExternalMuted(!isMuted, display: monitor.id)
+        } label: {
+            Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                .font(HolzBarTheme.Hub.compactSymbolFont)
+                .foregroundStyle(HolzBarTheme.Hub.pillText)
+                .frame(width: Row.slot, height: Row.slot)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(isMuted ? Text("Unmute") : Text("Mute"))
+        .accessibilityAddTraits(isMuted ? .isSelected : [])
     }
 
     /// The one line a card shows instead of rows: the state and, where there is one, its next
@@ -140,24 +167,29 @@ struct DisplayControlsBodyView: View {
             .padding(.bottom, HolzBarTheme.Spacing.xxs)
     }
 
-    /// One level row of an external monitor: the control's symbol in the 28 pt slot, the slider
-    /// and the value. The slider shows the level requested while it moves and the level the
+    /// One level row of an external monitor: the control's symbol in the 28 pt slot (the mute
+    /// button in the volume row of a monitor that reports mute), the slider and the value. The slider shows the level requested while it moves and the level the
     /// monitor reports afterwards.
     private func levelRow(
         symbol: String,
         label: String,
         control: DDCControl,
         monitor: DisplayControlsRuntime.ExternalMonitor,
-        range: ClosedRange<Double>
+        range: ClosedRange<Double>,
+        showsMute: Bool = false
     ) -> some View {
         let shown = runtime.externalLevel(control: control, display: monitor.id) ?? range.lowerBound
         return HStack(spacing: HolzBarTheme.Spacing.xs) {
-            Image(systemName: symbol)
-                .font(HolzBarTheme.Hub.compactSymbolFont)
-                .foregroundStyle(HolzBarTheme.Hub.pillText)
-                .frame(width: Row.slot, height: Row.slot)
-                .help(label)
-                .accessibilityHidden(true)
+            if showsMute {
+                externalMuteButton(monitor)
+            } else {
+                Image(systemName: symbol)
+                    .font(HolzBarTheme.Hub.compactSymbolFont)
+                    .foregroundStyle(HolzBarTheme.Hub.pillText)
+                    .frame(width: Row.slot, height: Row.slot)
+                    .help(label)
+                    .accessibilityHidden(true)
+            }
             Slider(value: externalLevel(control: control, monitor: monitor, fallback: range.lowerBound), in: range)
                 .tint(HolzBarTheme.Palette.accent)
                 .accessibilityLabel(Text(verbatim: "\(label), \(monitor.name)"))
