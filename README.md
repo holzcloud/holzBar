@@ -38,7 +38,7 @@ If you looked for an Ice fork that runs on macOS 27, or a free Bartender alterna
 - **No dependencies, modern Swift.** Swift 6 language mode, built with Swift 6.4 and Xcode 27, no third-party packages.
 - **Least privilege.** The first launch asks only for Accessibility; Screen Recording is optional, for pictures of your items; Location Services only when you add a Wi-Fi-name condition to a rule, Bluetooth only when you add a Bluetooth condition or switch on the Accessory alerts module. Calendar access only when you switch on the Calendar module of the notch hub, and access to your Downloads folder only when you switch on its downloads source in the Live activities module (the camera and microphone source needs no permission). Since 0.0.7-beta2 no XPC service or helper app, and from 1.0.0 one signed library for the optional Read all apps of Now Playing, used only while the hub is open and that switch is on; from 1.0.0 holzBar carries one entitlement, `com.apple.security.personal-information.calendars`, which only lets macOS ask you for Calendar access, and no `get-task-allow`.
 - **Verifiable releases.** Signed with holzBar's own certificate, with GitHub build provenance and, since 0.0.7-beta2, SLSA Build Level 3 provenance.
-- **More than Ice.** Rules, scripts and widgets, profiles, folders, spacers, Zen mode, Shortcuts actions, URL commands, a command palette and moods, a black menu bar, a camera and microphone dot on macOS 27, a search over every setting, and Undo after every layout change. Available in 20 languages: English and nineteen translations, all machine-made and not yet checked by a native speaker ([how they are made and reviewed](docs/translations.md)).
+- **More than Ice.** A notch hub with eight optional modules, rules, scripts and widgets, profiles, folders, spacers, Zen mode, Shortcuts actions, URL commands, a command palette and moods, a black menu bar, a camera and microphone dot on macOS 27, a search over every setting, and Undo after every layout change. Available in 20 languages: English and nineteen translations, all machine-made and not yet checked by a native speaker ([how they are made and reviewed](docs/translations.md)).
 
 <table>
 <tr>
@@ -67,6 +67,7 @@ Researched on 9 October 2026 from each project's own pages and repositories. A d
 | Hidden and always-hidden sections, separate bar | yes | yes | yes | yes |
 | Layout profiles, groups, spacers | no | yes | yes | yes |
 | Rules and scripts | no | yes | yes | yes |
+| Notch hub with optional modules (timers, calendar, now playing and more) | no | - | - | yes |
 | Search over every setting (⌘F) | no | - | - | yes |
 | Layout as a list with a filter and a section menu per item | no | - | - | yes |
 | Undo after every layout change, also in the menu bar | no | in the layout editor | - | yes |
@@ -80,7 +81,7 @@ Where holzBar loses: it has no Developer ID signature, a slide of the bar's own 
 
 ## Install
 
-Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 1.0.5. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
+Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 1.1.0. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
 
 ```sh
 brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar
@@ -103,10 +104,13 @@ Details: [release notes](docs/release-notes/v1.1.0.md) · [full list](docs/featu
 
 - **Settings, redesigned**: eleven panes sorted by task, compact rows with an info button, and a search over every setting with ⌘F.
 - **Layout as a list**: bars or a list of every item with its app and a section menu, a filter, and Move to at the top of each item's menu.
-- **Undo after every change**: a layout change in Settings or in the menu bar shows a notice with Undo for five seconds, and ⌘Z works too.
+- **Undo after every change**: a layout change in Settings or in the menu bar shows a notice with Undo for five seconds, and ⌘Z works too; a deleted condition, group, snapshot, mood or profile hook comes back with Undo.
 - **A short introduction**: the first launch asks only for Accessibility, then shows three short steps that About shows again.
 - **Notch hub, redesigned**: grows out of the notch in black, opens on what is active with a line that says why, shows every module as a round button, and live activities widen the notch instead of a capsule below it.
+- **More in holzBar's menu**: Arrange Menu Bar… opens Layout, and Profiles applies a profile in one click.
+- **Whole apps on macOS 27**: Layout highlights the items of one app together and says that macOS hides whole apps.
 - **Stand-in icons**: on macOS 27, an app outside the Applications folder whose icon macOS hides while holzBar hides items gets a stand-in that opens its menu.
+- **Fixes**: the tidy-up question waits in Layout, loading the menu bar items no longer spins without end, a right-click on an empty area of the menu bar opens Apple's menu again on macOS 27.2 (hold ⌥ Option for holzBar's), and on macOS 27 apps outside the Applications folder open from the Shelf, search and hotkeys.
 
 ### 1.0.5
 
