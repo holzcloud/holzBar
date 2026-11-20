@@ -168,6 +168,13 @@ final class DisplayControlsRuntime: HubModuleRuntime {
 
     @ObservationIgnored private var channels: [ExternalControl: Channel] = [:]
 
+    /// Whether the hub is open. While it is closed nothing of the external part talks to a monitor.
+    @ObservationIgnored private var isHubOpen = false
+
+    /// Follows the External monitors setting for as long as the runtime exists, so switching it
+    /// off and on starts the part afresh even while the hub is closed.
+    @ObservationIgnored private var externalSettingLoop: ObservationLoop?
+
     /// The app state, for the Brightness setting.
     @ObservationIgnored private weak var appState: AppState?
 
@@ -177,9 +184,15 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// The CoreAudio listeners, added while the hub is open.
     @ObservationIgnored private let listener = OutputVolume.Listener()
 
-    /// Creates the runtime. It has nothing to start: the state is read when the hub opens.
+    /// Creates the runtime. It has nothing to start: the state is read when the hub opens. It
+    /// only follows the External monitors setting, which costs nothing while the setting stays.
     init(appState: AppState) {
         self.appState = appState
+        externalSettingLoop = ObservationLoop.observe { [weak self] in
+            self?.appState?.settings.displayControls.showsExternalMonitors ?? false
+        } onChange: { [weak self] _ in
+            self?.externalMonitorsSettingDidChange()
+        }
     }
 
     /// Reads the brightness, the external monitors and the default output's plan, level, mute and
@@ -315,6 +328,17 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         )
     }
 
+    /// The External monitors setting changed. Switching it off drops the gate's count of failures,
+    /// what the policy remembers and the bus, so switching it on again starts afresh whether or
+    /// not the hub was open in between. Switching it on while the hub is closed changes nothing
+    /// and sends nothing to a monitor: the next opening reads them.
+    private func externalMonitorsSettingDidChange() {
+        let isEnabled = appState?.settings.displayControls.showsExternalMonitors ?? false
+        if !isEnabled || isHubOpen {
+            refreshExternalMonitors()
+        }
+    }
+
     /// Reads the controls of every external monitor macOS cannot change itself. With the External
     /// monitors setting off nothing is looked up and nothing is created. With it on, one survey
     /// runs on the bus; a survey of this opening that is still running is left alone.
@@ -330,10 +354,11 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             cancelExternalWork()
             bus = nil
             // Only names and screen identifiers are read: nothing of the DDC part is created or
-            // looked up, the cards just say how to turn the part on.
-            externals = externalCandidates().map {
+            // looked up, the cards just say how to turn the part on. With the hub closed there is
+            // no tab, so no card and no name is kept.
+            externals = isHubOpen ? externalCandidates().map {
                 ExternalMonitor(id: $0.id, name: names[$0.id] ?? "", state: .switchedOff, values: [:])
-            }
+            } : []
             return
         }
         let candidates = externalCandidates()
@@ -666,6 +691,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// Reads the state once more and starts the listeners when the hub opens, and stops them
     /// when it closes.
     func hubVisibilityDidChange(isOpen: Bool) {
+        isHubOpen = isOpen
         if isOpen {
             hubOpening += 1
             refresh()
@@ -742,6 +768,8 @@ final class DisplayControlsRuntime: HubModuleRuntime {
 
     /// Stops the listeners and every transfer, and releases the state and the bus.
     func shutDown() {
+        externalSettingLoop?.cancel()
+        externalSettingLoop = nil
         listener.stop()
         cancelExternalWork()
         bus = nil
