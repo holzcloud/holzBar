@@ -43,6 +43,9 @@ sources=(
   CommandDragSection
   ControlCenterControl
   ControlItemOrder
+  DDCDisplayMatch
+  DDCPacket
+  DDCReply
   Defaults
   DesignTokens
   DiagnosticsReport
@@ -181,6 +184,9 @@ tests=(
   CommandDragSectionTests
   ControlCenterControlTests
   ControlItemOrderTests
+  DDCDisplayMatchTests
+  DDCPacketTests
+  DDCReplyTests
   DefaultsKeyNamesTests
   DesignTokensTests
   DiagnosticsReportTests
