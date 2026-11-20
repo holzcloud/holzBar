@@ -91,7 +91,7 @@
 
 ## New in 1.1.0
 
-1.1.0 is in beta; see the [release notes of 1.1.0 beta 1](release-notes/v1.1.0-beta1.md).
+1.1.0 is out; see its [release notes](release-notes/v1.1.0.md).
 
 - **Settings, redesigned**: eleven panes sorted by task, in three sidebar groups. The menu bar: **Layout** (the sections, the list, Tidy Up, suggestions, the search's options and the pictures of the items), **Showing & Hiding** (click, hover and scroll, hiding again, per display, Zen mode and the Touch ID lock, the animation), **holzBar Shelf**, **Profiles & History** (profiles, groups, spacers and the layout history) and **Appearance**; then **Automation** and **Modules**; and holzBar itself: **General** (startup and the menu bar icon), **Hotkeys**, **Advanced** (menu bar options, app menus, item spacing, settings backup and the permissions) and **About**. Every row is compact, with its explanation behind an info button. A search field at the top of the sidebar, also reached with ⌘F, finds every setting by its name or its explanation and opens its pane at that row. **Menu Bar Appearance** is now only the name of the floating appearance editor.
 - **Layout as bars or a list**: a **Bars | List** switch at the top of Layout. The list shows every item with its app and a pop-up for its section, and works with the keyboard and VoiceOver. A filter narrows the list to the items whose name or app contains the text; in the bars it dims the other tiles. The menu of a tile starts with **Move to** (Visible, Hidden or Always Hidden). From the keyboard, Option with an arrow key moves the selected item, and ⌘1, ⌘2 and ⌘3 put it in a section.
