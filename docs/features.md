@@ -365,7 +365,7 @@ Screenshots of holzBar in dark mode.
 <td width="50%" valign="top"><b>Notch hub, Timers — presets, a typed length, a countdown or a stopwatch</b><br><img src="../Resources/Screenshots/hub-timers.jpg" alt="The Timers tab of the notch hub with the presets 1, 5, 10 and 25 minutes and 1 hour, the Length, Until and Stopwatch choices and a label field"></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><b>Notch hub, Display — brightness and volume</b><br><img src="../Resources/Screenshots/hub-display.jpg" alt="The Display tab of the notch hub: a brightness slider for the built-in display, a display macOS cannot change from here, and the volume slider of the speakers"></td>
+<td width="50%" valign="top"><b>Notch hub, Display — brightness and volume</b><br><img src="../Resources/Screenshots/hub-display.png" alt="The Display controls module in the notch hub: a brightness slider for the built-in display and the volume of the Mac's speakers, with the round module buttons below"></td>
 <td width="50%" valign="top"><b>Modules — the notch hub, Timers, Calendar and Live activities</b><br><img src="../Resources/Screenshots/settings-modules-notch.jpg" alt="holzBar settings, Modules pane: the Notch hub with Open on hover, Show the hub on and a hotkey, Timers with a finish sound, Calendar with one switch per calendar, and Live activities"></td>
 </tr>
 <tr>
@@ -381,13 +381,12 @@ Screenshots of holzBar in dark mode.
 ### Menu bar and settings
 
 
-<p align="center"><img src="../Resources/Screenshots/settings-general.png" alt="holzBar settings, General pane: Launch at login, the menu bar icon choices and the holzBar Shelf with its style" width="760"></p>
+<p align="center"><img src="../Resources/Screenshots/settings-general.png" alt="holzBar settings, General pane: Launch at login, What's New after an update, the menu bar icon styles, the number of hidden items and the dot for the microphone or camera" width="760"></p>
 
 <p align="center"><img src="../Resources/Screenshots/settings-general-shelf.png" alt="holzBar settings, General pane, the holzBar Shelf: style, location, layout, find items by typing, applications that are not running, rearranging by dragging and the displays it is used on" width="760"></p>
 
-<p align="center"><img src="../Resources/Screenshots/settings-general-showing.png" alt="holzBar settings, General pane: items covered by the notch, showing hidden items on click, hover or scroll, the animation, opening Notification Center from the clock and per-display behaviour" width="760"></p>
+<p align="center"><img src="../Resources/Screenshots/settings-showing-hiding.png" alt="holzBar settings, Showing & Hiding pane: show on click, hover or scroll, open hidden items in the menu bar, automatic rehide with the Smart strategy, Zen mode, Touch ID and the animation styles Instant, Smooth and Fade" width="760"></p>
 
-<p align="center"><img src="../Resources/Screenshots/settings-general-rehiding.png" alt="holzBar settings, General pane: per-display behaviour, automatic rehide with the Smart strategy, menu bar item spacing and the camera and microphone indicator dot" width="760"></p>
 
 <table>
 <tr>
@@ -403,18 +402,18 @@ Screenshots of holzBar in dark mode.
 <table>
 <tr>
 <td width="50%" valign="top"><b>Layout</b> — drag items into sections, with profiles, groups and spacers<br><img src="../Resources/Screenshots/settings-layout.png" alt="holzBar settings, Layout pane: the Visible and Hidden sections with the menu bar items, Tidy Up, Usage Suggestions and the layout profiles"></td>
-<td width="50%" valign="top"><b>Appearance</b> — moods, tint, shadow, border, shapes, a black bar and rounded screen corners<br><img src="../Resources/Screenshots/settings-appearance.png" alt="holzBar settings, Appearance pane: Moods, dynamic appearance, Tint, Shadow, Border, Shape Kind, Black menu bar and Round the screen corners"></td>
+<td width="50%" valign="top"><b>Appearance</b> — moods, tint, shadow, border, shapes, a black bar and rounded screen corners<br><img src="../Resources/Screenshots/settings-appearance.png" alt="holzBar settings, Appearance pane: moods, the menu bar shape, light and dark, tint, shadow and border"></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><b>Hotkeys</b> — a shortcut for every frequent action, profile and item<br><img src="../Resources/Screenshots/settings-hotkeys.png" alt="holzBar settings, Hotkeys pane: hotkeys for the hidden section, the search, opening an item by letter, the layout profile, the holzBar Shelf, app menus, auto-rehide and Zen mode, each with Record Hotkey"></td>
-<td width="50%" valign="top"><b>Advanced</b> — new items, delays, Zen mode, Touch ID lock and settings backup<br><img src="../Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: where new items go, the secondary context menu, the hover delay, hiding opened items again after 15 seconds, opening hidden items in the menu bar, Zen mode while the screen is shared, Touch ID or password before showing hidden items, settings Export… and Import…, and the permissions"></td>
+<td width="50%" valign="top"><b>Hotkeys</b> — a shortcut for every frequent action, profile and item<br><img src="../Resources/Screenshots/settings-hotkeys.png" alt="holzBar settings, Hotkeys pane: hotkeys to show items, find items, single items, profiles, modes and the Notch hub"></td>
+<td width="50%" valign="top"><b>Advanced</b> — right-click, item spacing <sub>BETA</sub>, settings backup and permissions<br><img src="../Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: right-click on the empty menu bar, menu bar item spacing, back up settings and permissions"></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><b>Layout, further down</b> — usage suggestions, profiles, groups, spacers and the layout history<br><img src="../Resources/Screenshots/settings-layout-more.png" alt="holzBar settings, Layout pane further down: Usage Suggestions, the home profile with Apply, Bind, Import Profile and Save Current Layout, Groups with New Group, Spacers, and Layout History with 8 snapshots"></td>
-<td width="50%" valign="top"><b>Automation</b> — rules, scripts and profile hooks<br><img src="../Resources/Screenshots/settings-automation.png" alt="holzBar settings, Automation pane: the Scripts folder with Choose Folder and Open Scripts Folder, profile hooks, and Add Rule"></td>
+<td width="50%" valign="top"><b>Profiles &amp; History</b> — profiles, groups, spacers and the layout history<br><img src="../Resources/Screenshots/settings-profiles-history.png" alt="holzBar settings, Profiles & History pane: profiles, groups, spacers and the layout history with its snapshots"></td>
+<td width="50%" valign="top"><b>Automation</b> — rules, scripts and profile hooks<br><img src="../Resources/Screenshots/settings-automation.png" alt="holzBar settings, Automation pane: rules, the Scripts folder, the scripts of the rules, profile hooks and where rules are stored"></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><b>Modules</b> — widgets and dragging in the menu bar, each with its own switch<br><img src="../Resources/Screenshots/settings-modules.png" alt="holzBar settings, Modules pane: Widgets switched on with a CPU load and a free disk space widget, and Drag in the Menu Bar switched off"></td>
+<td width="50%" valign="top"><b>Modules</b> — every module with its own switch<br><img src="../Resources/Screenshots/settings-modules.png" alt="holzBar settings, Modules pane: Widgets, Drag in the Menu Bar, Apple Items and Notification Center from the clock, then the Notch hub and its eight modules, each with its own switch"></td>
 <td width="50%" valign="top"><b>Permissions</b> — what holzBar has, with Revoke<br><img src="../Resources/Screenshots/settings-advanced-permissions.png" alt="holzBar settings, Advanced pane, the end: Back up or move your settings with Export and Import, and the permissions Accessibility and Screen Recording, each shown as Permission Granted with a Revoke button"></td>
 </tr>
 <tr>
