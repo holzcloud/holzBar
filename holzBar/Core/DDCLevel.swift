@@ -41,6 +41,20 @@ nonisolated enum DDCLevel {
         muted ? 1 : 2
     }
 
+    /// The raw value that is actually written for a control, or `nil` when none may be. Brightness,
+    /// contrast and volume are ranges: the value is kept at or below the maximum the monitor
+    /// reported. Mute is not a range but two fixed codes, 1 (mute) and 2 (unmute): it is written
+    /// as exactly that, whatever maximum the monitor reported (one that reports 1 would otherwise
+    /// turn "unmute" into "mute"), and any other value is refused.
+    static func writable(raw: UInt16, for control: DDCControl, maximum: UInt16) -> UInt16? {
+        switch control {
+        case .mute:
+            return raw == muteRaw(true) || raw == muteRaw(false) ? raw : nil
+        case .brightness, .contrast, .volume:
+            return min(raw, maximum)
+        }
+    }
+
     /// The raw value for a level. The level is kept between 0 and 1, raised to `floor`, scaled
     /// to `maximum` and rounded. With a floor above 0 and a maximum above 0 the result is at
     /// least 1, so a coarse scale (a maximum of 3) never rounds the floor down to off.

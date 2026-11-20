@@ -59,4 +59,27 @@ struct DDCLevelTests {
         #expect(Level.muteRaw(true) == 1)
         #expect(Level.muteRaw(false) == 2)
     }
+
+    @Test("A range control is written at most at the maximum the monitor reported")
+    func writableRanges() {
+        #expect(Level.writable(raw: 80, for: .brightness, maximum: 100) == 80)
+        #expect(Level.writable(raw: 200, for: .brightness, maximum: 100) == 100)
+        #expect(Level.writable(raw: 7, for: .volume, maximum: 3) == 3)
+        #expect(Level.writable(raw: 0, for: .contrast, maximum: 100) == 0)
+    }
+
+    @Test("Mute writes 1 or 2 whatever maximum the monitor reported, so unmute never becomes mute")
+    func writableMute() {
+        for maximum: UInt16 in [1, 2, 3, 255] {
+            #expect(Level.writable(raw: Level.muteRaw(false), for: .mute, maximum: maximum) == 2)
+            #expect(Level.writable(raw: Level.muteRaw(true), for: .mute, maximum: maximum) == 1)
+        }
+    }
+
+    @Test("Mute refuses every raw value but 1 and 2")
+    func writableMuteRefuses() {
+        #expect(Level.writable(raw: 0, for: .mute, maximum: 2) == nil)
+        #expect(Level.writable(raw: 3, for: .mute, maximum: 255) == nil)
+        #expect(Level.writable(raw: 255, for: .mute, maximum: 255) == nil)
+    }
 }

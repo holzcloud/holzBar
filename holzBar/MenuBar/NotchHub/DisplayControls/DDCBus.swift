@@ -254,18 +254,20 @@ actor DDCBus {
     }
 
     /// Sets a control of a display to a raw value. Refuses (returns `false`) unless that display
-    /// and control were read successfully in this session, and keeps the value at or below the
-    /// maximum that read reported. A request can only be built from a ``DDCControl``, so the
-    /// input source can never be written.
+    /// and control were read successfully in this session. A range control is kept at or below
+    /// the maximum that read reported; mute is written as exactly 1 or 2 and any other value is
+    /// refused (``DDCLevel/writable(raw:for:maximum:)``). A request can only be built from a
+    /// ``DDCControl``, so the input source can never be written.
     func write(_ control: DDCControl, raw: UInt16, to display: UInt32) -> Bool {
         guard
             let functions = loaded?.functions,
             let endpoint = endpoint(for: display),
-            let maximum = readControls[display]?[control]
+            let maximum = readControls[display]?[control],
+            let value = DDCLevel.writable(raw: raw, for: control, maximum: maximum)
         else {
             return false
         }
-        let request = DDCPacket.setRequest(control, value: min(raw, maximum))
+        let request = DDCPacket.setRequest(control, value: value)
         return IOAVServiceBridge.send(request, endpoint: endpoint, functions: functions)
     }
 
