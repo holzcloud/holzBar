@@ -133,6 +133,16 @@ struct DDCCapabilitiesTests {
         #expect(Capabilities.parse("(VCP(10 62))") == [0x10, 0x62])
     }
 
+    @Test("vcp( is a token of its own: inside another name it is not the group, and the real group after it still is")
+    func parsesTokenBoundary() {
+        #expect(Capabilities.parse("(avcp(10 12))") == nil)
+        #expect(Capabilities.parse("(x_vcp(10 12))") == nil)
+        #expect(Capabilities.parse("(avcp(10 12)vcp(62 8D))") == [0x62, 0x8D])
+        #expect(Capabilities.parse("vcp(10 62)") == [0x10, 0x62])
+        #expect(Capabilities.parse("(cmds(01 02)vcp(10 62)mccs_ver(2.1))") == [0x10, 0x62])
+        #expect(Capabilities.parse("(prot(monitor) vcp(10))") == [0x10])
+    }
+
     @Test("No vcp group, an unbalanced one or an empty one gives nil so the fallback applies")
     func parseFailures() {
         #expect(Capabilities.parse("(prot(monitor)type(lcd))") == nil)

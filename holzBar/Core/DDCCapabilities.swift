@@ -104,7 +104,8 @@ nonisolated enum DDCCapabilities {
     /// such group, its parentheses never balance or it lists nothing, so the caller falls back
     /// to reading the controls directly.
     ///
-    /// The group is found case-insensitively. At its top level every token of two hex digits,
+    /// The group is found case-insensitively, and only as a token of its own (``startsToken(at:in:)``).
+    /// At its top level every token of two hex digits,
     /// in either case and split by any whitespace, is a code; a code followed by a group of
     /// sub-values (`14(01 05 08 0B)`) keeps the code and skips the group; every other token is
     /// ignored.
@@ -115,7 +116,8 @@ nonisolated enum DDCCapabilities {
             return nil
         }
         var start: Int?
-        for index in 0...(text.count - marker.count) where text[index..<(index + marker.count)].elementsEqual(marker) {
+        for index in 0...(text.count - marker.count)
+        where text[index..<(index + marker.count)].elementsEqual(marker) && startsToken(at: index, in: text) {
             start = index + marker.count
             break
         }
@@ -157,6 +159,18 @@ nonisolated enum DDCCapabilities {
             }
         }
         return nil
+    }
+
+    /// Whether a name that starts at `index` is a token of its own: it is the start of the text or
+    /// follows a character that cannot be part of a name (a parenthesis, a space), so `avcp(` or
+    /// `x_vcp(` is not taken for `vcp(`.
+    private static func startsToken(at index: Int, in text: [UInt8]) -> Bool {
+        guard index > 0 else {
+            return true
+        }
+        let before = text[index - 1]
+        let isNameCharacter = (before >= 0x30 && before <= 0x39) || (before >= 0x61 && before <= 0x7A) || before == 0x5F
+        return !isNameCharacter
     }
 
     private static func hexValue(_ byte: UInt8) -> UInt8? {
