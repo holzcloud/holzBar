@@ -69,9 +69,18 @@ actor DDCBus {
     /// The channels found by the last walk of the registry.
     private var endpoints = [IOAVServiceBridge.Endpoint]()
 
-    /// The display identifiers of the last survey; the registry is walked again only when they
-    /// change, because every walk creates a service per display.
+    /// The displays of the last survey, kept to pair them again after a new walk.
+    private var surveyedDisplays = [DDCDisplayMatch.Display]()
+
+    /// The display identifiers of the last survey; the registry is walked again when they
+    /// change, or when a display that answered before stops answering, because every walk
+    /// creates a service per display.
     private var surveyedIDs: Set<UInt32>?
+
+    /// The displays that gave a valid reply in this session. A display in it that stops
+    /// answering may hold a service that went stale (sleep and wake, a dock that enumerated
+    /// again), so it earns one new walk before the failure is reported.
+    private var answeredDisplays = Set<UInt32>()
 
     /// The pairing of the last survey: display to index in ``endpoints``, and the ties.
     private var pairing = DDCDisplayMatch.Result(pairs: [:], indistinguishable: [])
@@ -105,43 +114,78 @@ actor DDCBus {
     /// has: brightness, contrast, volume and mute. A display's capabilities string decides
     /// which controls are tried and a value read confirms each one; without a readable string
     /// brightness is read first and the display gets the controls that answer. The registry is
-    /// walked the first time and again only when the set of display identifiers differs from
-    /// the last survey. `opening` is the number of the hub opening: a new number empties the
-    /// capabilities cache, so every opening reads them afresh and the surveys of one opening
-    /// reuse them. Stops early when the calling task is cancelled.
+    /// walked the first time and again when the set of display identifiers differs from the last
+    /// survey; a display that answered earlier and gives no answer now causes one more walk and
+    /// one more try before the survey reports it, because its service may have gone stale.
+    /// `opening` is the number of the hub opening: a new number empties the capabilities cache,
+    /// so every opening reads them afresh and the surveys of one opening reuse them. Stops early
+    /// when the calling task is cancelled.
     func survey(_ displays: [DDCDisplayMatch.Display], opening: Int) -> [DDCDisplayReport] {
-        guard let functions = loaded?.functions else {
+        guard loaded?.functions != nil else {
             return displays.map { DDCDisplayReport(id: $0.id, outcome: .noAnswer(tried: false)) }
         }
         if cachedOpening != opening {
             capabilitiesCache = [:]
             cachedOpening = opening
         }
+        surveyedDisplays = displays
         let identifiers = Set(displays.map(\.id))
         if surveyedIDs != identifiers {
-            endpoints = IOAVServiceBridge.endpoints(using: functions)
             surveyedIDs = identifiers
             readControls = [:]
             capabilitiesCache = [:]
+            walkRegistry()
+        } else {
+            pairing = DDCDisplayMatch.match(displays: displays, framebuffers: endpoints.map(\.framebuffer))
         }
-        pairing = DDCDisplayMatch.match(displays: displays, framebuffers: endpoints.map(\.framebuffer))
 
         var reports = [DDCDisplayReport]()
         for display in displays {
             guard !Task.isCancelled else {
                 break
             }
-            let outcome: DDCDisplayReport.Outcome
-            if pairing.indistinguishable.contains(display.id) {
-                outcome = .indistinguishable
-            } else if pairing.pairs[display.id] != nil {
-                outcome = surveyControls(of: display.id)
-            } else {
-                outcome = .noAnswer(tried: false)
+            reports.append(report(for: display))
+        }
+        let stale = displays.filter { display in
+            answeredDisplays.contains(display.id)
+                && reports.contains { $0.id == display.id && $0.outcome == .noAnswer(tried: true) }
+        }
+        if !stale.isEmpty, !Task.isCancelled {
+            walkRegistry()
+            for display in stale where !Task.isCancelled {
+                capabilitiesCache[display.id] = nil
+                if let index = reports.firstIndex(where: { $0.id == display.id }) {
+                    reports[index] = report(for: display)
+                }
             }
-            reports.append(DDCDisplayReport(id: display.id, outcome: outcome))
         }
         return reports
+    }
+
+    /// What one display answers: the controls that read, or why it was not asked.
+    private func report(for display: DDCDisplayMatch.Display) -> DDCDisplayReport {
+        let outcome: DDCDisplayReport.Outcome
+        if pairing.indistinguishable.contains(display.id) {
+            outcome = .indistinguishable
+        } else if pairing.pairs[display.id] != nil {
+            outcome = surveyControls(of: display.id)
+        } else {
+            outcome = .noAnswer(tried: false)
+        }
+        if case .answered = outcome {
+            answeredDisplays.insert(display.id)
+        }
+        return DDCDisplayReport(id: display.id, outcome: outcome)
+    }
+
+    /// Walks the registry again and pairs the displays of the last survey with what it found.
+    /// The maxima already read stay: a new service for the same display changes no scale.
+    private func walkRegistry() {
+        guard let functions = loaded?.functions else {
+            return
+        }
+        endpoints = IOAVServiceBridge.endpoints(using: functions)
+        pairing = DDCDisplayMatch.match(displays: surveyedDisplays, framebuffers: endpoints.map(\.framebuffer))
     }
 
     /// The controls of one paired display that answer. With the capabilities string the
@@ -253,11 +297,26 @@ actor DDCBus {
         return nil
     }
 
+    /// Reads a control once more after a change, for the read-back. A read that gives nothing from
+    /// a display and control that read before may have met a service gone stale, so the registry
+    /// is walked once more and the read tried again before the caller counts it as a failure.
+    func readBack(_ control: DDCControl, of display: UInt32) -> DDCControlValue? {
+        if let value = read(control, of: display) {
+            return value
+        }
+        guard !Task.isCancelled, readControls[display]?[control] != nil else {
+            return nil
+        }
+        walkRegistry()
+        return read(control, of: display)
+    }
+
     /// Sets a control of a display to a raw value. Refuses (returns `false`) unless that display
     /// and control were read successfully in this session. A range control is kept at or below
     /// the maximum that read reported; mute is written as exactly 1 or 2 and any other value is
-    /// refused (``DDCLevel/writable(raw:for:maximum:)``). A request can only be built from a
-    /// ``DDCControl``, so the input source can never be written.
+    /// refused (``DDCLevel/writable(raw:for:maximum:)``). A write that fails is tried once more
+    /// after a new walk of the registry, because its service may have gone stale. A request can
+    /// only be built from a ``DDCControl``, so the input source can never be written.
     func write(_ control: DDCControl, raw: UInt16, to display: UInt32) -> Bool {
         guard
             let functions = loaded?.functions,
@@ -268,7 +327,17 @@ actor DDCBus {
             return false
         }
         let request = DDCPacket.setRequest(control, value: value)
-        return IOAVServiceBridge.send(request, endpoint: endpoint, functions: functions)
+        if IOAVServiceBridge.send(request, endpoint: endpoint, functions: functions) {
+            return true
+        }
+        guard !Task.isCancelled else {
+            return false
+        }
+        walkRegistry()
+        guard let fresh = self.endpoint(for: display) else {
+            return false
+        }
+        return IOAVServiceBridge.send(request, endpoint: fresh, functions: functions)
     }
 
     /// The channel paired with a display, or `nil` when it has none.

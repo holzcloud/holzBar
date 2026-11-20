@@ -626,7 +626,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             guard !Task.isCancelled, let self, self.ddcGeneration == generation else {
                 return
             }
-            let value = await bus.read(key.control, of: key.display)
+            let value = await bus.readBack(key.control, of: key.display)
             guard !Task.isCancelled, self.ddcGeneration == generation else {
                 return
             }
