@@ -147,6 +147,29 @@ final class AppState {
         return section
     }
 
+    /// Storage for ``standInItems27``, typed loosely so the property exists on every macOS.
+    @ObservationIgnored private var standInItems27Storage: AnyObject?
+
+    /// Draws the stand-in icons of apps macOS 27 hides anyway.
+    @available(macOS 27.0, *)
+    var standInItems27: StandInItems27 {
+        if let items = standInItems27Storage as? StandInItems27 {
+            return items
+        }
+        let items = StandInItems27(appState: self)
+        standInItems27Storage = items
+        return items
+    }
+
+    /// The frames of the stand-in icons that are drawn, for the hit test of macOS 27. Nothing is
+    /// created for it: empty before macOS 27 and until the stand-ins were set up.
+    func standInFrames27() -> [CGRect] {
+        guard #available(macOS 27.0, *) else {
+            return []
+        }
+        return (standInItems27Storage as? StandInItems27)?.hitTestFrames ?? []
+    }
+
     /// Passes a mouse release on to a Command-drag that is armed. Nothing is created for it: a
     /// Command-drag exists only once a press was armed.
     func commandDragReleased(_ event: NSEvent) {
@@ -279,6 +302,10 @@ final class AppState {
         appleItems.performSetup(with: self)
         spacers.performSetup()
         widgets.performSetup(with: self)
+        if #available(macOS 27.0, *) {
+            // The stand-ins of apps macOS hides anyway; after the item manager's setup.
+            standInItems27.performSetup()
+        }
         notchHub.performSetup(with: self)
         automation.performSetup(with: self)
         usage.performSetup(with: self)

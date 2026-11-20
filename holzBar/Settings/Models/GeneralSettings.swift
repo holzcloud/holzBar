@@ -134,6 +134,14 @@ final class GeneralSettings {
         }
     }
 
+    /// A Boolean value that indicates whether holzBar draws a stand-in icon for a visible app
+    /// whose icon macOS 27 hides anyway. Off, no stand-in exists and nothing observes the apps.
+    var standInIcons = true {
+        didSet {
+            Defaults.set(standInIcons, forKey: .standInIcons)
+        }
+    }
+
     /// A Boolean value that indicates whether the search offers category chips. While it is off
     /// nothing is classified and no application bundle is read.
     var smartCategories = true {
@@ -341,6 +349,7 @@ final class GeneralSettings {
         Defaults.ifPresent(key: .clockOpensNotificationCenter, assign: &clockOpensNotificationCenter)
         Defaults.ifPresent(key: .appliesLayoutChangesImmediately, assign: &appliesLayoutChangesImmediately)
         Defaults.ifPresent(key: .commandDragSetsSection, assign: &commandDragSetsSection)
+        Defaults.ifPresent(key: .standInIcons, assign: &standInIcons)
         Defaults.ifPresent(key: .showsNotchOverflowInShelf, assign: &showsNotchOverflowInShelf)
         Defaults.ifPresent(key: .smartCategories, assign: &smartCategories)
         Defaults.ifPresent(key: .shelfFindsByTyping, assign: &shelfFindsByTyping)
