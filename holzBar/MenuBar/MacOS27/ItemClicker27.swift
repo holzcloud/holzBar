@@ -127,14 +127,27 @@ enum ItemClicker27 {
         }
         // A released item is drawn 0.4–0.6 s after the change lands (measured).
         let landedAt = ContinuousClock.now
-        try? await Task.sleep(for: .milliseconds(600))
+        // A cancelled task stops waiting and never clicks; the hold still ends once, in
+        // `ReleaseHold27.withHold`.
+        do {
+            try await Task.sleep(for: .milliseconds(600))
+        } catch {
+            return
+        }
         var drawn: MenuBarItem?
         while true {
             drawn = await MenuBarItemProvider27.items().first { $0.windowID == item.windowID && $0.isOnScreen }
             if drawn != nil || ContinuousClock.now - landedAt >= drawBudget {
                 break
             }
-            try? await Task.sleep(for: .milliseconds(300))
+            do {
+                try await Task.sleep(for: .milliseconds(300))
+            } catch {
+                return
+            }
+        }
+        guard !Task.isCancelled else {
+            return
         }
         guard let drawn else {
             logger.notice("\(item.logString, privacy: .private(mask: .hash)) was not drawn after the release")
