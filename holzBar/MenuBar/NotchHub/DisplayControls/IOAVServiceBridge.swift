@@ -85,12 +85,32 @@ nonisolated enum IOAVServiceBridge {
         #endif
     }
 
+    /// A framebuffer the walk passed: the monitor's numbers, if it reports any, and its slot.
+    private struct FramebufferEntry {
+        let numbers: DDCDisplayMatch.Framebuffer?
+        let slot: String?
+    }
+
+    /// An external display-service proxy the walk passed, with its service already created.
+    private struct ProxyEntry {
+        let service: CFTypeRef
+        let chip: UInt32
+        let slot: String?
+        let previousFramebuffer: Int?
+    }
+
+    /// The most entries above an entry that are asked for the slot in their name.
+    private static let maximumAncestors = 12
+
     /// The channel of every external monitor, in one walk of the IOService plane.
     ///
-    /// The walk remembers the last framebuffer it passed and reads the monitor's vendor, product
-    /// and serial numbers from it; at each external display-service proxy it creates the service
-    /// once and pairs it with those numbers. A proxy without a framebuffer before it, or one
-    /// whose framebuffer has no numbers, is skipped. Every registry object is released.
+    /// The walk collects every framebuffer (with the monitor's vendor, product and serial numbers
+    /// and the slot named above it) and, at each external display-service proxy, creates the
+    /// service once (with the slot named above the proxy). ``DDCRegistryPairing`` then pairs each
+    /// proxy with the framebuffer of its own slot; only a proxy with no slot at all falls back to
+    /// the framebuffer the walk passed last, and a framebuffer that two proxies claim serves
+    /// neither. A proxy without a framebuffer, or one whose framebuffer has no numbers (the
+    /// built-in one), is dropped. Every registry object is released.
     static func endpoints(using functions: Functions) -> [Endpoint] {
         let root = IORegistryGetRootEntry(kIOMainPortDefault)
         guard root != 0 else {
@@ -104,8 +124,8 @@ nonisolated enum IOAVServiceBridge {
         }
         defer { IOObjectRelease(iterator) }
 
-        var endpoints = [Endpoint]()
-        var framebuffer: DDCDisplayMatch.Framebuffer?
+        var framebuffers = [FramebufferEntry]()
+        var proxies = [ProxyEntry]()
         while true {
             let entry = IOIteratorNext(iterator)
             guard entry != 0 else {
@@ -113,18 +133,29 @@ nonisolated enum IOAVServiceBridge {
             }
             defer { IOObjectRelease(entry) }
             if IOObjectConformsTo(entry, "AppleCLCD2") != 0 || IOObjectConformsTo(entry, "IOMobileFramebufferShim") != 0 {
-                // A framebuffer without numbers (the built-in one) clears the memory, so the
-                // proxy behind it cannot take a monitor's numbers from an earlier one.
-                framebuffer = numbers(of: entry)
+                framebuffers.append(FramebufferEntry(numbers: numbers(of: entry), slot: slot(of: entry)))
             } else if
                 IOObjectConformsTo(entry, "DCPAVServiceProxy") != 0,
-                let framebuffer,
                 property(of: entry, "Location") as? String == "External",
                 let service = functions.create(kCFAllocatorDefault, entry)?.takeRetainedValue() {
-                endpoints.append(Endpoint(service: service, chip: chipAddress(of: entry), framebuffer: framebuffer))
+                proxies.append(ProxyEntry(
+                    service: service,
+                    chip: chipAddress(of: entry),
+                    slot: slot(of: entry),
+                    previousFramebuffer: framebuffers.indices.last
+                ))
             }
         }
-        return endpoints
+        let targets = DDCRegistryPairing.pair(
+            framebufferSlots: framebuffers.map(\.slot),
+            proxies: proxies.map { DDCRegistryPairing.Proxy(slot: $0.slot, previousFramebuffer: $0.previousFramebuffer) }
+        )
+        return zip(proxies, targets).compactMap { proxy, target in
+            guard let target, let numbers = framebuffers[target].numbers else {
+                return nil
+            }
+            return Endpoint(service: proxy.service, chip: proxy.chip, framebuffer: numbers)
+        }
     }
 
     /// Writes a request and reads the reply that follows it: the request is written
@@ -198,6 +229,44 @@ nonisolated enum IOAVServiceBridge {
             return exact
         }
         return Int32(exactly: wide).map { UInt32(bitPattern: $0) }
+    }
+
+    /// The slot named by the entry or the nearest entry above it that names one, or `nil`. Only
+    /// the entries' registry names are read, and only to find the number after `ext`; they are
+    /// not kept.
+    private static func slot(of entry: io_registry_entry_t) -> String? {
+        var current = entry
+        var owned = false
+        defer {
+            if owned {
+                IOObjectRelease(current)
+            }
+        }
+        for _ in 0..<maximumAncestors {
+            if let name = name(of: current), let slot = DDCRegistryPairing.slot(in: name) {
+                return slot
+            }
+            var parent: io_registry_entry_t = 0
+            guard IORegistryEntryGetParentEntry(current, kIOServicePlane, &parent) == KERN_SUCCESS else {
+                return nil
+            }
+            if owned {
+                IOObjectRelease(current)
+            }
+            current = parent
+            owned = true
+        }
+        return nil
+    }
+
+    /// The registry name of an entry.
+    private static func name(of entry: io_registry_entry_t) -> String? {
+        // io_name_t is 128 characters, the terminator included.
+        var buffer = [CChar](repeating: 0, count: MemoryLayout<io_name_t>.size)
+        guard IORegistryEntryGetName(entry, &buffer) == KERN_SUCCESS else {
+            return nil
+        }
+        return String(decoding: buffer.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }, as: UTF8.self)
     }
 
     private static func property(of entry: io_registry_entry_t, _ key: String) -> Any? {

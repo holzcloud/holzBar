@@ -48,6 +48,7 @@ sources=(
   DDCFailurePolicy
   DDCLevel
   DDCPacket
+  DDCRegistryPairing
   DDCReply
   DDCWriteCoalescer
   Defaults
@@ -194,6 +195,7 @@ tests=(
   DDCFailurePolicyTests
   DDCLevelTests
   DDCPacketTests
+  DDCRegistryPairingTests
   DDCReplyTests
   DDCWriteCoalescerTests
   DefaultsKeyNamesTests
