@@ -97,15 +97,16 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ## What's new
 
-### 1.1.0 beta
+### 1.1.0
 
-Details: [release notes](docs/release-notes/v1.1.0-beta1.md) · [full list](docs/features.md#new-in-110)
+Details: [release notes](docs/release-notes/v1.1.0.md) · [full list](docs/features.md#new-in-110)
 
 - **Settings, redesigned**: eleven panes sorted by task, compact rows with an info button, and a search over every setting with ⌘F.
 - **Layout as a list**: bars or a list of every item with its app and a section menu, a filter, and Move to at the top of each item's menu.
 - **Undo after every change**: a layout change in Settings or in the menu bar shows a notice with Undo for five seconds, and ⌘Z works too.
 - **A short introduction**: the first launch asks only for Accessibility, then shows three short steps that About shows again.
 - **Notch hub, redesigned**: grows out of the notch in black, opens on what is active with a line that says why, shows every module as a round button, and live activities widen the notch instead of a capsule below it.
+- **Stand-in icons**: on macOS 27, an app outside the Applications folder whose icon macOS hides while holzBar hides items gets a stand-in that opens its menu.
 
 ### 1.0.5
 

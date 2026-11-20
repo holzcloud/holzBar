@@ -40,11 +40,7 @@ struct LayoutDraftSection: View {
                     isOn: general.commandDragSetsSection,
                     badge: .preview
                 )
-                SettingsToggleRow(
-                    .layoutStandInIcons,
-                    isOn: general.standInIcons,
-                    badge: .preview
-                )
+                SettingsToggleRow(.layoutStandInIcons, isOn: general.standInIcons)
             }
         }
     }
