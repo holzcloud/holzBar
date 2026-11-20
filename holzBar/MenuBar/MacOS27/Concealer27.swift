@@ -66,6 +66,17 @@ final class Concealer27 {
     /// The suspects of the last settled read, which the next read confirms or drops.
     @ObservationIgnored private var hiddenAnywaySuspects = Set<String>()
 
+    /// Applications HiddenAnyway27 confirmed at some read, kept while they run, so an
+    /// application found by its overlap stays unnameable even when a later read, with its
+    /// frame moved, no longer finds the overlap.
+    @ObservationIgnored private var confirmedUnnameable = Set<String>()
+
+    /// The release-all holds live; see ``holdReleased()``.
+    @ObservationIgnored private var releaseHold = ReleaseHold27()
+
+    /// Whether a release-all hold is live: every hidden item is drawn meanwhile.
+    private(set) var isHoldingRelease = false
+
     /// When the last concealment change landed on the bar, which is when the bar last started
     /// moving.
     @ObservationIgnored private var lastChangeAt = ContinuousClock.now
@@ -478,14 +489,15 @@ final class Concealer27 {
         }
         notchCoverBasis = sectionConcealed
         // Applications concealed for the notch join whatever the sections conceal.
-        let target = NotchCover27.adding(
+        // A release-all hold empties the target, whatever the sections conceal.
+        let target = releaseHold.target(NotchCover27.adding(
             notchConcealed.subtracting(temporarilyShown.keys),
             to: ConcealmentPlanner27.concealedSets(
                 layout: layout,
                 state: state,
                 temporarilyShown: Set(temporarilyShown.keys)
             )
-        )
+        ))
         let concealed = ConcealmentPlanner27.effectivelyConcealed(sets: target)
         if concealed != lastConcealed {
             lastConcealed = concealed
@@ -755,6 +767,7 @@ final class Concealer27 {
             logger.notice("MenuBarAgent does not draw the item of visible application \(bundleID, privacy: .private(mask: .hash)), which the allowlist keeps; its frame lies on another item")
         }
         hiddenAnyway = confirmed
+        confirmedUnnameable.formUnion(confirmed)
         guard mayReadAgain, !suspects.subtracting(confirmed).isEmpty else {
             return
         }
@@ -1167,6 +1180,48 @@ final class Concealer27 {
     /// Ends one ``showTemporarily(bundleID:)``.
     func endTemporaryShow(bundleID: String) {
         endTemporaryShow(bundleIDs: CollectionOfOne(bundleID))
+    }
+
+    /// Releases every concealment and returns once MenuBarAgent applied the change, so the items
+    /// of applications it cannot name (``UnnameableApps27``) are drawn where they can be clicked
+    /// or photographed.
+    ///
+    /// Use it only through ``ReleaseHold27/withHold(begin:end:body:)``, which ends the hold on
+    /// every path. While a hold lasts every hidden item is drawn, which is the accepted cost; it
+    /// is kept as short as the menu stays open. Holds nest: concealment returns when the last
+    /// one ends.
+    ///
+    /// - Returns: Whether the change landed: `false` when concealment is paused or unavailable,
+    ///   the apply failed, or it took longer than 3 s. The hold is taken either way.
+    func holdReleased() async -> Bool {
+        releaseHold.begin()
+        isHoldingRelease = true
+        let carrying = applyLedger.nextApply
+        guard applyChanges() else {
+            return false
+        }
+        return await waitForApply(carrying)
+    }
+
+    /// Ends one ``holdReleased()``; concealment returns with the last one.
+    func endHoldReleased() {
+        guard releaseHold.end() else {
+            logger.fault("A release-all hold was ended that was never taken")
+            return
+        }
+        isHoldingRelease = releaseHold.isHeld
+        update()
+    }
+
+    /// Whether MenuBarAgent cannot name the application's items (``UnnameableApps27``): it runs
+    /// from outside `/Applications` and `/System`, or ``HiddenAnyway27`` confirmed it.
+    /// An application without a bundle identifier never is: holzBar does not read its items.
+    func isUnnameable(_ app: NSRunningApplication?) -> Bool {
+        guard let app, let bundleID = app.bundleIdentifier else {
+            return false
+        }
+        return confirmedUnnameable.contains(bundleID)
+            || UnnameableApps27.isUnnameable(bundleID: bundleID, bundlePath: app.bundleURL?.path)
     }
 
     /// Puts applications that holzBar has not seen before into the section chosen
