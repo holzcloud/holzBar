@@ -267,7 +267,7 @@ extension SettingsEntry {
         pane: .modules,
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "External monitors (DDC)"),
-        info: String(localized: "Sets brightness, contrast and volume of external monitors that support DDC. Uses a private macOS interface. It switches itself off if macOS changes it."),
+        info: String(localized: "Sets brightness, contrast, volume and mute of external monitors that support DDC. Uses a private macOS interface. It switches itself off if macOS changes it."),
         module: "display-controls"
     )
 

@@ -72,7 +72,7 @@ Researched on 9 October 2026 from each project's own pages and repositories. A d
 | Layout as a list with a filter and a section menu per item | no | - | - | yes |
 | Undo after every layout change, also in the menu bar | no | in the layout editor | - | yes |
 | Short introduction after the first launch | no | - | - | yes |
-| Brightness, contrast and volume of external monitors over DDC (optional) | no | - | - | yes |
+| Brightness, contrast, volume and mute of external monitors over DDC (optional) | no | - | - | yes |
 | Network connections | Sparkle updates | Sparkle updates | vendor says none | none, enforced by CI |
 | Dependencies, Swift | 5 packages, Swift 5 | 9 packages, Swift 6 | closed | none, Swift 6 |
 | Build provenance | no | Cosign, SLSA | - | SLSA Build Level 3 |

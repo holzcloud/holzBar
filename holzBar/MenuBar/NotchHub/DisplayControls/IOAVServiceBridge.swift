@@ -20,8 +20,10 @@ import IOKit
 ///   caller never reaches this file then.
 /// - A function is called only when all three were found; one missing symbol means none is
 ///   used (``resolve()`` answers `nil`).
-/// - The registry is walked with public IOKit calls only; the display's name and its EDID are
-///   never read.
+/// - The registry is walked with public IOKit calls only. Of a framebuffer's attributes (the
+///   dictionary also carries the product name) only the vendor, product and serial numbers are
+///   used, and of the registry names only the number after `ext`; nothing else is kept, the
+///   EDID is never read, and no name is stored or logged.
 /// - Every failure is a `nil` or `false`; the bus above counts them and ``PrivateFeatureGate``
 ///   switches the part off by itself.
 ///

@@ -75,7 +75,8 @@ struct DisplayControlsBodyView: View {
 
     /// An external monitor's card: a header with its name and the Preview badge, then the rows
     /// of the controls it reported. The rows carry no visible name; the symbol says which control
-    /// it is and the name is the accessibility label and the tooltip.
+    /// it is and the name is the accessibility label and the tooltip. The card is one group that
+    /// VoiceOver reads as the monitor's name.
     private func externalCard(_ monitor: DisplayControlsRuntime.ExternalMonitor) -> some View {
         card {
             HStack(spacing: HolzBarTheme.Spacing.xs) {
@@ -110,6 +111,7 @@ struct DisplayControlsBodyView: View {
                 openSettingsButton
             }
         }
+        .accessibilityLabel(Text(verbatim: monitor.name))
     }
 
     /// The line of a card while the external part is unavailable. Only a part that switched itself
