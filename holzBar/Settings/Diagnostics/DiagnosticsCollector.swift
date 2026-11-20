@@ -110,7 +110,7 @@ enum DiagnosticsCollector {
                 forcedReads: itemManager.forcedItemReads,
                 heldBack: itemManager.heldBackItemReads,
                 notchRechecks: concealer.notchRechecks,
-                hiddenAnyway: concealer.hiddenAnyway.count
+                hiddenAnyway: concealer.unnameableVisible.count
             )
         }
         return DiagnosticsReport.hidingSummaryBefore27(

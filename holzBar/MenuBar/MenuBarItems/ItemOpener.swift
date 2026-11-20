@@ -74,7 +74,14 @@ extension MenuBarItemManager {
             guard let pid = item.sourcePID else {
                 return false
             }
-            return appState.concealer27.concealedPIDs.contains(pid)
+            let concealer = appState.concealer27
+            // An item of an application MenuBarAgent cannot name is not pressed in place: a press
+            // on the concealed item is the path that failed. It goes to `ItemClicker27`, which
+            // releases every concealment for the click.
+            if concealer.isUnnameable(item.sourceApplication) {
+                return false
+            }
+            return concealer.concealedPIDs.contains(pid)
         }
         return !Bridging.isWindowOnScreen(item.windowID)
     }

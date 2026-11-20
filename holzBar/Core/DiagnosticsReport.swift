@@ -138,7 +138,8 @@ nonisolated enum DiagnosticsReport {
     /// The Hiding line on macOS 27: the reveal state the concealment follows, how often the
     /// fixes of 1.0.5 acted (MenuBarAgent restarts, allowlist refreshes for apps read late, young
     /// apps asked again, reads forced and held back by busy apps, notch rechecks) and how many
-    /// visible apps MenuBarAgent hides anyway (`HiddenAnyway27`, a count, never a name).
+    /// visible apps MenuBarAgent cannot name and so hides anyway (found by their install location
+    /// or by `HiddenAnyway27`; a count, never a name).
     ///
     /// - Parameter reveal: One of the fixed words `all hidden`, `hidden revealed`, `all revealed`.
     static func hidingSummary27(
