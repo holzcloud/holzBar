@@ -3423,124 +3423,6 @@
         }
       }
     },
-    "Brightness and volume sliders at the notch." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Posuvníky jasu a hlasitosti u výřezu."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Helligkeits- und Lautstärkeregler an der Notch."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Controles deslizantes de brillo y volumen en el notch."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Curseurs de luminosité et de volume à l’encoche."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fényerő- és hangerőcsúszkák a notchnál."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Penggeser kecerahan dan volume di notch."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cursori di luminosità e volume al notch."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ノッチで明るさと音量を調整するスライダーです。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "노치에서 밝기와 음량을 조절하는 슬라이더입니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Schuifregelaars voor helderheid en volume bij de notch."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suwaki jasności i głośności przy notchu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Controles deslizantes de brilho e volume no notch."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reguladers da glischur e da volum tar la notch."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ползунки яркости и громкости у выреза."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reglage för ljusstyrka och volym vid notchen."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notch’ta parlaklık ve ses kaydırıcıları."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Повзунки яскравості та гучності біля вирізу."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在刘海处调节亮度和音量的滑块。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "瀏海旁的亮度與音量滑桿。"
-          }
-        }
-      }
-    },
     "Choose an app in the settings" : {
       "localizations" : {
         "cs" : {
@@ -161433,6 +161315,360 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在設定中開啟「外接顯示器」以控制此顯示器"
+          }
+        }
+      }
+    },
+    "Reading this display" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Načítání tohoto displeje"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Bildschirm wird gelesen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leyendo esta pantalla"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lecture de cet écran en cours"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A kijelző beolvasása folyamatban"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Membaca layar ini"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lettura di questo schermo in corso"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このディスプレイを読み込み中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 디스플레이를 읽는 중"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze monitor wordt gelezen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odczytywanie tego monitora"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lendo esta tela"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quest visur vegn legì"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чтение данных этого дисплея"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Läser den här skärmen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu ekran okunuyor"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зчитування цього дисплея"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在读取此显示器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在讀取此顯示器"
+          }
+        }
+      }
+    },
+    "Brightness %@" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jas %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Helligkeit %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brillo %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luminosité %@"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fényerő %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kecerahan %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luminosità %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "輝度 %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "밝기 %@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Helderheid %@"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jasność %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brilho %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glischur %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Яркость %@"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ljusstyrka %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parlaklık %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Яскравість %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "亮度 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "亮度 %@"
+          }
+        }
+      }
+    },
+    "Brightness, contrast, volume and mute of every display at the notch." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jas, kontrast, hlasitost a ztlumení každého displeje u výřezu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Helligkeit, Kontrast, Lautstärke und Stummschaltung jedes Bildschirms an der Notch."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brillo, contraste, volumen y silencio de cada pantalla en el notch."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luminosité, contraste, volume et sourdine de chaque écran à l’encoche."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minden kijelző fényereje, kontrasztja, hangereje és némítása a notchnál."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kecerahan, kontras, volume, dan senyap untuk setiap layar di notch."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luminosità, contrasto, volume e silenzioso di ogni schermo al notch."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ノッチで、すべてのディスプレイの輝度、コントラスト、音量、ミュートを調整できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노치에서 모든 디스플레이의 밝기, 대비, 음량, 음소거를 조절합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Helderheid, contrast, volume en dempen van elke monitor bij de notch."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jasność, kontrast, głośność i wyciszenie każdego monitora przy notchu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brilho, contraste, volume e silenciar de cada tela no notch."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glischur, contrast, volum e betg dar tun da mintga visur tar la notch."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Яркость, контрастность, громкость и отключение звука каждого дисплея у выреза."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ljusstyrka, kontrast, volym och ljud av för varje skärm vid notchen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch’ta her ekranın parlaklığı, karşıtlığı, sesi ve sessize alma ayarı."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Яскравість, контрастність, гучність і вимкнення звуку кожного дисплея біля вирізу."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在刘海处调节每台显示器的亮度、对比度、音量和静音。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在瀏海旁調整每台顯示器的亮度、對比、音量與靜音。"
           }
         }
       }

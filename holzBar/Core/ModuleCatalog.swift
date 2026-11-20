@@ -149,7 +149,7 @@ nonisolated enum ModuleCatalog {
             area: .notch,
             symbol: "slider.horizontal.3",
             titleKey: "Display controls",
-            summaryKey: "Brightness and volume sliders at the notch.",
+            summaryKey: "Brightness, contrast, volume and mute of every display at the notch.",
             permission: nil
         ),
         ModuleDescriptor(

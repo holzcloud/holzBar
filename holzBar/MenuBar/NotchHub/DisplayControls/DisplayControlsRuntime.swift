@@ -163,6 +163,9 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// The survey of the current opening, while it runs.
     @ObservationIgnored private var surveyTask: Task<Void, Never>?
 
+    /// The one-shot wait before a first read shows its spinner, while it runs.
+    @ObservationIgnored private var indicatorTask: Task<Void, Never>?
+
     @ObservationIgnored private var channels: [ExternalControl: Channel] = [:]
 
     /// The app state, for the Brightness setting.
@@ -363,6 +366,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         let bus = bus ?? DDCBus()
         self.bus = bus
         let opening = hubOpening
+        startReadingIndicatorWait(generation: generation)
         surveyTask = Task { [weak self] in
             let load = await bus.load()
             guard !Task.isCancelled, let self, self.ddcGeneration == generation else {
@@ -423,6 +427,8 @@ final class DisplayControlsRuntime: HubModuleRuntime {
                 break
             }
         }
+        indicatorTask?.cancel()
+        indicatorTask = nil
         record(ddcPolicy.surveyEnded(tried: tried, answered: answered))
         guard ddcGate.isAvailable else {
             markExternalsUnavailable()
@@ -433,6 +439,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
                 return nil
             }
             var updated = monitor
+            updated.showsReadingIndicator = false
             switch report.outcome {
             case .answered(let controls):
                 updated.state = .ready
@@ -604,12 +611,37 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         }
     }
 
+    /// Starts the one wait that lets a first read show its spinner: a monitor with no values to
+    /// show waits ``DDCTiming/readingIndicatorDelay`` and, if its survey still runs then, shows
+    /// the indicator. A monitor with values shows them at once and never a spinner.
+    private func startReadingIndicatorWait(generation: Int) {
+        guard externals.contains(where: { $0.state == .reading && $0.values.isEmpty }) else {
+            return
+        }
+        indicatorTask = Task { [weak self] in
+            try? await Task.sleep(for: DDCTiming.readingIndicatorDelay)
+            guard !Task.isCancelled, let self, self.ddcGeneration == generation else {
+                return
+            }
+            for index in self.externals.indices
+            where self.externals[index].state == .reading && self.externals[index].values.isEmpty {
+                self.externals[index].showsReadingIndicator = true
+            }
+            self.indicatorTask = nil
+        }
+    }
+
     /// Cancels every survey, write and wait of the external part, drops what they would have
     /// delivered and clears the levels requested.
     private func cancelExternalWork() {
         ddcGeneration += 1
         surveyTask?.cancel()
         surveyTask = nil
+        indicatorTask?.cancel()
+        indicatorTask = nil
+        for index in externals.indices where externals[index].showsReadingIndicator {
+            externals[index].showsReadingIndicator = false
+        }
         for channel in channels.values {
             channel.writer?.cancel()
             channel.settle?.cancel()
@@ -645,25 +677,62 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         }
     }
 
-    /// The Overview card: the volume as a ring, or the word "Muted" while muted. No name.
+    /// The tab cannot grow with its cards, so while an external monitor's card shows it asks for
+    /// the island's largest content height and scrolls above it. It reads ``externals``, so the
+    /// open hub follows a card that appears or goes.
+    var preferredContentHeight: Double? {
+        externals.isEmpty ? nil : DesignTokens.Island.maximumContentHeight
+    }
+
+    /// The brightness of the display the hub opened on, from 0 to 1: through DisplayServices where
+    /// macOS can change it, else over DDC while that part runs and the monitor answered. `nil`
+    /// where there is none.
+    private var openedDisplayBrightness: Double? {
+        guard let id = appState?.notchHub.screenID else {
+            return nil
+        }
+        if let display = displays.first(where: { $0.id == id }), display.canChange {
+            return display.value
+        }
+        guard
+            ddcGate.isAvailable,
+            externals.first(where: { $0.id == id })?.state == .ready
+        else {
+            return nil
+        }
+        return externalLevel(control: .brightness, display: id)
+    }
+
+    /// The Overview card: the volume as a ring, or the word "Muted" while muted, and the quiet
+    /// line with the brightness of the display the hub opened on. No name and no badge.
     var tile: HubTile? {
         guard let volume else {
             return nil
         }
-        if isMuted {
+        func tile(detail: Text?) -> HubTile {
+            if isMuted {
+                return HubTile(
+                    symbol: "speaker.slash.fill",
+                    title: Text("Volume"),
+                    value: String(localized: "Muted"),
+                    detail: detail
+                )
+            }
             return HubTile(
-                symbol: "speaker.slash.fill",
+                symbol: "speaker.wave.2.fill",
                 title: Text("Volume"),
-                value: String(localized: "Muted")
+                value: String(DisplayControlsLevel.percent(volume)),
+                unit: Text(verbatim: "%"),
+                detail: detail,
+                fraction: volume
             )
         }
-        return HubTile(
-            symbol: "speaker.wave.2.fill",
-            title: Text("Volume"),
-            value: String(DisplayControlsLevel.percent(volume)),
-            unit: Text(verbatim: "%"),
-            fraction: volume
-        )
+        guard let brightness = openedDisplayBrightness else {
+            return tile(detail: nil)
+        }
+        // The formatted percent is one argument, so the catalogue key is "Brightness %@".
+        let percent = "\(DisplayControlsLevel.percent(brightness)) %"
+        return tile(detail: Text("Brightness \(percent)"))
     }
 
     func makeBody(host: any HubHost) -> AnyView {

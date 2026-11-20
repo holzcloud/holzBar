@@ -160,6 +160,7 @@ struct ModuleCatalogTests {
         #expect(!controls.isPreview)
         #expect(controls.symbol == "slider.horizontal.3")
         #expect(controls.titleKey == "Display controls")
+        #expect(controls.summaryKey == "Brightness, contrast, volume and mute of every display at the notch.")
         let notch = ModuleCatalog.modules(in: .notch).map(\.id)
         let hubIndex = try #require(notch.firstIndex(of: "notch-hub"))
         let controlsIndex = try #require(notch.firstIndex(of: "display-controls"))

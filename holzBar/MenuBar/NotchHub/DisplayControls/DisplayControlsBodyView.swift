@@ -87,6 +87,11 @@ struct DisplayControlsBodyView: View {
                 PreviewBadge()
                     .fixedSize()
                 Spacer(minLength: 0)
+                if monitor.showsReadingIndicator {
+                    ProgressView()
+                        .controlSize(.small)
+                        .accessibilityLabel(Text("Reading this display"))
+                }
             }
             .frame(height: Row.slot)
             switch monitor.state {

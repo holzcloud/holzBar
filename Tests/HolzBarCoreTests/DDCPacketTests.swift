@@ -57,5 +57,6 @@ struct DDCPacketTests {
         #expect(DDCTiming.readWait == 50_000)
         #expect(DDCTiming.retryWait == 20_000)
         #expect(DDCTiming.settle == .milliseconds(300))
+        #expect(DDCTiming.readingIndicatorDelay == .milliseconds(150))
     }
 }

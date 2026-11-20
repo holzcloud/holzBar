@@ -101,4 +101,8 @@ nonisolated enum DDCTiming {
     /// How long after a change the value is read back, so a monitor that is still moving its
     /// backlight has settled: 0.3 s, an estimate to be tuned on real monitors.
     static let settle: Duration = .milliseconds(300)
+
+    /// How long a first read lasts before its card shows a spinner: 150 ms, so a quick read
+    /// never flashes one.
+    static let readingIndicatorDelay: Duration = .milliseconds(150)
 }
