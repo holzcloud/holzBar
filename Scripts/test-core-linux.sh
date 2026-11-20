@@ -44,8 +44,10 @@ sources=(
   ControlCenterControl
   ControlItemOrder
   DDCDisplayMatch
+  DDCLevel
   DDCPacket
   DDCReply
+  DDCWriteCoalescer
   Defaults
   DesignTokens
   DiagnosticsReport
@@ -185,8 +187,10 @@ tests=(
   ControlCenterControlTests
   ControlItemOrderTests
   DDCDisplayMatchTests
+  DDCLevelTests
   DDCPacketTests
   DDCReplyTests
+  DDCWriteCoalescerTests
   DefaultsKeyNamesTests
   DesignTokensTests
   DiagnosticsReportTests
