@@ -253,6 +253,20 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["NowPlayingReadsAllApps"])
     }
 
+    @Test("The Display controls switch for external monitors is a local-only Boolean that no file can set")
+    func displayControlsExternalMonitorsStaysLocal() {
+        #expect(Defaults.Key.displayControlsExternalMonitors.rawValue == "DisplayControlsExternalMonitors")
+        #expect(Defaults.Key.displayControlsExternalMonitors.settingsKind == .bool)
+        #expect(Defaults.Key.localOnlyKeys.contains(.displayControlsExternalMonitors))
+        #expect(Defaults.Key.importableKinds["DisplayControlsExternalMonitors"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["DisplayControlsExternalMonitors": true, "DisplayControlsBrightness": false],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["DisplayControlsBrightness"])
+        #expect(result.ignored == ["DisplayControlsExternalMonitors"])
+    }
+
     @Test("The notch hub's settings travel with a settings file, and only the displays within their choices")
     func notchHubSettingsTravel() {
         #expect(Defaults.Key.importableKinds["NotchHubOpensOnHover"] == .bool)

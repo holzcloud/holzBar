@@ -43,11 +43,20 @@ sources=(
   CommandDragSection
   ControlCenterControl
   ControlItemOrder
+  DDCCapabilities
+  DDCDisplayMatch
+  DDCFailurePolicy
+  DDCLevel
+  DDCPacket
+  DDCRegistryPairing
+  DDCReply
+  DDCWriteCoalescer
   Defaults
   DesignTokens
   DiagnosticsReport
   DisplayBehavior
   DisplayControlsLevel
+  DisplayControlsOrder
   DividerPlausibility
   DockIconPolicy
   DownloadScan
@@ -181,11 +190,20 @@ tests=(
   CommandDragSectionTests
   ControlCenterControlTests
   ControlItemOrderTests
+  DDCCapabilitiesTests
+  DDCDisplayMatchTests
+  DDCFailurePolicyTests
+  DDCLevelTests
+  DDCPacketTests
+  DDCRegistryPairingTests
+  DDCReplyTests
+  DDCWriteCoalescerTests
   DefaultsKeyNamesTests
   DesignTokensTests
   DiagnosticsReportTests
   DisplayBehaviorTests
   DisplayControlsLevelTests
+  DisplayControlsOrderTests
   DividerPlausibilityTests
   DockIconPolicyTests
   DownloadScanTests

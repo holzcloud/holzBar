@@ -9,13 +9,16 @@ import AppKit
 /// items (`DisplayBehavior`): Default changes nothing, Always show everything keeps every
 /// section shown there, Collapse keeps them hidden there.
 ///
+/// A display the holzBar Shelf is not used on (`HolzBarShelfDisplays`) shows everything unless
+/// the user chose another behaviour for it: the hidden items never hide there.
+///
 /// The display under the pointer wins. While no display has a choice, nothing runs: no monitor
 /// exists and ``effective`` stays the default. With a choice, one mouse-moved monitor watches
 /// the pointer; each event costs one rectangle test until the pointer leaves the display it was
 /// on. Moving onto a display with another behaviour shows or hides the sections once
 /// (`DisplayBehavior.action(from:to:)`); holzBar never does this on its own while Zen mode is on,
-/// while the holzBar Shelf is used (it holds the hidden items itself) or while the lock for
-/// hidden items asks for authentication.
+/// on a display the holzBar Shelf is used on (it holds the hidden items itself), while the Shelf
+/// is open or while the lock for hidden items asks for authentication.
 @MainActor
 final class DisplayBehaviorController {
     /// The behaviour of the display the pointer is on now.
@@ -43,6 +46,16 @@ final class DisplayBehaviorController {
             ObservationLoop.observe { general.displayBehaviors } onChange: { [weak self] _ in
                 self?.refresh(takingAction: true)
             },
+            ObservationLoop.observe { general.useShelf } onChange: { [weak self] _ in
+                // Switching the Shelf hides the sections once (`Concealer27`); this looks one
+                // turn later, so a display that shows everything shows it again after that hide.
+                Task { [weak self] in
+                    self?.refresh(takingAction: true)
+                }
+            },
+            ObservationLoop.observe { general.shelfDisplays } onChange: { [weak self] _ in
+                self?.refresh(takingAction: true)
+            },
         ]
         screenTask = Task { [weak self] in
             let center = NotificationCenter.default
@@ -60,7 +73,12 @@ final class DisplayBehaviorController {
         guard let appState else {
             return
         }
-        let isNeeded = !appState.settings.general.displayBehaviors.isEmpty
+        let general = appState.settings.general
+        // A Shelf limited to some displays leaves the others showing everything; while every
+        // connected display uses the Shelf, there is no other display to watch for.
+        let leavesDisplaysWithoutShelf = general.useShelf
+            && !NSScreen.screens.allSatisfy { general.shelfDisplays.includes($0) }
+        let isNeeded = !general.displayBehaviors.isEmpty || leavesDisplaysWithoutShelf
         if isNeeded, monitor == nil {
             let monitor = EventMonitor.universal(for: .mouseMoved) { [weak self] event in
                 self?.pointerMoved()
@@ -91,7 +109,12 @@ final class DisplayBehaviorController {
         let screen = NSScreen.screenWithMouse
         pointerScreenFrame = screen?.frame ?? .null
         let uuid = screen.flatMap { Bridging.getDisplayUUIDString(for: $0.displayID) }
-        let behavior = appState.settings.general.displayBehaviors.behavior(of: uuid)
+        let general = appState.settings.general
+        var behavior = general.displayBehaviors.behavior(of: uuid)
+        if behavior == .standard, let screen, general.useShelf, !general.shelfDisplays.includes(screen) {
+            // The Shelf is on but not used here: the hidden items never hide on this display.
+            behavior = .showEverything
+        }
         let previous = effective
         effective = behavior
         guard takingAction else {
@@ -107,7 +130,7 @@ final class DisplayBehaviorController {
             return
         case .showAll:
             guard
-                !appState.settings.general.useShelf,
+                !appState.settings.general.usesShelf,
                 manager.zenMode.allows(.revealRule),
                 !appState.hiddenItemsLock.requiresAuthentication
             else {
@@ -118,8 +141,8 @@ final class DisplayBehaviorController {
                 ?? manager.section(withName: .hidden)
             deepest?.show(origin: .displayBehavior)
         case .hideAll:
-            // The per-display behaviour is not used with the Shelf, so it never closes it.
-            guard !appState.settings.general.useShelf else {
+            // The per-display behaviour never closes an open Shelf.
+            guard !manager.shelfPanel.isVisible else {
                 return
             }
             manager.section(withName: .hidden)?.hide()

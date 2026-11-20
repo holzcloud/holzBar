@@ -375,6 +375,10 @@ nonisolated extension Defaults {
         /// Whether the Display controls module shows brightness sliders, which use a private
         /// macOS interface (a boolean, on by default; the switch that turns that part off).
         case displayControlsBrightness = "DisplayControlsBrightness"
+        /// Whether the Display controls module reads and sets external monitors over DDC/CI,
+        /// which uses a private macOS interface (a boolean, off by default; the switch of that
+        /// part, stored on this Mac only).
+        case displayControlsExternalMonitors = "DisplayControlsExternalMonitors"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -481,6 +485,7 @@ nonisolated extension Defaults.Key {
             .accessoryAlertsOnLowBattery,
             .accessoryAlertsReadsBattery,
             .displayControlsBrightness,
+            .displayControlsExternalMonitors,
             .openHiddenItemsInMenuBar,
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
@@ -644,8 +649,8 @@ nonisolated extension Defaults.Key {
     /// the user switched off (their identifiers name the user's accounts), the version the
     /// What's New window last covered (it describes this install), whether the
     /// Shelf's fold was left open and what each display does with the hidden items (the
-    /// displays' identifiers are those of this Mac), and the Now Playing switch that turns a
-    /// private interface on.
+    /// displays' identifiers are those of this Mac), and the two switches that turn a private
+    /// interface on: Now Playing's Read all apps and Display controls' External monitors.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
         .lastRunMacOSMajor,
@@ -661,6 +666,7 @@ nonisolated extension Defaults.Key {
         .timersBoard,
         .calendarHiddenCalendars,
         .nowPlayingReadsAllApps,
+        .displayControlsExternalMonitors,
         .notificationsExcludedApps,
         .shelfAlwaysHiddenFoldOpen,
         .displayBehaviors,

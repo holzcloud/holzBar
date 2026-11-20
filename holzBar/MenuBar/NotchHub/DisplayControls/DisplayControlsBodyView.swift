@@ -5,8 +5,10 @@
 
 import SwiftUI
 
-/// The Display controls tab: a brightness slider for each display macOS can change, then a
-/// slider row for the volume of the Mac's sound output.
+/// The Display controls tab: the volume of the Mac's sound output on top, then one card for each
+/// display, the one the hub opened on first: a brightness slider for a display macOS can change,
+/// a slider for each control of an external monitor that answers DDC/CI, or, while the External
+/// monitors setting is off, a hint with a button that opens the setting.
 ///
 /// The row follows the concept's slider row: a 28 pt slot with a 16 pt symbol, the name, the
 /// system slider and the value in a 44 pt column. The hub is always dark, so the row uses fixed
@@ -14,6 +16,7 @@ import SwiftUI
 /// reads it again when the hub opens.
 struct DisplayControlsBodyView: View {
     let runtime: DisplayControlsRuntime
+    let host: any HubHost
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.colorSchemeContrast) private var contrast
@@ -21,8 +24,8 @@ struct DisplayControlsBodyView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: Row.gap) {
-                brightnessRows
                 volumeRow
+                displayCards
             }
             .frame(maxWidth: .infinity, alignment: .top)
         }
@@ -47,24 +50,238 @@ struct DisplayControlsBodyView: View {
         runtime.plan != .unsupported && runtime.volume != nil
     }
 
-    /// The brightness rows: one per display, a sentence when the part is unavailable, nothing
-    /// while the Brightness setting is off.
+    /// The display cards in the tab's order: an external monitor's card where the module controls
+    /// it over DDC, else the display's brightness row; a sentence when the brightness part is
+    /// unavailable, nothing for a display while the Brightness setting is off.
     @ViewBuilder
-    private var brightnessRows: some View {
-        if runtime.showsBrightness {
-            if runtime.gate.isAvailable {
-                ForEach(runtime.displays) { display in
-                    brightnessRow(display)
-                }
-            } else {
-                card {
-                    Text("Brightness is not available on this Mac")
-                        .font(HolzBarTheme.Typography.caption)
-                        .foregroundStyle(HolzBarTheme.Hub.neutral)
-                        .frame(maxWidth: .infinity, minHeight: Row.height, alignment: .leading)
-                }
+    private var displayCards: some View {
+        if runtime.showsBrightness, !runtime.gate.isAvailable {
+            card {
+                Text("Brightness is not available on this Mac")
+                    .font(HolzBarTheme.Typography.caption)
+                    .foregroundStyle(HolzBarTheme.Hub.neutral)
+                    .frame(maxWidth: .infinity, minHeight: Row.height, alignment: .leading)
             }
         }
+        ForEach(runtime.displayOrder, id: \.self) { id in
+            if let monitor = runtime.externals.first(where: { $0.id == id }) {
+                externalCard(monitor)
+            } else if runtime.showsBrightness, runtime.gate.isAvailable,
+                      let display = runtime.displays.first(where: { $0.id == id }) {
+                brightnessRow(display)
+            }
+        }
+    }
+
+    /// An external monitor's card: a header with its name and the Preview badge, then the rows
+    /// of the controls it reported. The rows carry no visible name; the symbol says which control
+    /// it is and the name is the accessibility label and the tooltip. The card is one group that
+    /// VoiceOver reads as the monitor's name.
+    private func externalCard(_ monitor: DisplayControlsRuntime.ExternalMonitor) -> some View {
+        card {
+            HStack(spacing: HolzBarTheme.Spacing.xs) {
+                Text(verbatim: monitor.name)
+                    .font(HolzBarTheme.Typography.callout)
+                    .foregroundStyle(HolzBarTheme.Hub.neutral)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                PreviewBadge()
+                    .fixedSize()
+                Spacer(minLength: 0)
+                if monitor.showsReadingIndicator {
+                    ProgressView()
+                        .controlSize(.small)
+                        .accessibilityLabel(Text("Reading this display"))
+                }
+            }
+            .frame(height: Row.slot)
+            switch monitor.state {
+            case .reading, .ready:
+                ForEach(DDCCapabilities.rows(confirmed: Set(monitor.values.keys)), id: \.self) { control in
+                    externalRow(control, monitor: monitor)
+                }
+            case .doesNotAnswer:
+                caption(Text("This display does not answer DDC. Turn on DDC/CI in the display's own menu."))
+            case .notPaired, .indistinguishable:
+                caption(Text("macOS cannot change this display from here"))
+            case .unavailable:
+                caption(unavailableText)
+            case .switchedOff:
+                caption(Text("Turn on External monitors in Settings to control this display"))
+                openSettingsButton
+            }
+        }
+        .accessibilityLabel(Text(verbatim: monitor.name))
+    }
+
+    /// The line of a card while the external part is unavailable. Only a part that switched itself
+    /// off after repeated failures asks for a restart, which starts it afresh; where this Mac or
+    /// its macOS cannot run it at all, a restart cannot help, so the line only says so.
+    private var unavailableText: Text {
+        if runtime.ddcGate.state == .unavailable(.failedRepeatedly) {
+            return Text("External monitor control is not available on this Mac. Restart holzBar to try again.")
+        }
+        return Text("External monitor control is not available on this Mac")
+    }
+
+    /// The row of one confirmed control of an external monitor. Brightness and contrast have a
+    /// floor of 2 percent, so a slip cannot make the screen unreadable.
+    @ViewBuilder
+    private func externalRow(_ control: DDCControl, monitor: DisplayControlsRuntime.ExternalMonitor) -> some View {
+        switch control {
+        case .brightness:
+            levelRow(
+                symbol: "sun.max.fill",
+                label: String(localized: "Brightness"),
+                control: .brightness,
+                monitor: monitor,
+                range: DDCLevel.brightnessFloor...1
+            )
+        case .contrast:
+            levelRow(
+                symbol: "circle.lefthalf.filled",
+                label: String(localized: "Contrast"),
+                control: .contrast,
+                monitor: monitor,
+                range: DDCLevel.contrastFloor...1
+            )
+        case .volume:
+            levelRow(
+                symbol: "speaker.wave.2.fill",
+                label: String(localized: "Volume"),
+                control: .volume,
+                monitor: monitor,
+                range: 0...1,
+                showsMute: DDCCapabilities.showsMute(confirmed: Set(monitor.values.keys))
+            )
+        case .mute:
+            EmptyView()
+        }
+    }
+
+    /// The mute button of an external monitor's volume row, in the 28 pt slot. The state is the
+    /// symbol, never the colour; the button is selected for VoiceOver while the monitor is muted.
+    /// While a survey runs the controls are disabled, as the sliders are, because the runtime
+    /// sets nothing until the monitor has answered.
+    private func externalMuteButton(_ monitor: DisplayControlsRuntime.ExternalMonitor) -> some View {
+        let isMuted = runtime.isExternalMuted(display: monitor.id)
+        return Button {
+            runtime.setExternalMuted(!isMuted, display: monitor.id)
+        } label: {
+            Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                .font(HolzBarTheme.Hub.compactSymbolFont)
+                .foregroundStyle(HolzBarTheme.Hub.pillText)
+                .frame(width: Row.slot, height: Row.slot)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(monitor.state == .reading)
+        .accessibilityLabel(isMuted ? Text("Unmute") : Text("Mute"))
+        .accessibilityAddTraits(isMuted ? .isSelected : [])
+    }
+
+    /// The one line a card shows instead of rows: the state and, where there is one, its next
+    /// step. It wraps, so a long translation never clips; a state is never shown by dimming alone.
+    private func caption(_ text: Text) -> some View {
+        text
+            .font(HolzBarTheme.Typography.caption)
+            .foregroundStyle(HolzBarTheme.Hub.neutral)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, Row.slot + HolzBarTheme.Spacing.xs)
+            .padding(.bottom, HolzBarTheme.Spacing.xxs)
+    }
+
+    /// The button of a switched-off card: the hub's pill, which closes the hub and opens the
+    /// module's settings, where External monitors is. It changes no setting.
+    private var openSettingsButton: some View {
+        Button {
+            host.openSettings(for: DisplayControlsRuntime.identifier)
+        } label: {
+            Text("Open Settings")
+                .font(HolzBarTheme.Hub.pillFont)
+                .foregroundStyle(HolzBarTheme.Hub.pillText)
+                .padding(.horizontal, HolzBarTheme.Spacing.sm)
+                .frame(height: HolzBarTheme.Hub.pillHeight)
+                .background(HolzBarTheme.Hub.pillFill, in: Capsule())
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .padding(.leading, Row.slot + HolzBarTheme.Spacing.xs)
+        .padding(.bottom, HolzBarTheme.Spacing.xxs)
+    }
+
+    /// One level row of an external monitor: the control's symbol in the 28 pt slot (the mute
+    /// button in the volume row of a monitor that reports mute), the slider and the value. The slider shows the level requested while it moves and the level the
+    /// monitor reports afterwards.
+    private func levelRow(
+        symbol: String,
+        label: String,
+        control: DDCControl,
+        monitor: DisplayControlsRuntime.ExternalMonitor,
+        range: ClosedRange<Double>,
+        showsMute: Bool = false
+    ) -> some View {
+        let shown = runtime.externalLevel(control: control, display: monitor.id) ?? range.lowerBound
+        return HStack(spacing: HolzBarTheme.Spacing.xs) {
+            if showsMute {
+                externalMuteButton(monitor)
+            } else {
+                Image(systemName: symbol)
+                    .font(HolzBarTheme.Hub.compactSymbolFont)
+                    .foregroundStyle(HolzBarTheme.Hub.pillText)
+                    .frame(width: Row.slot, height: Row.slot)
+                    .help(label)
+                    .accessibilityHidden(true)
+            }
+            Slider(value: externalLevel(control: control, monitor: monitor, fallback: range.lowerBound), in: range)
+                .tint(HolzBarTheme.Palette.accent)
+                .disabled(monitor.state == .reading)
+                .accessibilityLabel(Text(verbatim: "\(label), \(monitor.name)"))
+                .accessibilityValue(Text("\(DisplayControlsLevel.percent(shown)) percent"))
+                .accessibilityAdjustableAction { direction in
+                    switch direction {
+                    case .increment: runtime.adjustExternalLevel(by: 1, control: control, display: monitor.id)
+                    case .decrement: runtime.adjustExternalLevel(by: -1, control: control, display: monitor.id)
+                    @unknown default: break
+                    }
+                }
+                .onKeyPress(.leftArrow) { stepExternal(-1, control: control, monitor: monitor) }
+                .onKeyPress(.downArrow) { stepExternal(-1, control: control, monitor: monitor) }
+                .onKeyPress(.rightArrow) { stepExternal(1, control: control, monitor: monitor) }
+                .onKeyPress(.upArrow) { stepExternal(1, control: control, monitor: monitor) }
+            Text(verbatim: "\(DisplayControlsLevel.percent(shown)) %")
+                .font(HolzBarTheme.Typography.mono.monospacedDigit())
+                .foregroundStyle(HolzBarTheme.Hub.neutral)
+                .frame(width: Row.valueWidth, alignment: .trailing)
+                .accessibilityHidden(true)
+        }
+        .frame(height: Row.height)
+    }
+
+    /// The slider's value: the level requested or reported, requested through the runtime.
+    private func externalLevel(
+        control: DDCControl,
+        monitor: DisplayControlsRuntime.ExternalMonitor,
+        fallback: Double
+    ) -> Binding<Double> {
+        Binding(
+            get: { runtime.externalLevel(control: control, display: monitor.id) ?? fallback },
+            set: { runtime.setExternalLevel($0, control: control, display: monitor.id) }
+        )
+    }
+
+    /// An arrow key steps an external monitor's level by 5 percent when its slider has focus.
+    private func stepExternal(
+        _ steps: Int,
+        control: DDCControl,
+        monitor: DisplayControlsRuntime.ExternalMonitor
+    ) -> KeyPress.Result {
+        guard runtime.externalLevel(control: control, display: monitor.id) != nil else {
+            return .ignored
+        }
+        runtime.adjustExternalLevel(by: steps, control: control, display: monitor.id)
+        return .handled
     }
 
     /// One display's brightness: a slider where macOS can change it, a caption where it cannot.

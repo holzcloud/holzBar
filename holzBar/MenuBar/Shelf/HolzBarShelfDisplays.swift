@@ -7,7 +7,7 @@ import SwiftUI
 
 /// The displays the holzBar Shelf is used on.
 ///
-/// On the other displays, hidden items are shown in the menu bar itself
+/// On the other displays, hidden items always stay shown in the menu bar
 /// (jordanbaird/Ice#223, jordanbaird/Ice#188, jordanbaird/Ice#703,
 /// jordanbaird/Ice#797, jordanbaird/Ice#303).
 enum HolzBarShelfDisplays: Int, CaseIterable, Identifiable {

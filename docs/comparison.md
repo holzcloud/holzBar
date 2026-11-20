@@ -56,7 +56,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | The notch widens for downloads and for a camera or microphone in use (optional module in that hub) | ❌ | — | — | ✅ |
 | Connection and low-battery alerts for AirPods and other accessories, shown by widening the notch (optional module in that hub; Bluetooth asked only when you switch it on; battery levels use a macOS call that Apple does not document) | ❌ | — | — | ✅ |
 | A file stash at the notch: drag files in, drag them out later as copies (optional module in that hub, no permission) | ❌ | — | — | ✅ |
-| Volume and brightness sliders at the notch (optional module in that hub, no permission; brightness uses a macOS call that Apple does not document) | ❌ | — | — | ✅ |
+| Volume and brightness sliders at the notch, and brightness, contrast, volume and mute of external monitors over DDC (optional module in that hub, no permission; brightness and external monitors use macOS calls that Apple does not document) | ❌ | — | — | ✅ |
 | The banners of your apps listed at the notch (optional module in that hub; read through Accessibility, kept in memory only, no Notifications permission; only what macOS shows on screen, and it follows a structure macOS may change) | ❌ | — | — | ✅ |
 | Show or hide a single item while a condition holds (a VPN is connected, an app is running) | ❌ | ✅ | — | ✅ |
 | Automatic layout snapshots with a one-click restore | — | — | — | ✅ |
@@ -81,7 +81,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Show an item briefly when it changes | ❌ | ✅ | — | ✅ <sub>opt-in per item</sub> |
 | Export and import settings | ❌ | ✅ | — | ✅ |
 | Languages | English | many, through Crowdin | — | 20, machine-made, not yet reviewed |
-| Keep Live Activities visible | ❌ | — | — | ✅ <sub>experimental</sub> |
+| Keep Apple's Live Activities visible | ❌ | — | — | ✅ <sub>beta, macOS 14 – 26</sub> |
 | Show on scroll with a mouse wheel | ❌ | — | — | ✅ |
 | Search tolerates typos and abbreviations | ✅ (library) | ✅ | — | ✅ (built in) |
 | Refuses hotkeys macOS cannot register, and says why; asks before taking another hotkey's combination | ❌ | — | — | ✅ |
@@ -137,7 +137,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 
 | | holzBar | Bartender 7 | Ice | Thaw | SaneBar | Tuck | Barbee | Hidden Bar | Dozer | Vanilla | iBar | Glow | Brow | Lounge | Vorssaint | Dimble | Fire from Ice | JustHide | Ice 2 | ice-rust | ExtraBar |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Maintenance | active (1.0.5; 1.1.0 in beta) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) | active (beta channel, pushed 31 Oct) <sup>16</sup> | active (pushed 31 Oct) <sup>16</sup> | active (pushed 1 Nov) <sup>16</sup> | active (pushed 29 Oct) <sup>16</sup> | active (pushed 23 Oct) <sup>16</sup> | ❓ |
+| Maintenance | active (1.1.0) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) | active (beta channel, pushed 31 Oct) <sup>16</sup> | active (pushed 31 Oct) <sup>16</sup> | active (pushed 1 Nov) <sup>16</sup> | active (pushed 29 Oct) <sup>16</sup> | active (pushed 23 Oct) <sup>16</sup> | ❓ |
 | Price | free | paid, one-time <sup>1</sup> | free | free | free | free; Pro $14.99 | free + in-app (lifetime $12.99) | free | free | free; Pro $10 | free + $2.99/yr | $19.99 once | free; Pro $49/yr (AI only) | $3.99/yr | free | free | free | free | free | free | paid: €14.99/yr, lifetime €39.99 <sup>17</sup> |
 | Open source | ✅ GPL-3.0 | ❌ | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ MIT | ❌ | ❌ | ✅ MIT | ✅ MPL-2.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ GPL-3.0+ | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ GPL-3.0 | ❓ |
 | macOS 26 / 27 | ✅ / ✅ | ❌ / ✅ <sup>2</sup> | dev builds / ❌ | ✅ / ✅ <sup>3</sup> | ✅ / ❌ | ✅ / ✅ <sup>4</sup> | ❓ / ❓ <sup>5</sup> | ✅ / partly <sup>6</sup> | ❓ / ❓ | ✅ / ❓ | ✅ / ❓ | ✅ / ✅ <sup>13</sup> | ❓ / vendor claim | ✅ / vendor claim | ✅ / ✅ | ❌ / ✅ (macOS 27 only) | ✅ / ❓ | ❌ / ✅ (macOS 27 only) | ✅ / ❓ | ✅ / ✅ | ✅ / ❓ (macOS 12.4 or later) |
