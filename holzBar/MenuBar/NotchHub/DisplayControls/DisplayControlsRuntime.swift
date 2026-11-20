@@ -384,7 +384,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             externals = []
             return
         }
-        cancelExternalWork()
+        cancelExternalWork(flushingPendingWrites: true)
         let generation = ddcGeneration
         externals = candidates.map { candidate in
             var monitor = externals.first { $0.id == candidate.id }
@@ -663,8 +663,11 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     }
 
     /// Cancels every survey, write and wait of the external part, drops what they would have
-    /// delivered and clears the levels requested.
-    private func cancelExternalWork() {
+    /// delivered and clears the levels requested. With `flushingPendingWrites` the last value a
+    /// slider asked for, which no writer had taken yet, is still written once: closing the hub or
+    /// asking again must not drop the position the slider showed. The part switching off or going
+    /// unavailable never writes.
+    private func cancelExternalWork(flushingPendingWrites: Bool = false) {
         ddcGeneration += 1
         surveyTask?.cancel()
         surveyTask = nil
@@ -673,9 +676,15 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         for index in externals.indices where externals[index].showsReadingIndicator {
             externals[index].showsReadingIndicator = false
         }
-        for channel in channels.values {
+        let flushBus = flushingPendingWrites && ddcGate.isAvailable ? bus : nil
+        for (key, var channel) in channels {
             channel.writer?.cancel()
             channel.settle?.cancel()
+            if let flushBus, let raw = channel.coalescer.next() {
+                Task {
+                    _ = await flushBus.write(key.control, raw: raw, to: key.display)
+                }
+            }
         }
         channels = [:]
         requestedLevels = [:]
@@ -712,7 +721,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             }
         } else {
             listener.stop()
-            cancelExternalWork()
+            cancelExternalWork(flushingPendingWrites: true)
         }
     }
 

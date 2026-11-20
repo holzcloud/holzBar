@@ -149,6 +149,8 @@ struct DisplayControlsBodyView: View {
 
     /// The mute button of an external monitor's volume row, in the 28 pt slot. The state is the
     /// symbol, never the colour; the button is selected for VoiceOver while the monitor is muted.
+    /// While a survey runs the controls are disabled, as the sliders are, because the runtime
+    /// sets nothing until the monitor has answered.
     private func externalMuteButton(_ monitor: DisplayControlsRuntime.ExternalMonitor) -> some View {
         let isMuted = runtime.isExternalMuted(display: monitor.id)
         return Button {
@@ -161,6 +163,7 @@ struct DisplayControlsBodyView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .disabled(monitor.state == .reading)
         .accessibilityLabel(isMuted ? Text("Unmute") : Text("Mute"))
         .accessibilityAddTraits(isMuted ? .isSelected : [])
     }
@@ -221,6 +224,7 @@ struct DisplayControlsBodyView: View {
             }
             Slider(value: externalLevel(control: control, monitor: monitor, fallback: range.lowerBound), in: range)
                 .tint(HolzBarTheme.Palette.accent)
+                .disabled(monitor.state == .reading)
                 .accessibilityLabel(Text(verbatim: "\(label), \(monitor.name)"))
                 .accessibilityValue(Text("\(DisplayControlsLevel.percent(shown)) percent"))
                 .accessibilityAdjustableAction { direction in
