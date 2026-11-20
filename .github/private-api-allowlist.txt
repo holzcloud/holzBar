@@ -23,6 +23,12 @@ holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: dlopen
 holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: dlsym
 holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: PrivateFrameworks
 #
+# The Display controls module's External monitors (DDC) switch reads and sets external monitors
+# over DDC/CI through IOAVService, which Apple does not document: Apple silicon has no public
+# DDC path (agreed 2026-11-05; scope 2026-11-14). The wrapper looks the functions up at run time
+# and only while that switch is on.
+holzBar/MenuBar/NotchHub/DisplayControls/IOAVServiceBridge.swift: dlsym
+#
 # The Now Playing module's Read all apps reads what any app plays through MediaRemote, which
 # Apple does not document and only lets Apple's own platform binaries use. The helper framework
 # loads it at run time inside /usr/bin/perl and is the only file that names it (agreed
