@@ -632,12 +632,15 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             }
             self.channels[key]?.settle = nil
             self.recordTransfer(display: key.display, succeeded: value != nil)
+            // The request is dropped whether or not the read-back worked: the level shown is the
+            // one the monitor confirmed, so a failed read-back falls back to the last confirmed
+            // value instead of showing a request the monitor never confirmed.
+            self.requestedLevels[key] = nil
+            if key.control == .mute {
+                self.requestedMutes[key.display] = nil
+            }
             if let value, self.ddcGate.isAvailable, let index = self.externals.firstIndex(where: { $0.id == key.display }) {
                 self.externals[index].values[key.control] = value
-                self.requestedLevels[key] = nil
-                if key.control == .mute {
-                    self.requestedMutes[key.display] = nil
-                }
             }
         }
     }
