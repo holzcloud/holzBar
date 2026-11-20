@@ -29,11 +29,13 @@ import SwiftUI
 ///
 /// External monitors are a separate part, behind their own setting (External monitors, off by
 /// default) and their own ``ddcGate``. A monitor's card shows only the controls it lists in its
-/// capabilities string and confirms by a value read; the string is read once per hub opening. It talks DDC/CI to a monitor through the private
-/// interface of ``IOAVServiceBridge``, on the ``DDCBus``'s own queue, so no transfer ever blocks
-/// the main actor. The state of each monitor is read when the hub opens or the tab appears and
-/// once after a change; nothing is polled, and the CoreAudio listener refreshes only the Mac's
-/// volume. Closing the hub cancels every read, write and wait of this part, and a result of an
+/// capabilities string and confirms by a value read; the string is read once per hub opening,
+/// at the first survey of it. It talks DDC/CI to a monitor through the private interface of
+/// ``IOAVServiceBridge``, on the ``DDCBus``'s own queue, so no transfer ever blocks the main
+/// actor. The state of each monitor is read when the Display tab appears, or when the hub opens
+/// on the Overview with the brightness line of a monitor (an opening where no monitor's value is
+/// shown, a hover pass included, sends nothing to a monitor), and once after a change; nothing
+/// is polled, and the CoreAudio listener refreshes only the Mac's volume. Closing the hub cancels every read, write and wait of this part, and a result of an
 /// earlier opening is dropped by its generation number. One deliberate deviation from "the level
 /// shown is the one read back": while a DDC slider moves it shows the level requested, because a
 /// transfer takes about 100 ms. The writes are coalesced (the latest value wins) and about 0.3 s
@@ -196,7 +198,8 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     }
 
     /// Reads the brightness, the external monitors and the default output's plan, level, mute and
-    /// name again.
+    /// name again. The Display tab calls it when it appears, so this is where the monitors are
+    /// surveyed once the hub is open.
     func refresh() {
         refreshBrightness()
         refreshDisplayOrder()
@@ -340,9 +343,11 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     }
 
     /// Reads the controls of every external monitor macOS cannot change itself. With the External
-    /// monitors setting off nothing is looked up and nothing is created. With it on, one survey
-    /// runs on the bus; a survey of this opening that is still running is left alone.
-    func refreshExternalMonitors() {
+    /// monitors setting off nothing is looked up and nothing is created. With it on and
+    /// `surveying` true, one survey runs on the bus; a survey of this opening that is still
+    /// running is left alone. With `surveying` false nothing is sent to a monitor: the hub
+    /// opened where no monitor's value is shown.
+    func refreshExternalMonitors(surveying: Bool = true) {
         let isEnabled = appState?.settings.displayControls.showsExternalMonitors ?? false
         let names = Dictionary(
             NSScreen.screens.map { ($0.displayID, $0.localizedName) },
@@ -371,7 +376,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             }
             return
         }
-        guard surveyTask == nil else {
+        guard surveying, surveyTask == nil else {
             return
         }
         guard !candidates.isEmpty else {
@@ -694,7 +699,14 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         isHubOpen = isOpen
         if isOpen {
             hubOpening += 1
-            refresh()
+            // The monitors are asked only where their values are shown: on the Display tab, or on
+            // the Overview where the brightness line of the display the hub opened on is one.
+            // Every other opening, a hover pass included, sends nothing to a monitor; the tab
+            // asks when it appears.
+            refreshBrightness()
+            refreshDisplayOrder()
+            refreshExternalMonitors(surveying: showsExternalValues)
+            refreshVolume()
             listener.start { [weak self] in
                 self?.refreshVolume()
             }
@@ -702,6 +714,22 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             listener.stop()
             cancelExternalWork()
         }
+    }
+
+    /// Whether the hub, as it opens, shows a value of an external monitor: the Display tab is in
+    /// front, or the Overview is and the display the hub opened on is a monitor the module
+    /// controls over DDC (its brightness line). Anything else needs no survey.
+    private var showsExternalValues: Bool {
+        guard let hub = appState?.notchHub else {
+            return false
+        }
+        if let selected = hub.model.selectedRuntime {
+            return selected.moduleID == Self.identifier
+        }
+        guard let id = hub.screenID else {
+            return false
+        }
+        return externalCandidates().contains { $0.id == id }
     }
 
     /// The tab cannot grow with its cards, so while an external monitor's card shows it asks for
