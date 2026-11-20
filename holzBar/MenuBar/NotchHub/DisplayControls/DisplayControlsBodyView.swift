@@ -104,12 +104,22 @@ struct DisplayControlsBodyView: View {
             case .notPaired, .indistinguishable:
                 caption(Text("macOS cannot change this display from here"))
             case .unavailable:
-                caption(Text("External monitor control is not available on this Mac. Restart holzBar to try again."))
+                caption(unavailableText)
             case .switchedOff:
                 caption(Text("Turn on External monitors in Settings to control this display"))
                 openSettingsButton
             }
         }
+    }
+
+    /// The line of a card while the external part is unavailable. Only a part that switched itself
+    /// off after repeated failures asks for a restart, which starts it afresh; where this Mac or
+    /// its macOS cannot run it at all, a restart cannot help, so the line only says so.
+    private var unavailableText: Text {
+        if runtime.ddcGate.state == .unavailable(.failedRepeatedly) {
+            return Text("External monitor control is not available on this Mac. Restart holzBar to try again.")
+        }
+        return Text("External monitor control is not available on this Mac")
     }
 
     /// The row of one confirmed control of an external monitor. Brightness and contrast have a
