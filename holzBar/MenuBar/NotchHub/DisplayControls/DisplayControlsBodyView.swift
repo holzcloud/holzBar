@@ -87,16 +87,37 @@ struct DisplayControlsBodyView: View {
                 Spacer(minLength: 0)
             }
             .frame(height: Row.slot)
-            if monitor.values[.brightness] != nil {
-                levelRow(
-                    symbol: "sun.max.fill",
-                    label: String(localized: "Brightness"),
-                    control: .brightness,
-                    monitor: monitor,
-                    range: DisplayControlsLevel.minimumBrightness...1
-                )
+            switch monitor.state {
+            case .reading, .ready:
+                if monitor.values[.brightness] != nil {
+                    levelRow(
+                        symbol: "sun.max.fill",
+                        label: String(localized: "Brightness"),
+                        control: .brightness,
+                        monitor: monitor,
+                        range: DisplayControlsLevel.minimumBrightness...1
+                    )
+                }
+            case .doesNotAnswer:
+                caption(Text("This display does not answer DDC. Turn on DDC/CI in the display's own menu."))
+            case .indistinguishable:
+                caption(Text("macOS cannot change this display from here"))
+            case .unavailable:
+                caption(Text("External monitor control is not available on this Mac. Restart holzBar to try again."))
             }
         }
+    }
+
+    /// The one line a card shows instead of rows: the state and, where there is one, its next
+    /// step. It wraps, so a long translation never clips; a state is never shown by dimming alone.
+    private func caption(_ text: Text) -> some View {
+        text
+            .font(HolzBarTheme.Typography.caption)
+            .foregroundStyle(HolzBarTheme.Hub.neutral)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, Row.slot + HolzBarTheme.Spacing.xs)
+            .padding(.bottom, HolzBarTheme.Spacing.xxs)
     }
 
     /// One level row of an external monitor: the control's symbol in the 28 pt slot, the slider

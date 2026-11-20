@@ -97,6 +97,12 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             case reading
             /// The monitor answered and its controls are in ``values``.
             case ready
+            /// The monitor gave no answer, or no DDC channel could be paired with it.
+            case doesNotAnswer
+            /// The monitor cannot be told from an identical one, so it is never read or written.
+            case indistinguishable
+            /// The part switched itself off, or this Mac cannot run it.
+            case unavailable
         }
 
         let id: CGDirectDisplayID
@@ -130,6 +136,9 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         var writer: Task<Void, Never>?
         var settle: Task<Void, Never>?
     }
+
+    /// What counts against the gate. It remembers which monitors answered in this session.
+    @ObservationIgnored private var ddcPolicy = DDCFailurePolicy()
 
     /// The bus, created when the part first runs and dropped with it.
     @ObservationIgnored private var bus: DDCBus?
@@ -296,19 +305,29 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         let isEnabled = appState?.settings.displayControls.showsExternalMonitors ?? false
         guard PrivateFeatureGate.shouldLoad(isEnabled: isEnabled) else {
             ddcGate.setEnabled(false, load: .loaded)
+            ddcPolicy = DDCFailurePolicy()
             cancelExternalWork()
             bus = nil
             externals = []
             return
         }
-        // Once switched off by itself the part stays off until the user switches it off and on.
+        let candidates = externalCandidates()
+        let names = Dictionary(
+            NSScreen.screens.map { ($0.displayID, $0.localizedName) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        // Once switched off by itself the part stays off until the user switches it off and on;
+        // the cards of the monitors say so.
         if case .unavailable(let reason) = ddcGate.state, reason != .switchedOff {
+            cancelExternalWork()
+            externals = candidates.map {
+                ExternalMonitor(id: $0.id, name: names[$0.id] ?? "", state: .unavailable, values: [:])
+            }
             return
         }
         guard surveyTask == nil else {
             return
         }
-        let candidates = externalCandidates()
         guard !candidates.isEmpty else {
             cancelExternalWork()
             externals = []
@@ -316,10 +335,6 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         }
         cancelExternalWork()
         let generation = ddcGeneration
-        let names = Dictionary(
-            NSScreen.screens.map { ($0.displayID, $0.localizedName) },
-            uniquingKeysWith: { first, _ in first }
-        )
         externals = candidates.map { candidate in
             var monitor = externals.first { $0.id == candidate.id }
                 ?? ExternalMonitor(id: candidate.id, name: "", state: .reading, values: [:])
@@ -336,8 +351,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             }
             self.ddcGate.setEnabled(true, load: load)
             guard self.ddcGate.isAvailable else {
-                self.surveyTask = nil
-                self.externals = []
+                self.markExternalsUnavailable()
                 return
             }
             let reports = await bus.survey(candidates)
@@ -373,23 +387,75 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         return candidates
     }
 
-    /// Takes the reports of a survey into ``externals``. A monitor that did not answer is left out,
-    /// so the tab keeps its ordinary row for it.
+    /// Takes the reports of a survey into ``externals`` and tells the gate what happened. A
+    /// monitor that gave no answer says so on its card and never counts on its own; the survey
+    /// counts as one failure only when no monitor answered at all.
     private func apply(_ reports: [DDCDisplayReport]) {
-        var kept: [ExternalMonitor] = []
-        for monitor in externals {
-            guard let report = reports.first(where: { $0.id == monitor.id }) else {
-                continue
-            }
-            if case .answered(let controls) = report.outcome {
-                var ready = monitor
-                ready.state = .ready
-                ready.values = Dictionary(uniqueKeysWithValues: controls.map { ($0.control, $0) })
-                kept.append(ready)
-                ddcGate.recordSuccess()
+        var tried = Set<UInt32>()
+        var answered = Set<UInt32>()
+        for report in reports {
+            switch report.outcome {
+            case .answered:
+                tried.insert(report.id)
+                answered.insert(report.id)
+            case .noAnswer(tried: true):
+                tried.insert(report.id)
+            case .noAnswer, .indistinguishable:
+                break
             }
         }
-        externals = kept
+        record(ddcPolicy.surveyEnded(tried: tried, answered: answered))
+        guard ddcGate.isAvailable else {
+            markExternalsUnavailable()
+            return
+        }
+        externals = externals.compactMap { monitor in
+            guard let report = reports.first(where: { $0.id == monitor.id }) else {
+                return nil
+            }
+            var updated = monitor
+            switch report.outcome {
+            case .answered(let controls):
+                updated.state = .ready
+                updated.values = Dictionary(uniqueKeysWithValues: controls.map { ($0.control, $0) })
+            case .noAnswer:
+                updated.state = .doesNotAnswer
+                updated.values = [:]
+            case .indistinguishable:
+                updated.state = .indistinguishable
+                updated.values = [:]
+            }
+            return updated
+        }
+    }
+
+    /// Records an event on the gate.
+    private func record(_ event: DDCFailurePolicy.Event) {
+        switch event {
+        case .success: ddcGate.recordSuccess()
+        case .failure: ddcGate.recordFailure()
+        case .none: break
+        }
+    }
+
+    /// Records one write or read-back and, when it switched the part off, says so on every card.
+    private func recordTransfer(display: CGDirectDisplayID, succeeded: Bool) {
+        record(ddcPolicy.transferEnded(display: display, succeeded: succeeded))
+        if !ddcGate.isAvailable {
+            markExternalsUnavailable()
+        }
+    }
+
+    /// Stops everything the part does and shows every external monitor as unavailable, with
+    /// nothing left to set. Nothing of the part runs again until the user switches it off and on.
+    private func markExternalsUnavailable() {
+        cancelExternalWork()
+        externals = externals.map { monitor in
+            var updated = monitor
+            updated.state = .unavailable
+            updated.values = [:]
+            return updated
+        }
     }
 
     /// The level of a control as the slider shows it: the level requested while one is pending,
@@ -445,7 +511,14 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// monitor to settle and reads the control back once.
     private func runWriter(_ key: ExternalControl, on bus: DDCBus, generation: Int) async {
         while ddcGeneration == generation, !Task.isCancelled, let raw = channels[key]?.coalescer.next() {
-            _ = await bus.write(key.control, raw: raw, to: key.display)
+            let succeeded = await bus.write(key.control, raw: raw, to: key.display)
+            guard ddcGeneration == generation, !Task.isCancelled else {
+                return
+            }
+            recordTransfer(display: key.display, succeeded: succeeded)
+            guard ddcGate.isAvailable else {
+                return
+            }
         }
         guard ddcGeneration == generation, !Task.isCancelled else {
             return
@@ -461,7 +534,8 @@ final class DisplayControlsRuntime: HubModuleRuntime {
                 return
             }
             self.channels[key]?.settle = nil
-            if let value, let index = self.externals.firstIndex(where: { $0.id == key.display }) {
+            self.recordTransfer(display: key.display, succeeded: value != nil)
+            if let value, self.ddcGate.isAvailable, let index = self.externals.firstIndex(where: { $0.id == key.display }) {
                 self.externals[index].values[key.control] = value
                 self.requestedLevels[key] = nil
             }

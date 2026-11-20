@@ -29,12 +29,29 @@ struct DisplayControlsSettingsView: View {
             small: Text("private interface"),
             badge: .preview
         )
+        .disabled(!DDCBus.supportsThisMac)
+        if !DDCBus.supportsThisMac || (settings.showsExternalMonitors && externalMonitorsSwitchedItselfOff) {
+            SettingsStateLine(.warning, Text("External monitor control is not available on this Mac"))
+        }
     }
 
     /// Whether the running module's start check switched brightness off. With the hub or the
     /// module off there is no runtime, and nothing is shown.
     private var brightnessSwitchedItselfOff: Bool {
         guard let state = appState.notchHub.runtime(DisplayControlsRuntime.self)?.gate.state else {
+            return false
+        }
+        if case .unavailable(let reason) = state, reason != .switchedOff {
+            return true
+        }
+        return false
+    }
+
+    /// Whether the running module's start check or its failure count switched the external
+    /// monitors part off. With the hub or the module off there is no runtime, and nothing is
+    /// shown.
+    private var externalMonitorsSwitchedItselfOff: Bool {
+        guard let state = appState.notchHub.runtime(DisplayControlsRuntime.self)?.ddcGate.state else {
             return false
         }
         if case .unavailable(let reason) = state, reason != .switchedOff {

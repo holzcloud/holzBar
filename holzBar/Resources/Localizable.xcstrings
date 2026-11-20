@@ -160846,6 +160846,360 @@
           }
         }
       }
+    },
+    "This display does not answer DDC. Turn on DDC/CI in the display's own menu." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tento displej neodpovídá na DDC. Zapněte DDC/CI v nabídce samotného displeje."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Bildschirm antwortet nicht auf DDC. Schalte DDC/CI im eigenen Menü des Bildschirms ein."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta pantalla no responde a DDC. Activa DDC/CI en el menú de la propia pantalla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cet écran ne répond pas au DDC. Active DDC/CI dans le menu de l'écran."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ez a kijelző nem válaszol a DDC-re. Kapcsold be a DDC/CI-t a kijelző saját menüjében."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layar ini tidak menanggapi DDC. Aktifkan DDC/CI di menu bawaan layar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo schermo non risponde al DDC. Attiva DDC/CI nel menu dello schermo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このディスプレイは DDC に応答しません。ディスプレイ本体のメニューで DDC/CI をオンにしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 디스플레이는 DDC에 응답하지 않습니다. 디스플레이 자체 메뉴에서 DDC/CI를 켜세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dit beeldscherm reageert niet op DDC. Zet DDC/CI aan in het eigen menu van het beeldscherm."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ten wyświetlacz nie odpowiada na DDC. Włącz DDC/CI w menu samego wyświetlacza."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta tela não responde ao DDC. Ative o DDC/CI no menu da própria tela."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quest visur na respunda betg a DDC. Activescha DDC/CI en il agen menu dal visur."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Этот дисплей не отвечает на DDC. Включите DDC/CI в собственном меню дисплея."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den här skärmen svarar inte på DDC. Slå på DDC/CI i skärmens egen meny."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu ekran DDC’ye yanıt vermiyor. Ekranın kendi menüsünden DDC/CI’yi aç."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цей дисплей не відповідає на DDC. Увімкніть DDC/CI у власному меню дисплея."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此显示器没有响应 DDC。请在显示器自带的菜单中开启 DDC/CI。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此顯示器沒有回應 DDC。請在顯示器自己的選單中開啟 DDC/CI。"
+          }
+        }
+      }
+    },
+    "External monitor control is not available on this Mac. Restart holzBar to try again." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ovládání externích monitorů není na tomto Macu k dispozici. Zkuste to znovu po restartu holzBar."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Steuerung externer Monitore ist auf diesem Mac nicht verfügbar. Starte holzBar neu, um es erneut zu versuchen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El control de monitores externos no está disponible en este Mac. Reinicia holzBar para intentarlo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le contrôle des écrans externes n'est pas disponible sur ce Mac. Redémarre holzBar pour réessayer."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A külső monitorok vezérlése nem érhető el ezen a Macen. Indítsd újra a holzBart az újrapróbálkozáshoz."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontrol monitor eksternal tidak tersedia di Mac ini. Mulai ulang holzBar untuk mencoba lagi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il controllo dei monitor esterni non è disponibile su questo Mac. Riavvia holzBar per riprovare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この Mac では外部モニターを制御できません。もう一度試すには holzBar を再起動してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 Mac에서는 외부 모니터 제어를 사용할 수 없습니다. 다시 시도하려면 holzBar를 다시 시작하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bediening van externe monitoren is niet beschikbaar op deze Mac. Start holzBar opnieuw op om het nog eens te proberen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sterowanie monitorami zewnętrznymi nie jest dostępne na tym Macu. Uruchom holzBar ponownie, aby spróbować jeszcze raz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O controle de monitores externos não está disponível neste Mac. Reinicie o holzBar para tentar de novo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il controll da monituors externs n'è betg disponibel sin quest Mac. Reaviescha holzBar per empruvar danovamain."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Управление внешними мониторами недоступно на этом Mac. Перезапустите holzBar, чтобы повторить попытку."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Styrning av externa bildskärmar är inte tillgänglig på den här Macen. Starta om holzBar för att försöka igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harici monitör denetimi bu Mac’te kullanılamıyor. Yeniden denemek için holzBar’ı yeniden başlat."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Керування зовнішніми моніторами недоступне на цьому Mac. Перезапустіть holzBar, щоб спробувати ще раз."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 Mac 无法控制外接显示器。请重新启动 holzBar 后再试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 Mac 無法控制外接顯示器。請重新啟動 holzBar 後再試。"
+          }
+        }
+      }
+    },
+    "External monitor control is not available on this Mac" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ovládání externích monitorů není na tomto Macu k dispozici"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Steuerung externer Monitore ist auf diesem Mac nicht verfügbar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El control de monitores externos no está disponible en este Mac"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le contrôle des écrans externes n'est pas disponible sur ce Mac"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A külső monitorok vezérlése nem érhető el ezen a Macen"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontrol monitor eksternal tidak tersedia di Mac ini"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il controllo dei monitor esterni non è disponibile su questo Mac"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この Mac では外部モニターを制御できません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 Mac에서는 외부 모니터 제어를 사용할 수 없습니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bediening van externe monitoren is niet beschikbaar op deze Mac"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sterowanie monitorami zewnętrznymi nie jest dostępne na tym Macu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O controle de monitores externos não está disponível neste Mac"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il controll da monituors externs n'è betg disponibel sin quest Mac"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Управление внешними мониторами недоступно на этом Mac"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Styrning av externa bildskärmar är inte tillgänglig på den här Macen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harici monitör denetimi bu Mac’te kullanılamıyor"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Керування зовнішніми моніторами недоступне на цьому Mac"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 Mac 无法控制外接显示器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 Mac 無法控制外接顯示器"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
