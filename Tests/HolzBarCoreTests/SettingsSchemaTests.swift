@@ -99,7 +99,6 @@ struct SettingsSchemaTests {
 
     @Test("A settings file cannot set the key the 0.0.7 betas used for settings sync")
     func settingsFileCannotSetLeftoverKey() {
-        #expect(Defaults.Key.localOnlyKeys.contains(.syncsSettingsWithICloud))
         #expect(Defaults.Key.importableKinds["SyncsSettingsWithICloud"] == nil)
         let result = Defaults.Key.validatedSettings(["SyncsSettingsWithICloud": true, "ShowOnHover": true], ownBundleIdentifier: ownBundle)
         #expect(result.accepted.keys.sorted() == ["ShowOnHover"])

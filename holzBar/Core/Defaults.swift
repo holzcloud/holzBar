@@ -230,8 +230,6 @@ nonisolated extension Defaults {
         case itemIcons = "ItemIcons"
         case layoutProfiles = "LayoutProfiles"
         case currentLayoutProfile = "CurrentLayoutProfile"
-        /// Left by the 0.0.7 betas. Nothing reads or writes it any more, and the stored value stays.
-        case syncsSettingsWithICloud = "SyncsSettingsWithICloud"
         case itemGroups = "ItemGroups"
         /// The widgets of the menu bar, as JSON (`WidgetDefinition`): kind, source, format and
         /// order. Exported and imported as one unit (D-25, D-26).
@@ -487,7 +485,6 @@ nonisolated extension Defaults.Key {
             .displayControlsBrightness,
             .displayControlsExternalMonitors,
             .openHiddenItemsInMenuBar,
-            .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,
             .debugDropsBarrierExitEvent,
@@ -642,8 +639,7 @@ nonisolated extension Defaults.Key {
 
     /// Keys that stay on this Mac: never exported or imported.
     ///
-    /// The key the 0.0.7 betas used for settings sync stays here too, so a settings file
-    /// never sets it. The debug defaults stay on this Mac as well, and so do the names of the
+    /// The debug defaults stay on this Mac, and so do the names of the
     /// Shortcuts the widget buttons run (D-25), the sections that item rules remember, the
     /// tab the Notch hub showed last, the timers (they hold the user's labels), the calendars
     /// the user switched off (their identifiers name the user's accounts), the version the
@@ -652,7 +648,6 @@ nonisolated extension Defaults.Key {
     /// displays' identifiers are those of this Mac), and the two switches that turn a private
     /// interface on: Now Playing's Read all apps and Display controls' External monitors.
     static let localOnlyKeys: Set<Defaults.Key> = [
-        .syncsSettingsWithICloud,
         .lastRunMacOSMajor,
         .lockHiddenItems,
         .usageSuggestionsEnabled,
