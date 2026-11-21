@@ -79,7 +79,7 @@ Where holzBar loses: it has no Developer ID signature, a slide of the bar's own 
 
 ## Install
 
-Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 1.1.0. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
+Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 1.1.1. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
 
 ```sh
 brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar
@@ -96,12 +96,12 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ## What's new
 
-### 1.1.1 beta
+### 1.1.1
 
 - **External monitors**: brightness, contrast, volume and mute over DDC, in Display controls, off until you switch it on
 - **Fixed**: the hub's opening animation; with the Shelf on some displays only, the others show every item
 
-[Release notes](docs/release-notes/v1.1.1-beta1.md)
+[Release notes](docs/release-notes/v1.1.1.md)
 
 ### 1.1.0
 

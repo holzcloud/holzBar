@@ -7,7 +7,7 @@ import SwiftUI
 
 /// The Display controls module's settings, in the open area of the module's row: one switch for
 /// the brightness sliders and one for the external monitors, each labelled as a private
-/// interface (the second also as Preview). Turning one off keeps its interface from ever being
+/// interface. Turning one off keeps its interface from ever being
 /// loaded. The state lines follow the running module's own start check; nothing is loaded or
 /// looked up from here.
 struct DisplayControlsSettingsView: View {
@@ -26,8 +26,7 @@ struct DisplayControlsSettingsView: View {
         SettingsToggleRow(
             .modulesDisplayControlsExternalMonitors,
             isOn: $settings.showsExternalMonitors,
-            small: Text("private interface"),
-            badge: .preview
+            small: Text("private interface")
         )
         .disabled(!DDCBus.supportsThisMac)
         if !DDCBus.supportsThisMac || (settings.showsExternalMonitors && externalMonitorsSwitchedItselfOff) {
