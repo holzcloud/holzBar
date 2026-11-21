@@ -378,7 +378,11 @@ Screenshots of holzBar 1.1 in dark mode.
 
 <table>
 <tr>
-<td width="50%" valign="top"><b>Display controls — brightness and volume</b><br><img src="../Resources/Screenshots/hub-display.png" alt="The Display controls module in the notch hub: a brightness slider for the built-in display and the volume of the Mac's speakers, with the round module buttons below"></td>
+<td width="50%" valign="top"><b>Overview — the state of every module at a glance</b><br><img src="../Resources/Screenshots/hub-overview.png" alt="The Overview of the notch hub: a card for the volume and brightness and a card for what is playing, with the round module buttons below"></td>
+<td width="50%" valign="top"><b>Timers — presets, a length, a time or a stopwatch</b><br><img src="../Resources/Screenshots/hub-timers.png" alt="The Timers module in the notch hub: presets from 1 minute to 1 hour, Length, Until and Stopwatch, a field for a length and a Start button"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Display controls — volume, brightness and external monitors</b><br><img src="../Resources/Screenshots/hub-display.png" alt="The Display controls module in the notch hub: the volume of the Mac's speakers, the brightness of the built-in display and an external monitor that can be controlled once External monitors is on in Settings, with the round module buttons below"></td>
 <td width="50%" valign="top"><b>File drop — files kept at the notch</b><br><img src="../Resources/Screenshots/hub-file-drop.png" alt="The File drop module in the notch hub: Drop files here, they stay until you drag them out or remove them, with the round module buttons below"></td>
 </tr>
 </table>
@@ -386,6 +390,9 @@ Screenshots of holzBar 1.1 in dark mode.
 ### Settings
 
 <table>
+<tr>
+<td width="50%" valign="top"><b>Layout — every item in its section, by drag or keyboard</b><br><img src="../Resources/Screenshots/settings-layout.png" alt="holzBar settings, Layout pane: the Visible and Hidden sections as small menu bars with the real items, the Always Hidden switch, where new items go, Apply changes immediately, Command-drag and stand-ins"></td>
+</tr>
 <tr>
 <td width="50%" valign="top"><b>General — startup and the menu bar icon</b><br><img src="../Resources/Screenshots/settings-general.png" alt="holzBar settings, General pane: Launch at login, What's New after an update, the menu bar icon styles, the number of hidden items and the dot for the microphone or camera"></td>
 <td width="50%" valign="top"><b>Showing &amp; Hiding — click, hover, scroll, rehide, Zen mode</b><br><img src="../Resources/Screenshots/settings-showing-hiding.png" alt="holzBar settings, Showing & Hiding pane: show on click, hover or scroll, open hidden items in the menu bar, automatic rehide with the Smart strategy, Zen mode, Touch ID and the animation styles Instant, Smooth and Fade"></td>
