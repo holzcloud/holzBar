@@ -46,7 +46,7 @@ If you looked for an Ice fork that runs on macOS 27, or a free Bartender alterna
 <td width="50%" valign="top"><b>Appearance</b>: moods, tint, border, shapes, a black bar<br><img src="Resources/Screenshots/settings-appearance.png" alt="holzBar settings, Appearance pane: moods, the menu bar shape, light and dark, tint, shadow and border"></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><b>Notch hub</b>: one black shape that grows out of the notch<br><img src="Resources/Screenshots/hub-display.png" alt="The Display controls module in the notch hub: a brightness slider for the built-in display and the volume of the Mac's speakers, with the round module buttons below"></td>
+<td width="50%" valign="top"><b>Notch hub</b>: one black shape that grows out of the notch<br><img src="Resources/Screenshots/hub-display.png" alt="The Display controls module in the notch hub: the volume of the Mac's speakers, the brightness of the built-in display and an external monitor that can be controlled once External monitors is on in Settings, with the round module buttons below"></td>
 <td width="50%" valign="top"><b>Modules</b>: every module with its own switch<br><img src="Resources/Screenshots/settings-modules.png" alt="holzBar settings, Modules pane: Widgets, Drag in the Menu Bar, Apple Items, then the Notch hub and its eight modules, each with its own switch"></td>
 </tr>
 </table>
