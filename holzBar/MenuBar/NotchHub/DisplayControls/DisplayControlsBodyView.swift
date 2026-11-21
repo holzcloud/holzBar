@@ -73,7 +73,7 @@ struct DisplayControlsBodyView: View {
         }
     }
 
-    /// An external monitor's card: a header with its name and the Preview badge, then the rows
+    /// An external monitor's card: a header with its name, then the rows
     /// of the controls it reported. The rows carry no visible name; the symbol says which control
     /// it is and the name is the accessibility label and the tooltip. The card is one group that
     /// VoiceOver reads as the monitor's name.
@@ -85,8 +85,6 @@ struct DisplayControlsBodyView: View {
                     .foregroundStyle(HolzBarTheme.Hub.neutral)
                     .lineLimit(1)
                     .truncationMode(.tail)
-                PreviewBadge()
-                    .fixedSize()
                 Spacer(minLength: 0)
                 if monitor.showsReadingIndicator {
                     ProgressView()

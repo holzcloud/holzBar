@@ -91,7 +91,7 @@
 
 ## New in 1.1.1
 
-1.1.1 is in beta; see the [release notes of 1.1.1 beta 1](release-notes/v1.1.1-beta1.md).
+See the [release notes of 1.1.1](release-notes/v1.1.1.md).
 
 - **External monitors**: the switch **External monitors (DDC)** in the Display controls module's settings, off by default, lets the Display tab set the brightness, contrast, volume and mute of each external monitor that supports DDC. A monitor shows only the controls it reports, in its own card; the card of the display the hub opened on comes first. The Overview tile adds the brightness of the hub's display under the volume.
 - **Fixed, Notch hub**: its content no longer shows outside its black shape while it opens or closes.
@@ -327,11 +327,11 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ### 1.2.0: system monitor
 
-The release after 1.1.0 is the system monitor: CPU, GPU, memory, network, disk and power readouts in the menu bar and in the hub (the system info widgets), connected devices with battery levels, and alerts when CPU, temperature or disk cross a limit. Each part is optional and off until you switch it on.
+The release after 1.1.1 is the system monitor: CPU, GPU, memory, network, disk and power readouts in the menu bar and in the hub (the system info widgets), connected devices with battery levels, and alerts when CPU, temperature or disk cross a limit. Each part is optional and off until you switch it on.
 
 ### After 1.2.0 (release not fixed yet)
 
-**Nothing here is in 1.1.0.**
+**Nothing here is in 1.1.1.**
 
 **Menu bar**
 - **Restore layout automatically** on macOS 27: a setting in Layout that puts items back in your saved order when macOS or an app moves them.
