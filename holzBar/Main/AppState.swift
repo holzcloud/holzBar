@@ -74,6 +74,10 @@ final class AppState {
     /// Which optional modules the user has switched on.
     let modules = ModuleStore()
 
+    /// The one shared monitor of the system readouts: it measures only for the consumers that
+    /// are registered, and nothing while there are none (Phase 94).
+    let systemMonitor = SystemMonitor()
+
     /// Menu bar items of the user's own: text from built-in sources and Shortcut buttons (Phase 12).
     let widgets = MenuBarWidgets()
 
@@ -301,6 +305,7 @@ final class AppState {
         itemGroups.performSetup(with: self)
         appleItems.performSetup(with: self)
         spacers.performSetup()
+        systemMonitor.performSetup(with: self)
         widgets.performSetup(with: self)
         if #available(macOS 27.0, *) {
             // The stand-ins of apps macOS hides anyway; after the item manager's setup.

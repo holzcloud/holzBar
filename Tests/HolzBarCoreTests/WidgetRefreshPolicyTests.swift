@@ -566,6 +566,11 @@ struct WidgetRefreshPolicyTests {
 
     // MARK: The cadence of a definition
 
+    /// The cadence of a CPU text widget: the shared monitor feeds it (D-01), with a baseline.
+    private func cpuCadence(seconds: Int) -> WidgetCadence {
+        .sampled(ReadoutRequest(metrics: [.cpu], intervalSeconds: seconds, needsBaseline: true))
+    }
+
     @Test("The cadence follows the source of the definition")
     func cadenceFromDefinition() {
         let now = date(0)
@@ -582,8 +587,8 @@ struct WidgetRefreshPolicyTests {
         withSeconds.showsSeconds = true
         #expect(WidgetCadence(definition: withSeconds) == .clock(showsSeconds: true))
         #expect(WidgetCadence(definition: make(.battery)) == .eventOnly)
-        #expect(WidgetCadence(definition: make(.cpu)) == .interval(seconds: 5, needsBaseline: true))
-        #expect(WidgetCadence(definition: make(.cpu, refreshSeconds: 30)) == .interval(seconds: 30, needsBaseline: true))
+        #expect(WidgetCadence(definition: make(.cpu)) == cpuCadence(seconds: 5))
+        #expect(WidgetCadence(definition: make(.cpu, refreshSeconds: 30)) == cpuCadence(seconds: 30))
         #expect(WidgetCadence(definition: make(.memory)) == .interval(seconds: 10, needsBaseline: false))
         #expect(WidgetCadence(definition: make(.uptime)) == .interval(seconds: 60, needsBaseline: false))
         #expect(WidgetCadence(definition: make(.freeDisk)) == .interval(seconds: 300, needsBaseline: false))
@@ -597,9 +602,9 @@ struct WidgetRefreshPolicyTests {
     func intervalIsClamped() {
         var cpu = WidgetDefinition.text(source: .cpu, uses24HourClock: true, now: date(0))
         cpu.refreshSeconds = 0
-        #expect(WidgetCadence(definition: cpu) == .interval(seconds: 2, needsBaseline: true))
+        #expect(WidgetCadence(definition: cpu) == cpuCadence(seconds: 2))
         cpu.refreshSeconds = Int.max
-        #expect(WidgetCadence(definition: cpu) == .interval(seconds: 60, needsBaseline: true))
+        #expect(WidgetCadence(definition: cpu) == cpuCadence(seconds: 60))
 
         var memory = WidgetDefinition.text(source: .memory, uses24HourClock: true, now: date(0))
         memory.refreshSeconds = 1

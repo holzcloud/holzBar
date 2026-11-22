@@ -47,7 +47,11 @@ nonisolated enum WidgetCadence: Equatable, Sendable {
         case .battery:
             self = .eventOnly
         case .cpu:
-            self = .interval(seconds: Self.tunedSeconds(definition, for: .cpu), needsBaseline: true)
+            self = .sampled(ReadoutRequest(
+                metrics: [.cpu],
+                intervalSeconds: Self.tunedSeconds(definition, for: .cpu),
+                needsBaseline: true
+            ))
         case .memory:
             self = .interval(seconds: Self.tunedSeconds(definition, for: .memory), needsBaseline: false)
         case .uptime:

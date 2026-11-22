@@ -77,6 +77,9 @@ final class MenuBarWidgets {
     /// revealed before it was ready ask their script then. It ends itself.
     @ObservationIgnored private var scriptStoreLoop: ObservationLoop?
 
+    /// The widgets' consumer of the shared system readouts monitor.
+    @ObservationIgnored private let readoutLink = WidgetReadoutLink()
+
     /// What a click on a built-in item does.
     @ObservationIgnored private let builtInActions = BuiltInItemActions()
 
@@ -97,6 +100,12 @@ final class MenuBarWidgets {
         self.appState = appState
         timers.onChange = { [weak self] id in
             self?.timerChanged(id)
+        }
+        readoutLink.monitor = appState.systemMonitor
+        readoutLink.onReading = { [weak self] id, reading in
+            if let runtime = self?.runtimes[id], runtime.policy.isVisible {
+                self?.render(runtime, reading: reading)
+            }
         }
         definitions = WidgetList.decode(Defaults.data(forKey: .widgets) ?? Data())
         let storedNames = Defaults.dictionary(forKey: .widgetShortcutNames)
@@ -181,7 +190,7 @@ final class MenuBarWidgets {
             return
         }
         runtime.definition = valid
-        runtime.cpuBaseline = nil
+        readoutLink.resetBaseline(for: valid.id)
         configure(runtime)
         updateMediaMonitoring()
         let command = runtime.policy.handle(
@@ -673,10 +682,6 @@ final class MenuBarWidgets {
         var text: WidgetText?
         /// The last value that was handed to VoiceOver.
         var spoken: String?
-        /// The tick counters of the last CPU reading. A load is the difference of two readings,
-        /// so it is dropped whenever the widget stops being visible: a reveal never shows an
-        /// average over the hidden time.
-        var cpuBaseline: CPUTicks?
         /// Forwards a button's click; the status item's button holds its target weakly.
         var clickTarget: ClickTarget?
         /// The one length of the status item, measured from the widest text (D-12).
@@ -751,6 +756,7 @@ final class MenuBarWidgets {
     ///   widget comes back where it was when the module is switched on again.
     private func stop(_ runtime: Runtime, keepingPosition: Bool) {
         cancelWait(of: runtime)
+        readoutLink.forget(runtime.definition.id)
         let name = runtime.definition.autosaveName
         // Removing a status item deletes its preferred position. Cache and restore it, as the
         // control items do.
@@ -942,7 +948,7 @@ final class MenuBarWidgets {
         case (.memory, .gigabytesUsed):
             return ProcessInfo.processInfo.physicalMemory
         case (.freeDisk, .gigabytesFree):
-            return WidgetSamplers.diskSpace().map { UInt64(max($0.total, 0)) }
+            return SystemSamplers.diskSpace().map { UInt64(max($0.total, 0)) }
         default:
             return nil
         }
@@ -1159,9 +1165,10 @@ final class MenuBarWidgets {
     /// Does what the policy says: read, arm or cancel the one timer, show the en dash.
     private func apply(_ command: WidgetRefreshPolicy.Command, to runtime: Runtime) {
         if command.marksUnavailable {
-            runtime.cpuBaseline = nil
+            readoutLink.resetBaseline(for: runtime.definition.id)
             render(runtime, reading: .unavailable)
         }
+        readoutLink.apply(command.readout, for: runtime.definition)
         if command.refreshes {
             refresh(runtime)
         }
@@ -1205,19 +1212,10 @@ final class MenuBarWidgets {
             }
             return .battery(percent: percent, state: battery.state)
         case .cpu:
-            // A load needs two readings: the first after a reveal is only the baseline.
-            guard let current = WidgetSamplers.cpuTicks() else {
-                runtime.cpuBaseline = nil
-                return .unavailable
-            }
-            let previous = runtime.cpuBaseline
-            runtime.cpuBaseline = current
-            guard let previous, let load = WidgetReadings.cpuLoad(from: previous, to: current) else {
-                return .unavailable
-            }
-            return .fraction(load)
+            // The shared monitor feeds it; the first reading after a reveal is only the baseline.
+            return readoutLink.lastReading(for: definition.id) ?? .unavailable
         case .memory:
-            guard let memory = WidgetSamplers.memory() else {
+            guard let memory = SystemSamplers.memory() else {
                 return .unavailable
             }
             if definition.preset == .gigabytesUsed {
@@ -1228,7 +1226,7 @@ final class MenuBarWidgets {
             }
             return .fraction(fraction)
         case .freeDisk:
-            guard let disk = WidgetSamplers.diskSpace() else {
+            guard let disk = SystemSamplers.diskSpace() else {
                 return .unavailable
             }
             if definition.preset == .gigabytesFree {
