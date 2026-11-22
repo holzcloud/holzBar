@@ -18,6 +18,11 @@ nonisolated enum WidgetCadence: Equatable, Sendable {
     /// The text is read again every `seconds`. A source that is a rate between two readings
     /// (CPU load) needs a baseline reading before its first value.
     case interval(seconds: Int, needsBaseline: Bool)
+    /// The text is fed by the shared system readouts monitor (D-01). The widget never arms a
+    /// timer of its own: the policy asks the monitor to register the request while the widget is
+    /// visible and to unregister it when it stops being visible, and the monitor delivers the
+    /// readings. Only the settle wait after a pause arms a timer.
+    case sampled(ReadoutRequest)
 
     /// The seconds between two readings of the uptime.
     static let uptimeSeconds = 60
@@ -56,6 +61,14 @@ nonisolated enum WidgetCadence: Equatable, Sendable {
                 self = .eventOnly
             }
         }
+    }
+
+    /// Whether the text is fed by the system readouts monitor.
+    var isSampled: Bool {
+        if case .sampled = self {
+            return true
+        }
+        return false
     }
 
     private static func tunedSeconds(_ definition: WidgetDefinition, for source: WidgetSource) -> Int {
@@ -110,6 +123,16 @@ nonisolated struct WidgetRefreshPolicy: Equatable {
         case arm(ContinuousClock.Instant, tolerance: Duration)
     }
 
+    /// What the host tells the system readouts monitor about the widget (D-01).
+    nonisolated enum ReadoutChange: Equatable, Sendable {
+        /// Leave the registration as it is.
+        case keep
+        /// Register the request; it replaces an earlier one of the widget.
+        case register(ReadoutRequest)
+        /// Unregister the widget.
+        case unregister
+    }
+
     /// What the host does after an event.
     nonisolated struct Command: Equatable, Sendable {
         /// Read the source once and show the text.
@@ -118,6 +141,9 @@ nonisolated struct WidgetRefreshPolicy: Equatable {
         var timer = TimerChange.keep
         /// Show the text as unavailable until the next reading.
         var marksUnavailable = false
+        /// What the host tells the system readouts monitor: register the request of a sampled
+        /// widget that became visible, or unregister it.
+        var readout = ReadoutChange.keep
 
         /// Nothing to do.
         static let unchanged = Command()
@@ -186,6 +212,33 @@ nonisolated struct WidgetRefreshPolicy: Equatable {
         date: Date,
         calendar: Calendar
     ) -> Command {
+        let before = registeredRequest
+        var command = apply(event, at: now, date: date, calendar: calendar)
+        command.readout = Self.readoutChange(from: before, to: registeredRequest)
+        return command
+    }
+
+    /// The request the monitor holds for the widget: that of a sampled widget while it is visible.
+    private var registeredRequest: ReadoutRequest? {
+        guard isVisible, case .sampled(let request) = cadence else {
+            return nil
+        }
+        return request
+    }
+
+    private static func readoutChange(from before: ReadoutRequest?, to after: ReadoutRequest?) -> ReadoutChange {
+        if let after {
+            return before == after ? .keep : .register(after)
+        }
+        return before == nil ? .keep : .unregister
+    }
+
+    private mutating func apply(
+        _ event: Event,
+        at now: ContinuousClock.Instant,
+        date: Date,
+        calendar: Calendar
+    ) -> Command {
         let wasActive = isActive
         switch event {
         case .moduleEnabled(let isEnabled):
@@ -213,7 +266,7 @@ nonisolated struct WidgetRefreshPolicy: Equatable {
             }
             return refreshAndArm(reveal: false, now: now, date: date, calendar: calendar)
         case .sourceChanged:
-            guard isVisible, cadence == .eventOnly else {
+            guard isVisible, cadence == .eventOnly || cadence.isSampled else {
                 return .unchanged
             }
             return Command(refreshes: true)
@@ -255,6 +308,8 @@ nonisolated struct WidgetRefreshPolicy: Equatable {
             }
             let milliseconds = ceiledMilliseconds(seconds, limit: 60_000)
             return fire(afterMilliseconds: milliseconds + boundaryMargin, interval: .seconds(60))
+        case .sampled:
+            return nil
         case .interval(let seconds, _):
             let clamped = min(max(seconds, 1), maximumIntervalSeconds) * (isLowPowerMode ? 2 : 1)
             return fire(afterMilliseconds: clamped * 1_000, interval: .seconds(clamped))
@@ -351,6 +406,11 @@ nonisolated struct WidgetRefreshPolicy: Equatable {
         calendar: Calendar
     ) -> Command {
         awaitsSecondSample = false
+        if case .sampled = cadence {
+            // The monitor feeds the text. A reveal (or a new request) shows the text as unavailable
+            // until its first delivery; any other reason to read changes nothing.
+            return reveal ? Command(timer: .cancel, marksUnavailable: true) : .unchanged
+        }
         if reveal, case .interval(seconds: _, needsBaseline: true) = cadence {
             awaitsSecondSample = true
             let timer = TimerChange.arm(now + Self.secondSampleDelay, tolerance: Self.secondSampleDelay / 10)

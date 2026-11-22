@@ -131,6 +131,7 @@ sources=(
   PinnedSystemItems
   PlaybackClock
   PrivateFeatureGate
+  ReadoutLedger
   ReopenGate
   ReorderDrag
   RevealAnimationPolicy
@@ -280,6 +281,7 @@ tests=(
   PinnedSystemItemsTests
   PlaybackClockTests
   PrivateFeatureGateTests
+  ReadoutLedgerTests
   ReopenGateTests
   ReorderDragTests
   RevealAnimationPolicyTests

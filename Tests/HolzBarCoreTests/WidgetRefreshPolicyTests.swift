@@ -423,6 +423,147 @@ struct WidgetRefreshPolicyTests {
         #expect(reveal.timer == .arm(start + .seconds(6) + .milliseconds(24_050), tolerance: .seconds(6)))
     }
 
+    // MARK: The sampled cadence (D-01, D-12)
+
+    private let sampledRequest = ReadoutRequest(metrics: [.cpu], intervalSeconds: 5, needsBaseline: true)
+
+    @Test("A sampled widget registers when visible and arms no timer")
+    func sampledRegistersWhenVisible() {
+        var policy = WidgetRefreshPolicy(cadence: .sampled(sampledRequest))
+        let reveal = handle(&policy, .shown(true), after: 0, date: 0)
+        #expect(reveal.readout == .register(sampledRequest))
+        #expect(reveal.marksUnavailable)
+        #expect(!reveal.refreshes)
+        #expect(reveal.timer == .cancel)
+        #expect(policy.isVisible)
+
+        let again = handle(&policy, .shown(true), after: 1, date: 1)
+        #expect(again == .unchanged)
+
+        let hide = handle(&policy, .shown(false), after: 2, date: 2)
+        #expect(hide.readout == .unregister)
+        #expect(hide.marksUnavailable)
+        #expect(hide.timer == .cancel)
+
+        let hiddenAgain = handle(&policy, .shown(false), after: 3, date: 3)
+        #expect(hiddenAgain == .unchanged)
+    }
+
+    @Test("A sampled widget unregisters on a pause and registers only after the settle wait")
+    func sampledPausesAndSettles() {
+        var policy = WidgetRefreshPolicy(cadence: .sampled(sampledRequest))
+        _ = handle(&policy, .shown(true), after: 0, date: 0)
+
+        let lock = handle(&policy, .paused(true), after: 10, date: 10)
+        #expect(lock.readout == .unregister)
+        #expect(lock.marksUnavailable)
+
+        // The Mac is in use again: only the settle timer, no register yet.
+        let unlock = handle(&policy, .paused(false), after: 40, date: 40)
+        #expect(unlock.readout == .keep)
+        #expect(unlock.timer == .arm(start + .seconds(40) + SystemActivity.settleDelay, tolerance: .milliseconds(200)))
+        #expect(!policy.isVisible)
+
+        let early = handle(&policy, .timerFired, after: 41, date: 41)
+        #expect(early.readout == .keep)
+        #expect(early.timer == .arm(start + .seconds(40) + SystemActivity.settleDelay, tolerance: .milliseconds(200)))
+
+        let settled = handle(&policy, .timerFired, after: 42, date: 42)
+        #expect(settled.readout == .register(sampledRequest))
+        #expect(settled.marksUnavailable)
+        #expect(settled.timer == .cancel)
+        #expect(policy.isVisible)
+    }
+
+    @Test("A hidden or locked sampled widget never registers")
+    func sampledHiddenNeverRegisters() {
+        var policy = WidgetRefreshPolicy(cadence: .sampled(sampledRequest))
+        _ = handle(&policy, .paused(true), after: 0, date: 0)
+        let shown = handle(&policy, .shown(true), after: 1, date: 1)
+        #expect(shown.readout == .keep)
+
+        var off = WidgetRefreshPolicy(cadence: .sampled(sampledRequest))
+        _ = handle(&off, .moduleEnabled(false), after: 0, date: 0)
+        let offShown = handle(&off, .shown(true), after: 1, date: 1)
+        #expect(offShown.readout == .keep)
+        let on = handle(&off, .moduleEnabled(true), after: 2, date: 2)
+        #expect(on.readout == .register(sampledRequest))
+        let gone = handle(&off, .moduleEnabled(false), after: 3, date: 3)
+        #expect(gone.readout == .unregister)
+    }
+
+    @Test("A changed request registers the new one; the same one changes nothing")
+    func sampledRequestChange() {
+        var policy = visible(.sampled(sampledRequest))
+        let other = ReadoutRequest(metrics: [.network], intervalSeconds: 2, needsBaseline: true)
+        let changed = handle(&policy, .cadenceChanged(.sampled(other)), after: 1, date: 31)
+        #expect(changed.readout == .register(other))
+        #expect(changed.marksUnavailable)
+        #expect(changed.timer == .cancel)
+
+        let same = handle(&policy, .cadenceChanged(.sampled(other)), after: 2, date: 32)
+        #expect(same == .unchanged)
+    }
+
+    @Test("Changing between sampled and polling hands the timer over")
+    func sampledToIntervalAndBack() {
+        var policy = visible(.sampled(sampledRequest))
+        let toInterval = handle(
+            &policy,
+            .cadenceChanged(.interval(seconds: 10, needsBaseline: false)),
+            after: 1,
+            date: 31
+        )
+        #expect(toInterval.readout == .unregister)
+        #expect(toInterval.refreshes)
+        #expect(toInterval.timer == .arm(start + .seconds(11), tolerance: .seconds(1)))
+
+        let back = handle(&policy, .cadenceChanged(.sampled(sampledRequest)), after: 5, date: 35)
+        #expect(back.readout == .register(sampledRequest))
+        #expect(back.timer == .cancel)
+        #expect(back.marksUnavailable)
+        #expect(!back.refreshes)
+
+        // Hidden: the change registers nothing.
+        _ = handle(&policy, .shown(false), after: 6, date: 36)
+        let hidden = handle(&policy, .cadenceChanged(.interval(seconds: 10, needsBaseline: false)), after: 7, date: 37)
+        #expect(hidden == .unchanged)
+    }
+
+    @Test("A sampled widget ignores a timer and the clock, refreshes on a source event, ignores Low Power Mode")
+    func sampledOtherEvents() {
+        var policy = visible(.sampled(sampledRequest))
+        let fired = handle(&policy, .timerFired, after: 5, date: 35)
+        #expect(fired == .unchanged)
+        let clock = handle(&policy, .clockChanged, after: 6, date: 36)
+        #expect(clock == .unchanged)
+        let source = handle(&policy, .sourceChanged, after: 7, date: 37)
+        #expect(source.refreshes)
+        #expect(source.readout == .keep)
+        let low = handle(&policy, .lowPowerMode(true), after: 8, date: 38)
+        #expect(low == .unchanged)
+        let normal = handle(&policy, .lowPowerMode(false), after: 9, date: 39)
+        #expect(normal == .unchanged)
+    }
+
+    @Test("A source event means nothing to a hidden sampled widget")
+    func sampledSourceWhileHidden() {
+        var policy = WidgetRefreshPolicy(cadence: .sampled(sampledRequest))
+        let event = handle(&policy, .sourceChanged, after: 0, date: 0)
+        #expect(event == .unchanged)
+    }
+
+    @Test("A sampled cadence has no timer of its own")
+    func sampledNextFire() {
+        let fire = WidgetRefreshPolicy.nextFire(
+            for: .sampled(sampledRequest),
+            date: date(0),
+            calendar: calendar,
+            isLowPowerMode: false
+        )
+        #expect(fire == nil)
+    }
+
     // MARK: The cadence of a definition
 
     @Test("The cadence follows the source of the definition")
