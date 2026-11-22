@@ -115,6 +115,7 @@ enum DiagnosticsCollector {
             return DiagnosticsReport.hidingSummary27(
                 reveal: reveal,
                 agentRestarts: concealer.agentRestarts,
+                breaker: concealer.restartBreakerWord,
                 lateAllowlist: concealer.lateAllowlistRefreshes,
                 youngRetries: MenuBarItemProvider27.youngRetries,
                 forcedReads: itemManager.forcedItemReads,

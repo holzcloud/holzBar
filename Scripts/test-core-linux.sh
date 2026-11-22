@@ -27,6 +27,7 @@ sources=(
   AccessoryLowBatteryGate
   AccessoryRefreshPolicy
   AccessoryTracker
+  AgentRestartBreaker
   AppearanceMoods
   AppleItemReplacement
   AppVersion
@@ -177,6 +178,7 @@ tests=(
   AccessoryLowBatteryGateTests
   AccessoryRefreshPolicyTests
   AccessoryTrackerTests
+  AgentRestartBreakerTests
   AppearanceMoodsTests
   AppleItemReplacementTests
   AppVersionTests

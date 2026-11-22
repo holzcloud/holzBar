@@ -88,9 +88,9 @@ nonisolated enum DiagnosticsReport {
     /// time, two-digit reads and `ignored: not an app item`).
     static let maximumLastCommandDragLength = 80
 
-    /// The longest text kept for the Hiding line (the longest reveal word and seven counts, each
-    /// capped at five digits, fit with their words).
-    static let maximumHidingLength = 180
+    /// The longest text kept for the Hiding line (the longest reveal word, the breaker word and
+    /// seven counts, each capped at five digits, fit with their words).
+    static let maximumHidingLength = 240
 
     /// The longest text kept for a field.
     static let maximumFieldLength = 40
@@ -149,10 +149,13 @@ nonisolated enum DiagnosticsReport {
     /// visible apps MenuBarAgent cannot name and so hides anyway (found by their install location
     /// or by `HiddenAnyway27`; a count, never a name).
     ///
-    /// - Parameter reveal: One of the fixed words `all hidden`, `hidden revealed`, `all revealed`.
+    /// - Parameters:
+    ///   - reveal: One of the fixed words `all hidden`, `hidden revealed`, `all revealed`.
+    ///   - breaker: One of the fixed words `ok`, `tripped` (``AgentRestartBreaker``).
     static func hidingSummary27(
         reveal: String,
         agentRestarts: Int,
+        breaker: String,
         lateAllowlist: Int,
         youngRetries: Int,
         forcedReads: Int,
@@ -163,6 +166,7 @@ nonisolated enum DiagnosticsReport {
         [
             "reveal \(word(reveal))",
             "agent restarts \(count(agentRestarts))",
+            "breaker \(word(breaker))",
             "late allowlist \(count(lateAllowlist))",
             "young retries \(count(youngRetries))",
             "forced reads \(count(forcedReads))",

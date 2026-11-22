@@ -54,6 +54,18 @@ final class Concealer27 {
     /// concealment again. For diagnostics.
     @ObservationIgnored private(set) var agentRestarts = 0
 
+    /// Stops the re-apply after too many MenuBarAgent restarts in a row (``AgentRestartBreaker``).
+    @ObservationIgnored private var restartBreaker = AgentRestartBreaker()
+
+    /// Ends a trip of ``restartBreaker`` by updating once more; one at a time.
+    @ObservationIgnored private var breakerEndTask: Task<Void, Never>?
+
+    /// The state of ``restartBreaker`` for Copy Diagnostics, one of the fixed words `ok` and
+    /// `tripped`.
+    var restartBreakerWord: String {
+        restartBreaker.isTripped(at: .now) ? "tripped" : "ok"
+    }
+
     /// How many times a read found new applications while concealing and the allowlist was
     /// worked out again for them, though they went to the visible section. For diagnostics.
     @ObservationIgnored private(set) var lateAllowlistRefreshes = 0
@@ -405,15 +417,32 @@ final class Concealer27 {
         applications.first { $0.bundleIdentifier == MenuBarItemProvider27.menuBarAgentBundleID }?.processIdentifier
     }
 
-    /// Applies the concealment again after MenuBarAgent restarted.
+    /// Applies the concealment again after MenuBarAgent restarted, unless it restarts too often.
     ///
     /// The assertions are taken to have died with the old MenuBarAgent, and an apply reuses a
     /// live token whose target is unchanged, so the stale tokens are dropped first (releasing a
     /// dead one fails softly), queued like a suspension's release but without one, and the
     /// update that follows takes fresh assertions. Happens once per restart.
+    ///
+    /// ``restartBreaker`` is asked first: when MenuBarAgent restarts a fourth time within ten
+    /// minutes, holzBar stops hiding for 30 minutes instead of applying again in a loop (a bar
+    /// that shows everything beats one that locks up).
     private func menuBarAgentDidRestart() {
         agentRestarts += 1
-        logger.notice("MenuBarAgent restarted (\(self.agentRestarts, privacy: .public) so far), applying concealment again")
+        let outcome = restartBreaker.record(at: .now)
+        switch outcome {
+        case .reapply:
+            logger.notice("MenuBarAgent restarted (\(self.agentRestarts, privacy: .public) so far), applying concealment again")
+        case .expected:
+            logger.debug("MenuBarAgent restarted because holzBar asked for it, applying concealment again")
+        case .tripped:
+            // Once per trip: restarts that arrive while it stands add nothing.
+            if breakerEndTask == nil {
+                logger.notice("MenuBarAgent restarted \(AgentRestartBreaker.restartLimit + 1, privacy: .public) times within ten minutes; hiding stops for 30 minutes")
+                scheduleBreakerEnd()
+            }
+        }
+        // Dead tokens go in every case: a later apply must not reuse them.
         let previous = applyTask
         applyTask = Task { [weak self, controller] in
             await previous?.value
@@ -421,6 +450,22 @@ final class Concealer27 {
             self?.lastChangeAt = .now
         }
         update()
+    }
+
+    /// Updates once the trip of ``restartBreaker`` has ended, so the hiding comes back by itself.
+    private func scheduleBreakerEnd() {
+        guard let until = restartBreaker.trippedUntil else {
+            return
+        }
+        breakerEndTask?.cancel()
+        breakerEndTask = Task { [weak self] in
+            try? await Task.sleep(until: until, tolerance: .seconds(5), clock: .continuous)
+            guard !Task.isCancelled, let self else {
+                return
+            }
+            breakerEndTask = nil
+            update()
+        }
     }
 
     /// Answers applications that may own items launching or quitting, with exactly one update.
@@ -518,8 +563,9 @@ final class Concealer27 {
         }
         notchCoverBasis = sectionConcealed
         // Applications concealed for the notch join whatever the sections conceal.
-        // A release-all hold empties the target, whatever the sections conceal.
-        let target = releaseHold.target(NotchCover27.adding(
+        // A release-all hold empties the target, whatever the sections conceal; so does a tripped
+        // restart breaker: every item is shown until it ends.
+        let target: [Set<String>] = restartBreaker.isTripped(at: .now) ? [] : releaseHold.target(NotchCover27.adding(
             notchConcealed.subtracting(temporarilyShown.keys),
             to: ConcealmentPlanner27.concealedSets(
                 layout: layout,
