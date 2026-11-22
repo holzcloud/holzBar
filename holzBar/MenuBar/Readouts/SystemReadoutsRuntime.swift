@@ -238,6 +238,11 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
         var metrics = Set<ReadoutMetric>()
         if readouts.isOn(.cpu) {
             metrics.insert(.cpu)
+            // The cluster line needs the load of every core; a chip without clusters has no
+            // such line, so it never reads them.
+            if SystemSamplers.clusterLevels.count >= 2 {
+                metrics.insert(.cpuCores)
+            }
             if readouts.showsThermalLine {
                 metrics.insert(.thermal)
             }
@@ -258,7 +263,7 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
             return nil
         }
         // A load and a rate are the difference of two readings.
-        let needsBaseline = !metrics.isDisjoint(with: [.cpu, .network])
+        let needsBaseline = !metrics.isDisjoint(with: [.cpu, .cpuCores, .network])
         return ReadoutRequest(
             metrics: metrics,
             intervalSeconds: readouts.tileRefreshSeconds,
@@ -319,6 +324,13 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
         if sample.read.contains(.cpu) {
             next.cpuLoad = baseline.cpuLoad(sample.cpuTicks)
             nextHistories.cpu.append(next.cpuLoad, at: now)
+        }
+        if sample.read.contains(.cpuCores) {
+            // The load of each cluster between this reading and the one before it; none while
+            // the levels do not partition the cores, so the tile shows the total only.
+            next.clusters = baseline.coreTicks(sample.cpuCoreTicks).flatMap {
+                CPUClusters.loads(levels: SystemSamplers.clusterLevels, previous: $0.previous, current: $0.current)
+            } ?? []
         }
         if sample.read.contains(.thermal) {
             next.thermal = sample.thermal

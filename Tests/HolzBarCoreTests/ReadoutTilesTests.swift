@@ -112,6 +112,14 @@ struct ReadoutTilesTests {
         input.thermal = .fair
         let hot = try #require(ReadoutTiles.contents(input, stored: nil).first)
         #expect(hot.detail == .thermal(.fair))
+        // One cluster is the total, not a split: no cluster line.
+        input.thermal = .nominal
+        input.clusters = Array(clusters.prefix(1))
+        let single = try #require(ReadoutTiles.contents(input, stored: nil).first)
+        #expect(single.detail == nil)
+        input.clusters = []
+        let none = try #require(ReadoutTiles.contents(input, stored: nil).first)
+        #expect(none.detail == nil)
     }
 
     @Test("A missing load shows the en dash state: no fraction, no level, no detail (R4)")
