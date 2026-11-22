@@ -82,6 +82,10 @@ While holzBar hides items, MenuBarAgent ignores clicks on the clock, the battery
 
 When macOS switches the click handling off after a timeout, holzBar switches it on again only while it still has Accessibility; without it, the handling stays off until Accessibility is granted again. Settings → About → Copy Diagnostics counts these switches in its Hiding line (`tap disables`).
 
+## Live Activities in the menu bar
+
+From macOS 27.3 macOS shows Live Activities (a timer, a recording, music) in the menu bar. holzBar never offers them for hiding: an item that macOS's menu bar process draws and that is not the clock, the battery, Wi-Fi or Control Center, or that names itself a Live Activity, stays on the bar. holzBar does not count it, move it, or show it in the holzBar Shelf or Layout, and does not write it to the saved layout. A hover over it counts as a hover over an item. An app whose items are all Live Activities is never hidden. Settings → Advanced shows this rule as "Apple's Live Activities stay visible". holzBar does not publish Live Activities of its own.
+
 ## Apps that launch while items are hidden
 
 holzBar hides whole applications through an assertion that names, by bundle identifier, the apps that stay visible. Since 1.0.5 an app that launches while items are hidden and is to stay visible (a new app when new items go to Visible or where macOS puts them, or a helper app inside another app, such as a login item) is added to it at once, so its item appears within about a second. An app that is slow to answer Accessibility right after it starts is asked again at every read for its first 30 seconds instead of being skipped for minutes. When an app such as Slack or an Electron app changes its items often, holzBar reads every app for it at most once every 30 seconds. If `MenuBarAgent` restarts, holzBar applies the hiding again with fresh assertions.

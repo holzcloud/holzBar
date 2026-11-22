@@ -48,6 +48,11 @@ struct AdvancedSettingsPane: View {
                             appState.concealer27.togglePause()
                         }
                     }
+                    // A fact, not a choice: Live Activities are never hidden (``LiveActivityItem``).
+                    SettingsRow(.advancedSystemLiveActivities27, small: Text("From macOS 27.3"), badge: .preview) {
+                        Text("Always")
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 if !isMacOS27 {
                     SettingsToggleRow(

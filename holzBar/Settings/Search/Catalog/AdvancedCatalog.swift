@@ -27,6 +27,7 @@ extension SettingsCatalog {
             entries.append(.advancedSecondaryContextMenu)
             if #available(macOS 27.0, *), MenuBarBackendKind.current == .accessibility27 {
                 entries.append(.advancedMenuBarCommands27)
+                entries.append(.advancedSystemLiveActivities27)
             }
             if isBeforeMacOS27 {
                 entries += [
@@ -82,6 +83,14 @@ extension SettingsEntry {
         group: SettingsCatalog.AdvancedPane.menuBar,
         label: String(localized: "Restart the menu bar or pause holzBar"),
         info: String(localized: "Restart Menu Bar quits macOS's menu bar process, which macOS starts again at once, and holzBar hides your items again. Pause holzBar shows every item until you resume it or quit holzBar. Both are also in holzBar's menu and the command palette.")
+    )
+
+    static let advancedSystemLiveActivities27 = SettingsEntry(
+        id: "advancedSystemLiveActivities27",
+        pane: .advanced,
+        group: SettingsCatalog.AdvancedPane.menuBar,
+        label: String(localized: "Apple's Live Activities stay visible"),
+        info: String(localized: "From macOS 27.3, macOS shows Live Activities in the menu bar. holzBar never offers them for hiding and does not count, move or list them; an item it cannot tell apart stays on the bar.")
     )
 
     static let advancedKeepLiveActivities = SettingsEntry(

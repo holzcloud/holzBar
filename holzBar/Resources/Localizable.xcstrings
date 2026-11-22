@@ -163451,6 +163451,482 @@
           }
         }
       }
+    },
+    "Apple's Live Activities stay visible" : {
+      "comment" : "Label of a fact row in the Advanced settings pane (macOS 27): Live Activities are never hidden",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Živé aktivity Applu zůstávají viditelné"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live-Aktivitäten von Apple bleiben sichtbar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las Actividades en directo de Apple siguen visibles"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les Activités en direct d’Apple restent visibles"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az Apple élő tevékenységei láthatók maradnak"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktivitas Langsung Apple tetap terlihat"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le Attività in tempo reale di Apple restano visibili"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple のライブアクティビティは常に表示されます"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple의 실시간 현황은 항상 표시됨"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live-activiteiten van Apple blijven zichtbaar"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktywności na żywo Apple pozostają widoczne"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As Atividades ao Vivo da Apple permanecem visíveis"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las activitads live d’Apple restan visiblas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Живые активности» Apple остаются видимыми"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apples Liveaktiviteter förblir synliga"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple’ın Canlı Etkinlikleri görünür kalır"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Живі активності» Apple залишаються видимими"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple 的“实时活动”始终可见"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple 的「即時動態」會保持顯示"
+          }
+        }
+      }
+    },
+    "From macOS 27.3, macOS shows Live Activities in the menu bar. holzBar never offers them for hiding and does not count, move or list them; an item it cannot tell apart stays on the bar." : {
+      "comment" : "Info text of the Live Activities fact row in the Advanced settings pane (macOS 27)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Od macOS 27.3 zobrazuje macOS živé aktivity v řádku nabídek. holzBar je nikdy nenabízí ke skrytí a nepočítá je, nepřesouvá ani nevypisuje; položka, kterou nedokáže rozpoznat, zůstává v řádku."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ab macOS 27.3 zeigt macOS Live-Aktivitäten in der Menüleiste. holzBar bietet sie nie zum Ausblenden an und zählt, verschiebt oder listet sie nicht; ein Objekt, das es nicht erkennen kann, bleibt in der Leiste."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desde macOS 27.3, macOS muestra Actividades en directo en la barra de menús. holzBar nunca las ofrece para ocultar y no las cuenta, mueve ni enumera; un elemento que no sabe identificar se queda en la barra."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À partir de macOS 27.3, macOS affiche des Activités en direct dans la barre des menus. holzBar ne les propose jamais au masquage et ne les compte, ne les déplace ni ne les répertorie ; un élément qu’il ne sait pas identifier reste dans la barre."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A macOS 27.3-tól a macOS élő tevékenységeket jelenít meg a menüsorban. A holzBar sosem kínálja fel őket elrejtésre, és nem számolja, nem mozgatja és nem listázza őket; az az elem, amelyet nem tud megkülönböztetni, a sávon marad."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mulai macOS 27.3, macOS menampilkan Aktivitas Langsung di bar menu. holzBar tidak pernah menawarkannya untuk disembunyikan dan tidak menghitung, memindahkan, atau mendaftarkannya; item yang tidak dapat dikenali tetap berada di bar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da macOS 27.3, macOS mostra le Attività in tempo reale nella barra dei menu. holzBar non le propone mai per essere nascoste e non le conta, sposta o elenca; un elemento che non riesce a riconoscere resta nella barra."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.3 以降、macOS はメニューバーにライブアクティビティを表示します。holzBar はそれらを非表示の候補にせず、数えたり、移動したり、一覧に載せたりしません。見分けられない項目はバーに残ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.3부터 macOS는 메뉴 막대에 실시간 현황을 표시합니다. holzBar는 이를 숨김 대상으로 제시하지 않으며, 세거나 옮기거나 목록에 넣지 않습니다. 구분할 수 없는 항목은 막대에 그대로 남습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vanaf macOS 27.3 toont macOS live-activiteiten in de menubalk. holzBar biedt ze nooit aan om te verbergen en telt, verplaatst of vermeldt ze niet; een onderdeel dat het niet kan onderscheiden, blijft op de balk staan."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Od macOS 27.3 macOS pokazuje aktywności na żywo na pasku menu. holzBar nigdy nie proponuje ich do ukrycia i nie liczy ich, nie przenosi ani nie wyświetla na listach; element, którego nie potrafi rozpoznać, pozostaje na pasku."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A partir do macOS 27.3, o macOS mostra Atividades ao Vivo na barra de menus. O holzBar nunca as oferece para ocultar e não as conta, move nem lista; um item que ele não consegue distinguir permanece na barra."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A partir da macOS 27.3 mussa macOS activitads live en la trav da menu. holzBar na las porscha mai per zuppar e na las quinta, na las mida e na las enumerescha betg; in element ch’el na po betg distinguer resta sin la trav."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начиная с macOS 27.3 macOS показывает «Живые активности» в строке меню. holzBar никогда не предлагает скрыть их, а также не считает, не перемещает и не перечисляет их; элемент, который он не может отличить, остаётся в строке."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Från och med macOS 27.3 visar macOS Liveaktiviteter i menyraden. holzBar erbjuder aldrig att dölja dem och räknar, flyttar eller listar dem inte; ett objekt som det inte kan särskilja stannar kvar i raden."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.3’ten itibaren macOS, menü çubuğunda Canlı Etkinlikleri gösterir. holzBar bunları asla gizlemek için sunmaz; saymaz, taşımaz ve listelemez. Ayırt edemediği bir öğe çubukta kalır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Починаючи з macOS 27.3, macOS показує «Живі активності» в смузі меню. holzBar ніколи не пропонує приховати їх, а також не рахує, не переміщує й не перелічує їх; елемент, який він не може розрізнити, залишається в смузі."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从 macOS 27.3 起，macOS 会在菜单栏中显示“实时活动”。holzBar 从不提供隐藏它们的选项，也不会统计、移动或列出它们；无法区分的项目会保留在菜单栏中。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "從 macOS 27.3 起，macOS 會在選單列中顯示「即時動態」。holzBar 絕不提供隱藏它們的選項，也不會計數、移動或列出它們；無法區分的項目會保留在選單列中。"
+          }
+        }
+      }
+    },
+    "From macOS 27.3" : {
+      "comment" : "Small text after a row label in the Advanced settings pane (works from this macOS version on)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Od macOS 27.3"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ab macOS 27.3"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desde macOS 27.3"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À partir de macOS 27.3"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A macOS 27.3-tól"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mulai macOS 27.3"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da macOS 27.3"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.3 以降"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.3부터"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vanaf macOS 27.3"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Od macOS 27.3"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A partir do macOS 27.3"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A partir da macOS 27.3"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начиная с macOS 27.3"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Från och med macOS 27.3"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.3’ten itibaren"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Починаючи з macOS 27.3"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从 macOS 27.3 起"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "從 macOS 27.3 起"
+          }
+        }
+      }
+    },
+    "Always" : {
+      "comment" : "Value of the Live Activities fact row in the Advanced settings pane (they always stay visible)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vždy"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Immer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siempre"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toujours"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mindig"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selalu"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sempre"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "常に"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항상"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altijd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zawsze"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sempre"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adina"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всегда"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alltid"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her zaman"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завжди"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "始终"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一律"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
