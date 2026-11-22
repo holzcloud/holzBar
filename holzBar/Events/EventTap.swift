@@ -39,6 +39,15 @@ final class EventTap {
         }
     }
 
+    /// What a tap does after macOS disabled it (a callback that took too long, or user input).
+    enum DisabledAction {
+        /// Enable the tap again. This is what a tap without a handler does.
+        case reenable
+
+        /// Leave the tap off.
+        case stop
+    }
+
     /// Shared logger for event taps.
     private static let logger = Logger(category: "EventTap")
 
@@ -50,7 +59,13 @@ final class EventTap {
         let unretained: EventTap = Unmanaged.fromOpaque(refcon).takeUnretainedValue()
         return withExtendedLifetime(unretained) { tap in
             if type == .tapDisabledByUserInput || type == .tapDisabledByTimeout {
-                tap.enable()
+                tap.disableCount += 1
+                switch tap.disabledHandler?(type) ?? .reenable {
+                case .reenable:
+                    tap.enable()
+                case .stop:
+                    tap.disable()
+                }
                 return nil
             }
             guard tap.isEnabled else {
@@ -65,6 +80,12 @@ final class EventTap {
     /// The tap's mach port and run loop source, which remove themselves when released.
     private var resources: Resources?
     private let callback: (EventTap, CGEvent) -> CGEvent?
+
+    /// Asked what to do when macOS disables the tap; `nil` enables it again.
+    private let disabledHandler: ((CGEventType) -> DisabledAction)?
+
+    /// How many times macOS disabled the tap since it was created.
+    private(set) var disableCount = 0
 
     /// The events the tap receives.
     private let mask: CGEventMask
@@ -118,6 +139,8 @@ final class EventTap {
     ///     at `location`.
     ///   - option: An option that specifies whether the tap is an
     ///     active filter or a passive listener.
+    ///   - disabledHandler: A closure the tap calls when macOS disables it, which says
+    ///     whether to enable it again. Without one the tap is enabled again.
     ///   - callback: A closure the tap calls to handle received events.
     init(
         label: String = #function,
@@ -125,10 +148,12 @@ final class EventTap {
         location: Location,
         placement: CGEventTapPlacement,
         option: CGEventTapOptions,
+        disabledHandler: ((CGEventType) -> DisabledAction)? = nil,
         callback: @escaping (_ tap: EventTap, _ event: CGEvent) -> CGEvent?
     ) {
         self.label = label
         self.callback = callback
+        self.disabledHandler = disabledHandler
         self.mask = types.reduce(0) { $0 | (1 << $1.rawValue) }
         self.location = location
         self.placement = placement
@@ -159,6 +184,8 @@ final class EventTap {
     ///     at `location`.
     ///   - option: An option that specifies whether the tap is an
     ///     active filter or a passive listener.
+    ///   - disabledHandler: A closure the tap calls when macOS disables it, which says
+    ///     whether to enable it again. Without one the tap is enabled again.
     ///   - callback: A closure the tap calls to handle received events.
     convenience init(
         label: String = #function,
@@ -166,6 +193,7 @@ final class EventTap {
         location: Location,
         placement: CGEventTapPlacement,
         option: CGEventTapOptions,
+        disabledHandler: ((CGEventType) -> DisabledAction)? = nil,
         callback: @escaping (_ tap: EventTap, _ event: CGEvent) -> CGEvent?
     ) {
         self.init(
@@ -174,6 +202,7 @@ final class EventTap {
             location: location,
             placement: placement,
             option: option,
+            disabledHandler: disabledHandler,
             callback: callback
         )
     }

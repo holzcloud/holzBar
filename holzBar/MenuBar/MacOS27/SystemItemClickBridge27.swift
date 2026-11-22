@@ -49,13 +49,21 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         types: [.leftMouseDown, .leftMouseUp, .rightMouseDown, .otherMouseDown],
         location: .hidEventTap,
         placement: .headInsertEventTap,
-        option: .defaultTap
-    ) { [weak self] _, event in
-        guard let self else {
-            return event
+        option: .defaultTap,
+        disabledHandler: { [weak self] _ in
+            self?.tapWasDisabled() ?? .reenable
+        },
+        callback: { [weak self] _, event in
+            guard let self else {
+                return event
+            }
+            return handle(event)
         }
-        return handle(event)
-    }
+    )
+
+    /// How many times macOS disabled the bridge's tap since holzBar started (a callback that
+    /// took too long, or user input). Read by Copy Diagnostics.
+    private(set) static var tapDisables = 0
 
     /// Creates a bridge for the given app state.
     init(appState: AppState) {
@@ -72,6 +80,29 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         _ = pairing.flush()
         // The stopped tap no longer sees the clicks that close the panel.
         panelMemory.forget()
+    }
+
+    /// Answers macOS disabling the tap: no held press waits for a release any more, and the
+    /// tap is enabled again only while holzBar still has Accessibility.
+    ///
+    /// The flushed presses are replayed by their running bridge task or were never bridged, so
+    /// their late releases must pass. Without Accessibility an enabled tap would keep failing
+    /// and could hold input back, so it stays off; the health check of `HIDEventManager`
+    /// starts the bridge again when the permission comes back.
+    private func tapWasDisabled() -> EventTap.DisabledAction {
+        Self.tapDisables += 1
+        let flushed = pairing.flush()
+        if !flushed.isEmpty {
+            Self.bridgeLogger.notice(
+                "Click bridge: the tap was disabled, \(flushed.count, privacy: .public) held press(es) let go"
+            )
+        }
+        panelMemory.forget()
+        guard AXIsProcessTrusted() else {
+            Self.bridgeLogger.notice("Click bridge: the tap was disabled and Accessibility is gone, leaving it off")
+            return .stop
+        }
+        return .reenable
     }
 
     /// Marks the clicks holzBar replays, so the tap lets them through.

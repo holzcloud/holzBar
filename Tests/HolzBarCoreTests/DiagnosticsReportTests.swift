@@ -192,21 +192,36 @@ struct DiagnosticsReportTests {
     func hidingSummary27() {
         let summary = DiagnosticsReport.hidingSummary27(
             reveal: "all hidden", agentRestarts: 0, breaker: "ok", lateAllowlist: 2, youngRetries: 1,
-            forcedReads: 14, heldBack: 11, notchRechecks: 3, hiddenAnyway: 1
+            forcedReads: 14, heldBack: 11, notchRechecks: 3, hiddenAnyway: 1, tapDisables: 3
         )
-        #expect(summary == "reveal all hidden, agent restarts 0, breaker ok, late allowlist 2, young retries 1, forced reads 14, held back 11, notch rechecks 3, hidden anyway 1")
+        #expect(summary == "reveal all hidden, agent restarts 0, breaker ok, late allowlist 2, young retries 1, forced reads 14, held back 11, notch rechecks 3, hidden anyway 1, tap disables 3")
         let longest = DiagnosticsReport.hidingSummary27(
             reveal: "hidden revealed", agentRestarts: Int.max, breaker: "tripped", lateAllowlist: Int.max, youngRetries: Int.max,
-            forcedReads: Int.max, heldBack: Int.max, notchRechecks: Int.max, hiddenAnyway: Int.max
+            forcedReads: Int.max, heldBack: Int.max, notchRechecks: Int.max, hiddenAnyway: Int.max, tapDisables: Int.max
         )
         let capped = DiagnosticsReport.hidingSummary27(
             reveal: "hidden revealed", agentRestarts: 99_999, breaker: "tripped", lateAllowlist: 99_999, youngRetries: 99_999,
-            forcedReads: 99_999, heldBack: 99_999, notchRechecks: 99_999, hiddenAnyway: 99_999
+            forcedReads: 99_999, heldBack: 99_999, notchRechecks: 99_999, hiddenAnyway: 99_999, tapDisables: 99_999
         )
         // Every count stops at five digits, so the line is never cut.
         #expect(longest == capped)
         #expect(capped.count <= DiagnosticsReport.maximumHidingLength)
         #expect(capped.contains("breaker tripped"))
+        #expect(capped.hasSuffix(", tap disables 99999"))
+    }
+
+    @Test("Tap disables are counted, never negative")
+    func hidingSummaryTapDisables() {
+        func summary(_ tapDisables: Int) -> String {
+            DiagnosticsReport.hidingSummary27(
+                reveal: "all hidden", agentRestarts: 0, breaker: "ok", lateAllowlist: 0, youngRetries: 0,
+                forcedReads: 0, heldBack: 0, notchRechecks: 0, hiddenAnyway: 0, tapDisables: tapDisables
+            )
+        }
+        #expect(summary(0).hasSuffix(", hidden anyway 0, tap disables 0"))
+        #expect(summary(3).hasSuffix(", tap disables 3"))
+        #expect(summary(-2).hasSuffix(", tap disables 0"))
+        #expect(summary(Int.max).hasSuffix(", tap disables 99999"))
     }
 
     @Test("Visible apps MenuBarAgent hides anyway are counted, never named")
@@ -214,16 +229,16 @@ struct DiagnosticsReportTests {
         func summary(_ hiddenAnyway: Int) -> String {
             DiagnosticsReport.hidingSummary27(
                 reveal: "all hidden", agentRestarts: 0, breaker: "ok", lateAllowlist: 0, youngRetries: 0,
-                forcedReads: 0, heldBack: 0, notchRechecks: 0, hiddenAnyway: hiddenAnyway
+                forcedReads: 0, heldBack: 0, notchRechecks: 0, hiddenAnyway: hiddenAnyway, tapDisables: 0
             )
         }
-        #expect(summary(0).hasSuffix(", notch rechecks 0, hidden anyway 0"))
-        #expect(summary(2).hasSuffix(", hidden anyway 2"))
-        #expect(summary(-1).hasSuffix(", hidden anyway 0"))
+        #expect(summary(0).hasSuffix(", notch rechecks 0, hidden anyway 0, tap disables 0"))
+        #expect(summary(2).contains(", hidden anyway 2,"))
+        #expect(summary(-1).contains(", hidden anyway 0,"))
         var input = sample
         input.hiding = summary(1)
         let line = DiagnosticsReport.make(input).split(separator: "\n").last.map(String.init) ?? ""
-        #expect(line == "Hiding: reveal all hidden, agent restarts 0, breaker ok, late allowlist 0, young retries 0, forced reads 0, held back 0, notch rechecks 0, hidden anyway 1")
+        #expect(line == "Hiding: reveal all hidden, agent restarts 0, breaker ok, late allowlist 0, young retries 0, forced reads 0, held back 0, notch rechecks 0, hidden anyway 1, tap disables 0")
     }
 
     @Test("The hiding summary before macOS 27")
@@ -238,7 +253,7 @@ struct DiagnosticsReportTests {
         let summaries = [
             DiagnosticsReport.hidingSummary27(
                 reveal: "All\nHidden/../\u{7}", agentRestarts: -1, breaker: "Tripped!\n", lateAllowlist: 2, youngRetries: 3,
-                forcedReads: 4, heldBack: 5, notchRechecks: 6, hiddenAnyway: -7
+                forcedReads: 4, heldBack: 5, notchRechecks: 6, hiddenAnyway: -7, tapDisables: -8
             ),
             DiagnosticsReport.hidingSummaryBefore27(anchor: "Icon\r\n\t:x", iconPutBack: -3),
         ]

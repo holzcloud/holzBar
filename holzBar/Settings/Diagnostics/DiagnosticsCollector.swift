@@ -121,7 +121,8 @@ enum DiagnosticsCollector {
                 forcedReads: itemManager.forcedItemReads,
                 heldBack: itemManager.heldBackItemReads,
                 notchRechecks: concealer.notchRechecks,
-                hiddenAnyway: concealer.unnameableVisible.count
+                hiddenAnyway: concealer.unnameableVisible.count,
+                tapDisables: SystemItemClickBridge27.tapDisables
             )
         }
         return DiagnosticsReport.hidingSummaryBefore27(

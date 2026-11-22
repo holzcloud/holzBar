@@ -50,7 +50,7 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// switch is off, so the report stays as it was. Never a name.
     var lastCommandDrag = ""
     /// What the hiding fixes of 1.0.5 did, in fixed words and counts
-    /// (``DiagnosticsReport/hidingSummary27(reveal:agentRestarts:lateAllowlist:youngRetries:forcedReads:heldBack:notchRechecks:hiddenAnyway:)``
+    /// (``DiagnosticsReport/hidingSummary27(reveal:agentRestarts:lateAllowlist:youngRetries:forcedReads:heldBack:notchRechecks:hiddenAnyway:tapDisables:)``
     /// or ``DiagnosticsReport/hidingSummaryBefore27(anchor:iconPutBack:)``), such as `anchor
     /// icon, icon put back 0`. Empty keeps the report as it was. Never a name.
     var hiding = ""
@@ -147,7 +147,8 @@ nonisolated enum DiagnosticsReport {
     /// fixes of 1.0.5 acted (MenuBarAgent restarts, allowlist refreshes for apps read late, young
     /// apps asked again, reads forced and held back by busy apps, notch rechecks) and how many
     /// visible apps MenuBarAgent cannot name and so hides anyway (found by their install location
-    /// or by `HiddenAnyway27`; a count, never a name).
+    /// or by `HiddenAnyway27`; a count, never a name) and how often macOS disabled the click
+    /// bridge's event tap.
     ///
     /// - Parameters:
     ///   - reveal: One of the fixed words `all hidden`, `hidden revealed`, `all revealed`.
@@ -161,7 +162,8 @@ nonisolated enum DiagnosticsReport {
         forcedReads: Int,
         heldBack: Int,
         notchRechecks: Int,
-        hiddenAnyway: Int
+        hiddenAnyway: Int,
+        tapDisables: Int
     ) -> String {
         [
             "reveal \(word(reveal))",
@@ -173,6 +175,7 @@ nonisolated enum DiagnosticsReport {
             "held back \(count(heldBack))",
             "notch rechecks \(count(notchRechecks))",
             "hidden anyway \(count(hiddenAnyway))",
+            "tap disables \(count(tapDisables))",
         ].joined(separator: ", ")
     }
 

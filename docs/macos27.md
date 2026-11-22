@@ -76,6 +76,12 @@ An optional module in Settings → Modules, on macOS 27, off until you switch it
 
 holzBar stores only which system items you hid and your replacements' symbols and item keys, on this Mac, and has no network access. Settings → About → Copy Diagnostics says whether the module is on and how many items it hides and replaces, without any name.
 
+## Clicks on the clock and other system items
+
+While holzBar hides items, MenuBarAgent ignores clicks on the clock, the battery and Wi-Fi (measured on macOS 27.0). holzBar holds such a click back, lifts the hiding for a moment and replays the click, so the item opens as usual. It pairs every click it holds back with its own release by the event number macOS gives a press and its release, so no click is left without its release and the release of any other click is never taken. A held click that never sees its release is let go after 10 seconds, and when holzBar stops the click handling, every held click is let go at once.
+
+When macOS switches the click handling off after a timeout, holzBar switches it on again only while it still has Accessibility; without it, the handling stays off until Accessibility is granted again. Settings → About → Copy Diagnostics counts these switches in its Hiding line (`tap disables`).
+
 ## Apps that launch while items are hidden
 
 holzBar hides whole applications through an assertion that names, by bundle identifier, the apps that stay visible. Since 1.0.5 an app that launches while items are hidden and is to stay visible (a new app when new items go to Visible or where macOS puts them, or a helper app inside another app, such as a login item) is added to it at once, so its item appears within about a second. An app that is slow to answer Accessibility right after it starts is asked again at every read for its first 30 seconds instead of being skipped for minutes. When an app such as Slack or an Electron app changes its items often, holzBar reads every app for it at most once every 30 seconds. If `MenuBarAgent` restarts, holzBar applies the hiding again with fresh assertions.
