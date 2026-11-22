@@ -54,7 +54,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Next events and a Join button for meetings in that hub (optional module; Calendar access asked only when you switch it on) | ❌ | — | — | ✅ |
 | Now Playing in that hub (optional module; Music and Spotify without a permission, other apps with the opt-in Read all apps) | ❌ | — | — | ✅ |
 | The notch widens for downloads and for a camera or microphone in use (optional module in that hub) | ❌ | — | — | ✅ |
-| Connection and low-battery alerts for AirPods and other accessories, shown by widening the notch (optional module in that hub; Bluetooth asked only when you switch it on; battery levels use a macOS call that Apple does not document) | ❌ | — | — | ✅ |
+| Connection and low-battery alerts for AirPods and other accessories, shown by widening the notch (optional module in that hub; Bluetooth asked only when you switch it on; battery levels use a macOS call that Apple does not document) | ❌ | — | — | ✅ <sub>🔜 1.2.0: also a list of the paired devices with their battery levels, and the lowest one as a menu bar widget</sub> |
 | A file stash at the notch: drag files in, drag them out later as copies (optional module in that hub, no permission) | ❌ | — | — | ✅ |
 | Volume and brightness sliders at the notch, and brightness, contrast, volume and mute of external monitors over DDC (optional module in that hub, no permission; brightness and external monitors use macOS calls that Apple does not document) | ❌ | — | — | ✅ |
 | The banners of your apps listed at the notch (optional module in that hub; read through Accessibility, kept in memory only, no Notifications permission; only what macOS shows on screen, and it follows a structure macOS may change) | ❌ | — | — | ✅ |
@@ -100,7 +100,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Network connections (update checks, telemetry, analytics) | Sparkle update checks | Sparkle update checks | — | **none** — enforced by CI |
 | Personal data (app names, item titles, paths) in logs | partly public | — | — | private, enforced by CI |
 | Asks for Screen Recording only when a feature needs it | ❌ | — | ✅ <sub>not required</sub> | ✅ |
-| Asks for Location Services only when you add a Wi-Fi-name condition, and for Bluetooth only when you add a Bluetooth condition or switch on Accessory alerts | — | — | — | ✅ |
+| Asks for Location Services only when you add a Wi-Fi-name condition, and for Bluetooth only when you add a Bluetooth condition or switch on Accessory alerts, and (🔜 1.2.0) for Notifications only when you switch on system notifications of the threshold alerts | — | — | — | ✅ |
 | Scripts run only from a folder you chose and only after you allowed their exact content; never from a URL command or an import | — | — | — | ✅ |
 | Hardened runtime (no injected code or libraries) | ✅ | ✅ | — | ✅ (checked by CI) |
 | Only one entitlement (Calendar), no `get-task-allow` | — | — | — | ✅ (checked by CI and the release; no entitlement at all from 0.0.7-beta2 to 0.0.13) |
@@ -180,8 +180,9 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Calendar and meeting link in the hub (reads your calendars on this Mac only) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Now Playing in the hub (Music and Spotify; any app with the opt-in Read all apps) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | media controls item | ❓ | menu bar item, not a hub | ❓ | ❓ | ❓ |
 | Live activities in the hub (the notch widens while something is going on; holzBar's are running timers, downloads, a camera or microphone in use and accessory alerts) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ❓ | camera/mic indicator item | ❓ | ❓ | ❓ | ❓ | ❓ |
-| Accessory alerts (connect, disconnect and low battery of AirPods and other accessories; holzBar's battery levels use a call that Apple does not document) | ✅ | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
+| Accessory alerts (connect, disconnect and low battery of AirPods and other accessories; holzBar's battery levels use a call that Apple does not document) | ✅ alerts, 🔜 1.2.0 a list of the devices with their battery levels and the lowest one as a widget | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | System readouts in the menu bar and in the hub (CPU total and per core cluster, GPU, memory with pressure and swap, network speed, disk activity and free space, battery with time left and adapter watts, thermal state) | 🔜 1.2.0: menu bar widgets and Notch hub tiles with two-minute curves, opt-in GPU load (a private interface, off by default), no permission; CPU, memory and disk as text widgets ✅ <sup>14</sup> | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
+| Threshold alerts in the notch (CPU, memory pressure, thermal state, free disk space, Mac battery; each with a limit and a time, no repeats within 30 minutes), optional system notifications | 🔜 1.2.0: alerts widen the notch with no permission; system notifications are an opt-in switch that asks for Notifications only then | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Launcher, command bar | ✅ palette, 🔜 1.3.0 launcher | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | search panel | ❓ | ❓ | ❓ | ❓ | ✅ one hotkey opens the bar |
 | Clipboard history | ❌ not planned | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ✅ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Window management, app switcher | 🔜 later | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
