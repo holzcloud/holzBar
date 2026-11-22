@@ -88,7 +88,7 @@ When macOS switches the click handling off after a timeout, holzBar switches it 
 
 ## Live Activities in the menu bar
 
-From macOS 27.3 macOS shows Live Activities (a timer, a recording, music) in the menu bar. holzBar never offers them for hiding: an item that macOS's menu bar process draws and that is not the clock, the battery, Wi-Fi or Control Center, or that names itself a Live Activity, stays on the bar. holzBar does not count it, move it, or show it in the holzBar Shelf or Layout, and does not write it to the saved layout. A hover over it counts as a hover over an item. An app whose items are all Live Activities is never hidden. Settings → Advanced shows this rule as "Apple's Live Activities stay visible". holzBar does not publish Live Activities of its own.
+From macOS 27.3 macOS shows Live Activities (a timer, a recording, music) in the menu bar. holzBar never offers them for hiding: an item that macOS's menu bar process draws and that is not the clock, the battery, Wi-Fi or Control Center, or that names itself a Live Activity, stays on the bar. holzBar does not count it, move it, or show it in the holzBar Shelf or Layout, and does not write it to the saved layout. A hover over it counts as a hover over an item. An app whose items are all Live Activities is never hidden. holzBar learns that from reading the app's items, and macOS reports none for an app it hides, so a Live Activity of an app you put in a hidden section stays hidden until holzBar has read the app while it is shown. Settings → Advanced shows this rule as "Apple's Live Activities stay visible". holzBar does not publish Live Activities of its own.
 
 ## Sleep, displays and Spaces
 

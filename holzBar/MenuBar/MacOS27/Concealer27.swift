@@ -667,7 +667,9 @@ final class Concealer27 {
             )
         ).compactMap { concealed in
             // A set that conceals nothing needs no assertion, as in ``ConcealmentPlanner27``.
-            let remaining = concealed.subtracting(liveActivityOwners)
+            // The hosts probe P4 measured stay out whatever the read says: a concealed process
+            // reports no items, so ``liveActivityOwners`` never learns of its Live Activity.
+            let remaining = concealed.subtracting(liveActivityOwners).subtracting(LiveActivityItem.measuredHosts)
             return remaining.isEmpty ? nil : remaining
         }
         let target: [Set<String>] = pause.target(restartBreaker.isTripped(at: .now) ? [] : releaseHold.target(planned))
