@@ -1033,6 +1033,27 @@ final class ControlItem {
             menu.addItem(profilesItem)
         }
 
+        // macOS 27: the commands for a stalled MenuBarAgent. Never offered to holzbar:// URL
+        // commands, Shortcuts or automation rules; only here, in the palette and in Settings.
+        if #available(macOS 27.0, *), MenuBarBackendKind.current == .accessibility27 {
+            var commandItems = [NSMenuItem]()
+            // The restart needs MenuBarAgent visible to NSRunningApplication; checked each time
+            // the menu is built.
+            if MenuBarAgentRestart27.isAvailable {
+                let restartItem = NSMenuItem(
+                    title: String(localized: "Restart Menu Bar"),
+                    action: #selector(restartMenuBar),
+                    keyEquivalent: ""
+                )
+                restartItem.target = self
+                commandItems.append(restartItem)
+            }
+            if !commandItems.isEmpty {
+                menu.addItem(.separator())
+                commandItems.forEach(menu.addItem)
+            }
+        }
+
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
@@ -1086,6 +1107,14 @@ final class ControlItem {
     /// Opens the menu bar search panel.
     @objc private func showSearchPanel() {
         appState?.menuBarManager.searchPanel.show()
+    }
+
+    /// Restarts MenuBarAgent on macOS 27 (user-initiated, see ``MenuBarAgentRestart27``).
+    @objc private func restartMenuBar() {
+        guard #available(macOS 27.0, *), let appState else {
+            return
+        }
+        MenuBarAgentRestart27.restart(appState: appState)
     }
 }
 

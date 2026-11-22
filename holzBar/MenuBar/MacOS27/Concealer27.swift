@@ -66,6 +66,19 @@ final class Concealer27 {
         restartBreaker.isTripped(at: .now) ? "tripped" : "ok"
     }
 
+    /// Prepares holzBar's own "Restart Menu Bar": the breaker expects the restart (it is not
+    /// counted) and a tripped breaker ends, as the user wants hiding back.
+    ///
+    /// - Returns: `false` when the last restart was asked for less than five seconds ago.
+    func prepareForManualRestart() -> Bool {
+        guard restartBreaker.expectRestart(at: .now) else {
+            return false
+        }
+        restartBreaker.reset()
+        logger.notice("Restarting MenuBarAgent at the user's request")
+        return true
+    }
+
     /// How many times a read found new applications while concealing and the allowlist was
     /// worked out again for them, though they went to the visible section. For diagnostics.
     @ObservationIgnored private(set) var lateAllowlistRefreshes = 0
