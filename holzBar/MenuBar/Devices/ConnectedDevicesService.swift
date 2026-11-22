@@ -8,7 +8,9 @@ import Foundation
 import Observation
 
 /// The one reader of the connected devices and their levels, for the Devices list in Settings,
-/// the hub's Accessories tab and, later, the Lowest Device Battery widget.
+/// the hub's Accessories tab and the low-battery alerts of Accessory alerts. The Lowest Device
+/// Battery widget is served by ``SystemMonitor``, the only other caller of the battery read, behind
+/// the same switch.
 ///
 /// Surfaces register as consumers while they show something (``begin(_:wantsDevices:)`` and
 /// ``end(_:)``). With no consumer nothing exists here: no read, no task, no wait and no use of
