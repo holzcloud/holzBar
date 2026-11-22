@@ -581,12 +581,26 @@ final class Concealer27 {
         applyChanges()
     }
 
+    /// Takes the assertions anew once the bar has settled after the Mac woke, the screen
+    /// unlocked, the session came back or a display changed.
+    ///
+    /// The renewal activates the new assertions before it releases the old ones, so no hidden
+    /// item shows in between. The release hold, the breaker, the pause and the Live Activity
+    /// owners apply as for every change; while the target is empty the renewal releases
+    /// everything, which is what that state wants.
+    func renewAfterSettle() {
+        logger.debug("Renewing the concealment after a settle")
+        applyChanges(renewing: true)
+    }
+
     /// Derives what to conceal from holzBar's sections and queues the apply.
     ///
+    /// - Parameter renewing: Whether to take every assertion anew instead of keeping the live
+    ///   ones whose target is unchanged.
     /// - Returns: Whether the change is on its way: queued now, or at the end of the suspension
     ///   under way. `false` while concealment is paused or unavailable.
     @discardableResult
-    private func applyChanges() -> Bool {
+    private func applyChanges(renewing: Bool = false) -> Bool {
         guard let appState, MenuBarAssessmentAssertion27.isAvailable else {
             return false
         }
@@ -655,7 +669,11 @@ final class Concealer27 {
         let task = Task { [weak self, controller, logger] in
             await previous?.value
             do {
-                try await controller.apply(target: target, running: running)
+                if renewing {
+                    try await controller.renew(target: target, running: running)
+                } else {
+                    try await controller.apply(target: target, running: running)
+                }
                 self?.failedApplies = 0
                 self?.applyFinished(sequence, succeeded: true)
             } catch {

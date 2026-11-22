@@ -63,7 +63,7 @@ nonisolated struct MenuBarAgentWatch27 {
 /// concealed both before and after a transition stays concealed throughout. A hidden system
 /// item is an entry of the concealed set like an application (``SystemItems27``).
 ///
-/// Callers must not overlap calls to `apply(target:running:)`.
+/// Callers must not overlap calls to `apply(target:running:)` and `renew(target:running:)`.
 @MainActor
 final class ConcealmentController27 {
     nonisolated private struct Spec: Equatable {
@@ -101,13 +101,31 @@ final class ConcealmentController27 {
     /// If an activation fails, the assertions activated during this call are
     /// released, the previous ones stay live, and the error is rethrown.
     func apply(target: [Set<String>], running: Set<String>) async throws {
-        // Timed: every apply has MenuBarAgent lay the bar out again, and that animation is
+        try await transition(target: target, running: running, reusingLive: true, name: "apply")
+    }
+
+    /// Takes every assertion of the target anew, even those a live one already matches.
+    ///
+    /// `apply` keeps a live token whose target is unchanged, so after a wake or a display
+    /// change it asserts nothing again. An assertion that macOS dropped without restarting
+    /// MenuBarAgent is not visible to holzBar (research assumption A8), and the hidden items
+    /// would stay shown until something else changed. A renewal is right whether or not that
+    /// happens. Every new assertion is activated before any old one is released; because
+    /// assertions combine as a union of allowlists, every concealed app stays concealed
+    /// throughout. If an activation fails, the old assertions stay live and the error is
+    /// rethrown.
+    func renew(target: [Set<String>], running: Set<String>) async throws {
+        try await transition(target: target, running: running, reusingLive: false, name: "renew")
+    }
+
+    private func transition(target: [Set<String>], running: Set<String>, reusingLive: Bool, name: String) async throws {
+        // Timed: every change has MenuBarAgent lay the bar out again, and that animation is
         // what a stutter of the bar would be made of.
         let started = ProcessInfo.processInfo.systemUptime
-        logger.debug("Concealment apply: started, \(target.count, privacy: .public) sets")
+        logger.debug("Concealment \(name, privacy: .public): started, \(target.count, privacy: .public) sets")
         defer {
             let milliseconds = (ProcessInfo.processInfo.systemUptime - started) * 1000
-            logger.debug("Concealment apply: took \(milliseconds, privacy: .public) ms")
+            logger.debug("Concealment \(name, privacy: .public): took \(milliseconds, privacy: .public) ms")
         }
         let desired = target.map { concealed in
             Spec(
@@ -121,7 +139,7 @@ final class ConcealmentController27 {
         var activated = [ConcealmentToken27]()
         do {
             for spec in desired {
-                if let index = remaining.firstIndex(where: { $0.spec == spec }) {
+                if reusingLive, let index = remaining.firstIndex(where: { $0.spec == spec }) {
                     next.append(remaining.remove(at: index))
                 } else {
                     let token = try await backend.activate(allowedBundleIDs: spec.allowlist, allowedSystemItems: spec.systemItems)

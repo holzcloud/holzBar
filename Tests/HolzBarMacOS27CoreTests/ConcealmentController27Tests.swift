@@ -212,6 +212,61 @@ struct ConcealmentController27Tests {
         #expect(backend.activationCount == 2)
         #expect(backend.concealed == ["hidden.app", "always.app"])
     }
+
+    // MARK: Renewal
+
+    @Test("A renewal replaces the live assertion and never shows a hidden item in between")
+    func renewMakeBeforeBreak() async throws {
+        let backend = FakeConcealmentBackend(universe: running)
+        let controller = ConcealmentController27(backend: backend)
+        try await controller.apply(target: allHidden, running: running)
+        let historyBefore = backend.history.count
+        try await controller.renew(target: allHidden, running: running)
+        #expect(backend.activationCount == 2)
+        #expect(backend.liveTokens.count == 1)
+        #expect(backend.concealed == ["hidden.app", "always.app"])
+        let during = backend.history.dropFirst(historyBefore)
+        #expect(!during.isEmpty)
+        #expect(during.allSatisfy { $0.isSuperset(of: ["hidden.app", "always.app"]) })
+    }
+
+    @Test("A renewal with an unchanged target still activates, unlike apply")
+    func renewReplacesEqualTarget() async throws {
+        let backend = FakeConcealmentBackend(universe: running)
+        let controller = ConcealmentController27(backend: backend)
+        try await controller.apply(target: allHidden, running: running)
+        let first = backend.liveTokens.first
+        try await controller.renew(target: allHidden, running: running)
+        #expect(backend.liveTokens.count == 1)
+        #expect(backend.liveTokens.first !== first)
+        #expect(controller.isActive)
+    }
+
+    @Test("A rejected activation during a renewal keeps the old assertion")
+    func renewRejected() async throws {
+        let backend = FakeConcealmentBackend(universe: running)
+        let controller = ConcealmentController27(backend: backend)
+        try await controller.apply(target: allHidden, running: running)
+        let first = backend.liveTokens.first
+        backend.rejectNextActivation = true
+        await #expect(throws: FakeConcealmentBackend.Rejected.self) {
+            try await controller.renew(target: allHidden, running: running)
+        }
+        #expect(backend.liveTokens.count == 1)
+        #expect(backend.liveTokens.first === first)
+        #expect(backend.concealed == ["hidden.app", "always.app"])
+        #expect(controller.liveConcealed == ["hidden.app", "always.app"])
+    }
+
+    @Test("Renewing an empty target releases every assertion")
+    func renewEmptyReleases() async throws {
+        let backend = FakeConcealmentBackend(universe: running)
+        let controller = ConcealmentController27(backend: backend)
+        try await controller.apply(target: allHidden, running: running)
+        try await controller.renew(target: [], running: running)
+        #expect(backend.concealed.isEmpty)
+        #expect(!controller.isActive)
+    }
 }
 
 @Suite("MenuBarAgentWatch27")

@@ -329,11 +329,12 @@ final class AppState {
     /// Brings holzBar up to date once the bar has settled after the screen was locked, the
     /// Mac slept, the session was away or the displays changed: the input monitors are
     /// checked, the items read again, the images refreshed where a view shows them, the
-    /// concealment of macOS 27 applied and the menu bar appearance restored.
+    /// concealment of macOS 27 renewed (new assertions first, then the old ones go) and the
+    /// menu bar appearance restored.
     private func systemActivityDidSettle() {
         hidEventManager.healthCheck()
         if #available(macOS 27.0, *) {
-            concealer27.update()
+            concealer27.renewAfterSettle()
         }
         appearanceManager.systemActivityDidSettle()
         Task {
