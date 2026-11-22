@@ -50,8 +50,10 @@ nonisolated enum WidgetCadence: Equatable, Sendable {
         case .thermalState:
             self = .sampled(ReadoutRequest(metrics: [.thermal], intervalSeconds: 0, needsBaseline: false))
         case .cpu:
+            // The per core cluster format reads the load of every core; the total is the sum of
+            // those, so one read serves both (D-10).
             self = .sampled(ReadoutRequest(
-                metrics: [.cpu],
+                metrics: definition.preset == .perCluster ? [.cpuCores] : [.cpu],
                 intervalSeconds: Self.tunedSeconds(definition, for: .cpu),
                 needsBaseline: true
             ))

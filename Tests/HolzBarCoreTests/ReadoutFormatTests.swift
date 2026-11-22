@@ -101,8 +101,10 @@ struct ReadoutFormatTests {
         #expect(texts.fill(texts.readFormat, with: "1.2 MB/s") == "R 1.2 MB/s")
         #expect(texts.fill(texts.writeFormat, with: "85.0 kB/s") == "W 85.0 kB/s")
         #expect(texts.fill(texts.wattsFormat, with: "96") == "96 W")
-        #expect(texts.performanceLetter == "P")
-        #expect(texts.efficiencyLetter == "E")
+        #expect(texts.clusterText(.performance, value: "42%") == "P 42%")
+        #expect(texts.clusterText(.efficiency, value: "12%") == "E 12%")
+        #expect(texts.clusterText(.other("S"), value: "7%") == "S 7%")
+        #expect(texts.clusterLabels.isEmpty)
     }
 
     @Test("The stored unit raw values never change")

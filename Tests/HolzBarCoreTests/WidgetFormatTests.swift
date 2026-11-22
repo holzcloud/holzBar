@@ -448,7 +448,7 @@ struct WidgetFormatTests {
             byteSymbols: ["kB", "MB", "GB"], bitSymbols: ["kb", "Mb", "Gb"], perSecondFormat: "%@/s",
             pressureNormal: "Normal", pressureHigh: "Hoch", pressureCritical: "Kritisch",
             thermalNominal: "", thermalFair: "", thermalSerious: "", thermalCritical: "",
-            performanceLetter: "P", efficiencyLetter: "E", readFormat: "R %@", writeFormat: "W %@", wattsFormat: "%@ W"
+            performanceFormat: "P %@", efficiencyFormat: "E %@", readFormat: "R %@", writeFormat: "W %@", wattsFormat: "%@ W"
         )
         let localized = WidgetFormat.text(
             for: .pressure(.warning), definition: pressure, locale: english, calendar: calendar, texts: german
@@ -553,6 +553,35 @@ struct WidgetFormatTests {
         }
         #expect(text(.power(power), definition(.battery, preset: .percentAndState)).batteryState == .charging)
         #expect(text(.power(power), definition(.battery, preset: .percent)).batteryState == nil)
+    }
+
+    @Test("Per Core Cluster shows each cluster's load in level order, and the total as the fall back (MON-01, D-10)")
+    func perCluster() {
+        let widget = definition(.cpu, preset: .perCluster)
+        let clusters = [
+            ClusterLoad(level: ClusterLevel(index: 0, name: "Performance", logicalCPUs: 8), label: .performance, load: 0.42),
+            ClusterLoad(level: ClusterLevel(index: 1, name: "Efficiency", logicalCPUs: 2), label: .efficiency, load: 0.12),
+        ]
+        #expect(plain(text(.clusters(clusters), widget).string) == "P 42% E 12%")
+        // The fall back is the total, with the plain percent format.
+        #expect(plain(text(.fraction(0.23), widget).string) == "23%")
+        // One cluster is the total, not a split; the plain percent format ignores clusters.
+        #expect(text(.clusters(Array(clusters.prefix(1))), widget).isUnavailable)
+        #expect(text(.clusters(clusters), definition(.cpu)).isUnavailable)
+        #expect(text(.unavailable, widget).isUnavailable)
+        var texts = ReadoutTexts.english
+        texts.clusterLabels = [.performance, .efficiency]
+        let both = WidgetFormat.widthSamples(
+            for: widget, locale: english, calendar: calendar, capacityBytes: nil, texts: texts
+        )
+        #expect(both.map(plain) == ["P 100% E 100%", "100%"])
+        texts.clusterLabels = [.other("S"), .performance]
+        let other = WidgetFormat.widthSamples(
+            for: widget, locale: english, calendar: calendar, capacityBytes: nil, texts: texts
+        )
+        #expect(other.map(plain) == ["S 100% P 100%", "100%"])
+        let none = WidgetFormat.widthSamples(for: widget, locale: english, calendar: calendar, capacityBytes: nil)
+        #expect(none.map(plain) == ["100%"])
     }
 
     @Test("A script widget shows its line as given, never parsed (T-12-25)")

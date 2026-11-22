@@ -124,6 +124,8 @@ final class WidgetReadoutLink {
         baseline: inout ReadoutBaseline
     ) -> WidgetReading? {
         switch definition.source {
+        case .cpu where definition.preset == .perCluster:
+            return clusterReading(from: sample, baseline: &baseline)
         case .cpu:
             guard sample.read.contains(.cpu) else {
                 return nil
@@ -165,6 +167,27 @@ final class WidgetReadoutLink {
         case .dateTime, .uptime, .countdown:
             return nil
         }
+    }
+
+    /// The load of each core cluster between the baseline's two core readings. When the kernel's
+    /// levels do not partition the cores (one level, no level, sizes that disagree) the total of
+    /// all cores stands in for it, and a missing reading is the en dash (D-10, MON-09).
+    private static func clusterReading(from sample: ReadoutSample, baseline: inout ReadoutBaseline) -> WidgetReading? {
+        guard sample.read.contains(.cpuCores) else {
+            return nil
+        }
+        guard let pair = baseline.coreTicks(sample.cpuCoreTicks) else {
+            return .unavailable
+        }
+        if let loads = CPUClusters.loads(
+            levels: SystemSamplers.clusterLevels,
+            previous: pair.previous,
+            current: pair.current
+        ) {
+            return .clusters(loads)
+        }
+        return CPUClusters.totalLoad(previous: pair.previous, current: pair.current).map(WidgetReading.fraction)
+            ?? .unavailable
     }
 
     private static func memoryReading(from sample: ReadoutSample, preset: WidgetPreset) -> WidgetReading? {
@@ -243,6 +266,13 @@ extension ReadoutTexts {
         texts.thermalFair = String(localized: "Fair")
         texts.thermalSerious = String(localized: "Serious")
         texts.thermalCritical = texts.pressureCritical
+        texts.performanceFormat = String(localized: "P %@")
+        texts.efficiencyFormat = String(localized: "E %@")
+        // The labels of this Mac's clusters, for the width of the Per Core Cluster format.
+        let levels = SystemSamplers.clusterLevels
+        if levels.count >= 2 {
+            texts.clusterLabels = levels.map { ClusterLabel(kernelName: $0.name, index: $0.index) }
+        }
         let watt = formatter.string(from: UnitPower.watts)
         texts.wattsFormat = "%@ " + (watt.isEmpty ? "W" : watt)
         cache[key] = texts

@@ -182,6 +182,18 @@ struct CPUClustersTests {
         #expect(CPUClusters.loads(levels: [], previous: ten, current: later) == nil)
     }
 
+    @Test("The total of all cores is the fall back: it needs cores, equal counts and ticks that moved")
+    func totalLoad() {
+        let before = [ticks(user: 0, idle: 0), ticks(user: 0, idle: 0)]
+        let after = [ticks(user: 30, idle: 70), ticks(user: 10, idle: 90)]
+        let load = CPUClusters.totalLoad(previous: before, current: after)
+        #expect(load.map { abs($0 - 0.2) < 0.0001 } == true)
+        #expect(CPUClusters.totalLoad(previous: [], current: []) == nil)
+        #expect(CPUClusters.totalLoad(previous: before, current: Array(after.prefix(1))) == nil)
+        #expect(CPUClusters.totalLoad(previous: after, current: after) == nil)
+        #expect(CPUClusters.totalLoad(previous: after, current: before) == nil)
+    }
+
     // MARK: Labels
 
     @Test("The label follows the role name, then the first letter, then the index")

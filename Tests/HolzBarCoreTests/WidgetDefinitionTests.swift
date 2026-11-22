@@ -60,7 +60,7 @@ struct WidgetDefinitionTests {
         #expect(
             WidgetPreset.allCases.filter(\.isPreview)
                 == [.download, .upload, .downloadAndUpload, .read, .write, .readAndWrite, .pressure, .swapUsed, .state,
-                    .percentAndTimeLeft, .adapterWatts]
+                    .percentAndTimeLeft, .adapterWatts, .perCluster]
         )
     }
 
@@ -68,7 +68,7 @@ struct WidgetDefinitionTests {
     func presets() {
         #expect(WidgetSource.dateTime.presets == [.time, .weekdayAndTime, .dateAndTime, .weekdayDateAndTime])
         #expect(WidgetSource.battery.presets == [.percent, .percentAndState, .percentAndTimeLeft, .adapterWatts])
-        #expect(WidgetSource.cpu.presets == [.percent])
+        #expect(WidgetSource.cpu.presets == [.percent, .perCluster])
         #expect(WidgetSource.memory.presets == [.percentUsed, .gigabytesUsed, .pressure, .swapUsed])
         #expect(WidgetSource.uptime.presets == [.duration, .compactDuration])
         #expect(WidgetSource.countdown.presets == [.duration, .compactDuration])
@@ -76,11 +76,11 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource.networkSpeed.presets == [.download, .upload, .downloadAndUpload])
         #expect(WidgetSource.diskActivity.presets == [.read, .write, .readAndWrite])
         #expect(WidgetSource.thermalState.presets == [.state])
-        // The twenty-three formats of the sources, and the three widths that belong to the script kind
+        // The twenty-four formats of the sources, and the three widths that belong to the script kind
         // alone (D-23).
-        #expect(Set(WidgetSource.allCases.flatMap(\.presets)).count == 23)
+        #expect(Set(WidgetSource.allCases.flatMap(\.presets)).count == 24)
         #expect(WidgetKind.scriptPresets == [.narrowText, .mediumText, .wideText])
-        #expect(WidgetPreset.allCases.count == 26)
+        #expect(WidgetPreset.allCases.count == 27)
         let sourcePresets = Set(WidgetSource.allCases.flatMap(\.presets))
         #expect(sourcePresets.isDisjoint(with: WidgetKind.scriptPresets))
         #expect(sourcePresets.union(WidgetKind.scriptPresets).count == WidgetPreset.allCases.count)

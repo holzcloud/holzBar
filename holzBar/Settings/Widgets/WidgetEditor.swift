@@ -120,6 +120,7 @@ struct WidgetEditor: View {
         case .state: Text("State")
         case .percentAndTimeLeft: Text("Percent and Time Left")
         case .adapterWatts: Text("Adapter Watts")
+        case .perCluster: Text("Per Core Cluster")
         }
     }
 
@@ -156,7 +157,7 @@ private struct TextWidgetFields: View {
                 selection: binding(\.preset),
                 badge: WidgetEditor.badge(isPreview: definition.preset.isPreview)
             ) {
-                ForEach(definition.source.presets, id: \.self) { preset in
+                ForEach(offeredPresets, id: \.self) { preset in
                     WidgetEditor.presetTitle(preset)
                         .tag(preset)
                 }
@@ -196,6 +197,14 @@ private struct TextWidgetFields: View {
             }
             .settingsSubRow()
         }
+    }
+
+    /// The formats of the source this Mac can show: Per Core Cluster only when the chip reports
+    /// two or more core clusters, or while it is the chosen one (a widget is never changed
+    /// silently, D-10).
+    private var offeredPresets: [WidgetPreset] {
+        let hasClusters = SystemSamplers.clusterLevels.count >= 2
+        return definition.source.presets.filter { $0 != .perCluster || hasClusters || $0 == definition.preset }
     }
 
     /// The intervals of the source, and the stored one when it is not among them (a settings

@@ -77,7 +77,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         switch self {
         case .dateTime: [.time, .weekdayAndTime, .dateAndTime, .weekdayDateAndTime]
         case .battery: [.percent, .percentAndState, .percentAndTimeLeft, .adapterWatts]
-        case .cpu: [.percent]
+        case .cpu: [.percent, .perCluster]
         case .memory: [.percentUsed, .gigabytesUsed, .pressure, .swapUsed]
         case .uptime, .countdown: [.duration, .compactDuration]
         case .freeDisk: [.gigabytesFree, .percentFree]
@@ -177,6 +177,8 @@ nonisolated enum WidgetPreset: String, Codable, CaseIterable, Sendable {
     // Battery with the time left, and the adapter's power
     case percentAndTimeLeft
     case adapterWatts
+    // CPU per core cluster
+    case perCluster
 
     /// Whether the format is new and not yet tried on a Mac: the editor and the widget list show
     /// the Preview badge beside it (D-15). The maintainer flips a format to `false` after the
@@ -184,7 +186,7 @@ nonisolated enum WidgetPreset: String, Codable, CaseIterable, Sendable {
     var isPreview: Bool {
         switch self {
         case .download, .upload, .downloadAndUpload, .read, .write, .readAndWrite, .pressure, .swapUsed, .state,
-            .percentAndTimeLeft, .adapterWatts: true
+            .percentAndTimeLeft, .adapterWatts, .perCluster: true
         case .time, .weekdayAndTime, .dateAndTime, .weekdayDateAndTime, .percent, .percentAndState,
             .percentUsed, .gigabytesUsed, .duration, .compactDuration, .gigabytesFree, .percentFree,
             .narrowText, .mediumText, .wideText: false

@@ -154,6 +154,11 @@ nonisolated enum WidgetSpeech {
             case .critical: String(localized: "Critical")
             }
             return String(localized: "Thermal state \(word)")
+        case (.cpu, .clusters(let loads)) where definition.preset == .perCluster:
+            guard loads.count >= 2, loads.allSatisfy({ $0.load.isFinite }) else {
+                return unavailable
+            }
+            return clusterValue(loads)
         case (.cpu, .fraction(let fraction)),
             (.memory, .fraction(let fraction)) where definition.preset == .percentUsed,
             (.freeDisk, .fraction(let fraction)) where definition.preset != .gigabytesFree:
@@ -206,6 +211,23 @@ nonisolated enum WidgetSpeech {
         default:
             return unavailable
         }
+    }
+
+    /// The load of every core cluster in words: "Performance cores 42 percent, Efficiency cores
+    /// 12 percent", in the kernel's level order. A level that is neither one names itself.
+    static func clusterValue(_ loads: [ClusterLoad]) -> String {
+        loads.map { cluster in
+            let percent = Int((min(max(cluster.load, 0), 1) * 100).rounded())
+            let value = String(localized: "\(percent) percent")
+            switch cluster.label {
+            case .performance: return String(localized: "Performance cores \(value)")
+            case .efficiency: return String(localized: "Efficiency cores \(value)")
+            case .other(let letter):
+                let name = cluster.level.name.isEmpty ? letter : cluster.level.name
+                return String(localized: "\(name) cores \(value)")
+            }
+        }
+        .joined(separator: ", ")
     }
 
     /// The battery in words: "80 percent, on battery, 2 hours, 10 minutes left", or the adapter's

@@ -76,6 +76,11 @@ nonisolated enum WidgetFormat {
             }
         case (.thermalState, .thermal(let level)):
             return WidgetText(string: ReadoutFormat.thermalWord(level, texts: texts))
+        case (.cpu, .clusters(let loads)) where preset == .perCluster:
+            guard loads.count >= 2, loads.allSatisfy({ $0.load.isFinite }) else {
+                break
+            }
+            return WidgetText(string: clusterText(loads.map { ($0.label, $0.load) }, locale: locale, texts: texts))
         case (.cpu, .fraction(let fraction)),
             (.memory, .fraction(let fraction)) where preset == .percentUsed,
             (.freeDisk, .fraction(let fraction)) where preset != .gigabytesFree:
@@ -193,6 +198,12 @@ nonisolated enum WidgetFormat {
         texts.fill(texts.wattsFormat, with: watts.formatted(.number.locale(locale)))
     }
 
+    /// The load of every cluster in one text, in the kernel's level order, each with its label and
+    /// separated by one space: "P 42% E 12%".
+    private static func clusterText(_ loads: [(label: ClusterLabel, load: Double)], locale: Locale, texts: ReadoutTexts) -> String {
+        loads.map { texts.clusterText($0.label, value: percentText($0.load, locale: locale)) }.joined(separator: " ")
+    }
+
     /// The read and the write rate in one text, each with its translated one-letter label.
     private static func readAndWrite(_ read: String, _ written: String, texts: ReadoutTexts) -> String {
         texts.fill(texts.readFormat, with: read) + " " + texts.fill(texts.writeFormat, with: written)
@@ -208,7 +219,7 @@ nonisolated enum WidgetFormat {
     ///
     /// - A clock: every day of the leap year 2024 at 10:58:58 and at 22:58:58 in the calendar's
     ///   time zone, which holds every weekday name, every month name and both AM and PM forms.
-    /// - A percent: 100 percent. Percent and Time Left: 100 percent and 99:59; Adapter Watts: 100 W.
+    /// - A percent: 100 percent. Per Core Cluster: the clusters of this Mac at 100 percent, and the total. Percent and Time Left: 100 percent and 99:59; Adapter Watts: 100 W.
     /// - A thermal state: its four words in the language.
     /// - A byte count: the capacity, 9.9 GB and 999.9 GB. Swap: 9.9 GB and 99.9 GB.
     /// - A memory pressure: its three words in the language.
@@ -280,6 +291,12 @@ nonisolated enum WidgetFormat {
             }
         case .battery where preset == .adapterWatts:
             add(wattsText(100, locale: locale, texts: texts))
+        case .cpu where preset == .perCluster:
+            // The cluster text of this Mac at full load, and the total it falls back to.
+            if texts.clusterLabels.count >= 2 {
+                add(clusterText(texts.clusterLabels.map { ($0, 1) }, locale: locale, texts: texts))
+            }
+            add(percentText(1, locale: locale))
         case .battery, .cpu:
             add(percentText(1, locale: locale))
         case .thermalState:

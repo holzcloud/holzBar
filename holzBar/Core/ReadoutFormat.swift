@@ -31,16 +31,19 @@ nonisolated struct ReadoutTexts: Equatable, Sendable {
     var thermalFair: String
     var thermalSerious: String
     var thermalCritical: String
-    /// The letter of the performance cores in the cluster text.
-    var performanceLetter: String
-    /// The letter of the efficiency cores in the cluster text.
-    var efficiencyLetter: String
+    /// The performance cores' label with their load in the cluster text, such as "P 42%"; one `%@`.
+    var performanceFormat: String
+    /// The efficiency cores' label with their load in the cluster text, such as "E 12%"; one `%@`.
+    var efficiencyFormat: String
     /// The label of a disk read rate; one `%@`.
     var readFormat: String
     /// The label of a disk write rate; one `%@`.
     var writeFormat: String
     /// A power in watts; one `%@`.
     var wattsFormat: String
+    /// The labels of this Mac's core clusters in the kernel's level order, which the width of the
+    /// Per Core Cluster format is measured from. Empty when the chip reports no clusters.
+    var clusterLabels: [ClusterLabel] = []
 
     /// The English texts, which the tests use.
     static let english = ReadoutTexts(
@@ -54,12 +57,22 @@ nonisolated struct ReadoutTexts: Equatable, Sendable {
         thermalFair: "Fair",
         thermalSerious: "Serious",
         thermalCritical: "Critical",
-        performanceLetter: "P",
-        efficiencyLetter: "E",
+        performanceFormat: "P %@",
+        efficiencyFormat: "E %@",
         readFormat: "R %@",
         writeFormat: "W %@",
         wattsFormat: "%@ W"
     )
+
+    /// A cluster's label and its value: "P 42%". A level that is neither performance nor efficiency
+    /// shows its own name, as it is.
+    func clusterText(_ label: ClusterLabel, value: String) -> String {
+        switch label {
+        case .performance: fill(performanceFormat, with: value)
+        case .efficiency: fill(efficiencyFormat, with: value)
+        case .other(let name): name + " " + value
+        }
+    }
 
     /// A text with its one `%@` replaced.
     func fill(_ format: String, with value: String) -> String {

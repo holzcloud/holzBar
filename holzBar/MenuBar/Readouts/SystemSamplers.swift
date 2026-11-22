@@ -40,6 +40,11 @@ nonisolated enum SystemSamplers {
             sample.read.insert(.cpu)
             sample.cpuTicks = cpuTicks()
         }
+        if metrics.contains(.cpuCores) {
+            // The sum of the cores is the total, so a consumer of the cores needs no other read.
+            sample.read.insert(.cpuCores)
+            sample.cpuCoreTicks = cpuCoreTicks()
+        }
         if metrics.contains(.memory) {
             sample.read.insert(.memory)
             sample.memory = memory()
@@ -101,6 +106,93 @@ nonisolated enum SystemSamplers {
             idle: UInt64(info.cpu_ticks.2),
             nice: UInt64(info.cpu_ticks.3)
         )
+    }
+
+    /// The tick counters of every processor, one entry per core in the order of
+    /// `host_processor_info` (the slowest cores first, see ``CPUClusters``).
+    ///
+    /// The call hands back an array the kernel allocated in this task; it is released with
+    /// `vm_deallocate` in `defer`, with the size the kernel gave, on every path (T-94-25).
+    ///
+    /// - Returns: `nil` when the call failed or answered with no core.
+    static func cpuCoreTicks() -> [CPUTicks]? {
+        var processorCount: natural_t = 0
+        var info: processor_info_array_t?
+        var infoCount: mach_msg_type_number_t = 0
+        let result = host_processor_info(host, PROCESSOR_CPU_LOAD_INFO, &processorCount, &info, &infoCount)
+        guard result == KERN_SUCCESS, let info else {
+            return nil
+        }
+        defer {
+            vm_deallocate(
+                mach_task_self_,
+                vm_address_t(UInt(bitPattern: info)),
+                vm_size_t(infoCount) * vm_size_t(MemoryLayout<integer_t>.size)
+            )
+        }
+        let states = Int(CPU_STATE_MAX)
+        let cores = Int(processorCount)
+        // The array holds `CPU_STATE_MAX` counters for each core; a shorter one is not used.
+        guard cores > 0, Int(infoCount) >= cores * states else {
+            return nil
+        }
+        func counter(_ core: Int, _ state: Int32) -> UInt64 {
+            UInt64(UInt32(bitPattern: info[core * states + Int(state)]))
+        }
+        return (0..<cores).map { core in
+            CPUTicks(
+                user: counter(core, CPU_STATE_USER),
+                system: counter(core, CPU_STATE_SYSTEM),
+                idle: counter(core, CPU_STATE_IDLE),
+                nice: counter(core, CPU_STATE_NICE)
+            )
+        }
+    }
+
+    /// The most performance levels read; a chip that claims more is read as one without clusters.
+    private static let maximumClusterLevels = 8
+
+    /// The performance levels of this Mac as the kernel lists them, fastest first, read once: the
+    /// count, the logical processors and the name of every level. Empty on a Mac that reports no
+    /// level (Intel), and when any value of a level is missing, so the cluster format shows the
+    /// total (D-10, D-11). The names are kept in memory only.
+    static let clusterLevels: [ClusterLevel] = {
+        guard let count = sysctlInteger("hw.nperflevels"), (1...maximumClusterLevels).contains(count) else {
+            return []
+        }
+        var levels = [ClusterLevel]()
+        for index in 0..<count {
+            guard let cpus = sysctlInteger("hw.perflevel\(index).logicalcpu"), cpus > 0 else {
+                return []
+            }
+            let name = sysctlText("hw.perflevel\(index).name") ?? ""
+            levels.append(ClusterLevel(index: index, name: name, logicalCPUs: cpus))
+        }
+        return levels
+    }()
+
+    /// A 32-bit integer sysctl value, or `nil` when the name is unknown.
+    private static func sysctlInteger(_ name: String) -> Int? {
+        var value: Int32 = 0
+        var size = MemoryLayout<Int32>.size
+        guard sysctlbyname(name, &value, &size, nil, 0) == 0, size == MemoryLayout<Int32>.size else {
+            return nil
+        }
+        return Int(value)
+    }
+
+    /// A string sysctl value, or `nil` when the name is unknown. A value longer than 64 bytes is
+    /// not a level name and is left out.
+    private static func sysctlText(_ name: String) -> String? {
+        var size = 0
+        guard sysctlbyname(name, nil, &size, nil, 0) == 0, size > 0, size <= 64 else {
+            return nil
+        }
+        var buffer = [UInt8](repeating: 0, count: size)
+        guard sysctlbyname(name, &buffer, &size, nil, 0) == 0 else {
+            return nil
+        }
+        return String(decoding: buffer.prefix { $0 != 0 }, as: UTF8.self) // swiftlint:disable:this optional_data_string_conversion
     }
 
     /// The memory in use, counted the way Activity Monitor counts it, and the installed memory,

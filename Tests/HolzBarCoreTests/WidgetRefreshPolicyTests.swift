@@ -612,6 +612,11 @@ struct WidgetRefreshPolicyTests {
         #expect(WidgetCadence(definition: make(.thermalState)) == memoryCadence([.thermal], seconds: 0))
         #expect(WidgetCadence(definition: make(.cpu)) == cpuCadence(seconds: 5))
         #expect(WidgetCadence(definition: make(.cpu, refreshSeconds: 30)) == cpuCadence(seconds: 30))
+        // The per core cluster format reads the cores instead of the total (MON-01).
+        #expect(
+            WidgetCadence(definition: make(.cpu, preset: .perCluster))
+                == .sampled(ReadoutRequest(metrics: [.cpuCores], intervalSeconds: 5, needsBaseline: true))
+        )
         #expect(WidgetCadence(definition: make(.networkSpeed)) == networkCadence(seconds: 2))
         #expect(WidgetCadence(definition: make(.networkSpeed, refreshSeconds: 30)) == networkCadence(seconds: 30))
         #expect(WidgetCadence(definition: make(.networkSpeed, refreshSeconds: 1)) == networkCadence(seconds: 2))

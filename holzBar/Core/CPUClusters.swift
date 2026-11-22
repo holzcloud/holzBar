@@ -119,6 +119,18 @@ nonisolated enum CPUClusters {
         return result
     }
 
+    /// The load of all cores together between two per-core readings, the fall back of the cluster
+    /// format when the levels do not partition the cores.
+    ///
+    /// - Returns: `nil` when the readings have no core or different numbers of cores, or when the
+    ///   counters went backwards or did not move.
+    static func totalLoad(previous: [CPUTicks], current: [CPUTicks]) -> Double? {
+        guard !current.isEmpty, previous.count == current.count else {
+            return nil
+        }
+        return WidgetReadings.cpuLoad(from: sum(previous[...]), to: sum(current[...]))
+    }
+
     /// The ticks of some cores added up; a counter that would overflow stays at its maximum.
     private static func sum(_ ticks: ArraySlice<CPUTicks>) -> CPUTicks {
         func add(_ first: UInt64, _ second: UInt64) -> UInt64 {

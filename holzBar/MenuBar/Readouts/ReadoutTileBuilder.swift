@@ -208,13 +208,8 @@ enum ReadoutTileBuilder {
     /// The load of every cluster: "P 42 % \u{00B7} E 12 %".
     private static func clusterText(_ clusters: [ClusterLoad], texts: ReadoutTexts, locale: Locale) -> String {
         clusters.map { cluster in
-            let letter = switch cluster.label {
-            case .performance: texts.performanceLetter
-            case .efficiency: texts.efficiencyLetter
-            case .other(let name): name
-            }
             let percent = ReadoutTiles.percent(cluster.load).formatted(.number.grouping(.never).locale(locale))
-            return "\(letter) \(percent) %"
+            return texts.clusterText(cluster.label, value: "\(percent) %")
         }
         .joined(separator: " \u{00B7} ")
     }
@@ -255,6 +250,9 @@ enum ReadoutTileBuilder {
             parts.append(diskPhrase(content, input: input, locale: locale))
         case .battery:
             parts += batteryPhrases(content, input: input, locale: locale)
+        }
+        if case .clusters(let clusters) = content.detail {
+            parts.append(WidgetSpeech.clusterValue(clusters))
         }
         if let state = content.spokenThermal {
             parts.append(String(localized: "Thermal state \(ReadoutFormat.thermalWord(state, texts: texts))"))
