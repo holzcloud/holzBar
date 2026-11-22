@@ -3,6 +3,7 @@
 //  holzBar
 //
 
+import AppKit
 import Foundation
 import Observation
 
@@ -19,12 +20,23 @@ import Observation
 /// Levels come from ``AccessoryBatterySource/read()``, the one agreed private call, and only
 /// while "Read battery levels" is on and the call exists; otherwise the batteries are empty and
 /// nothing is called. Names and levels stay in memory, are never stored, exported or logged, and
-/// leave memory with the last consumer. This type never asks for the Bluetooth permission.
+/// leave memory with the last consumer.
+///
+/// This is the one Bluetooth path of the device lists and the accessory alerts: while a consumer
+/// wants devices it owns the one ``BluetoothDeviceMonitor`` (the system's connect and disconnect
+/// notifications and the list of paired devices), and nothing else in holzBar's device surfaces
+/// creates one. It never asks for the Bluetooth permission: without the permission the monitor
+/// registers nothing and calls nothing in IOBluetooth, and the lists show the batteries only.
+/// The one question is asked by the Accessory alerts module of the hub, through ``bluetoothMonitor``.
 @MainActor
 @Observable
 final class ConnectedDevicesService {
     /// The rows of the list, from ``ConnectedDeviceList``. Empty while no consumer exists.
     private(set) var rows = [ConnectedDeviceRow]()
+
+    /// The paired devices that are connected now, from the last snapshot of the monitor. Empty
+    /// without the Bluetooth permission and while no consumer wants devices.
+    private(set) var connected = [AccessoryDevice]()
 
     /// The accessories that report a level, from the last read. Empty while reading is off, this
     /// macOS lacks the call or no consumer exists.
@@ -41,8 +53,18 @@ final class ConnectedDevicesService {
         readsBattery && !AccessoryBatterySource.isAvailable
     }
 
+    /// The one Bluetooth monitor, while a consumer wants devices; lent to the Accessory alerts
+    /// module for its one permission question. `nil` while none does.
+    var bluetoothMonitor: BluetoothDeviceMonitor? {
+        monitor
+    }
+
     /// The consumers that are registered, each with whether it wants the Bluetooth devices.
     @ObservationIgnored private var consumers = [String: Bool]()
+    @ObservationIgnored private var monitor: BluetoothDeviceMonitor?
+    /// The paired devices that are not connected, for the grey rows.
+    @ObservationIgnored private var disconnected = [AccessoryDevice]()
+    @ObservationIgnored private var activationTask: Task<Void, Never>?
     @ObservationIgnored private var lastRead = Date.now
     @ObservationIgnored private var readTask: Task<Void, Never>?
     @ObservationIgnored private var readAgain = false
@@ -65,11 +87,14 @@ final class ConnectedDevicesService {
     func begin(_ consumer: String, wantsDevices: Bool) {
         let wasIdle = consumers.isEmpty
         consumers[consumer] = wantsDevices
+        if access != BluetoothDeviceMonitor.access {
+            access = BluetoothDeviceMonitor.access
+        }
+        updateMonitor()
         guard wasIdle else {
             return
         }
         readsBattery = AccessoryAlertsSettings.readsBattery()
-        access = BluetoothDeviceMonitor.access
         PowerSourceEvents.shared.begin()
         beganPowerEvents = true
         powerTask = Task { [weak self] in
@@ -83,7 +108,11 @@ final class ConnectedDevicesService {
     /// Gives a surface back. The last one to leave ends the task, the wait and the power-source
     /// use and empties the rows and the batteries, so no name stays in memory.
     func end(_ consumer: String) {
-        guard consumers.removeValue(forKey: consumer) != nil, consumers.isEmpty else {
+        guard consumers.removeValue(forKey: consumer) != nil else {
+            return
+        }
+        updateMonitor()
+        guard consumers.isEmpty else {
             return
         }
         powerTask?.cancel()
@@ -102,8 +131,10 @@ final class ConnectedDevicesService {
         rows = []
     }
 
-    /// Reads again soon, for a surface that opened or an event that may have changed a level.
+    /// Reads the permission, the devices and the levels again, for a surface that opened.
     func refresh() {
+        monitor?.refreshAuthorization()
+        takeSnapshot()
         scheduleRead()
     }
 
@@ -112,6 +143,66 @@ final class ConnectedDevicesService {
     func batterySwitchDidChange() {
         readsBattery = AccessoryAlertsSettings.readsBattery()
         scheduleRead()
+    }
+
+    // MARK: Bluetooth
+
+    /// Creates and starts the one monitor when a consumer wants devices and stops and drops it
+    /// when none does. Starting it asks nothing: the monitor registers its notifications only
+    /// while macOS already allows Bluetooth.
+    private func updateMonitor() {
+        let wantsDevices = consumers.values.contains(true)
+        if wantsDevices, monitor == nil {
+            let created = BluetoothDeviceMonitor()
+            created.onChange = { [weak self] in
+                self?.bluetoothDidChange()
+            }
+            monitor = created
+            created.start()
+            // A change made in System Settings shows without a restart.
+            activationTask = Task { [weak self] in
+                for await _ in NotificationCenter.default.notifications(named: NSApplication.didBecomeActiveNotification) {
+                    self?.monitor?.refreshAuthorization()
+                }
+            }
+            takeSnapshot()
+        } else if !wantsDevices, let existing = monitor {
+            activationTask?.cancel()
+            activationTask = nil
+            existing.onChange = nil
+            existing.stop()
+            monitor = nil
+            access = BluetoothDeviceMonitor.access
+            if !connected.isEmpty {
+                connected = []
+            }
+            disconnected = []
+            rebuildRows()
+        }
+    }
+
+    /// A device connected or left, or the permission changed: take a new snapshot and read the
+    /// levels again.
+    private func bluetoothDidChange() {
+        takeSnapshot()
+        scheduleRead()
+    }
+
+    /// Reads the paired devices from the monitor (empty without the permission), publishes the
+    /// connected ones and rebuilds the rows.
+    private func takeSnapshot() {
+        guard let monitor else {
+            return
+        }
+        if access != BluetoothDeviceMonitor.access {
+            access = BluetoothDeviceMonitor.access
+        }
+        let snapshot = monitor.pairedDevices()
+        if snapshot.connected != connected {
+            connected = snapshot.connected
+        }
+        disconnected = snapshot.disconnected
+        rebuildRows()
     }
 
     // MARK: Reading
@@ -177,7 +268,7 @@ final class ConnectedDevicesService {
     private func rebuildRows() {
         let rebuilt = consumers.isEmpty
             ? []
-            : ConnectedDeviceList.rows(connected: [], disconnected: [], batteries: batteries)
+            : ConnectedDeviceList.rows(connected: connected, disconnected: disconnected, batteries: batteries)
         if rebuilt != rows {
             rows = rebuilt
         }

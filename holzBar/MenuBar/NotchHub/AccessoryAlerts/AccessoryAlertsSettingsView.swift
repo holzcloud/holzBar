@@ -125,7 +125,7 @@ struct AccessoryAlertsSettingsView: View {
     }
 
     private func deviceRow(_ row: ConnectedDeviceRow) -> some View {
-        HStack(spacing: HolzBarTheme.Spacing.sm) {
+        HStack(spacing: HolzBarTheme.Spacing.xs) {
             Image(systemName: row.symbol)
                 .font(HolzBarTheme.Typography.headline)
                 .foregroundStyle(row.isConnected ? HolzBarTheme.Palette.textSecondary : HolzBarTheme.Palette.textTertiary)
@@ -170,9 +170,9 @@ struct AccessoryAlertsSettingsView: View {
         appState.notchHub.runtime(AccessoryAlertsRuntime.self)
     }
 
-    /// What macOS lets holzBar do with Bluetooth: the running module's last finding, or the
-    /// system's answer while the module does not run.
+    /// What macOS lets holzBar do with Bluetooth, as the devices service last read it without
+    /// asking anything.
     private var access: BluetoothAccess {
-        runtime?.access ?? BluetoothDeviceMonitor.access
+        devices.access
     }
 }

@@ -11,15 +11,16 @@ import SwiftUI
 /// The running part of the Accessory alerts module of the Notch hub.
 ///
 /// The hub creates it only while the hub and the module are both on and calls ``shutDown()``
-/// when either goes off, so nothing of the module exists while it is off. It owns one
-/// ``BluetoothDeviceMonitor``, which follows which paired Bluetooth devices are connected and
-/// never connects to, searches for or pairs with one. It asks macOS for the Bluetooth permission
-/// once, here in ``init(appState:)`` and only while the state is not determined. Each report of
-/// the monitor goes through an ``AccessoryTracker``, whose events become ``LiveActivity`` values
-/// that are already finished, so each alert widens the notch for five seconds, with its fixed
-/// short word and never the device's name; VoiceOver hears each once. The devices connected when
-/// the module starts are the baseline and raise no alert. Device names live in memory only, are
-/// dropped in ``shutDown()`` and are never logged.
+/// when either goes off, so nothing of the module exists while it is off. It is a consumer of
+/// ``ConnectedDevicesService``, which owns the one ``BluetoothDeviceMonitor`` that follows which
+/// paired Bluetooth devices are connected and never connects to, searches for or pairs with one.
+/// It asks macOS for the Bluetooth permission once, here in ``init(appState:)``, through that
+/// monitor and only while the state is not determined: it is the only place that asks. Each
+/// change of the connected devices goes through an ``AccessoryTracker``, whose events become
+/// ``LiveActivity`` values that are already finished, so each alert widens the notch for five
+/// seconds, with its fixed short word and never the device's name; VoiceOver hears each once.
+/// The devices connected when the module starts are the baseline and raise no alert. Device
+/// names live in memory only, are dropped in ``shutDown()`` and are never logged.
 ///
 /// The battery half reads accessory levels through ``AccessoryBatterySource``, only while the
 /// setting "Read battery levels" is on. A read follows events: the power-source notification, a
@@ -40,11 +41,21 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
     let tint = HubTint.accent
     let offersTab = true
 
-    /// The paired devices that are connected now. Empty without the Bluetooth permission.
-    private(set) var connected = [AccessoryDevice]()
+    /// The paired devices that are connected now, from the devices service. Empty without the
+    /// Bluetooth permission.
+    var connected: [AccessoryDevice] {
+        appState?.connectedDevices.connected ?? []
+    }
 
-    /// The state of the Bluetooth permission as of the last report.
-    private(set) var access = BluetoothDeviceMonitor.access
+    /// The state of the Bluetooth permission as of the last report of the devices service.
+    var access: BluetoothAccess {
+        appState?.connectedDevices.access ?? BluetoothDeviceMonitor.access
+    }
+
+    /// The rows of the Accessories tab: the devices service's list, from ``ConnectedDeviceList``.
+    var deviceRows: [ConnectedDeviceRow] {
+        appState?.connectedDevices.rows ?? []
+    }
 
     /// The accessories that report a battery level, from the last read. Empty while reading is
     /// off or this macOS lacks the call.
@@ -55,9 +66,22 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
 
     private var alerts = [LiveActivity]()
 
+    /// What the connect and disconnect alerts follow: the connected devices and whether holzBar
+    /// may use Bluetooth at all.
+    private struct DeviceState: Equatable {
+        let connected: [AccessoryDevice]
+        let isAuthorized: Bool
+    }
+
+    /// The consumer names this runtime registers under with the devices service: one for the
+    /// module while it runs, one for the Accessories tab while it is on screen.
+    private static let devicesConsumer = "accessory-alerts"
+    private static let hubDevicesConsumer = "hub-devices"
+
+    @ObservationIgnored private weak var appState: AppState?
     @ObservationIgnored private var tracker = AccessoryTracker()
-    @ObservationIgnored private let monitor = BluetoothDeviceMonitor()
-    @ObservationIgnored private var activationTask: Task<Void, Never>?
+    @ObservationIgnored private var devicesLoop: ObservationLoop?
+    @ObservationIgnored private var lastDevices = [AccessoryDevice]()
     @ObservationIgnored private var lowGate = AccessoryLowBatteryGate()
     @ObservationIgnored private var isRunning = true
     @ObservationIgnored private var lastRead = Date.now
@@ -67,25 +91,26 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
     @ObservationIgnored private var powerTask: Task<Void, Never>?
     @ObservationIgnored private var beganPowerEvents = false
 
-    /// Starts following the connected devices. The Bluetooth question is asked here, once, when
-    /// macOS has not been asked yet.
-    init(appState _: AppState) {
-        monitor.onChange = { [weak self] in
-            self?.devicesDidChange()
-        }
-        monitor.refreshAuthorization()
+    /// Starts following the connected devices through the devices service. The Bluetooth
+    /// question is asked here, once, when macOS has not been asked yet; it is the only place that
+    /// asks.
+    init(appState: AppState) {
+        self.appState = appState
+        let devices = appState.connectedDevices
+        devices.begin(Self.devicesConsumer, wantsDevices: true)
         if BluetoothDeviceMonitor.access == .notDetermined {
-            monitor.requestAuthorization()
+            devices.bluetoothMonitor?.requestAuthorization()
         }
-        monitor.start()
-        // The baseline: what is connected now is not news.
-        devicesDidChange()
-        // A change made in System Settings shows without a restart.
-        activationTask = Task { [weak self] in
-            for await _ in NotificationCenter.default.notifications(named: NSApplication.didBecomeActiveNotification) {
-                self?.monitor.refreshAuthorization()
+        devicesLoop = ObservationLoop.observe(
+            { [weak self] in
+                self?.deviceState ?? DeviceState(connected: [], isAuthorized: false)
+            },
+            onChange: { [weak self] state in
+                self?.devicesDidChange(state)
             }
-        }
+        )
+        // The baseline: what is connected now is not news.
+        devicesDidChange(deviceState)
         // The battery half: a power-source change may be an accessory's.
         PowerSourceEvents.shared.begin()
         beganPowerEvents = true
@@ -99,24 +124,31 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
 
     // MARK: Devices
 
-    /// Reads the connected devices, shows them, and raises an alert for each event.
-    private func devicesDidChange() {
-        if access != BluetoothDeviceMonitor.access {
-            access = BluetoothDeviceMonitor.access
+    private var deviceState: DeviceState {
+        DeviceState(
+            connected: appState?.connectedDevices.connected ?? [],
+            isAuthorized: appState?.connectedDevices.access == .allowed
+        )
+    }
+
+    /// Takes the connected devices the service reports, and raises an alert for each event.
+    private func devicesDidChange(_ state: DeviceState) {
+        guard isRunning else {
+            return
         }
-        guard monitor.isAuthorized else {
+        guard state.isAuthorized else {
             // Without the permission nothing is known; what is connected once it is allowed is
             // the baseline, not a set of new connections.
             tracker.reset()
-            if !connected.isEmpty {
-                connected = []
+            if !lastDevices.isEmpty {
+                lastDevices = []
                 scheduleBatteryRefresh()
             }
             return
         }
-        let devices = monitor.connectedDevices()
-        if devices != connected {
-            connected = devices
+        let devices = state.connected
+        if devices != lastDevices {
+            lastDevices = devices
             scheduleBatteryRefresh()
         }
         let now = Date.now
@@ -222,11 +254,22 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
     /// Reads the permission and the devices again when the hub opens or closes. An unchanged
     /// snapshot raises nothing.
     func hubVisibilityDidChange(isOpen: Bool) {
-        monitor.refreshAuthorization()
-        devicesDidChange()
+        appState?.connectedDevices.refresh()
         if isOpen {
             scheduleBatteryRefresh()
         }
+    }
+
+    /// The Accessories tab came on screen: it needs the devices and their levels for as long as
+    /// it shows.
+    func devicesListDidAppear() {
+        appState?.connectedDevices.begin(Self.hubDevicesConsumer, wantsDevices: true)
+        appState?.connectedDevices.refresh()
+    }
+
+    /// The Accessories tab went off screen.
+    func devicesListDidDisappear() {
+        appState?.connectedDevices.end(Self.hubDevicesConsumer)
     }
 
     /// Reads the batteries again after a setting changed: the switch for reading, for the
@@ -235,12 +278,14 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
         scheduleBatteryRefresh()
     }
 
-    /// Stops the monitor, the notification, the tasks and the wait, and lets go of every device,
-    /// battery and alert.
+    /// Gives the devices service back, and stops the observation, the tasks and the wait, and
+    /// lets go of every device, battery and alert.
     func shutDown() {
         isRunning = false
-        activationTask?.cancel()
-        activationTask = nil
+        devicesLoop?.cancel()
+        devicesLoop = nil
+        appState?.connectedDevices.end(Self.devicesConsumer)
+        appState?.connectedDevices.end(Self.hubDevicesConsumer)
         powerTask?.cancel()
         powerTask = nil
         readTask?.cancel()
@@ -251,9 +296,7 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
             PowerSourceEvents.shared.end()
             beganPowerEvents = false
         }
-        monitor.onChange = nil
-        monitor.stop()
-        connected = []
+        lastDevices = []
         batteries = []
         alerts = []
         tracker.reset()
