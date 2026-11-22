@@ -79,6 +79,12 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// 12` while nothing is measured. Counts of the monitor only, never a reading, an interface
     /// or a device name (D-14). Empty keeps the report as it was.
     var readouts = ""
+    /// What System alerts does, in counts and fixed words
+    /// (``DiagnosticsReport/alertsSummary(isModuleOn:rulesOn:firing:notifications:)``), such as
+    /// `rules 4, firing 1, notifications allowed`, or `off` while the module is off. Never a
+    /// reading, a threshold value, an alert title or a name (D-04). Empty keeps the report as it
+    /// was.
+    var alerts = ""
 }
 
 /// Writes the text a user can copy into a bug report. It holds an allowlist of facts and
@@ -101,6 +107,10 @@ nonisolated enum DiagnosticsReport {
     /// The longest text kept for the System readouts line (four counts of five digits, their
     /// words and the timer word fit).
     static let maximumReadoutsLength = 96
+
+    /// The longest text kept for the System alerts line (two counts of five digits, their words and
+    /// the longest notification word fit).
+    static let maximumAlertsLength = 80
 
     /// The longest text kept for a field.
     static let maximumFieldLength = 40
@@ -146,6 +156,9 @@ nonisolated enum DiagnosticsReport {
         }
         if !input.readouts.isEmpty {
             lines.append("System readouts: \(field(input.readouts, limit: maximumReadoutsLength))")
+        }
+        if !input.alerts.isEmpty {
+            lines.append("System alerts: \(field(input.alerts, limit: maximumAlertsLength))")
         }
         if !input.reopen.isEmpty {
             lines.append("Reopen: \(field(input.reopen))")
@@ -218,6 +231,18 @@ nonisolated enum DiagnosticsReport {
         let timer = isTimerArmed ? "on" : "off"
         return "visible \(count(visible)), background \(count(background)), observers \(count(observers)), "
             + "timer \(timer), samples \(count(samples))"
+    }
+
+    /// The System alerts line: `off` while the module is off, else how many rules are on, how many
+    /// alerts are firing and the state of the optional notifications. Counts and fixed words only,
+    /// never a reading, a threshold, an alert title or a name.
+    ///
+    /// - Parameter notifications: One of the fixed words `off`, `not asked`, `allowed`, `denied`.
+    static func alertsSummary(isModuleOn: Bool, rulesOn: Int, firing: Int, notifications: String) -> String {
+        guard isModuleOn else {
+            return "off"
+        }
+        return "rules \(count(rulesOn)), firing \(count(firing)), notifications \(word(notifications))"
     }
 
     /// A fixed word of a summary: lowercase letters and spaces only.

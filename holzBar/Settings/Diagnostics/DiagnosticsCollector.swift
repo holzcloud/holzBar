@@ -47,7 +47,8 @@ enum DiagnosticsCollector {
             accessoryBattery: accessoryBatteryWord(appState),
             barClicks: BarClickLog.trace.lines,
             reopen: reopenWords(),
-            readouts: readoutsWords(appState)
+            readouts: readoutsWords(appState),
+            alerts: alertsWords(appState)
         )
     }
 
@@ -61,6 +62,25 @@ enum DiagnosticsCollector {
             observers: monitor.observerCount,
             isTimerArmed: monitor.isTimerArmed,
             samples: monitor.samplesTaken
+        )
+    }
+
+    /// What System alerts does, in counts and fixed words: `off` while the module is off. The
+    /// notification word is `off` while the System notifications switch is off, else what macOS
+    /// answered (`not asked`, `allowed`, `denied`). Never a rule's value, an alert or a name.
+    private static func alertsWords(_ appState: AppState) -> String {
+        let alerts = appState.systemAlerts
+        let notifications = switch (appState.settings.systemAlerts.notificationsOn, alerts.notificationAccess) {
+        case (false, _): "off"
+        case (true, .notDetermined): "not asked"
+        case (true, .allowed): "allowed"
+        case (true, .denied): "denied"
+        }
+        return DiagnosticsReport.alertsSummary(
+            isModuleOn: appState.modules.isEnabled(SystemAlertsRuntime.identifier),
+            rulesOn: alerts.enabledRuleCount,
+            firing: alerts.firingCount,
+            notifications: notifications
         )
     }
 

@@ -434,4 +434,43 @@ struct DiagnosticsReportTests {
         input.readouts = ""
         #expect(!DiagnosticsReport.make(input).split(separator: "\n").contains { $0.hasPrefix("System readouts:") })
     }
+
+    @Test("The alerts summary says off, or the rule counts and the notification word")
+    func alertsSummary() {
+        #expect(
+            DiagnosticsReport.alertsSummary(isModuleOn: false, rulesOn: 4, firing: 0, notifications: "allowed") == "off"
+        )
+        #expect(
+            DiagnosticsReport.alertsSummary(isModuleOn: true, rulesOn: 4, firing: 1, notifications: "allowed")
+                == "rules 4, firing 1, notifications allowed"
+        )
+        #expect(
+            DiagnosticsReport.alertsSummary(isModuleOn: true, rulesOn: 0, firing: 0, notifications: "not asked")
+                == "rules 0, firing 0, notifications not asked"
+        )
+        // A word is reduced to lowercase letters and spaces; counts are capped and never negative.
+        let hostile = DiagnosticsReport.alertsSummary(
+            isModuleOn: true, rulesOn: -2, firing: .max, notifications: "Denied\n/Users/Anna 42\"x\""
+        )
+        #expect(hostile == "rules 0, firing 99999, notifications deniedusersanna x")
+        let allowed = Set("abcdefghijklmnopqrstuvwxyz0123456789 ,")
+        #expect(hostile.allSatisfy { allowed.contains($0) })
+    }
+
+    @Test("The System alerts line shows the summary, is cut at its maximum and absent without one")
+    func alertsLine() {
+        var input = sample
+        input.alerts = "rules 4, firing 1, notifications allowed"
+        #expect(
+            DiagnosticsReport.make(input).split(separator: "\n")
+                .contains("System alerts: rules 4, firing 1, notifications allowed")
+        )
+        input.alerts = "off"
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").contains("System alerts: off"))
+        input.alerts = String(repeating: "a", count: 500)
+        let line = DiagnosticsReport.make(input).split(separator: "\n").first { $0.hasPrefix("System alerts:") }
+        #expect(line?.count == "System alerts: ".count + DiagnosticsReport.maximumAlertsLength)
+        input.alerts = ""
+        #expect(!DiagnosticsReport.make(input).split(separator: "\n").contains { $0.hasPrefix("System alerts:") })
+    }
 }
