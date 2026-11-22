@@ -41,8 +41,8 @@ nonisolated struct ReadoutHistorySummary: Equatable, Sendable {
 ///
 /// The policy is by time, not by count, so a slower refresh still covers about two minutes: a
 /// sample older than ``window`` before the newest one drops off, and ``capacity`` bounds the
-/// memory in any case. A missing value (`nil`) is kept as a gap, and a gap longer than twice the
-/// refresh interval (the hub was closed in between) breaks the curve, so a closed hub is never
+/// memory in any case. A missing value (`nil`) is kept as a gap, and a gap longer than 2.5 times
+/// the interval the samples come at (the hub was closed in between) breaks the curve, so a closed hub is never
 /// drawn as a flat value. Nothing here is stored, logged or exported.
 nonisolated struct ReadoutHistory: Equatable, Sendable {
     /// How far back the history reaches.
@@ -92,15 +92,17 @@ nonisolated struct ReadoutHistory: Equatable, Sendable {
     }
 
     /// The curve's lines: runs of two or more consecutive values, each point placed by its time
-    /// and its height. A missing value and a gap of more than twice the refresh interval end a
-    /// run; a run of a single point is no line.
+    /// and its height. A missing value and a gap of more than 2.5 times the interval end a run; a
+    /// run of a single point is no line. The extra half interval leaves room for the timer's
+    /// tolerance and the time a reading takes, so a steady sampling never breaks the curve.
     ///
     /// - Parameters:
     ///   - now: The right edge of the window.
-    ///   - refreshSeconds: The refresh interval the samples come at.
+    ///   - refreshSeconds: The interval the samples really come at, in seconds: the refresh
+    ///     interval as the monitor applies it (``ReadoutSchedule/effectiveSeconds(forInterval:isLowPowerMode:)``).
     ///   - top: The value at the top of the scale: 1 for fractions, the peak for rates.
     func segments(now: ContinuousClock.Instant, refreshSeconds: Int, top: Double) -> [[CurvePoint]] {
-        let maximumGap = Duration.seconds(max(refreshSeconds, 1) * 2)
+        let maximumGap = Duration.milliseconds(max(refreshSeconds, 1) * 2_500)
         let height = top > 0 ? top : 1
         var runs: [[CurvePoint]] = []
         var current: [CurvePoint] = []

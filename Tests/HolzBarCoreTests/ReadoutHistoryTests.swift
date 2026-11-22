@@ -60,7 +60,7 @@ struct ReadoutHistoryTests {
         #expect(line.allSatisfy { $0.y == 0.4 })
     }
 
-    @Test("A gap of more than twice the refresh interval breaks the curve; exactly twice does not")
+    @Test("A gap of more than 2.5 times the interval breaks the curve; twice does not")
     func gapBreaks() {
         var history = ReadoutHistory()
         for second in [0, 2, 4, 14, 16, 18] {
@@ -74,6 +74,32 @@ struct ReadoutHistoryTests {
             joined.append(0.5, at: at(second))
         }
         #expect(joined.segments(now: at(10), refreshSeconds: 2, top: 1).map(\.count) == [5])
+    }
+
+    @Test("Samples at twice the interval plus 10 percent (Low Power Mode with timer jitter) stay one curve")
+    func lowPowerSpacingKeepsTheCurve() {
+        // A 2 second refresh read every 4 seconds, 10 percent late: 4.4 seconds apart.
+        let interval = ReadoutSchedule.effectiveSeconds(forInterval: 2, isLowPowerMode: true)
+        #expect(interval == 4)
+        var history = ReadoutHistory()
+        for index in 0..<10 {
+            history.append(0.5, at: start.advanced(by: .milliseconds(index * 4_400)))
+        }
+        let now = start.advanced(by: .milliseconds(9 * 4_400))
+        let lines = history.segments(now: now, refreshSeconds: interval, top: 1)
+        #expect(lines.map(\.count) == [10])
+    }
+
+    @Test("A slow read in Low Power Mode breaks a curve judged by the configured interval, not by the effective one")
+    func configuredIntervalIsTooShort() {
+        var history = ReadoutHistory()
+        // 4 seconds of interval plus a read that took 1.5 seconds.
+        for index in 0..<4 {
+            history.append(0.5, at: start.advanced(by: .milliseconds(index * 5_500)))
+        }
+        let now = start.advanced(by: .milliseconds(3 * 5_500))
+        #expect(history.segments(now: now, refreshSeconds: 2, top: 1).isEmpty)
+        #expect(history.segments(now: now, refreshSeconds: 4, top: 1).map(\.count) == [4])
     }
 
     @Test("A missing value breaks the curve, and a lone point is no line")

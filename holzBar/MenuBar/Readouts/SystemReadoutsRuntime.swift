@@ -110,7 +110,12 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
         current.gpuUnavailable = appState?.systemMonitor.gpuIsUnavailable ?? false
         let locale = Locale.autoupdatingCurrent
         let now = ContinuousClock.now
-        let refreshSeconds = readouts.tileRefreshSeconds
+        // The curves judge gaps by the interval the monitor really reads at, which Low Power Mode
+        // doubles (H-01).
+        let refreshSeconds = ReadoutSchedule.effectiveSeconds(
+            forInterval: readouts.tileRefreshSeconds,
+            isLowPowerMode: ProcessInfo.processInfo.isLowPowerModeEnabled
+        )
         return ReadoutTiles.contents(current, stored: readouts.enabledTiles).map {
             let drawn = curve(of: $0.kind, now: now, refreshSeconds: refreshSeconds)
             return ReadoutTileBuilder.tile(

@@ -241,8 +241,15 @@ nonisolated enum ReadoutSchedule {
     /// The interval of a request inside 1 to ``maximumIntervalSeconds``, doubled in Low Power
     /// Mode.
     private static func effectiveInterval(_ request: ReadoutRequest, isLowPowerMode: Bool) -> Duration {
-        let seconds = min(max(request.intervalSeconds, 1), maximumIntervalSeconds)
-        return .seconds(seconds * (isLowPowerMode ? 2 : 1))
+        .seconds(effectiveSeconds(forInterval: request.intervalSeconds, isLowPowerMode: isLowPowerMode))
+    }
+
+    /// The seconds between two readings of a request with this interval: inside 1 to
+    /// ``maximumIntervalSeconds``, doubled in Low Power Mode. The one place the rule lives, so a
+    /// consumer that judges the spacing of the samples (the history curves) asks it instead of
+    /// repeating it.
+    static func effectiveSeconds(forInterval seconds: Int, isLowPowerMode: Bool) -> Int {
+        min(max(seconds, 1), maximumIntervalSeconds) * (isLowPowerMode ? 2 : 1)
     }
 
     /// A tenth of a step, in whole milliseconds.
