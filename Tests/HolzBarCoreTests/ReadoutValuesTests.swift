@@ -171,6 +171,19 @@ struct ReadoutValuesTests {
         #expect(!DiskDriverRule.counts(deviceClass: "IOHDIXHDDriveOutKernel", physicalInterconnect: "Disk Image"))
     }
 
+    @Test("Between two precise reads the kept free space is shown; a tick that read shows its own")
+    func diskSpaceCache() {
+        let kept = DiskSpace(available: 10, total: 100, quickAvailable: 10)
+        let fresh = DiskSpace(available: 20, total: 100, quickAvailable: 19)
+        #expect(DiskSpaceCache.figure(read: nil, kept: kept, refreshed: false) == kept)
+        #expect(DiskSpaceCache.figure(read: fresh, kept: kept, refreshed: true) == fresh)
+        // A failed read of a refreshing tick is missing, never an old figure.
+        #expect(DiskSpaceCache.figure(read: nil, kept: kept, refreshed: true) == nil)
+        // Nothing kept: whatever the tick read stands in.
+        #expect(DiskSpaceCache.figure(read: fresh, kept: nil, refreshed: false) == fresh)
+        #expect(DiskSpaceCache.figure(read: nil, kept: nil, refreshed: false) == nil)
+    }
+
     // MARK: Power and GPU
 
     @Test("Battery minutes are believed only when they are possible")

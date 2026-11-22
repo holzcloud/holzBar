@@ -324,9 +324,9 @@ final class SystemMonitor {
             && ReadoutSchedule.refreshesDiskSpace(lastRefresh: preciseDiskSpaceAt, now: .now)
     }
 
-    /// Keeps a precise read, or puts the kept precise figure into a sample that has only the
-    /// cheap one, so a consumer always gets the figure Finder shows and the capacity is asked of
-    /// the system once a minute (D-10).
+    /// Keeps a precise read, or puts the kept precise figure into a sample that did not read the
+    /// space, so a consumer always gets the figure Finder shows and the capacity is asked of the
+    /// system once a minute (D-10, L-06).
     private func cachingDiskSpace(of sample: ReadoutSample, refreshed: Bool) -> ReadoutSample {
         guard sample.read.contains(.diskSpace) else {
             return sample
@@ -334,15 +334,9 @@ final class SystemMonitor {
         if refreshed {
             preciseDiskSpace = sample.diskSpace
             preciseDiskSpaceAt = sample.diskSpace == nil ? nil : sample.at
-            return sample
         }
-        guard var space = sample.diskSpace, let kept = preciseDiskSpace else {
-            return sample
-        }
-        space.available = kept.available
-        space.total = kept.total
         var cached = sample
-        cached.diskSpace = space
+        cached.diskSpace = DiskSpaceCache.figure(read: sample.diskSpace, kept: preciseDiskSpace, refreshed: refreshed)
         return cached
     }
 

@@ -188,6 +188,20 @@ nonisolated struct DiskSpace: Equatable, Sendable {
     var quickAvailable: Int64?
 }
 
+/// Which free-space figure a delivery carries. The precise figure (the one Finder shows) is asked
+/// of the system about once a minute and kept; a tick between two such reads does not read the
+/// file system at all, because the kept figure is what every consumer shows (L-06).
+nonisolated enum DiskSpaceCache {
+    /// The figure for a delivery: the freshly read one on a tick that read, otherwise the kept
+    /// precise one, falling back to whatever the tick read when nothing is kept.
+    static func figure(read: DiskSpace?, kept: DiskSpace?, refreshed: Bool) -> DiskSpace? {
+        if refreshed {
+            return read
+        }
+        return kept ?? read
+    }
+}
+
 /// The memory pressure the system reports.
 nonisolated enum ReadoutPressure: Int, CaseIterable, Comparable, Sendable {
     case normal = 1

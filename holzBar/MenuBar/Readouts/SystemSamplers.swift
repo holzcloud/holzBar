@@ -31,8 +31,8 @@ nonisolated enum SystemSamplers {
     ///
     /// - Parameters:
     ///   - metrics: What to read. A metric that has no reader yet is left out of the sample.
-    ///   - refreshesDiskSpace: Whether the precise free disk space (the figure Finder shows) is read;
-    ///     otherwise only the cheap `statfs` figure is.
+    ///   - refreshesDiskSpace: Whether the free disk space (the figure Finder shows) is read now;
+    ///     otherwise it is left out and the monitor supplies the figure it kept.
     @concurrent
     static func read(_ metrics: Set<ReadoutMetric>, refreshesDiskSpace: Bool) async -> ReadoutSample {
         var sample = ReadoutSample(at: ContinuousClock.now)
@@ -71,7 +71,9 @@ nonisolated enum SystemSamplers {
         }
         if metrics.contains(.diskSpace) {
             sample.read.insert(.diskSpace)
-            sample.diskSpace = diskSpace(precise: refreshesDiskSpace)
+            // Between two precise reads the monitor shows the kept figure, so the file system is
+            // not asked at all (L-06).
+            sample.diskSpace = refreshesDiskSpace ? diskSpace(precise: true) : nil
         }
         if metrics.contains(.network) {
             sample.read.insert(.network)
