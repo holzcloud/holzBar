@@ -118,4 +118,59 @@ struct AgentRestartBreakerTests {
         let accepted7 = breaker.expectRestart(at: start + .seconds(3))
         #expect(!accepted7)
     }
+
+    @Test("A trip after a reset ends at its own deadline, not at the earlier one")
+    func tripAfterResetHasItsOwnDeadline() {
+        var breaker = AgentRestartBreaker()
+        for index in 0..<4 {
+            breaker.record(at: start + .seconds(index))
+        }
+        let first = breaker.trippedUntil
+        breaker.reset()
+        #expect(breaker.trippedUntil == nil)
+        for index in 0..<4 {
+            breaker.record(at: start + .seconds(300 + index))
+        }
+        let second = breaker.trippedUntil
+        #expect(second != nil)
+        #expect(second != first)
+        #expect(!breaker.isTripped(at: start + .seconds(300 + 3) + AgentRestartBreaker.trippedFor))
+        // The first deadline has passed by the time the second trip stands; only the second
+        // end is armed for it.
+        #expect(breaker.isTripped(at: (first ?? start) + .seconds(1)))
+    }
+
+    @Test("Cancelling an expectation restores the manual gap and the pending expectation")
+    func cancelExpectation() {
+        var breaker = AgentRestartBreaker()
+        let accepted = breaker.expectRestart(at: start)
+        #expect(accepted)
+        breaker.cancelExpectation()
+        // The retry is not a double click.
+        let retry = breaker.expectRestart(at: start + .seconds(1))
+        #expect(retry)
+        breaker.cancelExpectation()
+        // The next restart is counted: nothing was expected.
+        let outcome = breaker.record(at: start + .seconds(2))
+        #expect(outcome == .reapply)
+    }
+
+    @Test("Cancelling keeps an earlier pending expectation")
+    func cancelKeepsEarlierExpectation() {
+        var breaker = AgentRestartBreaker()
+        let first = breaker.expectRestart(at: start)
+        #expect(first)
+        let second = breaker.expectRestart(at: start + .seconds(6))
+        #expect(second)
+        breaker.cancelExpectation()
+        let outcome = breaker.record(at: start + .seconds(8))
+        #expect(outcome == .expected)
+    }
+
+    @Test("Cancelling without an expectation does nothing")
+    func cancelWithoutExpectation() {
+        var breaker = AgentRestartBreaker()
+        breaker.cancelExpectation()
+        #expect(breaker == AgentRestartBreaker())
+    }
 }

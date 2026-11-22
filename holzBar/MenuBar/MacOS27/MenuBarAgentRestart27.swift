@@ -9,8 +9,9 @@ import OSLog
 /// The "Restart Menu Bar" command of holzBar's menu on macOS 27.
 ///
 /// MenuBarAgent can stall on macOS 27. The command asks `NSRunningApplication` to force-quit it;
-/// launchd starts it again by itself. holzBar starts no process (the process allowlist and the
-/// decision D-07 forbid it), and the restart detection of 1.0.5 then applies the hiding again.
+/// macOS normally starts it again by itself. holzBar starts no process (the process allowlist
+/// and the decision D-07 forbid it), and the restart detection of 1.0.5 then applies the hiding
+/// again.
 ///
 /// The command is user-initiated only: it is offered in holzBar's menu (and the palette and
 /// Settings) and never to `holzbar://` URL commands, Shortcuts or automation rules. Whether the
@@ -56,14 +57,17 @@ enum MenuBarAgentRestart27 {
         }
         guard let agent else {
             logger.notice("Restart Menu Bar: MenuBarAgent is not visible")
+            appState.concealer27.manualRestartDidAsk(succeeded: false)
             showFailure()
             return .notRunning
         }
         guard agent.forceTerminate() else {
             logger.notice("Restart Menu Bar: macOS refused to quit MenuBarAgent")
+            appState.concealer27.manualRestartDidAsk(succeeded: false)
             showFailure()
             return .refused
         }
+        appState.concealer27.manualRestartDidAsk(succeeded: true)
         return .restarted
     }
 

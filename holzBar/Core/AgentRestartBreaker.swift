@@ -56,6 +56,15 @@ nonisolated struct AgentRestartBreaker: Equatable, Sendable {
     /// When the last accepted expectation was made.
     private var lastExpectation: ContinuousClock.Instant?
 
+    /// What the last accepted expectation replaced, to take it back with
+    /// ``cancelExpectation()``.
+    private var beforeExpectation: Before?
+
+    private struct Before: Equatable, Sendable {
+        var expectedAt: ContinuousClock.Instant?
+        var lastExpectation: ContinuousClock.Instant?
+    }
+
     /// Whether hiding is stopped at the given time.
     func isTripped(at now: ContinuousClock.Instant) -> Bool {
         guard let trippedUntil else {
@@ -67,6 +76,7 @@ nonisolated struct AgentRestartBreaker: Equatable, Sendable {
     /// Counts a restart of MenuBarAgent and says what to do about it.
     @discardableResult
     mutating func record(at now: ContinuousClock.Instant) -> Outcome {
+        beforeExpectation = nil
         if isTripped(at: now) {
             return .tripped
         }
@@ -96,9 +106,21 @@ nonisolated struct AgentRestartBreaker: Equatable, Sendable {
         if let lastExpectation, lastExpectation <= now, lastExpectation.duration(to: now) < Self.manualGap {
             return false
         }
+        beforeExpectation = Before(expectedAt: expectedAt, lastExpectation: lastExpectation)
         lastExpectation = now
         expectedAt = now
         return true
+    }
+
+    /// Takes back the last accepted expectation, when the restart it announced was never asked
+    /// for: the next restart counts again and the manual gap does not apply to a retry.
+    mutating func cancelExpectation() {
+        guard let beforeExpectation else {
+            return
+        }
+        expectedAt = beforeExpectation.expectedAt
+        lastExpectation = beforeExpectation.lastExpectation
+        self.beforeExpectation = nil
     }
 
     /// Ends a trip and clears the counts, as a user action wants hiding back. A pending

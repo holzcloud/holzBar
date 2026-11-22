@@ -74,23 +74,39 @@ final class Concealer27 {
     func togglePause() {
         let isPaused = pause.toggle()
         if !isPaused {
-            restartBreaker.reset()
+            endBreakerTrip()
         }
         logger.notice("holzBar \(isPaused ? "paused" : "resumed", privacy: .public)")
         update()
     }
 
-    /// Prepares holzBar's own "Restart Menu Bar": the breaker expects the restart (it is not
-    /// counted) and a tripped breaker ends, as the user wants hiding back.
+    /// Ends a trip of ``restartBreaker`` and drops the task that was to end it, so a later trip
+    /// arms its own end instead of waiting for a task armed for the earlier one.
+    private func endBreakerTrip() {
+        restartBreaker.reset()
+        breakerEndTask?.cancel()
+        breakerEndTask = nil
+    }
+
+    /// Prepares holzBar's own "Restart Menu Bar": the breaker expects the restart, which is not
+    /// counted. Nothing else changes until ``manualRestartDidAsk(succeeded:)`` says whether
+    /// macOS took the request.
     ///
     /// - Returns: `false` when the last restart was asked for less than five seconds ago.
     func prepareForManualRestart() -> Bool {
-        guard restartBreaker.expectRestart(at: .now) else {
-            return false
+        restartBreaker.expectRestart(at: .now)
+    }
+
+    /// Settles a manual restart after the request to quit MenuBarAgent: when macOS took it, a
+    /// tripped breaker ends, as the user wants hiding back; when it did not, the expectation is
+    /// taken back, so the next real restart is counted and the user can try again at once.
+    func manualRestartDidAsk(succeeded: Bool) {
+        guard succeeded else {
+            restartBreaker.cancelExpectation()
+            return
         }
-        restartBreaker.reset()
+        endBreakerTrip()
         logger.notice("Restarting MenuBarAgent at the user's request")
-        return true
     }
 
     /// How many times a read found new applications while concealing and the allowlist was
@@ -482,11 +498,13 @@ final class Concealer27 {
         case .expected:
             logger.debug("MenuBarAgent restarted because holzBar asked for it, applying concealment again")
         case .tripped:
-            // Once per trip: restarts that arrive while it stands add nothing.
+            // Logged once per trip: restarts that arrive while it stands add nothing. The end is
+            // armed every time (it replaces the task, for the same deadline while the trip
+            // stands), so a trip after a reset never waits on a task armed for an earlier one.
             if breakerEndTask == nil {
                 logger.notice("MenuBarAgent restarted \(AgentRestartBreaker.restartLimit + 1, privacy: .public) times within ten minutes; hiding stops for 30 minutes")
-                scheduleBreakerEnd()
             }
+            scheduleBreakerEnd()
         }
         // Dead tokens go in every case: a later apply must not reuse them.
         let previous = applyTask
