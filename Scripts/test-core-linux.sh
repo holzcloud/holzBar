@@ -28,6 +28,8 @@ sources=(
   AccessoryRefreshPolicy
   AccessoryTracker
   AgentRestartBreaker
+  AlertRequestPlan
+  AlertSeverity
   AppearanceMoods
   AppleItemReplacement
   AppVersion
@@ -162,6 +164,8 @@ sources=(
   ShelfFindRanking
   ShortcutLink
   SystemActivity
+  ThresholdEvaluator
+  ThresholdRule
   TimerBoard
   TimerFinishSound
   TimerInput
@@ -190,6 +194,8 @@ tests=(
   AccessoryRefreshPolicyTests
   AccessoryTrackerTests
   AgentRestartBreakerTests
+  AlertRequestPlanTests
+  AlertSeverityTests
   AppearanceMoodsTests
   AppleItemReplacementTests
   AppVersionTests
@@ -316,6 +322,8 @@ tests=(
   ShelfFindTests
   ShortcutLinkTests
   SystemActivityTests
+  ThresholdEvaluatorTests
+  ThresholdRuleTests
   TimerBoardTests
   TimerFinishSoundTests
   TimerInputTests
