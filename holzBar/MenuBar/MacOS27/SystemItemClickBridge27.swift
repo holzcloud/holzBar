@@ -57,16 +57,22 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
     ///
     /// Its callback runs on a thread of its own (D-05), so a busy main thread cannot make macOS
     /// disable it by timeout: it decides from `state` alone and starts a task on the main actor
-    /// for everything else.
+    /// for everything else. The hidden default `MacOS27ClickBridgeOnMainThread` puts the same
+    /// callback back on the main run loop, for a Mac where the thread misbehaves; it is read
+    /// once, when the tap is created.
     private lazy var tap: EventTap = {
         let state = state
         let box = box
+        let onMainThread = Defaults.bool(forKey: .macOS27ClickBridgeOnMainThread)
+        Self.bridgeLogger.notice(
+            "Click bridge: the tap runs on \(onMainThread ? "the main run loop" : "its own thread", privacy: .public)"
+        )
         return EventTap(
             types: [.leftMouseDown, .leftMouseUp, .rightMouseDown, .otherMouseDown],
             location: .hidEventTap,
             placement: .headInsertEventTap,
             option: .defaultTap,
-            runLoop: .ownThread(name: "com.holzcloud.holzBar.ClickBridge27"),
+            runLoop: onMainThread ? .main : .ownThread(name: "com.holzcloud.holzBar.ClickBridge27"),
             disabledHandler: { _ in
                 let action = state.tapWasDisabled()
                 Task { @MainActor in

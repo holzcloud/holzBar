@@ -395,6 +395,11 @@ nonisolated extension Defaults {
         /// Hidden: `defaults write com.holzcloud.holzBar DebugHangsItemImageCapture -bool true`.
         /// Never exported or imported.
         case debugHangsItemImageCapture = "DebugHangsItemImageCapture"
+        /// Runs the macOS 27 click bridge's tap on the main run loop instead of its own thread,
+        /// for a Mac where the thread misbehaves. Hidden:
+        /// `defaults write com.holzcloud.holzBar MacOS27ClickBridgeOnMainThread -bool true`.
+        /// Never exported or imported.
+        case macOS27ClickBridgeOnMainThread = "MacOS27ClickBridgeOnMainThread"
 
         // MARK: Migration
         case hasMigrated0_8_0 = "hasMigrated0_8_0"
@@ -493,6 +498,7 @@ nonisolated extension Defaults.Key {
             .macOS27ShelfWaitsForRefresh,
             .debugDropsBarrierExitEvent,
             .debugHangsItemImageCapture,
+            .macOS27ClickBridgeOnMainThread,
             .hasMigrated0_8_0,
             .hasMigrated0_10_0,
             .hasMigrated0_10_1,
@@ -676,6 +682,7 @@ nonisolated extension Defaults.Key {
         .displayBehaviors,
         .debugDropsBarrierExitEvent,
         .debugHangsItemImageCapture,
+        .macOS27ClickBridgeOnMainThread,
     ]
 
     /// The stored key names an imported settings file may set, with the

@@ -490,6 +490,17 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["DebugHangsItemImageCapture"])
     }
 
+    @Test("The click bridge's main-thread fallback stays on this Mac")
+    func clickBridgeOnMainThreadStaysLocal() {
+        #expect(Defaults.Key.macOS27ClickBridgeOnMainThread.rawValue == "MacOS27ClickBridgeOnMainThread")
+        #expect(Defaults.Key.macOS27ClickBridgeOnMainThread.settingsKind == .bool)
+        #expect(Defaults.Key.localOnlyKeys.contains(.macOS27ClickBridgeOnMainThread))
+        #expect(Defaults.Key.importableKinds["MacOS27ClickBridgeOnMainThread"] == nil)
+        let result = Defaults.Key.validatedSettings(["MacOS27ClickBridgeOnMainThread": true, "ShowOnHover": true], ownBundleIdentifier: ownBundle)
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["MacOS27ClickBridgeOnMainThread"])
+    }
+
     @Test("Numbers out of range are clamped, and infinity and NaN refused")
     func numbersAreClamped() {
         let result = Defaults.Key.validatedSettings([
