@@ -25,6 +25,9 @@ extension SettingsCatalog {
                 entries += [.advancedDividerStyle, .advancedShowAllSectionsOnDrag]
             }
             entries.append(.advancedSecondaryContextMenu)
+            if #available(macOS 27.0, *), MenuBarBackendKind.current == .accessibility27 {
+                entries.append(.advancedMenuBarCommands27)
+            }
             if isBeforeMacOS27 {
                 entries += [
                     .advancedKeepLiveActivities,
@@ -71,6 +74,14 @@ extension SettingsEntry {
         group: SettingsCatalog.AdvancedPane.menuBar,
         label: String(localized: "Right-click on empty menu bar opens holzBar's menu"),
         info: String(localized: "Right-click in an empty area of the menu bar to display a minimal version of holzBar's menu. From macOS 27.2, hold ⌥ Option as you right-click; a plain right-click opens Apple's menu. Disable this setting if you encounter conflicts with other apps.")
+    )
+
+    static let advancedMenuBarCommands27 = SettingsEntry(
+        id: "advancedMenuBarCommands27",
+        pane: .advanced,
+        group: SettingsCatalog.AdvancedPane.menuBar,
+        label: String(localized: "Restart the menu bar or pause holzBar"),
+        info: String(localized: "Restart Menu Bar quits macOS's menu bar process, which macOS starts again at once, and holzBar hides your items again. Pause holzBar shows every item until you resume it or quit holzBar. Both are also in holzBar's menu and the command palette.")
     )
 
     static let advancedKeepLiveActivities = SettingsEntry(

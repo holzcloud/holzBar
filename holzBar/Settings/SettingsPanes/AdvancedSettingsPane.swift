@@ -36,6 +36,19 @@ struct AdvancedSettingsPane: View {
                     )
                 }
                 SettingsToggleRow(.advancedSecondaryContextMenu, isOn: $settings.enableSecondaryContextMenu)
+                if #available(macOS 27.0, *), MenuBarBackendKind.current == .accessibility27 {
+                    // The same two commands as holzBar's menu and the command palette. The restart
+                    // is offered only while MenuBarAgent is visible (D-07).
+                    SettingsButtonRow(.advancedMenuBarCommands27, badge: .preview) {
+                        Button("Restart Menu Bar") {
+                            MenuBarAgentRestart27.restart(appState: appState)
+                        }
+                        .disabled(!MenuBarAgentRestart27.isAvailable)
+                        Button(appState.concealer27.pause.isPaused ? "Resume holzBar" : "Pause holzBar") {
+                            appState.concealer27.togglePause()
+                        }
+                    }
+                }
                 if !isMacOS27 {
                     SettingsToggleRow(
                         .advancedKeepLiveActivities,
