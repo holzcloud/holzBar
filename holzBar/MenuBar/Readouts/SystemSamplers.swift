@@ -457,6 +457,7 @@ nonisolated enum SystemSamplers {
             }
             var identifier: UInt64 = 0
             guard
+                countsAsRealDisk(entry),
                 IORegistryEntryGetRegistryEntryID(entry, &identifier) == KERN_SUCCESS,
                 let property = IORegistryEntryCreateCFProperty(entry, "Statistics" as CFString, kCFAllocatorDefault, 0),
                 let statistics = property.takeRetainedValue() as? [String: Any]
@@ -477,5 +478,27 @@ nonisolated enum SystemSamplers {
             return nil
         }
         return CounterSnapshot(at: instant, counters: counters)
+    }
+
+    /// Whether a block storage driver belongs to a real disk and not to a mounted disk image or
+    /// another virtual device (``DiskDriverRule``): the class and the physical interconnect of the
+    /// device the driver sits on decide. The parent entry is released in `defer`; when it cannot be
+    /// read the driver counts.
+    private static func countsAsRealDisk(_ driver: io_registry_entry_t) -> Bool {
+        var parent: io_registry_entry_t = 0
+        guard IORegistryEntryGetParentEntry(driver, kIOServicePlane, &parent) == KERN_SUCCESS else {
+            return true
+        }
+        defer {
+            IOObjectRelease(parent)
+        }
+        let deviceClass = IOObjectCopyClass(parent)?.takeRetainedValue() as String?
+        var interconnect: String?
+        if let property = IORegistryEntryCreateCFProperty(
+            parent, "Protocol Characteristics" as CFString, kCFAllocatorDefault, 0
+        ), let characteristics = property.takeRetainedValue() as? [String: Any] {
+            interconnect = characteristics["Physical Interconnect"] as? String
+        }
+        return DiskDriverRule.counts(deviceClass: deviceClass, physicalInterconnect: interconnect)
     }
 }

@@ -145,6 +145,27 @@ nonisolated enum DiskStatistics {
     }
 }
 
+/// Which block storage drivers count toward the disk activity (MON-04, M-04): the real disks, not
+/// the virtual devices on top of them. A mounted disk image (or a sparse bundle) has a driver of
+/// its own, and a read from it is counted again on the driver of the physical disk that holds the
+/// file, so counting both would show about twice the real rate.
+nonisolated enum DiskDriverRule {
+    /// The physical interconnect macOS reports for a virtual device such as a disk image.
+    static let virtualInterconnect = "Virtual Interface"
+
+    /// Whether a driver counts, given the class of the device it sits on and that device's
+    /// physical interconnect. What cannot be read counts: an unknown device is taken for a disk.
+    static func counts(deviceClass: String?, physicalInterconnect: String?) -> Bool {
+        if physicalInterconnect == virtualInterconnect {
+            return false
+        }
+        if let deviceClass, deviceClass == "AppleDiskImageDevice" || deviceClass.hasPrefix("IOHDIX") {
+            return false
+        }
+        return true
+    }
+}
+
 /// The memory in use and the total, in bytes.
 nonisolated struct MemoryUse: Equatable, Sendable {
     var used: UInt64

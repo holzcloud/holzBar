@@ -161,6 +161,16 @@ struct ReadoutValuesTests {
         #expect(DiskStatistics.counters([:]) == nil)
     }
 
+    @Test("A disk image or another virtual device is not a real disk, so its reads are not counted twice")
+    func diskDriverRule() {
+        #expect(DiskDriverRule.counts(deviceClass: "AppleANS3NVMeController", physicalInterconnect: "Apple Fabric"))
+        #expect(DiskDriverRule.counts(deviceClass: "IOBlockStorageDevice", physicalInterconnect: "USB"))
+        #expect(DiskDriverRule.counts(deviceClass: nil, physicalInterconnect: nil))
+        #expect(!DiskDriverRule.counts(deviceClass: "IOBlockStorageDevice", physicalInterconnect: "Virtual Interface"))
+        #expect(!DiskDriverRule.counts(deviceClass: "AppleDiskImageDevice", physicalInterconnect: nil))
+        #expect(!DiskDriverRule.counts(deviceClass: "IOHDIXHDDriveOutKernel", physicalInterconnect: "Disk Image"))
+    }
+
     // MARK: Power and GPU
 
     @Test("Battery minutes are believed only when they are possible")
