@@ -40,6 +40,25 @@ nonisolated enum InterfaceWindowRule {
     /// choice within D-12 of phase 93, a little above the 1-point borders seen.
     static let thinWindowLimit: CGFloat = 8
 
+    /// Window levels at which macOS 27 shows popups of status items besides ``menuLayers``.
+    ///
+    /// Empty until probe P8 (`Scripts/macos27/window-layers-probe.swift`) measures them on
+    /// macOS 27: nothing is built on a guessed layer (D-01 of phase 93). Plan 93-16 fills it
+    /// from the probe, or records that none was measured.
+    static let macOS27PopupLayers: Set<Int> = []
+
+    /// Window levels of the tooltips of status items.
+    ///
+    /// Empty until probe P8 measures the level of a tooltip on macOS 27 (D-01, D-12 of
+    /// phase 93); plan 93-16 fills it. While it is empty, no tooltip holds a rehide.
+    static let tooltipLayers: Set<Int> = []
+
+    /// The height, in points, from which a window is too tall to be a tooltip.
+    static let tooltipMaximumHeight: CGFloat = 40
+
+    /// How far below the bar's lower edge a tooltip may start, in points.
+    static let tooltipBarSlack: CGFloat = 8
+
     /// Whether a window is the open menu of an item in a shown hidden section, so that no
     /// rehide pulls the item away under it.
     ///
@@ -59,14 +78,46 @@ nonisolated enum InterfaceWindowRule {
         height: CGFloat,
         ownerPID: Int32,
         shownOwners: Set<Int32>,
-        barHeight: CGFloat
+        barHeight: CGFloat,
+        popupLayers: Set<Int> = macOS27PopupLayers
     ) -> Bool {
         guard shownOwners.contains(ownerPID), min(width, height) >= thinWindowLimit else {
             return false
         }
-        if popUpMenuLayers.contains(layer) {
+        if popUpMenuLayers.contains(layer) || popupLayers.contains(layer) {
             return true
         }
         return layer == statusBarLayer && height > barHeight + statusBarSlack
+    }
+
+    /// Whether a window is the visible tooltip of an item in a shown hidden section: small,
+    /// directly below the bar, at a measured tooltip level, of a shown owner.
+    ///
+    /// Like an open menu, a tooltip holds a rehide so that the item does not slide away
+    /// while the pointer rests on it. `layers` defaults to ``tooltipLayers``, which stays
+    /// empty until probe P8 measures it, so nothing counts before then.
+    ///
+    /// - Parameters:
+    ///   - topBelowDisplayTop: The distance from the top of the window's display to the top
+    ///     of the window, in points.
+    static func isBarTooltip(
+        layer: Int,
+        width: CGFloat,
+        height: CGFloat,
+        topBelowDisplayTop: CGFloat,
+        ownerPID: Int32,
+        shownOwners: Set<Int32>,
+        barHeight: CGFloat,
+        layers: Set<Int> = tooltipLayers
+    ) -> Bool {
+        guard
+            shownOwners.contains(ownerPID),
+            layers.contains(layer),
+            min(width, height) >= thinWindowLimit,
+            height < tooltipMaximumHeight
+        else {
+            return false
+        }
+        return topBelowDisplayTop >= 0 && topBelowDisplayTop <= barHeight + tooltipBarSlack
     }
 }

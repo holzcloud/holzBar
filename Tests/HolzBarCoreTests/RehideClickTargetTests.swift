@@ -60,4 +60,27 @@ struct RehideClickTargetTests {
         #expect(index(of: windows) == 2)
         #expect(RehideClickTarget.clickedWindowIndex(in: [window(layer: 0)], at: point, cursorLayer: 0, dockPID: dockPID) == nil)
     }
+
+    @Test("topmostWindowIndex finds the first window under the point at any layer")
+    func topmostWindowAtAnyLayer() {
+        let menu = window(layer: 101, ownerPID: 5, bounds: CGRect(x: 100, y: 24, width: 200, height: 300))
+        let app = window(layer: 0, ownerPID: 9, bounds: CGRect(x: 0, y: 0, width: 1000, height: 800))
+        let windows = [menu, app]
+        func topmost(_ point: CGPoint) -> Int? {
+            RehideClickTarget.topmostWindowIndex(in: windows, at: point, cursorLayer: cursorLayer)
+        }
+        #expect(topmost(CGPoint(x: 150, y: 100)) == 0)
+        #expect(topmost(CGPoint(x: 600, y: 600)) == 1)
+        #expect(topmost(CGPoint(x: 2000, y: 2000)) == nil)
+    }
+
+    @Test("topmostWindowIndex skips windows at or above the cursor's level")
+    func topmostSkipsTheCursorLevel() {
+        let windows = [
+            window(layer: cursorLayer),
+            window(layer: cursorLayer + 1),
+            window(layer: 101, ownerPID: 5),
+        ]
+        #expect(RehideClickTarget.topmostWindowIndex(in: windows, at: point, cursorLayer: cursorLayer) == 2)
+    }
 }

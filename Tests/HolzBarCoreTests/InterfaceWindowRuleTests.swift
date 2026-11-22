@@ -102,4 +102,79 @@ struct InterfaceWindowRuleTests {
         #expect(isOpenMenu(layer: 25, width: 300, height: 300))
         #expect(isOpenMenu(layer: 101, width: 300, height: 300))
     }
+
+    @Test("The shipped layer sets are empty until probe P8 measures them")
+    func shippedLayerSetsAreEmpty() {
+        // D-01: nothing is built on a guessed layer. Plan 93-16 fills both sets from probe P8
+        // and flips the two tests below that pin them empty (or records "measured: none").
+        #expect(InterfaceWindowRule.macOS27PopupLayers.isEmpty)
+        #expect(InterfaceWindowRule.tooltipLayers.isEmpty)
+    }
+
+    @Test("A macOS 27 popup at an unlisted layer does not count until P8 names its layer")
+    func unmeasuredPopupLayerDoesNotCount() {
+        // Plan 93-16 flips this to the measured layer once probe P8 has run.
+        #expect(!isOpenMenu(layer: 3, width: 300, height: 300))
+    }
+
+    @Test("A measured popup layer counts like a pop-up menu")
+    func measuredPopupLayerCounts() {
+        #expect(InterfaceWindowRule.isOpenMenu(
+            layer: 3, width: 300, height: 300, ownerPID: Self.owner,
+            shownOwners: Self.shownOwners, barHeight: 24, popupLayers: [3]
+        ))
+        #expect(!InterfaceWindowRule.isOpenMenu(
+            layer: 3, width: 5, height: 300, ownerPID: Self.owner,
+            shownOwners: Self.shownOwners, barHeight: 24, popupLayers: [3]
+        ))
+    }
+
+    private func isBarTooltip(
+        layer: Int = 3,
+        width: CGFloat = 120,
+        height: CGFloat = 22,
+        top: CGFloat = 26,
+        ownerPID: Int32 = owner,
+        layers: Set<Int> = [3]
+    ) -> Bool {
+        InterfaceWindowRule.isBarTooltip(
+            layer: layer,
+            width: width,
+            height: height,
+            topBelowDisplayTop: top,
+            ownerPID: ownerPID,
+            shownOwners: Self.shownOwners,
+            barHeight: 24,
+            layers: layers
+        )
+    }
+
+    @Test("A small window just below the bar of a shown owner at a tooltip layer is a tooltip")
+    func tooltipCounts() {
+        #expect(isBarTooltip())
+        // Directly under the bar's lower edge and a little overlapping it.
+        #expect(isBarTooltip(top: 24))
+        #expect(isBarTooltip(top: 0))
+        #expect(isBarTooltip(top: 32))
+    }
+
+    @Test("A tooltip needs a measured layer: the shipped set is empty")
+    func tooltipNeedsAMeasuredLayer() {
+        #expect(!isBarTooltip(layers: []))
+        #expect(!InterfaceWindowRule.isBarTooltip(
+            layer: 3, width: 120, height: 22, topBelowDisplayTop: 26,
+            ownerPID: Self.owner, shownOwners: Self.shownOwners, barHeight: 24
+        ))
+        #expect(!isBarTooltip(layer: 4))
+    }
+
+    @Test("A tall, far, thin or foreign window is not a tooltip")
+    func notATooltip() {
+        #expect(!isBarTooltip(height: 40))
+        #expect(!isBarTooltip(top: 40))
+        #expect(!isBarTooltip(top: -1))
+        #expect(!isBarTooltip(ownerPID: 42))
+        #expect(!isBarTooltip(width: 5))
+        #expect(!isBarTooltip(height: 5))
+    }
 }
