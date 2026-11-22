@@ -50,7 +50,7 @@ struct ModulesSettingsPane: View {
             }
             SettingsGroup(
                 SettingsCatalog.ModulesPane.monitor,
-                footnote: Text("Tiles show in the Notch hub while it is on. Menu bar readouts are widgets.")
+                footnote: Text("Tiles show in the Notch hub while it is on. Menu bar readouts are widgets. Alerts show in the notch on their own.")
             ) {
                 moduleList(in: .monitor)
             }

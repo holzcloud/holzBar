@@ -96,6 +96,25 @@ extension SettingsCatalog {
             .modulesSystemAlertsCPU,
             .modulesSystemAlertsCPUThreshold,
             .modulesSystemAlertsCPUDuration,
+            .modulesSystemAlertsMemoryPressure,
+            .modulesSystemAlertsMemoryPressureThreshold,
+            .modulesSystemAlertsMemoryPressureDuration,
+            .modulesSystemAlertsThermal,
+            .modulesSystemAlertsThermalThreshold,
+            .modulesSystemAlertsThermalDuration,
+            .modulesSystemAlertsFreeDisk,
+            .modulesSystemAlertsFreeDiskThreshold,
+            .modulesSystemAlertsFreeDiskDuration,
+            .modulesSystemAlertsMacBattery,
+            .modulesSystemAlertsMacBatteryThreshold,
+            .modulesSystemAlertsMacBatteryDuration,
+        ]
+
+        /// The Mac battery rule's entries: a Mac without an internal battery has no such rule.
+        private static let macBatteryEntryIDs: Set<String> = [
+            SettingsEntry.modulesSystemAlertsMacBattery.id,
+            SettingsEntry.modulesSystemAlertsMacBatteryThreshold.id,
+            SettingsEntry.modulesSystemAlertsMacBatteryDuration.id,
         ]
 
         /// Whether a row entry belongs to a module this Mac can run.
@@ -105,6 +124,9 @@ extension SettingsCatalog {
                     return true
                 }
                 return false
+            }
+            if macBatteryEntryIDs.contains(entry.id) {
+                return SystemAlertsSettings.hasInternalBattery
             }
             guard
                 let moduleID = entry.module,
@@ -490,6 +512,111 @@ extension SettingsEntry {
 
     static let modulesSystemAlertsCPUDuration = SettingsEntry(
         id: "modulesSystemAlertsCPUDuration",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Held for"),
+        info: String(localized: "The condition must last this long before an alert shows."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsMemoryPressure = SettingsEntry(
+        id: "modulesSystemAlertsMemoryPressure",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Memory pressure"),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsMemoryPressureThreshold = SettingsEntry(
+        id: "modulesSystemAlertsMemoryPressureThreshold",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Alert at"),
+        info: String(localized: "Alerts when memory pressure reaches this level."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsMemoryPressureDuration = SettingsEntry(
+        id: "modulesSystemAlertsMemoryPressureDuration",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Held for"),
+        info: String(localized: "The condition must last this long before an alert shows."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsThermal = SettingsEntry(
+        id: "modulesSystemAlertsThermal",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Thermal state"),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsThermalThreshold = SettingsEntry(
+        id: "modulesSystemAlertsThermalThreshold",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Alert at"),
+        info: String(localized: "Alerts when the thermal state reaches this level."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsThermalDuration = SettingsEntry(
+        id: "modulesSystemAlertsThermalDuration",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Held for"),
+        info: String(localized: "The condition must last this long before an alert shows."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsFreeDisk = SettingsEntry(
+        id: "modulesSystemAlertsFreeDisk",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Free disk space"),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsFreeDiskThreshold = SettingsEntry(
+        id: "modulesSystemAlertsFreeDiskThreshold",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Alert below"),
+        info: String(localized: "Alerts when free disk space falls below this."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsFreeDiskDuration = SettingsEntry(
+        id: "modulesSystemAlertsFreeDiskDuration",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Held for"),
+        info: String(localized: "The condition must last this long before an alert shows."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsMacBattery = SettingsEntry(
+        id: "modulesSystemAlertsMacBattery",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Mac battery"),
+        info: String(localized: "Alerts only while the Mac runs on battery power; plugging in clears it. The charge limit is respected."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsMacBatteryThreshold = SettingsEntry(
+        id: "modulesSystemAlertsMacBatteryThreshold",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Alert below"),
+        info: String(localized: "Alerts when the battery falls below this."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsMacBatteryDuration = SettingsEntry(
+        id: "modulesSystemAlertsMacBatteryDuration",
         pane: .modules,
         group: SettingsCatalog.ModulesPane.monitor,
         label: String(localized: "Held for"),

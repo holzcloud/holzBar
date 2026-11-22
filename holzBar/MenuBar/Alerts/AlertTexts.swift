@@ -23,13 +23,25 @@ enum AlertTexts {
     }
 
     /// A rule's threshold or level as a value: a whole percent in the user's percent style for CPU
-    /// load and for the Mac battery.
+    /// load and for the Mac battery, the level word for memory pressure and the thermal state
+    /// (never degrees, D-13) and decimal gigabytes such as "10 GB" for free disk space.
     static func limitText(_ limit: Int, for signal: AlertSignal) -> String {
         switch signal {
         case .cpu, .macBattery:
             AccessoryBattery.percentText(limit)
-        case .memoryPressure, .thermal, .freeDisk:
-            String(limit)
+        case .memoryPressure:
+            switch limit {
+            case 2: String(localized: "Critical")
+            default: String(localized: "Warning")
+            }
+        case .thermal:
+            switch limit {
+            case 1: String(localized: "Fair")
+            case 3: String(localized: "Critical")
+            default: String(localized: "Serious")
+            }
+        case .freeDisk:
+            (Int64(limit) * ThresholdRule.bytesPerGigabyte).formatted(ByteCountFormatStyle(style: .file))
         }
     }
 }

@@ -6,31 +6,82 @@
 import SwiftUI
 
 /// The System alerts module's settings, in the open area of the module's row: the five fixed
-/// rules in the order of the contract, each a switch with its threshold or level and how long the
-/// condition has to hold as dependent sub rows. The rows dim while the module is off and a rule's
-/// sub rows dim while the rule is off. The view only flips stored values: it runs and measures
-/// nothing, so it also works while the Notch hub and System readouts are off.
+/// rules in the order of the contract (CPU load, memory pressure, thermal state, free disk space,
+/// Mac battery), each a switch with its threshold or level and how long the condition has to hold
+/// as dependent sub rows. The rows dim while the module is off and a rule's sub rows dim while the
+/// rule is off. The Mac battery rows are left out on a Mac without an internal battery. With the
+/// module on and every shown rule off, one line says so.
+///
+/// The view only flips stored values: it runs and measures nothing, so it also works while the
+/// Notch hub and System readouts are off.
 struct SystemAlertsSettingsView: View {
     @Environment(AppState.self) private var appState
 
     var body: some View {
-        let settings = appState.settings.systemAlerts
         let isModuleOn = appState.modules.isEnabled(SystemAlertsSettings.moduleID)
         Group {
             SettingsToggleRow(.modulesSystemAlertsCPU, isOn: isOnBinding(.cpu))
-            SettingsStepperRow(
-                .modulesSystemAlertsCPUThreshold,
-                value: limitBinding(.cpu),
-                in: ThresholdRule.cpuLimits,
-                step: ThresholdRule.limitStep
-            ) { limit in
-                Text(verbatim: AlertTexts.limitText(limit, for: .cpu))
-            }
-            .settingsSubRow()
-            .settingsDependent(on: settings.rule(for: .cpu).isOn)
+            stepperRow(.modulesSystemAlertsCPUThreshold, for: .cpu, in: ThresholdRule.cpuLimits)
             holdRow(.modulesSystemAlertsCPUDuration, for: .cpu)
+
+            SettingsToggleRow(.modulesSystemAlertsMemoryPressure, isOn: isOnBinding(.memoryPressure))
+            menuRow(.modulesSystemAlertsMemoryPressureThreshold, for: .memoryPressure, choices: Array(ThresholdRule.memoryLevels))
+            holdRow(.modulesSystemAlertsMemoryPressureDuration, for: .memoryPressure)
+
+            SettingsToggleRow(.modulesSystemAlertsThermal, isOn: isOnBinding(.thermal))
+            menuRow(.modulesSystemAlertsThermalThreshold, for: .thermal, choices: Array(ThresholdRule.thermalLevels))
+            holdRow(.modulesSystemAlertsThermalDuration, for: .thermal)
+
+            SettingsToggleRow(.modulesSystemAlertsFreeDisk, isOn: isOnBinding(.freeDisk))
+            menuRow(.modulesSystemAlertsFreeDiskThreshold, for: .freeDisk, choices: ThresholdRule.diskLimitsGB)
+            holdRow(.modulesSystemAlertsFreeDiskDuration, for: .freeDisk)
+
+            if SystemAlertsSettings.hasInternalBattery {
+                SettingsToggleRow(
+                    .modulesSystemAlertsMacBattery,
+                    isOn: isOnBinding(.macBattery),
+                    small: Text("on battery only")
+                )
+                stepperRow(.modulesSystemAlertsMacBatteryThreshold, for: .macBattery, in: ThresholdRule.batteryLimits)
+                holdRow(.modulesSystemAlertsMacBatteryDuration, for: .macBattery)
+            }
         }
         .settingsDependent(on: isModuleOn)
+        if isModuleOn, !shownRules.contains(where: \.isOn) {
+            SettingsStateLine(.info, Text("No alert rule is switched on"))
+        }
+    }
+
+    /// The rules the settings show: all five, or four on a Mac without an internal battery.
+    private var shownRules: [ThresholdRule] {
+        appState.settings.systemAlerts.rules.filter {
+            $0.signal != .macBattery || SystemAlertsSettings.hasInternalBattery
+        }
+    }
+
+    /// A threshold in steps of five: CPU load and the Mac battery. A sub row of the rule's switch.
+    private func stepperRow(_ entry: SettingsEntry, for signal: AlertSignal, in range: ClosedRange<Int>) -> some View {
+        SettingsStepperRow(
+            entry,
+            value: limitBinding(signal),
+            in: range,
+            step: ThresholdRule.limitStep
+        ) { limit in
+            Text(verbatim: AlertTexts.limitText(limit, for: signal))
+        }
+        .settingsSubRow()
+        .settingsDependent(on: appState.settings.systemAlerts.rule(for: signal).isOn)
+    }
+
+    /// A threshold from a short menu: a level, or a disk size. A sub row of the rule's switch.
+    private func menuRow(_ entry: SettingsEntry, for signal: AlertSignal, choices: [Int]) -> some View {
+        SettingsPickerRow(entry, selection: limitBinding(signal)) {
+            ForEach(choices, id: \.self) { choice in
+                Text(verbatim: AlertTexts.limitText(choice, for: signal)).tag(choice)
+            }
+        }
+        .settingsSubRow()
+        .settingsDependent(on: appState.settings.systemAlerts.rule(for: signal).isOn)
     }
 
     /// The "Held for" row of a rule: a sub row of the rule's switch.
