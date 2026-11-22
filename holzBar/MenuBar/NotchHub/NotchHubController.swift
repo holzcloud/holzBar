@@ -70,6 +70,9 @@ final class NotchHubController: HubHost {
     /// Follows the hub's own settings, while the hub is on.
     @ObservationIgnored private var settingsLoop: ObservationLoop?
 
+    /// Follows the "Display cutout" choice, while the hub is on.
+    @ObservationIgnored private var cutoutLoop: ObservationLoop?
+
     /// Follows the live activities and what decides whether the live state may show, while the hub
     /// is on.
     @ObservationIgnored private var activitiesLoop: ObservationLoop?
@@ -264,6 +267,11 @@ final class NotchHubController: HubHost {
             } onChange: { [weak self] _ in
                 self?.updateHover()
             }
+            cutoutLoop = ObservationLoop.observe { [weak appState] in
+                appState?.settings.notchHub.cutoutOverride ?? .automatic
+            } onChange: { [weak self] _ in
+                self?.cutoutDidChange()
+            }
             activitiesLoop = ObservationLoop.observe { [weak self] in
                 self?.activityInputs()
                     ?? ActivityInputs(activities: [], isFullscreenSpace: false, isMenuBarHidden: false, liveRoom: nil)
@@ -282,6 +290,7 @@ final class NotchHubController: HubHost {
             modulesLoop = nil
             dragLoop = nil
             settingsLoop = nil
+            cutoutLoop = nil
             activitiesLoop = nil
             itemsAreaTask?.cancel()
             itemsAreaTask = nil
@@ -883,6 +892,15 @@ final class NotchHubController: HubHost {
         }
         monitor.start()
         hoverMonitor = monitor
+    }
+
+    /// The "Display cutout" choice changed, so every geometry worked out under the old one is
+    /// stale: an open hub closes, as it does when the displays change, the hover zones are built
+    /// again and a placed live state is laid out again.
+    private func cutoutDidChange() {
+        close()
+        updateHover()
+        activitiesDidChange()
     }
 
     private func stopHover() {
