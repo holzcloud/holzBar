@@ -51,6 +51,16 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
     /// unseen.
     private var panelMemory = ItemClick27.PanelMemory()
 
+    /// Whether the bridge is started: set by ``start()``, cleared by ``stop()``.
+    private var isRunning = false
+
+    /// Looks again for Accessibility after the tap was left off for the lack of it.
+    private var trustRetryTask: Task<Void, Never>?
+
+    /// How long after the tap was left off, and between tries, holzBar looks again for
+    /// Accessibility: 2 s, then 10 s after the tap was disabled.
+    private static let trustRetryDelays: [Duration] = [.seconds(2), .seconds(8)]
+
     /// The tap, created on first use. It sees right and other clicks only to forget the panel
     /// they may close (a right click on the desktop closes Notification Center) and lets them
     /// through unchanged.
@@ -78,6 +88,9 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
                 Task { @MainActor in
                     // A disabled tap saw no click that may have closed the panel.
                     box.bridge?.panelMemory.forget()
+                    if action == .stop {
+                        box.bridge?.retryTapAfterMissingAccessibility()
+                    }
                 }
                 return action
             },
@@ -121,6 +134,9 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
     }
 
     func start() {
+        isRunning = true
+        trustRetryTask?.cancel()
+        trustRetryTask = nil
         box.bridge = self
         refreshSnapshot()
         observeSnapshotInputs()
@@ -128,6 +144,9 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
     }
 
     func stop() {
+        isRunning = false
+        trustRetryTask?.cancel()
+        trustRetryTask = nil
         tap.disable()
         snapshotLoop?.cancel()
         snapshotLoop = nil
@@ -139,6 +158,37 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         state.flush()
         // The stopped tap no longer sees the clicks that close the panel.
         panelMemory.forget()
+    }
+
+    /// Looks again for Accessibility, after the tap was disabled and left off because
+    /// `AXIsProcessTrusted()` said no.
+    ///
+    /// That answer can be false for a moment (the permission database is read again, or a grant
+    /// races the check) while the permission model never sees a change, so nothing else would
+    /// start the tap before the next settled bar. The tap is enabled again at the first try that
+    /// finds the permission; after the last, the permission observer of `HIDEventManager` is left
+    /// to it.
+    private func retryTapAfterMissingAccessibility() {
+        guard isRunning else {
+            return
+        }
+        trustRetryTask?.cancel()
+        trustRetryTask = Task { [weak self] in
+            for delay in Self.trustRetryDelays {
+                try? await Task.sleep(for: delay)
+                guard !Task.isCancelled, let self, isRunning else {
+                    return
+                }
+                guard !tap.isEnabled else {
+                    return
+                }
+                if AXIsProcessTrusted() {
+                    Self.bridgeLogger.notice("Click bridge: Accessibility is there again, enabling the tap")
+                    tap.enable()
+                    return
+                }
+            }
+        }
     }
 
     // MARK: The snapshot the tap thread decides from
