@@ -48,7 +48,8 @@ struct IslandLiveView: View {
             .contentShape(
                 IslandShape(
                     topRadius: CGFloat(DesignTokens.Island.liveTopRadius),
-                    bottomRadius: CGFloat(DesignTokens.Island.liveBottomRadius)
+                    bottomRadius: CGFloat(DesignTokens.Island.liveBottomRadius),
+                    convexTop: layout.isDetached
                 )
             )
         }

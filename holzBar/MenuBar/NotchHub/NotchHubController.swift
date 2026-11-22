@@ -464,6 +464,9 @@ final class NotchHubController: HubHost {
         let panel = panel ?? NotchHubPanel()
         self.panel = panel
         let presentation = ensurePresentation()
+        // On a display with Apple's Dynamic Island the hub is a separate shape with convex top
+        // corners (concept section 10b); read before anything is shown or placed.
+        presentation.convexTop = layout.isDetached
         presentation.rowFit = fit
         presentation.rowIDs = model.allTabIDs
         presentation.openingCount &+= 1
@@ -591,6 +594,7 @@ final class NotchHubController: HubHost {
         restShape = rest
         panelScreenFrame = screen.frame
         panel.hasShadow = false
+        presentation.convexTop = Self.display(of: screen).island != nil
         presentation.moveCanvas(transition)
         setPanelFrame(transition, on: screen.frame)
         // Take the larger canvas in its own transaction before the closing animates.
@@ -1276,6 +1280,7 @@ final class NotchHubController: HubHost {
         let panel = panel ?? NotchHubPanel()
         self.panel = panel
         let presentation = ensurePresentation()
+        presentation.convexTop = live.isDetached
         let existing = wasVisible && panelScreenFrame == screen.frame ? panel.contentView as? IslandHostingView : nil
         restShape = live.shape
         openShape = nil
@@ -1325,6 +1330,7 @@ final class NotchHubController: HubHost {
         }
         restShape = live.shape
         panelScreenFrame = screen.frame
+        presentation.convexTop = live.isDetached
         presentation.placeLive(live, canvas: live.shape)
         setPanelFrame(live.shape, on: screen.frame)
         setLivePlacement(LivePlacement(screenID: screen.displayID, layout: live))

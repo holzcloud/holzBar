@@ -38,6 +38,12 @@ final class IslandPresentation {
     var topRadius = DesignTokens.Island.notchTopRadius
     var bottomRadius = DesignTokens.Island.notchBottomRadius
 
+    /// Whether the shapes are drawn detached, with convex top corners: the display has Apple's
+    /// Dynamic Island, which the hub lies below instead of continuing it (concept section 10b).
+    /// The controller sets it from the display before every show, live placement and opening;
+    /// it never changes during an animation.
+    var convexTop = false
+
     /// Whether the content is shown: it appears after the shape starts to grow, and leaves first.
     var contentShown = false
 

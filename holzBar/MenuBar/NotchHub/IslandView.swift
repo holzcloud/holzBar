@@ -68,7 +68,8 @@ struct IslandView: View {
             .mask(alignment: .topLeading) {
                 silhouette(IslandShape(
                     topRadius: CGFloat(presentation.topRadius),
-                    bottomRadius: CGFloat(presentation.bottomRadius)
+                    bottomRadius: CGFloat(presentation.bottomRadius),
+                    convexTop: presentation.convexTop
                 ))
             }
             liveContent
@@ -170,10 +171,10 @@ struct IslandView: View {
         let bottomRadius = CGFloat(presentation.bottomRadius)
         return silhouette(
             ZStack {
-                IslandShape(topRadius: topRadius, bottomRadius: bottomRadius)
+                IslandShape(topRadius: topRadius, bottomRadius: bottomRadius, convexTop: presentation.convexTop)
                     .fill(HolzBarTheme.Island.surface)
                 if contrast == .increased {
-                    IslandLowerEdge(topRadius: topRadius, bottomRadius: bottomRadius)
+                    IslandLowerEdge(topRadius: topRadius, bottomRadius: bottomRadius, convexTop: presentation.convexTop)
                         .stroke(HolzBarTheme.Island.edge, lineWidth: HolzBarTheme.Island.edgeWidth)
                 }
             }
@@ -192,7 +193,8 @@ struct IslandView: View {
             .animation(presentation.heightAnimation, value: presentation.height)
             .contentShape(IslandShape(
                 topRadius: CGFloat(presentation.topRadius),
-                bottomRadius: CGFloat(presentation.bottomRadius)
+                bottomRadius: CGFloat(presentation.bottomRadius),
+                convexTop: presentation.convexTop
             ))
             .offset(x: CGFloat(presentation.centreX - (presentation.canvas.x + presentation.canvas.width / 2)))
             .animation(presentation.widthAnimation, value: presentation.centreX)
