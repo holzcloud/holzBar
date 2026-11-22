@@ -241,15 +241,17 @@ final class ConnectedDevicesService {
     }
 
     /// Reads the batteries once, rebuilds the rows and arms the coarse wait. The undocumented
-    /// call is made only while the switch is on and this macOS has it.
+    /// call is made only while the switch is on and this macOS has it. It checks the stored
+    /// switch as it is now, not only the cached copy, which a settings import or a defaults write
+    /// can leave stale.
     private func readBatteries(generation mine: Int) async {
-        guard readsBattery, AccessoryBatterySource.isAvailable else {
+        guard readsBattery, AccessoryAlertsSettings.readsBattery(), AccessoryBatterySource.isAvailable else {
             clearBatteries()
             return
         }
         let read = await AccessoryBatterySource.read()
         // The last consumer or the switch may have gone while the read ran.
-        guard mine == generation, !consumers.isEmpty, readsBattery else {
+        guard mine == generation, !consumers.isEmpty, readsBattery, AccessoryAlertsSettings.readsBattery() else {
             if mine == generation {
                 clearBatteries()
             }

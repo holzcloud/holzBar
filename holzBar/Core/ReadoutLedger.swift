@@ -240,6 +240,49 @@ nonisolated enum ReadoutSchedule {
         return observed
     }
 
+    /// The ledger the schedule sees (L-03). While Read GPU load is off, a consumer that asks for
+    /// nothing but the GPU load has had its one reading (the en dash) and is left out, so the
+    /// monitor does not wake every few seconds to read nothing. The same holds for a consumer of
+    /// nothing but the device battery while Read battery levels is off: it has had its one reading
+    /// (no batteries), and it observes no power source event either. It joins again when its
+    /// switch goes on. A consumer that has had no reading yet always stays, for its first one.
+    static func scheduledLedger(
+        _ ledger: ReadoutLedger,
+        deliveries: [String: Delivery],
+        readsGPU: Bool,
+        readsDeviceBattery: Bool
+    ) -> ReadoutLedger {
+        guard !readsGPU || !readsDeviceBattery else {
+            return ledger
+        }
+        var scheduled = ledger
+        for id in ledger.consumerIDs where (deliveries[id]?.count ?? 0) >= 1 {
+            let metrics = ledger.request(for: id)?.metrics
+            if (!readsGPU && metrics == [.gpu]) || (!readsDeviceBattery && metrics == [.deviceBattery]) {
+                scheduled.unregister(id)
+            }
+        }
+        return scheduled
+    }
+
+    /// The deliveries after the switch of a gated read changed: the record of every registered
+    /// consumer whose request holds `metric` is dropped, every other entry stays as it is. Each
+    /// consumer of the metric is then due at once with all its metrics: no value while the switch
+    /// is off (the en dash, never an old value, D-26, MON-09) and a real read when it is on (no
+    /// wait for the interval). While the switch is off the rest rule of ``scheduledLedger(_:deliveries:readsGPU:readsDeviceBattery:)``
+    /// keeps such a consumer scheduled until that one delivery.
+    static func restartingDeliveries(
+        _ deliveries: [String: Delivery],
+        of metric: ReadoutMetric,
+        in ledger: ReadoutLedger
+    ) -> [String: Delivery] {
+        var restarted = deliveries
+        for id in ledger.consumerIDs where ledger.request(for: id)?.metrics.contains(metric) == true {
+            restarted[id] = nil
+        }
+        return restarted
+    }
+
     /// Whether the free disk space is read again: it was never read, or ``diskSpaceRefresh`` has
     /// passed.
     static func refreshesDiskSpace(lastRefresh: ContinuousClock.Instant?, now: ContinuousClock.Instant) -> Bool {

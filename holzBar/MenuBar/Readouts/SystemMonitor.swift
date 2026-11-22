@@ -235,25 +235,16 @@ final class SystemMonitor {
         }
     }
 
-    /// The ledger the schedule sees. While Read GPU load is off, a consumer that asks for nothing
-    /// but the GPU load has had its one reading (the en dash) and is left out, so the monitor does
-    /// not wake every few seconds to read nothing (L-03). It joins again when the switch goes on.
-    /// The same holds for a consumer of nothing but the device battery while Read battery levels is
-    /// off: it has had its one reading (no batteries), and it observes no power source event either.
+    /// The ledger the schedule sees: a consumer of nothing but a gated read rests after its one
+    /// reading while that read's switch is off (L-03), see
+    /// ``ReadoutSchedule/scheduledLedger(_:deliveries:readsGPU:readsDeviceBattery:)``.
     private func scheduledLedger() -> ReadoutLedger {
-        let readsGPU = appState?.settings.readouts.readsGPU == true
-        let readsBattery = AccessoryAlertsSettings.readsBattery()
-        guard !readsGPU || !readsBattery else {
-            return ledger
-        }
-        var scheduled = ledger
-        for id in ledger.consumerIDs where (deliveries[id]?.count ?? 0) >= 1 {
-            let metrics = ledger.request(for: id)?.metrics
-            if (!readsGPU && metrics == [.gpu]) || (!readsBattery && metrics == [.deviceBattery]) {
-                scheduled.unregister(id)
-            }
-        }
-        return scheduled
+        ReadoutSchedule.scheduledLedger(
+            ledger,
+            deliveries: deliveries,
+            readsGPU: appState?.settings.readouts.readsGPU == true,
+            readsDeviceBattery: AccessoryAlertsSettings.readsBattery()
+        )
     }
 
     /// Hands a sample to the consumers of its tick and schedules the next one. A tick that was
@@ -285,10 +276,16 @@ final class SystemMonitor {
     /// The Read GPU load switch changed. The gate starts afresh at the next read: a part that
     /// failed stays off for the session until the user switches it off and on again, and nothing
     /// is probed while no one asks for the load (MON-08).
+    ///
+    /// Every consumer of the GPU load takes one fresh delivery now: no value while the switch is
+    /// off (a GPU Load widget shows the en dash, never the last percent) and, when it is on, a real
+    /// value whose first read is the start check. ``readGPU(token:)`` calls nothing of the bridge
+    /// while the switch is off. The rest rule keeps a consumer of nothing but the GPU scheduled
+    /// until that delivery, and a reading in flight is thrown away by the reschedule.
     func gpuSwitchDidChange() {
         gpuGate = nil
         gpuIsUnavailable = false
-        // A GPU Load widget leaves the schedule while the switch is off and joins it again now.
+        deliveries = ReadoutSchedule.restartingDeliveries(deliveries, of: .gpu, in: ledger)
         reschedule()
     }
 
@@ -344,10 +341,14 @@ final class SystemMonitor {
 
     // MARK: Device batteries
 
-    /// The Read battery levels switch changed. A consumer of nothing but the device battery that
-    /// left the schedule while it was off joins again now (or leaves, when it went off), and a
-    /// reading in flight is thrown away, so levels read before an off never arrive after it.
+    /// The Read battery levels switch changed. Every consumer of the device battery takes one fresh
+    /// delivery now: no batteries while the switch is off (a Lowest Device Battery widget shows the
+    /// en dash, never an old level or kind) and a real read when it is on. The rest rule keeps a
+    /// consumer of nothing but the device battery scheduled until that delivery, then it rests
+    /// again. A reading in flight is thrown away (the default interrupting reschedule), so levels
+    /// read before an off never arrive after it.
     func deviceBatterySwitchDidChange() {
+        deliveries = ReadoutSchedule.restartingDeliveries(deliveries, of: .deviceBattery, in: ledger)
         reschedule()
     }
 

@@ -289,6 +289,205 @@ struct ReadoutLedgerTests {
         #expect(ReadoutSchedule.diskSpaceRefresh == .seconds(60))
     }
 
+    // MARK: Gated reads after their switch changes (WR-01)
+
+    private func delivered(_ seconds: Double, count: Int) -> ReadoutSchedule.Delivery {
+        ReadoutSchedule.Delivery(last: start + .milliseconds(Int(seconds * 1_000)), count: count)
+    }
+
+    private func scheduledLedger(
+        _ ledger: ReadoutLedger,
+        _ deliveries: [String: ReadoutSchedule.Delivery],
+        readsGPU: Bool = true,
+        readsDeviceBattery: Bool = true
+    ) -> ReadoutLedger {
+        ReadoutSchedule.scheduledLedger(
+            ledger,
+            deliveries: deliveries,
+            readsGPU: readsGPU,
+            readsDeviceBattery: readsDeviceBattery
+        )
+    }
+
+    @Test("A served device battery consumer rests while Read battery levels is off, which is the defect without the restart")
+    func servedDeviceBatteryConsumerRestsWhileOff() {
+        var ledger = ReadoutLedger()
+        ledger.register("widget.a", kind: .visible, request: request([.deviceBattery], seconds: 300))
+        let deliveries = ["widget.a": delivered(0, count: 3)]
+        let rested = scheduledLedger(ledger, deliveries, readsDeviceBattery: false)
+        #expect(rested.isIdle)
+        #expect(tick(rested, deliveries, after: 10) == nil)
+        #expect(ReadoutSchedule.observers(ledger: rested, isPaused: false).isEmpty)
+    }
+
+    @Test("Switching Read battery levels off gives the consumer one empty reading, then it rests again")
+    func switchingTheBatteryOffRestartsThenRests() throws {
+        var ledger = ReadoutLedger()
+        ledger.register("widget.a", kind: .visible, request: request([.deviceBattery], seconds: 300))
+        let restarted = ReadoutSchedule.restartingDeliveries(
+            ["widget.a": delivered(0, count: 3)],
+            of: .deviceBattery,
+            in: ledger
+        )
+        #expect(restarted["widget.a"] == nil)
+
+        let kept = scheduledLedger(ledger, restarted, readsDeviceBattery: false)
+        #expect(kept.consumerIDs == ["widget.a"])
+        let due = try #require(tick(kept, restarted, after: 10))
+        #expect(due.at == start + .seconds(10))
+        #expect(due.consumers == ["widget.a"])
+        #expect(due.metrics.contains(.deviceBattery))
+        #expect(ReadoutSchedule.observers(ledger: kept, isPaused: false) == [.power])
+
+        let afterDelivery = ["widget.a": delivered(10, count: 1)]
+        let rested = scheduledLedger(ledger, afterDelivery, readsDeviceBattery: false)
+        #expect(rested.isIdle)
+        #expect(tick(rested, afterDelivery, after: 11) == nil)
+        #expect(ReadoutSchedule.observers(ledger: rested, isPaused: false).isEmpty)
+    }
+
+    @Test("Switching Read battery levels on reads at once, not after the interval")
+    func switchingTheBatteryOnReadsAtOnce() throws {
+        var ledger = ReadoutLedger()
+        ledger.register("widget.a", kind: .visible, request: request([.deviceBattery], seconds: 300))
+        let deliveries = ["widget.a": delivered(0, count: 2)]
+        let waiting = try #require(tick(scheduledLedger(ledger, deliveries), deliveries, after: 10))
+        #expect(waiting.at == start + .seconds(300))
+
+        let restarted = ReadoutSchedule.restartingDeliveries(deliveries, of: .deviceBattery, in: ledger)
+        let kept = scheduledLedger(ledger, restarted)
+        let due = try #require(tick(kept, restarted, after: 10))
+        #expect(due.at == start + .seconds(10))
+        #expect(due.consumers == ["widget.a"])
+        #expect(due.metrics.contains(.deviceBattery))
+        #expect(ReadoutSchedule.observers(ledger: kept, isPaused: false) == [.power])
+    }
+
+    @Test("Only the consumers of the metric restart")
+    func onlyTheMetricConsumersRestart() {
+        var ledger = ReadoutLedger()
+        ledger.register("widget.a", kind: .visible, request: request([.deviceBattery], seconds: 300))
+        ledger.register("mixed", kind: .visible, request: request([.deviceBattery, .cpu]))
+        ledger.register("tiles", kind: .visible, request: request([.cpu], needsBaseline: true))
+        ledger.register("alerts", kind: .background, request: request([.thermal]))
+        let deliveries = [
+            "widget.a": delivered(0, count: 3),
+            "mixed": delivered(1, count: 3),
+            "tiles": delivered(2, count: 4),
+            "alerts": delivered(3, count: 1),
+            "gone": delivered(4, count: 2)
+        ]
+        let restarted = ReadoutSchedule.restartingDeliveries(deliveries, of: .deviceBattery, in: ledger)
+        #expect(restarted["widget.a"] == nil)
+        #expect(restarted["mixed"] == nil)
+        #expect(restarted["tiles"] == deliveries["tiles"])
+        #expect(restarted["alerts"] == deliveries["alerts"])
+        // A record of an id that is not registered is kept as it is.
+        #expect(restarted["gone"] == deliveries["gone"])
+    }
+
+    @Test("The rest rule stays: GPU and device battery only consumers rest, mixed ones and new ones never do")
+    func restRuleIsUnchanged() {
+        var ledger = ReadoutLedger()
+        ledger.register("gpu", kind: .visible, request: request([.gpu], seconds: 60))
+        ledger.register("both", kind: .visible, request: request([.gpu, .cpu], seconds: 60))
+        ledger.register("fresh", kind: .visible, request: request([.deviceBattery], seconds: 300))
+        let deliveries = ["gpu": delivered(0, count: 1), "both": delivered(0, count: 5)]
+
+        let gpuOff = scheduledLedger(ledger, deliveries, readsGPU: false)
+        #expect(gpuOff.consumerIDs == ["both", "fresh"])
+        let gpuOn = scheduledLedger(ledger, deliveries, readsGPU: true)
+        #expect(gpuOn == ledger)
+
+        // A consumer with no delivery stays even with its switch off: its first, empty reading.
+        let batteryOff = scheduledLedger(ledger, deliveries, readsDeviceBattery: false)
+        #expect(batteryOff.consumerIDs == ["both", "fresh", "gpu"])
+        let freshOnly = scheduledLedger(ledger, [:], readsGPU: false, readsDeviceBattery: false)
+        #expect(freshOnly == ledger)
+    }
+
+    @Test("Switching Read GPU load off gives the consumer one empty reading, then it rests again")
+    func switchingTheGPUOffRestartsThenRests() throws {
+        var ledger = ReadoutLedger()
+        ledger.register("widget.g", kind: .visible, request: request([.gpu], seconds: 60))
+        let deliveries = ["widget.g": delivered(0, count: 3)]
+        let rested = scheduledLedger(ledger, deliveries, readsGPU: false)
+        #expect(rested.isIdle)
+        #expect(tick(rested, deliveries, after: 10) == nil)
+
+        let restarted = ReadoutSchedule.restartingDeliveries(deliveries, of: .gpu, in: ledger)
+        #expect(restarted["widget.g"] == nil)
+        let kept = scheduledLedger(ledger, restarted, readsGPU: false)
+        #expect(kept.consumerIDs == ["widget.g"])
+        let due = try #require(tick(kept, restarted, after: 10))
+        #expect(due.at == start + .seconds(10))
+        #expect(due.consumers == ["widget.g"])
+        #expect(due.metrics == [.gpu])
+        // The GPU is no event: nothing is observed.
+        #expect(ReadoutSchedule.observers(ledger: kept, isPaused: false).isEmpty)
+
+        let afterDelivery = ["widget.g": delivered(10, count: 1)]
+        let restedAgain = scheduledLedger(ledger, afterDelivery, readsGPU: false)
+        #expect(restedAgain.isIdle)
+        #expect(tick(restedAgain, afterDelivery, after: 11) == nil)
+    }
+
+    @Test("Switching Read GPU load on reads at once, not after the refresh")
+    func switchingTheGPUOnReadsAtOnce() throws {
+        var ledger = ReadoutLedger()
+        ledger.register("widget.g", kind: .visible, request: request([.gpu], seconds: 60))
+        let deliveries = ["widget.g": delivered(0, count: 2)]
+        let waiting = try #require(tick(scheduledLedger(ledger, deliveries), deliveries, after: 10))
+        #expect(waiting.at == start + .seconds(60))
+
+        let restarted = ReadoutSchedule.restartingDeliveries(deliveries, of: .gpu, in: ledger)
+        let due = try #require(tick(scheduledLedger(ledger, restarted), restarted, after: 10))
+        #expect(due.at == start + .seconds(10))
+        #expect(due.metrics.contains(.gpu))
+    }
+
+    @Test("The two restarts are independent")
+    func theRestartsAreIndependent() {
+        var ledger = ReadoutLedger()
+        ledger.register("widget.g", kind: .visible, request: request([.gpu], seconds: 60))
+        ledger.register("tiles", kind: .visible, request: request([.cpu, .gpu, .memory]))
+        ledger.register("widget.a", kind: .visible, request: request([.deviceBattery], seconds: 300))
+        let deliveries = [
+            "widget.g": delivered(0, count: 3),
+            "tiles": delivered(1, count: 3),
+            "widget.a": delivered(2, count: 3)
+        ]
+        let gpu = ReadoutSchedule.restartingDeliveries(deliveries, of: .gpu, in: ledger)
+        #expect(gpu["widget.g"] == nil)
+        #expect(gpu["tiles"] == nil)
+        #expect(gpu["widget.a"] == deliveries["widget.a"])
+
+        let battery = ReadoutSchedule.restartingDeliveries(deliveries, of: .deviceBattery, in: ledger)
+        #expect(battery["widget.a"] == nil)
+        #expect(battery["widget.g"] == deliveries["widget.g"])
+        #expect(battery["tiles"] == deliveries["tiles"])
+    }
+
+    @Test("A restart tick is shared by the schedule's existing rule: early, never late, others untouched")
+    func theRestartTickSharesAsBefore() throws {
+        var ledger = ReadoutLedger()
+        ledger.register("widget.a", kind: .visible, request: request([.deviceBattery], seconds: 300))
+        ledger.register("tiles", kind: .visible, request: request([.cpu], seconds: 60))
+        ledger.register("slow", kind: .visible, request: request([.diskSpace], seconds: 600))
+        let deliveries = [
+            "widget.a": delivered(-200, count: 2),
+            "tiles": delivered(-40, count: 2),
+            "slow": delivered(-540, count: 2)
+        ]
+        let restarted = ReadoutSchedule.restartingDeliveries(deliveries, of: .deviceBattery, in: ledger)
+        #expect(restarted["tiles"] == deliveries["tiles"])
+        #expect(restarted["slow"] == deliveries["slow"])
+
+        let shared = try #require(tick(scheduledLedger(ledger, restarted), restarted, after: 0))
+        #expect(shared.at == start)
+        #expect(shared.consumers == ["tiles", "widget.a"])
+    }
+
     // MARK: The visibility of a surface
 
     @Test("Tiles pause with the Mac")
