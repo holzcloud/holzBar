@@ -47,6 +47,9 @@ final class AppSettings {
     /// The model for the System readouts module's settings.
     let readouts = ReadoutsSettings()
 
+    /// The model for the System alerts module's rule settings.
+    let systemAlerts = SystemAlertsSettings()
+
     /// Performs the initial setup of the settings model.
     func performSetup(with appState: AppState) {
         advanced.performSetup(with: appState)
@@ -61,5 +64,6 @@ final class AppSettings {
         notifications.performSetup(with: appState)
         nowPlaying.performSetup(with: appState)
         readouts.performSetup(with: appState)
+        systemAlerts.performSetup(with: appState)
     }
 }

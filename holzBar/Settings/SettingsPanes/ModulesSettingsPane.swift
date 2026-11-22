@@ -135,6 +135,8 @@ struct ModulesSettingsPane: View {
             NotchHubSettingsView(settings: appState.settings.notchHub)
         } else if module.id == ReadoutsSettings.moduleID {
             ReadoutsSettingsView()
+        } else if module.id == SystemAlertsSettings.moduleID {
+            SystemAlertsSettingsView()
         } else if let registration = HubModules.registration(for: module.id) {
             // A module of the Notch hub brings its own settings.
             registration.makeSettings()

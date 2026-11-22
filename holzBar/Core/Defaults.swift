@@ -401,6 +401,54 @@ nonisolated extension Defaults {
         /// Mac only).
         case readoutsReadsGPU = "ReadoutsReadsGPU"
 
+        // MARK: System alerts
+        // Every System alerts value is exported with the settings. An imported number outside its
+        // whole-number range is refused, and the model brings every stored value through
+        // `ThresholdRule.validatedLimit` and `AlertHold.snapped` again, because the defaults can
+        // hold anything. The five holds are seconds (a whole number from 0 to 900) and are
+        // snapped to the nearest preset: 0, 10, 30, 60, 300 or 900.
+        /// Whether the CPU load rule is on (a boolean, on by default).
+        case systemAlertsCPU = "SystemAlertsCPU"
+        /// The CPU load, in percent, above which the rule fires (a whole number from 50 to 95,
+        /// in steps of 5, 90 by default).
+        case systemAlertsCPUThreshold = "SystemAlertsCPUThreshold"
+        /// How long the CPU load has to hold, in seconds (a whole number from 0 to 900, 300 by
+        /// default).
+        case systemAlertsCPUHold = "SystemAlertsCPUHold"
+        /// Whether the memory pressure rule is on (a boolean, off by default).
+        case systemAlertsMemoryPressure = "SystemAlertsMemoryPressure"
+        /// The memory pressure level that fires the rule (a whole number: 1 is Warning and 2 is
+        /// Critical, the same set as `ThresholdRule.memoryLevels`; 1 by default).
+        case systemAlertsMemoryPressureLevel = "SystemAlertsMemoryPressureLevel"
+        /// How long the memory pressure has to hold, in seconds (a whole number from 0 to 900,
+        /// 60 by default).
+        case systemAlertsMemoryPressureHold = "SystemAlertsMemoryPressureHold"
+        /// Whether the thermal state rule is on (a boolean, on by default).
+        case systemAlertsThermal = "SystemAlertsThermal"
+        /// The thermal state that fires the rule (a whole number: 1 is Fair, 2 is Serious and 3
+        /// is Critical, the same set as `ThresholdRule.thermalLevels`; 2 by default).
+        case systemAlertsThermalLevel = "SystemAlertsThermalLevel"
+        /// How long the thermal state has to hold, in seconds (a whole number from 0 to 900, 0
+        /// by default).
+        case systemAlertsThermalHold = "SystemAlertsThermalHold"
+        /// Whether the free disk space rule is on (a boolean, on by default).
+        case systemAlertsFreeDisk = "SystemAlertsFreeDisk"
+        /// The free space, in decimal gigabytes, below which the rule fires (a whole number from
+        /// 5 to 200 that the model snaps to 5, 10, 20, 50, 100 or 200; 10 by default).
+        case systemAlertsFreeDiskThreshold = "SystemAlertsFreeDiskThreshold"
+        /// How long the free space has to stay low, in seconds (a whole number from 0 to 900, 60
+        /// by default).
+        case systemAlertsFreeDiskHold = "SystemAlertsFreeDiskHold"
+        /// Whether the Mac battery rule is on (a boolean, on by default; it applies on battery
+        /// power only).
+        case systemAlertsMacBattery = "SystemAlertsMacBattery"
+        /// The charge, in percent, below which the rule fires (a whole number from 5 to 50, in
+        /// steps of 5, 20 by default).
+        case systemAlertsMacBatteryThreshold = "SystemAlertsMacBatteryThreshold"
+        /// How long the charge has to stay low, in seconds (a whole number from 0 to 900, 0 by
+        /// default).
+        case systemAlertsMacBatteryHold = "SystemAlertsMacBatteryHold"
+
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
         /// entry event is dropped, so the real event never reaches the item, the exit event
@@ -513,6 +561,11 @@ nonisolated extension Defaults.Key {
             .displayControlsBrightness,
             .displayControlsExternalMonitors,
             .readoutsReadsGPU,
+            .systemAlertsCPU,
+            .systemAlertsMemoryPressure,
+            .systemAlertsThermal,
+            .systemAlertsFreeDisk,
+            .systemAlertsMacBattery,
             .openHiddenItemsInMenuBar,
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,
@@ -556,6 +609,16 @@ nonisolated extension Defaults.Key {
             .accessoryAlertsLowBatteryLevel,
             .readoutsRateUnit,
             .readoutsTileRefresh,
+            .systemAlertsCPUThreshold,
+            .systemAlertsCPUHold,
+            .systemAlertsMemoryPressureLevel,
+            .systemAlertsMemoryPressureHold,
+            .systemAlertsThermalLevel,
+            .systemAlertsThermalHold,
+            .systemAlertsFreeDiskThreshold,
+            .systemAlertsFreeDiskHold,
+            .systemAlertsMacBatteryThreshold,
+            .systemAlertsMacBatteryHold,
             .menuBarBorderWidth,
             .menuBarTintKind:
             .number
@@ -645,6 +708,25 @@ nonisolated extension Defaults.Key {
             .wholeNumber(0...1)
         case .readoutsTileRefresh:
             .wholeNumber(2...30)
+        case .systemAlertsCPUThreshold:
+            .wholeNumber(50...95)
+        case .systemAlertsMemoryPressureLevel:
+            // Exactly ThresholdRule.memoryLevels: 1 Warning, 2 Critical.
+            .wholeNumber(1...2)
+        case .systemAlertsThermalLevel:
+            // Exactly ThresholdRule.thermalLevels: 1 Fair, 2 Serious, 3 Critical.
+            .wholeNumber(1...3)
+        case .systemAlertsFreeDiskThreshold:
+            .wholeNumber(5...200)
+        case .systemAlertsMacBatteryThreshold:
+            .wholeNumber(5...50)
+        case .systemAlertsCPUHold,
+            .systemAlertsMemoryPressureHold,
+            .systemAlertsThermalHold,
+            .systemAlertsFreeDiskHold,
+            .systemAlertsMacBatteryHold:
+            // Seconds; the model snaps them to AlertHold's presets.
+            .wholeNumber(0...900)
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,

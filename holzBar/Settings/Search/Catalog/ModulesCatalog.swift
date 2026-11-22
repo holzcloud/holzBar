@@ -92,6 +92,10 @@ extension SettingsCatalog {
             .modulesReadoutsTileBattery,
             .modulesReadoutsTileRefresh,
             .modulesReadoutsRateUnit,
+            // Settings of System alerts, in the order of the contract.
+            .modulesSystemAlertsCPU,
+            .modulesSystemAlertsCPUThreshold,
+            .modulesSystemAlertsCPUDuration,
         ]
 
         /// Whether a row entry belongs to a module this Mac can run.
@@ -463,5 +467,33 @@ extension SettingsEntry {
         label: String(localized: "Network speed unit"),
         info: String(localized: "Used by the Network tile and the Network Speed widget."),
         module: ReadoutsSettings.moduleID
+    )
+
+    // MARK: Settings of System alerts
+
+    static let modulesSystemAlertsCPU = SettingsEntry(
+        id: "modulesSystemAlertsCPU",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "CPU load"),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsCPUThreshold = SettingsEntry(
+        id: "modulesSystemAlertsCPUThreshold",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Alert above"),
+        info: String(localized: "Alerts when CPU load stays above this."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsCPUDuration = SettingsEntry(
+        id: "modulesSystemAlertsCPUDuration",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Held for"),
+        info: String(localized: "The condition must last this long before an alert shows."),
+        module: SystemAlertsSettings.moduleID
     )
 }

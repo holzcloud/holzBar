@@ -243,8 +243,23 @@ struct ModuleCatalogTests {
         #expect(module.summaryKey == "CPU, memory, network, disk and battery as tiles in the Notch hub, with a short history.")
         #expect(module.permission == nil)
         #expect(module.isPreview)
-        #expect(ModuleCatalog.modules(in: .monitor).map(\.id) == ["system-readouts"])
+        #expect(ModuleCatalog.modules(in: .monitor).map(\.id) == ["system-readouts", "system-alerts"])
         // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+    }
+
+    @Test("System alerts is a preview module after System readouts, off by default, without a permission")
+    func systemAlertsDescriptor() throws {
+        let module = try #require(ModuleCatalog.all.first { $0.id == "system-alerts" })
+        #expect(module.area == .monitor)
+        #expect(module.symbol == "exclamationmark.triangle")
+        #expect(module.titleKey == "System alerts")
+        #expect(module.permission == nil)
+        #expect(module.isPreview)
+        #expect(module.id == AlertLook.moduleID)
+        // The anti-flap sentence of the contract is the second sentence of the summary.
+        #expect(module.summaryKey.hasSuffix("Each alert waits for the time you set, clears with a margin and repeats at most every 30 minutes."))
         #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
         #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
     }

@@ -187,6 +187,15 @@ nonisolated enum ModuleCatalog {
             permission: nil,
             isPreview: true
         ),
+        ModuleDescriptor(
+            id: "system-alerts",
+            area: .monitor,
+            symbol: "exclamationmark.triangle",
+            titleKey: "System alerts",
+            summaryKey: "Alerts in the notch when CPU, memory, heat, disk space or battery cross your limit. Each alert waits for the time you set, clears with a margin and repeats at most every 30 minutes.",
+            permission: nil,
+            isPreview: true
+        ),
     ]
 
     /// The modules of an area, in catalog order.

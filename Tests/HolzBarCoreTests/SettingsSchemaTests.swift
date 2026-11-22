@@ -327,6 +327,70 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("The System alerts rule settings travel with a settings file: five switches and ten whole numbers")
+    func systemAlertsKeysTravel() {
+        let switches: [Defaults.Key] = [
+            .systemAlertsCPU, .systemAlertsMemoryPressure, .systemAlertsThermal,
+            .systemAlertsFreeDisk, .systemAlertsMacBattery,
+        ]
+        for key in switches {
+            #expect(key.settingsKind == .bool)
+            #expect(!Defaults.Key.localOnlyKeys.contains(key))
+            #expect(Defaults.Key.importableKinds[key.rawValue] == .bool)
+        }
+        #expect(Defaults.Key.systemAlertsCPU.rawValue == "SystemAlertsCPU")
+        #expect(Defaults.Key.systemAlertsMacBatteryHold.rawValue == "SystemAlertsMacBatteryHold")
+        let numbers: [(Defaults.Key, ClosedRange<Int>)] = [
+            (.systemAlertsCPUThreshold, 50...95),
+            (.systemAlertsMemoryPressureLevel, 1...2),
+            (.systemAlertsThermalLevel, 1...3),
+            (.systemAlertsFreeDiskThreshold, 5...200),
+            (.systemAlertsMacBatteryThreshold, 5...50),
+            (.systemAlertsCPUHold, 0...900),
+            (.systemAlertsMemoryPressureHold, 0...900),
+            (.systemAlertsThermalHold, 0...900),
+            (.systemAlertsFreeDiskHold, 0...900),
+            (.systemAlertsMacBatteryHold, 0...900),
+        ]
+        for (key, range) in numbers {
+            #expect(key.settingsKind == .number)
+            #expect(key.numberRule == .wholeNumber(Double(range.lowerBound)...Double(range.upperBound)))
+            #expect(!Defaults.Key.localOnlyKeys.contains(key))
+            #expect(Defaults.Key.importableKinds[key.rawValue] == .number)
+            let accepted = Defaults.Key.validatedSettings([key.rawValue: range.lowerBound], ownBundleIdentifier: ownBundle)
+            #expect((accepted.accepted[key.rawValue] as? NSNumber)?.intValue == range.lowerBound)
+            for refused: Any in [range.upperBound + 1, range.lowerBound - 1, 0.5 + Double(range.lowerBound)] {
+                let result = Defaults.Key.validatedSettings([key.rawValue: refused], ownBundleIdentifier: ownBundle)
+                #expect(result.accepted[key.rawValue] == nil)
+                #expect(result.ignored == [key.rawValue])
+            }
+        }
+    }
+
+    @Test("A CPU threshold of 120 and a hold of 100000 are refused on import")
+    func systemAlertsOutOfRangeNumbersAreRefused() {
+        let result = Defaults.Key.validatedSettings(
+            ["SystemAlertsCPUThreshold": 120, "SystemAlertsCPUHold": 100_000, "SystemAlertsCPU": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["SystemAlertsCPU"])
+        #expect(result.ignored == ["SystemAlertsCPUHold", "SystemAlertsCPUThreshold"])
+    }
+
+    @Test("The schema accepts exactly the memory and thermal levels that Core keeps")
+    func systemAlertsLevelsAgreeWithCore() throws {
+        let memoryRule = try #require(Defaults.Key.systemAlertsMemoryPressureLevel.numberRule)
+        for number in -2...6 {
+            let kept = ThresholdRule.validatedLimit(number, for: .memoryPressure) == number
+            #expect((memoryRule.sanitized(NSNumber(value: number)) != nil) == kept, "memory level \(number)")
+        }
+        let thermalRule = try #require(Defaults.Key.systemAlertsThermalLevel.numberRule)
+        for number in -2...6 {
+            let kept = ThresholdRule.validatedLimit(number, for: .thermal) == number
+            #expect((thermalRule.sanitized(NSNumber(value: number)) != nil) == kept, "thermal level \(number)")
+        }
+    }
+
     @Test("The Notch hub's display cutout override is a local-only whole number that no file can set")
     func notchHubCutoutStaysLocal() {
         #expect(Defaults.Key.notchHubCutout.rawValue == "NotchHubCutout")
