@@ -46,7 +46,21 @@ enum DiagnosticsCollector {
             shelf: shelfWords(appState),
             accessoryBattery: accessoryBatteryWord(appState),
             barClicks: BarClickLog.trace.lines,
-            reopen: reopenWords()
+            reopen: reopenWords(),
+            readouts: readoutsWords(appState)
+        )
+    }
+
+    /// What the shared readouts monitor does, in counts: idle while no widget or tile asks, so a
+    /// report shows that holzBar measures nothing while the modules are off.
+    private static func readoutsWords(_ appState: AppState) -> String {
+        let monitor = appState.systemMonitor
+        return DiagnosticsReport.readoutsSummary(
+            visible: monitor.visibleCount,
+            background: monitor.backgroundCount,
+            observers: monitor.observerCount,
+            isTimerArmed: monitor.isTimerArmed,
+            samples: monitor.samplesTaken
         )
     }
 

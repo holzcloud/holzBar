@@ -398,4 +398,40 @@ struct DiagnosticsReportTests {
         #expect(!text.contains("/"))
         #expect(!text.contains("\""))
     }
+
+    @Test("The readouts summary says idle, or the counts and whether the timer is armed")
+    func readoutsSummary() {
+        #expect(
+            DiagnosticsReport.readoutsSummary(visible: 0, background: 0, observers: 0, isTimerArmed: false, samples: 12)
+                == "idle, samples 12"
+        )
+        #expect(
+            DiagnosticsReport.readoutsSummary(visible: 2, background: 1, observers: 1, isTimerArmed: true, samples: 314)
+                == "visible 2, background 1, observers 1, timer on, samples 314"
+        )
+        #expect(
+            DiagnosticsReport.readoutsSummary(visible: 1, background: 0, observers: 0, isTimerArmed: false, samples: 0)
+                == "visible 1, background 0, observers 0, timer off, samples 0"
+        )
+        let capped = DiagnosticsReport.readoutsSummary(
+            visible: -3, background: .max, observers: 0, isTimerArmed: true, samples: .max
+        )
+        #expect(capped == "visible 0, background 99999, observers 0, timer on, samples 99999")
+        let allowed = Set("abcdefghijklmnopqrstuvwxyz0123456789 ,")
+        #expect(capped.allSatisfy { allowed.contains($0) })
+    }
+
+    @Test("The System readouts line shows the summary, and is absent without one")
+    func readoutsLine() {
+        var input = sample
+        input.readouts = "idle, samples 12"
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").contains("System readouts: idle, samples 12"))
+        let longest = DiagnosticsReport.readoutsSummary(
+            visible: .max, background: .max, observers: .max, isTimerArmed: false, samples: .max
+        )
+        input.readouts = longest
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").contains("System readouts: \(longest)"))
+        input.readouts = ""
+        #expect(!DiagnosticsReport.make(input).split(separator: "\n").contains { $0.hasPrefix("System readouts:") })
+    }
 }

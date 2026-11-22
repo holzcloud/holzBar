@@ -73,6 +73,12 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// ignored 3`. Empty while holzBar got no reopen, so the report stays as it was. Never
     /// the name of a sender.
     var reopen = ""
+    /// What the shared system readouts monitor does, in counts and fixed words
+    /// (``DiagnosticsReport/readoutsSummary(visible:background:observers:isTimerArmed:samples:)``),
+    /// such as `visible 2, background 0, observers 1, timer on, samples 314`, or `idle, samples
+    /// 12` while nothing is measured. Counts of the monitor only, never a reading, an interface
+    /// or a device name (D-14). Empty keeps the report as it was.
+    var readouts = ""
 }
 
 /// Writes the text a user can copy into a bug report. It holds an allowlist of facts and
@@ -91,6 +97,10 @@ nonisolated enum DiagnosticsReport {
     /// The longest text kept for the Hiding line (the longest reveal word, the breaker word and
     /// seven counts, each capped at five digits, fit with their words).
     static let maximumHidingLength = 240
+
+    /// The longest text kept for the System readouts line (four counts of five digits, their
+    /// words and the timer word fit).
+    static let maximumReadoutsLength = 96
 
     /// The longest text kept for a field.
     static let maximumFieldLength = 40
@@ -133,6 +143,9 @@ nonisolated enum DiagnosticsReport {
         }
         if !input.accessoryBattery.isEmpty {
             lines.append("Accessory battery: \(field(input.accessoryBattery))")
+        }
+        if !input.readouts.isEmpty {
+            lines.append("System readouts: \(field(input.readouts, limit: maximumReadoutsLength))")
         }
         if !input.reopen.isEmpty {
             lines.append("Reopen: \(field(input.reopen))")
@@ -192,6 +205,19 @@ nonisolated enum DiagnosticsReport {
     /// how many were ignored. Counts only, never who sent them.
     static func reopenSummary(opened: Int, ignored: Int) -> String {
         "opened \(count(opened)), ignored \(count(ignored))"
+    }
+
+    /// The System readouts line: how many consumers of the shared monitor show a surface and how
+    /// many watch, how many events it observes, whether its one timer is armed and how many
+    /// samples it took; `idle, samples N` while no consumer and no observer exists, which is
+    /// what "measures nothing" looks like. Counts and fixed words only, never a reading or a name.
+    static func readoutsSummary(visible: Int, background: Int, observers: Int, isTimerArmed: Bool, samples: Int) -> String {
+        guard visible > 0 || background > 0 || observers > 0 else {
+            return "idle, samples \(count(samples))"
+        }
+        let timer = isTimerArmed ? "on" : "off"
+        return "visible \(count(visible)), background \(count(background)), observers \(count(observers)), "
+            + "timer \(timer), samples \(count(samples))"
     }
 
     /// A fixed word of a summary: lowercase letters and spaces only.
