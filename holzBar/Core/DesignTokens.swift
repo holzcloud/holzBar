@@ -320,6 +320,26 @@ nonisolated enum DesignTokens {
         static let completionMargin: Double = 0.5
     }
 
+    /// The System alerts' alert in the notch (concept section 10, Phase 95, A1 to A3): its timeline
+    /// and the detached pill that keeps an alert from vanishing on a crowded menu bar. The views
+    /// read them through the theme or directly; the geometry reads them from here, and a test pins
+    /// them.
+    nonisolated enum Alert {
+        /// How long the notch stays widened after an alert fires (A2); after that the alert stays
+        /// in the open hub's right pill and the Live activities list until it clears.
+        static let widenedSeconds: TimeInterval = 30
+        /// How long the test alert shows in the notch (D-16).
+        static let testSeconds: TimeInterval = 5
+        /// After how long the test alert's system notification is removed again (A8).
+        static let testNotificationSeconds: TimeInterval = 10
+        /// The widest and the narrowest the detached pill is drawn (A3): just wide enough for the
+        /// symbol, the gap and the value, never wider than the maximum.
+        static let detachedMaximumWidth: Double = 180
+        static let detachedMinimumWidth: Double = 44
+        /// The space between the symbol and the value in the detached pill.
+        static let detachedValueGap: Double = 8
+    }
+
     /// The gradient of fills that carry white text, the same in both appearances.
     nonisolated enum Fill {
         static let start = RGB(hex: 0x1C78AE)

@@ -386,6 +386,22 @@ struct DesignTokensTests {
         #expect(island.contentScale < 1)
     }
 
+    @Test("The alert's timeline and its detached pill are the design's numbers")
+    func alertTokens() {
+        let alert = Tokens.Alert.self
+        #expect(alert.widenedSeconds == 30)
+        #expect(alert.testSeconds == 5)
+        #expect(alert.testNotificationSeconds == 10)
+        #expect(alert.detachedMaximumWidth == 180)
+        #expect(alert.detachedMinimumWidth == 44)
+        #expect(alert.detachedValueGap == 8)
+        // The spacing scale is a multiple of 4.
+        for width in [alert.detachedMaximumWidth, alert.detachedMinimumWidth, alert.detachedValueGap] {
+            #expect(width.truncatingRemainder(dividingBy: 4) == 0)
+        }
+        #expect(alert.detachedMinimumWidth < alert.detachedMaximumWidth)
+    }
+
     @Test("The floating bar's shadow is the design's numbers and fits the panel's insets")
     func floatingBarShadow() {
         #expect(Tokens.Shadow.barOpacity == 0.30)
