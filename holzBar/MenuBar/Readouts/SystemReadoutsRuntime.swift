@@ -63,7 +63,14 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
     /// The histories of the tiles that draw a curve; the disk and battery tiles have none (D-18).
     private struct Histories {
         var cpu = ReadoutHistory()
+        var gpu = ReadoutHistory()
+        var memory = ReadoutHistory()
+        var download = ReadoutHistory()
+        var upload = ReadoutHistory()
     }
+
+    /// The shortest height of the network curve's scale: 10 kB/s, so a trickle stays a trickle.
+    private static let networkScale = ReadoutHistoryScale.rate(floor: 10_000)
 
     /// Follows the hub and the Mac's rest. Registers at once when the hub is open already (the hub
     /// creates the runtime after it opens, so the first open would be missed otherwise).
@@ -99,24 +106,58 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
         let now = ContinuousClock.now
         let refreshSeconds = readouts.tileRefreshSeconds
         return ReadoutTiles.contents(current, stored: readouts.enabledTiles).map {
-            ReadoutTileBuilder.tile(
+            let drawn = curve(of: $0.kind, now: now, refreshSeconds: refreshSeconds)
+            return ReadoutTileBuilder.tile(
                 for: $0,
                 input: current,
                 rateUnit: readouts.rateUnit,
                 locale: locale,
-                history: curve(of: $0.kind, now: now, refreshSeconds: refreshSeconds)
+                history: drawn?.history,
+                summary: drawn?.summary
             )
         }
     }
 
-    /// The mini curve of a tile, or `nil` for a tile without one.
-    private func curve(of kind: ReadoutTileKind, now: ContinuousClock.Instant, refreshSeconds: Int) -> HubTileHistory? {
+    /// The mini curve of a tile and what the last two minutes did, or `nil` for a tile without a
+    /// curve. CPU, GPU and memory share a fixed scale from 0 to 100 percent; the network's
+    /// download and upload share one scale from 0 to the window's peak.
+    private func curve(
+        of kind: ReadoutTileKind,
+        now: ContinuousClock.Instant,
+        refreshSeconds: Int
+    ) -> (history: HubTileHistory, summary: ReadoutHistorySummary?)? {
         switch kind {
         case .cpu:
-            HubTileHistory(primary: histories.cpu.segments(now: now, refreshSeconds: refreshSeconds, top: 1))
-        case .gpu, .memory, .network, .disk, .battery:
-            nil
+            return fraction(histories.cpu, now: now, refreshSeconds: refreshSeconds)
+        case .gpu:
+            return fraction(histories.gpu, now: now, refreshSeconds: refreshSeconds)
+        case .memory:
+            return fraction(histories.memory, now: now, refreshSeconds: refreshSeconds)
+        case .network:
+            let top = ReadoutHistory.top(
+                of: [histories.download, histories.upload],
+                scale: Self.networkScale,
+                now: now
+            )
+            let history = HubTileHistory(
+                primary: histories.download.segments(now: now, refreshSeconds: refreshSeconds, top: top),
+                secondary: histories.upload.segments(now: now, refreshSeconds: refreshSeconds, top: top)
+            )
+            return (history, histories.download.summary(now: now, top: top))
+        case .disk, .battery:
+            return nil
         }
+    }
+
+    private func fraction(
+        _ history: ReadoutHistory,
+        now: ContinuousClock.Instant,
+        refreshSeconds: Int
+    ) -> (history: HubTileHistory, summary: ReadoutHistorySummary?) {
+        (
+            HubTileHistory(primary: history.segments(now: now, refreshSeconds: refreshSeconds, top: 1)),
+            history.summary(now: now, top: 1)
+        )
     }
 
     var preferredContentHeight: Double? {
@@ -140,6 +181,7 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
         settleTask?.cancel()
         settleTask = nil
         unregister()
+        histories = Histories()
     }
 
     /// Whether the user switched at least one tile on.
@@ -259,22 +301,31 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
         reading = ReadoutTileInput(hasBattery: reading.hasBattery)
     }
 
+    /// The used share of the memory from 0 to 1, or `nil` for a figure the tile calls impossible.
+    private static func usedShare(_ memory: MemoryUse) -> Double? {
+        guard memory.total > 0, memory.used <= memory.total else {
+            return nil
+        }
+        return Double(memory.used) / Double(memory.total)
+    }
+
     private func receive(_ sample: ReadoutSample) {
         guard registeredRequest != nil else {
             return
         }
         var next = reading
         let now = ContinuousClock.now
-        var updated = histories
+        var nextHistories = histories
         if sample.read.contains(.cpu) {
             next.cpuLoad = baseline.cpuLoad(sample.cpuTicks)
-            updated.cpu.append(next.cpuLoad, at: now)
+            nextHistories.cpu.append(next.cpuLoad, at: now)
         }
         if sample.read.contains(.thermal) {
             next.thermal = sample.thermal
         }
         if sample.read.contains(.memory) {
             next.memory = sample.memory
+            nextHistories.memory.append(next.memory.flatMap(Self.usedShare), at: now)
         }
         if sample.read.contains(.swap) {
             next.swap = sample.swap
@@ -284,6 +335,11 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
         }
         if sample.read.contains(.network) {
             next.networkRates = baseline.networkRates(sample.network)
+            nextHistories.download.append(next.networkRates?.first, at: now)
+            nextHistories.upload.append(next.networkRates?.second, at: now)
+        }
+        if next.gpuEnabled {
+            nextHistories.gpu.append(next.gpuPercent.map { Double($0) / 100 }, at: now)
         }
         if sample.read.contains(.diskSpace) {
             next.diskSpace = sample.diskSpace
@@ -293,7 +349,7 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
             // The first reading that has a battery tells that this Mac has one.
             next.hasBattery = next.hasBattery || sample.power != nil
         }
-        histories = updated
+        histories = nextHistories
         reading = next
     }
 }

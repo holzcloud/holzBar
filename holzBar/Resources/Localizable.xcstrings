@@ -172832,6 +172832,363 @@
           }
         }
       }
+    },
+    "Last 2 minutes: %1$@ to %2$@, rising" : {
+      "comment" : "VoiceOver: what a tile's last two minutes did, rising; %1$@ is the lowest and %2$@ the highest value, each in words",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poslední 2 minuty: od %1$@ do %2$@, roste"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzte 2 Minuten: %1$@ bis %2$@, steigend"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimos 2 minutos: de %1$@ a %2$@, en aumento"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2 dernières minutes : de %1$@ à %2$@, en hausse"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az utolsó 2 percben: %1$@ és %2$@ között, emelkedő"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2 menit terakhir: %1$@ hingga %2$@, naik"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultimi 2 minuti: da %1$@ a %2$@, in aumento"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "過去2分間：%1$@から%2$@, 上昇中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근 2분: %1$@에서 %2$@, 상승 중"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laatste 2 minuten: %1$@ tot %2$@, stijgend"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostatnie 2 minuty: od %1$@ do %2$@, rośnie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimos 2 minutos: de %1$@ a %2$@, subindo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultims 2 minutas: da %1$@ fin %2$@, creschent"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последние 2 минуты: от %1$@ до %2$@, растёт"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senaste 2 minuterna: %1$@ till %2$@, stigande"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son 2 dakika: %1$@ ile %2$@ arası, yükseliyor"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Останні 2 хвилини: від %1$@ до %2$@, зростає"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近 2 分钟：%1$@ 至 %2$@, 上升"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近 2 分鐘：%1$@ 至 %2$@, 上升"
+          }
+        }
+      }
+    },
+    "Last 2 minutes: %1$@ to %2$@, falling" : {
+      "comment" : "VoiceOver: what a tile's last two minutes did, falling; %1$@ is the lowest and %2$@ the highest value, each in words",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poslední 2 minuty: od %1$@ do %2$@, klesá"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzte 2 Minuten: %1$@ bis %2$@, fallend"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimos 2 minutos: de %1$@ a %2$@, en descenso"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2 dernières minutes : de %1$@ à %2$@, en baisse"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az utolsó 2 percben: %1$@ és %2$@ között, csökkenő"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2 menit terakhir: %1$@ hingga %2$@, turun"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultimi 2 minuti: da %1$@ a %2$@, in calo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "過去2分間：%1$@から%2$@, 下降中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근 2분: %1$@에서 %2$@, 하락 중"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laatste 2 minuten: %1$@ tot %2$@, dalend"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostatnie 2 minuty: od %1$@ do %2$@, spada"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimos 2 minutos: de %1$@ a %2$@, caindo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultims 2 minutas: da %1$@ fin %2$@, calant"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последние 2 минуты: от %1$@ до %2$@, снижается"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senaste 2 minuterna: %1$@ till %2$@, fallande"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son 2 dakika: %1$@ ile %2$@ arası, düşüyor"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Останні 2 хвилини: від %1$@ до %2$@, знижується"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近 2 分钟：%1$@ 至 %2$@, 下降"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近 2 分鐘：%1$@ 至 %2$@, 下降"
+          }
+        }
+      }
+    },
+    "Last 2 minutes: %1$@ to %2$@, steady" : {
+      "comment" : "VoiceOver: what a tile's last two minutes did, steady; %1$@ is the lowest and %2$@ the highest value, each in words",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poslední 2 minuty: od %1$@ do %2$@, beze změny"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzte 2 Minuten: %1$@ bis %2$@, gleichbleibend"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimos 2 minutos: de %1$@ a %2$@, estable"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2 dernières minutes : de %1$@ à %2$@, stable"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az utolsó 2 percben: %1$@ és %2$@ között, stabil"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2 menit terakhir: %1$@ hingga %2$@, stabil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultimi 2 minuti: da %1$@ a %2$@, stabile"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "過去2分間：%1$@から%2$@, 横ばい"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근 2분: %1$@에서 %2$@, 안정적"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laatste 2 minuten: %1$@ tot %2$@, stabiel"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostatnie 2 minuty: od %1$@ do %2$@, bez zmian"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimos 2 minutos: de %1$@ a %2$@, estável"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultims 2 minutas: da %1$@ fin %2$@, stabil"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последние 2 минуты: от %1$@ до %2$@, без изменений"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senaste 2 minuterna: %1$@ till %2$@, stabilt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son 2 dakika: %1$@ ile %2$@ arası, sabit"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Останні 2 хвилини: від %1$@ до %2$@, без змін"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近 2 分钟：%1$@ 至 %2$@, 平稳"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近 2 分鐘：%1$@ 至 %2$@, 平穩"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

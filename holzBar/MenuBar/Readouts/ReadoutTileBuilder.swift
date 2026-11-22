@@ -22,17 +22,23 @@ enum ReadoutTileBuilder {
     ///   - rateUnit: How the network speed counts.
     ///   - locale: The language and the number format of the user.
     ///   - history: The tile's mini curve, for a tile that has one.
+    ///   - summary: What the last two minutes did, which VoiceOver reads after the value (the
+    ///     tooltip does not have it).
     static func tile(
         for content: ReadoutTileContent,
         input: ReadoutTileInput,
         rateUnit: ReadoutRateUnit,
         locale: Locale,
-        history: HubTileHistory? = nil
+        history: HubTileHistory? = nil,
+        summary: ReadoutHistorySummary? = nil
     ) -> HubTile {
         let texts = ReadoutTexts.localized(locale: locale)
         let (value, unit) = valueAndUnit(of: content.value, rateUnit: rateUnit, texts: texts, locale: locale)
         let reading = spokenValue(for: content, input: input, rateUnit: rateUnit, texts: texts, locale: locale)
         let spoken = Text(verbatim: reading)
+        let withSummary = summary.map {
+            Text(verbatim: reading + ", " + historyPhrase($0, kind: content.kind, rateUnit: rateUnit, locale: locale))
+        } ?? spoken
         let parts = detail(of: content.detail, kind: content.kind, rateUnit: rateUnit, texts: texts, locale: locale)
         return HubTile(
             symbol: symbol(for: content, input: input),
@@ -44,7 +50,7 @@ enum ReadoutTileBuilder {
             key: content.kind.rawValue,
             level: content.level,
             stateLine: parts.stateLine,
-            accessibilityValue: spoken,
+            accessibilityValue: withSummary,
             help: spoken,
             history: history
         )
@@ -254,6 +260,33 @@ enum ReadoutTileBuilder {
             parts.append(String(localized: "Thermal state \(ReadoutFormat.thermalWord(state, texts: texts))"))
         }
         return parts.joined(separator: ", ")
+    }
+
+    /// What the last two minutes did, in words: "Last 2 minutes: 8 percent to 41 percent, rising".
+    /// The lowest and the highest are percents for a share and speeds for the network.
+    private static func historyPhrase(
+        _ summary: ReadoutHistorySummary,
+        kind: ReadoutTileKind,
+        rateUnit: ReadoutRateUnit,
+        locale: Locale
+    ) -> String {
+        let lowest: String
+        let highest: String
+        if kind == .network {
+            lowest = WidgetSpeech.spokenRate(summary.lowest, unit: rateUnit, locale: locale)
+            highest = WidgetSpeech.spokenRate(summary.highest, unit: rateUnit, locale: locale)
+        } else {
+            let low = ReadoutTiles.percent(summary.lowest)
+            let high = ReadoutTiles.percent(summary.highest)
+            lowest = String(localized: "\(low) percent")
+            highest = String(localized: "\(high) percent")
+        }
+        let format = switch summary.trend {
+        case .rising: String(localized: "Last 2 minutes: %1$@ to %2$@, rising")
+        case .falling: String(localized: "Last 2 minutes: %1$@ to %2$@, falling")
+        case .steady: String(localized: "Last 2 minutes: %1$@ to %2$@, steady")
+        }
+        return String(format: format, lowest, highest)
     }
 
     private static func percentPhrase(_ value: ReadoutTileValue) -> String {
