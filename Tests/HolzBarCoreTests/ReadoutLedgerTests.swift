@@ -87,6 +87,22 @@ struct ReadoutLedgerTests {
         #expect(events == [.memoryPressure, .power, .thermal])
     }
 
+    @Test("The device battery is the last metric, timed and not an event")
+    func deviceBatteryMetric() throws {
+        #expect(ReadoutMetric.allCases.last == .deviceBattery)
+        #expect(!ReadoutMetric.deviceBattery.isEvent)
+        let events = Set(ReadoutMetric.allCases.filter(\.isEvent))
+        #expect(events == [.memoryPressure, .power, .thermal])
+
+        var ledger = ReadoutLedger()
+        ledger.register("a", kind: .visible, request: request([.deviceBattery], seconds: 300))
+        #expect(ledger.eventMetrics.isEmpty)
+        let deliveries = ["a": ReadoutSchedule.Delivery(last: start, count: 1)]
+        let next = try #require(tick(ledger, deliveries, after: 1))
+        #expect(next.at == start + .seconds(300))
+        #expect(next.metrics == [.deviceBattery])
+    }
+
     // MARK: The schedule, MON-08
 
     @Test("An idle ledger measures nothing")

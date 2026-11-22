@@ -270,6 +270,33 @@ struct ReadoutValuesTests {
         #expect(merged.thermal == nil)
     }
 
+    private func battery(_ name: String, _ percent: Int) -> AccessoryBattery {
+        AccessoryBattery(id: "name:\(name)", name: name, percent: percent, lowWarnLevel: nil, category: nil)
+    }
+
+    @Test("The device batteries merge like the other fields")
+    func mergingDeviceBatteries() {
+        var older = ReadoutSample(at: start)
+        older.read = [.deviceBattery]
+        older.deviceBatteries = [battery("Mouse", 40)]
+
+        // A newer sample that read them replaces them.
+        var read = ReadoutSample(at: start + .seconds(5))
+        read.read = [.deviceBattery]
+        read.deviceBatteries = [battery("Keyboard", 80)]
+        #expect(older.merging(read).deviceBatteries == [battery("Keyboard", 80)])
+
+        // A newer sample that did not read them keeps the older value.
+        var other = ReadoutSample(at: start + .seconds(5))
+        other.read = [.cpu]
+        #expect(older.merging(other).deviceBatteries == [battery("Mouse", 40)])
+
+        // A newer sample that read them and got nothing sets nil, not the old value.
+        var missing = ReadoutSample(at: start + .seconds(5))
+        missing.read = [.deviceBattery]
+        #expect(older.merging(missing).deviceBatteries == nil)
+    }
+
     @Test("Every metric of a sample merges its own field")
     func mergingCoversEveryMetric() {
         var newer = ReadoutSample(at: start)
@@ -285,6 +312,7 @@ struct ReadoutValuesTests {
         newer.power = PowerReading(percent: 50, state: .onBattery, timeToEmpty: nil, timeToFull: nil, adapterWatts: nil)
         newer.thermal = .serious
         newer.gpuPercent = 12
+        newer.deviceBatteries = [battery("Magic Keyboard", 80)]
         let merged = ReadoutSample(at: start).merging(newer)
         #expect(merged == newer)
     }

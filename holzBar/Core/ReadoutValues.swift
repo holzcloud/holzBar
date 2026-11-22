@@ -317,6 +317,8 @@ nonisolated struct ReadoutSample: Equatable, Sendable {
     var power: PowerReading?
     var thermal: ReadoutThermal?
     var gpuPercent: Int?
+    /// The accessory batteries, or `nil` when they were not read or the read is off.
+    var deviceBatteries: [AccessoryBattery]?
 
     /// This sample with the metrics of a newer one on top: the newer one's time, and its value for
     /// every metric it read, a missing value included; the older fields it did not read are kept.
@@ -337,6 +339,7 @@ nonisolated struct ReadoutSample: Equatable, Sendable {
             case .power: merged.power = newer.power
             case .thermal: merged.thermal = newer.thermal
             case .gpu: merged.gpuPercent = newer.gpuPercent
+            case .deviceBattery: merged.deviceBatteries = newer.deviceBatteries
             }
         }
         return merged

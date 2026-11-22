@@ -29,6 +29,10 @@ nonisolated enum ReadoutMetric: String, CaseIterable, Sendable {
     case thermal
     /// The load of the graphics processor.
     case gpu
+    /// The batteries of the accessories (a keyboard, a mouse, headphones), read through the one
+    /// agreed accessory battery read and only while Read battery levels is on. Timed, not an
+    /// event: a power source event only nudges it (see ``ReadoutSchedule/observers(ledger:isPaused:)``).
+    case deviceBattery
 
     /// Whether the system announces a change by itself: it is observed while a consumer asks for
     /// it and never read on a timer (memory pressure, a power source event, the thermal state).
@@ -36,7 +40,7 @@ nonisolated enum ReadoutMetric: String, CaseIterable, Sendable {
         switch self {
         case .memoryPressure, .power, .thermal:
             true
-        case .cpu, .cpuCores, .memory, .swap, .network, .diskActivity, .diskSpace, .gpu:
+        case .cpu, .cpuCores, .memory, .swap, .network, .diskActivity, .diskSpace, .gpu, .deviceBattery:
             false
         }
     }

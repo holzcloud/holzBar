@@ -28,6 +28,11 @@ import Observation
 ///
 /// The GPU load is the one reading that goes through a private macOS interface (D-07): it is read
 /// through ``GPULoadBridge`` only while the Read GPU load switch is on and the start check holds.
+///
+/// The accessory batteries (``ReadoutMetric/deviceBattery``) go through the one agreed accessory
+/// battery read (the exception of 2026-10-16 in `CLAUDE.md`, widened on 2026-11-22), only while
+/// Read battery levels is on and the call exists. This file never names the undocumented function
+/// itself; it calls ``AccessoryBatterySource``, whose file is the only one that does.
 @MainActor
 @Observable
 final class SystemMonitor {
@@ -80,6 +85,9 @@ final class SystemMonitor {
     @ObservationIgnored private var gpuGate: PrivateFeatureGate?
     /// Whether a GPU read is in flight, so two never overlap (M-03).
     @ObservationIgnored private var isReadingGPU = false
+    /// The one accessory battery read that is in flight, so two never overlap: a caller that comes
+    /// while it runs waits for its result instead of starting another.
+    @ObservationIgnored private var deviceRead: Task<[AccessoryBattery], Never>?
 
     /// Keeps the app state, which says whether the Mac rests. Starts nothing: the monitor wakes
     /// only when a consumer registers.
@@ -203,6 +211,14 @@ final class SystemMonitor {
                 sample.gpuPercent = await readGPU(token: token)
             }
         }
+        if tick.metrics.contains(.deviceBattery) {
+            // The accessory batteries go through the agreed read, behind its switch, on the main
+            // actor where the one read in flight is kept.
+            sample.read.insert(.deviceBattery)
+            if stillWants(.deviceBattery, in: tick, epochs: epochs) {
+                sample.deviceBatteries = await readDeviceBatteries(token: token)
+            }
+        }
         deliver(sample, for: tick, token: token, epochs: epochs, refreshedDiskSpace: refreshesDisk)
     }
 
@@ -313,6 +329,42 @@ final class SystemMonitor {
         if gpuIsUnavailable != switchedItselfOff {
             gpuIsUnavailable = switchedItselfOff
         }
+    }
+
+    // MARK: Device batteries
+
+    /// Reads the accessory batteries through ``AccessoryBatterySource``, only while the Read battery
+    /// levels switch is on and this macOS offers the call; otherwise nothing is called and the result
+    /// is `nil` (the privacy rule of the switch holds whoever asks, an imported widget included).
+    ///
+    /// One read is in flight at most: a caller that comes while one runs takes its result. A result
+    /// whose tick was replaced meanwhile (`token` is no longer the current generation) is dropped
+    /// (M-03). The list stays in memory and is never logged.
+    ///
+    /// - Parameter token: The generation of the tick that asks, or `nil` for a read that follows an
+    ///   event and has no tick to go stale.
+    private func readDeviceBatteries(token: Int?) async -> [AccessoryBattery]? {
+        guard AccessoryAlertsSettings.readsBattery(), AccessoryBatterySource.isAvailable else {
+            return nil
+        }
+        let batteries: [AccessoryBattery]
+        if let running = deviceRead {
+            batteries = await running.value
+        } else {
+            let read = Task { await AccessoryBatterySource.read() }
+            deviceRead = read
+            batteries = await read.value
+            // Only the caller that started the read ends it, so a later read is never cleared.
+            deviceRead = nil
+        }
+        // The switch may have gone off while the read ran: the levels are then not delivered.
+        guard AccessoryAlertsSettings.readsBattery() else {
+            return nil
+        }
+        if let token, token != generation {
+            return nil
+        }
+        return batteries
     }
 
     // MARK: Disk space
