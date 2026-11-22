@@ -73,6 +73,8 @@ final class SystemMonitor {
     /// The start check and the failure count of the GPU read, created at its first use after the
     /// Read GPU load switch went on and dropped when the switch changes (D-07).
     @ObservationIgnored private var gpuGate: PrivateFeatureGate?
+    /// Whether a GPU read is in flight, so two never overlap (M-03).
+    @ObservationIgnored private var isReadingGPU = false
 
     /// Keeps the app state, which says whether the Mac rests. Starts nothing: the monitor wakes
     /// only when a consumer registers.
@@ -146,14 +148,22 @@ final class SystemMonitor {
             }
             // The precise capacity of the volume is read about once a minute (D-10); the decision
             // is made here, on the main actor, where the cache lives.
-            let refreshesDisk = self?.refreshesDiskSpace(for: tick) ?? false
+            guard let self, token == self.generation else {
+                return
+            }
+            let refreshesDisk = refreshesDiskSpace(for: tick)
             var sample = await SystemSamplers.read(tick.metrics, refreshesDiskSpace: refreshesDisk)
+            // A tick that was replaced while it read must not go on to the private interface: the
+            // consumer of the GPU load may be gone by now (M-03).
+            guard !Task.isCancelled, token == generation else {
+                return
+            }
             if tick.metrics.contains(.gpu) {
                 // The GPU goes through its own start check, on the main actor where the gate lives.
                 sample.read.insert(.gpu)
-                sample.gpuPercent = await self?.readGPU()
+                sample.gpuPercent = await readGPU(token: token)
             }
-            self?.deliver(sample, for: tick, token: token, refreshedDiskSpace: refreshesDisk)
+            deliver(sample, for: tick, token: token, refreshedDiskSpace: refreshesDisk)
         }
     }
 
@@ -192,7 +202,15 @@ final class SystemMonitor {
     /// Reads the GPU load through ``GPULoadBridge``, only while the switch is on and the gate is
     /// available; otherwise the bridge is not called at all. The first read after the switch went
     /// on is the start check, and three failed reads in a row switch the part off for the session.
-    private func readGPU() async -> Int? {
+    ///
+    /// One read is in flight at most, and a read whose tick was replaced meanwhile (`token` is no
+    /// longer the current generation) neither calls the bridge nor counts on the gate (M-03).
+    private func readGPU(token: Int) async -> Int? {
+        guard !isReadingGPU else {
+            return nil
+        }
+        isReadingGPU = true
+        defer { isReadingGPU = false }
         guard PrivateFeatureGate.shouldLoad(isEnabled: appState?.settings.readouts.readsGPU ?? false) else {
             gpuGate = nil
             updateGPUAvailability()
@@ -206,6 +224,9 @@ final class SystemMonitor {
         }
         guard gpuGate?.isAvailable == true else {
             updateGPUAvailability()
+            return nil
+        }
+        guard token == generation else {
             return nil
         }
         let reading = await GPULoadBridge.read()
