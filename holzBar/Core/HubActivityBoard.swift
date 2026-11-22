@@ -19,6 +19,11 @@ import Foundation
 /// 3. The order is the higher priority first, then the newer start, then the key.
 /// 4. The first of the order is the compact one; the first ``maximumListed`` are listed; every
 ///    live activity but the compact one is counted in ``Board/hiddenCount``.
+/// 5. For the closed notch (`forClosedNotch`), an activity whose widening has passed
+///    (``LiveActivity/widenedUntil``) is not listed, not compact and not counted: it no longer
+///    holds the notch open, and lives on in the full view, which the open hub and the Live
+///    activities list read. The leave times of finished activities and the ends of widenings stay
+///    in ``Board/nextExpiry`` in both views, so the one wait of the hub still wakes for each.
 nonisolated enum HubActivityBoard {
     /// How long a finished activity stays.
     static let finishedHold: TimeInterval = 5
@@ -35,12 +40,17 @@ nonisolated enum HubActivityBoard {
         var compact: LiveActivity?
         /// How many live activities are not the compact one.
         var hiddenCount: Int
-        /// The earliest moment after `now` at which a finished activity leaves, or `nil`.
+        /// The earliest moment after `now` at which the board changes by itself, or `nil`: a finished
+        /// activity leaves, or a widening ends (also of an activity the closed view no longer shows).
         var nextExpiry: Date?
     }
 
     /// The board at a moment.
-    static func board(_ activities: [LiveActivity], now: Date) -> Board {
+    ///
+    /// - Parameter forClosedNotch: Whether the board is for the widened closed notch: an activity
+    ///   whose widening has passed is then left out. The default is the full view, which lists every
+    ///   live activity.
+    static func board(_ activities: [LiveActivity], now: Date, forClosedNotch: Bool = false) -> Board {
         var byKey = [String: LiveActivity]()
         for activity in activities where !isExpired(activity, now: now) {
             if let existing = byKey[activity.key], existing.startedAt >= activity.startedAt {
@@ -49,13 +59,17 @@ nonisolated enum HubActivityBoard {
             byKey[activity.key] = activity
         }
         let live = byKey.values.sorted(by: isOrderedBefore)
-        let expiries = live.compactMap { activity in
-            activity.finishedAt.map { $0.addingTimeInterval(finishedHold) }
+        let expiries = live.flatMap { activity in
+            [
+                activity.finishedAt.map { $0.addingTimeInterval(finishedHold) },
+                activity.widenedUntil,
+            ].compactMap { $0 }
         }
+        let shown = forClosedNotch ? live.filter { !hasWidened($0, now: now) } : live
         return Board(
-            listed: Array(live.prefix(maximumListed)),
-            compact: live.first,
-            hiddenCount: max(live.count - 1, 0),
+            listed: Array(shown.prefix(maximumListed)),
+            compact: shown.first,
+            hiddenCount: max(shown.count - 1, 0),
             nextExpiry: expiries.filter { $0 > now }.min()
         )
     }
@@ -66,6 +80,14 @@ nonisolated enum HubActivityBoard {
             return false
         }
         return now.timeIntervalSince(finishedAt) >= finishedHold
+    }
+
+    /// Whether an activity's widening of the closed notch is over.
+    private static func hasWidened(_ activity: LiveActivity, now: Date) -> Bool {
+        guard let until = activity.widenedUntil else {
+            return false
+        }
+        return now >= until
     }
 
     private static func isOrderedBefore(_ lhs: LiveActivity, _ rhs: LiveActivity) -> Bool {

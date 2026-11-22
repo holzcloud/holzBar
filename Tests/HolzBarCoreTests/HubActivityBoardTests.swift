@@ -13,7 +13,8 @@ struct HubActivityBoardTests {
         module: String = "live-activities",
         priority: Int = 10,
         started: TimeInterval = 0,
-        finished: TimeInterval? = nil
+        finished: TimeInterval? = nil,
+        widened: TimeInterval? = nil
     ) -> LiveActivity {
         LiveActivity(
             id: id,
@@ -23,8 +24,23 @@ struct HubActivityBoardTests {
             title: id,
             priority: priority,
             startedAt: now.addingTimeInterval(started),
-            finishedAt: finished.map { now.addingTimeInterval($0) }
+            finishedAt: finished.map { now.addingTimeInterval($0) },
+            widenedSeconds: widened
         )
+    }
+
+    /// An alert: it widens the closed notch for 30 seconds from its start.
+    private func alert(
+        _ id: String,
+        priority: Int = 30,
+        started: TimeInterval = 0,
+        finished: TimeInterval? = nil
+    ) -> LiveActivity {
+        activity(id, module: "system-alerts", priority: priority, started: started, finished: finished, widened: 30)
+    }
+
+    private func at(_ seconds: TimeInterval) -> Date {
+        now.addingTimeInterval(seconds)
     }
 
     @Test("A higher priority goes first, then the newer start, then the key")
@@ -189,5 +205,80 @@ struct HubActivityBoardTests {
         #expect(made.id == "camera")
         #expect(LiveActivityKind.allCases.map(\.rawValue) == ["capture", "download", "timer", "other"])
         #expect(LiveActivityTint.allCases.count == 4)
+    }
+
+    // MARK: The closed notch's view (D-19, UI-SPEC A2)
+
+    @Test("The closed view widens for the activity's widening seconds and then drops it")
+    func closedViewDropsAWidenedActivity() {
+        let alerts = [alert("cpu")]
+        let before = Board.board(alerts, now: at(29), forClosedNotch: true)
+        #expect(before.compact?.id == "cpu")
+        let after = Board.board(alerts, now: at(30), forClosedNotch: true)
+        #expect(after.compact == nil)
+        #expect(after.listed.isEmpty)
+        #expect(after.hiddenCount == 0)
+        // The full view, the open hub's and the Live activities list's, keeps it.
+        let full = Board.board(alerts, now: at(30))
+        #expect(full.compact?.id == "cpu")
+        #expect(full.listed.map(\.id) == ["cpu"])
+    }
+
+    @Test("A widened activity past its widening is not counted as hidden in the closed view")
+    func closedViewDoesNotCountAWidenedActivity() {
+        let activities = [alert("cpu", priority: 30), activity("camera", priority: 20)]
+        let closed = Board.board(activities, now: at(31), forClosedNotch: true)
+        #expect(closed.compact?.id == "camera")
+        #expect(closed.hiddenCount == 0)
+        let full = Board.board(activities, now: at(31))
+        #expect(full.compact?.id == "cpu")
+        #expect(full.hiddenCount == 1)
+    }
+
+    @Test("The next expiry is the end of a widening in both views, or an earlier leave")
+    func nextExpiryCoversTheWidening() {
+        let alerts = [alert("cpu")]
+        #expect(Board.board(alerts, now: at(10)).nextExpiry == at(30))
+        #expect(Board.board(alerts, now: at(10), forClosedNotch: true).nextExpiry == at(30))
+        let withFinished = alerts + [activity("done", started: 0, finished: 15)]
+        #expect(Board.board(withFinished, now: at(10)).nextExpiry == at(20))
+        #expect(Board.board(withFinished, now: at(10), forClosedNotch: true).nextExpiry == at(20))
+    }
+
+    @Test("A done state inside its 30 seconds shows in the closed view, and later it never does")
+    func doneStateWidensOnlyInsideTheEpisode() {
+        let early = [alert("cpu.recovered", started: 0, finished: 10)]
+        #expect(Board.board(early, now: at(12), forClosedNotch: true).compact?.id == "cpu.recovered")
+        let late = [alert("cpu.recovered", started: 0, finished: 100)]
+        let closed = Board.board(late, now: at(101), forClosedNotch: true)
+        #expect(closed.compact == nil)
+        // The open hub lists it until its own five seconds are over, and the closed view still wakes then.
+        #expect(Board.board(late, now: at(104)).listed.map(\.id) == ["cpu.recovered"])
+        #expect(Board.board(late, now: at(105)).listed.isEmpty)
+        #expect(closed.nextExpiry == at(105))
+        #expect(Board.board(late, now: at(101)).nextExpiry == at(105))
+    }
+
+    @Test("An activity without widening seconds behaves the same in both views")
+    func noWideningMeansAsLongAsItRuns() {
+        let activities = [activity("capture", priority: 20, started: -7_200), activity("timer", priority: 10)]
+        let full = Board.board(activities, now: now)
+        let closed = Board.board(activities, now: now, forClosedNotch: true)
+        #expect(closed == full)
+        #expect(Board.board(activities, now: at(86_400), forClosedNotch: true).compact?.id == "capture")
+    }
+
+    @Test("A widening that is negative or not a number is dropped")
+    func invalidWideningIsNil() {
+        func make(_ seconds: TimeInterval?) -> LiveActivity {
+            activity("x", widened: seconds)
+        }
+        #expect(make(-1).widenedSeconds == nil)
+        #expect(make(.nan).widenedSeconds == nil)
+        #expect(make(.infinity).widenedSeconds == nil)
+        #expect(make(30).widenedSeconds == 30)
+        #expect(make(nil).widenedSeconds == nil)
+        #expect(make(30).widenedUntil == at(30))
+        #expect(make(nil).widenedUntil == nil)
     }
 }

@@ -77,6 +77,18 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
     /// "Done", at most ``maximumCompactValueLength`` characters, never a name; `nil` where the
     /// countdown or the percentage says it.
     let compactValue: String?
+    /// How long after ``startedAt`` the activity may widen the closed notch, or `nil` for as long as
+    /// it runs. After that the activity stays in the open hub's right pill and in the Live activities
+    /// list but no longer holds the notch open (``HubActivityBoard/board(_:now:forClosedNotch:)``):
+    /// an alert that holds for hours widens the notch for its first seconds only. Phase 96's planned
+    /// hold for a recurring activity is the same idea and reuses this field instead of adding a
+    /// second one. A negative or non-finite value is stored as `nil`.
+    let widenedSeconds: TimeInterval?
+
+    /// The moment the closed notch stops widening for this activity, or `nil` when it has no limit.
+    var widenedUntil: Date? {
+        widenedSeconds.map { startedAt.addingTimeInterval($0) }
+    }
 
     /// A key that is unique across modules: the module's identifier and the activity's id.
     var key: String {
@@ -84,7 +96,8 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
     }
 
     /// Creates an activity. A title, detail or short word beyond its cap is cut, a progress outside
-    /// ``progressRange`` is clamped into it and a progress that is not a number is dropped.
+    /// ``progressRange`` is clamped into it and a progress that is not a number is dropped, and a
+    /// widening that is negative or not a number is dropped.
     init(
         id: String,
         moduleID: String,
@@ -99,7 +112,8 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
         finishedAt: Date? = nil,
         tint: LiveActivityTint = .accent,
         announcesItself: Bool = false,
-        compactValue: String? = nil
+        compactValue: String? = nil,
+        widenedSeconds: TimeInterval? = nil
     ) {
         self.id = id
         self.moduleID = moduleID
@@ -117,5 +131,6 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
         self.tint = tint
         self.announcesItself = announcesItself
         self.compactValue = compactValue.map { String($0.prefix(Self.maximumCompactValueLength)) }
+        self.widenedSeconds = widenedSeconds.flatMap { $0.isFinite && $0 >= 0 ? $0 : nil }
     }
 }

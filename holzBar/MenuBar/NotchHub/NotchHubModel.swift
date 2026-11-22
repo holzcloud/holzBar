@@ -91,6 +91,14 @@ final class NotchHubModel {
         return HubActivityBoard.board(activities, now: now)
     }
 
+    /// The board of the closed notch at a moment: the same activities, without those whose widening
+    /// has passed (``LiveActivity/widenedSeconds``), so a long alert does not hold the notch open.
+    /// The open hub's pills and the Live activities list keep the full ``board(now:)``.
+    func closedBoard(now: Date) -> HubActivityBoard.Board {
+        _ = expiryCount
+        return HubActivityBoard.board(activities, now: now, forClosedNotch: true)
+    }
+
     /// Records that a finished activity left, so that the views that show the board draw again.
     func activitiesDidExpire() {
         expiryCount &+= 1

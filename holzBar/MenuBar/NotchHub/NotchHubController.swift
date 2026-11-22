@@ -623,7 +623,7 @@ final class NotchHubController: HubHost {
         if let live {
             // The hub closes into the live state: what it will show is ready when it has settled.
             presentation.liveLayout = live
-            presentation.liveBoard = model.board(now: .now)
+            presentation.liveBoard = model.closedBoard(now: .now)
             setLivePlacement(LivePlacement(screenID: screen.displayID, layout: live))
         }
         presentation.animateClose(
@@ -1258,7 +1258,7 @@ final class NotchHubController: HubHost {
             hideLive()
             return
         }
-        let board = model.board(now: .now)
+        let board = model.closedBoard(now: .now)
         armExpiry(at: board.nextExpiry)
         let screen = liveScreen(for: board)
         let before = phase.target
@@ -1442,8 +1442,8 @@ final class NotchHubController: HubHost {
 
     // MARK: The wait for an expiry
 
-    /// Arms the one wait of the live activities: until the next finished activity leaves, then
-    /// the board is worked out again. Replaces a wait already armed, and arms none when no
+    /// Arms the one wait of the live activities: until the next finished activity leaves or a
+    /// widening ends, then the board is worked out again. Replaces a wait already armed, and arms none when no
     /// finished activity is waiting to leave.
     private func armExpiry(at date: Date?) {
         expiryTask?.cancel()

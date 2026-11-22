@@ -114,7 +114,7 @@ final class AlertNotchSurface {
             hide()
             return
         }
-        let board = HubActivityBoard.board(activities, now: .now)
+        let board = HubActivityBoard.board(activities, now: .now, forClosedNotch: true)
         guard board.compact != nil else {
             cancelExpiry()
             stopFollowing()

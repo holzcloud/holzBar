@@ -132,7 +132,8 @@ final class ThresholdAlertsManager {
             startedAt: startedAt,
             tint: .amber,
             announcesItself: false,
-            compactValue: AlertTexts.shortValue(.percent(AlertLook.testPercent))
+            compactValue: AlertTexts.shortValue(.percent(AlertLook.testPercent)),
+            widenedSeconds: DesignTokens.Alert.widenedSeconds
         ))
         testTask = Task { [weak self] in
             do {
@@ -161,7 +162,8 @@ final class ThresholdAlertsManager {
             finishedAt: .now,
             tint: AlertLook.recoveredTint,
             announcesItself: false,
-            compactValue: AlertTexts.normalText
+            compactValue: AlertTexts.normalText,
+            widenedSeconds: DesignTokens.Alert.widenedSeconds
         ))
         prune(at: .now)
     }
@@ -467,7 +469,8 @@ final class ThresholdAlertsManager {
             startedAt: startedAt,
             tint: AlertLook.tint(for: snapshot.severity),
             announcesItself: false,
-            compactValue: AlertLook.shortValue(of: snapshot.observation).map(AlertTexts.shortValue)
+            compactValue: AlertLook.shortValue(of: snapshot.observation).map(AlertTexts.shortValue),
+            widenedSeconds: DesignTokens.Alert.widenedSeconds
         )
     }
 
@@ -487,7 +490,9 @@ final class ThresholdAlertsManager {
             finishedAt: now,
             tint: AlertLook.recoveredTint,
             announcesItself: false,
-            compactValue: AlertTexts.normalText
+            compactValue: AlertTexts.normalText,
+            // The episode's own start: a recovery long after the alert fired does not widen the notch.
+            widenedSeconds: DesignTokens.Alert.widenedSeconds
         ))
     }
 
