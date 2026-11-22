@@ -183,6 +183,10 @@ final class Concealer27 {
     /// exists (jordanbaird/Ice#1007).
     @ObservationIgnored private var launchGrace = LaunchGrace27()
 
+    /// The one task that sleeps until the earliest launch grace ends at its cap
+    /// (``scheduleGraceExpiry()``).
+    @ObservationIgnored private var graceExpiryTask: Task<Void, Never>?
+
     /// The applications concealed at the last change, to tell a change of concealment.
     @ObservationIgnored private var lastConcealed = Set<String>()
 
@@ -471,14 +475,14 @@ final class Concealer27 {
     /// Answers applications that may own items launching or quitting, with exactly one update.
     ///
     /// An application whose saved section is hidden or always hidden is shown until its item
-    /// exists, or for at most 10 s, then concealed: concealed before its status item exists,
+    /// exists, or for at most 45 s, then concealed: concealed before its status item exists,
     /// it gets an item of 3 points (jordanbaird/Ice#1007).
     ///
     /// - Parameter candidates: The launched applications whose saved section is concealed.
     private func applicationsDidChange(graces candidates: [String]) {
         // The bar is laid out anew, so the notch is worked out again.
         notchConcealed.removeAll()
-        let now = ContinuousClock.now
+        let now = SuspendingClock.now
         let begun = candidates.filter { launchGrace.begin($0, isConcealed: true, at: now) }
         guard !begun.isEmpty else {
             update()
@@ -486,13 +490,25 @@ final class Concealer27 {
         }
         logger.debug("\(begun.count, privacy: .public) applications in concealed sections launched, showing them until their items exist")
         showTemporarily(bundleIDs: begun)
-        // One bounded wait per change.
-        Task { [weak self] in
-            try? await Task.sleep(for: LaunchGrace27.timeout)
-            guard let self else {
+        scheduleGraceExpiry()
+    }
+
+    /// Sleeps until the earliest launch grace ends at its cap, then ends the ones that are due
+    /// and schedules again. One task serves every grace; a new call replaces it. The suspending
+    /// clock does not run while the Mac sleeps.
+    private func scheduleGraceExpiry() {
+        graceExpiryTask?.cancel()
+        graceExpiryTask = nil
+        guard let expiry = launchGrace.nextExpiry else {
+            return
+        }
+        graceExpiryTask = Task { [weak self] in
+            try? await Task.sleep(until: expiry, tolerance: .seconds(1), clock: .suspending)
+            guard !Task.isCancelled, let self else {
                 return
             }
             endGraces(launchGrace.expired(at: .now))
+            scheduleGraceExpiry()
         }
     }
 
@@ -502,6 +518,7 @@ final class Concealer27 {
             return
         }
         endGraces(launchGrace.itemsAppeared(bundleIDs))
+        scheduleGraceExpiry()
     }
 
     /// Conceals the applications whose launch grace ended, balancing their allowance.
