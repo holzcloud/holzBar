@@ -32,4 +32,13 @@ struct NotchHubDisplaysTests {
         #expect(NotchHubDisplays.notched.includes(isBuiltIn: false, hasNotch: true))
         #expect(!NotchHubDisplays.notched.includes(isBuiltIn: true, hasNotch: false))
     }
+
+    @Test("D-17: Displays with a notch includes a built-in Dynamic Island display, which has a camera cutout")
+    func notchedIncludesDynamicIsland() {
+        // Callers pass `safeAreaInsets.top != 0`, which is true for the island as well as the notch.
+        #expect(NotchHubDisplays.notched.includes(isBuiltIn: true, hasNotch: true))
+        // A display with no cutout at all stays out.
+        #expect(!NotchHubDisplays.notched.includes(isBuiltIn: false, hasNotch: false))
+        #expect(!NotchHubDisplays.notched.includes(isBuiltIn: true, hasNotch: false))
+    }
 }
