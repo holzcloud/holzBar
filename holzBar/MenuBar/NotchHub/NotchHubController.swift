@@ -393,8 +393,10 @@ final class NotchHubController: HubHost {
     }
 
     /// The display the hotkey opens the hub on, and the live state shows on: the one under the
-    /// pointer when the setting includes it, else the first one it includes.
-    private func preferredScreen() -> NSScreen? {
+    /// pointer when the setting includes it, else the first one it includes. The alerts' own
+    /// surface (``AlertNotchSurface``) uses this one rule too, so a change of it reaches the alert
+    /// as well (D-09).
+    func preferredScreen() -> NSScreen? {
         if let screen = NSScreen.screenWithMouse, isIncluded(screen) {
             return screen
         }
@@ -406,6 +408,16 @@ final class NotchHubController: HubHost {
             return false
         }
         return displays.includes(isBuiltIn: CGDisplayIsBuiltin(screen.displayID) != 0, hasNotch: screen.hasNotch)
+    }
+
+    /// Opens the hub for an alert that was clicked: on the preferred display, with the compact
+    /// trigger, the way a click on the live shape does. Does nothing while the module is off or the
+    /// hub is open.
+    func openForAlert() {
+        guard isActive, !isOpen else {
+            return
+        }
+        open(on: preferredScreen(), trigger: .compact)
     }
 
     /// Opens the hub on a screen, unless the policy says it must not open or the screen has no
@@ -1165,8 +1177,8 @@ final class NotchHubController: HubHost {
     // MARK: Live activities
 
     /// What the policy needs to know about the Mac when the hub or the live state would show: read
-    /// when asked, never followed.
-    private func policyEnvironment(of screen: NSScreen, appState: AppState) -> NotchHubPolicy.Environment {
+    /// when asked, never followed. The alerts' own surface asks the same question (D-09).
+    func policyEnvironment(of screen: NSScreen, appState: AppState) -> NotchHubPolicy.Environment {
         NotchHubPolicy.Environment(
             isFullscreenSpace: appState.activeSpace.isFullscreen,
             isMenuBarHiddenBySystem: appState.menuBarManager.isMenuBarHiddenBySystem,
@@ -1503,7 +1515,9 @@ final class NotchHubController: HubHost {
     ///
     /// The user's "Display cutout" setting can override the detection; it never invents a cutout
     /// where none was found (``DisplayCutout/resolve(detected:override:)``).
-    private func display(of screen: NSScreen) -> NotchHubGeometry.Display {
+    ///
+    /// The alerts' own surface reads the display through this one function as well (D-09).
+    func display(of screen: NSScreen) -> NotchHubGeometry.Display {
         let frame = screen.frame
         let leftAreaWidth = screen.auxiliaryTopLeftArea.map { Double($0.width) }
         let rightAreaWidth = screen.auxiliaryTopRightArea.map { Double($0.width) }

@@ -58,12 +58,22 @@ final class ThresholdAlertsManager {
     @ObservationIgnored private var deadlineTask: Task<Void, Never>?
     /// The one wait that turns the test alert into its done state.
     @ObservationIgnored private var testTask: Task<Void, Never>?
+    /// The alerts' own notch surface, created when an alert first needs it (D-07).
+    @ObservationIgnored private var surface: AlertNotchSurface?
+    /// Follows the alerts and whether the Notch hub module is on, while the module is on.
+    @ObservationIgnored private var surfaceLoop: ObservationLoop?
     @ObservationIgnored private let logger = Logger(category: "ThresholdAlerts")
 
     /// What the stored settings decide: whether the module is on and the five rules.
     private struct Config: Equatable {
         var isModuleOn: Bool
         var rules: [ThresholdRule]
+    }
+
+    /// What decides what the notch surface shows: the alerts and whether the Notch hub module is on.
+    private struct SurfaceInput: Equatable {
+        var activities: [LiveActivity]
+        var isHubOn: Bool
     }
 
     /// The least time before the deadline task wakes, so a deadline already past never becomes a
@@ -181,9 +191,11 @@ final class ThresholdAlertsManager {
         }
         if isOn, !wasOn {
             startPauseLoop()
+            startSurfaceLoop()
         } else if !isOn, wasOn {
             pauseLoop?.cancel()
             pauseLoop = nil
+            stopSurface()
         }
         handle(evaluator.configure(effective, at: .now))
         let ruleCount = effective.filter(\.isOn).count
@@ -215,6 +227,47 @@ final class ThresholdAlertsManager {
         if firingCount != 0 {
             firingCount = 0
         }
+    }
+
+    // MARK: Notch surface
+
+    /// Follows the alerts and the Notch hub module's switch, so the alert reaches the notch while
+    /// the hub is off (D-07). Only while the module is on.
+    private func startSurfaceLoop() {
+        surfaceLoop = ObservationLoop.observe({ [weak self, weak appState] in
+            SurfaceInput(activities: self?.activities ?? [], isHubOn: appState?.notchHub.isActive ?? false)
+        }, onChange: { [weak self] _ in
+            self?.surfaceDidChange()
+        })
+        surfaceDidChange()
+    }
+
+    /// With the module off no surface and no observation is left.
+    private func stopSurface() {
+        surfaceLoop?.cancel()
+        surfaceLoop = nil
+        surface?.hide()
+        surface = nil
+    }
+
+    /// Hands the alerts to the surface while the Notch hub is off; while it is on the hub draws the
+    /// widened notch itself and the surface hides.
+    private func surfaceDidChange() {
+        guard isModuleOn, let appState else {
+            surface?.hide()
+            return
+        }
+        if appState.notchHub.isActive {
+            surface?.hide()
+            return
+        }
+        // Created on first need: with nothing to show there is no surface at all.
+        if activities.isEmpty, surface == nil {
+            return
+        }
+        let surface = surface ?? AlertNotchSurface(appState: appState)
+        self.surface = surface
+        surface.update(activities: activities)
     }
 
     // MARK: Rest and visibility
