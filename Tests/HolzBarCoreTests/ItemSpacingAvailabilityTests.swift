@@ -17,6 +17,7 @@ struct ItemSpacingAvailabilityTests {
 
     @Test("It is off on macOS 27 until probe P7 shows macOS 27 honours the spacing keys")
     func offUntilProbe() {
+        // Not measured yet: probe P7 is deferred to the 1.2.0 beta test (2026-11-22).
         #expect(!ItemSpacingAvailability.worksOnMacOS27)
     }
 }

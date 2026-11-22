@@ -50,6 +50,10 @@ nonisolated enum ReopenGate {
 
     /// The launchers whose reopen opens Settings: the Dock, the Finder, Spotlight and
     /// Launchpad. Strict on purpose; it is fitted to what a real Mac measures.
+    ///
+    /// Not measured on a Mac yet: probe P1 is deferred to the 1.2.0 beta test (2026-11-22), so no value
+    /// here was measured on a Mac. The strict list stays as built (fail safe: an unknown sender
+    /// never opens Settings); the beta test's measurement may widen it, per the runbook.
     static let userLaunchSenders: Set<String> = [
         "com.apple.dock",
         "com.apple.finder",
@@ -60,6 +64,7 @@ nonisolated enum ReopenGate {
     /// Lower-case words that mark a sender as the Siri or Shortcuts machinery. A sender
     /// whose identifier contains one never opens Settings, even when its original sender
     /// is a launcher. The words follow MonitorControl 4.4.0's fix of the same problem.
+    /// Probe P1 is not measured yet either (see ``userLaunchSenders``).
     static let neverMarkers = ["siri", "shortcut", "workflow"]
 
     /// The shortest time between two reopens that open Settings.

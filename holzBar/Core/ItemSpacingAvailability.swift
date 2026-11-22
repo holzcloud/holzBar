@@ -14,6 +14,9 @@ import Foundation
 nonisolated enum ItemSpacingAvailability {
     /// Whether macOS 27 honours the spacing keys. Probe P7 decides; flip it when the probe
     /// shows they work.
+    ///
+    /// Not measured on a Mac yet: probe P7 is deferred to the 1.2.0 beta test (2026-11-22), so nothing
+    /// was measured on a Mac. It stays `false`, the fail-safe default.
     static let worksOnMacOS27 = false
 
     /// Whether the setting takes effect on the given major version of macOS.

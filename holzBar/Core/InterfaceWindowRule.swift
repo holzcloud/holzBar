@@ -37,7 +37,8 @@ nonisolated enum InterfaceWindowRule {
     /// A KVM or screen-edge helper puts a window of one point at the edge of a display (a hot
     /// border; Hidden Bar #548), and such a window kept the sections open for good. No menu,
     /// popover or panel is that thin, so such a window never counts. The limit is holzBar's
-    /// choice within D-12 of phase 93, a little above the 1-point borders seen.
+    /// choice within D-12 of phase 93, a little above the 1-point borders seen. Probe P8 is not
+    /// measured yet (deferred to the 1.2.0 beta test, 2026-11-22), so it is unchanged.
     static let thinWindowLimit: CGFloat = 8
 
     /// Window levels at which macOS 27 shows popups of status items besides ``menuLayers``.
@@ -45,12 +46,18 @@ nonisolated enum InterfaceWindowRule {
     /// Empty until probe P8 (`Scripts/macos27/window-layers-probe.swift`) measures them on
     /// macOS 27: nothing is built on a guessed layer (D-01 of phase 93). Plan 93-16 fills it
     /// from the probe, or records that none was measured.
+    ///
+    /// Not measured on a Mac yet: probe P8 is deferred to the 1.2.0 beta test (2026-11-22), so no layer
+    /// was measured on a Mac. It stays empty (fail safe).
     static let macOS27PopupLayers: Set<Int> = []
 
     /// Window levels of the tooltips of status items.
     ///
     /// Empty until probe P8 measures the level of a tooltip on macOS 27 (D-01, D-12 of
     /// phase 93); plan 93-16 fills it. While it is empty, no tooltip holds a rehide.
+    ///
+    /// Not measured on a Mac yet: probe P8 is deferred to the 1.2.0 beta test (2026-11-22), so no layer
+    /// was measured on a Mac. It stays empty (fail safe).
     static let tooltipLayers: Set<Int> = []
 
     /// The height, in points, from which a window is too tall to be a tooltip.

@@ -105,15 +105,17 @@ struct InterfaceWindowRuleTests {
 
     @Test("The shipped layer sets are empty until probe P8 measures them")
     func shippedLayerSetsAreEmpty() {
-        // D-01: nothing is built on a guessed layer. Plan 93-16 fills both sets from probe P8
-        // and flips the two tests below that pin them empty (or records "measured: none").
+        // D-01: nothing is built on a guessed layer. Not measured yet: probe P8 is deferred to
+        // the 1.2.0 beta test (2026-11-22); no layer was measured on a Mac. After that test a
+        // later plan fills both sets from the probe and flips this pin and the one below.
         #expect(InterfaceWindowRule.macOS27PopupLayers.isEmpty)
         #expect(InterfaceWindowRule.tooltipLayers.isEmpty)
     }
 
     @Test("A macOS 27 popup at an unlisted layer does not count until P8 names its layer")
     func unmeasuredPopupLayerDoesNotCount() {
-        // Plan 93-16 flips this to the measured layer once probe P8 has run.
+        // Not measured yet: deferred to the 1.2.0 beta test (2026-11-22). Flip this to the
+        // measured layer once probe P8 has run.
         #expect(!isOpenMenu(layer: 3, width: 300, height: 300))
     }
 
