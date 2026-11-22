@@ -536,10 +536,15 @@ extension EventTap {
 extension EventTap {
     /// A thread that runs a run loop for one tap, and ends when the tap is released.
     nonisolated final class TapThread: @unchecked Sendable {
-        /// Hands the new thread's run loop back to the thread that started it. The semaphore
-        /// orders the write before the read, so no lock is needed.
+        /// Hands the new thread's run loop back to the thread that started it, and tells the
+        /// new thread when nobody waits for it any more.
         private final class RunLoopSlot: @unchecked Sendable {
-            var runLoop: CFRunLoop?
+            struct State {
+                var runLoop: CFRunLoop?
+                var isCancelled = false
+            }
+
+            let state = OSAllocatedUnfairLock(uncheckedState: State())
         }
 
         /// The thread's run loop.
@@ -547,7 +552,8 @@ extension EventTap {
 
         /// Starts the thread and waits until its run loop runs.
         ///
-        /// - Returns: `nil` when the thread did not start within two seconds.
+        /// - Returns: `nil` when the thread did not start within two seconds. A thread that is
+        ///   late then ends by itself instead of running for the rest of the session.
         init?(name: String) {
             let slot = RunLoopSlot()
             let ready = DispatchSemaphore(value: 0)
@@ -564,9 +570,19 @@ extension EventTap {
                 if let keepAlive {
                     CFRunLoopAddSource(loop, keepAlive, .defaultMode)
                 }
-                slot.runLoop = loop
+                // Publishing and giving up are decided under one lock, so a thread that comes
+                // late sees that the tap went without it.
+                let isCancelled = slot.state.withLockUnchecked { state -> Bool in
+                    if state.isCancelled {
+                        return true
+                    }
+                    state.runLoop = loop
+                    return false
+                }
                 ready.signal()
-                CFRunLoopRun()
+                if !isCancelled {
+                    CFRunLoopRun()
+                }
                 if let keepAlive {
                     CFRunLoopRemoveSource(loop, keepAlive, .defaultMode)
                 }
@@ -576,8 +592,20 @@ extension EventTap {
             thread.start()
             guard
                 ready.wait(timeout: .now() + .seconds(2)) == .success,
-                let loop = slot.runLoop
+                let loop = slot.state.withLockUnchecked({ $0.runLoop })
             else {
+                // The thread may still be on its way: it gives up when it gets to publish, or,
+                // when it already published and is about to run, its run loop is stopped.
+                let late = slot.state.withLockUnchecked { state -> CFRunLoop? in
+                    state.isCancelled = true
+                    return state.runLoop
+                }
+                if let late {
+                    CFRunLoopPerformBlock(late, CFRunLoopMode.commonModes.rawValue) {
+                        CFRunLoopStop(CFRunLoopGetCurrent())
+                    }
+                    CFRunLoopWakeUp(late)
+                }
                 return nil
             }
             runLoop = loop
