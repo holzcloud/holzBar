@@ -121,7 +121,7 @@ nonisolated enum SystemSamplers {
         return MemoryUse(used: pages.usedBytes(pageSize: UInt64(pageSize)), total: ProcessInfo.processInfo.physicalMemory)
     }
 
-    /// The swap in use and its total, from `sysctl vm.swapusage`.
+    /// The swap in use and its total, from the swap usage sysctl.
     static func swapUsage() -> SwapUsage? {
         var usage = xsw_usage()
         var size = MemoryLayout<xsw_usage>.size

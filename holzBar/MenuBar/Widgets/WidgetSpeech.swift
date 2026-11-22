@@ -165,6 +165,9 @@ nonisolated enum WidgetSpeech {
             return gigabytes(bytes, perGigabyte: 1_073_741_824, locale: locale)
         case (.freeDisk, .bytes(let bytes)) where definition.preset == .gigabytesFree:
             return gigabytes(bytes, perGigabyte: 1_000_000_000, locale: locale)
+        case (.memory, .bytes(let bytes)) where definition.preset == .swapUsed:
+            // Swap is counted like memory, in units of 1024 cubed.
+            return String(localized: "Swap \(gigabytes(bytes, perGigabyte: 1_073_741_824, locale: locale))")
         case (.memory, .pressure(let pressure)) where definition.preset == .pressure:
             let word = switch pressure {
             case .normal: String(localized: "Normal")
