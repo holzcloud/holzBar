@@ -124,7 +124,7 @@ final class SystemMonitor {
         updateObservations()
         let now = ContinuousClock.now
         let tick = ReadoutSchedule.nextTick(
-            ledger: ledger,
+            ledger: scheduledLedger(),
             deliveries: deliveries,
             now: now,
             isLowPowerMode: isLowPowerMode,
@@ -167,6 +167,21 @@ final class SystemMonitor {
         }
     }
 
+    /// The ledger the schedule sees. While Read GPU load is off, a consumer that asks for nothing
+    /// but the GPU load has had its one reading (the en dash) and is left out, so the monitor does
+    /// not wake every few seconds to read nothing (L-03). It joins again when the switch goes on.
+    private func scheduledLedger() -> ReadoutLedger {
+        guard appState?.settings.readouts.readsGPU != true else {
+            return ledger
+        }
+        var scheduled = ledger
+        for id in ledger.consumerIDs
+        where ledger.request(for: id)?.metrics == [.gpu] && (deliveries[id]?.count ?? 0) >= 1 {
+            scheduled.unregister(id)
+        }
+        return scheduled
+    }
+
     /// Hands a sample to the consumers of its tick and schedules the next one. A tick that was
     /// replaced or cancelled while it read delivers nothing (T-94-05).
     private func deliver(
@@ -197,6 +212,8 @@ final class SystemMonitor {
     func gpuSwitchDidChange() {
         gpuGate = nil
         gpuIsUnavailable = false
+        // A GPU Load widget leaves the schedule while the switch is off and joins it again now.
+        reschedule()
     }
 
     /// Reads the GPU load through ``GPULoadBridge``, only while the switch is on and the gate is
