@@ -226,6 +226,7 @@ enum ItemClicker27 {
             .filter { window in
                 InterfaceWindowRule.isOpenMenu(
                     layer: window.layer,
+                    width: window.bounds.width,
                     height: window.bounds.height,
                     ownerPID: window.ownerPID,
                     shownOwners: [ownerPID],

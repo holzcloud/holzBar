@@ -32,23 +32,36 @@ nonisolated enum InterfaceWindowRule {
     /// so that rounding never makes an item's own window count.
     private static let statusBarSlack: CGFloat = 2
 
+    /// The smaller side, in points, under which a window is too thin to be a menu.
+    ///
+    /// A KVM or screen-edge helper puts a window of one point at the edge of a display (a hot
+    /// border; Hidden Bar #548), and such a window kept the sections open for good. No menu,
+    /// popover or panel is that thin, so such a window never counts. The limit is holzBar's
+    /// choice within D-12 of phase 93, a little above the 1-point borders seen.
+    static let thinWindowLimit: CGFloat = 8
+
     /// Whether a window is the open menu of an item in a shown hidden section, so that no
     /// rehide pulls the item away under it.
     ///
     /// The window must belong to one of `shownOwners`, the apps of the items in the hidden
-    /// and always-hidden sections. A pop-up menu (layer 100 or 101) counts at any height. At
-    /// the status-bar level (25) only a window taller than the tallest menu bar counts (a
-    /// popover or a panel): every status item's own window sits at that level in the bar, so
-    /// without the height test nothing would ever hide again. Application menus (24) and
-    /// ordinary windows never count, so an app cannot keep the section open with one.
+    /// and always-hidden sections, and must not be thin (see ``thinWindowLimit``). A pop-up
+    /// menu (layer 100 or 101) counts at any height. At the status-bar level (25) only a
+    /// window taller than the tallest menu bar counts (a popover or a panel): every status
+    /// item's own window sits at that level in the bar, so without the height test nothing
+    /// would ever hide again. Application menus (24) and ordinary windows never count, so an
+    /// app cannot keep the section open with one.
+    ///
+    /// A window may start above the bar's lower edge: macOS 27 popups reach into the bar. So
+    /// the rule takes no frame origin and sets no minimum-y bound (Hidden Bar #548).
     static func isOpenMenu(
         layer: Int,
+        width: CGFloat,
         height: CGFloat,
         ownerPID: Int32,
         shownOwners: Set<Int32>,
         barHeight: CGFloat
     ) -> Bool {
-        guard shownOwners.contains(ownerPID) else {
+        guard shownOwners.contains(ownerPID), min(width, height) >= thinWindowLimit else {
             return false
         }
         if popUpMenuLayers.contains(layer) {

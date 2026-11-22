@@ -396,6 +396,7 @@ final class MenuBarSection {
         let openMenus = WindowInfo.createWindows(option: .onScreen).filter { window in
             !itemWindows.contains(window.windowID) && InterfaceWindowRule.isOpenMenu(
                 layer: window.layer,
+                width: window.bounds.width,
                 height: window.bounds.height,
                 ownerPID: window.ownerPID,
                 shownOwners: shownOwners,
