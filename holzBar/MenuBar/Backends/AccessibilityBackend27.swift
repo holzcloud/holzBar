@@ -89,19 +89,57 @@ final class AccessibilityBackend27: MenuBarBackend {
         displayID: CGDirectDisplayID?,
         appState: AppState
     ) -> MenuBarItemManager.ItemCache? {
+        // A system Live Activity is never hidden, counted, moved or listed (``LiveActivityItem``,
+        // D-04): the read keeps it for geometry and launch graces, and for hover hit-testing, but
+        // no section, cache or saved layout ever holds it.
+        let known = Set(SystemItem27.allCases.map(\.accessibilityIdentifier))
+        let (managed, liveActivities) = Self.splitLiveActivities(items, known: known)
+        liveActivityFrames = liveActivities.map { item in
+            ItemHitTest27.Item(frame: item.bounds, ownerPID: item.ownerPID, isOnScreen: item.isOnScreen)
+        }
+        appState.concealer27.noteLiveActivityOwners(LiveActivityItem.unconcealableOwners(
+            items: items.map { (ownerBundleID: $0.tag.namespace.description, identifier: $0.tag.title) },
+            knownSystemIdentifiers: known
+        ))
         // Observe the processes that own items now; observers of quit ones go.
         let ownPID = ProcessInfo.processInfo.processIdentifier
         itemChangeObserver.observe(owners: Set(items.map(\.ownerPID).filter { $0 != ownPID }))
         // An application that launched while concealed is concealed once its item exists.
         appState.concealer27.itemsAppeared(bundleIDs: Set(items.map { $0.tag.namespace.description }))
-        appState.concealer27.seedLayoutIfNeeded(items: items)
-        appState.concealer27.placeNewApplications(items: items)
+        appState.concealer27.seedLayoutIfNeeded(items: managed)
+        appState.concealer27.placeNewApplications(items: managed)
         // The state of the system's overflow control comes from the same read that becomes the item cache (Phase 22).
         appState.concealer27.noteNativeOverflow(items: items, displayID: displayID)
         // macOS 27.2 reports no items at all while its overflow control folds them away, so the
         // ones read earlier stay listed, not drawn, in their saved sections (Layout, Shelf).
         let folded = displayID == Bridging.getActiveMenuBarDisplayID() ? MenuBarItemProvider27.foldedItems() : []
-        return appState.concealer27.cacheFromSavedLayout(items: items + folded, displayID: displayID)
+        let managedFolded = Self.splitLiveActivities(folded, known: known).managed
+        return appState.concealer27.cacheFromSavedLayout(items: managed + managedFolded, displayID: displayID)
+    }
+
+    /// The frames of the Live Activities of the last read, for hover hit-testing: hovering over
+    /// one is hovering over an item.
+    private var liveActivityFrames = [ItemHitTest27.Item]()
+
+    /// Splits a read into the items holzBar manages and the Live Activities it leaves alone.
+    private static func splitLiveActivities(
+        _ items: [MenuBarItem],
+        known: Set<String>
+    ) -> (managed: [MenuBarItem], liveActivities: [MenuBarItem]) {
+        var managed = [MenuBarItem]()
+        var liveActivities = [MenuBarItem]()
+        for item in items {
+            if LiveActivityItem.isLiveActivity(
+                ownerBundleID: item.tag.namespace.description,
+                identifier: item.tag.title,
+                knownSystemIdentifiers: known
+            ) {
+                liveActivities.append(item)
+            } else {
+                managed.append(item)
+            }
+        }
+        return (managed, liveActivities)
     }
 
     /// Puts an item next to another one with a synthetic command-drag (``ItemReorderer27``).
@@ -163,6 +201,7 @@ final class AccessibilityBackend27: MenuBarBackend {
             ItemHitTest27.Item(frame: item.bounds, ownerPID: item.ownerPID, isOnScreen: item.isOnScreen)
         }
         let ownPID = ProcessInfo.processInfo.processIdentifier
+        items += liveActivityFrames
         items += appState.standInFrames27().map { frame in
             ItemHitTest27.Item(frame: frame, ownerPID: ownPID, isOnScreen: true)
         }

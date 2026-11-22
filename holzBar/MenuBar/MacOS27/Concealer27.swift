@@ -123,6 +123,21 @@ final class Concealer27 {
     /// install location or confirmed by ``HiddenAnyway27``, in the order of the bar.
     private(set) var unnameableVisible = [String]()
 
+    /// Owners whose every item is a system Live Activity: they are never concealed
+    /// (``LiveActivityItem/unconcealableOwners(items:knownSystemIdentifiers:)``).
+    @ObservationIgnored private(set) var liveActivityOwners = Set<String>()
+
+    /// Stores the owners the last read found to be pure hosts of Live Activities and queues an
+    /// update only when the set changed, so a changed allowlist reaches the bar.
+    func noteLiveActivityOwners(_ owners: Set<String>) {
+        guard owners != liveActivityOwners else {
+            return
+        }
+        liveActivityOwners = owners
+        logger.debug("Live Activity owners: \(owners.count, privacy: .public)")
+        update()
+    }
+
     /// The release-all holds live; see ``holdReleased()``.
     @ObservationIgnored private var releaseHold = ReleaseHold27()
 
@@ -609,14 +624,21 @@ final class Concealer27 {
         // Applications concealed for the notch join whatever the sections conceal.
         // A release-all hold empties the target, whatever the sections conceal; so does a tripped
         // restart breaker (every item is shown until it ends) and a paused holzBar (until resumed).
-        let target: [Set<String>] = pause.target(restartBreaker.isTripped(at: .now) ? [] : releaseHold.target(NotchCover27.adding(
+        // The owners of Live Activities only stay on the allowlist, whatever the sections or the
+        // notch conceal (``LiveActivityItem``); the release hold, breaker and pause rules follow.
+        let planned = NotchCover27.adding(
             notchConcealed.subtracting(temporarilyShown.keys),
             to: ConcealmentPlanner27.concealedSets(
                 layout: layout,
                 state: state,
                 temporarilyShown: Set(temporarilyShown.keys)
             )
-        )))
+        ).compactMap { concealed in
+            // A set that conceals nothing needs no assertion, as in ``ConcealmentPlanner27``.
+            let remaining = concealed.subtracting(liveActivityOwners)
+            return remaining.isEmpty ? nil : remaining
+        }
+        let target: [Set<String>] = pause.target(restartBreaker.isTripped(at: .now) ? [] : releaseHold.target(planned))
         let concealed = ConcealmentPlanner27.effectivelyConcealed(sets: target)
         if concealed != lastConcealed {
             lastConcealed = concealed
