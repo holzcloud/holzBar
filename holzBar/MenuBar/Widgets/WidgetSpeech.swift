@@ -86,6 +86,7 @@ nonisolated enum WidgetSpeech {
         case .countdown: String(localized: "Countdown")
         case .networkSpeed: String(localized: "Network Speed")
         case .diskActivity: String(localized: "Disk Activity")
+        case .gpuLoad: String(localized: "GPU Load")
         case .thermalState: String(localized: "Thermal State")
         }
     }
@@ -159,7 +160,7 @@ nonisolated enum WidgetSpeech {
                 return unavailable
             }
             return clusterValue(loads)
-        case (.cpu, .fraction(let fraction)),
+        case (.cpu, .fraction(let fraction)), (.gpuLoad, .fraction(let fraction)),
             (.memory, .fraction(let fraction)) where definition.preset == .percentUsed,
             (.freeDisk, .fraction(let fraction)) where definition.preset != .gigabytesFree:
             guard fraction.isFinite else {

@@ -69,6 +69,14 @@ nonisolated enum WidgetCadence: Equatable, Sendable {
                 intervalSeconds: Self.tunedSeconds(definition, for: .diskActivity),
                 needsBaseline: true
             ))
+        case .gpuLoad:
+            // A level, not a rate: no baseline. The monitor reads it only while the user's switch
+            // is on (D-07).
+            self = .sampled(ReadoutRequest(
+                metrics: [.gpu],
+                intervalSeconds: Self.tunedSeconds(definition, for: .gpuLoad),
+                needsBaseline: false
+            ))
         case .memory:
             // Pressure is fed by the system's event and has no interval; swap and the memory in
             // use are read at the tuned interval (D-10).

@@ -81,7 +81,7 @@ nonisolated enum WidgetFormat {
                 break
             }
             return WidgetText(string: clusterText(loads.map { ($0.label, $0.load) }, locale: locale, texts: texts))
-        case (.cpu, .fraction(let fraction)),
+        case (.cpu, .fraction(let fraction)), (.gpuLoad, .fraction(let fraction)),
             (.memory, .fraction(let fraction)) where preset == .percentUsed,
             (.freeDisk, .fraction(let fraction)) where preset != .gigabytesFree:
             guard fraction.isFinite else {
@@ -297,7 +297,7 @@ nonisolated enum WidgetFormat {
                 add(clusterText(texts.clusterLabels.map { ($0, 1) }, locale: locale, texts: texts))
             }
             add(percentText(1, locale: locale))
-        case .battery, .cpu:
+        case .battery, .cpu, .gpuLoad:
             add(percentText(1, locale: locale))
         case .thermalState:
             for level in ReadoutThermal.allCases {

@@ -1206,7 +1206,7 @@ final class MenuBarWidgets {
         switch definition.source {
         case .dateTime:
             return .date(Date())
-        case .cpu, .networkSpeed, .diskActivity, .memory, .freeDisk, .battery, .thermalState:
+        case .cpu, .networkSpeed, .diskActivity, .gpuLoad, .memory, .freeDisk, .battery, .thermalState:
             // The shared monitor feeds it; the first reading after a reveal is only the baseline.
             return readoutLink.lastReading(for: definition.id) ?? .unavailable
         case .uptime:

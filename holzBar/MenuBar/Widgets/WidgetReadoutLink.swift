@@ -83,7 +83,7 @@ final class WidgetReadoutLink {
     private static func isOneSampleValue(_ source: WidgetSource) -> Bool {
         switch source {
         case .memory, .freeDisk, .battery, .thermalState: true
-        case .dateTime, .cpu, .networkSpeed, .diskActivity, .uptime, .countdown: false
+        case .dateTime, .cpu, .networkSpeed, .diskActivity, .gpuLoad, .uptime, .countdown: false
         }
     }
 
@@ -164,6 +164,14 @@ final class WidgetReadoutLink {
                 return nil
             }
             return sample.thermal.map(WidgetReading.thermal) ?? .unavailable
+        case .gpuLoad:
+            // The monitor reads the GPU only while the user's switch is on and the part is
+            // available; otherwise the value is missing and the widget shows the en dash, never
+            // an old value (D-07, MON-09).
+            guard sample.read.contains(.gpu) else {
+                return nil
+            }
+            return sample.gpuPercent.map { WidgetReading.fraction(Double($0) / 100) } ?? .unavailable
         case .dateTime, .uptime, .countdown:
             return nil
         }

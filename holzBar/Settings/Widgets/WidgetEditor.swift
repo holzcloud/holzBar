@@ -64,7 +64,7 @@ struct WidgetEditor: View {
                 return Text("Counts Wi-Fi and Ethernet, not VPN tunnels, in the unit chosen in System readouts.")
             case .diskActivity:
                 return Text("Reads and writes of all internal and external disks, per second.")
-            case .dateTime, .battery, .cpu, .memory, .uptime, .freeDisk, .countdown, .thermalState:
+            case .dateTime, .battery, .cpu, .memory, .uptime, .freeDisk, .countdown, .gpuLoad, .thermalState:
                 return nil
             }
         case .button:

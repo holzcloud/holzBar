@@ -160,6 +160,17 @@ struct WidgetFormatTests {
         #expect(plain(text(.battery(percent: 5, state: .onBattery), definition(.battery), locale: german).string) == "5 %")
     }
 
+    @Test("GPU Load gives a percent, the en dash when nothing was read (MON-07, MON-09)")
+    func gpuLoadText() {
+        #expect(plain(text(.fraction(0.23), definition(.gpuLoad)).string) == "23%")
+        #expect(plain(text(.fraction(1.5), definition(.gpuLoad)).string) == "100%")
+        #expect(text(.unavailable, definition(.gpuLoad)).isUnavailable)
+        #expect(text(.fraction(.nan), definition(.gpuLoad)).isUnavailable)
+        #expect(text(.bytes(1000), definition(.gpuLoad)).isUnavailable)
+        let samples = WidgetFormat.widthSamples(for: definition(.gpuLoad), locale: english, calendar: calendar, capacityBytes: nil)
+        #expect(samples.map(plain) == ["100%"])
+    }
+
     @Test("CPU, memory and disk give a percent or a byte count")
     func percentAndBytes() {
         #expect(plain(text(.fraction(0.374), definition(.cpu)).string) == "37%")

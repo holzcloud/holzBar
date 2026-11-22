@@ -44,7 +44,7 @@ struct WidgetDefinitionTests {
     func sources() {
         #expect(
             WidgetSource.allCases.map(\.rawValue)
-                == ["dateTime", "battery", "cpu", "memory", "uptime", "freeDisk", "countdown", "networkSpeed", "diskActivity", "thermalState"]
+                == ["dateTime", "battery", "cpu", "memory", "uptime", "freeDisk", "countdown", "networkSpeed", "diskActivity", "thermalState", "gpuLoad"]
         )
         #expect(WidgetKind(rawValue: "text") == .text)
         #expect(WidgetKind(rawValue: "button") == .button)
@@ -53,10 +53,10 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource(rawValue: "wifi") == nil)
         #expect(
             WidgetSource.allCases.map(\.symbolName)
-                == ["clock", "battery.75percent", "cpu", "memorychip", "power", "internaldrive", "hourglass", "arrow.up.arrow.down", "cylinder.split.1x2", "thermometer.medium"]
+                == ["clock", "battery.75percent", "cpu", "memorychip", "power", "internaldrive", "hourglass", "arrow.up.arrow.down", "cylinder.split.1x2", "thermometer.medium", "square.3.layers.3d"]
         )
         // Only the new source is a Preview (D-15).
-        #expect(WidgetSource.allCases.filter(\.isPreview) == [.networkSpeed, .diskActivity, .thermalState])
+        #expect(WidgetSource.allCases.filter(\.isPreview) == [.networkSpeed, .diskActivity, .thermalState, .gpuLoad])
         #expect(
             WidgetPreset.allCases.filter(\.isPreview)
                 == [.download, .upload, .downloadAndUpload, .read, .write, .readAndWrite, .pressure, .swapUsed, .state,
@@ -76,6 +76,7 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource.networkSpeed.presets == [.download, .upload, .downloadAndUpload])
         #expect(WidgetSource.diskActivity.presets == [.read, .write, .readAndWrite])
         #expect(WidgetSource.thermalState.presets == [.state])
+        #expect(WidgetSource.gpuLoad.presets == [.percent])
         // The twenty-four formats of the sources, and the three widths that belong to the script kind
         // alone (D-23).
         #expect(Set(WidgetSource.allCases.flatMap(\.presets)).count == 24)
@@ -95,6 +96,7 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource.networkSpeed.defaultPreset == .downloadAndUpload)
         #expect(WidgetSource.diskActivity.defaultPreset == .readAndWrite)
         #expect(WidgetSource.thermalState.defaultPreset == .state)
+        #expect(WidgetSource.gpuLoad.defaultPreset == .percent)
     }
 
     @Test("The network speed and the disk activity refresh every 2 s, tunable from 2 to 60 s (D-09)")
@@ -111,6 +113,28 @@ struct WidgetDefinitionTests {
         #expect(WidgetPreset(rawValue: "readAndWrite") == .readAndWrite)
         // A format of the other source is replaced by the source's default.
         #expect(text(.diskActivity, preset: .download).validated(now: now)?.preset == .readAndWrite)
+    }
+
+    @Test("GPU Load refreshes every 5 s by default, tunable from 2 to 60 s (D-02, MON-07)")
+    func gpuLoadRefresh() {
+        #expect(WidgetSource.gpuLoad.refreshRange == 2...60)
+        #expect(WidgetSource.gpuLoad.defaultRefreshSeconds == 5)
+        #expect(WidgetSource.gpuLoad.refreshChoices == [2, 5, 10, 30, 60])
+        #expect(text(.gpuLoad, refreshSeconds: 1).validated(now: now)?.refreshSeconds == 2)
+        #expect(text(.gpuLoad, refreshSeconds: 99).validated(now: now)?.refreshSeconds == 60)
+        #expect(text(.gpuLoad).validated(now: now)?.refreshSeconds == 5)
+        #expect(WidgetSource(rawValue: "gpuLoad") == .gpuLoad)
+    }
+
+    @Test("The editor lists every source once, GPU Load between Disk Activity and Thermal State (D-02)")
+    func editorOrder() {
+        #expect(
+            WidgetSource.editorOrder
+                == [.dateTime, .battery, .cpu, .memory, .uptime, .freeDisk, .countdown, .networkSpeed, .diskActivity,
+                    .gpuLoad, .thermalState]
+        )
+        #expect(Set(WidgetSource.editorOrder) == Set(WidgetSource.allCases))
+        #expect(WidgetSource.editorOrder.count == WidgetSource.allCases.count)
     }
 
     @Test("A definition round-trips through the list unchanged")
@@ -224,6 +248,7 @@ struct WidgetDefinitionTests {
         #expect(widget(.cpu, .percent).offersRefresh)
         #expect(widget(.networkSpeed, .download).offersRefresh)
         #expect(widget(.diskActivity, .read).offersRefresh)
+        #expect(widget(.gpuLoad, .percent).offersRefresh)
         // A button and a script widget have no interval either, whatever their source holds.
         #expect(!WidgetDefinition.button(title: "Run").offersRefresh)
     }

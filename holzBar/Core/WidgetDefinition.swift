@@ -43,13 +43,23 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
     case networkSpeed
     case diskActivity
     case thermalState
+    case gpuLoad
+
+    /// The order in which Settings lists the sources, from the UI contract: GPU Load sits
+    /// between Disk Activity and Thermal State. The declaration order above is the append order
+    /// of the stored raw values and never changes, so the editor lists the sources through this
+    /// list instead of ``allCases``.
+    static let editorOrder: [WidgetSource] = [
+        .dateTime, .battery, .cpu, .memory, .uptime, .freeDisk, .countdown, .networkSpeed, .diskActivity,
+        .gpuLoad, .thermalState,
+    ]
 
     /// Whether the source is new and not yet tried on a Mac: the editor and the widget list show
     /// the Preview badge beside it (D-15). The maintainer flips a source to `false` after the Mac
     /// test.
     var isPreview: Bool {
         switch self {
-        case .networkSpeed, .diskActivity, .thermalState: true
+        case .networkSpeed, .diskActivity, .thermalState, .gpuLoad: true
         case .dateTime, .battery, .cpu, .memory, .uptime, .freeDisk, .countdown: false
         }
     }
@@ -68,6 +78,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         case .networkSpeed: "arrow.up.arrow.down"
         case .diskActivity: "cylinder.split.1x2"
         case .thermalState: "thermometer.medium"
+        case .gpuLoad: "square.3.layers.3d"
         }
     }
 
@@ -78,6 +89,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         case .dateTime: [.time, .weekdayAndTime, .dateAndTime, .weekdayDateAndTime]
         case .battery: [.percent, .percentAndState, .percentAndTimeLeft, .adapterWatts]
         case .cpu: [.percent, .perCluster]
+        case .gpuLoad: [.percent]
         case .memory: [.percentUsed, .gigabytesUsed, .pressure, .swapUsed]
         case .uptime, .countdown: [.duration, .compactDuration]
         case .freeDisk: [.gigabytesFree, .percentFree]
@@ -92,7 +104,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         switch self {
         case .dateTime: .time
         case .battery: .percentAndState
-        case .cpu: .percent
+        case .cpu, .gpuLoad: .percent
         case .memory: .percentUsed
         case .uptime, .countdown: .duration
         case .freeDisk: .gigabytesFree
@@ -108,7 +120,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
     /// 2 s, whatever the defaults hold.
     var refreshRange: ClosedRange<Int>? {
         switch self {
-        case .cpu, .networkSpeed, .diskActivity: 2...60
+        case .cpu, .networkSpeed, .diskActivity, .gpuLoad: 2...60
         case .memory: 5...300
         case .dateTime, .battery, .uptime, .freeDisk, .countdown, .thermalState: nil
         }
@@ -117,7 +129,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
     /// The refresh interval, in seconds, a new widget of the source starts with (D-15).
     var defaultRefreshSeconds: Int? {
         switch self {
-        case .cpu: 5
+        case .cpu, .gpuLoad: 5
         case .memory: 10
         case .networkSpeed, .diskActivity: 2
         case .dateTime, .battery, .uptime, .freeDisk, .countdown, .thermalState: nil
@@ -130,7 +142,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         switch self {
         case .cpu: [2, 5, 10, 30]
         case .memory: [5, 10, 30, 60]
-        case .networkSpeed, .diskActivity: [2, 5, 10, 30, 60]
+        case .networkSpeed, .diskActivity, .gpuLoad: [2, 5, 10, 30, 60]
         case .dateTime, .battery, .uptime, .freeDisk, .countdown, .thermalState: []
         }
     }
