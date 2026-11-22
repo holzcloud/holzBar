@@ -402,8 +402,9 @@ nonisolated extension Defaults {
         case readoutsReadsGPU = "ReadoutsReadsGPU"
 
         // MARK: System alerts
-        // Every System alerts value is exported with the settings. An imported number outside its
-        // whole-number range is refused, and the model brings every stored value through
+        // Every System alerts value but the System notifications switch is exported with the
+        // settings. An imported number outside its whole-number range is refused, and the model
+        // brings every stored value through
         // `ThresholdRule.validatedLimit` and `AlertHold.snapped` again, because the defaults can
         // hold anything. The five holds are seconds (a whole number from 0 to 900) and are
         // snapped to the nearest preset: 0, 10, 30, 60, 300 or 900.
@@ -448,6 +449,9 @@ nonisolated extension Defaults {
         /// How long the charge has to stay low, in seconds (a whole number from 0 to 900, 0 by
         /// default).
         case systemAlertsMacBatteryHold = "SystemAlertsMacBatteryHold"
+        /// Whether an alert also arrives as a system notification (a boolean, off by default; a
+        /// per-Mac permission state, stored on this Mac only and never exported or imported).
+        case systemAlertsNotifications = "SystemAlertsNotifications"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -566,6 +570,7 @@ nonisolated extension Defaults.Key {
             .systemAlertsThermal,
             .systemAlertsFreeDisk,
             .systemAlertsMacBattery,
+            .systemAlertsNotifications,
             .openHiddenItemsInMenuBar,
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,
@@ -769,7 +774,8 @@ nonisolated extension Defaults.Key {
     /// Shelf's fold was left open and what each display does with the hidden items (the
     /// displays' identifiers are those of this Mac), and the two switches that turn a private
     /// interface on: Now Playing's Read all apps, Display controls' External monitors and System
-    /// readouts' Read GPU load, and the display cutout, which describes this Mac's hardware.
+    /// readouts' Read GPU load, the System alerts' System notifications switch (a per-Mac
+    /// permission state) and the display cutout, which describes this Mac's hardware.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .lastRunMacOSMajor,
         .lockHiddenItems,
@@ -786,6 +792,7 @@ nonisolated extension Defaults.Key {
         .nowPlayingReadsAllApps,
         .displayControlsExternalMonitors,
         .readoutsReadsGPU,
+        .systemAlertsNotifications,
         .notchHubCutout,
         .notificationsExcludedApps,
         .shelfAlwaysHiddenFoldOpen,

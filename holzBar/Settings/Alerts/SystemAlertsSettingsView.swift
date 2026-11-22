@@ -5,7 +5,8 @@
 
 import SwiftUI
 
-/// The System alerts module's settings, in the open area of the module's row: the five fixed
+/// The System alerts module's settings, in the open area of the module's row: first the System
+/// notifications switch (off by default; macOS asks for permission when it goes on), then the five fixed
 /// rules in the order of the contract (CPU load, memory pressure, thermal state, free disk space,
 /// Mac battery), each a switch with its threshold or level and how long the condition has to hold
 /// as dependent sub rows. The rows dim while the module is off and a rule's sub rows dim while the
@@ -21,6 +22,12 @@ struct SystemAlertsSettingsView: View {
     var body: some View {
         let isModuleOn = appState.modules.isEnabled(SystemAlertsSettings.moduleID)
         Group {
+            SettingsToggleRow(
+                .modulesSystemAlertsNotifications,
+                isOn: notificationsBinding,
+                small: Text("needs Notifications")
+            )
+
             SettingsToggleRow(.modulesSystemAlertsCPU, isOn: isOnBinding(.cpu))
             stepperRow(.modulesSystemAlertsCPUThreshold, for: .cpu, in: ThresholdRule.cpuLimits)
             holdRow(.modulesSystemAlertsCPUDuration, for: .cpu)
@@ -100,6 +107,14 @@ struct SystemAlertsSettingsView: View {
         }
         .settingsSubRow()
         .settingsDependent(on: appState.settings.systemAlerts.rule(for: signal).isOn)
+    }
+
+    private var notificationsBinding: Binding<Bool> {
+        let settings = appState.settings.systemAlerts
+        return Binding(
+            get: { settings.notificationsOn },
+            set: { settings.notificationsOn = $0 }
+        )
     }
 
     private func isOnBinding(_ signal: AlertSignal) -> Binding<Bool> {

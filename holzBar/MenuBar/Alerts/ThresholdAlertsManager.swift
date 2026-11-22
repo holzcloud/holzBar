@@ -28,6 +28,11 @@ import OSLog
 /// and then goes. A rule, the module or a threshold that no longer holds ends it at once. No sound
 /// is played (D-21). The alerts keep values in memory only and log counts only, never a value, a
 /// title or a name (D-04, T-95-03).
+///
+/// Every effect of the evaluator reaches the notch exactly once; ``AlertNotificationPlan`` derives
+/// from the same effect whether the optional system notification is delivered or withdrawn (D-05,
+/// D-22). The manager never names the notification framework: ``UserNotificationCenterNotifier``
+/// does, and nothing of it is touched while the module or the System notifications switch is off.
 @MainActor
 @Observable
 final class ThresholdAlertsManager {
@@ -39,6 +44,10 @@ final class ThresholdAlertsManager {
 
     /// How many rules are on and watched: the module is on and the rule is shown and switched on.
     private(set) var enabledRuleCount = 0
+
+    /// What macOS says about notifications, as far as holzBar has read it. It starts as not
+    /// determined and is read only while the module and the System notifications switch are on.
+    private(set) var notificationAccess = NotificationAccess.notDetermined
 
     @ObservationIgnored private weak var appState: AppState?
     @ObservationIgnored private var evaluator = ThresholdEvaluator()
@@ -62,6 +71,13 @@ final class ThresholdAlertsManager {
     @ObservationIgnored private var surface: AlertNotchSurface?
     /// Follows the alerts and whether the Notch hub module is on, while the module is on.
     @ObservationIgnored private var surfaceLoop: ObservationLoop?
+    /// The only object that touches the notification framework, created when it is first needed.
+    @ObservationIgnored private var notifier: UserNotificationCenterNotifier?
+    /// The last queued notification operation: deliveries and withdrawals run in order, so a
+    /// withdrawal never overtakes the delivery it follows.
+    @ObservationIgnored private var notificationTail: Task<Void, Never>?
+    /// The one read of the permission, with the one ask when the switch has just gone on.
+    @ObservationIgnored private var accessTask: Task<Void, Never>?
     @ObservationIgnored private let logger = Logger(category: "ThresholdAlerts")
 
     /// What the stored settings decide: whether the module is on and the five rules.
@@ -194,10 +210,17 @@ final class ThresholdAlertsManager {
         if isOn, !wasOn {
             startPauseLoop()
             startSurfaceLoop()
+            if isNotificationSwitchOn {
+                // The module went on with the switch already on: read the permission, never ask.
+                startNotifications(asking: false)
+            }
         } else if !isOn, wasOn {
             pauseLoop?.cancel()
             pauseLoop = nil
             stopSurface()
+            if isNotificationSwitchOn {
+                stopNotifications()
+            }
         }
         handle(evaluator.configure(effective, at: .now))
         let ruleCount = effective.filter(\.isOn).count
@@ -228,6 +251,87 @@ final class ThresholdAlertsManager {
         }
         if firingCount != 0 {
             firingCount = 0
+        }
+    }
+
+    // MARK: System notifications
+
+    /// Whether the System notifications switch is on.
+    private var isNotificationSwitchOn: Bool {
+        appState?.settings.systemAlerts.notificationsOn ?? false
+    }
+
+    /// The user switched System notifications on or off. Switching it on is the one moment macOS
+    /// is asked for the permission, and only when it has not been asked before (ALRT-03, D-22);
+    /// a refusal is never asked again. Switching it off removes every notification of holzBar.
+    func notificationsSwitchDidChange(isOn: Bool) {
+        if isOn {
+            guard isModuleOn else {
+                return
+            }
+            startNotifications(asking: true)
+        } else {
+            stopNotifications()
+        }
+    }
+
+    /// Installs the delegate and reads the permission; with
+    /// `asking` it also asks for it when macOS has not been asked yet.
+    private func startNotifications(asking: Bool) {
+        let notifier = ensureNotifier()
+        notifier.installDelegate()
+        // A read already under way keeps going; one that must ask is never replaced by one that
+        // cannot, so the sheet is not lost.
+        if accessTask != nil, !asking {
+            return
+        }
+        accessTask?.cancel()
+        accessTask = Task { [weak self] in
+            var access = await notifier.access()
+            if asking, access == .notDetermined {
+                access = await notifier.requestPermission()
+            }
+            self?.accessTask = nil
+            self?.setAccess(access)
+        }
+    }
+
+    /// Removes every notification of holzBar. The delegate
+    /// stays: nothing is delivered while the switch or the module is off.
+    private func stopNotifications() {
+        accessTask?.cancel()
+        accessTask = nil
+        withdrawNotifications(AlertNotificationPlan.allIdentifiers)
+    }
+
+    private func setAccess(_ access: NotificationAccess) {
+        if notificationAccess != access {
+            notificationAccess = access
+        }
+    }
+
+    private func ensureNotifier() -> UserNotificationCenterNotifier {
+        if let notifier {
+            return notifier
+        }
+        let notifier = UserNotificationCenterNotifier()
+        self.notifier = notifier
+        return notifier
+    }
+
+    /// Runs a notification operation after the ones queued before it.
+    private func enqueue(_ operation: @escaping @MainActor (UserNotificationCenterNotifier) async -> Void) {
+        let notifier = ensureNotifier()
+        let previous = notificationTail
+        notificationTail = Task {
+            await previous?.value
+            await operation(notifier)
+        }
+    }
+
+    private func withdrawNotifications(_ identifiers: [String]) {
+        enqueue { notifier in
+            notifier.withdraw(identifiers: identifiers)
         }
     }
 
@@ -425,20 +529,16 @@ final class ThresholdAlertsManager {
 
     // MARK: Activities
 
-    /// Turns what the evaluator decided into activities.
+    /// Turns what the evaluator decided into the actions of the two channels. The notch action is
+    /// the same whatever the notification switch and permission say (D-01); the notification
+    /// action follows from the same effect (``AlertNotificationPlan``).
     private func handle(_ effects: [ThresholdEvaluator.Effect]) {
         let now = Date.now
+        let switchIsOn = isNotificationSwitchOn
         for effect in effects {
-            switch effect {
-            case .fired(let snapshot):
-                upsert(activity(for: snapshot, startedAt: now))
-            case .updated(let snapshot):
-                let startedAt = activities.first { $0.id == snapshot.signal.rawValue }?.startedAt ?? now
-                upsert(activity(for: snapshot, startedAt: startedAt))
-            case .cleared(let signal):
-                clear(signal, at: now)
-            case .ended(let signal):
-                remove(id: signal.rawValue)
+            let actions = AlertNotificationPlan.actions(for: effect, notificationsOn: switchIsOn, access: notificationAccess)
+            for action in actions {
+                perform(action, for: effect, at: now)
             }
         }
         prune(at: now)
@@ -448,6 +548,41 @@ final class ThresholdAlertsManager {
         }
         if !effects.isEmpty {
             logger.info("System alerts: \(effects.count, privacy: .public) change(s), \(firing, privacy: .public) firing")
+        }
+    }
+
+    /// Does one action of an effect.
+    private func perform(_ action: AlertChannelAction, for effect: ThresholdEvaluator.Effect, at now: Date) {
+        switch action {
+        case .showInNotch:
+            switch effect {
+            case .fired(let snapshot):
+                upsert(activity(for: snapshot, startedAt: now))
+            case .updated(let snapshot):
+                let startedAt = activities.first { $0.id == snapshot.signal.rawValue }?.startedAt ?? now
+                upsert(activity(for: snapshot, startedAt: startedAt))
+            case .cleared, .ended:
+                break
+            }
+        case .finishInNotch(let signal):
+            clear(signal, at: now)
+        case .removeFromNotch(let signal):
+            remove(id: signal.rawValue)
+        case .deliver(let signal):
+            guard case .fired(let snapshot) = effect else {
+                return
+            }
+            let rule = appState?.settings.systemAlerts.rule(for: signal) ?? ThresholdRule.defaultRule(for: signal)
+            let identifier = AlertNotificationPlan.identifier(for: signal)
+            let thread = AlertNotificationPlan.threadIdentifier(for: signal)
+            // Rule names and values only, never a device or an app (T-95-10).
+            let title = AlertTexts.title(for: snapshot)
+            let body = AlertTexts.body(for: snapshot, rule: rule)
+            enqueue { notifier in
+                await notifier.deliver(identifier: identifier, title: title, body: body, thread: thread)
+            }
+        case .withdraw(let signal):
+            withdrawNotifications([AlertNotificationPlan.identifier(for: signal)])
         }
     }
 

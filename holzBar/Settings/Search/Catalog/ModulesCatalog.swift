@@ -93,6 +93,7 @@ extension SettingsCatalog {
             .modulesReadoutsTileRefresh,
             .modulesReadoutsRateUnit,
             // Settings of System alerts, in the order of the contract.
+            .modulesSystemAlertsNotifications,
             .modulesSystemAlertsCPU,
             .modulesSystemAlertsCPUThreshold,
             .modulesSystemAlertsCPUDuration,
@@ -493,6 +494,15 @@ extension SettingsEntry {
     )
 
     // MARK: Settings of System alerts
+
+    static let modulesSystemAlertsNotifications = SettingsEntry(
+        id: "modulesSystemAlertsNotifications",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "System notifications"),
+        info: String(localized: "Also sends each alert to Notification Center, one per rule. macOS asks for permission when you switch this on."),
+        module: SystemAlertsSettings.moduleID
+    )
 
     static let modulesSystemAlertsCPU = SettingsEntry(
         id: "modulesSystemAlertsCPU",

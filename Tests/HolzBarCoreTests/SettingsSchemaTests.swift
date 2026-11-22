@@ -280,6 +280,20 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["ReadoutsReadsGPU"])
     }
 
+    @Test("The System notifications switch is a per-Mac permission state and no file can set it")
+    func systemAlertsNotificationsStaysLocal() {
+        #expect(Defaults.Key.systemAlertsNotifications.rawValue == "SystemAlertsNotifications")
+        #expect(Defaults.Key.systemAlertsNotifications.settingsKind == .bool)
+        #expect(Defaults.Key.localOnlyKeys.contains(.systemAlertsNotifications))
+        #expect(Defaults.Key.importableKinds["SystemAlertsNotifications"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["SystemAlertsNotifications": true, "ShowOnHover": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["SystemAlertsNotifications"])
+    }
+
     @Test("The network speed unit travels with a settings file, as 0 or 1 only")
     func readoutsRateUnitTravels() {
         #expect(Defaults.Key.readoutsRateUnit.rawValue == "ReadoutsRateUnit")

@@ -28,6 +28,30 @@ final class SystemAlertsSettings {
     /// stores a value.
     private(set) var rules: [ThresholdRule] = AlertSignal.allCases.map { ThresholdRule.defaultRule(for: $0) }
 
+    /// Whether an alert also arrives as a system notification: the System notifications switch
+    /// (ALRT-03). Off by default. It reflects a permission macOS keeps per Mac, so it is stored on
+    /// this Mac only and a settings file never sets it. Switching it on is the one moment macOS
+    /// is asked for the Notifications permission (D-22).
+    var notificationsOn = false {
+        didSet {
+            guard notificationsOn != oldValue, !isLoading else {
+                return
+            }
+            Defaults.set(notificationsOn, forKey: .systemAlertsNotifications)
+            appState?.systemAlerts.notificationsSwitchDidChange(isOn: notificationsOn)
+        }
+    }
+
+    @ObservationIgnored private weak var appState: AppState?
+    /// True while the stored value is loaded, so loading it asks and changes nothing.
+    @ObservationIgnored private var isLoading = false
+
+    /// The stored System notifications switch, read without the model: the launch hook needs it
+    /// before the settings model is set up (D-05).
+    static func storedNotificationsOn() -> Bool {
+        Defaults.bool(forKey: .systemAlertsNotifications)
+    }
+
     /// The rule of a signal.
     func rule(for signal: AlertSignal) -> ThresholdRule {
         rules[Self.index(of: signal)]
@@ -84,6 +108,10 @@ final class SystemAlertsSettings {
     /// Loads the stored settings. A value of the wrong type is ignored, a limit lands on what its
     /// signal accepts and a hold on the nearest preset (T-95-05).
     func performSetup(with appState: AppState) {
+        self.appState = appState
+        isLoading = true
+        notificationsOn = Self.storedNotificationsOn()
+        isLoading = false
         for signal in AlertSignal.allCases {
             let keys = Self.keys(for: signal)
             let index = Self.index(of: signal)

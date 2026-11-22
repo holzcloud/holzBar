@@ -28,6 +28,7 @@ sources=(
   AccessoryRefreshPolicy
   AccessoryTracker
   AgentRestartBreaker
+  AlertNotificationPlan
   AlertRequestPlan
   AlertSeverity
   AppearanceMoods
@@ -194,6 +195,7 @@ tests=(
   AccessoryRefreshPolicyTests
   AccessoryTrackerTests
   AgentRestartBreakerTests
+  AlertNotificationPlanTests
   AlertRequestPlanTests
   AlertSeverityTests
   AppearanceMoodsTests
