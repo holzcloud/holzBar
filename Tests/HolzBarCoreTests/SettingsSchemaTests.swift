@@ -266,6 +266,21 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["DisplayControlsExternalMonitors"])
     }
 
+    @Test("The Notch hub's display cutout override is a local-only whole number that no file can set")
+    func notchHubCutoutStaysLocal() {
+        #expect(Defaults.Key.notchHubCutout.rawValue == "NotchHubCutout")
+        #expect(Defaults.Key.notchHubCutout.settingsKind == .number)
+        #expect(Defaults.Key.notchHubCutout.numberRule == .wholeNumber(0...3))
+        #expect(Defaults.Key.localOnlyKeys.contains(.notchHubCutout))
+        #expect(Defaults.Key.importableKinds["NotchHubCutout"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["NotchHubCutout": 2, "ShowOnHover": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["NotchHubCutout"])
+    }
+
     @Test("The notch hub's settings travel with a settings file, and only the displays within their choices")
     func notchHubSettingsTravel() {
         #expect(Defaults.Key.importableKinds["NotchHubOpensOnHover"] == .bool)

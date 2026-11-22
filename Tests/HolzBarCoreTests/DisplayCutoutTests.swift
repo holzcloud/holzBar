@@ -57,4 +57,37 @@ struct DisplayCutoutTests {
         #expect(DisplayCutout.island.rawValue == 2)
         #expect(DisplayCutout.allCases.count == 3)
     }
+
+    @Test("Automatic keeps what was detected")
+    func automaticKeepsDetection() {
+        for detected in DisplayCutout.allCases {
+            #expect(DisplayCutout.resolve(detected: detected, override: .automatic) == detected)
+        }
+    }
+
+    @Test("An override replaces a detected cutout")
+    func overrideReplacesDetection() {
+        #expect(DisplayCutout.resolve(detected: .notch, override: .island) == .island)
+        #expect(DisplayCutout.resolve(detected: .island, override: .notch) == .notch)
+        #expect(DisplayCutout.resolve(detected: .notch, override: .none) == .none)
+        #expect(DisplayCutout.resolve(detected: .island, override: .none) == .none)
+        #expect(DisplayCutout.resolve(detected: .notch, override: .notch) == .notch)
+        #expect(DisplayCutout.resolve(detected: .island, override: .island) == .island)
+    }
+
+    @Test("An override never invents a cutout on a display without one")
+    func overrideInventsNothing() {
+        for override in DisplayCutoutOverride.allCases {
+            #expect(DisplayCutout.resolve(detected: .none, override: override) == .none)
+        }
+    }
+
+    @Test("The override's raw values are stable, so they can be stored")
+    func overrideRawValues() {
+        #expect(DisplayCutoutOverride.allCases.map(\.rawValue) == [0, 1, 2, 3])
+        #expect(DisplayCutoutOverride.automatic.rawValue == 0)
+        #expect(DisplayCutoutOverride.notch.rawValue == 1)
+        #expect(DisplayCutoutOverride.island.rawValue == 2)
+        #expect(DisplayCutoutOverride.none.rawValue == 3)
+    }
 }

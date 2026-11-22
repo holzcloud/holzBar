@@ -58,4 +58,41 @@ nonisolated enum DisplayCutout: Int, CaseIterable, Sendable {
         }
         return width / safeAreaTop < islandRatioLimit ? .island : .notch
     }
+
+    /// The kind of cutout the hub assumes: the detected one, or the user's choice.
+    ///
+    /// An override never invents a cutout: where none was detected (an external display) the
+    /// result is ``none`` whatever the override says.
+    ///
+    /// - Parameters:
+    ///   - detected: What ``classify(displayWidth:leftAreaWidth:rightAreaWidth:safeAreaTop:)``
+    ///     found.
+    ///   - override: The user's choice.
+    /// - Returns: `detected` for ``DisplayCutoutOverride/automatic``; otherwise the chosen kind
+    ///   where a cutout was detected, and ``none`` where none was.
+    static func resolve(detected: DisplayCutout, override: DisplayCutoutOverride) -> DisplayCutout {
+        guard detected != .none else {
+            return .none
+        }
+        return switch override {
+        case .automatic: detected
+        case .notch: .notch
+        case .island: .island
+        case .none: .none
+        }
+    }
+}
+
+/// The user's choice of how the hub treats the camera cutout of a display.
+///
+/// The raw values are stored (`Defaults.Key.notchHubCutout`), so a new case goes at the end.
+nonisolated enum DisplayCutoutOverride: Int, CaseIterable, Sendable {
+    /// Follow the detection.
+    case automatic = 0
+    /// Treat every display's cutout as the notch.
+    case notch = 1
+    /// Treat every display's cutout as Apple's Dynamic Island.
+    case island = 2
+    /// Treat every display as having no cutout.
+    case none = 3
 }

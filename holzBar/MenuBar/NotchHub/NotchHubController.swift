@@ -416,7 +416,7 @@ final class NotchHubController: HubHost {
             logger.debug("The Notch hub stays closed: \(reason.rawValue, privacy: .public)")
             return
         }
-        let display = Self.display(of: screen)
+        let display = self.display(of: screen)
         guard
             NotchHubGeometry.island(
                 display: display,
@@ -572,7 +572,7 @@ final class NotchHubController: HubHost {
             let panel,
             let presentation,
             let screen,
-            let seed = NotchHubGeometry.seed(display: Self.display(of: screen)),
+            let seed = NotchHubGeometry.seed(display: display(of: screen)),
             let from = openShape ?? restShape
         else {
             if phase.target == .live {
@@ -594,7 +594,7 @@ final class NotchHubController: HubHost {
         restShape = rest
         panelScreenFrame = screen.frame
         panel.hasShadow = false
-        presentation.convexTop = Self.display(of: screen).island != nil
+        presentation.convexTop = display(of: screen).island != nil
         presentation.moveCanvas(transition)
         setPanelFrame(transition, on: screen.frame)
         // Take the larger canvas in its own transaction before the closing animates.
@@ -752,7 +752,7 @@ final class NotchHubController: HubHost {
             let screen = NSScreen.screens.first(where: { $0.displayID == openScreenID }),
             let from = openShape ?? restShape,
             let layout = NotchHubGeometry.island(
-                display: Self.display(of: screen),
+                display: display(of: screen),
                 contentHeight: currentContentHeight(),
                 width: presentation.rowFit.hubWidth,
                 buttonSize: presentation.rowFit.buttonSize
@@ -933,7 +933,7 @@ final class NotchHubController: HubHost {
         for screen in NSScreen.screens where isIncluded(screen) {
             guard
                 let layout = NotchHubGeometry.island(
-                    display: Self.display(of: screen),
+                    display: display(of: screen),
                     contentHeight: DesignTokens.Island.contentHeight,
                     width: DesignTokens.Island.baseWidth
                 )
@@ -1167,7 +1167,7 @@ final class NotchHubController: HubHost {
         // menu and the status items, and with nothing live it would be read for nothing.
         var room: NotchHubGeometry.LiveRoom?
         if !activities.isEmpty, let appState, let screen = liveCandidateScreen() {
-            room = NotchHubLiveRoom.room(on: screen, display: Self.display(of: screen), appState: appState)
+            room = NotchHubLiveRoom.room(on: screen, display: display(of: screen), appState: appState)
         }
         return ActivityInputs(
             activities: activities,
@@ -1190,7 +1190,7 @@ final class NotchHubController: HubHost {
         guard let appState else {
             return nil
         }
-        let display = Self.display(of: screen)
+        let display = self.display(of: screen)
         return NotchHubGeometry.live(
             display: display,
             room: NotchHubLiveRoom.room(on: screen, display: display, appState: appState)
@@ -1208,7 +1208,7 @@ final class NotchHubController: HubHost {
             let screen = liveCandidateScreen(),
             NotchHubPolicy.blockReason(policyEnvironment(of: screen, appState: appState), trigger: .compact) == nil,
             liveLayout(on: screen) != nil,
-            NotchHubGeometry.seed(display: Self.display(of: screen)) != nil
+            NotchHubGeometry.seed(display: display(of: screen)) != nil
         else {
             return nil
         }
@@ -1270,7 +1270,7 @@ final class NotchHubController: HubHost {
     /// Widens the closed island, or the notch, to the live shape: the hub's own panel and view,
     /// from the notch's rectangle, or from where a closing had got to.
     private func startLive(board: HubActivityBoard.Board, on screen: NSScreen, wasVisible: Bool) {
-        let display = Self.display(of: screen)
+        let display = self.display(of: screen)
         guard let live = liveLayout(on: screen), let seed = NotchHubGeometry.seed(display: display) else {
             // Not reachable: the screen was chosen because both exist. Never leave a phase that
             // nothing completes.
@@ -1482,15 +1482,22 @@ final class NotchHubController: HubHost {
     /// The camera cutout is classified from public API only (``DisplayCutout``): a notch is
     /// continued by the hub, Apple's Dynamic Island is never covered, so the hub lies below it
     /// (Phase 93, D-03).
-    private static func display(of screen: NSScreen) -> NotchHubGeometry.Display {
+    ///
+    /// The user's "Display cutout" setting can override the detection; it never invents a cutout
+    /// where none was found (``DisplayCutout/resolve(detected:override:)``).
+    private func display(of screen: NSScreen) -> NotchHubGeometry.Display {
         let frame = screen.frame
         let leftAreaWidth = screen.auxiliaryTopLeftArea.map { Double($0.width) }
         let rightAreaWidth = screen.auxiliaryTopRightArea.map { Double($0.width) }
-        let cutout = DisplayCutout.classify(
+        let detected = DisplayCutout.classify(
             displayWidth: Double(frame.width),
             leftAreaWidth: leftAreaWidth,
             rightAreaWidth: rightAreaWidth,
             safeAreaTop: Double(screen.safeAreaInsets.top)
+        )
+        let cutout = DisplayCutout.resolve(
+            detected: detected,
+            override: appState?.settings.notchHub.cutoutOverride ?? .automatic
         )
         let span: NotchHubGeometry.Notch? = if cutout == .none {
             nil

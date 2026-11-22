@@ -312,6 +312,10 @@ nonisolated extension Defaults {
         case notchHubShowsActiveFirst = "NotchHubShowsActiveFirst"
         /// The displays the Notch hub opens on, as the raw value of `NotchHubDisplays`.
         case notchHubDisplays = "NotchHubDisplays"
+        /// The display cutout the Notch hub assumes instead of the detected one, as the raw value
+        /// of `DisplayCutoutOverride` (0 to 3). Local to this Mac, because it describes this Mac's
+        /// display: never exported or imported.
+        case notchHubCutout = "NotchHubCutout"
         /// The tab the Notch hub showed last. Local to the Mac: never exported or imported.
         case notchHubLastTab = "NotchHubLastTab"
         /// The timers of the Notch hub's Timers module, as JSON (`TimerBoard`). Local to this
@@ -508,6 +512,7 @@ nonisolated extension Defaults.Key {
             .shelfAlwaysHiddenFold,
             .revealAnimationStyle,
             .notchHubDisplays,
+            .notchHubCutout,
             .timersFinishSound,
             .nowPlayingPlayers,
             .rehideStrategy,
@@ -601,6 +606,8 @@ nonisolated extension Defaults.Key {
             .wholeNumber(0...10)
         case .notchHubDisplays:
             .wholeNumber(0...2)
+        case .notchHubCutout:
+            .wholeNumber(0...3)
         case .timersFinishSound:
             .wholeNumber(0...5)
         case .nowPlayingPlayers:
@@ -646,7 +653,8 @@ nonisolated extension Defaults.Key {
     /// What's New window last covered (it describes this install), whether the
     /// Shelf's fold was left open and what each display does with the hidden items (the
     /// displays' identifiers are those of this Mac), and the two switches that turn a private
-    /// interface on: Now Playing's Read all apps and Display controls' External monitors.
+    /// interface on: Now Playing's Read all apps and Display controls' External monitors, and the
+    /// display cutout, which describes this Mac's hardware.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .lastRunMacOSMajor,
         .lockHiddenItems,
@@ -662,6 +670,7 @@ nonisolated extension Defaults.Key {
         .calendarHiddenCalendars,
         .nowPlayingReadsAllApps,
         .displayControlsExternalMonitors,
+        .notchHubCutout,
         .notificationsExcludedApps,
         .shelfAlwaysHiddenFoldOpen,
         .displayBehaviors,
