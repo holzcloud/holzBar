@@ -26,8 +26,7 @@ import Foundation
 /// 1. A release is swallowed only if a press with that number is held.
 /// 2. At most one release is swallowed per held press.
 /// 3. After ``flush()`` or the expiry of a press, its release is not swallowed.
-/// 4. ``Action/holdBack`` is answered only when the caller asked to hold the press.
-/// 5. ``flush()`` returns exactly the presses still held, so every held press had a way out.
+/// 4. ``flush()`` returns exactly the presses still held, so every held press had a way out.
 ///
 /// The reducer runs inside the tap's callback, which macOS disables when it is slow, so it stays
 /// cheap: O(1) per call apart from ``expire(at:)``, which walks the handful of held presses. It
@@ -37,8 +36,6 @@ nonisolated struct ClickPairing: Equatable, Sendable {
     nonisolated enum Action: Equatable, Sendable {
         /// Let the event through.
         case pass
-        /// Hold the press back (the bridge replays the click itself).
-        case holdBack
         /// Swallow the release of a held press.
         case swallowRelease
     }
@@ -54,21 +51,15 @@ nonisolated struct ClickPairing: Equatable, Sendable {
         held.count
     }
 
-    /// Notes a left press.
+    /// Notes a left press the bridge holds back (and replays itself). A press that is not held
+    /// never reaches the reducer: nothing waits for its release, and the event numbers only
+    /// grow, so an older press with the same number cannot be waiting either.
     ///
     /// - Parameters:
     ///   - number: The press's mouse event number.
-    ///   - shouldHold: Whether the bridge holds the press back. A press that is not held forgets
-    ///     an older press with the same number, which cannot be waiting any more.
     ///   - now: The current time.
-    /// - Returns: ``Action/holdBack`` when the press is held, otherwise ``Action/pass``.
-    mutating func press(number: Int64, shouldHold: Bool, at now: ContinuousClock.Instant) -> Action {
-        guard shouldHold else {
-            held[number] = nil
-            return .pass
-        }
+    mutating func hold(number: Int64, at now: ContinuousClock.Instant) {
         held[number] = now
-        return .holdBack
     }
 
     /// Notes a left release.

@@ -75,7 +75,6 @@ final class EventTap {
         let unretained: EventTap = Unmanaged.fromOpaque(refcon).takeUnretainedValue()
         return withExtendedLifetime(unretained) { tap in
             if type == .tapDisabledByUserInput || type == .tapDisabledByTimeout {
-                tap.mainDisableCount += 1
                 switch tap.disabledHandler?(type) ?? .reenable {
                 case .reenable:
                     tap.enable()
@@ -106,14 +105,6 @@ final class EventTap {
 
     /// Asked what to do when macOS disables the tap; `nil` enables it again.
     private let disabledHandler: ((CGEventType) -> DisabledAction)?
-
-    /// How many times macOS disabled the tap since it was created, on the main run loop.
-    private var mainDisableCount = 0
-
-    /// How many times macOS disabled the tap since it was created.
-    var disableCount: Int {
-        threaded?.disableCount ?? mainDisableCount
-    }
 
     /// The events the tap receives.
     private let mask: CGEventMask
@@ -463,16 +454,15 @@ extension EventTap {
 // MARK: - EventTap.ThreadedContext
 
 extension EventTap {
-    /// What the threaded callback of a tap reads: the callback, the handler for a disabled tap,
-    /// the tap's port and the disable count.
+    /// What the threaded callback of a tap reads: the callback, the handler for a disabled tap
+    /// and the tap's port.
     ///
     /// It is the tap's `userInfo` and touches nothing of ``EventTap`` itself, which is main-actor
-    /// state. The port and the count sit behind a lock; the closures are `@Sendable`.
+    /// state. The port sits behind a lock; the closures are `@Sendable`.
     nonisolated final class ThreadedContext: @unchecked Sendable {
         /// What changes after creation.
         private struct State {
             var port: CFMachPort?
-            var disableCount = 0
         }
 
         let callback: @Sendable (CGEvent) -> CGEvent?
@@ -487,22 +477,14 @@ extension EventTap {
             self.disabledHandler = disabledHandler
         }
 
-        /// How many times macOS disabled the tap.
-        var disableCount: Int {
-            state.withLock { $0.disableCount }
-        }
-
         /// Gives the context the port of the tap it belongs to, to enable it again.
         func setPort(_ port: CFMachPort) {
             state.withLockUnchecked { $0.port = port }
         }
 
-        /// Counts a disabled tap, asks the handler and enables the tap again or leaves it off.
+        /// Asks the handler and enables the tap again or leaves it off.
         func handleDisabled(_ type: CGEventType) {
-            let port = state.withLockUnchecked { state -> CFMachPort? in
-                state.disableCount += 1
-                return state.port
-            }
+            let port = state.withLockUnchecked { $0.port }
             let action = disabledHandler(type)
             guard let port else { return }
             switch action {

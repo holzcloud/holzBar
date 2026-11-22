@@ -65,9 +65,6 @@ nonisolated final class ClickBridgeState27: @unchecked Sendable {
     /// A press the tap held back, for the main actor to replay.
     struct Hold: Sendable {
         let barClick: BarClick
-
-        /// The identifier of the system item the press landed on, as read when it was decided.
-        let itemIdentifier: String?
     }
 
     /// What the tap does with an event, and what is left for the main actor.
@@ -231,8 +228,8 @@ nonisolated final class ClickBridgeState27: @unchecked Sendable {
             ))
         }
         let number = event.getIntegerValueField(.mouseEventNumber)
-        _ = pairing.withLock { $0.press(number: number, shouldHold: true, at: .now) }
-        return .hold(Hold(barClick: barClick, itemIdentifier: identifier))
+        pairing.withLock { $0.hold(number: number, at: .now) }
+        return .hold(Hold(barClick: barClick))
     }
 
     /// The display a point lies on, among the displays the snapshot has a bar height for.

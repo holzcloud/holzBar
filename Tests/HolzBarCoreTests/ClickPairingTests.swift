@@ -28,8 +28,7 @@ struct ClickPairingTests {
     @Test("A held press swallows its own release once")
     func heldPressSwallowsItsRelease() {
         var pairing = ClickPairing()
-        let press = pairing.press(number: 7, shouldHold: true, at: start)
-        #expect(press == .holdBack)
+        pairing.hold(number: 7, at: start)
         #expect(pairing.heldCount == 1)
         let first = pairing.release(number: 7)
         #expect(first == .swallowRelease)
@@ -38,20 +37,10 @@ struct ClickPairingTests {
         #expect(pairing.heldCount == 0)
     }
 
-    @Test("A press that is not held passes with its release")
-    func passedPressPassesItsRelease() {
-        var pairing = ClickPairing()
-        let press = pairing.press(number: 7, shouldHold: false, at: start)
-        #expect(press == .pass)
-        #expect(pairing.heldCount == 0)
-        let release = pairing.release(number: 7)
-        #expect(release == .pass)
-    }
-
     @Test("The release of another click is never taken")
     func anotherClicksReleasePasses() {
         var pairing = ClickPairing()
-        _ = pairing.press(number: 7, shouldHold: true, at: start)
+        pairing.hold(number: 7, at: start)
         let other = pairing.release(number: 8)
         #expect(other == .pass)
         #expect(pairing.heldCount == 1)
@@ -67,7 +56,7 @@ struct ClickPairingTests {
     @Test("After a flush the late release passes")
     func flushLetsTheLateReleasePass() {
         var pairing = ClickPairing()
-        _ = pairing.press(number: 7, shouldHold: true, at: start)
+        pairing.hold(number: 7, at: start)
         let flushed = pairing.flush()
         #expect(flushed == [7])
         let release = pairing.release(number: 7)
@@ -78,7 +67,7 @@ struct ClickPairingTests {
     @Test("The watchdog lets a press go after ten seconds")
     func watchdogExpiresAPress() {
         var pairing = ClickPairing()
-        _ = pairing.press(number: 7, shouldHold: true, at: start)
+        pairing.hold(number: 7, at: start)
         let early = pairing.expire(at: start + .seconds(9))
         #expect(early.isEmpty)
         #expect(pairing.heldCount == 1)
@@ -91,8 +80,8 @@ struct ClickPairingTests {
     @Test("Two held presses are paired each with its own release")
     func twoHeldPresses() {
         var pairing = ClickPairing()
-        _ = pairing.press(number: 7, shouldHold: true, at: start)
-        _ = pairing.press(number: 8, shouldHold: true, at: start)
+        pairing.hold(number: 7, at: start)
+        pairing.hold(number: 8, at: start)
         let eight = pairing.release(number: 8)
         let seven = pairing.release(number: 7)
         #expect(eight == .swallowRelease)
@@ -103,35 +92,34 @@ struct ClickPairingTests {
     @Test("A number used again pairs again")
     func numberReuse() {
         var pairing = ClickPairing()
-        _ = pairing.press(number: 7, shouldHold: true, at: start)
+        pairing.hold(number: 7, at: start)
         let first = pairing.release(number: 7)
         #expect(first == .swallowRelease)
-        let again = pairing.press(number: 7, shouldHold: true, at: start + .seconds(1))
-        #expect(again == .holdBack)
+        pairing.hold(number: 7, at: start + .seconds(1))
         let second = pairing.release(number: 7)
         #expect(second == .swallowRelease)
     }
 
-    @Test("A press that is not held forgets an older press with its number")
-    func passedPressForgetsStaleEntry() {
+    @Test("A press held again under its number keeps one entry, from the later time")
+    func holdTwiceKeepsOneEntry() {
         var pairing = ClickPairing()
-        _ = pairing.press(number: 7, shouldHold: true, at: start)
-        _ = pairing.press(number: 7, shouldHold: false, at: start + .seconds(1))
-        #expect(pairing.heldCount == 0)
-        let release = pairing.release(number: 7)
-        #expect(release == .pass)
+        pairing.hold(number: 7, at: start)
+        pairing.hold(number: 7, at: start + .seconds(8))
+        #expect(pairing.heldCount == 1)
+        let early = pairing.expire(at: start + .seconds(12))
+        #expect(early.isEmpty)
     }
 
     /// One operation of the property test.
     private enum Operation: CustomStringConvertible {
-        case press(number: Int64, shouldHold: Bool)
+        case hold(number: Int64)
         case release(number: Int64)
         case flush
         case expire(stepSeconds: Int)
 
         var description: String {
             switch self {
-            case .press(let number, let shouldHold): "press(\(number), hold: \(shouldHold))"
+            case .hold(let number): "hold(\(number))"
             case .release(let number): "release(\(number))"
             case .flush: "flush"
             case .expire(let step): "expire(+\(step)s)"
@@ -139,7 +127,7 @@ struct ClickPairingTests {
         }
     }
 
-    @Test("Random interleavings keep the five invariants")
+    @Test("Random interleavings keep the four invariants")
     func propertyOverRandomInterleavings() {
         let seed: UInt64 = 0x0105_2711_2026
         var generator = SplitMix64(seed: seed)
@@ -149,10 +137,7 @@ struct ClickPairingTests {
             for _ in 0..<length {
                 switch Int.random(in: 0..<10, using: &generator) {
                 case 0..<4:
-                    operations.append(.press(
-                        number: Int64.random(in: 0...5, using: &generator),
-                        shouldHold: Bool.random(using: &generator)
-                    ))
+                    operations.append(.hold(number: Int64.random(in: 0...5, using: &generator)))
                 case 4..<8:
                     operations.append(.release(number: Int64.random(in: 0...5, using: &generator)))
                 case 8:
@@ -179,21 +164,10 @@ struct ClickPairingTests {
         var swallows = 0
         for operation in operations {
             switch operation {
-            case .press(let number, let shouldHold):
-                let action = pairing.press(number: number, shouldHold: shouldHold, at: now)
-                // Invariant 4: held back only when asked to.
-                if action == .holdBack, !shouldHold {
-                    return "held back a press it was not asked to hold"
-                }
-                if action != (shouldHold ? .holdBack : .pass) {
-                    return "wrong action \(action) for a press"
-                }
-                if shouldHold {
-                    model[number] = now
-                    holds += 1
-                } else {
-                    model[number] = nil
-                }
+            case .hold(let number):
+                pairing.hold(number: number, at: now)
+                model[number] = now
+                holds += 1
             case .release(let number):
                 let action = pairing.release(number: number)
                 let wasHeld = model[number] != nil
@@ -233,7 +207,7 @@ struct ClickPairingTests {
                 return "heldCount \(pairing.heldCount) differs from \(model.count)"
             }
         }
-        // Invariant 5: every press still held has a way out, and the flush names exactly those.
+        // Invariant 4: every press still held has a way out, and the flush names exactly those.
         let rest = pairing.flush()
         if rest != model.keys.sorted() {
             return "final flush returned \(rest) while \(model.keys.sorted()) were held"
