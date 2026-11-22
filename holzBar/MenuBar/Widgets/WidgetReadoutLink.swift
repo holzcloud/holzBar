@@ -80,11 +80,55 @@ final class WidgetReadoutLink {
                 return
             }
             reading = baseline.cpuLoad(sample.cpuTicks).map(WidgetReading.fraction) ?? .unavailable
+        case .networkSpeed:
+            guard sample.read.contains(.network) else {
+                return
+            }
+            // A missing or impossible rate (the first sample, a counter that went backwards, a gap
+            // over 300 s) is the en dash, never an old value (MON-09).
+            reading = baseline.networkRates(sample.network).map {
+                WidgetReading.rates(first: $0.first, second: $0.second)
+            } ?? .unavailable
         default:
             return
         }
         baselines[id] = baseline
         readings[id] = reading
         onReading?(id, reading)
+    }
+}
+
+/// The unit symbols and labels of the readout texts in the user's language (D-08, UI contract
+/// "Rates"). Core makes the numbers; the app supplies the words, so Core needs no catalog.
+extension ReadoutTexts {
+    private static var cache = [String: ReadoutTexts]()
+
+    /// The texts for the locale, made once per locale. The unit symbols come from the system's
+    /// abbreviations for kilo, mega and giga bytes and bits in that locale; the labels come from
+    /// the string catalog. The words of the other readouts stay English until the plans that show
+    /// them localize them.
+    static func localized(locale: Locale) -> ReadoutTexts {
+        let key = locale.identifier
+        if let cached = cache[key] {
+            return cached
+        }
+        let formatter = MeasurementFormatter()
+        formatter.locale = locale
+        formatter.unitOptions = .providedUnit
+        formatter.unitStyle = .short
+        func symbols(_ units: [UnitInformationStorage], fallback: [String]) -> [String] {
+            zip(units, fallback).map { unit, fallback in
+                let symbol = formatter.string(from: unit)
+                return symbol.isEmpty ? fallback : symbol
+            }
+        }
+        var texts = ReadoutTexts.english
+        texts.byteSymbols = symbols([.kilobytes, .megabytes, .gigabytes], fallback: english.byteSymbols)
+        texts.bitSymbols = symbols([.kilobits, .megabits, .gigabits], fallback: english.bitSymbols)
+        texts.perSecondFormat = String(localized: "%@/s")
+        texts.readFormat = String(localized: "R %@")
+        texts.writeFormat = String(localized: "W %@")
+        cache[key] = texts
+        return texts
     }
 }

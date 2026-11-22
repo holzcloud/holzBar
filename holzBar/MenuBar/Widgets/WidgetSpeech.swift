@@ -84,6 +84,7 @@ nonisolated enum WidgetSpeech {
         case .uptime: String(localized: "Uptime")
         case .freeDisk: String(localized: "Free Disk Space")
         case .countdown: String(localized: "Countdown")
+        case .networkSpeed: String(localized: "Network Speed")
         }
     }
 
@@ -167,9 +168,39 @@ nonisolated enum WidgetSpeech {
             return spoken(duration, roundingUp: false, locale: locale)
         case (.countdown, .countdown(let remaining, let isPassed)):
             return spoken(isPassed ? .zero : remaining, roundingUp: true, locale: locale)
+        case (.networkSpeed, .rates(let first, let second)):
+            guard first.isFinite, second.isFinite, first >= 0, second >= 0 else {
+                return unavailable
+            }
+            let download = spokenRate(first, locale: locale)
+            let upload = spokenRate(second, locale: locale)
+            switch definition.preset {
+            case .download: return String(localized: "Download \(download)")
+            case .upload: return String(localized: "Upload \(upload)")
+            default: return String(localized: "Download \(download), upload \(upload)")
+            }
         default:
             return unavailable
         }
+    }
+
+    /// A rate in words, in the unit that fits its size: "1.2 megabytes per second".
+    private static func spokenRate(_ bytesPerSecond: Double, locale: Locale) -> String {
+        let units: [UnitInformationStorage] = [.kilobytes, .megabytes, .gigabytes]
+        var scaled = bytesPerSecond / 1_000
+        var index = 0
+        while scaled >= 999.5, index < units.count - 1 {
+            scaled /= 1_000
+            index += 1
+        }
+        let style = Measurement<UnitInformationStorage>.FormatStyle(
+            width: .wide,
+            locale: locale,
+            usage: .asProvided,
+            numberFormatStyle: .number.precision(.fractionLength(0...1))
+        )
+        let amount = Measurement(value: scaled, unit: units[index]).formatted(style)
+        return String(localized: "\(amount) per second")
     }
 
     private static func gigabytes(_ bytes: UInt64, perGigabyte: Double, locale: Locale) -> String {

@@ -34,11 +34,17 @@ nonisolated enum WidgetFormat {
     ///
     /// A reading that does not fit the source or the preset (a byte count for a percent preset, a
     /// number that is not finite) gives the en dash. A button's text is its title.
+    ///
+    /// - Parameters:
+    ///   - rateUnit: Whether the network speed counts bytes or bits per second.
+    ///   - texts: The unit symbols and labels of the rate formats in the user's language.
     static func text(
         for reading: WidgetReading,
         definition: WidgetDefinition,
         locale: Locale,
-        calendar: Calendar
+        calendar: Calendar,
+        rateUnit: ReadoutRateUnit = .bytes,
+        texts: ReadoutTexts = .english
     ) -> WidgetText {
         if definition.kind == .button {
             return WidgetText(string: definition.buttonTitle)
@@ -85,10 +91,32 @@ nonisolated enum WidgetFormat {
             let shown = isPassed ? .zero : remaining
             let string = durationText(shown, roundingUp: true, compact: preset == .compactDuration, locale: locale)
             return WidgetText(string: string, isMuted: isPassed)
+        case (.networkSpeed, .rates(let first, let second)):
+            let download = ReadoutFormat.rate(first, unit: rateUnit, texts: texts, locale: locale)
+            let upload = ReadoutFormat.rate(second, unit: rateUnit, texts: texts, locale: locale)
+            switch preset {
+            case .download:
+                if let download {
+                    return WidgetText(string: download.text)
+                }
+            case .upload:
+                if let upload {
+                    return WidgetText(string: upload.text)
+                }
+            default:
+                if let download, let upload {
+                    return WidgetText(string: downloadAndUpload(download.text, upload.text))
+                }
+            }
         default:
             break
         }
         return WidgetText(string: unavailable)
+    }
+
+    /// The download and the upload in one text: the arrows are characters and never translated.
+    private static func downloadAndUpload(_ download: String, _ upload: String) -> String {
+        "\u{2193}" + download + " \u{2191}" + upload
     }
 
     /// The widest texts a widget's format can show, so that the app measures them once and sets
@@ -102,6 +130,9 @@ nonisolated enum WidgetFormat {
     ///   99 days 23 h, 99 days 59 min, 999 days 23 h and 999 days 59 min. A countdown whose moment
     ///   lies more than 999 days away also gets its own widest texts, with a day count that
     ///   has one digit more than it can reach (WR-04): its moment may lie 126 years away.
+    /// - A rate (network speed): 99.9 and 999 in kilo, mega and giga, in the unit and the labels
+    ///   of the locale; the download and the upload are written the same way, so the widest
+    ///   sample of the two joined with the arrows is the widest text.
     /// - A button: its title.
     /// - A timer item: 00:00. The other built-in items have no text.
     /// - A script widget: 8, 16 or 32 zeros for its width (``scriptWidthDigits(for:)``). Digits
@@ -116,7 +147,9 @@ nonisolated enum WidgetFormat {
         locale: Locale,
         calendar: Calendar,
         capacityBytes: UInt64?,
-        now: Date = .now
+        now: Date = .now,
+        rateUnit: ReadoutRateUnit = .bytes,
+        texts: ReadoutTexts = .english
     ) -> [String] {
         var samples = [String]()
         var seen = Set<String>()
@@ -154,6 +187,19 @@ nonisolated enum WidgetFormat {
             }
         case .battery, .cpu:
             add(percentText(1, locale: locale))
+        case .networkSpeed:
+            let rates = ReadoutFormat.rateWidthSamples(unit: rateUnit, texts: texts, locale: locale)
+            if preset == .downloadAndUpload {
+                // Every pair, so the widest in the font is among them whatever the unit symbols
+                // are in the language.
+                for download in rates {
+                    for upload in rates {
+                        add(downloadAndUpload(download, upload))
+                    }
+                }
+            } else {
+                rates.forEach(add)
+            }
         case .memory, .freeDisk:
             if preset == .gigabytesUsed || preset == .gigabytesFree {
                 let style: ByteCountFormatStyle.Style = definition.source == .memory ? .memory : .file

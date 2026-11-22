@@ -111,6 +111,8 @@ struct WidgetsSection: View {
         return SettingsButtonRow(
             title(for: definition),
             small: summary(for: definition),
+            badge: WidgetEditor.badge(isPreview: definition.kind == .text
+                && (definition.source.isPreview || definition.preset.isPreview)),
             info: WidgetEditor.explanation(for: definition, appName: launcherName(of: definition))
         ) {
             Button {
@@ -249,6 +251,7 @@ struct WidgetsSection: View {
         case .uptime: Text("Uptime")
         case .freeDisk: Text("Free Disk Space")
         case .countdown: Text("Countdown")
+        case .networkSpeed: Text("Network Speed")
         }
     }
 }

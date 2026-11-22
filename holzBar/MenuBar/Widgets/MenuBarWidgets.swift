@@ -904,7 +904,8 @@ final class MenuBarWidgets {
             locale: Self.locale,
             calendar: Self.calendar,
             capacityBytes: capacityBytes(for: definition),
-            now: .now
+            now: .now,
+            texts: ReadoutTexts.localized(locale: Self.locale)
         )
         guard let button = runtime.statusItem.button, var widest = samples.first else {
             return NSStatusItem.squareLength
@@ -1000,7 +1001,8 @@ final class MenuBarWidgets {
             for: reading,
             definition: runtime.definition,
             locale: Self.locale,
-            calendar: Self.calendar
+            calendar: Self.calendar,
+            texts: ReadoutTexts.localized(locale: Self.locale)
         )
         if runtime.definition.showsButtonSymbolOnly {
             // The symbol is the button's image; its title is not drawn.
@@ -1211,7 +1213,7 @@ final class MenuBarWidgets {
                 return .unavailable
             }
             return .battery(percent: percent, state: battery.state)
-        case .cpu:
+        case .cpu, .networkSpeed:
             // The shared monitor feeds it; the first reading after a reveal is only the baseline.
             return readoutLink.lastReading(for: definition.id) ?? .unavailable
         case .memory:

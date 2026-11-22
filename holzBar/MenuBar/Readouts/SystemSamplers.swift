@@ -23,7 +23,8 @@ nonisolated enum SystemSamplers {
     ///
     /// The sample lists in ``ReadoutSample/read`` exactly the metrics this function filled, so a
     /// consumer can tell a metric that failed (listed, value `nil`) from one that was not asked
-    /// for. Only the total CPU is filled so far; the plans that add a metric add its reader here.
+    /// for. The total CPU and the network counters are filled so far; the plans that add a metric
+    /// add its reader here.
     ///
     /// - Parameters:
     ///   - metrics: What to read. A metric that has no reader yet is left out of the sample.
@@ -34,6 +35,10 @@ nonisolated enum SystemSamplers {
         if metrics.contains(.cpu) {
             sample.read.insert(.cpu)
             sample.cpuTicks = cpuTicks()
+        }
+        if metrics.contains(.network) {
+            sample.read.insert(.network)
+            sample.network = networkCounters(at: sample.at)
         }
         return sample
     }
@@ -102,5 +107,96 @@ nonisolated enum SystemSamplers {
             return nil
         }
         return (available, Int64(total))
+    }
+
+    /// The most interface records of one table that are read; a table that is longer is cut, so a
+    /// corrupt answer never makes a long loop.
+    private static let maximumInterfaceRecords = 1_024
+
+    /// The 64-bit byte counters of the interfaces that count as the Mac's network traffic
+    /// (``NetworkInterfaceRule``), from the interface table of the routing sockets
+    /// (`sysctl` with `NET_RT_IFLIST2`). No Wi-Fi API and no network call: the kernel keeps the
+    /// counters. The names stay inside the sum and are never logged (D-10).
+    ///
+    /// - Returns: `nil` when the table could not be read or holds no interface that counts.
+    static func networkCounters(at instant: ContinuousClock.Instant) -> CounterSnapshot? {
+        guard let records = interfaceRecords() else {
+            return nil
+        }
+        let counters = NetworkInterfaceRule.counters(records)
+        guard !counters.isEmpty else {
+            return nil
+        }
+        return CounterSnapshot(at: instant, counters: counters)
+    }
+
+    /// Every interface of the table, with its type, state and counters. The buffer is sized by a
+    /// first call and read with unaligned loads; a record with a zero length, or one that runs past
+    /// the end, stops the walk (T-94-07).
+    private static func interfaceRecords() -> [InterfaceRecord]? {
+        var mib: [Int32] = [CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0]
+        var size = 0
+        guard sysctl(&mib, UInt32(mib.count), nil, &size, nil, 0) == 0, size > 0 else {
+            return nil
+        }
+        // The table may grow between the two calls, so the buffer has room to spare.
+        var capacity = size + size / 4 + 1_024
+        var buffer = [UInt8](repeating: 0, count: capacity)
+        guard sysctl(&mib, UInt32(mib.count), &buffer, &capacity, nil, 0) == 0, capacity > 0 else {
+            return nil
+        }
+        let used = min(capacity, buffer.count)
+        return buffer.withUnsafeBytes { raw in
+            parseInterfaces(raw, used: used)
+        }
+    }
+
+    private static func parseInterfaces(_ raw: UnsafeRawBufferPointer, used: Int) -> [InterfaceRecord] {
+        var records = [InterfaceRecord]()
+        var offset = 0
+        var visited = 0
+        // The first fields of every message: the length (two bytes), the version and the type.
+        while offset + 4 <= used, visited < maximumInterfaceRecords {
+            visited += 1
+            let length = Int(raw.loadUnaligned(fromByteOffset: offset, as: UInt16.self))
+            guard length > 0, offset + length <= used else {
+                break
+            }
+            defer {
+                offset += length
+            }
+            let messageType = raw.loadUnaligned(fromByteOffset: offset + 3, as: UInt8.self)
+            guard messageType == UInt8(RTM_IFINFO2), length >= MemoryLayout<if_msghdr2>.size else {
+                continue
+            }
+            let header = raw.loadUnaligned(fromByteOffset: offset, as: if_msghdr2.self)
+            let isUp = (header.ifm_flags & IFF_UP) != 0
+            // Only an Ethernet type interface that is up can count; the name is looked up for
+            // those alone.
+            guard isUp, header.ifm_data.ifi_type == NetworkInterfaceRule.ethernetType,
+                let name = interfaceName(Int(header.ifm_index)) else {
+                continue
+            }
+            records.append(
+                InterfaceRecord(
+                    name: name,
+                    type: header.ifm_data.ifi_type,
+                    isUp: isUp,
+                    inputBytes: header.ifm_data.ifi_ibytes,
+                    outputBytes: header.ifm_data.ifi_obytes
+                )
+            )
+        }
+        return records
+    }
+
+    /// The name of the interface with the index, such as `en0`.
+    private static func interfaceName(_ index: Int) -> String? {
+        var buffer = [CChar](repeating: 0, count: Int(IF_NAMESIZE) + 1)
+        guard let index = UInt32(exactly: index), if_indextoname(index, &buffer) != nil else {
+            return nil
+        }
+        let bytes = buffer.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }
+        return String(decoding: bytes, as: UTF8.self) // swiftlint:disable:this optional_data_string_conversion
     }
 }

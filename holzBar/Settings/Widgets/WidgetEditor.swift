@@ -58,7 +58,14 @@ struct WidgetEditor: View {
     /// ready-made items' sentences. Text and Shortcut button widgets have none.
     static func explanation(for definition: WidgetDefinition, appName: String?) -> Text? {
         switch definition.kind {
-        case .text, .button:
+        case .text:
+            switch definition.source {
+            case .networkSpeed:
+                return Text("Counts Wi-Fi and Ethernet, not VPN tunnels, in the unit chosen in System readouts.")
+            case .dateTime, .battery, .cpu, .memory, .uptime, .freeDisk, .countdown:
+                return nil
+            }
+        case .button:
             return nil
         case .script:
             return Text("The widget shows the first line of the script's output. It runs when the widget appears and when you click it, and on the system events your automation rules follow, never on a timer.")
@@ -100,7 +107,16 @@ struct WidgetEditor: View {
         case .narrowText: Text("Narrow")
         case .mediumText: Text("Medium")
         case .wideText: Text("Wide")
+        case .download: Text("Download")
+        case .upload: Text("Upload")
+        case .downloadAndUpload: Text("Download and Upload")
         }
+    }
+
+    /// The Preview badge of a row whose source or format is new and not yet tried on a Mac; the
+    /// badge stands alone (D-15).
+    static func badge(isPreview: Bool) -> SettingsBadge? {
+        isPreview ? .preview : nil
     }
 }
 
@@ -113,7 +129,11 @@ private struct TextWidgetFields: View {
     let definition: WidgetDefinition
 
     var body: some View {
-        SettingsPickerRow(Text("Source"), selection: sourceBinding) {
+        SettingsPickerRow(
+            Text("Source"),
+            selection: sourceBinding,
+            badge: WidgetEditor.badge(isPreview: definition.source.isPreview)
+        ) {
             ForEach(WidgetSource.allCases, id: \.self) { source in
                 WidgetsSection.sourceTitle(source)
                     .tag(source)
@@ -121,7 +141,11 @@ private struct TextWidgetFields: View {
         }
         .settingsSubRow()
         if definition.source.presets.count > 1 {
-            SettingsPickerRow(Text("Format"), selection: binding(\.preset)) {
+            SettingsPickerRow(
+                Text("Format"),
+                selection: binding(\.preset),
+                badge: WidgetEditor.badge(isPreview: definition.preset.isPreview)
+            ) {
                 ForEach(definition.source.presets, id: \.self) { preset in
                     WidgetEditor.presetTitle(preset)
                         .tag(preset)

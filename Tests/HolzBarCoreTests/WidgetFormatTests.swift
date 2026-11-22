@@ -338,6 +338,61 @@ struct WidgetFormatTests {
         WidgetDefinition.script()
     }
 
+    @Test("Network speed writes the rates with arrows, and an en dash for anything else (MON-03, D-13)")
+    func networkSpeedText() {
+        let reading = WidgetReading.rates(first: 1_200_000, second: 85_000)
+        #expect(text(reading, definition(.networkSpeed, preset: .download)).string == "1.2 MB/s")
+        #expect(text(reading, definition(.networkSpeed, preset: .upload)).string == "85.0 kB/s")
+        #expect(text(reading, definition(.networkSpeed, preset: .downloadAndUpload)).string == "\u{2193}1.2 MB/s \u{2191}85.0 kB/s")
+        #expect(text(reading, definition(.networkSpeed)).string == "\u{2193}1.2 MB/s \u{2191}85.0 kB/s")
+        // Bits are counted when the unit asks for them.
+        let bits = WidgetFormat.text(
+            for: reading,
+            definition: definition(.networkSpeed, preset: .download),
+            locale: english,
+            calendar: calendar,
+            rateUnit: .bits
+        )
+        #expect(bits.string == "9.6 Mb/s")
+        #expect(text(.rates(first: -1, second: 5), definition(.networkSpeed, preset: .downloadAndUpload)).isUnavailable)
+        #expect(text(.rates(first: .nan, second: 5), definition(.networkSpeed, preset: .download)).isUnavailable)
+        #expect(text(.fraction(0.5), definition(.networkSpeed)).isUnavailable)
+        #expect(text(.rates(first: 1, second: 2), definition(.cpu)).isUnavailable)
+        // The decimal separator follows the locale.
+        #expect(text(reading, definition(.networkSpeed, preset: .download), locale: german).string == "1,2 MB/s")
+    }
+
+    @Test("Network speed has fixed width samples that reach 999 GB/s (D-11, MON-09)")
+    func networkSpeedWidth() {
+        func samples(_ preset: WidgetPreset, unit: ReadoutRateUnit = .bytes) -> [String] {
+            WidgetFormat.widthSamples(
+                for: definition(.networkSpeed, preset: preset),
+                locale: english,
+                calendar: calendar,
+                capacityBytes: nil,
+                rateUnit: unit
+            )
+        }
+        let download = samples(.download)
+        #expect(download.contains("99.9 MB/s"))
+        #expect(download.contains("999 GB/s"))
+        #expect(Set(download).count == download.count)
+        #expect(samples(.upload) == download)
+        let both = samples(.downloadAndUpload)
+        #expect(both.contains("\u{2193}999 GB/s \u{2191}999 GB/s"))
+        #expect(both.contains("\u{2193}99.9 kB/s \u{2191}999 GB/s"))
+        #expect(Set(both).count == both.count)
+        #expect(samples(.download, unit: .bits).contains("999 Gb/s"))
+        // Every text a rate can take is not wider than the widest sample.
+        let widest = both.map(\.count).max() ?? 0
+        for first in [0.0, 5_000, 123_456, 98_000_000, 999_000_000_000] {
+            for second in [0.0, 85_000, 999_900, 12_000_000] {
+                let shown = text(.rates(first: first, second: second), definition(.networkSpeed)).string
+                #expect(shown.count <= widest, "\(shown)")
+            }
+        }
+    }
+
     @Test("A script widget shows its line as given, never parsed (T-12-25)")
     func scriptLineIsShownAsGiven() {
         let lines = [
