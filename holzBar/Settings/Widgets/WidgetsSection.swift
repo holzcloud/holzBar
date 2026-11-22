@@ -66,7 +66,8 @@ struct WidgetsSection: View {
     private var addMenu: some View {
         Menu("Add Widget…") {
             Section {
-                ForEach(WidgetSource.allCases, id: \.self) { source in
+                // GPU Load is offered only while its switch in System readouts is on (D-07).
+                ForEach(WidgetSource.editorOrder.filter { $0 != .gpuLoad || appState.settings.readouts.readsGPU }, id: \.self) { source in
                     Button {
                         add(source)
                     } label: {

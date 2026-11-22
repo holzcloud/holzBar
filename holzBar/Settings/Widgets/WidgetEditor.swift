@@ -64,7 +64,9 @@ struct WidgetEditor: View {
                 return Text("Counts Wi-Fi and Ethernet, not VPN tunnels, in the unit chosen in System readouts.")
             case .diskActivity:
                 return Text("Reads and writes of all internal and external disks, per second.")
-            case .dateTime, .battery, .cpu, .memory, .uptime, .freeDisk, .countdown, .gpuLoad, .thermalState:
+            case .gpuLoad:
+                return Text("Uses a private macOS interface, switched on in System readouts.")
+            case .dateTime, .battery, .cpu, .memory, .uptime, .freeDisk, .countdown, .thermalState:
                 return nil
             }
         case .button:
@@ -136,8 +138,17 @@ struct WidgetEditor: View {
 /// The options of a text widget. The definition is read again from the widgets, so an edit
 /// that was refused (a countdown too far away) leaves the controls on the stored value.
 private struct TextWidgetFields: View {
+    @Environment(AppState.self) private var appState
     var widgets: MenuBarWidgets
     let definition: WidgetDefinition
+
+    /// The sources the Source picker lists, in the UI contract's order. GPU Load is listed only
+    /// while its switch in System readouts is on, or while it is this widget's own source, so an
+    /// existing widget is never changed silently (D-07).
+    private var offeredSources: [WidgetSource] {
+        let readsGPU = appState.settings.readouts.readsGPU
+        return WidgetSource.editorOrder.filter { $0 != .gpuLoad || readsGPU || definition.source == .gpuLoad }
+    }
 
     var body: some View {
         SettingsPickerRow(
@@ -145,12 +156,16 @@ private struct TextWidgetFields: View {
             selection: sourceBinding,
             badge: WidgetEditor.badge(isPreview: definition.source.isPreview)
         ) {
-            ForEach(WidgetSource.allCases, id: \.self) { source in
+            ForEach(offeredSources, id: \.self) { source in
                 WidgetsSection.sourceTitle(source)
                     .tag(source)
             }
         }
         .settingsSubRow()
+        if definition.source == .gpuLoad, !appState.settings.readouts.readsGPU {
+            SettingsStateLine(.info, Text("Read GPU load is off in System readouts"))
+                .settingsSubRow()
+        }
         if definition.source.presets.count > 1 {
             SettingsPickerRow(
                 Text("Format"),

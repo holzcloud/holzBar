@@ -174498,6 +174498,244 @@
           }
         }
       }
+    },
+    "Read GPU load is off in System readouts" : {
+      "comment" : "Info line under the Source row of a GPU Load widget while the Read GPU load switch in System readouts is off; the quoted name is that switch",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Možnost Číst vytížení GPU je v části Údaje o systému vypnutá"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPU-Auslastung lesen ist in Systemanzeigen ausgeschaltet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leer la carga de la GPU está desactivado en Lecturas del sistema"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lire la charge du GPU est désactivé dans Relevés système"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A GPU-terhelés olvasása ki van kapcsolva a Rendszerértékek között"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Baca beban GPU nonaktif di Pembacaan sistem"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leggi il carico della GPU è disattivato in Letture di sistema"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「GPU の負荷を読み取る」は「システム情報」でオフになっています"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'GPU 부하 읽기'가 '시스템 수치'에서 꺼져 있습니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gpu-belasting lezen staat uit in Systeemwaarden"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opcja „Odczytuj obciążenie GPU” jest wyłączona w sekcji Odczyty systemu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ler a carga da GPU está desativado em Leituras do sistema"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leger la grevezza da la GPU è deactivà en Indicaziuns dal sistem"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Параметр «Считывать загрузку ГП» выключен в разделе «Показатели системы»"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Läs GPU-belastning är avstängt i Systemvärden"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPU yükünü oku, Sistem göstergeleri içinde kapalı"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Параметр «Зчитувати завантаження ГП» вимкнено в розділі «Показники системи»"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“读取 GPU 负载”在“系统读数”中已关闭"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「讀取 GPU 負載」在「系統讀數」中已關閉"
+          }
+        }
+      }
+    },
+    "Uses a private macOS interface, switched on in System readouts." : {
+      "comment" : "Info text of a GPU Load widget's row in the widget list",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Používá soukromé rozhraní macOS, zapnuté v části Údaje o systému."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nutzt eine private macOS-Schnittstelle, eingeschaltet in Systemanzeigen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa una interfaz privada de macOS, activada en Lecturas del sistema."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilise une interface privée de macOS, activée dans Relevés système."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A macOS egy privát felületét használja, a Rendszerértékek között kapcsolható be."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menggunakan antarmuka privat macOS, diaktifkan di Pembacaan sistem."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa un'interfaccia privata di macOS, attivata in Letture di sistema."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS の非公開インターフェースを使用します。「システム情報」でオンにします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비공개 macOS 인터페이스를 사용하며, '시스템 수치'에서 켭니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruikt een privé-interface van macOS, ingeschakeld in Systeemwaarden."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Używa prywatnego interfejsu macOS, włączanego w sekcji Odczyty systemu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa uma interface privada do macOS, ativada em Leituras do sistema."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisescha ina interfatscha privata da macOS, activada en Indicaziuns dal sistem."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Использует закрытый интерфейс macOS, включается в разделе «Показатели системы»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Använder ett privat macOS-gränssnitt som slås på i Systemvärden."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS'in özel bir arayüzünü kullanır; Sistem göstergeleri içinde açılır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Використовує закритий інтерфейс macOS, вмикається в розділі «Показники системи»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用 macOS 的私有接口，在“系统读数”中开启。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用 macOS 的私有介面，在「系統讀數」中開啟。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
