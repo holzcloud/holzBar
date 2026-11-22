@@ -245,18 +245,64 @@ struct HubActivityBoardTests {
         #expect(Board.board(withFinished, now: at(10), forClosedNotch: true).nextExpiry == at(20))
     }
 
-    @Test("A done state inside its 30 seconds shows in the closed view, and later it never does")
-    func doneStateWidensOnlyInsideTheEpisode() {
-        let early = [alert("cpu.recovered", started: 0, finished: 10)]
-        #expect(Board.board(early, now: at(12), forClosedNotch: true).compact?.id == "cpu.recovered")
-        let late = [alert("cpu.recovered", started: 0, finished: 100)]
-        let closed = Board.board(late, now: at(101), forClosedNotch: true)
-        #expect(closed.compact == nil)
-        // The open hub lists it until its own five seconds are over, and the closed view still wakes then.
-        #expect(Board.board(late, now: at(104)).listed.map(\.id) == ["cpu.recovered"])
-        #expect(Board.board(late, now: at(105)).listed.isEmpty)
-        #expect(closed.nextExpiry == at(105))
-        #expect(Board.board(late, now: at(101)).nextExpiry == at(105))
+    @Test("A recovery has its own id, key, look and widening from the moment of recovery")
+    func recoveryLook() {
+        #expect(AlertLook.recoveredID(of: .thermal) == "thermal.recovered")
+        let cpu = AlertLook.recovery(of: .cpu, title: "CPU load back to normal", compactValue: "Normal", at: at(600))
+        #expect(cpu.id == "cpu.recovered")
+        #expect(cpu.key == "system-alerts/cpu.recovered")
+        #expect(cpu.symbol == "checkmark.circle")
+        #expect(cpu.tint == .green)
+        #expect(cpu.priority == 25)
+        #expect(cpu.startedAt == at(600))
+        #expect(cpu.finishedAt == at(600))
+        #expect(cpu.widenedSeconds == DesignTokens.Alert.widenedSeconds)
+        #expect(!cpu.announcesItself)
+        #expect(cpu.compactValue == "Normal")
+        let thermal = AlertLook.recovery(of: .thermal, title: "Thermal state back to normal", compactValue: "Normal", at: at(1))
+        #expect(thermal.priority == 30)
+    }
+
+    @Test("The recovery after a long alert shows in the closed notch for its five seconds")
+    func recoveryAfterALongAlertWidensTheClosedNotch() {
+        let recovery = AlertLook.recovery(of: .cpu, title: "CPU", compactValue: "Normal", at: at(600))
+        for seconds in [600.0, 604.9] {
+            let closed = Board.board([recovery], now: at(seconds), forClosedNotch: true)
+            #expect(closed.compact?.id == "cpu.recovered")
+        }
+        let closedAfter = Board.board([recovery], now: at(605), forClosedNotch: true)
+        #expect(closedAfter.compact == nil)
+        #expect(closedAfter.listed.isEmpty)
+        let fullAfter = Board.board([recovery], now: at(605))
+        #expect(fullAfter.compact == nil)
+        #expect(fullAfter.listed.isEmpty)
+        #expect(Board.board([recovery], now: at(600), forClosedNotch: true).nextExpiry == at(605))
+        #expect(Board.board([recovery], now: at(600)).nextExpiry == at(605))
+    }
+
+    @Test("A recovery inside the first seconds behaves the same")
+    func recoveryInsideTheFirstSeconds() {
+        let recovery = AlertLook.recovery(of: .cpu, title: "CPU", compactValue: "Normal", at: at(10))
+        #expect(Board.board([recovery], now: at(10), forClosedNotch: true).compact?.id == "cpu.recovered")
+        #expect(Board.board([recovery], now: at(15), forClosedNotch: true).compact == nil)
+    }
+
+    @Test("A recovery goes before a still widened alert of its priority, a lower priority recovery after a thermal one")
+    func recoveryOrdering() {
+        let firing = alert("cpu", priority: 25)
+        let memory = AlertLook.recovery(of: .memoryPressure, title: "Memory", compactValue: "Normal", at: at(20))
+        let atTwenty = Board.board([firing, memory], now: at(20), forClosedNotch: true)
+        #expect(atTwenty.compact?.id == "memoryPressure.recovered")
+        #expect(atTwenty.hiddenCount == 1)
+        let atTwentyFive = Board.board([firing, memory], now: at(25), forClosedNotch: true)
+        #expect(atTwentyFive.compact?.id == "cpu")
+
+        let thermal = alert("thermal", priority: 30)
+        let cpu = AlertLook.recovery(of: .cpu, title: "CPU", compactValue: "Normal", at: at(600))
+        let closed = Board.board([thermal, cpu], now: at(600), forClosedNotch: true)
+        #expect(closed.compact?.id == "cpu.recovered")
+        let full = Board.board([thermal, cpu], now: at(600))
+        #expect(full.compact?.id == "thermal")
     }
 
     @Test("An activity without widening seconds behaves the same in both views")

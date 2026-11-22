@@ -25,8 +25,9 @@ import OSLog
 /// A firing alert is one ``LiveActivity`` of the module "system-alerts" with the id of its rule;
 /// its symbol and tint show the rule and the severity, its short value the latest reading. It stays
 /// while the condition holds. When the condition clears it becomes the done state for
-/// ``HubActivityBoard/finishedHold`` seconds, under a new id so VoiceOver hears the recovery once,
-/// and then goes. A rule, the module or a threshold that no longer holds ends it at once. No sound
+/// ``HubActivityBoard/finishedHold`` seconds, under a new id and starting at the moment of
+/// recovery, so it widens the closed notch for those seconds however long the alert lasted and
+/// VoiceOver hears the recovery once, and then it goes. A rule, the module or a threshold that no longer holds ends it at once. No sound
 /// is played (D-21). The alerts keep values in memory only and log counts only, never a value, a
 /// title or a name (D-04, T-95-03).
 ///
@@ -674,29 +675,16 @@ final class ThresholdAlertsManager {
     }
 
     /// Replaces the alert with the done state: a new id, so VoiceOver hears the recovery once, and
-    /// the start of the alert it replaces.
+    /// a start at the moment of recovery, so it widens the closed notch for its done hold however
+    /// long the alert lasted.
     private func clear(_ signal: AlertSignal, at now: Date) {
-        let startedAt = activities.first { $0.id == signal.rawValue }?.startedAt ?? now
         remove(id: signal.rawValue)
-        upsert(LiveActivity(
-            id: Self.recoveredID(of: signal),
-            moduleID: AlertLook.moduleID,
-            kind: .other,
-            symbol: AlertLook.recoveredSymbol,
+        upsert(AlertLook.recovery(
+            of: signal,
             title: AlertTexts.recoveredTitle(for: signal),
-            priority: AlertLook.priority(for: signal),
-            startedAt: startedAt,
-            finishedAt: now,
-            tint: AlertLook.recoveredTint,
-            announcesItself: false,
             compactValue: AlertTexts.normalText,
-            // The episode's own start: a recovery long after the alert fired does not widen the notch.
-            widenedSeconds: DesignTokens.Alert.widenedSeconds
+            at: now
         ))
-    }
-
-    private static func recoveredID(of signal: AlertSignal) -> String {
-        "\(signal.rawValue).recovered"
     }
 
     /// Adds an activity, or replaces the one with the same id when it differs.

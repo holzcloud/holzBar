@@ -111,6 +111,33 @@ nonisolated enum AlertLook {
         }
     }
 
+    /// The activity id of the done state of a cleared alert: a new id, so VoiceOver hears the
+    /// recovery once.
+    static func recoveredID(of signal: AlertSignal) -> String {
+        "\(signal.rawValue).recovered"
+    }
+
+    /// The done state of a cleared alert (D-18). It starts at the recovery, so it widens the closed
+    /// notch for its done hold however long the alert lasted, and its own id makes VoiceOver hear
+    /// it once (WR-02). The title and the short word come from the app (localized), so Core stays
+    /// free of the string catalog.
+    static func recovery(of signal: AlertSignal, title: String, compactValue: String, at now: Date) -> LiveActivity {
+        LiveActivity(
+            id: recoveredID(of: signal),
+            moduleID: moduleID,
+            kind: .other,
+            symbol: recoveredSymbol,
+            title: title,
+            priority: priority(for: signal),
+            startedAt: now,
+            finishedAt: now,
+            tint: recoveredTint,
+            announcesItself: false,
+            compactValue: compactValue,
+            widenedSeconds: DesignTokens.Alert.widenedSeconds
+        )
+    }
+
     /// The value to show for an observation, or `nil` for one that has none.
     static func shortValue(of observation: AlertObservation) -> AlertShortValue? {
         switch observation {
