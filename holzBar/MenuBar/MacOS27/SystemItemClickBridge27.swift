@@ -203,7 +203,9 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
     /// `continueClick(_:)`, which replays instead of lifting concealment once it finds the items
     /// no longer concealed.
     func refreshSnapshot() {
-        guard let appState else {
+        // A task the tap queued before the bridge stopped may still call this: a stopped bridge
+        // decides nothing, so the snapshot must stay invalid.
+        guard isRunning, let appState else {
             state.invalidate()
             return
         }
