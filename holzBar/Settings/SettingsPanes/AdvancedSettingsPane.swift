@@ -88,6 +88,9 @@ struct AdvancedSettingsPane: View {
                 }
             }
             SettingsGroup(SettingsCatalog.AdvancedPane.itemSpacing) {
+                if !isItemSpacingAvailable {
+                    SettingsNoteLine(Text("Item spacing is not available on macOS 27."))
+                }
                 SettingsSliderRow(
                     .advancedItemSpacing,
                     value: $tempItemSpacingOffset,
@@ -103,7 +106,7 @@ struct AdvancedSettingsPane: View {
                         }
                     }
                 )
-                .settingsDependent(on: !isApplyingItemSpacingOffset)
+                .settingsDependent(on: isItemSpacingAvailable && !isApplyingItemSpacingOffset)
                 .onAppear {
                     tempItemSpacingOffset = appState.settings.general.itemSpacingOffset
                 }
@@ -121,6 +124,7 @@ struct AdvancedSettingsPane: View {
                     )
                 }
                 .settingsSubRow()
+                .settingsDependent(on: isItemSpacingAvailable)
                 SettingsButtonRow(.advancedDefaultSpacing) {
                     Button("Reset") {
                         tempItemSpacingOffset = 0
@@ -159,6 +163,12 @@ struct AdvancedSettingsPane: View {
             appState.permissions.refresh()
         }
         .permissionRevokeConfirmation($revokingPermission)
+    }
+
+    /// Item spacing is off on macOS 27 until probe P7 shows it works there; Reset stays usable
+    /// to clear keys written on macOS 26.
+    private var isItemSpacingAvailable: Bool {
+        ItemSpacingAvailability.isAvailable(macOSMajor: ProcessInfo.processInfo.operatingSystemVersion.majorVersion)
     }
 
     private var isMacOS27: Bool {

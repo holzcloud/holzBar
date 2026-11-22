@@ -163927,6 +163927,125 @@
           }
         }
       }
+    },
+    "Item spacing is not available on macOS 27." : {
+      "comment" : "Note above the Item spacing rows in the Advanced settings pane on macOS 27, where the setting is switched off",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozestupy položek nejsou v macOS 27 k dispozici."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Elementabstand ist unter macOS 27 nicht verfügbar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El espaciado de los elementos no está disponible en macOS 27."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’espacement des éléments n’est pas disponible sous macOS 27."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az elemek közötti térköz macOS 27 alatt nem érhető el."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jarak item tidak tersedia di macOS 27."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La spaziatura degli elementi non è disponibile su macOS 27."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 では項目の間隔を設定できません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서는 항목 간격을 사용할 수 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De tussenruimte van onderdelen is niet beschikbaar op macOS 27."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odstępy między elementami nie są dostępne w macOS 27."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O espaçamento dos itens não está disponível no macOS 27."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La distanza dals elements n’è betg disponibla sut macOS 27."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расстояние между элементами недоступно в macOS 27."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avstånd mellan objekt är inte tillgängligt i macOS 27."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öğe aralığı macOS 27’de kullanılamaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відстань між елементами недоступна в macOS 27."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 上无法使用项目间距。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 上無法使用項目間距。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

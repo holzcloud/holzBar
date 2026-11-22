@@ -89,6 +89,7 @@ sources=(
   ItemOrder
   ItemPlaceholder
   ItemRuleMemory
+  ItemSpacingAvailability
   ItemTimer
   LayoutDraft
   LayoutList
@@ -240,6 +241,7 @@ tests=(
   ItemOrderTests
   ItemPlaceholderTests
   ItemRuleMemoryTests
+  ItemSpacingAvailabilityTests
   ItemTimerTests
   LayoutDraftTests
   LayoutListTests
