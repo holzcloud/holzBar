@@ -89,6 +89,16 @@
 </tr>
 </table>
 
+## New in 1.2.0
+
+- **System readouts** (Settings → Modules → System monitor, an optional module that is off until you switch it on, needs no permission and measures nothing while it is off or while nothing it feeds is shown): tiles for the CPU, GPU, memory, network, disk and battery in the Notch hub's Overview and in a tab of their own.
+  - **CPU** shows the load, the thermal state when the Mac runs warm (the **Thermal state** switch) and, on Apple silicon, the load of the performance and the efficiency cores (**P 42 % · E 12 %**). **GPU** shows how busy the graphics processor is; it appears only while **Read GPU load** is on. **Memory** shows the used share with the memory pressure and the swap in use. **Network** shows the download and upload speed. **Disk** shows the read and write speed and the free space. **Battery** (on a Mac with a battery) shows the charge with the time left or until full and the power adapter's watts.
+  - **Curves**: the CPU, GPU, memory and network tiles draw the last two minutes as a quiet curve. The curve lives in memory only and is gone when holzBar quits; with Increase Contrast it is drawn brighter and without the area.
+  - **Settings**: a switch for every tile, **Thermal state**, **Refresh tiles every** (a choice of seconds) and **Network speed unit** (bytes or bits per second, which also changes the Network Speed widget).
+  - **Read GPU load** is an optional switch, off by default and kept on this Mac only. It reads one statistic of the graphics driver through a private macOS interface that Apple does not document and that can stop working; holzBar switches it off by itself, and says so, if macOS changes it.
+- **New widget readouts** (Settings → Modules → Widgets): sources **Network Speed** (Download, Upload, or both), **Disk Activity** (Read, Write, or both), **GPU Load** (Percent; offered only while Read GPU load is on) and **Thermal State** (a word such as Nominal or Serious); new formats for the old sources: CPU Load **Per Core Cluster**, Memory **Pressure** and **Swap Used**, Battery **Percent and Time Left** and **Adapter Watts**. Every widget keeps one fixed width, so the text never moves the items beside it, and a value that cannot be read shows an en dash. A source refreshes only while its widget is visible.
+- **Energy**: every readout runs from one shared schedule that sleeps while nothing is shown, while the Mac is asleep or locked, and slows down in Low Power Mode; it never polls while the hub is closed and no readout widget is visible.
+
 ## New in 1.1.1
 
 See the [release notes of 1.1.1](release-notes/v1.1.1.md).
@@ -327,7 +337,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ### 1.2.0: system monitor
 
-The release after 1.1.1 is the system monitor: CPU, GPU, memory, network, disk and power readouts in the menu bar and in the hub (the system info widgets), connected devices with battery levels, and alerts when CPU, temperature or disk cross a limit. Each part is optional and off until you switch it on.
+The rest of the system monitor is still planned: connected devices with battery levels, and alerts when the CPU load, the thermal state, the free disk space or the battery cross a limit. Each part is optional and off until you switch it on.
 
 ### After 1.2.0 (release not fixed yet)
 
