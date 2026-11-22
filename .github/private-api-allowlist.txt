@@ -40,7 +40,7 @@ NowPlayingRemote/NowPlayingRemote.swift: PrivateFrameworks
 # The System readouts module's Read GPU load switch reads how busy the graphics processor is
 # from an undocumented statistic of the graphics driver, through public IOKit calls (agreed
 # 2026-11-21). The wrapper is the only file that names it and reads only while the switch is on
-# and a GPU tile is open.
+# and a GPU tile is open or a GPU Load widget is visible.
 holzBar/MenuBar/Readouts/GPULoadBridge.swift: PerformanceStatistics
 holzBar/MenuBar/Readouts/GPULoadBridge.swift: Device Utilization
 holzBar/MenuBar/Readouts/GPULoadBridge.swift: IOAccelerator

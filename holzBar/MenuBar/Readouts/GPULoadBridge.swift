@@ -17,7 +17,8 @@ import IOKit
 /// - The registry is read with public IOKit calls only (no `dlopen`, no `dlsym`, no private
 ///   framework): the accelerator services are matched, and each one's statistics are copied.
 /// - Nothing here runs while the module's Read GPU load switch is off, because the only caller,
-///   ``SystemMonitor``, never reaches this file then; and it reads only while a GPU tile is open.
+///   ``SystemMonitor``, never reaches this file then; and it reads only while a GPU tile is open
+///   or a GPU Load widget is visible.
 /// - A missing service or number is an answer, not a crash: ``probe()`` turns it into the start
 ///   check of ``PrivateFeatureGate``, and ``read()`` into a failure the monitor counts, so the
 ///   part switches itself off for the session.

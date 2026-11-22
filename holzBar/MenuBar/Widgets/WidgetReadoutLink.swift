@@ -246,8 +246,7 @@ extension ReadoutTexts {
 
     /// The texts for the locale, made once per locale. The unit symbols come from the system's
     /// abbreviations for kilo, mega and giga bytes and bits in that locale; the labels come from
-    /// the string catalog. The words of the other readouts stay English until the plans that show
-    /// them localize them.
+    /// the string catalog.
     static func localized(locale: Locale) -> ReadoutTexts {
         let key = locale.identifier
         if let cached = cache[key] {
