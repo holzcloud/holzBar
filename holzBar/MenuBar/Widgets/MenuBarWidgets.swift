@@ -186,7 +186,8 @@ final class MenuBarWidgets {
             return
         }
         runtime.definition = valid
-        readoutLink.resetBaseline(for: valid.id)
+        // The baseline stays: a request that changed starts a fresh one when the policy says
+        // register, and a cosmetic or format-only edit must not blank a rate for two intervals.
         configure(runtime)
         updateMediaMonitoring()
         let command = runtime.policy.handle(

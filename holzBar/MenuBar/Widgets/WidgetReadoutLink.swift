@@ -87,11 +87,13 @@ final class WidgetReadoutLink {
         }
     }
 
-    /// Makes the reading of a widget whose format changed from the last delivery.
+    /// Makes the reading of a widget whose format changed from the last delivery. A rate keeps the
+    /// reading it has: it holds both values (download and upload, read and write), and the
+    /// widget's format picks from them, so the baseline survives a format change.
     private func rebuildReading(for definition: WidgetDefinition) {
         let id = definition.id
         guard
-            readings[id] == nil, Self.isOneSampleValue(definition.source),
+            Self.isOneSampleValue(definition.source),
             let sample = samples[id], var baseline = baselines[id],
             let reading = Self.reading(from: sample, definition: definition, baseline: &baseline)
         else {
