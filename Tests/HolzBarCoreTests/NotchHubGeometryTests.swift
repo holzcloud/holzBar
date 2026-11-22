@@ -555,7 +555,15 @@ struct NotchHubGeometryTests {
             #expect(result.shape.y == 0)
             #expect(Geometry.live(display: display) == Geometry.live(display: islandDisplayWithoutCutout))
             #expect(Geometry.seed(display: display) == Geometry.seed(display: islandDisplayWithoutCutout))
+            #expect(!Geometry.hasDetachedIsland(display: display))
         }
+    }
+
+    @Test("Island display: a valid island is detached, a display without one is not")
+    func hasDetachedIsland() {
+        #expect(Geometry.hasDetachedIsland(display: islandDisplay))
+        #expect(!Geometry.hasDetachedIsland(display: islandDisplayWithoutCutout))
+        #expect(!Geometry.hasDetachedIsland(display: notchedA))
     }
 
     @Test("Display without an island is never detached")

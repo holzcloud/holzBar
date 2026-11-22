@@ -433,6 +433,13 @@ nonisolated enum NotchHubGeometry {
         return notch
     }
 
+    /// Whether the display's layouts are detached: it has a Dynamic Island that is valid, the
+    /// judgement every layout makes (``IslandLayout/isDetached``, ``LiveLayout/isDetached``), so a
+    /// caller that has no layout at hand draws the same top as the layouts do.
+    static func hasDetachedIsland(display: Display) -> Bool {
+        detachedIsland(of: display) != nil
+    }
+
     /// Apple's Dynamic Island on the display, if it is valid (as ``validated(_:in:)`` judges a
     /// notch): its rectangle, its axis, and how far below the top edge a detached layout starts,
     /// the island's height plus ``DesignTokens/Island/islandGap``.

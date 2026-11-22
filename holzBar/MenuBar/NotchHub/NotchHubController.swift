@@ -594,7 +594,7 @@ final class NotchHubController: HubHost {
         restShape = rest
         panelScreenFrame = screen.frame
         panel.hasShadow = false
-        presentation.convexTop = display(of: screen).island != nil
+        presentation.convexTop = NotchHubGeometry.hasDetachedIsland(display: display(of: screen))
         presentation.moveCanvas(transition)
         setPanelFrame(transition, on: screen.frame)
         // Take the larger canvas in its own transaction before the closing animates.
