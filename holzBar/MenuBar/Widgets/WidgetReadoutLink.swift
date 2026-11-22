@@ -23,6 +23,11 @@ final class WidgetReadoutLink {
 
     private var baselines = [UUID: ReadoutBaseline]()
     private var readings = [UUID: WidgetReading]()
+    /// What each widget was last delivered, so a change of its format (memory in percent or in
+    /// gigabytes) shows its new text at once instead of waiting for the next delivery.
+    private var samples = [UUID: ReadoutSample]()
+    /// The definition each widget has now: the delivery turns into a reading by its format.
+    private var definitions = [UUID: WidgetDefinition]()
 
     /// The consumer id a widget has in the monitor's ledger.
     static func consumerID(for id: UUID) -> String {
@@ -32,16 +37,17 @@ final class WidgetReadoutLink {
     /// Does what the policy said about the widget's registration.
     func apply(_ change: WidgetRefreshPolicy.ReadoutChange, for definition: WidgetDefinition) {
         let id = definition.id
+        definitions[id] = definition
         switch change {
         case .keep:
-            break
+            rebuildReading(for: definition)
         case .register(let request):
             // A new request starts a new baseline: the first reading after it is only the base.
             baselines[id] = ReadoutBaseline()
             readings[id] = nil
-            let source = definition.source
+            samples[id] = nil
             monitor?.register(Self.consumerID(for: id), kind: .visible, request: request) { [weak self] sample in
-                self?.receive(sample, source: source, id: id)
+                self?.receive(sample, id: id)
             }
         case .unregister:
             forget(id)
@@ -67,41 +73,117 @@ final class WidgetReadoutLink {
         monitor?.unregister(Self.consumerID(for: id))
         baselines[id] = nil
         readings[id] = nil
+        samples[id] = nil
+        definitions[id] = nil
     }
 
-    private func receive(_ sample: ReadoutSample, source: WidgetSource, id: UUID) {
-        guard var baseline = baselines[id] else {
-            return
-        }
-        let reading: WidgetReading
-        switch source {
-        case .cpu:
-            guard sample.read.contains(.cpu) else {
-                return
-            }
-            reading = baseline.cpuLoad(sample.cpuTicks).map(WidgetReading.fraction) ?? .unavailable
-        case .networkSpeed:
-            guard sample.read.contains(.network) else {
-                return
-            }
-            // A missing or impossible rate (the first sample, a counter that went backwards, a gap
-            // over 300 s) is the en dash, never an old value (MON-09).
-            reading = baseline.networkRates(sample.network).map {
-                WidgetReading.rates(first: $0.first, second: $0.second)
-            } ?? .unavailable
-        case .diskActivity:
-            guard sample.read.contains(.diskActivity) else {
-                return
-            }
-            reading = baseline.diskRates(sample.disk).map {
-                WidgetReading.rates(first: $0.first, second: $0.second)
-            } ?? .unavailable
-        default:
+    /// Makes the reading of a widget whose format changed from the last delivery. Only the
+    /// memory and the free disk space are a value of one sample; a rate needs its baseline.
+    private func rebuildReading(for definition: WidgetDefinition) {
+        let id = definition.id
+        guard
+            readings[id] == nil, definition.source == .memory || definition.source == .freeDisk,
+            let sample = samples[id], var baseline = baselines[id],
+            let reading = Self.reading(from: sample, definition: definition, baseline: &baseline)
+        else {
             return
         }
         baselines[id] = baseline
         readings[id] = reading
+    }
+
+    private func receive(_ delivered: ReadoutSample, id: UUID) {
+        guard var baseline = baselines[id], let definition = definitions[id] else {
+            return
+        }
+        // An event sample (the memory pressure) carries one metric; the kept sample holds them all.
+        let sample = samples[id]?.merging(delivered) ?? delivered
+        guard let reading = Self.reading(from: delivered, definition: definition, baseline: &baseline) else {
+            return
+        }
+        samples[id] = sample
+        baselines[id] = baseline
+        readings[id] = reading
         onReading?(id, reading)
+    }
+
+    /// The reading a sample gives a widget, or `nil` when the sample does not carry the metric
+    /// the widget's format reads (it is not for this widget, so nothing changes).
+    private static func reading(
+        from sample: ReadoutSample,
+        definition: WidgetDefinition,
+        baseline: inout ReadoutBaseline
+    ) -> WidgetReading? {
+        switch definition.source {
+        case .cpu:
+            guard sample.read.contains(.cpu) else {
+                return nil
+            }
+            return baseline.cpuLoad(sample.cpuTicks).map(WidgetReading.fraction) ?? .unavailable
+        case .networkSpeed:
+            guard sample.read.contains(.network) else {
+                return nil
+            }
+            // A missing or impossible rate (the first sample, a counter that went backwards, a gap
+            // over 300 s) is the en dash, never an old value (MON-09).
+            return baseline.networkRates(sample.network).map {
+                WidgetReading.rates(first: $0.first, second: $0.second)
+            } ?? .unavailable
+        case .diskActivity:
+            guard sample.read.contains(.diskActivity) else {
+                return nil
+            }
+            return baseline.diskRates(sample.disk).map {
+                WidgetReading.rates(first: $0.first, second: $0.second)
+            } ?? .unavailable
+        case .memory:
+            return memoryReading(from: sample, preset: definition.preset)
+        case .freeDisk:
+            guard sample.read.contains(.diskSpace) else {
+                return nil
+            }
+            return diskSpaceReading(sample.diskSpace, preset: definition.preset)
+        case .dateTime, .battery, .uptime, .countdown:
+            return nil
+        }
+    }
+
+    private static func memoryReading(from sample: ReadoutSample, preset: WidgetPreset) -> WidgetReading? {
+        switch preset {
+        case .pressure:
+            guard sample.read.contains(.memoryPressure) else {
+                return nil
+            }
+            return sample.memoryPressure.map(WidgetReading.pressure) ?? .unavailable
+        case .swapUsed:
+            guard sample.read.contains(.swap) else {
+                return nil
+            }
+            return sample.swap.map { WidgetReading.bytes($0.used) } ?? .unavailable
+        default:
+            guard sample.read.contains(.memory) else {
+                return nil
+            }
+            guard let memory = sample.memory else {
+                return .unavailable
+            }
+            if preset == .gigabytesUsed {
+                return .bytes(memory.used)
+            }
+            return WidgetReadings.usedFraction(used: memory.used, total: memory.total).map(WidgetReading.fraction)
+                ?? .unavailable
+        }
+    }
+
+    private static func diskSpaceReading(_ space: DiskSpace?, preset: WidgetPreset) -> WidgetReading {
+        guard let space else {
+            return .unavailable
+        }
+        if preset == .gigabytesFree {
+            return space.available >= 0 ? .bytes(UInt64(space.available)) : .unavailable
+        }
+        return WidgetReadings.diskFreeFraction(available: space.available, total: space.total).map(WidgetReading.fraction)
+            ?? .unavailable
     }
 }
 
@@ -135,6 +217,9 @@ extension ReadoutTexts {
         texts.perSecondFormat = String(localized: "%@/s")
         texts.readFormat = String(localized: "R %@")
         texts.writeFormat = String(localized: "W %@")
+        texts.pressureNormal = String(localized: "Normal")
+        texts.pressureHigh = String(localized: "High")
+        texts.pressureCritical = String(localized: "Critical")
         cache[key] = texts
         return texts
     }

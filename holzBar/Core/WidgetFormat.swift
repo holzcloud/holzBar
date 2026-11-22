@@ -74,14 +74,16 @@ nonisolated enum WidgetFormat {
             let string = percentText(Double(min(max(percent, 0), 100)) / 100, locale: locale)
             return WidgetText(string: string, batteryState: preset == .percentAndState ? state : nil)
         case (.cpu, .fraction(let fraction)),
-            (.memory, .fraction(let fraction)) where preset != .gigabytesUsed,
+            (.memory, .fraction(let fraction)) where preset == .percentUsed,
             (.freeDisk, .fraction(let fraction)) where preset != .gigabytesFree:
             guard fraction.isFinite else {
                 break
             }
             return WidgetText(string: percentText(fraction, locale: locale))
-        case (.memory, .bytes(let bytes)) where preset == .gigabytesUsed:
+        case (.memory, .bytes(let bytes)) where preset == .gigabytesUsed || preset == .swapUsed:
             return WidgetText(string: byteText(bytes, style: .memory, locale: locale))
+        case (.memory, .pressure(let pressure)) where preset == .pressure:
+            return WidgetText(string: ReadoutFormat.pressureWord(pressure, texts: texts))
         case (.freeDisk, .bytes(let bytes)) where preset == .gigabytesFree:
             return WidgetText(string: byteText(bytes, style: .file, locale: locale))
         case (.uptime, .duration(let duration)):
@@ -148,7 +150,8 @@ nonisolated enum WidgetFormat {
     /// - A clock: every day of the leap year 2024 at 10:58:58 and at 22:58:58 in the calendar's
     ///   time zone, which holds every weekday name, every month name and both AM and PM forms.
     /// - A percent: 100 percent.
-    /// - A byte count: the capacity, 9.9 GB and 999.9 GB.
+    /// - A byte count: the capacity, 9.9 GB and 999.9 GB. Swap: 9.9 GB and 99.9 GB.
+    /// - A memory pressure: its three words in the language.
     /// - A duration: 0 min, 1 min, 59 min, 1 h 1 min, 23 h 59 min, 1 day 1 h, 1 day 1 min,
     ///   99 days 23 h, 99 days 59 min, 999 days 23 h and 999 days 59 min. A countdown whose moment
     ///   lies more than 999 days away also gets its own widest texts, with a day count that
@@ -234,6 +237,16 @@ nonisolated enum WidgetFormat {
                 }
             } else {
                 rates.forEach(add)
+            }
+        case .memory where preset == .pressure:
+            for pressure in ReadoutPressure.allCases {
+                add(ReadoutFormat.pressureWord(pressure, texts: texts))
+            }
+        case .memory where preset == .swapUsed:
+            // The swap has no fixed bound: the installed memory is not one. 99.9 GB is already
+            // more than a Mac swaps in practice.
+            for gigabytes in [9.9, 99.9] {
+                add(byteText(UInt64(gigabytes * 1_073_741_824), style: .memory, locale: locale))
             }
         case .memory, .freeDisk:
             if preset == .gigabytesUsed || preset == .gigabytesFree {

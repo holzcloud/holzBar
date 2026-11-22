@@ -65,11 +65,32 @@ nonisolated enum WidgetCadence: Equatable, Sendable {
                 needsBaseline: true
             ))
         case .memory:
-            self = .interval(seconds: Self.tunedSeconds(definition, for: .memory), needsBaseline: false)
+            // Pressure is fed by the system's event and has no interval; swap and the memory in
+            // use are read at the tuned interval (D-10).
+            switch definition.preset {
+            case .pressure:
+                self = .sampled(ReadoutRequest(metrics: [.memoryPressure], intervalSeconds: 0, needsBaseline: false))
+            case .swapUsed:
+                self = .sampled(ReadoutRequest(
+                    metrics: [.swap],
+                    intervalSeconds: Self.tunedSeconds(definition, for: .memory),
+                    needsBaseline: false
+                ))
+            default:
+                self = .sampled(ReadoutRequest(
+                    metrics: [.memory],
+                    intervalSeconds: Self.tunedSeconds(definition, for: .memory),
+                    needsBaseline: false
+                ))
+            }
         case .uptime:
             self = .interval(seconds: Self.uptimeSeconds, needsBaseline: false)
         case .freeDisk:
-            self = .interval(seconds: Self.freeDiskSeconds, needsBaseline: false)
+            self = .sampled(ReadoutRequest(
+                metrics: [.diskSpace],
+                intervalSeconds: Self.freeDiskSeconds,
+                needsBaseline: false
+            ))
         case .countdown:
             if let target = definition.countdownTarget {
                 self = .countdown(target: target)

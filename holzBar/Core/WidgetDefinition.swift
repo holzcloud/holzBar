@@ -76,7 +76,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         case .dateTime: [.time, .weekdayAndTime, .dateAndTime, .weekdayDateAndTime]
         case .battery: [.percent, .percentAndState]
         case .cpu: [.percent]
-        case .memory: [.percentUsed, .gigabytesUsed]
+        case .memory: [.percentUsed, .gigabytesUsed, .pressure, .swapUsed]
         case .uptime, .countdown: [.duration, .compactDuration]
         case .freeDisk: [.gigabytesFree, .percentFree]
         case .networkSpeed: [.download, .upload, .downloadAndUpload]
@@ -165,13 +165,16 @@ nonisolated enum WidgetPreset: String, Codable, CaseIterable, Sendable {
     case read
     case write
     case readAndWrite
+    // Memory pressure and swap
+    case pressure
+    case swapUsed
 
     /// Whether the format is new and not yet tried on a Mac: the editor and the widget list show
     /// the Preview badge beside it (D-15). The maintainer flips a format to `false` after the
     /// Mac test.
     var isPreview: Bool {
         switch self {
-        case .download, .upload, .downloadAndUpload, .read, .write, .readAndWrite: true
+        case .download, .upload, .downloadAndUpload, .read, .write, .readAndWrite, .pressure, .swapUsed: true
         case .time, .weekdayAndTime, .dateAndTime, .weekdayDateAndTime, .percent, .percentAndState,
             .percentUsed, .gigabytesUsed, .duration, .compactDuration, .gigabytesFree, .percentFree,
             .narrowText, .mediumText, .wideText: false
@@ -234,6 +237,16 @@ nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable 
     /// on this Mac, so it travels with an export; a launcher whose app is not installed does
     /// nothing.
     var launcherBundleID: String?
+
+    /// Whether the editor offers a refresh interval for the widget: its source has refresh choices
+    /// and its format is not fed by the system's own event. The memory pressure changes when the
+    /// system says so and is never read on a timer (D-10), so it has no interval to set.
+    var offersRefresh: Bool {
+        guard kind == .text, !source.refreshChoices.isEmpty else {
+            return false
+        }
+        return !(source == .memory && preset == .pressure)
+    }
 
     /// The name of the widget's status item (D-17).
     var autosaveName: String {

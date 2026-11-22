@@ -115,6 +115,8 @@ struct WidgetEditor: View {
         case .read: Text("Read")
         case .write: Text("Write")
         case .readAndWrite: Text("Read and Write")
+        case .pressure: Text("Pressure")
+        case .swapUsed: Text("Swap Used")
         }
     }
 
@@ -181,7 +183,8 @@ private struct TextWidgetFields: View {
             }
             .settingsSubRow()
         }
-        if !refreshChoices.isEmpty {
+        // The memory pressure follows the system's event and has no interval to set.
+        if definition.offersRefresh, !refreshChoices.isEmpty {
             SettingsPickerRow(Text("Refresh every"), selection: binding(\.refreshSeconds)) {
                 ForEach(refreshChoices, id: \.self) { seconds in
                     Text("\(seconds) s")

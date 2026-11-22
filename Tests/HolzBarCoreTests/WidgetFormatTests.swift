@@ -438,6 +438,52 @@ struct WidgetFormatTests {
         }
     }
 
+    @Test("Memory pressure is a word, swap is a memory-style byte count (MON-02)")
+    func pressureAndSwapText() {
+        let pressure = definition(.memory, preset: .pressure)
+        #expect(text(.pressure(.normal), pressure).string == "Normal")
+        #expect(text(.pressure(.warning), pressure).string == "High")
+        #expect(text(.pressure(.critical), pressure).string == "Critical")
+        let german = ReadoutTexts(
+            byteSymbols: ["kB", "MB", "GB"], bitSymbols: ["kb", "Mb", "Gb"], perSecondFormat: "%@/s",
+            pressureNormal: "Normal", pressureHigh: "Hoch", pressureCritical: "Kritisch",
+            thermalNominal: "", thermalFair: "", thermalSerious: "", thermalCritical: "",
+            performanceLetter: "P", efficiencyLetter: "E", readFormat: "R %@", writeFormat: "W %@", wattsFormat: "%@ W"
+        )
+        let localized = WidgetFormat.text(
+            for: .pressure(.warning), definition: pressure, locale: english, calendar: calendar, texts: german
+        )
+        #expect(localized.string == "Hoch")
+        // A pressure for another format, or another reading for the pressure format, is no value.
+        #expect(text(.pressure(.normal), definition(.memory)).isUnavailable)
+        #expect(text(.fraction(0.5), pressure).isUnavailable)
+        #expect(text(.pressure(.normal), definition(.cpu)).isUnavailable)
+        let swap = definition(.memory, preset: .swapUsed)
+        #expect(plain(text(.bytes(1_288_490_189), swap).string) == "1.2 GB")
+        #expect(text(.fraction(0.5), swap).isUnavailable)
+        // The old memory formats read as before.
+        #expect(plain(text(.fraction(0.5), definition(.memory, preset: .percentUsed)).string) == "50%")
+        #expect(text(.bytes(1_288_490_189), definition(.memory, preset: .percentUsed)).isUnavailable)
+    }
+
+    @Test("Pressure and swap have fixed width samples (MON-09)")
+    func pressureAndSwapWidth() {
+        func samples(_ preset: WidgetPreset) -> [String] {
+            WidgetFormat.widthSamples(
+                for: definition(.memory, preset: preset),
+                locale: english,
+                calendar: calendar,
+                capacityBytes: 17_179_869_184
+            ).map(plain)
+        }
+        #expect(samples(.pressure) == ["Normal", "High", "Critical"])
+        let swap = samples(.swapUsed)
+        #expect(swap.contains("9.9 GB"))
+        #expect(swap.contains("99.9 GB"))
+        // The installed memory is no bound of the swap, so it is not a sample.
+        #expect(!swap.contains("16 GB"))
+    }
+
     @Test("A script widget shows its line as given, never parsed (T-12-25)")
     func scriptLineIsShownAsGiven() {
         let lines = [

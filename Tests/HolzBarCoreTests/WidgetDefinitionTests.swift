@@ -57,7 +57,10 @@ struct WidgetDefinitionTests {
         )
         // Only the new source is a Preview (D-15).
         #expect(WidgetSource.allCases.filter(\.isPreview) == [.networkSpeed, .diskActivity])
-        #expect(WidgetPreset.allCases.filter(\.isPreview) == [.download, .upload, .downloadAndUpload, .read, .write, .readAndWrite])
+        #expect(
+            WidgetPreset.allCases.filter(\.isPreview)
+                == [.download, .upload, .downloadAndUpload, .read, .write, .readAndWrite, .pressure, .swapUsed]
+        )
     }
 
     @Test("Each source offers a fixed set of presets (D-09)")
@@ -65,17 +68,17 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource.dateTime.presets == [.time, .weekdayAndTime, .dateAndTime, .weekdayDateAndTime])
         #expect(WidgetSource.battery.presets == [.percent, .percentAndState])
         #expect(WidgetSource.cpu.presets == [.percent])
-        #expect(WidgetSource.memory.presets == [.percentUsed, .gigabytesUsed])
+        #expect(WidgetSource.memory.presets == [.percentUsed, .gigabytesUsed, .pressure, .swapUsed])
         #expect(WidgetSource.uptime.presets == [.duration, .compactDuration])
         #expect(WidgetSource.countdown.presets == [.duration, .compactDuration])
         #expect(WidgetSource.freeDisk.presets == [.gigabytesFree, .percentFree])
         #expect(WidgetSource.networkSpeed.presets == [.download, .upload, .downloadAndUpload])
         #expect(WidgetSource.diskActivity.presets == [.read, .write, .readAndWrite])
-        // The eighteen formats of the sources, and the three widths that belong to the script kind
+        // The twenty formats of the sources, and the three widths that belong to the script kind
         // alone (D-23).
-        #expect(Set(WidgetSource.allCases.flatMap(\.presets)).count == 18)
+        #expect(Set(WidgetSource.allCases.flatMap(\.presets)).count == 20)
         #expect(WidgetKind.scriptPresets == [.narrowText, .mediumText, .wideText])
-        #expect(WidgetPreset.allCases.count == 21)
+        #expect(WidgetPreset.allCases.count == 23)
         let sourcePresets = Set(WidgetSource.allCases.flatMap(\.presets))
         #expect(sourcePresets.isDisjoint(with: WidgetKind.scriptPresets))
         #expect(sourcePresets.union(WidgetKind.scriptPresets).count == WidgetPreset.allCases.count)
@@ -200,6 +203,24 @@ struct WidgetDefinitionTests {
             #expect(widget.validated(now: now)?.showsSeconds == false, "\(source)")
         }
         #expect(WidgetDefinition.text(source: .dateTime, uses24HourClock: true, now: now).showsSeconds == false)
+    }
+
+    @Test("An event-fed format has no refresh interval to offer (D-10, UI contract Refresh every)")
+    func offersRefresh() {
+        func widget(_ source: WidgetSource, _ preset: WidgetPreset) -> WidgetDefinition {
+            WidgetDefinition(id: UUID(), kind: .text, source: source, preset: preset)
+        }
+        #expect(!widget(.memory, .pressure).offersRefresh)
+        #expect(widget(.memory, .percentUsed).offersRefresh)
+        #expect(widget(.memory, .gigabytesUsed).offersRefresh)
+        #expect(widget(.memory, .swapUsed).offersRefresh)
+        #expect(!widget(.battery, .percent).offersRefresh)
+        #expect(!widget(.freeDisk, .gigabytesFree).offersRefresh)
+        #expect(widget(.cpu, .percent).offersRefresh)
+        #expect(widget(.networkSpeed, .download).offersRefresh)
+        #expect(widget(.diskActivity, .read).offersRefresh)
+        // A button and a script widget have no interval either, whatever their source holds.
+        #expect(!WidgetDefinition.button(title: "Run").offersRefresh)
     }
 
     @Test("CPU and memory keep their minimum intervals (D-15)")

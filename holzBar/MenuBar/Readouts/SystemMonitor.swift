@@ -16,6 +16,9 @@ import Observation
 /// the consumer: it keeps its own baseline, so two consumers with different intervals each measure
 /// from their own previous sample.
 ///
+/// The memory pressure is an event, never polled (D-10): while a consumer asks for it the monitor
+/// holds one dispatch source of the system's memory pressure events, and cancels it when no one asks.
+///
 /// With no consumer, or while the Mac rests, there is no task and no observer (MON-08): the
 /// ledger is idle and nothing runs. Everything here lives on the main actor, so no lock is
 /// needed (D-10): the sampler gets plain `Sendable` arguments and returns a `Sendable` sample.
@@ -48,6 +51,11 @@ final class SystemMonitor {
     @ObservationIgnored private var powerTask: Task<Void, Never>?
     @ObservationIgnored private var isPaused = false
     @ObservationIgnored private var isLowPowerMode = false
+    /// The system's memory pressure events, while a consumer asks for the pressure.
+    @ObservationIgnored private var pressureWatch: MemoryPressureWatch?
+    /// The free disk space as the last precise read left it, and when that was (D-10).
+    @ObservationIgnored private var preciseDiskSpace: DiskSpace?
+    @ObservationIgnored private var preciseDiskSpaceAt: ContinuousClock.Instant?
 
     /// Keeps the app state, which says whether the Mac rests. Starts nothing: the monitor wakes
     /// only when a consumer registers.
@@ -105,7 +113,9 @@ final class SystemMonitor {
         )
         visibleCount = ledger.visibleCount
         backgroundCount = ledger.backgroundCount
-        observerCount = ReadoutSchedule.observers(ledger: ledger, isPaused: isPaused).count
+        let observers = ReadoutSchedule.observers(ledger: ledger, isPaused: isPaused)
+        observerCount = observers.count
+        updateEventObservers(observers)
         isTimerArmed = tick != nil
         guard let tick else {
             return
@@ -117,17 +127,26 @@ final class SystemMonitor {
             } catch {
                 return
             }
-            let sample = await SystemSamplers.read(tick.metrics, refreshesDiskSpace: false)
-            self?.deliver(sample, for: tick, token: token)
+            // The precise capacity of the volume is read about once a minute (D-10); the decision
+            // is made here, on the main actor, where the cache lives.
+            let refreshesDisk = self?.refreshesDiskSpace(for: tick) ?? false
+            let sample = await SystemSamplers.read(tick.metrics, refreshesDiskSpace: refreshesDisk)
+            self?.deliver(sample, for: tick, token: token, refreshedDiskSpace: refreshesDisk)
         }
     }
 
     /// Hands a sample to the consumers of its tick and schedules the next one. A tick that was
     /// replaced or cancelled while it read delivers nothing (T-94-05).
-    private func deliver(_ sample: ReadoutSample, for tick: ReadoutSchedule.Tick, token: Int) {
+    private func deliver(
+        _ read: ReadoutSample,
+        for tick: ReadoutSchedule.Tick,
+        token: Int,
+        refreshedDiskSpace: Bool
+    ) {
         guard token == generation else {
             return
         }
+        let sample = cachingDiskSpace(of: read, refreshed: refreshedDiskSpace)
         samplesTaken += 1
         for id in tick.consumers where sinks[id] != nil {
             deliveries[id] = ReadoutSchedule.Delivery(last: sample.at, count: (deliveries[id]?.count ?? 0) + 1)
@@ -136,6 +155,66 @@ final class SystemMonitor {
             sinks[id]?(sample)
         }
         reschedule()
+    }
+
+    // MARK: Disk space
+
+    /// Whether the tick reads the precise free space: it carries the disk space and the last
+    /// precise read is a minute old or missing.
+    private func refreshesDiskSpace(for tick: ReadoutSchedule.Tick) -> Bool {
+        tick.metrics.contains(.diskSpace)
+            && ReadoutSchedule.refreshesDiskSpace(lastRefresh: preciseDiskSpaceAt, now: .now)
+    }
+
+    /// Keeps a precise read, or puts the kept precise figure into a sample that has only the
+    /// cheap one, so a consumer always gets the figure Finder shows and the capacity is asked of
+    /// the system once a minute (D-10).
+    private func cachingDiskSpace(of sample: ReadoutSample, refreshed: Bool) -> ReadoutSample {
+        guard sample.read.contains(.diskSpace) else {
+            return sample
+        }
+        if refreshed {
+            preciseDiskSpace = sample.diskSpace
+            preciseDiskSpaceAt = sample.diskSpace == nil ? nil : sample.at
+            return sample
+        }
+        guard var space = sample.diskSpace, let kept = preciseDiskSpace else {
+            return sample
+        }
+        space.available = kept.available
+        space.total = kept.total
+        var cached = sample
+        cached.diskSpace = space
+        return cached
+    }
+
+    // MARK: Event observers
+
+    /// Starts or stops the event sources to match the schedule's observer plan: one source while
+    /// a consumer asks for the memory pressure, none otherwise (MON-08).
+    private func updateEventObservers(_ wanted: Set<ReadoutMetric>) {
+        if wanted.contains(.memoryPressure) {
+            guard pressureWatch == nil else {
+                return
+            }
+            pressureWatch = MemoryPressureWatch { [weak self] level in
+                self?.pressureChanged(level)
+            }
+        } else if let watch = pressureWatch {
+            watch.cancel()
+            pressureWatch = nil
+        }
+    }
+
+    /// Delivers the new level to every consumer that asks for it, as a sample that holds the
+    /// pressure and nothing else.
+    private func pressureChanged(_ level: ReadoutPressure) {
+        var sample = ReadoutSample(at: ContinuousClock.now)
+        sample.read = [.memoryPressure]
+        sample.memoryPressure = level
+        for id in ledger.consumerIDs where ledger.request(for: id)?.metrics.contains(.memoryPressure) == true {
+            sinks[id]?(sample)
+        }
     }
 
     // MARK: Observations
@@ -187,5 +266,34 @@ final class SystemMonitor {
         }
         isLowPowerMode = isOn
         reschedule()
+    }
+}
+
+/// The system's memory pressure events as one dispatch source on the main queue (D-10, D-12).
+/// It exists only while a consumer asks for the pressure; cancelling it ends the events.
+private nonisolated final class MemoryPressureWatch {
+    private let source: any DispatchSourceMemoryPressure
+
+    init(onChange: @escaping @MainActor @Sendable (ReadoutPressure) -> Void) {
+        let source = DispatchSource.makeMemoryPressureSource(eventMask: [.normal, .warning, .critical], queue: .main)
+        source.setEventHandler { [weak source] in
+            guard let mask = source?.data.rawValue, let level = ReadoutPressure(eventMask: mask) else {
+                return
+            }
+            // The source reports on the main queue.
+            MainActor.assumeIsolated {
+                onChange(level)
+            }
+        }
+        self.source = source
+        source.resume()
+    }
+
+    func cancel() {
+        source.cancel()
+    }
+
+    deinit {
+        source.cancel()
     }
 }

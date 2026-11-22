@@ -581,11 +581,19 @@ struct WidgetRefreshPolicyTests {
         .sampled(ReadoutRequest(metrics: [.diskActivity], intervalSeconds: seconds, needsBaseline: true))
     }
 
+    /// The cadence of a memory or disk space widget: the shared monitor feeds it, with no baseline.
+    private func memoryCadence(_ metrics: Set<ReadoutMetric>, seconds: Int) -> WidgetCadence {
+        .sampled(ReadoutRequest(metrics: metrics, intervalSeconds: seconds, needsBaseline: false))
+    }
+
     @Test("The cadence follows the source of the definition")
     func cadenceFromDefinition() {
         let now = date(0)
-        func make(_ source: WidgetSource, refreshSeconds: Int? = nil) -> WidgetDefinition {
+        func make(_ source: WidgetSource, preset: WidgetPreset? = nil, refreshSeconds: Int? = nil) -> WidgetDefinition {
             var made = WidgetDefinition.text(source: source, uses24HourClock: true, now: now)
+            if let preset {
+                made.preset = preset
+            }
             if let refreshSeconds {
                 made.refreshSeconds = refreshSeconds
             }
@@ -606,9 +614,19 @@ struct WidgetRefreshPolicyTests {
         #expect(WidgetCadence(definition: make(.diskActivity)) == diskCadence(seconds: 2))
         #expect(WidgetCadence(definition: make(.diskActivity, refreshSeconds: 10)) == diskCadence(seconds: 10))
         #expect(WidgetCadence(definition: make(.diskActivity, refreshSeconds: 1)) == diskCadence(seconds: 2))
-        #expect(WidgetCadence(definition: make(.memory)) == .interval(seconds: 10, needsBaseline: false))
+        #expect(WidgetCadence(definition: make(.memory)) == memoryCadence([.memory], seconds: 10))
+        #expect(WidgetCadence(definition: make(.memory, preset: .gigabytesUsed)) == memoryCadence([.memory], seconds: 10))
+        #expect(WidgetCadence(definition: make(.memory, preset: .swapUsed)) == memoryCadence([.swap], seconds: 10))
+        #expect(
+            WidgetCadence(definition: make(.memory, preset: .swapUsed, refreshSeconds: 30))
+                == memoryCadence([.swap], seconds: 30)
+        )
+        // Pressure is fed by the system's event: no interval, no baseline (D-10).
+        #expect(WidgetCadence(definition: make(.memory, preset: .pressure)) == memoryCadence([.memoryPressure], seconds: 0))
+        #expect(WidgetCadence(definition: make(.memory, preset: .pressure, refreshSeconds: 30)) == memoryCadence([.memoryPressure], seconds: 0))
         #expect(WidgetCadence(definition: make(.uptime)) == .interval(seconds: 60, needsBaseline: false))
-        #expect(WidgetCadence(definition: make(.freeDisk)) == .interval(seconds: 300, needsBaseline: false))
+        #expect(WidgetCadence(definition: make(.freeDisk)) == memoryCadence([.diskSpace], seconds: 300))
+        #expect(WidgetCadence(definition: make(.freeDisk, preset: .percentFree)) == memoryCadence([.diskSpace], seconds: 300))
         let countdown = make(.countdown)
         let target = countdown.countdownTarget ?? now
         #expect(WidgetCadence(definition: countdown) == .countdown(target: target))
@@ -625,9 +643,9 @@ struct WidgetRefreshPolicyTests {
 
         var memory = WidgetDefinition.text(source: .memory, uses24HourClock: true, now: date(0))
         memory.refreshSeconds = 1
-        #expect(WidgetCadence(definition: memory) == .interval(seconds: 5, needsBaseline: false))
+        #expect(WidgetCadence(definition: memory) == memoryCadence([.memory], seconds: 5))
         memory.refreshSeconds = nil
-        #expect(WidgetCadence(definition: memory) == .interval(seconds: 10, needsBaseline: false))
+        #expect(WidgetCadence(definition: memory) == memoryCadence([.memory], seconds: 10))
     }
 
     @Test("A countdown without a moment has nothing to count")

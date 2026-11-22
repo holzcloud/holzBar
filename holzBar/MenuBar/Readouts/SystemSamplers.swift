@@ -24,18 +24,38 @@ nonisolated enum SystemSamplers {
     ///
     /// The sample lists in ``ReadoutSample/read`` exactly the metrics this function filled, so a
     /// consumer can tell a metric that failed (listed, value `nil`) from one that was not asked
-    /// for. The total CPU, the network counters and the disk counters are filled so far; the plans that add a metric
-    /// add its reader here.
+    /// for. The total CPU, the memory, the swap, the memory pressure level, the free disk space, the
+    /// network counters and the disk counters are filled so far; the plans that add a metric add its
+    /// reader here.
     ///
     /// - Parameters:
     ///   - metrics: What to read. A metric that has no reader yet is left out of the sample.
-    ///   - refreshesDiskSpace: Whether the free disk space is read again, which is not cheap.
+    ///   - refreshesDiskSpace: Whether the precise free disk space (the figure Finder shows) is read;
+    ///     otherwise only the cheap `statfs` figure is.
     @concurrent
     static func read(_ metrics: Set<ReadoutMetric>, refreshesDiskSpace: Bool) async -> ReadoutSample {
         var sample = ReadoutSample(at: ContinuousClock.now)
         if metrics.contains(.cpu) {
             sample.read.insert(.cpu)
             sample.cpuTicks = cpuTicks()
+        }
+        if metrics.contains(.memory) {
+            sample.read.insert(.memory)
+            sample.memory = memory()
+        }
+        if metrics.contains(.swap) {
+            sample.read.insert(.swap)
+            sample.swap = swapUsage()
+        }
+        if metrics.contains(.memoryPressure) {
+            // The level at the time of the first reading; later changes come from the monitor's
+            // event source, never from a timer (D-10).
+            sample.read.insert(.memoryPressure)
+            sample.memoryPressure = memoryPressureLevel()
+        }
+        if metrics.contains(.diskSpace) {
+            sample.read.insert(.diskSpace)
+            sample.diskSpace = diskSpace(precise: refreshesDiskSpace)
         }
         if metrics.contains(.network) {
             sample.read.insert(.network)
@@ -74,7 +94,7 @@ nonisolated enum SystemSamplers {
 
     /// The memory in use, counted the way Activity Monitor counts it, and the installed memory,
     /// from `host_statistics64` with `HOST_VM_INFO64`.
-    static func memory() -> (used: UInt64, total: UInt64)? {
+    static func memory() -> MemoryUse? {
         var statistics = vm_statistics64_data_t()
         // The count is computed from the size of the structure in `integer_t` units, because the
         // C macro `HOST_VM_INFO64_COUNT` is not imported.
@@ -98,20 +118,63 @@ nonisolated enum SystemSamplers {
             wired: UInt64(statistics.wire_count),
             compressed: UInt64(statistics.compressor_page_count)
         )
-        return (pages.usedBytes(pageSize: UInt64(pageSize)), ProcessInfo.processInfo.physicalMemory)
+        return MemoryUse(used: pages.usedBytes(pageSize: UInt64(pageSize)), total: ProcessInfo.processInfo.physicalMemory)
     }
 
-    /// The space available for important usage and the capacity of the startup volume.
-    static func diskSpace() -> (available: Int64, total: Int64)? {
-        let keys: Set<URLResourceKey> = [.volumeAvailableCapacityForImportantUsageKey, .volumeTotalCapacityKey]
-        guard
-            let values = try? URL(filePath: "/").resourceValues(forKeys: keys),
-            let available = values.volumeAvailableCapacityForImportantUsage,
-            let total = values.volumeTotalCapacity
-        else {
+    /// The swap in use and its total, from `sysctl vm.swapusage`.
+    static func swapUsage() -> SwapUsage? {
+        var usage = xsw_usage()
+        var size = MemoryLayout<xsw_usage>.size
+        guard sysctlbyname("vm.swapusage", &usage, &size, nil, 0) == 0, size == MemoryLayout<xsw_usage>.size else {
             return nil
         }
-        return (available, Int64(total))
+        return SwapUsage(total: usage.xsu_total, used: usage.xsu_used)
+    }
+
+    /// The memory pressure level the kernel reports now, from
+    /// `sysctl kern.memorystatus_vm_pressure_level`.
+    static func memoryPressureLevel() -> ReadoutPressure? {
+        var level: Int32 = 0
+        var size = MemoryLayout<Int32>.size
+        guard sysctlbyname("kern.memorystatus_vm_pressure_level", &level, &size, nil, 0) == 0 else {
+            return nil
+        }
+        return ReadoutPressure(kernelLevel: Int(level))
+    }
+
+    /// The free space and the capacity of the startup volume.
+    ///
+    /// The cheap figure is `statfs`, about a microsecond. The precise one is the space available
+    /// for important usage, which counts what the system may free and is the figure Finder shows;
+    /// it is asked of the system only when `precise` is true. When the precise figure cannot be
+    /// read, the cheap one stands in for it.
+    ///
+    /// - Returns: `nil` when neither could be read.
+    static func diskSpace(precise: Bool) -> DiskSpace? {
+        var statistics = statfs()
+        var cheap: (available: Int64, total: Int64)?
+        if statfs("/", &statistics) == 0 {
+            let blockSize = Int64(statistics.f_bsize)
+            let available = Int64(clamping: statistics.f_bavail).multipliedReportingOverflow(by: blockSize)
+            let total = Int64(clamping: statistics.f_blocks).multipliedReportingOverflow(by: blockSize)
+            if !available.overflow, !total.overflow {
+                cheap = (available.partialValue, total.partialValue)
+            }
+        }
+        if precise {
+            let keys: Set<URLResourceKey> = [.volumeAvailableCapacityForImportantUsageKey, .volumeTotalCapacityKey]
+            if
+                let values = try? URL(filePath: "/").resourceValues(forKeys: keys),
+                let available = values.volumeAvailableCapacityForImportantUsage,
+                let total = values.volumeTotalCapacity
+            {
+                return DiskSpace(available: available, total: Int64(total), quickAvailable: cheap?.available)
+            }
+        }
+        guard let cheap else {
+            return nil
+        }
+        return DiskSpace(available: cheap.available, total: cheap.total, quickAvailable: cheap.available)
     }
 
     /// The most interface records of one table that are read; a table that is longer is cut, so a

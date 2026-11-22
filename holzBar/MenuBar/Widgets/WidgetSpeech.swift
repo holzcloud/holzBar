@@ -153,7 +153,7 @@ nonisolated enum WidgetSpeech {
             case .onAdapter: return String(localized: "\(level) percent, on power adapter")
             }
         case (.cpu, .fraction(let fraction)),
-            (.memory, .fraction(let fraction)) where definition.preset != .gigabytesUsed,
+            (.memory, .fraction(let fraction)) where definition.preset == .percentUsed,
             (.freeDisk, .fraction(let fraction)) where definition.preset != .gigabytesFree:
             guard fraction.isFinite else {
                 return unavailable
@@ -165,6 +165,13 @@ nonisolated enum WidgetSpeech {
             return gigabytes(bytes, perGigabyte: 1_073_741_824, locale: locale)
         case (.freeDisk, .bytes(let bytes)) where definition.preset == .gigabytesFree:
             return gigabytes(bytes, perGigabyte: 1_000_000_000, locale: locale)
+        case (.memory, .pressure(let pressure)) where definition.preset == .pressure:
+            let word = switch pressure {
+            case .normal: String(localized: "Normal")
+            case .warning: String(localized: "High")
+            case .critical: String(localized: "Critical")
+            }
+            return String(localized: "Memory pressure \(word)")
         case (.uptime, .duration(let duration)):
             return spoken(duration, roundingUp: false, locale: locale)
         case (.countdown, .countdown(let remaining, let isPassed)):

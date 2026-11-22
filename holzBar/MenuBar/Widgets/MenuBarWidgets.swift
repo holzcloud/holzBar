@@ -949,7 +949,7 @@ final class MenuBarWidgets {
         case (.memory, .gigabytesUsed):
             return ProcessInfo.processInfo.physicalMemory
         case (.freeDisk, .gigabytesFree):
-            return SystemSamplers.diskSpace().map { UInt64(max($0.total, 0)) }
+            return SystemSamplers.diskSpace(precise: true).map { UInt64(max($0.total, 0)) }
         default:
             return nil
         }
@@ -1213,31 +1213,9 @@ final class MenuBarWidgets {
                 return .unavailable
             }
             return .battery(percent: percent, state: battery.state)
-        case .cpu, .networkSpeed, .diskActivity:
+        case .cpu, .networkSpeed, .diskActivity, .memory, .freeDisk:
             // The shared monitor feeds it; the first reading after a reveal is only the baseline.
             return readoutLink.lastReading(for: definition.id) ?? .unavailable
-        case .memory:
-            guard let memory = SystemSamplers.memory() else {
-                return .unavailable
-            }
-            if definition.preset == .gigabytesUsed {
-                return .bytes(memory.used)
-            }
-            guard let fraction = WidgetReadings.usedFraction(used: memory.used, total: memory.total) else {
-                return .unavailable
-            }
-            return .fraction(fraction)
-        case .freeDisk:
-            guard let disk = SystemSamplers.diskSpace() else {
-                return .unavailable
-            }
-            if definition.preset == .gigabytesFree {
-                return disk.available >= 0 ? .bytes(UInt64(disk.available)) : .unavailable
-            }
-            guard let fraction = WidgetReadings.diskFreeFraction(available: disk.available, total: disk.total) else {
-                return .unavailable
-            }
-            return .fraction(fraction)
         case .uptime:
             guard let boot = WidgetSamplers.bootDate(), let duration = WidgetReadings.uptime(now: Date(), boot: boot) else {
                 return .unavailable
