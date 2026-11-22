@@ -797,9 +797,13 @@ final class MenuBarWidgets {
             }
             button.imagePosition = definition.builtIn == .timer ? .imageLeading : .imageOnly
         } else if definition.kind != .button, definition.showsSymbol {
-            // A text widget's source symbol, or a script widget's terminal symbol (D-11).
-            let image = NSImage(systemSymbolName: definition.symbolName, accessibilityDescription: nil)
+            // A text widget's source symbol, or a script widget's terminal symbol (D-11). The
+            // lowest device's is drawn in its slot, as the unknown symbol until a reading (D-26).
+            let image = DeviceBatteryWidget.isWidget(definition)
+                ? DeviceBatteryWidget.slotImage(symbol: ConnectedDeviceList.unknownSymbol, font: Self.font)
+                : NSImage(systemSymbolName: definition.symbolName, accessibilityDescription: nil)
             image?.isTemplate = true
+            runtime.drawnSymbol = DeviceBatteryWidget.isWidget(definition) ? ConnectedDeviceList.unknownSymbol : nil
             button.image = image
             button.imagePosition = .imageLeading
         } else if definition.showsButtonSymbolOnly {
@@ -937,7 +941,10 @@ final class MenuBarWidgets {
         button.attributedTitle = title
         let fitting = button.fittingSize.width
         button.attributedTitle = previous
-        let symbolWidth = button.image?.size.width ?? 0
+        // The lowest device's symbol slot is one width for every device (D-26).
+        let symbolWidth = DeviceBatteryWidget.isWidget(definition) && definition.showsSymbol
+            ? DeviceBatteryWidget.slotWidth(font: font)
+            : button.image?.size.width ?? 0
         let minimum = max(widestWidth, title.size().width) + symbolWidth + Self.minimumPadding
         return max(fitting, minimum).rounded(.up)
     }
@@ -1084,7 +1091,8 @@ final class MenuBarWidgets {
         var string = text.string
         switch definition.kind {
         case .text:
-            symbolName = definition.showsSymbol ? definition.source.symbolName : nil
+            // The lowest device's picture shows its kind, never its name (D-26).
+            symbolName = definition.showsSymbol ? text.leadingSymbol ?? definition.source.symbolName : nil
         case .button:
             if definition.showsButtonSymbolOnly {
                 symbolName = WidgetDefinition.buttonSymbolName
