@@ -19,10 +19,19 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
     /// The shared app state.
     private weak var appState: AppState?
 
-    /// The presses held back and not yet released, by mouse event number. A press's own
-    /// release is held back with it; no other click's release is ever taken (see
-    /// `ClickPairing`).
-    private var pairing = ClickPairing()
+    /// What the tap's own thread decides a click from: a snapshot the main actor refreshes, and
+    /// the presses held back and not yet released (see `ClickPairing`). Nothing in it is
+    /// main-actor state (D-05).
+    private let state = ClickBridgeState27()
+
+    /// Lets the tap's callback, which runs off the main actor, reach the bridge only from a task
+    /// on the main actor.
+    private let box = BridgeBox()
+
+    /// What keeps the snapshot current: an observation of the concealment flag, the clock
+    /// setting and the full-screen flag, and the notifications that move the bar's geometry.
+    private var snapshotLoop: ObservationLoop?
+    private var snapshotTasks = [Task<Void, Never>]()
 
     /// System items that do not open from an Accessibility press, so a click on them has to
     /// go through MenuBarAgent. Seeded with what was measured on macOS 27.0; anything else
@@ -45,25 +54,60 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
     /// The tap, created on first use. It sees right and other clicks only to forget the panel
     /// they may close (a right click on the desktop closes Notification Center) and lets them
     /// through unchanged.
-    private lazy var tap = EventTap(
-        types: [.leftMouseDown, .leftMouseUp, .rightMouseDown, .otherMouseDown],
-        location: .hidEventTap,
-        placement: .headInsertEventTap,
-        option: .defaultTap,
-        disabledHandler: { [weak self] _ in
-            self?.tapWasDisabled() ?? .reenable
-        },
-        callback: { [weak self] _, event in
-            guard let self else {
-                return event
+    ///
+    /// Its callback runs on a thread of its own (D-05), so a busy main thread cannot make macOS
+    /// disable it by timeout: it decides from `state` alone and starts a task on the main actor
+    /// for everything else.
+    private lazy var tap: EventTap = {
+        let state = state
+        let box = box
+        return EventTap(
+            types: [.leftMouseDown, .leftMouseUp, .rightMouseDown, .otherMouseDown],
+            location: .hidEventTap,
+            placement: .headInsertEventTap,
+            option: .defaultTap,
+            runLoop: .ownThread(name: "com.holzcloud.holzBar.ClickBridge27"),
+            disabledHandler: { _ in
+                let action = state.tapWasDisabled()
+                Task { @MainActor in
+                    // A disabled tap saw no click that may have closed the panel.
+                    box.bridge?.panelMemory.forget()
+                }
+                return action
+            },
+            callback: { event in
+                let decision = state.decide(event)
+                switch decision {
+                case .pass:
+                    return event
+                case .swallow:
+                    return nil
+                case .passForgettingPanel:
+                    Task { @MainActor in
+                        box.bridge?.continueClick(decision)
+                    }
+                    return event
+                case .hold(let hold):
+                    // The press is held, so a bridge that is gone by the time the task runs
+                    // still replays the click: it is never lost.
+                    Task { @MainActor in
+                        if let bridge = box.bridge {
+                            bridge.continueClick(decision)
+                        } else {
+                            Self.replayClick(at: hold.barClick.location)
+                        }
+                    }
+                    return nil
+                }
             }
-            return handle(event)
-        }
-    )
+        )
+    }()
 
     /// How many times macOS disabled the bridge's tap since holzBar started (a callback that
     /// took too long, or user input). Read by Copy Diagnostics.
-    private(set) static var tapDisables = 0
+    static var tapDisables: Int {
+        ClickBridgeState27.disableCount
+    }
 
     /// Creates a bridge for the given app state.
     init(appState: AppState) {
@@ -71,124 +115,143 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
     }
 
     func start() {
+        box.bridge = self
+        refreshSnapshot()
+        observeSnapshotInputs()
         tap.enable()
     }
 
     func stop() {
         tap.disable()
+        snapshotLoop?.cancel()
+        snapshotLoop = nil
+        snapshotTasks.forEach { $0.cancel() }
+        snapshotTasks.removeAll()
+        // A stopped bridge decides nothing; every click passes.
+        state.invalidate()
         // A stopped tap sees no release any more, so no held press waits for one.
-        _ = pairing.flush()
+        state.flush()
         // The stopped tap no longer sees the clicks that close the panel.
         panelMemory.forget()
     }
 
-    /// Answers macOS disabling the tap: no held press waits for a release any more, and the
-    /// tap is enabled again only while holzBar still has Accessibility.
+    // MARK: The snapshot the tap thread decides from
+
+    /// Fills the snapshot the tap thread decides from (the main actor knows these facts, the
+    /// tap thread must not ask for them).
     ///
-    /// The flushed presses are replayed by their running bridge task or were never bridged, so
-    /// their late releases must pass. Without Accessibility an enabled tap would keep failing
-    /// and could hold input back, so it stays off; the health check of `HIDEventManager`
-    /// starts the bridge again when the permission comes back.
-    private func tapWasDisabled() -> EventTap.DisabledAction {
-        Self.tapDisables += 1
-        let flushed = pairing.flush()
-        if !flushed.isEmpty {
-            Self.bridgeLogger.notice(
-                "Click bridge: the tap was disabled, \(flushed.count, privacy: .public) held press(es) let go"
-            )
+    /// Runs when the bridge starts and whenever one of them changes: the concealment flag, the
+    /// clock setting and the full-screen flag (observed), the item area, the display setup, the
+    /// active space (notifications), and after a click in the bar. A click that arrives before a
+    /// refresh lands decides on the last snapshot, and a snapshot gone stale is made good by
+    /// `continueClick(_:)`, which replays instead of lifting concealment once it finds the items
+    /// no longer concealed.
+    func refreshSnapshot() {
+        guard let appState else {
+            state.invalidate()
+            return
         }
-        panelMemory.forget()
-        guard AXIsProcessTrusted() else {
-            Self.bridgeLogger.notice("Click bridge: the tap was disabled and Accessibility is gone, leaving it off")
-            return .stop
+        var snapshot = ClickBridgeState27.Snapshot()
+        snapshot.isValid = true
+        snapshot.isConcealing = appState.concealer27.isConcealing
+        snapshot.clockOpensNotificationCenter = appState.settings.general.clockOpensNotificationCenter
+        snapshot.isFullscreenSpace = appState.activeSpace.isFullscreen
+        snapshot.ownItemFrames = Self.ownControlItemFrames(appState: appState)
+        let thickness = NSStatusBar.system.thickness
+        for screen in NSScreen.screens {
+            snapshot.barHeights[screen.displayID] = max(screen.frame.maxY - screen.visibleFrame.maxY, thickness)
         }
-        return .reenable
+        state.update(snapshot)
     }
 
-    /// Marks the clicks holzBar replays, so the tap lets them through.
-    private static let replayedClickMarker: Int64 = 0x1CE_27_C1C
+    /// Keeps the snapshot current until the bridge stops.
+    private func observeSnapshotInputs() {
+        guard let appState, snapshotLoop == nil else {
+            return
+        }
+        struct Inputs: Equatable {
+            var isConcealing: Bool
+            var clockOpensNotificationCenter: Bool
+            var isFullscreenSpace: Bool
+        }
+        snapshotLoop = ObservationLoop.observe {
+            Inputs(
+                isConcealing: appState.concealer27.isConcealing,
+                clockOpensNotificationCenter: appState.settings.general.clockOpensNotificationCenter,
+                isFullscreenSpace: appState.activeSpace.isFullscreen
+            )
+        } onChange: { [weak self] _ in
+            self?.refreshSnapshot()
+        }
+        snapshotTasks = [
+            Task { [weak self] in
+                for await _ in NotificationCenter.default.notifications(named: .menuBarItemsAreaDidChange27) {
+                    self?.refreshSnapshot()
+                }
+            },
+            Task { [weak self] in
+                for await _ in NotificationCenter.default.notifications(
+                    named: NSApplication.didChangeScreenParametersNotification
+                ) {
+                    self?.refreshSnapshot()
+                }
+            },
+            Task { [weak self] in
+                for await _ in NSWorkspace.shared.notificationCenter.notifications(
+                    named: NSWorkspace.activeSpaceDidChangeNotification
+                ) {
+                    self?.refreshSnapshot()
+                }
+            },
+        ]
+    }
 
     /// Times the steps of a bridged click, which happen on both opening and closing a panel.
     private static let bridgeLogger = Logger(category: "ClickBridge27")
 
-    /// Handles a click the tap received; returns `nil` for a click that is held back.
-    private func handle(_ event: CGEvent) -> CGEvent? {
-        guard let appState else {
-            return event
-        }
-        guard event.getIntegerValueField(.eventSourceUserData) != Self.replayedClickMarker else {
-            return event
-        }
-        let expired = pairing.expire(at: .now)
-        if !expired.isEmpty {
-            Self.bridgeLogger.debug(
-                "Click bridge: \(expired.count, privacy: .public) held press(es) never saw their release and were let go"
-            )
-        }
-        if event.type == .rightMouseDown || event.type == .otherMouseDown {
-            // Never bridged, but it may close the panel holzBar saw open, and nothing would tell.
+    /// Carries what the main actor owes a click after the tap thread decided it.
+    ///
+    /// A click let through only notes the bar click and forgets the panel it may have closed. A
+    /// held press is bridged here: the same steps the main run loop's callback took after its
+    /// decision.
+    private func continueClick(_ decision: ClickBridgeState27.Decision) {
+        switch decision {
+        case .pass, .swallow:
+            return
+        case .passForgettingPanel(let barClick):
             panelMemory.forget()
-            return event
+            if let barClick, let appState {
+                recordBarClick(barClick, appState: appState)
+                // The bar's geometry may have moved since the last refresh.
+                refreshSnapshot()
+            }
+        case .hold(let hold):
+            guard let appState else {
+                // The press is held and its release is taken, so the click is replayed whatever.
+                Self.replayClick(at: hold.barClick.location)
+                return
+            }
+            recordBarClick(hold.barClick, appState: appState)
+            bridgeHeldClick(hold, appState: appState)
         }
-        if event.type == .leftMouseUp {
-            // A press holzBar holds back has its release held back with it. MenuBarAgent would
-            // otherwise be handed a release with no press behind it, moments before the
-            // replayed click that carries both. Only the release with the press's own event
-            // number is taken.
-            let number = event.getIntegerValueField(.mouseEventNumber)
-            return pairing.release(number: number) == .swallowRelease ? nil : event
-        }
+    }
+
+    /// Lifts concealment for a press the tap held back, and replays it.
+    private func bridgeHeldClick(_ hold: ClickBridgeState27.Hold, appState: AppState) {
         let concealer = appState.concealer27
-        // The frames of the display the click landed on, so the clock of the display whose bar
-        // is not active is recognised as well.
-        let clickedDisplay = NSScreen.screens.first { CGDisplayBounds($0.displayID).contains(event.location) }?.displayID
-        let framesOnDisplay = clickedDisplay.map { MenuBarItemProvider27.systemItemFrames(for: $0) } ?? []
-        // The bar's rectangle is worked out only for a click that may be bridged at all.
-        let menuBarRect = concealer.isConcealing ? clickedDisplay.flatMap { displayID in
-            Self.visibleMenuBarRect(on: displayID, isFullscreenSpace: appState.activeSpace.isFullscreen)
-        } : nil
-        // The overflow button ("»") ignores clicks while concealed like the clock (Thaw #1195).
-        let systemFrames = (framesOnDisplay.isEmpty ? MenuBarItemProvider27.systemItemFrames() : framesOnDisplay)
-            + [MenuBarItemProvider27.overflowButtonFrame()].compactMap { $0 }
-        let ownFrames = Self.ownControlItemFrames(appState: appState)
-        let isInZone = ClockBridgeZone27.shouldBridge(
-            click: event.location,
-            systemItemFrames: systemFrames,
-            ownItemFrames: ownFrames,
-            isConcealing: concealer.isConcealing,
-            menuBarRect: menuBarRect
-        )
-        recordBarClick(
-            event.location,
-            display: clickedDisplay,
-            appState: appState,
-            systemFrames: systemFrames,
-            ownFrames: ownFrames,
-            bridged: isInZone
-        )
-        guard isInZone else {
-            // A click let through may close the panel holzBar saw open (a click on the desktop
-            // closes Notification Center), and nothing would tell.
-            panelMemory.forget()
-            return event
+        let location = hold.barClick.location
+        // The tap decided from a snapshot: items that are no longer concealed need no lift, only
+        // the click the tap held back, so a stale snapshot never costs the click.
+        guard concealer.isConcealing else {
+            Self.replayClick(at: location)
+            return
         }
-        let location = event.location
         // Control Centre opens from an Accessibility press even while items are concealed
         // (measured on macOS 27.0: its panel appears after about 177 ms). The clock, the
         // battery and Wi-Fi ignore the press, so for those the concealment is lifted and the
         // click replayed — and put back the moment their panel is up, rather than after a
         // fixed second and a half, which is what made every hidden item flash into view.
         let systemItem = MenuBarItemProvider27.systemItem(at: location)
-        // The user can leave the clock's click to macOS ("Open Notification Center from the
-        // clock"): it then reaches MenuBarAgent unchanged, which ignores it while items are
-        // concealed. The other system items stay bridged.
-        guard ClockClickPolicy.bridges(
-            item: systemItem?.identifier,
-            clockOpensNotificationCenter: appState.settings.general.clockOpensNotificationCenter
-        ) else {
-            panelMemory.forget()
-            return event
-        }
         let mayOpenFromPress = systemItem.map { !self.systemItemsIgnoringPress.contains($0.identifier) } ?? false
         let taken = panelMemory.takeForBridgedClick()
         Task {
@@ -271,23 +334,17 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             let opened = await Self.waitForOpenedPanel(item: systemItem?.identifier, baseline: baseline, polls: 8)
             self.panelMemory.remember(opened, openedBy: taken.click)
         }
-        _ = pairing.press(number: event.getIntegerValueField(.mouseEventNumber), shouldHold: true, at: .now)
-        return nil
     }
 
     /// Notes a click in a display's menu bar in the diagnostics' click trace (see
     /// `BarClickTrace`): where it landed, which system item was there, whether the bridge took
     /// it, and the extent of the system items and of holzBar's own control items. Clicks below
     /// the bar are not noted.
-    private func recordBarClick(
-        _ location: CGPoint,
-        display: CGDirectDisplayID?,
-        appState: AppState,
-        systemFrames: [CGRect],
-        ownFrames: [CGRect],
-        bridged: Bool
-    ) {
-        guard let display, location.y - CGDisplayBounds(display).minY < 40 else {
+    private func recordBarClick(_ barClick: ClickBridgeState27.BarClick, appState: AppState) {
+        let location = barClick.location
+        let ownFrames = barClick.ownFrames
+        let systemFrames = barClick.systemFrames
+        guard let display = barClick.display, location.y - CGDisplayBounds(display).minY < 40 else {
             return
         }
         // A frame without finite edges (`CGRect.null`) has no extent to log.
@@ -301,9 +358,9 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         BarClickLog.trace.record(BarClickTrace.barClick(
             seconds: BarClickLog.seconds,
             x: Int(location.x.rounded()),
-            concealing: appState.concealer27.isConcealing,
+            concealing: barClick.isConcealing,
             item: MenuBarItemProvider27.systemItem(at: location)?.identifier,
-            bridged: bridged,
+            bridged: barClick.bridged,
             systemItems: systemFrames.compactMap(range).sorted { $0.lowerBound < $1.lowerBound },
             ownItems: ownItems.sorted { $0.lowerBound < $1.lowerBound },
             overflow: MenuBarItemProvider27.overflowButtonFrame().flatMap(range)
@@ -442,30 +499,6 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         }
     }
 
-    /// The rectangle of the given display's menu bar, or `nil` while the bar is not on
-    /// screen.
-    ///
-    /// On a fullscreen space the bar shows only while the pointer reveals it, so it counts
-    /// only while the window server's menu bar window is on screen (the window list, not
-    /// Accessibility). Elsewhere the bar is the strip above the screen's visible frame, at
-    /// least as tall as the status bar.
-    private static func visibleMenuBarRect(on displayID: CGDirectDisplayID, isFullscreenSpace: Bool) -> CGRect? {
-        let displayBounds = CGDisplayBounds(displayID)
-        let height: CGFloat
-        if isFullscreenSpace {
-            guard let menuBarWindow = WindowInfo.menuBarWindow(for: displayID) else {
-                return nil
-            }
-            height = menuBarWindow.bounds.height
-        } else {
-            guard let screen = NSScreen.screens.first(where: { $0.displayID == displayID }) else {
-                return nil
-            }
-            height = max(screen.frame.maxY - screen.visibleFrame.maxY, NSStatusBar.system.thickness)
-        }
-        return CGRect(x: displayBounds.minX, y: displayBounds.minY, width: displayBounds.width, height: height)
-    }
-
     // MARK: Opened from the holzBar Shelf
 
     /// The hidden system items that a click on a Shelf tile is opening now, until its panel was
@@ -571,8 +604,17 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             ) else {
                 continue
             }
-            event.setIntegerValueField(.eventSourceUserData, value: replayedClickMarker)
+            event.setIntegerValueField(.eventSourceUserData, value: ClickBridgeState27.replayedClickMarker)
             event.post(tap: .cghidEventTap)
         }
+    }
+}
+
+@available(macOS 27.0, *)
+extension SystemItemClickBridge27 {
+    /// Lets the tap's callback, which runs off the main actor, reach the bridge, and only from a
+    /// task on the main actor: the reference is set and read there.
+    nonisolated final class BridgeBox: @unchecked Sendable {
+        weak var bridge: SystemItemClickBridge27?
     }
 }
