@@ -293,11 +293,20 @@ final class ItemImageStore27 {
             votes.light += tileVotes.light
             votes.dark += tileVotes.dark
         }
+        // Two items drawn over one another cannot both be where they say (D-09): neither gets a
+        // picture, and a stored one of either is dropped, so no tile shows another item's glyph.
+        let drawn = items.filter { $0.isOnScreen && !$0.isControlItem && !$0.isWidget && !concealedPIDs.contains($0.ownerPID) }
+        let overlapping = ItemImages27.overlappingTags(frames: frames(drawn))
         let tone: ItemImages27.GlyphTone? = votes.light + votes.dark == 0 ? nil : (votes.light >= votes.dark ? .light : .dark)
         // The tiles on the bar in this capture: a stored tile equal to a new glyph whose item is
         // not among them cannot be its own (see `ItemImages27.duplicateGlyph`).
         let onBar = Set(items.filter { $0.isOnScreen && !concealedPIDs.contains($0.ownerPID) }.map(\.tag.description))
         for item in items where item.isOnScreen && !item.isControlItem && !item.isWidget && !concealedPIDs.contains(item.ownerPID) {
+            if overlapping.contains(item.tag.description) {
+                forget(key: item.tag.description)
+                skipped += 1
+                continue
+            }
             guard settled.contains(item.tag.description) else {
                 skipped += 1
                 continue
@@ -326,6 +335,9 @@ final class ItemImageStore27 {
             }
             store(glyph, scale: scale, key: key)
             stored += 1
+        }
+        if !overlapping.isEmpty {
+            logger.debug("Item images dropped for \(overlapping.count, privacy: .public) items drawn over one another")
         }
         writeIndex()
         logger.debug("Stored \(stored, privacy: .public) item images from display \(displayID, privacy: .public), skipped \(skipped, privacy: .public) that moved")
