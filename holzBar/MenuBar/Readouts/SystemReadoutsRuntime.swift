@@ -70,6 +70,9 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
         var upload = ReadoutHistory()
     }
 
+    /// Whether this Mac has an internal battery, asked once.
+    private static let hasInternalBattery = PowerSources.internalBattery() != nil
+
     /// The shortest height of the network curve's scale: 10 kB/s, so a trickle stays a trickle.
     private static let networkScale = ReadoutHistoryScale.rate(floor: 10_000)
 
@@ -251,12 +254,10 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
         }
         var metrics = Set<ReadoutMetric>()
         if readouts.isOn(.cpu) {
-            metrics.insert(.cpu)
-            // The cluster line needs the load of every core; a chip without clusters has no
-            // such line, so it never reads them.
-            if SystemSamplers.clusterLevels.count >= 2 {
-                metrics.insert(.cpuCores)
-            }
+            // The cluster line needs the load of every core, and the total is the sum of the
+            // cores, so a chip with clusters reads the cores alone; a chip without clusters has
+            // no such line and reads the total (L-02).
+            metrics.insert(SystemSamplers.clusterLevels.count >= 2 ? .cpuCores : .cpu)
             if readouts.showsThermalLine {
                 metrics.insert(.thermal)
             }
@@ -274,7 +275,9 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
         if readouts.isOn(.disk) {
             metrics.insert(.diskSpace)
         }
-        if readouts.isOn(.battery) {
+        // A Mac without a battery never draws the tile, so it never follows power events either
+        // (L-01).
+        if readouts.isOn(.battery), Self.hasInternalBattery {
             metrics.insert(.power)
         }
         guard !metrics.isEmpty else {
@@ -339,16 +342,21 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
         var next = reading
         let now = ContinuousClock.now
         var nextHistories = histories
-        if sample.read.contains(.cpu) {
+        if registeredRequest?.metrics.contains(.cpuCores) == true {
+            if sample.read.contains(.cpuCores) {
+                // The load of each cluster between this reading and the one before it; none while
+                // the levels do not partition the cores, so the tile shows the total only. The
+                // total is the sum of the cores (L-02).
+                let pair = baseline.coreTicks(sample.cpuCoreTicks)
+                next.clusters = pair.flatMap {
+                    CPUClusters.loads(levels: SystemSamplers.clusterLevels, previous: $0.previous, current: $0.current)
+                } ?? []
+                next.cpuLoad = pair.flatMap { CPUClusters.totalLoad(previous: $0.previous, current: $0.current) }
+                nextHistories.cpu.append(next.cpuLoad, at: now)
+            }
+        } else if sample.read.contains(.cpu) {
             next.cpuLoad = baseline.cpuLoad(sample.cpuTicks)
             nextHistories.cpu.append(next.cpuLoad, at: now)
-        }
-        if sample.read.contains(.cpuCores) {
-            // The load of each cluster between this reading and the one before it; none while
-            // the levels do not partition the cores, so the tile shows the total only.
-            next.clusters = baseline.coreTicks(sample.cpuCoreTicks).flatMap {
-                CPUClusters.loads(levels: SystemSamplers.clusterLevels, previous: $0.previous, current: $0.current)
-            } ?? []
         }
         if sample.read.contains(.thermal) {
             next.thermal = sample.thermal
