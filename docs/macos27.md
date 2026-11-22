@@ -42,6 +42,10 @@ The last line of Settings → About → Copy Diagnostics names the state on macO
 
 From 0.0.8. Single, Paired, the shape of its own for the Apple logo, the outlines and the gradients work on macOS 27 as on macOS 26. Sections is not offered on macOS 27: holzBar hides whole applications, so the items of one section do not stand together and holzBar's dividers mark no boundary on the bar; a Sections choice that comes from another Mac or a settings file is drawn as Paired. The Apple-logo shape takes the Apple menu's position from the application-menu read holzBar already makes (no new permission); on macOS 27 that read skips holzBar's own menus, so the last position is kept while holzBar is in front.
 
+## Item spacing
+
+Settings → Advanced offers the spacing between menu bar items on macOS 26 and earlier. holzBar does not offer it on macOS 27 and says so in Settings; Reset there still clears values written on macOS 26.
+
 ## Show and hide animation
 
 macOS 27 draws the bar through `MenuBarAgent`, which animates the bar by itself when items are concealed or released (about 250 ms, measured on macOS 27.0). holzBar has no divider length there and steps nothing; the **Animation** cards in Settings → Showing & Hiding change the holzBar Shelf only there: Instant, Smooth (a fade with a short slide) or Fade, never with Reduce Motion on. On macOS 26 the setting makes the bar's items slide in and out (since 0.0.11); nothing of that runs on macOS 27. No permission, no timer and no network.
