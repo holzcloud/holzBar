@@ -68,7 +68,7 @@ enum CommandPaletteCommands {
         return commands
     }
 
-    /// Restart the menu bar and Pause holzBar, on macOS 27 only, without a badge (D-15). The
+    /// Restart Menu Bar and Pause holzBar, on macOS 27 only, without a badge (D-15). The
     /// restart is offered only while MenuBarAgent is visible (D-07).
     private static func menuBarCommands(appState: AppState) -> [PaletteCommand] {
         guard #available(macOS 27.0, *), MenuBarBackendKind.current == .accessibility27 else {
@@ -78,7 +78,7 @@ enum CommandPaletteCommands {
         if MenuBarAgentRestart27.isAvailable {
             commands.append(PaletteCommand(
                 kind: .restartMenuBar,
-                title: String(localized: "Restart the menu bar")
+                title: String(localized: "Restart Menu Bar")
             ))
         }
         commands.append(PaletteCommand(

@@ -90,7 +90,7 @@ extension SettingsEntry {
         id: "advancedMenuBarCommands27",
         pane: .advanced,
         group: SettingsCatalog.AdvancedPane.menuBar,
-        label: String(localized: "Restart the menu bar or pause holzBar"),
+        label: String(localized: "Restart Menu Bar or pause holzBar"),
         info: String(localized: "Restart Menu Bar quits macOS's menu bar process, which macOS starts again at once, and holzBar hides your items again. Pause holzBar shows every item until you resume it or quit holzBar. Both are also in holzBar's menu and the command palette.")
     )
 
