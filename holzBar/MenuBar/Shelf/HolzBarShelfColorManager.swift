@@ -47,7 +47,9 @@ final class HolzBarShelfColorManager {
                     guard let self, panel.isVisible, let screen = panel.screen else {
                         return
                     }
-                    updateWindowImage(for: screen)
+                    // The colour follows the capture: a Shelf that moved to another display
+                    // must not keep the colour of the old one.
+                    updateAllProperties(with: panel.frame, screen: screen)
                 }
             },
             shelfPanel.observe(\.isVisible, options: [.initial, .new]) { [weak self] panel, _ in
@@ -156,12 +158,15 @@ final class HolzBarShelfColorManager {
             return
         }
 
-        // A failed capture never leaves the colours of another display behind.
-        windowImage = nil
-        windowImageDisplayID = nil
+        let displayID = screen.displayID
+        // A failed capture never leaves the colours of another display behind; one of the same
+        // display keeps the last good image, so the colour does not flash to the default.
+        if windowImageDisplayID != displayID {
+            windowImage = nil
+            windowImageDisplayID = nil
+        }
 
         let windows = WindowInfo.createWindows(option: .onScreen)
-        let displayID = screen.displayID
 
         guard let wallpaperWindow = WindowInfo.wallpaperWindow(from: windows, for: displayID) else {
             return
