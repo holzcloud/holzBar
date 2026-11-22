@@ -63,11 +63,26 @@ struct WidgetsSection: View {
         }
     }
 
+    /// The sources the Add Widget menu lists: the two that use a private macOS interface only while
+    /// their switch is on.
+    private var addableSources: [WidgetSource] {
+        let readsGPU = appState.settings.readouts.readsGPU
+        let readsDeviceBattery = appState.connectedDevices.readsBattery
+        return WidgetSource.editorOrder.filter {
+            switch $0 {
+            case .gpuLoad: readsGPU
+            case .deviceBattery: readsDeviceBattery
+            default: true
+            }
+        }
+    }
+
     private var addMenu: some View {
         Menu("Add Widget…") {
             Section {
-                // GPU Load is offered only while its switch in System readouts is on (D-07).
-                ForEach(WidgetSource.editorOrder.filter { $0 != .gpuLoad || appState.settings.readouts.readsGPU }, id: \.self) { source in
+                // GPU Load is offered only while its switch in System readouts is on (D-07), and
+                // Lowest Device Battery only while Read battery levels is on (D-27).
+                ForEach(addableSources, id: \.self) { source in
                     Button {
                         add(source)
                     } label: {

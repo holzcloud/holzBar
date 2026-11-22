@@ -182130,6 +182130,125 @@
           }
         }
       }
+    },
+    "Read battery levels is off in Accessory alerts" : {
+      "comment" : "Info line under the Source row of a Lowest Device Battery widget while the Read battery levels switch in Accessory alerts is off; the quoted names are that switch and the module",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Možnost Číst úrovně baterie je v části Upozornění na příslušenství vypnutá"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Akkustände lesen ist in den Zubehör-Hinweisen ausgeschaltet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leer niveles de batería está desactivado en Avisos de accesorios"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lire les niveaux de batterie est désactivé dans Alertes d’accessoires"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az akkumulátorszintek olvasása ki van kapcsolva a Tartozékriasztásoknál"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Baca level baterai nonaktif di Peringatan Aksesori"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leggi i livelli della batteria è disattivato in Avvisi accessori"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「バッテリー残量を読み取る」は「アクセサリの通知」でオフになっています"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘배터리 잔량 읽기’가 ‘액세서리 알림’에서 꺼져 있습니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lees batterijniveaus staat uit in Accessoiremeldingen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opcja „Odczytuj poziomy baterii” jest wyłączona w sekcji Alerty akcesoriów"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ler níveis de bateria está desativado em Avisos de acessórios"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leger ils nivels da la batteria è deactivà en Avertiments dals accessoris"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Параметр «Считывать уровни заряда» выключен в разделе «Оповещения об аксессуарах»"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Läs batterinivåer är avstängt i Tillbehörsvarningar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pil seviyelerini oku, Aksesuar Uyarıları içinde kapalı"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Параметр «Зчитувати рівні заряду» вимкнено в розділі «Сповіщення про аксесуари»"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“读取电量”在“配件提醒”中已关闭"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「讀取電池電量」在「配件提醒」中已關閉"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

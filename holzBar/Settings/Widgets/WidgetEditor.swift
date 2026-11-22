@@ -145,11 +145,19 @@ private struct TextWidgetFields: View {
     let definition: WidgetDefinition
 
     /// The sources the Source picker lists, in the UI contract's order. GPU Load is listed only
-    /// while its switch in System readouts is on, or while it is this widget's own source, so an
-    /// existing widget is never changed silently (D-07).
+    /// while its switch in System readouts is on, and Lowest Device Battery only while Read
+    /// battery levels is on in Accessory alerts; either one also while it is this widget's own
+    /// source, so an existing widget is never changed silently (D-07, D-27).
     private var offeredSources: [WidgetSource] {
         let readsGPU = appState.settings.readouts.readsGPU
-        return WidgetSource.editorOrder.filter { $0 != .gpuLoad || readsGPU || definition.source == .gpuLoad }
+        let readsDeviceBattery = appState.connectedDevices.readsBattery
+        return WidgetSource.editorOrder.filter { source in
+            switch source {
+            case .gpuLoad: readsGPU || definition.source == .gpuLoad
+            case .deviceBattery: readsDeviceBattery || definition.source == .deviceBattery
+            default: true
+            }
+        }
     }
 
     var body: some View {
@@ -166,6 +174,10 @@ private struct TextWidgetFields: View {
         .settingsSubRow()
         if definition.source == .gpuLoad, !appState.settings.readouts.readsGPU {
             SettingsStateLine(.info, Text("Read GPU load is off in System readouts"))
+                .settingsSubRow()
+        }
+        if definition.source == .deviceBattery, !appState.connectedDevices.readsBattery {
+            SettingsStateLine(.info, Text("Read battery levels is off in Accessory alerts"))
                 .settingsSubRow()
         }
         if definition.source.presets.count > 1 {
