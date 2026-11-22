@@ -735,8 +735,12 @@ extension MenuBarItemManager {
             }
 
             if backend.canMoveItems {
-                // The sections the user arranged, or of the first run, are recorded.
-                if needsSectionSave || Defaults.dictionary(forKey: .itemSections) == nil {
+                // The sections the user arranged, or of the first run, are recorded, only from a
+                // settled bar: while the Mac rests or the bar rearranges after a wake or a display
+                // change, the order is not the user's (never persist the order of an unsettled
+                // bar). A save asked for meanwhile stays pending for the read of the settle.
+                if appState?.systemActivityMonitor.isSettled ?? true,
+                   needsSectionSave || Defaults.dictionary(forKey: .itemSections) == nil {
                     needsSectionSave = false
                     saveSections()
                 }

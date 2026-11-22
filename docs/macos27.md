@@ -86,6 +86,10 @@ When macOS switches the click handling off after a timeout, holzBar switches it 
 
 From macOS 27.3 macOS shows Live Activities (a timer, a recording, music) in the menu bar. holzBar never offers them for hiding: an item that macOS's menu bar process draws and that is not the clock, the battery, Wi-Fi or Control Center, or that names itself a Live Activity, stays on the bar. holzBar does not count it, move it, or show it in the holzBar Shelf or Layout, and does not write it to the saved layout. A hover over it counts as a hover over an item. An app whose items are all Live Activities is never hidden. Settings → Advanced shows this rule as "Apple's Live Activities stay visible". holzBar does not publish Live Activities of its own.
 
+## Sleep, displays and Spaces
+
+holzBar waits about 2 seconds after the Mac wakes, the screen unlocks, your session comes back or a display is connected, removed or changed. It then reads the bar again and takes its hiding anew: the new hiding is in place before the old one goes, so nothing hidden shows in between. It saves your sections only from a settled bar; a save asked for while the Mac rests or the bar settles waits for the read after the settle. Space and full-screen changes and calls with the microphone, camera or system audio keep the hiding (see "Camera and microphone indicator").
+
 ## Apps that launch while items are hidden
 
 holzBar hides whole applications through an assertion that names, by bundle identifier, the apps that stay visible. Since 1.0.5 an app that launches while items are hidden and is to stay visible (a new app when new items go to Visible or where macOS puts them, or a helper app inside another app, such as a login item) is added to it at once, so its item appears within about a second. An app that is slow to answer Accessibility right after it starts is asked again at every read for its first 30 seconds instead of being skipped for minutes. When an app such as Slack or an Electron app changes its items often, holzBar reads every app for it at most once every 30 seconds. If `MenuBarAgent` restarts, holzBar applies the hiding again with fresh assertions.

@@ -21,6 +21,13 @@ final class SystemActivityMonitor {
     /// Item reads, moves and captures wait while it is `true`.
     private(set) var isPaused = false
 
+    /// Whether the bar may be trusted as it is: `false` while the Mac rests (the screen is
+    /// locked, it sleeps or the session is away) and until the bar has settled after a resume
+    /// or a display change. Callers that persist what they read must wait for `true`.
+    var isSettled: Bool {
+        activity.settled(at: .now)
+    }
+
     /// The state fed by the notifications.
     @ObservationIgnored private var activity = SystemActivity()
 
