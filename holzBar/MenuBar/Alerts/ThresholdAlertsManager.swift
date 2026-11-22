@@ -236,6 +236,33 @@ final class ThresholdAlertsManager {
             // The first sample is only the baseline and has no load.
             effects += evaluator.observe(.fraction(load), for: .cpu, at: now)
         }
+        // A metric that was read but has no value is unavailable, which the evaluator ignores.
+        if sample.read.contains(.memoryPressure) {
+            effects += evaluator.observe(
+                sample.memoryPressure.map { .pressure($0) } ?? .unavailable,
+                for: .memoryPressure,
+                at: now
+            )
+        }
+        if sample.read.contains(.thermal) {
+            effects += evaluator.observe(sample.thermal.map { .thermal($0) } ?? .unavailable, for: .thermal, at: now)
+        }
+        if sample.read.contains(.diskSpace) {
+            effects += evaluator.observe(
+                sample.diskSpace.map { .freeBytes($0.available) } ?? .unavailable,
+                for: .freeDisk,
+                at: now
+            )
+        }
+        if sample.read.contains(.power) {
+            // The charge is the system's own count, which respects a charge limit (D-14); the rule
+            // watches it on battery power only.
+            effects += evaluator.observe(
+                sample.power.map { .battery(percent: $0.percent, onBattery: $0.state == .onBattery) } ?? .unavailable,
+                for: .macBattery,
+                at: now
+            )
+        }
         handle(effects)
         rearmDeadline()
     }
