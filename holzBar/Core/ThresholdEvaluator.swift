@@ -127,6 +127,19 @@ nonisolated struct ThresholdEvaluator: Sendable {
         /// dropped: longer than two readings at the slowest alert cadence (10 s, 20 s in Low Power
         /// Mode), short enough that "done" is not late.
         static let clearHold = Duration.seconds(30)
+        /// The least time between two fires of the same rule (D-15), counted from the last fire. A
+        /// value that stays past the threshold is told once per half hour at most, and the clock
+        /// that counts it pauses in sleep, which only makes it quieter.
+        static let cooldown = Duration.seconds(1800)
+        /// How many alerts may fire inside ``rateCapWindow``, over all rules (D-15): five rules
+        /// and a cap of four mean a bad hour is never more than about one alert per quarter hour.
+        static let rateCapCount = 4
+        /// The rolling window of the rate cap.
+        static let rateCapWindow = Duration.seconds(3600)
+        /// How long nothing fires after a wake, a display change, enabling a rule or starting the
+        /// module (ALRT-04): the first readings after such a change are not a reason to alert. It
+        /// equals the clear hold, so one number explains both.
+        static let quietPeriod = Duration.seconds(30)
     }
 
     /// What the host does after a call.
@@ -153,6 +166,12 @@ nonisolated struct ThresholdEvaluator: Sendable {
     private var rules: [AlertSignal: ThresholdRule] = [:]
     private var phases: [AlertSignal: Phase] = [:]
     private var latest: [AlertSignal: AlertObservation] = [:]
+    /// Until when nothing fires for a signal (a wake, a display change, enabling the rule).
+    private var quietEnds: [AlertSignal: SuspendingClock.Instant] = [:]
+    /// When each signal last fired, for the cooldown. A rest does not forget it.
+    private var lastFires: [AlertSignal: SuspendingClock.Instant] = [:]
+    /// The fires of the last ``Tuning/rateCapWindow``, oldest first. A rest does not forget them.
+    private var fires: [SuspendingClock.Instant] = []
 
     /// The alerts that are on now, by signal.
     var firing: [AlertSignal: AlertSnapshot] {
@@ -165,20 +184,39 @@ nonisolated struct ThresholdEvaluator: Sendable {
         }
     }
 
-    /// Takes the rules in force. A rule that is off (or missing) ends its alert.
+    /// Takes the rules in force and says what changes at once.
+    ///
+    /// A rule that went on is quiet for ``Tuning/quietPeriod`` (the first configuration counts);
+    /// one that went off ends its alert with no done hold; one whose threshold, level or hold
+    /// changed is judged again on its latest reading under the same rules: a firing alert whose
+    /// reading is now past the new exit ends, a running hold keeps its start.
     mutating func configure(_ newRules: [ThresholdRule], at now: SuspendingClock.Instant) -> [Effect] {
         var effects: [Effect] = []
         for signal in AlertSignal.allCases {
-            let rule = newRules.first { $0.signal == signal }?.validated
-            rules[signal] = rule?.isOn == true ? rule : nil
-            guard rules[signal] == nil else {
+            let proposed = newRules.first { $0.signal == signal }?.validated
+            let new = proposed?.isOn == true ? proposed : nil
+            let old = rules[signal]
+            rules[signal] = new
+            switch (old, new) {
+            case (nil, nil):
                 continue
+            case (nil, _?):
+                let end = now + Tuning.quietPeriod
+                quietEnds[signal] = max(quietEnds[signal] ?? end, end)
+                phases[signal] = nil
+                latest[signal] = nil
+            case (_?, nil):
+                if case .firing? = phases[signal] {
+                    effects.append(.ended(signal))
+                }
+                phases[signal] = nil
+                latest[signal] = nil
+            case (let old?, let new?):
+                guard old != new else {
+                    continue
+                }
+                effects += reevaluate(signal, rule: new, at: now)
             }
-            if case .firing? = phases[signal] {
-                effects.append(.ended(signal))
-            }
-            phases[signal] = nil
-            latest[signal] = nil
         }
         return effects
     }
@@ -235,6 +273,30 @@ nonisolated struct ThresholdEvaluator: Sendable {
         return effects
     }
 
+    /// The Mac rests (sleep, screen sleep, lock, session switch): every firing alert ends with no
+    /// done hold, every running hold is dropped and the latest readings are forgotten. The cooldown
+    /// and the rate-cap history stay, so a sleep and a wake never create a fire of their own.
+    mutating func rest(at now: SuspendingClock.Instant) -> [Effect] {
+        var effects: [Effect] = []
+        for signal in AlertSignal.allCases {
+            if case .firing? = phases[signal] {
+                effects.append(.ended(signal))
+            }
+        }
+        phases.removeAll()
+        latest.removeAll()
+        return effects
+    }
+
+    /// The Mac is in use again, or the displays changed: nothing fires for ``Tuning/quietPeriod``.
+    /// A fire that is due meanwhile is deferred to the end of the quiet period, not dropped.
+    mutating func resume(at now: SuspendingClock.Instant) {
+        let end = now + Tuning.quietPeriod
+        for signal in AlertSignal.allCases {
+            quietEnds[signal] = max(quietEnds[signal] ?? end, end)
+        }
+    }
+
     /// Lets time pass to `now`: every hold that has run out fires, every clear hold that has run
     /// out clears. Effects come in the order of ``AlertSignal/allCases``.
     mutating func advance(to now: SuspendingClock.Instant) -> [Effect] {
@@ -268,9 +330,44 @@ nonisolated struct ThresholdEvaluator: Sendable {
 
     // MARK: Steps
 
-    /// The earliest instant a pending alert may fire.
+    /// The earliest instant a pending alert may fire: when its hold has run out and no block is
+    /// left (the quiet period, the cooldown, the rate cap). A blocked fire waits for this instant
+    /// and happens then if the value has not recovered; it is never dropped.
     private func earliestFire(_ signal: AlertSignal, start: SuspendingClock.Instant) -> SuspendingClock.Instant {
-        start + (rules[signal]?.hold.duration ?? .zero)
+        var candidate = start + (rules[signal]?.hold.duration ?? .zero)
+        if let quiet = quietEnds[signal] {
+            candidate = max(candidate, quiet)
+        }
+        if let last = lastFires[signal] {
+            candidate = max(candidate, last + Tuning.cooldown)
+        }
+        return max(candidate, rateCapEnd(at: candidate))
+    }
+
+    /// The fires that still count against the rate cap at `instant`.
+    private func recentFires(at instant: SuspendingClock.Instant) -> [SuspendingClock.Instant] {
+        fires.filter { $0 + Tuning.rateCapWindow > instant }
+    }
+
+    /// When the rate cap lets another alert fire, if it blocks at `instant`: an hour after the
+    /// oldest of the last four fires.
+    private func rateCapEnd(at instant: SuspendingClock.Instant) -> SuspendingClock.Instant {
+        let recent = recentFires(at: instant)
+        guard recent.count >= Tuning.rateCapCount else {
+            return instant
+        }
+        return recent[recent.count - Tuning.rateCapCount] + Tuning.rateCapWindow
+    }
+
+    /// Whether a pending alert may fire at `now`, judged on the fires of this very moment.
+    private func canFire(_ signal: AlertSignal, start: SuspendingClock.Instant, at now: SuspendingClock.Instant) -> Bool {
+        guard now >= start + (rules[signal]?.hold.duration ?? .zero),
+              now >= (quietEnds[signal] ?? now),
+              now >= (lastFires[signal].map { $0 + Tuning.cooldown } ?? now)
+        else {
+            return false
+        }
+        return recentFires(at: now).count < Tuning.rateCapCount
     }
 
     /// The time-based steps of one signal at `now`.
@@ -283,7 +380,7 @@ nonisolated struct ThresholdEvaluator: Sendable {
                 }
                 return []
             }
-            guard now >= earliestFire(signal, start: start) else {
+            guard canFire(signal, start: start, at: now) else {
                 return []
             }
             guard let rule = rules[signal], let observation = latest[signal] else {
@@ -296,6 +393,9 @@ nonisolated struct ThresholdEvaluator: Sendable {
                 observation: observation
             )
             phases[signal] = .firing(snapshot: snapshot, recoveredSince: nil)
+            lastFires[signal] = now
+            fires.removeAll { $0 + Tuning.rateCapWindow <= now }
+            fires.append(now)
             return [.fired(snapshot)]
         case .firing(_, let since?)?:
             guard now - since >= Tuning.clearHold else {
@@ -306,6 +406,42 @@ nonisolated struct ThresholdEvaluator: Sendable {
         case .firing(_, nil)?, nil:
             return []
         }
+    }
+
+    /// A rule changed while it stays on: judges its latest reading again under the new rule.
+    private mutating func reevaluate(
+        _ signal: AlertSignal,
+        rule: ThresholdRule,
+        at now: SuspendingClock.Instant
+    ) -> [Effect] {
+        guard let observation = latest[signal], let zone = AlertZone.zone(of: observation, rule: rule) else {
+            return step(signal, at: now)
+        }
+        var effects: [Effect] = []
+        switch phases[signal] {
+        case .firing(let snapshot, _)?:
+            if zone == .recovered || zone == .unplugged {
+                phases[signal] = nil
+                return [.ended(signal)]
+            }
+            phases[signal] = .firing(snapshot: snapshot, recoveredSince: nil)
+            effects += refresh(signal, rule: rule, observation: observation)
+        case .pending(let start, let since)?:
+            switch zone {
+            case .firing, .between:
+                phases[signal] = .pending(start: start, recoveredSince: nil)
+            case .recovered:
+                phases[signal] = .pending(start: start, recoveredSince: since ?? now)
+            case .unplugged:
+                phases[signal] = nil
+            }
+        case nil:
+            if zone == .firing {
+                phases[signal] = .pending(start: now, recoveredSince: nil)
+            }
+        }
+        effects += step(signal, at: now)
+        return effects
     }
 
     /// An `updated` effect when the visible value or the severity of a firing alert changed.
