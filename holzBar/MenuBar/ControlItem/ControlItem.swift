@@ -1048,10 +1048,18 @@ final class ControlItem {
                 restartItem.target = self
                 commandItems.append(restartItem)
             }
-            if !commandItems.isEmpty {
-                menu.addItem(.separator())
-                commandItems.forEach(menu.addItem)
-            }
+            // Pause does not depend on MenuBarAgent being visible.
+            let pauseItem = NSMenuItem(
+                title: appState.concealer27.pause.isPaused
+                    ? String(localized: "Resume holzBar")
+                    : String(localized: "Pause holzBar"),
+                action: #selector(togglePause),
+                keyEquivalent: ""
+            )
+            pauseItem.target = self
+            commandItems.append(pauseItem)
+            menu.addItem(.separator())
+            commandItems.forEach(menu.addItem)
         }
 
         menu.addItem(.separator())
@@ -1107,6 +1115,14 @@ final class ControlItem {
     /// Opens the menu bar search panel.
     @objc private func showSearchPanel() {
         appState?.menuBarManager.searchPanel.show()
+    }
+
+    /// Pauses holzBar, or resumes it, on macOS 27: while paused every item is shown.
+    @objc private func togglePause() {
+        guard #available(macOS 27.0, *) else {
+            return
+        }
+        appState?.concealer27.togglePause()
     }
 
     /// Restarts MenuBarAgent on macOS 27 (user-initiated, see ``MenuBarAgentRestart27``).

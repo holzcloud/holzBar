@@ -66,6 +66,20 @@ final class Concealer27 {
         restartBreaker.isTripped(at: .now) ? "tripped" : "ok"
     }
 
+    /// Whether the user paused holzBar (the "Pause holzBar" command): every item is shown until
+    /// it is resumed. Not persisted, so a relaunch resumes. Observed, so the menu follows.
+    private(set) var pause = PauseState()
+
+    /// Pauses holzBar, or resumes it and ends a tripped breaker, as the user wants hiding back.
+    func togglePause() {
+        let isPaused = pause.toggle()
+        if !isPaused {
+            restartBreaker.reset()
+        }
+        logger.notice("holzBar \(isPaused ? "paused" : "resumed", privacy: .public)")
+        update()
+    }
+
     /// Prepares holzBar's own "Restart Menu Bar": the breaker expects the restart (it is not
     /// counted) and a tripped breaker ends, as the user wants hiding back.
     ///
@@ -594,15 +608,15 @@ final class Concealer27 {
         notchCoverBasis = sectionConcealed
         // Applications concealed for the notch join whatever the sections conceal.
         // A release-all hold empties the target, whatever the sections conceal; so does a tripped
-        // restart breaker: every item is shown until it ends.
-        let target: [Set<String>] = restartBreaker.isTripped(at: .now) ? [] : releaseHold.target(NotchCover27.adding(
+        // restart breaker (every item is shown until it ends) and a paused holzBar (until resumed).
+        let target: [Set<String>] = pause.target(restartBreaker.isTripped(at: .now) ? [] : releaseHold.target(NotchCover27.adding(
             notchConcealed.subtracting(temporarilyShown.keys),
             to: ConcealmentPlanner27.concealedSets(
                 layout: layout,
                 state: state,
                 temporarilyShown: Set(temporarilyShown.keys)
             )
-        ))
+        )))
         let concealed = ConcealmentPlanner27.effectivelyConcealed(sets: target)
         if concealed != lastConcealed {
             lastConcealed = concealed

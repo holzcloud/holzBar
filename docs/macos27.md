@@ -96,6 +96,12 @@ holzBar measures the camera cutout of a display from its safe area and the two u
 
 macOS 27 draws the menu bar in the process `MenuBarAgent` (`com.apple.MenuBarAgent`), which `NSRunningApplication` sees like an application: it runs as an accessory application (measured on MacBookPro18,4, macOS 27.2.1 (26B131)). holzBar notices a restart of it by its process identifier and applies the hiding again by itself. When it restarts more than three times within ten minutes, holzBar stops hiding for 30 minutes (every item is shown) instead of applying the hiding again in a loop, so the bar can never lock up, and then hides again; Copy Diagnostics' Hiding line says `breaker tripped` while it stands and `breaker ok` otherwise. `Scripts/macos27/agent-probe.swift` prints what `NSRunningApplication` reports for it; it is read-only unless you pass `--force-terminate`, which restarts the menu bar.
 
+holzBar's menu has two commands on macOS 27. Restart Menu Bar quits `MenuBarAgent`, which macOS starts again at once; holzBar starts no process, expects that restart (it does not count towards the breaker, and a tripped breaker ends), and then hides the items again. The item is there only while macOS lets holzBar see `MenuBarAgent`, and a second restart within 5 seconds is ignored. Pause holzBar shows every item until you choose Resume holzBar or quit holzBar; the pause is not saved, so holzBar hides again after the next launch. Neither command can be triggered from `holzbar://` URLs, Shortcuts or automation rules.
+
+On macOS 27.0.1, video in full screen could fail until `MenuBarAgent` was restarted; this is fixed in macOS 27.2, and Restart Menu Bar now does the restart without Terminal.
+
+On macOS 27.0.1, Command-dragging the microphone or screen recording indicator made `MenuBarAgent` restart about a minute later, after which holzBar hides the items again.
+
 ## Reopening holzBar
 
 Opening holzBar while it runs (a click on its icon in the Dock, a double-click in the Finder, Spotlight or Launchpad) opens Settings. A reopen sent by anything else, such as Siri on macOS 27, is ignored, and so is a second one within 2 seconds of the last one that opened Settings. holzBar's menu always opens Settings. Settings → About → Copy Diagnostics has a Reopen line with how many reopens opened Settings and how many were ignored, never who sent them.

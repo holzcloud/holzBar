@@ -122,6 +122,7 @@ sources=(
   OpenMenuWait
   OutputVolumePlan
   OwnBundle
+  PauseState
   PermissionListing
   PinnedSystemItems
   PlaybackClock
@@ -266,6 +267,7 @@ tests=(
   OpenMenuWaitTests
   OutputVolumePlanTests
   OwnBundleTests
+  PauseStateTests
   PermissionListingTests
   PinnedSystemItemsTests
   PlaybackClockTests
