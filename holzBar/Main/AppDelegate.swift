@@ -61,6 +61,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
+        // D-05: the delegate that lets an alert show while Settings is in front is set before
+        // launch finishes, and only when System alerts and System notifications are already on;
+        // with either off nothing is touched. It reads the permission and never asks.
+        appState.systemAlerts.prepareNotificationsAtLaunch(modules: appState.modules)
+
         // Allow hiding the mouse while the app is in the background
         // to make menu bar item movement less jarring.
         Bridging.setConnectionProperty(true, forKey: "SetsCursorInBackground")

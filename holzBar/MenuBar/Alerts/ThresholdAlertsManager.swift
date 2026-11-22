@@ -3,6 +3,7 @@
 //  holzBar
 //
 
+import AppKit
 import Foundation
 import Observation
 import OSLog
@@ -76,8 +77,12 @@ final class ThresholdAlertsManager {
     /// The last queued notification operation: deliveries and withdrawals run in order, so a
     /// withdrawal never overtakes the delivery it follows.
     @ObservationIgnored private var notificationTail: Task<Void, Never>?
+    /// Reads the permission again whenever holzBar becomes active.
+    @ObservationIgnored private var activationTask: Task<Void, Never>?
     /// The one read of the permission, with the one ask when the switch has just gone on.
     @ObservationIgnored private var accessTask: Task<Void, Never>?
+    /// The one wait that removes the Test alert's notification again.
+    @ObservationIgnored private var testNotificationTask: Task<Void, Never>?
     @ObservationIgnored private let logger = Logger(category: "ThresholdAlerts")
 
     /// What the stored settings decide: whether the module is on and the five rules.
@@ -137,6 +142,7 @@ final class ThresholdAlertsManager {
         }
         testTask?.cancel()
         let startedAt = Date.now
+        deliverTestNotification()
         upsert(LiveActivity(
             id: AlertLook.testID,
             moduleID: AlertLook.moduleID,
@@ -158,6 +164,30 @@ final class ThresholdAlertsManager {
                 return
             }
             self?.finishTestAlert(startedAt: startedAt)
+        }
+    }
+
+    /// The Test alert as a notification too, while the switch is on and macOS allows it, removed
+    /// again after ``DesignTokens/Alert/testNotificationSeconds`` (D-16). It never asks for the
+    /// permission: with notifications denied the notch alone shows it.
+    private func deliverTestNotification() {
+        guard isNotificationSwitchOn, notificationAccess == .allowed else {
+            return
+        }
+        let identifier = AlertNotificationPlan.testIdentifier
+        let title = AlertTexts.testTitle
+        let body = AlertTexts.testBody
+        enqueue { notifier in
+            await notifier.deliver(identifier: identifier, title: title, body: body, thread: identifier)
+        }
+        testNotificationTask?.cancel()
+        testNotificationTask = Task { [weak self] in
+            do {
+                try await Task.sleep(for: .seconds(DesignTokens.Alert.testNotificationSeconds))
+            } catch {
+                return
+            }
+            self?.withdrawNotifications([identifier])
         }
     }
 
@@ -246,6 +276,8 @@ final class ThresholdAlertsManager {
         settleTask = nil
         testTask?.cancel()
         testTask = nil
+        testNotificationTask?.cancel()
+        testNotificationTask = nil
         if !activities.isEmpty {
             activities = []
         }
@@ -259,6 +291,18 @@ final class ThresholdAlertsManager {
     /// Whether the System notifications switch is on.
     private var isNotificationSwitchOn: Bool {
         appState?.settings.systemAlerts.notificationsOn ?? false
+    }
+
+    /// Called once before launch finishes (D-05, recorded variant A5): with the module and the
+    /// System notifications switch already on, the delegate is installed now so an alert shows
+    /// while Settings is in front, and the permission is read, never asked. With either off
+    /// nothing of the notification framework is touched. The manager is not set up yet at this
+    /// point, so the module switch comes in as an argument.
+    func prepareNotificationsAtLaunch(modules: ModuleStore) {
+        guard modules.isEnabled(AlertLook.moduleID), SystemAlertsSettings.storedNotificationsOn() else {
+            return
+        }
+        startNotifications(asking: false)
     }
 
     /// The user switched System notifications on or off. Switching it on is the one moment macOS
@@ -275,11 +319,18 @@ final class ThresholdAlertsManager {
         }
     }
 
-    /// Installs the delegate and reads the permission; with
+    /// Installs the delegate, follows the app becoming active and reads the permission; with
     /// `asking` it also asks for it when macOS has not been asked yet.
     private func startNotifications(asking: Bool) {
         let notifier = ensureNotifier()
         notifier.installDelegate()
+        if activationTask == nil {
+            activationTask = Task { [weak self] in
+                for await _ in NotificationCenter.default.notifications(named: NSApplication.didBecomeActiveNotification) {
+                    await self?.refreshAccess()
+                }
+            }
+        }
         // A read already under way keeps going; one that must ask is never replaced by one that
         // cannot, so the sheet is not lost.
         if accessTask != nil, !asking {
@@ -291,17 +342,33 @@ final class ThresholdAlertsManager {
             if asking, access == .notDetermined {
                 access = await notifier.requestPermission()
             }
+            // A read that was replaced or stopped meanwhile leaves the state to its successor.
+            guard !Task.isCancelled else {
+                return
+            }
             self?.accessTask = nil
             self?.setAccess(access)
         }
     }
 
-    /// Removes every notification of holzBar. The delegate
+    /// Removes every notification of holzBar and stops following the permission. The delegate
     /// stays: nothing is delivered while the switch or the module is off.
     private func stopNotifications() {
+        activationTask?.cancel()
+        activationTask = nil
         accessTask?.cancel()
         accessTask = nil
+        testNotificationTask?.cancel()
+        testNotificationTask = nil
         withdrawNotifications(AlertNotificationPlan.allIdentifiers)
+    }
+
+    /// Reads the permission again, so a change made in System Settings shows on return.
+    private func refreshAccess() async {
+        guard isModuleOn, isNotificationSwitchOn, let notifier else {
+            return
+        }
+        setAccess(await notifier.access())
     }
 
     private func setAccess(_ access: NotificationAccess) {

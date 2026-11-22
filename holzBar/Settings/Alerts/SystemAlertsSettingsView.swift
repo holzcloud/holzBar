@@ -3,10 +3,12 @@
 //  holzBar
 //
 
+import AppKit
 import SwiftUI
 
 /// The System alerts module's settings, in the open area of the module's row: first the System
-/// notifications switch (off by default; macOS asks for permission when it goes on), then the five fixed
+/// notifications switch (off by default; macOS asks for permission when it goes on, and a line with
+/// a way to System Settings shows when macOS says no), then the five fixed
 /// rules in the order of the contract (CPU load, memory pressure, thermal state, free disk space,
 /// Mac battery), each a switch with its threshold or level and how long the condition has to hold
 /// as dependent sub rows. The rows dim while the module is off and a rule's sub rows dim while the
@@ -27,6 +29,15 @@ struct SystemAlertsSettingsView: View {
                 isOn: notificationsBinding,
                 small: Text("needs Notifications")
             )
+            if appState.settings.systemAlerts.notificationsOn, appState.systemAlerts.notificationAccess == .denied {
+                SettingsStateLine(.warning, Text("Notifications are off for holzBar")) {
+                    Button("Open System Settings") {
+                        if let url = URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    }
+                }
+            }
 
             SettingsToggleRow(.modulesSystemAlertsCPU, isOn: isOnBinding(.cpu))
             stepperRow(.modulesSystemAlertsCPUThreshold, for: .cpu, in: ThresholdRule.cpuLimits)
