@@ -1,9 +1,9 @@
 # Lines that reach a private macOS interface, which `privacy-check.py private` allows, as
-# `<path>: <token>`. A hit (dlopen, dlsym, a PrivateFrameworks path or @_silgen_name) is allowed
-# when its file equals <path> and the line contains <token>. Each private API sits behind one
-# wrapper per API, and every entry was agreed with the maintainer for that module (see
-# CLAUDE.md, "Private API only by exception, per module"). A new entry needs the maintainer's
-# decision and says why.
+# `<path>: <token>`. A hit (dlopen, dlsym, a PrivateFrameworks path, @_silgen_name or the GPU
+# statistics key) is allowed when its file equals <path> and the line contains <token>. Each
+# private API sits behind one wrapper per API, and every entry was agreed with the maintainer for
+# that module (see CLAUDE.md, "Private API only by exception, per module"). A new entry needs
+# the maintainer's decision and says why.
 #
 # The menu bar manager's own interfaces. MenuBarClientCore is the macOS 27 framework that
 # conceals the menu bar's items.
@@ -36,3 +36,11 @@ holzBar/MenuBar/NotchHub/DisplayControls/IOAVServiceBridge.swift: dlsym
 NowPlayingRemote/NowPlayingRemote.swift: dlopen
 NowPlayingRemote/NowPlayingRemote.swift: dlsym
 NowPlayingRemote/NowPlayingRemote.swift: PrivateFrameworks
+#
+# The System readouts module's Read GPU load switch reads how busy the graphics processor is
+# from an undocumented statistic of the graphics driver, through public IOKit calls (agreed
+# 2026-11-21). The wrapper is the only file that names it and reads only while the switch is on
+# and a GPU tile is open.
+holzBar/MenuBar/Readouts/GPULoadBridge.swift: PerformanceStatistics
+holzBar/MenuBar/Readouts/GPULoadBridge.swift: Device Utilization
+holzBar/MenuBar/Readouts/GPULoadBridge.swift: IOAccelerator
