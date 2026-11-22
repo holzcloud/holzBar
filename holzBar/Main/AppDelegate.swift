@@ -137,9 +137,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
-        Logger.default.debug("Handling reopen")
-        openSettingsWindow()
-        return true
+        // Only a launch by the user opens Settings: macOS 27's Siri and Shortcuts machinery
+        // sends reopens on its own. Always false: holzBar opens Settings itself, and true
+        // would let AppKit run a reopen of its own as well.
+        if ReopenRequests.shouldOpenSettings() {
+            openSettingsWindow()
+        }
+        return false
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
