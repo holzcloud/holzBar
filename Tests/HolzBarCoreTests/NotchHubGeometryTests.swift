@@ -477,4 +477,86 @@ struct NotchHubGeometryTests {
         let tight = Geometry.liveRoom(display: notchedA, leftContentEnd: 640, rightContentStart: 870)
         #expect(Geometry.live(display: notchedA, room: tight) == nil)
     }
+
+    // MARK: Dynamic Island display (Phase 93, D-03)
+
+    /// A display with Apple's Dynamic Island: cited about 59 by 40 points (Vorssaint #3998), centred.
+    private let islandDisplay = Geometry.Display(
+        width: 1512, height: 982, menuBarHeight: 40, notch: nil,
+        island: Geometry.Notch(minX: 726.5, maxX: 785.5, height: 40)
+    )
+    /// The same display without any cutout: what a detached layout is laid out like.
+    private let islandDisplayWithoutCutout = Geometry.Display(width: 1512, height: 982, menuBarHeight: 40, notch: nil)
+    private let islandGap = DesignTokens.Island.islandGap
+
+    @Test("The island gap is 6 points")
+    func islandGapToken() {
+        #expect(islandGap == 6)
+    }
+
+    @Test("Island display: the open hub lies below the island, centred on it, and never overlaps it")
+    func islandDisplayOpenHub() throws {
+        let result = try island(islandDisplay)
+        let cutout = Geometry.Rect(x: 726.5, y: 0, width: 59, height: 40)
+        #expect(result.isDetached)
+        #expect(result.notch == nil)
+        #expect(result.shape.y == 46)
+        #expect(result.shape.y >= 40)
+        #expect(result.shape.x + result.shape.width / 2 == 756)
+        #expect(result.hoverZone == cutout)
+        for rect in [result.shape, result.contextRow, result.content, result.moduleRow] {
+            #expect(!rect.intersects(cutout))
+            #expect(rect.minY >= 46)
+        }
+    }
+
+    @Test("Island display: the layout is the one of a display without a cutout, moved down by island and gap")
+    func islandDisplayIsTheNotchlessLayoutMovedDown() throws {
+        let result = try island(islandDisplay)
+        let reference = try island(islandDisplayWithoutCutout)
+        #expect(!reference.isDetached)
+        #expect(result.topRowHeight == reference.topRowHeight)
+        func moved(_ rect: Geometry.Rect) -> Geometry.Rect {
+            Geometry.Rect(x: rect.x, y: rect.y + 46, width: rect.width, height: rect.height)
+        }
+        #expect(result.shape == moved(reference.shape))
+        #expect(result.contextRow == moved(reference.contextRow))
+        #expect(result.content == moved(reference.content))
+        #expect(result.moduleRow == moved(reference.moduleRow))
+    }
+
+    @Test("Island display: with a notch also given, the island wins")
+    func islandWinsOverNotch() throws {
+        let both = Geometry.Display(
+            width: 1512, height: 982, menuBarHeight: 40,
+            notch: Geometry.Notch(minX: 663, maxX: 849, height: 32),
+            island: Geometry.Notch(minX: 726.5, maxX: 785.5, height: 40)
+        )
+        #expect(try island(both) == island(islandDisplay))
+    }
+
+    @Test("Island display: an island that makes no sense counts as none, and the layout is the plain one at y 0")
+    func islandMalformedCountsAsNone() throws {
+        let outside = [
+            Geometry.Notch(minX: -10, maxX: 49, height: 40),
+            Geometry.Notch(minX: 726.5, maxX: 2000, height: 40),
+            Geometry.Notch(minX: 726.5, maxX: 785.5, height: 0),
+            Geometry.Notch(minX: .nan, maxX: 785.5, height: 40),
+            Geometry.Notch(minX: 800, maxX: 700, height: 40),
+        ]
+        let reference = try island(islandDisplayWithoutCutout)
+        for span in outside {
+            let display = Geometry.Display(width: 1512, height: 982, menuBarHeight: 40, notch: nil, island: span)
+            let result = try island(display)
+            #expect(result == reference)
+            #expect(!result.isDetached)
+            #expect(result.shape.y == 0)
+        }
+    }
+
+    @Test("Display without an island is never detached")
+    func notchedAndNotchlessAreNotDetached() throws {
+        #expect(try !island(notchedA).isDetached)
+        #expect(try !island(notchless).isDetached)
+    }
 }

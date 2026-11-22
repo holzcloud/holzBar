@@ -78,6 +78,9 @@ nonisolated enum NotchHubGeometry {
         /// The height of the menu bar; the top row is at least as tall as the notch.
         var menuBarHeight: Double
         var notch: Notch?
+        /// Apple's Dynamic Island on this display, drawn above everything holzBar can draw. When it
+        /// is set and valid, ``notch`` is not used: the hub lies below the island (Phase 93, D-03).
+        var island: Notch?
     }
 
     /// The rectangles of the open island, relative to the display (concept section 10b).
@@ -92,6 +95,9 @@ nonisolated enum NotchHubGeometry {
         var moduleRow: Rect
         /// Where the pointer rests to open the hub.
         var hoverZone: Rect
+        /// Whether the shape is detached from the top edge: it lies below Apple's Dynamic Island
+        /// instead of growing from the notch, so its top corners are convex (Phase 93, D-03).
+        var isDetached = false
     }
 
     /// The live state: the notch widened at menu bar height (concept section 10b).
@@ -224,6 +230,13 @@ nonisolated enum NotchHubGeometry {
     /// the black body, which keeps the flare and the inner padding from the shape's sides. The
     /// notch is judged as the layout of the glass hub judged it: one that is not finite, not
     /// inside the display or without a height counts as none.
+    ///
+    /// On a display with Apple's Dynamic Island (Phase 93, D-03) the hub never covers the island,
+    /// which macOS draws above every level a window of holzBar can use. The layout is then the one
+    /// of a display without a notch, centred on the island's axis and moved down so that the
+    /// shape's top edge lies ``DesignTokens/Island/islandGap`` below the island; `notch` is `nil`,
+    /// the hover zone is the island's own rectangle and ``IslandLayout/isDetached`` is `true`. An
+    /// island that is not finite, not inside the display or without a height counts as none.
     static func island(
         display: Display,
         contentHeight: Double,
@@ -242,14 +255,16 @@ nonisolated enum NotchHubGeometry {
         guard capped >= 1 else {
             return nil
         }
-        let notch = validated(display.notch, in: display.width)
+        let detached = detachedIsland(of: display)
+        let notch = detached == nil ? validated(display.notch, in: display.width) : nil
         let topRowHeight = resolvedTopRowHeight(of: display, notch: notch)
+        let offset = detached?.offset ?? 0
 
         let requested = width.isNaN ? DesignTokens.Island.baseWidth : width
         let narrowest = (notch.map { $0.maxX - $0.minX } ?? 0) + 2 * DesignTokens.Island.openTopRadius
         let shapeWidth = min(max(requested, narrowest), capped)
 
-        let centre = notch.map { ($0.minX + $0.maxX) / 2 } ?? display.width / 2
+        let centre = notch.map { ($0.minX + $0.maxX) / 2 } ?? detached?.axis ?? display.width / 2
         let upperBound = display.width - screenMargin - shapeWidth
         let shapeX = min(max(centre - shapeWidth / 2, screenMargin), max(upperBound, screenMargin))
 
@@ -258,7 +273,7 @@ nonisolated enum NotchHubGeometry {
         let bodyWidth = max(shapeWidth - 2 * inset, 0)
         let contextRow = Rect(
             x: bodyX,
-            y: topRowHeight + DesignTokens.Island.contextGap,
+            y: offset + topRowHeight + DesignTokens.Island.contextGap,
             width: bodyWidth,
             height: DesignTokens.Island.contextRowHeight
         )
@@ -271,12 +286,12 @@ nonisolated enum NotchHubGeometry {
         )
         let shape = Rect(
             x: shapeX,
-            y: 0,
+            y: offset,
             width: shapeWidth,
-            height: moduleRow.maxY + DesignTokens.Island.rowBottom
+            height: moduleRow.maxY + DesignTokens.Island.rowBottom - offset
         )
         let notchRect = notch.map { Rect(x: $0.minX, y: 0, width: $0.maxX - $0.minX, height: $0.height) }
-        let hoverZone = notchRect ?? Rect(
+        let hoverZone = detached?.rect ?? notchRect ?? Rect(
             x: centre - hoverZoneWidth / 2,
             y: 0,
             width: hoverZoneWidth,
@@ -289,7 +304,8 @@ nonisolated enum NotchHubGeometry {
             contextRow: contextRow,
             content: content,
             moduleRow: moduleRow,
-            hoverZone: hoverZone
+            hoverZone: hoverZone,
+            isDetached: detached != nil
         )
     }
 
@@ -394,6 +410,20 @@ nonisolated enum NotchHubGeometry {
             return nil
         }
         return notch
+    }
+
+    /// Apple's Dynamic Island on the display, if it is valid (as ``validated(_:in:)`` judges a
+    /// notch): its rectangle, its axis, and how far below the top edge a detached layout starts,
+    /// the island's height plus ``DesignTokens/Island/islandGap``.
+    private static func detachedIsland(of display: Display) -> (rect: Rect, axis: Double, offset: Double)? {
+        guard let island = validated(display.island, in: display.width) else {
+            return nil
+        }
+        return (
+            rect: Rect(x: island.minX, y: 0, width: island.maxX - island.minX, height: island.height),
+            axis: (island.minX + island.maxX) / 2,
+            offset: island.height + DesignTokens.Island.islandGap
+        )
     }
 
     /// The height of the top row: the menu bar, or the notch if that is taller. A menu bar height

@@ -59,6 +59,7 @@ sources=(
   DisplayBehavior
   DisplayControlsLevel
   DisplayControlsOrder
+  DisplayCutout
   DividerPlausibility
   DockIconPolicy
   DownloadScan
@@ -210,6 +211,7 @@ tests=(
   DisplayBehaviorTests
   DisplayControlsLevelTests
   DisplayControlsOrderTests
+  DisplayCutoutTests
   DividerPlausibilityTests
   DockIconPolicyTests
   DownloadScanTests

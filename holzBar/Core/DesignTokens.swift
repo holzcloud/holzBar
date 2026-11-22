@@ -209,6 +209,9 @@ nonisolated enum DesignTokens {
         static let maximumWidth: Double = 640
         /// The inner padding of the black body, on each side.
         static let sidePadding: Double = 16
+        /// The space between Apple's Dynamic Island and the hub's top edge on a display that has
+        /// one: the hub never covers the island (concept section 10b, Phase 93, D-03).
+        static let islandGap: Double = 6
 
         // MARK: Rows
 

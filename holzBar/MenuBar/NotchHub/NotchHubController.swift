@@ -1472,18 +1472,32 @@ final class NotchHubController: HubHost {
     }
 
     /// What the geometry needs to know about a screen, read from the system's own values.
+    ///
+    /// The camera cutout is classified from public API only (``DisplayCutout``): a notch is
+    /// continued by the hub, Apple's Dynamic Island is never covered, so the hub lies below it
+    /// (Phase 93, D-03).
     private static func display(of screen: NSScreen) -> NotchHubGeometry.Display {
         let frame = screen.frame
-        let notch: NotchHubGeometry.Notch? = if screen.hasNotch {
+        let leftAreaWidth = screen.auxiliaryTopLeftArea.map { Double($0.width) }
+        let rightAreaWidth = screen.auxiliaryTopRightArea.map { Double($0.width) }
+        let cutout = DisplayCutout.classify(
+            displayWidth: Double(frame.width),
+            leftAreaWidth: leftAreaWidth,
+            rightAreaWidth: rightAreaWidth,
+            safeAreaTop: Double(screen.safeAreaInsets.top)
+        )
+        let span: NotchHubGeometry.Notch? = if cutout == .none {
+            nil
+        } else {
             NotchHubGeometry.notch(
                 displayWidth: Double(frame.width),
-                leftAreaWidth: screen.auxiliaryTopLeftArea.map { Double($0.width) },
-                rightAreaWidth: screen.auxiliaryTopRightArea.map { Double($0.width) },
+                leftAreaWidth: leftAreaWidth,
+                rightAreaWidth: rightAreaWidth,
                 height: Double(screen.safeAreaInsets.top)
             )
-        } else {
-            nil
         }
+        let notch = cutout == .notch ? span : nil
+        let island = cutout == .island ? span : nil
         let menuBarHeight: CGFloat
         if screen.hasNotch {
             menuBarHeight = screen.safeAreaInsets.top
@@ -1496,7 +1510,8 @@ final class NotchHubController: HubHost {
             width: Double(frame.width),
             height: Double(frame.height),
             menuBarHeight: Double(menuBarHeight),
-            notch: notch
+            notch: notch,
+            island: island
         )
     }
 }
