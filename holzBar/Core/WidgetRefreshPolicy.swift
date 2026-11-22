@@ -7,8 +7,7 @@ import Foundation
 
 /// How often the text of a widget changes, which decides what arms its timer (D-15).
 nonisolated enum WidgetCadence: Equatable, Sendable {
-    /// The text changes on an event only: a battery reading, a button or a script widget. No
-    /// timer is ever armed.
+    /// The text changes on an event only: a button or a script widget. No timer is ever armed.
     case eventOnly
     /// The text changes with the clock: at the next whole minute, or at the next whole second
     /// when it shows seconds.
@@ -45,7 +44,11 @@ nonisolated enum WidgetCadence: Equatable, Sendable {
         case .dateTime:
             self = .clock(showsSeconds: definition.showsSeconds)
         case .battery:
-            self = .eventOnly
+            // The power source announces its changes by itself; the monitor observes them only
+            // while a battery widget is visible (D-02, D-10).
+            self = .sampled(ReadoutRequest(metrics: [.power], intervalSeconds: 0, needsBaseline: false))
+        case .thermalState:
+            self = .sampled(ReadoutRequest(metrics: [.thermal], intervalSeconds: 0, needsBaseline: false))
         case .cpu:
             self = .sampled(ReadoutRequest(
                 metrics: [.cpu],

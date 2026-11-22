@@ -16,8 +16,10 @@ import Observation
 /// the consumer: it keeps its own baseline, so two consumers with different intervals each measure
 /// from their own previous sample.
 ///
-/// The memory pressure is an event, never polled (D-10): while a consumer asks for it the monitor
-/// holds one dispatch source of the system's memory pressure events, and cancels it when no one asks.
+/// The memory pressure, the power source and the thermal state are events, never polled (D-10):
+/// while a consumer asks for one the monitor holds the system's own event source for it (a dispatch
+/// source, the shared power source run loop source, a notification task), and ends it when no one
+/// asks.
 ///
 /// With no consumer, or while the Mac rests, there is no task and no observer (MON-08): the
 /// ledger is idle and nothing runs. Everything here lives on the main actor, so no lock is
@@ -53,6 +55,11 @@ final class SystemMonitor {
     @ObservationIgnored private var isLowPowerMode = false
     /// The system's memory pressure events, while a consumer asks for the pressure.
     @ObservationIgnored private var pressureWatch: MemoryPressureWatch?
+    /// The task that follows power source events, while a consumer asks for the power; it holds one
+    /// use of the shared run loop source, which it gives back when it ends.
+    @ObservationIgnored private var powerEventTask: Task<Void, Never>?
+    /// The task that follows the thermal state notification, while a consumer asks for it.
+    @ObservationIgnored private var thermalTask: Task<Void, Never>?
     /// The free disk space as the last precise read left it, and when that was (D-10).
     @ObservationIgnored private var preciseDiskSpace: DiskSpace?
     @ObservationIgnored private var preciseDiskSpaceAt: ContinuousClock.Instant?
@@ -190,19 +197,67 @@ final class SystemMonitor {
 
     // MARK: Event observers
 
-    /// Starts or stops the event sources to match the schedule's observer plan: one source while
-    /// a consumer asks for the memory pressure, none otherwise (MON-08).
+    /// Starts or stops the event sources to match the schedule's observer plan: one source for each
+    /// event metric a consumer asks for, none otherwise (MON-08).
     private func updateEventObservers(_ wanted: Set<ReadoutMetric>) {
         if wanted.contains(.memoryPressure) {
-            guard pressureWatch == nil else {
-                return
-            }
-            pressureWatch = MemoryPressureWatch { [weak self] level in
-                self?.pressureChanged(level)
+            if pressureWatch == nil {
+                pressureWatch = MemoryPressureWatch { [weak self] level in
+                    self?.pressureChanged(level)
+                }
             }
         } else if let watch = pressureWatch {
             watch.cancel()
             pressureWatch = nil
+        }
+        updatePowerEvents(isWanted: wanted.contains(.power))
+        updateThermalEvents(isWanted: wanted.contains(.thermal))
+    }
+
+    /// Takes one use of the shared power source run loop source while the power is asked for and
+    /// gives it back when it is not: every `begin()` pairs with one `end()`, because the automation
+    /// rules share the source (T-94-15).
+    private func updatePowerEvents(isWanted: Bool) {
+        if isWanted {
+            guard powerEventTask == nil else {
+                return
+            }
+            PowerSourceEvents.shared.begin()
+            powerEventTask = Task { [weak self] in
+                for await _ in NotificationCenter.default.notifications(named: .powerSourcesDidChange) {
+                    guard let self else {
+                        return
+                    }
+                    powerChanged()
+                }
+            }
+        } else if let task = powerEventTask {
+            task.cancel()
+            powerEventTask = nil
+            PowerSourceEvents.shared.end()
+        }
+    }
+
+    private func updateThermalEvents(isWanted: Bool) {
+        if isWanted {
+            guard thermalTask == nil else {
+                return
+            }
+            // The notification may arrive on any thread; the loop runs on the main actor, so the
+            // state is read and delivered there (T-94-16). Never a timer (D-10).
+            thermalTask = Task { [weak self] in
+                for await _ in NotificationCenter.default.notifications(
+                    named: ProcessInfo.thermalStateDidChangeNotification
+                ) {
+                    guard let self else {
+                        return
+                    }
+                    thermalChanged()
+                }
+            }
+        } else if let task = thermalTask {
+            task.cancel()
+            thermalTask = nil
         }
     }
 
@@ -212,7 +267,26 @@ final class SystemMonitor {
         var sample = ReadoutSample(at: ContinuousClock.now)
         sample.read = [.memoryPressure]
         sample.memoryPressure = level
-        for id in ledger.consumerIDs where ledger.request(for: id)?.metrics.contains(.memoryPressure) == true {
+        deliverEvent(sample, of: .memoryPressure)
+    }
+
+    private func powerChanged() {
+        var sample = ReadoutSample(at: ContinuousClock.now)
+        sample.read = [.power]
+        sample.power = SystemSamplers.powerReading()
+        deliverEvent(sample, of: .power)
+    }
+
+    private func thermalChanged() {
+        var sample = ReadoutSample(at: ContinuousClock.now)
+        sample.read = [.thermal]
+        sample.thermal = SystemSamplers.thermalState()
+        deliverEvent(sample, of: .thermal)
+    }
+
+    /// Hands an event sample to every consumer whose request holds the metric.
+    private func deliverEvent(_ sample: ReadoutSample, of metric: ReadoutMetric) {
+        for id in ledger.consumerIDs where ledger.request(for: id)?.metrics.contains(metric) == true {
             sinks[id]?(sample)
         }
     }

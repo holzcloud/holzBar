@@ -70,9 +70,6 @@ final class MenuBarWidgets {
     /// The tasks that follow the clock, Low Power Mode and the locale, while the module is on.
     @ObservationIgnored private var observerTasks = [Task<Void, Never>]()
 
-    /// The task that follows power source events, while a battery widget is visible.
-    @ObservationIgnored private var batteryTask: Task<Void, Never>?
-
     /// Waits for the script store to be read at start-up, so that script widgets that were
     /// revealed before it was ready ask their script then. It ends itself.
     @ObservationIgnored private var scriptStoreLoop: ObservationLoop?
@@ -167,7 +164,6 @@ final class MenuBarWidgets {
         timers.forget(id)
         if let runtime = runtimes.removeValue(forKey: id) {
             stop(runtime, keepingPosition: false)
-            updatePowerSourceEvents()
             updateMediaMonitoring()
         } else {
             Self.forgetPosition(of: definition.autosaveName)
@@ -538,7 +534,6 @@ final class MenuBarWidgets {
             stop(runtime, keepingPosition: true)
         }
         runtimes.removeAll()
-        updatePowerSourceEvents()
         timers.removeAll()
         updateMediaMonitoring()
     }
@@ -921,7 +916,8 @@ final class MenuBarWidgets {
         }
         // The battery's state symbol is part of the text; the wider of the two is measured.
         var measured = WidgetText(string: widest)
-        if definition.kind == .text, definition.source == .battery, definition.preset == .percentAndState {
+        if definition.kind == .text, definition.source == .battery,
+            definition.preset == .percentAndState || definition.preset == .percentAndTimeLeft {
             let candidates = [BatteryState.charging, .onAdapter].map { WidgetText(string: widest, batteryState: $0) }
             measured = candidates.max { first, second in
                 Self.attributedTitle(for: first).size().width < Self.attributedTitle(for: second).size().width
@@ -1182,7 +1178,6 @@ final class MenuBarWidgets {
         case .arm(let instant, let tolerance):
             arm(runtime, until: instant, tolerance: tolerance)
         }
-        updatePowerSourceEvents()
     }
 
     /// Reads the widget's source once and draws the text. A script widget asks its script
@@ -1208,12 +1203,7 @@ final class MenuBarWidgets {
         switch definition.source {
         case .dateTime:
             return .date(Date())
-        case .battery:
-            guard let battery = PowerSources.internalBattery(), let percent = battery.percent else {
-                return .unavailable
-            }
-            return .battery(percent: percent, state: battery.state)
-        case .cpu, .networkSpeed, .diskActivity, .memory, .freeDisk:
+        case .cpu, .networkSpeed, .diskActivity, .memory, .freeDisk, .battery, .thermalState:
             // The shared monitor feeds it; the first reading after a reveal is only the baseline.
             return readoutLink.lastReading(for: definition.id) ?? .unavailable
         case .uptime:
@@ -1473,41 +1463,6 @@ final class MenuBarWidgets {
             configure(runtime)
             render(runtime, reading: runtime.reading)
             send(.cadenceChanged(WidgetCadence(definition: runtime.definition)), to: runtime)
-        }
-    }
-
-    /// Whether a battery widget is visible. The battery has no timer: the widget is read when it
-    /// is revealed and when the power source says it changed.
-    private var needsPowerSourceEvents: Bool {
-        isActive && runtimes.values.contains { runtime in
-            runtime.definition.kind == .text && runtime.definition.source == .battery && runtime.policy.isVisible
-        }
-    }
-
-    /// Asks for power source events while a battery widget is visible, and gives them back when
-    /// none is (D-15). The run loop source is shared with the automation rules.
-    private func updatePowerSourceEvents() {
-        let isNeeded = needsPowerSourceEvents
-        guard isNeeded != (batteryTask != nil) else {
-            return
-        }
-        if isNeeded {
-            PowerSourceEvents.shared.begin()
-            batteryTask = Task { [weak self] in
-                for await _ in NotificationCenter.default.notifications(named: .powerSourcesDidChange) {
-                    self?.powerSourcesChanged()
-                }
-            }
-        } else {
-            batteryTask?.cancel()
-            batteryTask = nil
-            PowerSourceEvents.shared.end()
-        }
-    }
-
-    private func powerSourcesChanged() {
-        for runtime in runtimes.values where runtime.definition.kind == .text && runtime.definition.source == .battery {
-            send(.sourceChanged, to: runtime)
         }
     }
 }

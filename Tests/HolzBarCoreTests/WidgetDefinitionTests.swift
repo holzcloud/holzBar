@@ -44,7 +44,7 @@ struct WidgetDefinitionTests {
     func sources() {
         #expect(
             WidgetSource.allCases.map(\.rawValue)
-                == ["dateTime", "battery", "cpu", "memory", "uptime", "freeDisk", "countdown", "networkSpeed", "diskActivity"]
+                == ["dateTime", "battery", "cpu", "memory", "uptime", "freeDisk", "countdown", "networkSpeed", "diskActivity", "thermalState"]
         )
         #expect(WidgetKind(rawValue: "text") == .text)
         #expect(WidgetKind(rawValue: "button") == .button)
@@ -53,20 +53,21 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource(rawValue: "wifi") == nil)
         #expect(
             WidgetSource.allCases.map(\.symbolName)
-                == ["clock", "battery.75percent", "cpu", "memorychip", "power", "internaldrive", "hourglass", "arrow.up.arrow.down", "cylinder.split.1x2"]
+                == ["clock", "battery.75percent", "cpu", "memorychip", "power", "internaldrive", "hourglass", "arrow.up.arrow.down", "cylinder.split.1x2", "thermometer.medium"]
         )
         // Only the new source is a Preview (D-15).
-        #expect(WidgetSource.allCases.filter(\.isPreview) == [.networkSpeed, .diskActivity])
+        #expect(WidgetSource.allCases.filter(\.isPreview) == [.networkSpeed, .diskActivity, .thermalState])
         #expect(
             WidgetPreset.allCases.filter(\.isPreview)
-                == [.download, .upload, .downloadAndUpload, .read, .write, .readAndWrite, .pressure, .swapUsed]
+                == [.download, .upload, .downloadAndUpload, .read, .write, .readAndWrite, .pressure, .swapUsed, .state,
+                    .percentAndTimeLeft, .adapterWatts]
         )
     }
 
     @Test("Each source offers a fixed set of presets (D-09)")
     func presets() {
         #expect(WidgetSource.dateTime.presets == [.time, .weekdayAndTime, .dateAndTime, .weekdayDateAndTime])
-        #expect(WidgetSource.battery.presets == [.percent, .percentAndState])
+        #expect(WidgetSource.battery.presets == [.percent, .percentAndState, .percentAndTimeLeft, .adapterWatts])
         #expect(WidgetSource.cpu.presets == [.percent])
         #expect(WidgetSource.memory.presets == [.percentUsed, .gigabytesUsed, .pressure, .swapUsed])
         #expect(WidgetSource.uptime.presets == [.duration, .compactDuration])
@@ -74,11 +75,12 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource.freeDisk.presets == [.gigabytesFree, .percentFree])
         #expect(WidgetSource.networkSpeed.presets == [.download, .upload, .downloadAndUpload])
         #expect(WidgetSource.diskActivity.presets == [.read, .write, .readAndWrite])
-        // The twenty formats of the sources, and the three widths that belong to the script kind
+        #expect(WidgetSource.thermalState.presets == [.state])
+        // The twenty-three formats of the sources, and the three widths that belong to the script kind
         // alone (D-23).
-        #expect(Set(WidgetSource.allCases.flatMap(\.presets)).count == 20)
+        #expect(Set(WidgetSource.allCases.flatMap(\.presets)).count == 23)
         #expect(WidgetKind.scriptPresets == [.narrowText, .mediumText, .wideText])
-        #expect(WidgetPreset.allCases.count == 23)
+        #expect(WidgetPreset.allCases.count == 26)
         let sourcePresets = Set(WidgetSource.allCases.flatMap(\.presets))
         #expect(sourcePresets.isDisjoint(with: WidgetKind.scriptPresets))
         #expect(sourcePresets.union(WidgetKind.scriptPresets).count == WidgetPreset.allCases.count)
@@ -92,6 +94,7 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource.freeDisk.defaultPreset == .gigabytesFree)
         #expect(WidgetSource.networkSpeed.defaultPreset == .downloadAndUpload)
         #expect(WidgetSource.diskActivity.defaultPreset == .readAndWrite)
+        #expect(WidgetSource.thermalState.defaultPreset == .state)
     }
 
     @Test("The network speed and the disk activity refresh every 2 s, tunable from 2 to 60 s (D-09)")
@@ -215,6 +218,8 @@ struct WidgetDefinitionTests {
         #expect(widget(.memory, .gigabytesUsed).offersRefresh)
         #expect(widget(.memory, .swapUsed).offersRefresh)
         #expect(!widget(.battery, .percent).offersRefresh)
+        #expect(!widget(.battery, .percentAndTimeLeft).offersRefresh)
+        #expect(!widget(.thermalState, .state).offersRefresh)
         #expect(!widget(.freeDisk, .gigabytesFree).offersRefresh)
         #expect(widget(.cpu, .percent).offersRefresh)
         #expect(widget(.networkSpeed, .download).offersRefresh)

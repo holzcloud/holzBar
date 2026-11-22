@@ -86,6 +86,7 @@ nonisolated enum WidgetSpeech {
         case .countdown: String(localized: "Countdown")
         case .networkSpeed: String(localized: "Network Speed")
         case .diskActivity: String(localized: "Disk Activity")
+        case .thermalState: String(localized: "Thermal State")
         }
     }
 
@@ -141,17 +142,16 @@ nonisolated enum WidgetSpeech {
         switch (definition.source, reading) {
         case (.dateTime, .date):
             return WidgetFormat.text(for: reading, definition: definition, locale: locale, calendar: calendar).string
-        case (.battery, .battery(let percent, let state)):
-            let level = min(max(percent, 0), 100)
-            guard definition.preset == .percentAndState else {
-                return String(localized: "\(level) percent")
+        case (.battery, .battery), (.battery, .power):
+            return batteryValue(for: reading, preset: definition.preset, locale: locale) ?? unavailable
+        case (.thermalState, .thermal(let level)):
+            let word = switch level {
+            case .nominal: String(localized: "Nominal")
+            case .fair: String(localized: "Fair")
+            case .serious: String(localized: "Serious")
+            case .critical: String(localized: "Critical")
             }
-            switch state {
-            case .charging: return String(localized: "\(level) percent, charging")
-            case .charged: return String(localized: "\(level) percent, charged")
-            case .onBattery: return String(localized: "\(level) percent, on battery")
-            case .onAdapter: return String(localized: "\(level) percent, on power adapter")
-            }
+            return String(localized: "Thermal state \(word)")
         case (.cpu, .fraction(let fraction)),
             (.memory, .fraction(let fraction)) where definition.preset == .percentUsed,
             (.freeDisk, .fraction(let fraction)) where definition.preset != .gigabytesFree:
@@ -203,6 +203,56 @@ nonisolated enum WidgetSpeech {
             }
         default:
             return unavailable
+        }
+    }
+
+    /// The battery in words: "80 percent, on battery, 2 hours, 10 minutes left", or the adapter's
+    /// power. `nil` for a value the format cannot say (an adapter without watts).
+    private static func batteryValue(for reading: WidgetReading, preset: WidgetPreset, locale: Locale) -> String? {
+        let power: PowerReading
+        switch reading {
+        case .battery(let percent, let state):
+            power = PowerReading(percent: percent, state: state)
+        case .power(let value):
+            power = value
+        default:
+            return nil
+        }
+        if preset == .adapterWatts {
+            guard let watts = power.adapterWatts else {
+                return nil
+            }
+            let style = Measurement<UnitPower>.FormatStyle(
+                width: .wide,
+                locale: locale,
+                usage: .asProvided,
+                numberFormatStyle: .number.precision(.fractionLength(0))
+            )
+            let amount = Measurement(value: Double(watts), unit: UnitPower.watts).formatted(style)
+            return String(localized: "\(amount) adapter")
+        }
+        let level = min(max(power.percent, 0), 100)
+        guard preset != .percent else {
+            return String(localized: "\(level) percent")
+        }
+        let phrase = switch power.state {
+        case .charging: String(localized: "\(level) percent, charging")
+        case .charged: String(localized: "\(level) percent, charged")
+        case .onBattery: String(localized: "\(level) percent, on battery")
+        case .onAdapter: String(localized: "\(level) percent, on power adapter")
+        }
+        guard preset == .percentAndTimeLeft else {
+            return phrase
+        }
+        switch power.state {
+        case .onBattery:
+            return power.timeToEmpty.map { phrase + ", " + String(localized: "\(spoken($0, roundingUp: false, locale: locale)) left") }
+                ?? phrase
+        case .charging:
+            return power.timeToFull.map { phrase + ", " + String(localized: "\(spoken($0, roundingUp: false, locale: locale)) to full") }
+                ?? phrase
+        case .charged, .onAdapter:
+            return phrase
         }
     }
 

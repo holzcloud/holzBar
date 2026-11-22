@@ -484,6 +484,77 @@ struct WidgetFormatTests {
         #expect(!swap.contains("16 GB"))
     }
 
+    @Test("The thermal state is its word, with fixed width samples (MON-06)")
+    func thermalText() {
+        let thermal = definition(.thermalState)
+        #expect(text(.thermal(.serious), thermal).string == "Serious")
+        #expect(text(.thermal(.nominal), thermal).string == "Nominal")
+        #expect(text(.thermal(.fair), thermal).string == "Fair")
+        #expect(text(.thermal(.critical), thermal).string == "Critical")
+        #expect(text(.fraction(0.5), thermal).isUnavailable)
+        #expect(text(.thermal(.fair), definition(.cpu)).isUnavailable)
+        let samples = WidgetFormat.widthSamples(for: thermal, locale: english, calendar: calendar, capacityBytes: nil)
+        #expect(samples == ["Nominal", "Fair", "Serious", "Critical"])
+    }
+
+    @Test("Percent and Time Left shows the time to empty on battery and to full while charging (MON-05, D-11)")
+    func percentAndTimeLeft() {
+        let left = definition(.battery, preset: .percentAndTimeLeft)
+        let onBattery = PowerReading(
+            percent: 80, state: .onBattery, timeToEmpty: .seconds(130 * 60), timeToFull: nil, adapterWatts: nil
+        )
+        let onBatteryText = text(.power(onBattery), left)
+        #expect(plain(onBatteryText.string) == "80% \u{00B7} 2:10")
+        #expect(onBatteryText.batteryState == .onBattery)
+        let charging = PowerReading(
+            percent: 80, state: .charging, timeToEmpty: nil, timeToFull: .seconds(45 * 60), adapterWatts: 96
+        )
+        let chargingText = text(.power(charging), left)
+        #expect(plain(chargingText.string) == "80% \u{00B7} 0:45")
+        #expect(chargingText.batteryState == .charging)
+        // The wrong estimate for the state is not shown, and no estimate is the percent alone.
+        let mixed = PowerReading(
+            percent: 80, state: .onBattery, timeToEmpty: nil, timeToFull: .seconds(45 * 60), adapterWatts: nil
+        )
+        #expect(plain(text(.power(mixed), left).string) == "80%")
+        let charged = PowerReading(
+            percent: 100, state: .charged, timeToEmpty: .seconds(60), timeToFull: .seconds(60), adapterWatts: 61
+        )
+        #expect(plain(text(.power(charged), left).string) == "100%")
+        let samples = WidgetFormat.widthSamples(for: left, locale: english, calendar: calendar, capacityBytes: nil)
+        #expect(samples.map(plain).contains("100% \u{00B7} 99:59"))
+    }
+
+    @Test("Adapter Watts shows the watts, and the en dash without them (MON-05, MON-09, D-11)")
+    func adapterWatts() {
+        let watts = definition(.battery, preset: .adapterWatts)
+        let plugged = PowerReading(
+            percent: 50, state: .charging, timeToEmpty: nil, timeToFull: nil, adapterWatts: 96
+        )
+        let result = text(.power(plugged), watts)
+        #expect(plain(result.string) == "96 W")
+        #expect(result.batteryState == nil)
+        let unplugged = PowerReading(
+            percent: 50, state: .onBattery, timeToEmpty: nil, timeToFull: nil, adapterWatts: nil
+        )
+        #expect(text(.power(unplugged), watts).isUnavailable)
+        #expect(text(.fraction(0.5), watts).isUnavailable)
+        let samples = WidgetFormat.widthSamples(for: watts, locale: english, calendar: calendar, capacityBytes: nil)
+        #expect(samples.map(plain) == ["100 W"])
+    }
+
+    @Test("The old battery formats give the same text from a power reading as from the battery reading")
+    func batteryFromPower() {
+        let power = PowerReading(percent: 80, state: .charging, timeToEmpty: nil, timeToFull: .seconds(600), adapterWatts: 30)
+        for preset in [WidgetPreset.percent, .percentAndState] {
+            let old = text(.battery(percent: 80, state: .charging), definition(.battery, preset: preset))
+            let new = text(.power(power), definition(.battery, preset: preset))
+            #expect(old == new, "\(preset)")
+        }
+        #expect(text(.power(power), definition(.battery, preset: .percentAndState)).batteryState == .charging)
+        #expect(text(.power(power), definition(.battery, preset: .percent)).batteryState == nil)
+    }
+
     @Test("A script widget shows its line as given, never parsed (T-12-25)")
     func scriptLineIsShownAsGiven() {
         let lines = [

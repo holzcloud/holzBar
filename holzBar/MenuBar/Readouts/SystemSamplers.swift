@@ -6,6 +6,7 @@
 import Darwin
 import Foundation
 import IOKit
+import IOKit.ps
 
 /// Reads the numbers of the system readouts that come from the kernel and the file system.
 ///
@@ -52,6 +53,16 @@ nonisolated enum SystemSamplers {
             // event source, never from a timer (D-10).
             sample.read.insert(.memoryPressure)
             sample.memoryPressure = memoryPressureLevel()
+        }
+        if metrics.contains(.power) {
+            // The values at the time of the first reading; later changes come from the monitor's
+            // power source event, never from a timer (D-10).
+            sample.read.insert(.power)
+            sample.power = powerReading()
+        }
+        if metrics.contains(.thermal) {
+            sample.read.insert(.thermal)
+            sample.thermal = thermalState()
         }
         if metrics.contains(.diskSpace) {
             sample.read.insert(.diskSpace)
@@ -140,6 +151,63 @@ nonisolated enum SystemSamplers {
             return nil
         }
         return ReadoutPressure(kernelLevel: Int(level))
+    }
+
+    /// The thermal state the system reports now, from `ProcessInfo`. A later change comes from the
+    /// monitor's thermal notification (D-10).
+    static func thermalState() -> ReadoutThermal? {
+        ReadoutThermal(rawState: ProcessInfo.processInfo.thermalState.rawValue)
+    }
+
+    /// The internal battery as one power reading, or `nil` on a Mac without one or when it gives
+    /// no level.
+    ///
+    /// The percent and the state come from ``PowerSources`` (Current Capacity against Max
+    /// Capacity, so a charge limit is respected, D-10). The minutes until empty and until full
+    /// come from the battery's power source description and the adapter's watts from the system's
+    /// description of the external adapter; each goes through ``PowerValues``, so a sentinel
+    /// ("calculating", "unknown"), a negative or an impossible value is `nil` and never a number
+    /// (D-11, T-94-14).
+    static func powerReading() -> PowerReading? {
+        guard let battery = PowerSources.internalBattery(), let percent = battery.percent else {
+            return nil
+        }
+        let minutes = batteryMinutes()
+        var adapter: Int?
+        if
+            !battery.isOnBattery,
+            let details = IOPSCopyExternalPowerAdapterDetails()?.takeRetainedValue() as? [String: Any]
+        {
+            adapter = details[kIOPSPowerAdapterWattsKey] as? Int
+        }
+        return PowerReading(
+            percent: percent,
+            state: battery.state,
+            timeToEmpty: PowerValues.duration(minutes: minutes.toEmpty),
+            timeToFull: PowerValues.duration(minutes: minutes.toFull),
+            adapterWatts: PowerValues.watts(adapter)
+        )
+    }
+
+    /// The minutes the internal battery gives until empty and until full, as the system wrote
+    /// them (not yet checked).
+    private static func batteryMinutes() -> (toEmpty: Int?, toFull: Int?) {
+        guard
+            let info = IOPSCopyPowerSourcesInfo()?.takeRetainedValue(),
+            let sources = IOPSCopyPowerSourcesList(info)?.takeRetainedValue() as? [CFTypeRef]
+        else {
+            return (nil, nil)
+        }
+        for source in sources {
+            guard
+                let description = IOPSGetPowerSourceDescription(info, source)?.takeUnretainedValue() as? [String: Any],
+                description[kIOPSTypeKey] as? String == kIOPSInternalBatteryType
+            else {
+                continue
+            }
+            return (description[kIOPSTimeToEmptyKey] as? Int, description[kIOPSTimeToFullChargeKey] as? Int)
+        }
+        return (nil, nil)
     }
 
     /// The free space and the capacity of the startup volume.

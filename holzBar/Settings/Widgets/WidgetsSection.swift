@@ -253,6 +253,7 @@ struct WidgetsSection: View {
         case .countdown: Text("Countdown")
         case .networkSpeed: Text("Network Speed")
         case .diskActivity: Text("Disk Activity")
+        case .thermalState: Text("Thermal State")
         }
     }
 }

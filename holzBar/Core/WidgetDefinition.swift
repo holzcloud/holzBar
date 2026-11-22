@@ -42,13 +42,14 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
     case countdown
     case networkSpeed
     case diskActivity
+    case thermalState
 
     /// Whether the source is new and not yet tried on a Mac: the editor and the widget list show
     /// the Preview badge beside it (D-15). The maintainer flips a source to `false` after the Mac
     /// test.
     var isPreview: Bool {
         switch self {
-        case .networkSpeed, .diskActivity: true
+        case .networkSpeed, .diskActivity, .thermalState: true
         case .dateTime, .battery, .cpu, .memory, .uptime, .freeDisk, .countdown: false
         }
     }
@@ -66,6 +67,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         case .countdown: "hourglass"
         case .networkSpeed: "arrow.up.arrow.down"
         case .diskActivity: "cylinder.split.1x2"
+        case .thermalState: "thermometer.medium"
         }
     }
 
@@ -74,13 +76,14 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
     var presets: [WidgetPreset] {
         switch self {
         case .dateTime: [.time, .weekdayAndTime, .dateAndTime, .weekdayDateAndTime]
-        case .battery: [.percent, .percentAndState]
+        case .battery: [.percent, .percentAndState, .percentAndTimeLeft, .adapterWatts]
         case .cpu: [.percent]
         case .memory: [.percentUsed, .gigabytesUsed, .pressure, .swapUsed]
         case .uptime, .countdown: [.duration, .compactDuration]
         case .freeDisk: [.gigabytesFree, .percentFree]
         case .networkSpeed: [.download, .upload, .downloadAndUpload]
         case .diskActivity: [.read, .write, .readAndWrite]
+        case .thermalState: [.state]
         }
     }
 
@@ -95,6 +98,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         case .freeDisk: .gigabytesFree
         case .networkSpeed: .downloadAndUpload
         case .diskActivity: .readAndWrite
+        case .thermalState: .state
         }
     }
 
@@ -106,7 +110,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         switch self {
         case .cpu, .networkSpeed, .diskActivity: 2...60
         case .memory: 5...300
-        case .dateTime, .battery, .uptime, .freeDisk, .countdown: nil
+        case .dateTime, .battery, .uptime, .freeDisk, .countdown, .thermalState: nil
         }
     }
 
@@ -116,7 +120,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         case .cpu: 5
         case .memory: 10
         case .networkSpeed, .diskActivity: 2
-        case .dateTime, .battery, .uptime, .freeDisk, .countdown: nil
+        case .dateTime, .battery, .uptime, .freeDisk, .countdown, .thermalState: nil
         }
     }
 
@@ -127,7 +131,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         case .cpu: [2, 5, 10, 30]
         case .memory: [5, 10, 30, 60]
         case .networkSpeed, .diskActivity: [2, 5, 10, 30, 60]
-        case .dateTime, .battery, .uptime, .freeDisk, .countdown: []
+        case .dateTime, .battery, .uptime, .freeDisk, .countdown, .thermalState: []
         }
     }
 }
@@ -168,13 +172,19 @@ nonisolated enum WidgetPreset: String, Codable, CaseIterable, Sendable {
     // Memory pressure and swap
     case pressure
     case swapUsed
+    // Thermal state
+    case state
+    // Battery with the time left, and the adapter's power
+    case percentAndTimeLeft
+    case adapterWatts
 
     /// Whether the format is new and not yet tried on a Mac: the editor and the widget list show
     /// the Preview badge beside it (D-15). The maintainer flips a format to `false` after the
     /// Mac test.
     var isPreview: Bool {
         switch self {
-        case .download, .upload, .downloadAndUpload, .read, .write, .readAndWrite, .pressure, .swapUsed: true
+        case .download, .upload, .downloadAndUpload, .read, .write, .readAndWrite, .pressure, .swapUsed, .state,
+            .percentAndTimeLeft, .adapterWatts: true
         case .time, .weekdayAndTime, .dateAndTime, .weekdayDateAndTime, .percent, .percentAndState,
             .percentUsed, .gigabytesUsed, .duration, .compactDuration, .gigabytesFree, .percentFree,
             .narrowText, .mediumText, .wideText: false

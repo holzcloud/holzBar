@@ -70,9 +70,12 @@ nonisolated enum WidgetFormat {
         case (.dateTime, .date(let date)):
             let style = dateStyle(for: definition, locale: locale, calendar: calendar)
             return WidgetText(string: date.formatted(style))
-        case (.battery, .battery(let percent, let state)):
-            let string = percentText(Double(min(max(percent, 0), 100)) / 100, locale: locale)
-            return WidgetText(string: string, batteryState: preset == .percentAndState ? state : nil)
+        case (.battery, .battery), (.battery, .power):
+            if let battery = batteryText(for: reading, preset: preset, locale: locale, texts: texts) {
+                return battery
+            }
+        case (.thermalState, .thermal(let level)):
+            return WidgetText(string: ReadoutFormat.thermalWord(level, texts: texts))
         case (.cpu, .fraction(let fraction)),
             (.memory, .fraction(let fraction)) where preset == .percentUsed,
             (.freeDisk, .fraction(let fraction)) where preset != .gigabytesFree:
@@ -134,6 +137,62 @@ nonisolated enum WidgetFormat {
         return WidgetText(string: unavailable)
     }
 
+    /// The text of a battery format from a power reading (the battery's own reading of 1.1.1 is
+    /// the percent and the state only); `nil` for a value the format cannot show, which is then
+    /// the en dash. Percent and State and Percent and Time Left carry the state as a symbol.
+    private static func batteryText(
+        for reading: WidgetReading,
+        preset: WidgetPreset,
+        locale: Locale,
+        texts: ReadoutTexts
+    ) -> WidgetText? {
+        let power: PowerReading
+        switch reading {
+        case .battery(let percent, let state):
+            power = PowerReading(percent: percent, state: state)
+        case .power(let value):
+            power = value
+        default:
+            return nil
+        }
+        switch preset {
+        case .adapterWatts:
+            // Without watts (on battery, or an adapter that told none) there is nothing to show.
+            return power.adapterWatts.map { WidgetText(string: wattsText($0, locale: locale, texts: texts)) }
+        case .percentAndTimeLeft:
+            var string = percentText(Double(min(max(power.percent, 0), 100)) / 100, locale: locale)
+            if let time = timeLeft(power) {
+                string += timeSeparator + timeText(time, locale: locale)
+            }
+            return WidgetText(string: string, batteryState: power.state)
+        default:
+            let string = percentText(Double(min(max(power.percent, 0), 100)) / 100, locale: locale)
+            return WidgetText(string: string, batteryState: preset == .percentAndState ? power.state : nil)
+        }
+    }
+
+    /// The time until empty on battery and until full while charging; `nil` on the adapter
+    /// without charging, and while the system gives no estimate.
+    private static func timeLeft(_ power: PowerReading) -> Duration? {
+        switch power.state {
+        case .onBattery: power.timeToEmpty
+        case .charging: power.timeToFull
+        case .charged, .onAdapter: nil
+        }
+    }
+
+    /// Between the percent and the time left.
+    private static let timeSeparator = " \u{00B7} "
+
+    /// The time as hours and minutes (2:10), in the locale's digits.
+    private static func timeText(_ time: Duration, locale: Locale) -> String {
+        time.formatted(Duration.TimeFormatStyle(pattern: .hourMinute(padHourToLength: 1)).locale(locale))
+    }
+
+    private static func wattsText(_ watts: Int, locale: Locale, texts: ReadoutTexts) -> String {
+        texts.fill(texts.wattsFormat, with: watts.formatted(.number.locale(locale)))
+    }
+
     /// The read and the write rate in one text, each with its translated one-letter label.
     private static func readAndWrite(_ read: String, _ written: String, texts: ReadoutTexts) -> String {
         texts.fill(texts.readFormat, with: read) + " " + texts.fill(texts.writeFormat, with: written)
@@ -149,7 +208,8 @@ nonisolated enum WidgetFormat {
     ///
     /// - A clock: every day of the leap year 2024 at 10:58:58 and at 22:58:58 in the calendar's
     ///   time zone, which holds every weekday name, every month name and both AM and PM forms.
-    /// - A percent: 100 percent.
+    /// - A percent: 100 percent. Percent and Time Left: 100 percent and 99:59; Adapter Watts: 100 W.
+    /// - A thermal state: its four words in the language.
     /// - A byte count: the capacity, 9.9 GB and 999.9 GB. Swap: 9.9 GB and 99.9 GB.
     /// - A memory pressure: its three words in the language.
     /// - A duration: 0 min, 1 min, 59 min, 1 h 1 min, 23 h 59 min, 1 day 1 h, 1 day 1 min,
@@ -212,8 +272,20 @@ nonisolated enum WidgetFormat {
                     }
                 }
             }
+        case .battery where preset == .percentAndTimeLeft:
+            // The longest times shown: 99 hours 59 minutes, and the 100 hours ``PowerValues`` still
+            // believes.
+            for seconds in [99 * 3_600 + 59 * 60, PowerValues.maximumMinutes * 60] {
+                add(percentText(1, locale: locale) + timeSeparator + timeText(.seconds(seconds), locale: locale))
+            }
+        case .battery where preset == .adapterWatts:
+            add(wattsText(100, locale: locale, texts: texts))
         case .battery, .cpu:
             add(percentText(1, locale: locale))
+        case .thermalState:
+            for level in ReadoutThermal.allCases {
+                add(ReadoutFormat.thermalWord(level, texts: texts))
+            }
         case .networkSpeed:
             let rates = ReadoutFormat.rateWidthSamples(unit: rateUnit, texts: texts, locale: locale)
             if preset == .downloadAndUpload {

@@ -77,12 +77,21 @@ final class WidgetReadoutLink {
         definitions[id] = nil
     }
 
-    /// Makes the reading of a widget whose format changed from the last delivery. Only the
-    /// memory and the free disk space are a value of one sample; a rate needs its baseline.
+    /// Whether a source's reading is a value of one sample, so a format change can be shown from the
+    /// kept sample: the memory, the free disk space, the battery and the thermal state. A rate needs
+    /// its baseline.
+    private static func isOneSampleValue(_ source: WidgetSource) -> Bool {
+        switch source {
+        case .memory, .freeDisk, .battery, .thermalState: true
+        case .dateTime, .cpu, .networkSpeed, .diskActivity, .uptime, .countdown: false
+        }
+    }
+
+    /// Makes the reading of a widget whose format changed from the last delivery.
     private func rebuildReading(for definition: WidgetDefinition) {
         let id = definition.id
         guard
-            readings[id] == nil, definition.source == .memory || definition.source == .freeDisk,
+            readings[id] == nil, Self.isOneSampleValue(definition.source),
             let sample = samples[id], var baseline = baselines[id],
             let reading = Self.reading(from: sample, definition: definition, baseline: &baseline)
         else {
@@ -143,7 +152,17 @@ final class WidgetReadoutLink {
                 return nil
             }
             return diskSpaceReading(sample.diskSpace, preset: definition.preset)
-        case .dateTime, .battery, .uptime, .countdown:
+        case .battery:
+            guard sample.read.contains(.power) else {
+                return nil
+            }
+            return sample.power.map(WidgetReading.power) ?? .unavailable
+        case .thermalState:
+            guard sample.read.contains(.thermal) else {
+                return nil
+            }
+            return sample.thermal.map(WidgetReading.thermal) ?? .unavailable
+        case .dateTime, .uptime, .countdown:
             return nil
         }
     }
@@ -220,6 +239,12 @@ extension ReadoutTexts {
         texts.pressureNormal = String(localized: "Normal")
         texts.pressureHigh = String(localized: "High")
         texts.pressureCritical = String(localized: "Critical")
+        texts.thermalNominal = String(localized: "Nominal")
+        texts.thermalFair = String(localized: "Fair")
+        texts.thermalSerious = String(localized: "Serious")
+        texts.thermalCritical = texts.pressureCritical
+        let watt = formatter.string(from: UnitPower.watts)
+        texts.wattsFormat = "%@ " + (watt.isEmpty ? "W" : watt)
         cache[key] = texts
         return texts
     }

@@ -604,7 +604,12 @@ struct WidgetRefreshPolicyTests {
         var withSeconds = make(.dateTime)
         withSeconds.showsSeconds = true
         #expect(WidgetCadence(definition: withSeconds) == .clock(showsSeconds: true))
-        #expect(WidgetCadence(definition: make(.battery)) == .eventOnly)
+        // The battery and the thermal state announce their changes themselves: sampled, no interval
+        // and no baseline, every format (D-02, D-10).
+        for preset in WidgetSource.battery.presets {
+            #expect(WidgetCadence(definition: make(.battery, preset: preset)) == memoryCadence([.power], seconds: 0))
+        }
+        #expect(WidgetCadence(definition: make(.thermalState)) == memoryCadence([.thermal], seconds: 0))
         #expect(WidgetCadence(definition: make(.cpu)) == cpuCadence(seconds: 5))
         #expect(WidgetCadence(definition: make(.cpu, refreshSeconds: 30)) == cpuCadence(seconds: 30))
         #expect(WidgetCadence(definition: make(.networkSpeed)) == networkCadence(seconds: 2))
