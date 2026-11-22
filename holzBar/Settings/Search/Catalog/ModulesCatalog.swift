@@ -59,6 +59,7 @@ extension SettingsCatalog {
             .modulesNotchHubShowsActiveFirst,
             .modulesNotchHubOpensOnHover,
             .modulesNotchHubDisplays,
+            .modulesNotchHubCutout,
             // Settings of the hub modules, in catalog order.
             .modulesTimersFinishSound,
             .modulesCalendarShowsAllDay,
@@ -186,6 +187,15 @@ extension SettingsEntry {
         pane: .modules,
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Show the hub on"),
+        module: NotchHubController.moduleID
+    )
+
+    static let modulesNotchHubCutout = SettingsEntry(
+        id: "modulesNotchHubCutout",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Display cutout"),
+        info: String(localized: "Where the hub opens around the camera. Automatic tells a notch from Apple's Dynamic Island; choose one if it is wrong. With the Dynamic Island the hub opens below it."),
         module: NotchHubController.moduleID
     )
 

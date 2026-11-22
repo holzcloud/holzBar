@@ -162975,6 +162975,482 @@
           }
         }
       }
+    },
+    "Display cutout" : {
+      "comment" : "A picker label in the Notch hub's settings: how the hub treats the camera cutout of a display",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Výřez displeje"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildschirmaussparung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recorte de la pantalla"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Découpe de l’écran"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kijelző kivágása"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Potongan layar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritaglio del monitor"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ディスプレイの切り欠き"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "디스플레이 컷아웃"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uitsparing van het beeldscherm"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wycięcie wyświetlacza"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recorte do monitor"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tagl dal monitur"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вырез дисплея"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skärmutskärning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran çentiği"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виріз дисплея"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示器缺口"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示器缺口"
+          }
+        }
+      }
+    },
+    "Where the hub opens around the camera. Automatic tells a notch from Apple's Dynamic Island; choose one if it is wrong. With the Dynamic Island the hub opens below it." : {
+      "comment" : "Explains the Display cutout picker",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kde se centrum otevře kolem kamery. Automaticky rozliší výřez od Dynamic Island od Applu; pokud se spletlo, vyberte sami. U Dynamic Island se centrum otevře pod ním."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wo sich der Hub um die Kamera öffnet. Automatisch unterscheidet ein Notch von Apples Dynamic Island; wähle eine Option, falls die Erkennung falsch liegt. Bei der Dynamic Island öffnet sich der Hub darunter."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dónde se abre el hub alrededor de la cámara. Automático distingue un notch de la Dynamic Island de Apple; elige uno si la detección se equivoca. Con la Dynamic Island, el hub se abre debajo de ella."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’endroit où le hub s’ouvre autour de la caméra. Automatique distingue une encoche de la Dynamic Island d’Apple ; choisissez-en une si la détection se trompe. Avec la Dynamic Island, le hub s’ouvre en dessous."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hol nyílik meg a központ a kamera körül. Az Automatikus megkülönbözteti a notchot az Apple Dynamic Islandjétől; ha téves, válassz te. A Dynamic Island esetén a központ alatta nyílik meg."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempat pusat terbuka di sekitar kamera. Otomatis membedakan notch dari Dynamic Island Apple; pilih sendiri jika salah. Dengan Dynamic Island, pusat terbuka di bawahnya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dove si apre il hub intorno alla fotocamera. Automatico distingue un notch dalla Dynamic Island di Apple; scegline uno se il rilevamento sbaglia. Con la Dynamic Island il hub si apre sotto di essa."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カメラの周りでハブが開く位置です。「自動」はノッチとAppleのダイナミックアイランドを見分けます。判定が違う場合は選んでください。ダイナミックアイランドでは、ハブはその下に開きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카메라 주변에서 허브가 열리는 방식입니다. 자동은 노치와 Apple의 다이나믹 아일랜드를 구분하며, 잘못 판단하면 직접 선택하세요. 다이나믹 아일랜드에서는 허브가 그 아래에 열립니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waar de hub opent rond de camera. Automatisch onderscheidt een notch van Apples Dynamic Island; kies er zelf een als dat niet klopt. Bij de Dynamic Island opent de hub eronder."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gdzie centrum otwiera się wokół kamery. Automatycznie odróżnia notch od Dynamic Island firmy Apple; wybierz sam, jeśli rozpoznanie jest błędne. Przy Dynamic Island centrum otwiera się pod nią."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onde o hub se abre ao redor da câmera. Automático distingue um notch da Dynamic Island da Apple; escolha um se a detecção estiver errada. Com a Dynamic Island, o hub se abre abaixo dela."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nua che il hub s’avra enturn la camera. Automatic distingua in notch da la Dynamic Island d’Apple; tscherna in da quels sch’il renconuschentscha sbagl. Cun la Dynamic Island s’avra il hub sut ella."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Где хаб открывается вокруг камеры. «Автоматически» отличает вырез от Dynamic Island от Apple; выберите вариант сами, если определение ошибается. С Dynamic Island хаб открывается под ней."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Var centret öppnas runt kameran. Automatiskt skiljer ett notch från Apples Dynamic Island; välj själv om det blir fel. Med Dynamic Island öppnas centret under den."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merkezin kameranın çevresinde nerede açılacağı. Otomatik, bir notch’u Apple’ın Dynamic Island’ından ayırır; yanlışsa kendiniz seçin. Dynamic Island’da merkez onun altında açılır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Де центр відкривається навколо камери. «Автоматично» відрізняє виріз від Dynamic Island від Apple; виберіть самі, якщо визначення помилкове. З Dynamic Island центр відкривається під нею."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中枢围绕摄像头打开的位置。“自动”会区分刘海和 Apple 的灵动岛；如果判断有误，请手动选择。使用灵动岛时，中枢会在其下方打开。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中心圍繞鏡頭開啟的位置。「自動」會區分瀏海與 Apple 的動態島；如果判斷有誤，請自行選擇。使用動態島時，中心會在其下方開啟。"
+          }
+        }
+      }
+    },
+    "Automatic" : {
+      "comment" : "A choice of the Display cutout picker: follow the detection",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automaticky"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automático"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatique"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatikus"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otomatis"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatico"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자동"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatycznie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automático"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматически"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatiskt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otomatik"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматично"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動"
+          }
+        }
+      }
+    },
+    "Dynamic Island" : {
+      "comment" : "A choice of the Display cutout picker; Apple's name for the pill-shaped camera cutout",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ダイナミックアイランド"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다이나믹 아일랜드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic Island"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "灵动岛"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "動態島"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
