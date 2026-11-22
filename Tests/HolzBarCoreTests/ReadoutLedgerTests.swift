@@ -128,6 +128,25 @@ struct ReadoutLedgerTests {
         #expect(ReadoutSchedule.observers(ledger: ledger, isPaused: false) == [.thermal])
     }
 
+    @Test("The device battery follows the power source event and nothing else")
+    func deviceBatteryObservesThePowerSource() {
+        var only = ReadoutLedger()
+        only.register("a", kind: .visible, request: request([.deviceBattery]))
+        #expect(ReadoutSchedule.observers(ledger: only, isPaused: false) == [.power])
+        #expect(ReadoutSchedule.observers(ledger: only, isPaused: true).isEmpty)
+
+        var mixed = ReadoutLedger()
+        mixed.register("a", kind: .visible, request: request([.deviceBattery, .cpu]))
+        mixed.register("b", kind: .visible, request: request([.thermal]))
+        #expect(ReadoutSchedule.observers(ledger: mixed, isPaused: false) == [.power, .thermal])
+        #expect(ReadoutSchedule.observers(ledger: mixed, isPaused: true).isEmpty)
+
+        // A consumer of the power alone observes the power, as before.
+        var power = ReadoutLedger()
+        power.register("a", kind: .visible, request: request([.power]))
+        #expect(ReadoutSchedule.observers(ledger: power, isPaused: false) == [.power])
+    }
+
     @Test("A consumer never delivered is due at once with all its metrics")
     func firstDeliveryIsImmediate() throws {
         var ledger = ReadoutLedger()

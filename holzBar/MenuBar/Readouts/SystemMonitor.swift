@@ -88,6 +88,10 @@ final class SystemMonitor {
     /// The one accessory battery read that is in flight, so two never overlap: a caller that comes
     /// while it runs waits for its result instead of starting another.
     @ObservationIgnored private var deviceRead: Task<[AccessoryBattery], Never>?
+    /// The task that delivers the accessory batteries after power source events, while one is
+    /// pending or reading, and whether another event came meanwhile.
+    @ObservationIgnored private var deviceEventTask: Task<Void, Never>?
+    @ObservationIgnored private var deviceEventPending = false
 
     /// Keeps the app state, which says whether the Mac rests. Starts nothing: the monitor wakes
     /// only when a consumer registers.
@@ -143,7 +147,7 @@ final class SystemMonitor {
             updateObservations()
             visibleCount = ledger.visibleCount
             backgroundCount = ledger.backgroundCount
-            let observers = ReadoutSchedule.observers(ledger: ledger, isPaused: isPaused)
+            let observers = ReadoutSchedule.observers(ledger: scheduledLedger(), isPaused: isPaused)
             observerCount = observers.count
             updateEventObservers(observers)
             return
@@ -153,8 +157,9 @@ final class SystemMonitor {
         timerTask = nil
         updateObservations()
         let now = ContinuousClock.now
+        let scheduled = scheduledLedger()
         let tick = ReadoutSchedule.nextTick(
-            ledger: scheduledLedger(),
+            ledger: scheduled,
             deliveries: deliveries,
             now: now,
             isLowPowerMode: isLowPowerMode,
@@ -162,7 +167,7 @@ final class SystemMonitor {
         )
         visibleCount = ledger.visibleCount
         backgroundCount = ledger.backgroundCount
-        let observers = ReadoutSchedule.observers(ledger: ledger, isPaused: isPaused)
+        let observers = ReadoutSchedule.observers(ledger: scheduled, isPaused: isPaused)
         observerCount = observers.count
         updateEventObservers(observers)
         isTimerArmed = tick != nil
@@ -233,14 +238,20 @@ final class SystemMonitor {
     /// The ledger the schedule sees. While Read GPU load is off, a consumer that asks for nothing
     /// but the GPU load has had its one reading (the en dash) and is left out, so the monitor does
     /// not wake every few seconds to read nothing (L-03). It joins again when the switch goes on.
+    /// The same holds for a consumer of nothing but the device battery while Read battery levels is
+    /// off: it has had its one reading (no batteries), and it observes no power source event either.
     private func scheduledLedger() -> ReadoutLedger {
-        guard appState?.settings.readouts.readsGPU != true else {
+        let readsGPU = appState?.settings.readouts.readsGPU == true
+        let readsBattery = AccessoryAlertsSettings.readsBattery()
+        guard !readsGPU || !readsBattery else {
             return ledger
         }
         var scheduled = ledger
-        for id in ledger.consumerIDs
-        where ledger.request(for: id)?.metrics == [.gpu] && (deliveries[id]?.count ?? 0) >= 1 {
-            scheduled.unregister(id)
+        for id in ledger.consumerIDs where (deliveries[id]?.count ?? 0) >= 1 {
+            let metrics = ledger.request(for: id)?.metrics
+            if (!readsGPU && metrics == [.gpu]) || (!readsBattery && metrics == [.deviceBattery]) {
+                scheduled.unregister(id)
+            }
         }
         return scheduled
     }
@@ -332,6 +343,46 @@ final class SystemMonitor {
     }
 
     // MARK: Device batteries
+
+    /// The Read battery levels switch changed. A consumer of nothing but the device battery that
+    /// left the schedule while it was off joins again now (or leaves, when it went off), and a
+    /// reading in flight is thrown away, so levels read before an off never arrive after it.
+    func deviceBatterySwitchDidChange() {
+        reschedule()
+    }
+
+    /// Follows a power source event for the consumers of the device battery: an accessory that
+    /// connects or changes its level arrives as one. Several events while a read runs make one more
+    /// read, never an overlapping one. Nothing is read while the switch is off.
+    private func deviceBatteriesMayHaveChanged() {
+        guard ledger.metrics.contains(.deviceBattery), AccessoryAlertsSettings.readsBattery() else {
+            return
+        }
+        deviceEventPending = true
+        guard deviceEventTask == nil else {
+            return
+        }
+        deviceEventTask = Task { [weak self] in
+            await self?.deliverDeviceBatteryEvents()
+        }
+    }
+
+    private func deliverDeviceBatteryEvents() async {
+        while deviceEventPending, !Task.isCancelled {
+            deviceEventPending = false
+            guard let batteries = await readDeviceBatteries(token: nil), !Task.isCancelled else {
+                continue
+            }
+            var sample = ReadoutSample(at: ContinuousClock.now)
+            sample.read = [.deviceBattery]
+            sample.deviceBatteries = batteries
+            deliverEvent(sample, of: .deviceBattery)
+        }
+        // A cancelled task no longer owns the variable: whoever cancelled it cleared it.
+        if !Task.isCancelled {
+            deviceEventTask = nil
+        }
+    }
 
     /// Reads the accessory batteries through ``AccessoryBatterySource``, only while the Read battery
     /// levels switch is on and this macOS offers the call; otherwise nothing is called and the result
@@ -432,6 +483,9 @@ final class SystemMonitor {
             task.cancel()
             powerEventTask = nil
             PowerSourceEvents.shared.end()
+            deviceEventTask?.cancel()
+            deviceEventTask = nil
+            deviceEventPending = false
         }
     }
 
@@ -472,6 +526,7 @@ final class SystemMonitor {
         sample.read = [.power]
         sample.power = SystemSamplers.powerReading()
         deliverEvent(sample, of: .power)
+        deviceBatteriesMayHaveChanged()
     }
 
     private func thermalChanged() {

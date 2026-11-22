@@ -60,6 +60,7 @@ final class ConnectedDevicesService {
     }
 
     /// The consumers that are registered, each with whether it wants the Bluetooth devices.
+    @ObservationIgnored private weak var appState: AppState?
     @ObservationIgnored private var consumers = [String: Bool]()
     @ObservationIgnored private var monitor: BluetoothDeviceMonitor?
     /// The paired devices that are not connected, for the grey rows.
@@ -75,8 +76,10 @@ final class ConnectedDevicesService {
     @ObservationIgnored private var powerTask: Task<Void, Never>?
     @ObservationIgnored private var beganPowerEvents = false
 
-    /// Loads the switch of the battery read. Nothing runs until a consumer registers.
-    func performSetup(with _: AppState) {
+    /// Loads the switch of the battery read and keeps the app state, which holds the shared monitor
+    /// that the switch must tell. Nothing runs until a consumer registers.
+    func performSetup(with appState: AppState) {
+        self.appState = appState
         readsBattery = AccessoryAlertsSettings.readsBattery()
     }
 
@@ -138,11 +141,13 @@ final class ConnectedDevicesService {
         scheduleRead()
     }
 
-    /// Takes the "Read battery levels" switch again and reads again. A consumer calls it after
-    /// the switch changed.
+    /// Takes the "Read battery levels" switch again and reads again, and tells the shared monitor,
+    /// whose device battery reading follows the same switch. A consumer calls it after the switch
+    /// changed.
     func batterySwitchDidChange() {
         readsBattery = AccessoryAlertsSettings.readsBattery()
         scheduleRead()
+        appState?.systemMonitor.deviceBatterySwitchDidChange()
     }
 
     // MARK: Bluetooth

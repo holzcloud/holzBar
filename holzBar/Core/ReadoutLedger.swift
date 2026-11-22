@@ -226,9 +226,18 @@ nonisolated enum ReadoutSchedule {
     }
 
     /// The event metrics to observe: those some consumer asks for, and none while the Mac rests or
-    /// no consumer is registered.
+    /// no consumer is registered. A consumer of the device battery also asks for the power source
+    /// event: an accessory's level change arrives as one, so it is delivered without waiting for
+    /// the timed tick.
     static func observers(ledger: ReadoutLedger, isPaused: Bool) -> Set<ReadoutMetric> {
-        isPaused ? [] : ledger.eventMetrics
+        guard !isPaused else {
+            return []
+        }
+        var observed = ledger.eventMetrics
+        if ledger.metrics.contains(.deviceBattery) {
+            observed.insert(.power)
+        }
+        return observed
     }
 
     /// Whether the free disk space is read again: it was never read, or ``diskSpaceRefresh`` has
