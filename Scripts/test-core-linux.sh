@@ -45,6 +45,7 @@ sources=(
   CommandDragSection
   ControlCenterControl
   ControlItemOrder
+  CPUClusters
   DDCCapabilities
   DDCDisplayMatch
   DDCFailurePolicy
@@ -202,6 +203,7 @@ tests=(
   CommandDragSectionTests
   ControlCenterControlTests
   ControlItemOrderTests
+  CPUClustersTests
   DDCCapabilitiesTests
   DDCDisplayMatchTests
   DDCFailurePolicyTests

@@ -83,6 +83,8 @@ nonisolated enum WidgetReading: Equatable, Sendable {
     case thermal(ReadoutThermal)
     /// The battery with its time and the adapter's watts, shown by the power formats.
     case power(PowerReading)
+    /// The load of every CPU cluster, for the Per Core Cluster format of CPU Load.
+    case clusters([ClusterLoad])
     case unavailable
 }
 
