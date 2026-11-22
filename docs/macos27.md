@@ -86,6 +86,14 @@ An app that has a bundle identifier but runs from somewhere else than `/Applicat
 
 Settings → About → Copy Diagnostics has a Hiding line with the reveal state and counts of these events (agent restarts, late refreshes, young retries, forced and held-back reads, notch rechecks) and of visible apps hidden anyway, never an app name.
 
+## Notch and Dynamic Island
+
+holzBar measures the camera cutout of a display from its safe area and the two unobscured areas beside it (`NSScreen.safeAreaInsets`, `auxiliaryTopLeftArea` and `auxiliaryTopRightArea`, all public API), with no permission and no network. The built-in display of a 14-inch MacBook Pro reports a notch of 185 x 32 points (measured on MacBookPro18,4, macOS 27.2.1 (26B131)); an external display reports no safe area and no cutout. `Scripts/macos27/cutout-probe.swift` prints these numbers for every display; it is read-only.
+
+## Menu bar restarts
+
+macOS 27 draws the menu bar in the process `MenuBarAgent` (`com.apple.MenuBarAgent`), which `NSRunningApplication` sees like an application: it runs as an accessory application (measured on MacBookPro18,4, macOS 27.2.1 (26B131)). holzBar notices a restart of it by its process identifier and applies the hiding again. `Scripts/macos27/agent-probe.swift` prints what `NSRunningApplication` reports for it; it is read-only unless you pass `--force-terminate`, which restarts the menu bar.
+
 ## Updating from macOS 26
 
 holzBar remembers the macOS version it last ran on. When macOS was updated, it turns the sections it saved for each item before macOS 27 into the macOS 27 layout (one section per application) at the next launch, so what was hidden stays hidden; an installation that was updated earlier and hides nothing is repaired the same way. A layout you arranged on macOS 27 is never replaced. The sections come from holzBar's own saved settings, not from the order of the bar, which macOS 27 may already have rearranged. No permission and no network.
