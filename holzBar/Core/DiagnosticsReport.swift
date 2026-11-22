@@ -68,6 +68,11 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// The last clicks in the menu bar as ``BarClickTrace`` wrote them: numbers and fixed words
     /// only. Empty before the first click, so the report of a Mac without clicks stays as it was.
     var barClicks: [String] = []
+    /// How many reopens of the running app opened Settings and how many were ignored, in
+    /// fixed words (``DiagnosticsReport/reopenSummary(opened:ignored:)``), such as `opened 1,
+    /// ignored 3`. Empty while holzBar got no reopen, so the report stays as it was. Never
+    /// the name of a sender.
+    var reopen = ""
 }
 
 /// Writes the text a user can copy into a bug report. It holds an allowlist of facts and
@@ -129,6 +134,9 @@ nonisolated enum DiagnosticsReport {
         if !input.accessoryBattery.isEmpty {
             lines.append("Accessory battery: \(field(input.accessoryBattery))")
         }
+        if !input.reopen.isEmpty {
+            lines.append("Reopen: \(field(input.reopen))")
+        }
         for (index, click) in input.barClicks.suffix(BarClickTrace.capacity).enumerated() {
             lines.append("Click \(index + 1): \(field(click, limit: maximumClickLength))")
         }
@@ -170,6 +178,13 @@ nonisolated enum DiagnosticsReport {
     /// - Parameter anchor: One of the fixed words `icon`, `divider`, `none`.
     static func hidingSummaryBefore27(anchor: String, iconPutBack: Int) -> String {
         "anchor \(word(anchor)), icon put back \(count(iconPutBack))"
+    }
+
+    /// The Reopen line: how many reopens of the running app (a click on the Dock icon, a
+    /// double-click in the Finder, Spotlight, Launchpad, or another sender) opened Settings and
+    /// how many were ignored. Counts only, never who sent them.
+    static func reopenSummary(opened: Int, ignored: Int) -> String {
+        "opened \(count(opened)), ignored \(count(ignored))"
     }
 
     /// A fixed word of a summary: lowercase letters and spaces only.

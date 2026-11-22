@@ -94,6 +94,10 @@ holzBar measures the camera cutout of a display from its safe area and the two u
 
 macOS 27 draws the menu bar in the process `MenuBarAgent` (`com.apple.MenuBarAgent`), which `NSRunningApplication` sees like an application: it runs as an accessory application (measured on MacBookPro18,4, macOS 27.2.1 (26B131)). holzBar notices a restart of it by its process identifier and applies the hiding again. `Scripts/macos27/agent-probe.swift` prints what `NSRunningApplication` reports for it; it is read-only unless you pass `--force-terminate`, which restarts the menu bar.
 
+## Reopening holzBar
+
+Opening holzBar while it runs (a click on its icon in the Dock, a double-click in the Finder, Spotlight or Launchpad) opens Settings. A reopen sent by anything else, such as Siri on macOS 27, is ignored, and so is a second one within 2 seconds of the last one that opened Settings. holzBar's menu always opens Settings. Settings → About → Copy Diagnostics has a Reopen line with how many reopens opened Settings and how many were ignored, never who sent them.
+
 ## Updating from macOS 26
 
 holzBar remembers the macOS version it last ran on. When macOS was updated, it turns the sections it saved for each item before macOS 27 into the macOS 27 layout (one section per application) at the next launch, so what was hidden stays hidden; an installation that was updated earlier and hides nothing is repaired the same way. A layout you arranged on macOS 27 is never replaced. The sections come from holzBar's own saved settings, not from the order of the bar, which macOS 27 may already have rearranged. No permission and no network.

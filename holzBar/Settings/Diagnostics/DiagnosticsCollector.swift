@@ -45,8 +45,18 @@ enum DiagnosticsCollector {
             lastShelfClick: lastShelfClickWords(),
             shelf: shelfWords(appState),
             accessoryBattery: accessoryBatteryWord(appState),
-            barClicks: BarClickLog.trace.lines
+            barClicks: BarClickLog.trace.lines,
+            reopen: reopenWords()
         )
+    }
+
+    /// How many reopens opened Settings and how many were ignored, in fixed words; nothing
+    /// while holzBar got none. It never says who sent them.
+    private static func reopenWords() -> String {
+        guard ReopenRequests.opened + ReopenRequests.ignored > 0 else {
+            return ""
+        }
+        return DiagnosticsReport.reopenSummary(opened: ReopenRequests.opened, ignored: ReopenRequests.ignored)
     }
 
     /// Whether the undocumented battery call of Accessory alerts works on this Mac, in one of

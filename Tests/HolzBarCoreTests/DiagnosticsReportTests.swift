@@ -353,4 +353,32 @@ struct DiagnosticsReportTests {
         #expect(!text.contains("/"))
         #expect(!text.contains("\""))
     }
+
+    @Test("The reopen summary holds two capped counts in fixed words")
+    func reopenSummary() {
+        #expect(DiagnosticsReport.reopenSummary(opened: 2, ignored: 5) == "opened 2, ignored 5")
+        #expect(DiagnosticsReport.reopenSummary(opened: -1, ignored: -9) == "opened 0, ignored 0")
+        #expect(DiagnosticsReport.reopenSummary(opened: .max, ignored: .max) == "opened 99999, ignored 99999")
+        let allowed = Set("abcdefghijklmnopqrstuvwxyz0123456789 ,")
+        #expect(DiagnosticsReport.reopenSummary(opened: 7, ignored: 12).allSatisfy { allowed.contains($0) })
+    }
+
+    @Test("The reopen line shows the counts, and is absent without them")
+    func reopenLine() {
+        var input = sample
+        input.reopen = "opened 1, ignored 3"
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").contains("Reopen: opened 1, ignored 3"))
+        input.reopen = ""
+        #expect(!DiagnosticsReport.make(input).split(separator: "\n").contains { $0.hasPrefix("Reopen:") })
+    }
+
+    @Test("A hostile reopen field stays on one clean line without a path or a name")
+    func hostileReopen() {
+        var input = sample
+        input.reopen = "opened 1\n/Users/anna/Raycast \"x\"\nFake: line"
+        let text = DiagnosticsReport.make(input)
+        #expect(text.split(separator: "\n").count == 12)
+        #expect(!text.contains("/"))
+        #expect(!text.contains("\""))
+    }
 }
