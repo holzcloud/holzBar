@@ -47,6 +47,17 @@ enum HubTint: Sendable {
     }
 }
 
+/// A state shown instead of a tile's quiet line, in the colour of the state: a symbol and a
+/// word, so the colour never stands alone.
+struct HubTileStateLine {
+    /// The name of the SF Symbol before the word.
+    var symbol: String
+    /// The word.
+    var text: Text
+    /// The colour of the symbol and the word.
+    var tint: HubTint
+}
+
 /// A module's card on the Overview: the same inputs as ``HubWidget``.
 struct HubTile {
     /// The name of the SF Symbol inside the ring.
@@ -61,6 +72,19 @@ struct HubTile {
     var detail: Text?
     /// The share of the limit from 0 to 1, or `nil` for a state without a level.
     var fraction: Double?
+    /// Tells the tiles of one module apart: the hub joins it to the module's identifier. A module
+    /// with a single tile leaves it out.
+    var key: String?
+    /// The ring's colour, when the module decides it (a battery that is nearly empty is red); the
+    /// ring follows the fraction otherwise.
+    var level: GaugeLevel?
+    /// A state shown in place of ``detail``, in its own colour.
+    var stateLine: HubTileStateLine?
+    /// What VoiceOver reads as the tile's value. A tile that has it is one element with the title
+    /// as its label; the others read their texts combined.
+    var accessibilityValue: Text?
+    /// The tooltip.
+    var help: Text?
 
     init(
         symbol: String,
@@ -68,7 +92,12 @@ struct HubTile {
         value: String,
         unit: Text? = nil,
         detail: Text? = nil,
-        fraction: Double? = nil
+        fraction: Double? = nil,
+        key: String? = nil,
+        level: GaugeLevel? = nil,
+        stateLine: HubTileStateLine? = nil,
+        accessibilityValue: Text? = nil,
+        help: Text? = nil
     ) {
         self.symbol = symbol
         self.title = title
@@ -76,6 +105,11 @@ struct HubTile {
         self.unit = unit
         self.detail = detail
         self.fraction = fraction
+        self.key = key
+        self.level = level
+        self.stateLine = stateLine
+        self.accessibilityValue = accessibilityValue
+        self.help = help
     }
 }
 
@@ -153,6 +187,12 @@ protocol HubModuleRuntime: AnyObject {
     /// so a tile that reads observable state follows it. The default is `nil`.
     var tile: HubTile? { get }
 
+    /// The module's cards on the Overview, in order; a module may show several (the system
+    /// readouts do). The hub reads this and not ``tile``, which stays as the shorthand for a
+    /// module with one card: the default is ``tile`` as a list. A module that sets both gets
+    /// this one. The default is none.
+    var tiles: [HubTile] { get }
+
     /// The module's status as a pill left of the notch in the open hub, or `nil` for none. Only the
     /// Timers module has one: the other live activities show on the right (``activities``). The
     /// default is `nil`.
@@ -204,6 +244,8 @@ extension HubModuleRuntime {
     var offersTab: Bool { true }
 
     var tile: HubTile? { nil }
+
+    var tiles: [HubTile] { tile.map { [$0] } ?? [] }
 
     var statusPill: HubStatusPill? { nil }
 

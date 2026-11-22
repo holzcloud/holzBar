@@ -64,4 +64,73 @@ struct ReadoutTilesTests {
         #expect(ReadoutTileRefresh.snapped(99) == 30)
         #expect(ReadoutTileRefresh.snapped(Int.max) == 30)
     }
+
+    // MARK: Tile contents (the CPU tile)
+
+    @Test("The CPU tile shows the total load as a whole percent, the load as its ring and the level of the load")
+    func cpuTileShowsTheLoad() throws {
+        let input = ReadoutTileInput(cpuLoad: 0.234, thermal: .nominal)
+        let content = try #require(ReadoutTiles.contents(input, stored: nil).first)
+        #expect(content.kind == .cpu)
+        #expect(content.value == .percent(23))
+        #expect(content.fraction == 0.234)
+        #expect(content.level == .normal)
+        #expect(content.detail == nil)
+        let busy = try #require(ReadoutTiles.contents(ReadoutTileInput(cpuLoad: 0.9), stored: nil).first)
+        #expect(busy.level == .critical)
+    }
+
+    @Test("The thermal line is the CPU detail from Fair on; Nominal is only spoken; a switched-off line is silent")
+    func cpuTileCarriesTheThermalState() throws {
+        let serious = try #require(
+            ReadoutTiles.contents(ReadoutTileInput(cpuLoad: 0.2, thermal: .serious), stored: nil).first
+        )
+        #expect(serious.detail == .thermal(.serious))
+        #expect(serious.spokenThermal == .serious)
+        let nominal = try #require(
+            ReadoutTiles.contents(ReadoutTileInput(cpuLoad: 0.2, thermal: .nominal), stored: nil).first
+        )
+        #expect(nominal.detail == nil)
+        #expect(nominal.spokenThermal == .nominal)
+        var off = ReadoutTileInput(cpuLoad: 0.2, thermal: .critical)
+        off.showsThermalLine = false
+        let silent = try #require(ReadoutTiles.contents(off, stored: nil).first)
+        #expect(silent.detail == nil)
+        #expect(silent.spokenThermal == nil)
+    }
+
+    @Test("Clusters come after the thermal line and only when the chip reports them")
+    func cpuTileShowsClustersWhenThereIsNoThermalLine() throws {
+        let clusters = [
+            ClusterLoad(level: ClusterLevel(index: 0, name: "Performance", logicalCPUs: 4), label: .performance, load: 0.42),
+            ClusterLoad(level: ClusterLevel(index: 1, name: "Efficiency", logicalCPUs: 4), label: .efficiency, load: 0.12),
+        ]
+        var input = ReadoutTileInput(cpuLoad: 0.3, thermal: .nominal)
+        input.clusters = clusters
+        let plain = try #require(ReadoutTiles.contents(input, stored: nil).first)
+        #expect(plain.detail == .clusters(clusters))
+        input.thermal = .fair
+        let hot = try #require(ReadoutTiles.contents(input, stored: nil).first)
+        #expect(hot.detail == .thermal(.fair))
+    }
+
+    @Test("A missing load shows the en dash state: no fraction, no level, no detail (R4)")
+    func missingLoadIsUnavailable() throws {
+        var input = ReadoutTileInput(cpuLoad: nil, thermal: .serious)
+        input.clusters = []
+        let content = try #require(ReadoutTiles.contents(input, stored: nil).first)
+        #expect(content.value == .unavailable)
+        #expect(content.fraction == nil)
+        #expect(content.level == nil)
+        #expect(content.detail == nil)
+    }
+
+    @Test("A switched-off tile is absent")
+    func switchedOffTileIsAbsent() {
+        let input = ReadoutTileInput(cpuLoad: 0.5)
+        #expect(ReadoutTiles.contents(input, stored: ["memory"]).isEmpty)
+        #expect(ReadoutTiles.contents(input, stored: []).isEmpty)
+        #expect(ReadoutTiles.contents(input, stored: ["cpu"]).map(\.kind) == [.cpu])
+    }
 }
+

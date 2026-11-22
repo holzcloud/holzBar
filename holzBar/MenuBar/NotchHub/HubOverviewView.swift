@@ -11,13 +11,6 @@ struct HubOverviewView: View {
     let model: NotchHubModel
     let host: any HubHost
 
-    private var columns: [GridItem] {
-        Array(
-            repeating: GridItem(.flexible(), spacing: HolzBarTheme.Hub.tileGap, alignment: .top),
-            count: HolzBarTheme.Hub.columns
-        )
-    }
-
     var body: some View {
         let tiles = model.tiles
         if tiles.isEmpty {
@@ -31,20 +24,30 @@ struct HubOverviewView: View {
             }
         } else {
             ScrollView {
-                LazyVGrid(columns: columns, spacing: HolzBarTheme.Hub.tileGap) {
-                    ForEach(tiles, id: \.id) { entry in
-                        HubWidget(
-                            systemImage: entry.tile.symbol,
-                            title: entry.tile.title,
-                            value: entry.tile.value,
-                            unit: entry.tile.unit,
-                            detail: entry.tile.detail,
-                            fraction: entry.tile.fraction
-                        )
-                    }
-                }
+                HubTileGrid(tiles: tiles)
             }
             .scrollIndicators(.hidden)
+        }
+    }
+}
+
+/// Tiles in the hub's four columns: the Overview's grid, and the body of a module that shows only
+/// tiles.
+struct HubTileGrid: View {
+    let tiles: [(id: String, tile: HubTile)]
+
+    private var columns: [GridItem] {
+        Array(
+            repeating: GridItem(.flexible(), spacing: HolzBarTheme.Hub.tileGap, alignment: .top),
+            count: HolzBarTheme.Hub.columns
+        )
+    }
+
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: HolzBarTheme.Hub.tileGap) {
+            ForEach(tiles, id: \.id) { entry in
+                HubWidget(tile: entry.tile)
+            }
         }
     }
 }

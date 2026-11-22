@@ -66,12 +66,14 @@ final class NotchHubModel {
         HubTabStrip.allTabs(tabModuleIDs)
     }
 
-    /// The cards of the Overview, in catalog order.
+    /// The cards of the Overview, in catalog order; a module's cards keep their own order.
     var tiles: [(id: String, tile: HubTile)] {
         // A tile may show an activity that has just expired.
         _ = expiryCount
-        return runtimes.compactMap { runtime in
-            runtime.tile.map { (id: runtime.moduleID, tile: $0) }
+        return runtimes.flatMap { runtime in
+            runtime.tiles.map { tile in
+                (id: tile.key.map { "\(runtime.moduleID).\($0)" } ?? runtime.moduleID, tile: tile)
+            }
         }
     }
 
