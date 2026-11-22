@@ -78,6 +78,11 @@ final class AppState {
     /// are registered, and nothing while there are none (Phase 94).
     let systemMonitor = SystemMonitor()
 
+    /// The System alerts module: the one background consumer of the shared monitor and the alerts
+    /// it raises as live activities. It lives without the Notch hub and holds nothing while the
+    /// module or every rule is off (Phase 95).
+    let systemAlerts = ThresholdAlertsManager()
+
     /// Menu bar items of the user's own: text from built-in sources and Shortcut buttons (Phase 12).
     let widgets = MenuBarWidgets()
 
@@ -306,6 +311,7 @@ final class AppState {
         appleItems.performSetup(with: self)
         spacers.performSetup()
         systemMonitor.performSetup(with: self)
+        systemAlerts.performSetup(with: self)
         widgets.performSetup(with: self)
         if #available(macOS 27.0, *) {
             // The stand-ins of apps macOS hides anyway; after the item manager's setup.

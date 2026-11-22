@@ -56,6 +56,11 @@ enum HubModules {
             makeRuntime: { SystemReadoutsRuntime(appState: $0) },
             makeSettings: { AnyView(ReadoutsSettingsView()) }
         ),
+        HubModuleRegistration(
+            id: SystemAlertsRuntime.identifier,
+            makeRuntime: { SystemAlertsRuntime(appState: $0) },
+            makeSettings: { AnyView(SystemAlertsSettingsView()) }
+        ),
     ]
 
     /// The registration of a module, if it has one.
