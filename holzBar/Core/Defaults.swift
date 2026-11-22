@@ -396,6 +396,10 @@ nonisolated extension Defaults {
         /// open, in seconds (a whole number from 2 to 30, 2 by default). It is exported with the
         /// settings.
         case readoutsTileRefresh = "ReadoutsTileRefresh"
+        /// Whether System readouts reads the load of the graphics processor, which uses a private
+        /// macOS interface (a boolean, off by default; the switch of that part, stored on this
+        /// Mac only).
+        case readoutsReadsGPU = "ReadoutsReadsGPU"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -508,6 +512,7 @@ nonisolated extension Defaults.Key {
             .accessoryAlertsReadsBattery,
             .displayControlsBrightness,
             .displayControlsExternalMonitors,
+            .readoutsReadsGPU,
             .openHiddenItemsInMenuBar,
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,
@@ -681,8 +686,8 @@ nonisolated extension Defaults.Key {
     /// What's New window last covered (it describes this install), whether the
     /// Shelf's fold was left open and what each display does with the hidden items (the
     /// displays' identifiers are those of this Mac), and the two switches that turn a private
-    /// interface on: Now Playing's Read all apps and Display controls' External monitors, and the
-    /// display cutout, which describes this Mac's hardware.
+    /// interface on: Now Playing's Read all apps, Display controls' External monitors and System
+    /// readouts' Read GPU load, and the display cutout, which describes this Mac's hardware.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .lastRunMacOSMajor,
         .lockHiddenItems,
@@ -698,6 +703,7 @@ nonisolated extension Defaults.Key {
         .calendarHiddenCalendars,
         .nowPlayingReadsAllApps,
         .displayControlsExternalMonitors,
+        .readoutsReadsGPU,
         .notchHubCutout,
         .notificationsExcludedApps,
         .shelfAlwaysHiddenFoldOpen,

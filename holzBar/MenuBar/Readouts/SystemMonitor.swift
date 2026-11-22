@@ -25,6 +25,9 @@ import Observation
 /// ledger is idle and nothing runs. Everything here lives on the main actor, so no lock is
 /// needed (D-10): the sampler gets plain `Sendable` arguments and returns a `Sendable` sample.
 /// It never logs a reading (D-14), and it never touches the network.
+///
+/// The GPU load is the one reading that goes through a private macOS interface (D-07): it is read
+/// through ``GPULoadBridge`` only while the Read GPU load switch is on and the start check holds.
 @MainActor
 @Observable
 final class SystemMonitor {
@@ -38,6 +41,10 @@ final class SystemMonitor {
     private(set) var isTimerArmed = false
     /// How many samples were taken since holzBar started.
     private(set) var samplesTaken = 0
+    /// Whether the Read GPU load switch is on and the GPU part switched itself off for this
+    /// session: the interface is missing, or three reads in a row failed. The tiles and the
+    /// settings follow it (D-07).
+    private(set) var gpuIsUnavailable = false
 
     @ObservationIgnored private weak var appState: AppState?
     @ObservationIgnored private var ledger = ReadoutLedger()
@@ -63,6 +70,9 @@ final class SystemMonitor {
     /// The free disk space as the last precise read left it, and when that was (D-10).
     @ObservationIgnored private var preciseDiskSpace: DiskSpace?
     @ObservationIgnored private var preciseDiskSpaceAt: ContinuousClock.Instant?
+    /// The start check and the failure count of the GPU read, created at its first use after the
+    /// Read GPU load switch went on and dropped when the switch changes (D-07).
+    @ObservationIgnored private var gpuGate: PrivateFeatureGate?
 
     /// Keeps the app state, which says whether the Mac rests. Starts nothing: the monitor wakes
     /// only when a consumer registers.
@@ -137,7 +147,12 @@ final class SystemMonitor {
             // The precise capacity of the volume is read about once a minute (D-10); the decision
             // is made here, on the main actor, where the cache lives.
             let refreshesDisk = self?.refreshesDiskSpace(for: tick) ?? false
-            let sample = await SystemSamplers.read(tick.metrics, refreshesDiskSpace: refreshesDisk)
+            var sample = await SystemSamplers.read(tick.metrics, refreshesDiskSpace: refreshesDisk)
+            if tick.metrics.contains(.gpu) {
+                // The GPU goes through its own start check, on the main actor where the gate lives.
+                sample.read.insert(.gpu)
+                sample.gpuPercent = await self?.readGPU()
+            }
             self?.deliver(sample, for: tick, token: token, refreshedDiskSpace: refreshesDisk)
         }
     }
@@ -162,6 +177,55 @@ final class SystemMonitor {
             sinks[id]?(sample)
         }
         reschedule()
+    }
+
+    // MARK: GPU
+
+    /// The Read GPU load switch changed. The gate starts afresh at the next read: a part that
+    /// failed stays off for the session until the user switches it off and on again, and nothing
+    /// is probed while no one asks for the load (MON-08).
+    func gpuSwitchDidChange() {
+        gpuGate = nil
+        gpuIsUnavailable = false
+    }
+
+    /// Reads the GPU load through ``GPULoadBridge``, only while the switch is on and the gate is
+    /// available; otherwise the bridge is not called at all. The first read after the switch went
+    /// on is the start check, and three failed reads in a row switch the part off for the session.
+    private func readGPU() async -> Int? {
+        guard PrivateFeatureGate.shouldLoad(isEnabled: appState?.settings.readouts.readsGPU ?? false) else {
+            gpuGate = nil
+            updateGPUAvailability()
+            return nil
+        }
+        if gpuGate == nil {
+            let load = await GPULoadBridge.probe()
+            if gpuGate == nil {
+                gpuGate = PrivateFeatureGate(isEnabled: true, load: load)
+            }
+        }
+        guard gpuGate?.isAvailable == true else {
+            updateGPUAvailability()
+            return nil
+        }
+        let reading = await GPULoadBridge.read()
+        defer { updateGPUAvailability() }
+        guard case .percent(let value) = reading else {
+            gpuGate?.recordFailure()
+            return nil
+        }
+        gpuGate?.recordSuccess()
+        return value
+    }
+
+    private func updateGPUAvailability() {
+        var switchedItselfOff = false
+        if let gate = gpuGate, case .unavailable(let reason) = gate.state, reason != .switchedOff {
+            switchedItselfOff = true
+        }
+        if gpuIsUnavailable != switchedItselfOff {
+            gpuIsUnavailable = switchedItselfOff
+        }
     }
 
     // MARK: Disk space

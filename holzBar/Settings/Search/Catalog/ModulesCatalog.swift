@@ -82,8 +82,10 @@ extension SettingsCatalog {
             .modulesNowPlayingSpotify,
             .modulesNowPlayingReadsAllApps,
             // Settings of the System monitor modules, in the order of the pane.
+            .modulesReadoutsReadsGPU,
             .modulesReadoutsTileCPU,
             .modulesReadoutsThermalState,
+            .modulesReadoutsTileGPU,
             .modulesReadoutsTileMemory,
             .modulesReadoutsTileNetwork,
             .modulesReadoutsTileDisk,
@@ -371,6 +373,25 @@ extension SettingsEntry {
     )
 
     // MARK: Settings of the System monitor modules
+
+    static let modulesReadoutsReadsGPU = SettingsEntry(
+        id: "modulesReadoutsReadsGPU",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Read GPU load"),
+        info: String(
+            localized: "Reads how busy the graphics processor is, for its tile and widget. Uses a private macOS interface. It switches itself off if macOS changes it."
+        ),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsTileGPU = SettingsEntry(
+        id: "modulesReadoutsTileGPU",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "GPU tile"),
+        module: ReadoutsSettings.moduleID
+    )
 
     static let modulesReadoutsTileCPU = SettingsEntry(
         id: "modulesReadoutsTileCPU",

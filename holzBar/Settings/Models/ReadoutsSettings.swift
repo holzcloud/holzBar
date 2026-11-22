@@ -7,9 +7,10 @@ import Foundation
 import Observation
 
 /// Model for the System readouts module's own settings: how the network speed counts, which tiles
-/// show, whether the CPU tile carries the thermal state line and how often the tiles read. The
-/// unit also serves the Network Speed widget, so it works while the module is off. It saves
-/// itself in its `didSet`.
+/// show, whether the CPU tile carries the thermal state line, how often the tiles read and
+/// whether the GPU load is read, which uses a private macOS interface. The unit and the GPU
+/// switch also serve the widgets, so they work while the module is off. It saves itself in its
+/// `didSet`.
 @MainActor
 @Observable
 final class ReadoutsSettings {
@@ -55,6 +56,21 @@ final class ReadoutsSettings {
         }
     }
 
+    /// Whether the load of the graphics processor is read: the Read GPU load switch. It uses a
+    /// private macOS interface, so it is off by default and stored on this Mac only (D-07). A
+    /// change makes the monitor start its GPU part afresh.
+    var readsGPU = false {
+        didSet {
+            guard readsGPU != oldValue else {
+                return
+            }
+            Defaults.set(readsGPU, forKey: .readoutsReadsGPU)
+            appState?.systemMonitor.gpuSwitchDidChange()
+        }
+    }
+
+    @ObservationIgnored private weak var appState: AppState?
+
     /// Whether a tile is on.
     func isOn(_ kind: ReadoutTileKind) -> Bool {
         ReadoutTileChoice.isOn(kind.rawValue, stored: enabledTiles)
@@ -78,6 +94,8 @@ final class ReadoutsSettings {
     /// Loads the stored settings. A stored value that is not a unit is ignored, a tile list keeps
     /// only known ids and a refresh snaps to the nearest choice.
     func performSetup(with appState: AppState) {
+        self.appState = appState
+        Defaults.ifPresent(key: .readoutsReadsGPU, assign: &readsGPU)
         Defaults.ifPresent(key: .readoutsRateUnit) { (rawValue: Int) in
             if let unit = ReadoutRateUnit(rawValue: rawValue) {
                 rateUnit = unit

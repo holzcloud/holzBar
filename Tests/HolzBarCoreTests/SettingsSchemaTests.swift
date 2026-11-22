@@ -266,6 +266,20 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["DisplayControlsExternalMonitors"])
     }
 
+    @Test("The System readouts switch for the GPU read is a local-only Boolean that no file can set")
+    func readoutsReadsGPUStaysLocal() {
+        #expect(Defaults.Key.readoutsReadsGPU.rawValue == "ReadoutsReadsGPU")
+        #expect(Defaults.Key.readoutsReadsGPU.settingsKind == .bool)
+        #expect(Defaults.Key.localOnlyKeys.contains(.readoutsReadsGPU))
+        #expect(Defaults.Key.importableKinds["ReadoutsReadsGPU"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["ReadoutsReadsGPU": true, "ShowOnHover": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["ReadoutsReadsGPU"])
+    }
+
     @Test("The network speed unit travels with a settings file, as 0 or 1 only")
     func readoutsRateUnitTravels() {
         #expect(Defaults.Key.readoutsRateUnit.rawValue == "ReadoutsRateUnit")

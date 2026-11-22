@@ -58,6 +58,7 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
     private struct Choice: Equatable {
         var tiles: [String]?
         var refreshSeconds: Int
+        var readsGPU: Bool
     }
 
     /// The histories of the tiles that draw a curve; the disk and battery tiles have none (D-18).
@@ -87,7 +88,8 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
             let readouts = appState?.settings.readouts
             return Choice(
                 tiles: readouts?.enabledTiles,
-                refreshSeconds: readouts?.tileRefreshSeconds ?? ReadoutTileRefresh.defaultSeconds
+                refreshSeconds: readouts?.tileRefreshSeconds ?? ReadoutTileRefresh.defaultSeconds,
+                readsGPU: readouts?.readsGPU ?? false
             )
         }, onChange: { [weak self] _ in
             self?.choiceDidChange()
@@ -102,6 +104,10 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
         }
         var current = reading
         current.showsThermalLine = readouts.showsThermalLine
+        // The GPU tile exists only with both its own switch and Read GPU load on (D-07); whether
+        // the part switched itself off is the monitor's flag, never a value.
+        current.gpuEnabled = readouts.readsGPU && readouts.isOn(.gpu)
+        current.gpuUnavailable = appState?.systemMonitor.gpuIsUnavailable ?? false
         let locale = Locale.autoupdatingCurrent
         let now = ContinuousClock.now
         let refreshSeconds = readouts.tileRefreshSeconds
@@ -189,7 +195,10 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
         guard let readouts = appState?.settings.readouts else {
             return false
         }
-        return ReadoutTileKind.allCases.contains { readouts.isOn($0) }
+        return ReadoutTileKind.allCases.contains { kind in
+            // The GPU tile exists only while Read GPU load is on.
+            (kind != .gpu || readouts.readsGPU) && readouts.isOn(kind)
+        }
     }
 
     // MARK: Visibility
@@ -246,6 +255,10 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
             if readouts.showsThermalLine {
                 metrics.insert(.thermal)
             }
+        }
+        // The GPU is read only with its tile and the private-interface switch both on (D-07).
+        if readouts.readsGPU, readouts.isOn(.gpu) {
+            metrics.insert(.gpu)
         }
         if readouts.isOn(.memory) {
             metrics.formUnion([.memory, .swap, .memoryPressure])
@@ -350,7 +363,8 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
             nextHistories.download.append(next.networkRates?.first, at: now)
             nextHistories.upload.append(next.networkRates?.second, at: now)
         }
-        if next.gpuEnabled {
+        if sample.read.contains(.gpu) {
+            next.gpuPercent = sample.gpuPercent
             nextHistories.gpu.append(next.gpuPercent.map { Double($0) / 100 }, at: now)
         }
         if sample.read.contains(.diskSpace) {
