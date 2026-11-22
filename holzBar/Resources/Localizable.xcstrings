@@ -162622,124 +162622,6 @@
         }
       }
     },
-    "Restart Menu Bar quits macOS's menu bar process, which macOS starts again at once, and holzBar hides your items again. Pause holzBar shows every item until you resume it or quit holzBar. Both are also in holzBar's menu and the command palette." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restartovat řádek nabídek ukončí proces řádku nabídek v macOS, který macOS ihned spustí znovu, a holzBar vaše položky znovu skryje. Pozastavit holzBar zobrazí všechny položky, dokud v holzBar nepokračujete nebo jej neukončíte. Obojí je také v nabídce holzBar a v paletě příkazů."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menüleiste neu starten beendet den Prozess der Menüleiste von macOS, den macOS sofort wieder startet, und holzBar blendet deine Objekte wieder aus. holzBar pausieren zeigt jedes Objekt, bis du holzBar fortsetzt oder beendest. Beides findest du auch im Menü von holzBar und in der Befehlspalette."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reiniciar la barra de menús cierra el proceso de la barra de menús de macOS, que macOS vuelve a iniciar al instante, y holzBar vuelve a ocultar tus elementos. Pausar holzBar muestra todos los elementos hasta que lo reanudes o cierres holzBar. Ambos también están en el menú de holzBar y en la paleta de comandos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Redémarrer la barre des menus quitte le processus de la barre des menus de macOS, que macOS relance aussitôt, puis holzBar masque de nouveau vos éléments. Mettre holzBar en pause affiche tous les éléments jusqu’à ce que vous repreniez ou quittiez holzBar. Les deux se trouvent aussi dans le menu de holzBar et dans la palette de commandes."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A Menüsor újraindítása kilépteti a macOS menüsor-folyamatát, amelyet a macOS azonnal újraindít, és a holzBar újra elrejti az elemeket. A holzBar szüneteltetése minden elemet megjelenít, amíg nem folytatod, vagy nem lépsz ki a holzBarból. Mindkettő megtalálható a holzBar menüjében és a parancspalettán is."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mulai Ulang Bar Menu menutup proses bar menu macOS, yang segera dijalankan lagi oleh macOS, lalu holzBar menyembunyikan item Anda kembali. Jeda holzBar menampilkan semua item sampai Anda melanjutkannya atau keluar dari holzBar. Keduanya juga ada di menu holzBar dan palet perintah."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Riavvia la barra dei menu chiude il processo della barra dei menu di macOS, che macOS riavvia subito, e holzBar nasconde di nuovo i tuoi elementi. Metti holzBar in pausa mostra ogni elemento finché non riprendi holzBar o lo chiudi. Entrambi i comandi sono anche nel menu di holzBar e nella palette dei comandi."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「メニューバーを再起動」は macOS のメニューバーのプロセスを終了します。macOS はすぐにそれを再び起動し、holzBar は項目を再び隠します。「holzBar を一時停止」は、再開するか holzBar を終了するまで、すべての項目を表示します。どちらも holzBar のメニューとコマンドパレットにあります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "메뉴 막대 다시 시작은 macOS의 메뉴 막대 프로세스를 종료하며, macOS가 즉시 다시 시작하고 holzBar는 항목을 다시 숨깁니다. holzBar 일시 정지는 다시 시작하거나 holzBar를 종료할 때까지 모든 항목을 표시합니다. 둘 다 holzBar의 메뉴와 명령 팔레트에도 있습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menubalk opnieuw starten sluit het menubalkproces van macOS af, dat macOS meteen weer start, waarna holzBar je onderdelen weer verbergt. holzBar pauzeren toont elk onderdeel totdat je holzBar hervat of stopt. Beide staan ook in het menu van holzBar en in het opdrachtenpalet."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uruchom ponownie pasek menu zamyka proces paska menu macOS, który macOS od razu uruchamia na nowo, a holzBar ponownie ukrywa Twoje elementy. Wstrzymaj holzBar pokazuje wszystkie elementy, dopóki go nie wznowisz lub nie zamkniesz holzBar. Oba polecenia są też w menu holzBar i w palecie poleceń."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reiniciar a Barra de Menus encerra o processo da barra de menus do macOS, que o macOS inicia de novo na hora, e o holzBar oculta seus itens outra vez. Pausar o holzBar mostra todos os itens até você retomá-lo ou fechar o holzBar. Os dois também estão no menu do holzBar e na paleta de comandos."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Puspè cumenzar il trav da menu serra il process dal trav da menu da macOS, che macOS cumenza danovamain a la mumaint, ed holzBar zuppa puspè tes elements. Pausar holzBar mussa tut ils elements fin che ti cuntinuesch holzBar u serras holzBar. Omadus sa chattan era en il menu da holzBar e en la paletta da cumonds."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перезапустить строку меню завершает процесс строки меню macOS, который macOS сразу запускает снова, и holzBar опять скрывает ваши элементы. Приостановить holzBar показывает все элементы, пока вы не возобновите работу holzBar или не завершите его. Обе команды есть также в меню holzBar и в палитре команд."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Starta om menyraden avslutar macOS menyradsprocess, som macOS startar igen direkt, och holzBar döljer dina objekt igen. Pausa holzBar visar alla objekt tills du återupptar eller avslutar holzBar. Båda finns också i holzBars meny och i kommandopaletten."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menü Çubuğunu Yeniden Başlat, macOS'in menü çubuğu işlemini kapatır; macOS onu hemen yeniden başlatır ve holzBar öğelerinizi yeniden gizler. holzBar'ı Duraklat, siz sürdürene veya holzBar'dan çıkana kadar tüm öğeleri gösterir. İkisi de holzBar'ın menüsünde ve komut paletinde de bulunur."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перезапустити смугу меню завершує процес смуги меню macOS, який macOS одразу запускає знову, і holzBar знову ховає ваші елементи. Призупинити holzBar показує всі елементи, доки ви не відновите holzBar або не вийдете з нього. Обидві команди є також у меню holzBar і в палітрі команд."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“重新启动菜单栏”会退出 macOS 的菜单栏进程，macOS 随即重新启动它，holzBar 会再次隐藏你的项目。“暂停 holzBar”会显示所有项目，直到你继续 holzBar 或退出 holzBar。两者也都在 holzBar 的菜单和命令面板中。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「重新啟動選單列」會結束 macOS 的選單列處理程序，macOS 隨即重新啟動它，holzBar 會再次隱藏你的項目。「暫停 holzBar」會顯示所有項目，直到你繼續 holzBar 或結束 holzBar。兩者也都在 holzBar 的選單和指令面板中。"
-          }
-        }
-      }
-    },
     "Display cutout" : {
       "comment" : "A picker label in the Notch hub's settings: how the hub treats the camera cutout of a display",
       "localizations" : {
@@ -164161,6 +164043,124 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "重新啟動選單列或暫停 holzBar"
+          }
+        }
+      }
+    },
+    "Restart Menu Bar quits macOS's menu bar process, which macOS normally starts again, and holzBar hides your items again. Pause holzBar shows every item until you resume it or quit holzBar. Both are also in holzBar's menu and the command palette." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restartovat řádek nabídek ukončí proces řádku nabídek v macOS, který macOS obvykle spustí znovu, a holzBar vaše položky znovu skryje. Pozastavit holzBar zobrazí všechny položky, dokud v holzBar nepokračujete nebo jej neukončíte. Obojí je také v nabídce holzBar a v paletě příkazů."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menüleiste neu starten beendet den Prozess der Menüleiste von macOS, den macOS normalerweise wieder startet, und holzBar blendet deine Objekte wieder aus. holzBar pausieren zeigt jedes Objekt, bis du holzBar fortsetzt oder beendest. Beides findest du auch im Menü von holzBar und in der Befehlspalette."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reiniciar la barra de menús cierra el proceso de la barra de menús de macOS, que macOS normalmente vuelve a iniciar, y holzBar vuelve a ocultar tus elementos. Pausar holzBar muestra todos los elementos hasta que lo reanudes o cierres holzBar. Ambos también están en el menú de holzBar y en la paleta de comandos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redémarrer la barre des menus quitte le processus de la barre des menus de macOS, que macOS relance normalement, puis holzBar masque de nouveau vos éléments. Mettre holzBar en pause affiche tous les éléments jusqu’à ce que vous repreniez ou quittiez holzBar. Les deux se trouvent aussi dans le menu de holzBar et dans la palette de commandes."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Menüsor újraindítása kilépteti a macOS menüsor-folyamatát, amelyet a macOS általában újraindít, és a holzBar újra elrejti az elemeket. A holzBar szüneteltetése minden elemet megjelenít, amíg nem folytatod, vagy nem lépsz ki a holzBarból. Mindkettő megtalálható a holzBar menüjében és a parancspalettán is."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mulai Ulang Bar Menu menutup proses bar menu macOS, yang biasanya dijalankan lagi oleh macOS, lalu holzBar menyembunyikan item Anda kembali. Jeda holzBar menampilkan semua item sampai Anda melanjutkannya atau keluar dari holzBar. Keduanya juga ada di menu holzBar dan palet perintah."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riavvia la barra dei menu chiude il processo della barra dei menu di macOS, che macOS di solito riavvia, e holzBar nasconde di nuovo i tuoi elementi. Metti holzBar in pausa mostra ogni elemento finché non riprendi holzBar o lo chiudi. Entrambi i comandi sono anche nel menu di holzBar e nella palette dei comandi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「メニューバーを再起動」は macOS のメニューバーのプロセスを終了します。macOS は通常それを再び起動し、holzBar は項目を再び隠します。「holzBar を一時停止」は、再開するか holzBar を終了するまで、すべての項目を表示します。どちらも holzBar のメニューとコマンドパレットにあります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대 다시 시작은 macOS의 메뉴 막대 프로세스를 종료하며, macOS가 보통 다시 시작하고 holzBar는 항목을 다시 숨깁니다. holzBar 일시 정지는 다시 시작하거나 holzBar를 종료할 때까지 모든 항목을 표시합니다. 둘 다 holzBar의 메뉴와 명령 팔레트에도 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menubalk opnieuw starten sluit het menubalkproces van macOS af, dat macOS normaal gesproken weer start, waarna holzBar je onderdelen weer verbergt. holzBar pauzeren toont elk onderdeel totdat je holzBar hervat of stopt. Beide staan ook in het menu van holzBar en in het opdrachtenpalet."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uruchom ponownie pasek menu zamyka proces paska menu macOS, który macOS zwykle uruchamia na nowo, a holzBar ponownie ukrywa Twoje elementy. Wstrzymaj holzBar pokazuje wszystkie elementy, dopóki go nie wznowisz lub nie zamkniesz holzBar. Oba polecenia są też w menu holzBar i w palecie poleceń."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reiniciar a Barra de Menus encerra o processo da barra de menus do macOS, que o macOS normalmente inicia de novo, e o holzBar oculta seus itens outra vez. Pausar o holzBar mostra todos os itens até você retomá-lo ou fechar o holzBar. Os dois também estão no menu do holzBar e na paleta de comandos."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puspè cumenzar il trav da menu serra il process dal trav da menu da macOS, che macOS cumenza normalmain danovamain, ed holzBar zuppa puspè tes elements. Pausar holzBar mussa tut ils elements fin che ti cuntinuesch holzBar u serras holzBar. Omadus sa chattan era en il menu da holzBar e en la paletta da cumonds."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перезапустить строку меню завершает процесс строки меню macOS, который macOS обычно запускает снова, и holzBar опять скрывает ваши элементы. Приостановить holzBar показывает все элементы, пока вы не возобновите работу holzBar или не завершите его. Обе команды есть также в меню holzBar и в палитре команд."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starta om menyraden avslutar macOS menyradsprocess, som macOS vanligtvis startar igen, och holzBar döljer dina objekt igen. Pausa holzBar visar alla objekt tills du återupptar eller avslutar holzBar. Båda finns också i holzBars meny och i kommandopaletten."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menü Çubuğunu Yeniden Başlat, macOS'in menü çubuğu işlemini kapatır; macOS normalde onu yeniden başlatır ve holzBar öğelerinizi yeniden gizler. holzBar'ı Duraklat, siz sürdürene veya holzBar'dan çıkana kadar tüm öğeleri gösterir. İkisi de holzBar'ın menüsünde ve komut paletinde de bulunur."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перезапустити смугу меню завершує процес смуги меню macOS, який macOS зазвичай запускає знову, і holzBar знову ховає ваші елементи. Призупинити holzBar показує всі елементи, доки ви не відновите holzBar або не вийдете з нього. Обидві команди є також у меню holzBar і в палітрі команд."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“重新启动菜单栏”会退出 macOS 的菜单栏进程，macOS 通常会重新启动它，holzBar 会再次隐藏你的项目。“暂停 holzBar”会显示所有项目，直到你继续 holzBar 或退出 holzBar。两者也都在 holzBar 的菜单和命令面板中。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「重新啟動選單列」會結束 macOS 的選單列處理程序，macOS 通常會重新啟動它，holzBar 會再次隱藏你的項目。「暫停 holzBar」會顯示所有項目，直到你繼續 holzBar 或結束 holzBar。兩者也都在 holzBar 的選單和指令面板中。"
           }
         }
       }
