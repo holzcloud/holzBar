@@ -13,6 +13,10 @@ nonisolated struct WidgetText: Equatable, Sendable {
     /// The battery state the app shows as a symbol next to the text; only for the format that
     /// carries it.
     var batteryState: BatteryState?
+    /// The symbol drawn before the text when it changes with the reading: the kind of the
+    /// accessory that has the lowest level (D-26). `nil` for every other source, which draw their
+    /// own fixed symbol.
+    var leadingSymbol: String?
 
     /// Whether the source could not be read and the text is only the en dash (D-13).
     var isUnavailable: Bool {
@@ -78,7 +82,10 @@ nonisolated enum WidgetFormat {
             return WidgetText(string: ReadoutFormat.thermalWord(level, texts: texts))
         case (.deviceBattery, .device(let device)):
             // The level only: the device's name is never drawn in the menu bar (D-26).
-            return WidgetText(string: percentText(Double(min(max(device.percent, 0), 100)) / 100, locale: locale))
+            return WidgetText(
+                string: percentText(Double(min(max(device.percent, 0), 100)) / 100, locale: locale),
+                leadingSymbol: definition.showsSymbol ? device.symbol : nil
+            )
         case (.cpu, .clusters(let loads)) where preset == .perCluster:
             guard loads.count >= 2, loads.allSatisfy({ $0.load.isFinite }) else {
                 break
@@ -142,7 +149,9 @@ nonisolated enum WidgetFormat {
         default:
             break
         }
-        return WidgetText(string: unavailable)
+        // The en dash of the lowest device keeps its slot filled with the unknown symbol (D-26).
+        let isDeviceBattery = definition.source == .deviceBattery && definition.showsSymbol
+        return WidgetText(string: unavailable, leadingSymbol: isDeviceBattery ? ConnectedDeviceList.unknownSymbol : nil)
     }
 
     /// The text of a battery format from a power reading (the battery's own reading of 1.1.1 is

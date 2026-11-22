@@ -678,6 +678,8 @@ final class MenuBarWidgets {
         var text: WidgetText?
         /// The last value that was handed to VoiceOver.
         var spoken: String?
+        /// The leading symbol the Lowest Device Battery widget has drawn (D-26).
+        var drawnSymbol: String?
         /// Forwards a button's click; the status item's button holds its target weakly.
         var clickTarget: ClickTarget?
         /// The one length of the status item, measured from the widest text (D-12).
@@ -850,7 +852,9 @@ final class MenuBarWidgets {
         // with every text.
         let appName = launcherName(for: definition)
         let label = WidgetSpeech.label(for: definition, appName: appName)
-        button.toolTip = label
+        // The lowest device's tooltip is its name, set with every reading (D-26).
+        button.toolTip = DeviceBatteryWidget.isWidget(definition)
+            ? DeviceBatteryWidget.tooltip(for: runtime.reading, readsBattery: readsDeviceBattery) : label
         button.setAccessibilityLabel(label)
         button.setAccessibilityHelp(
             WidgetSpeech.hint(for: definition, shortcutName: shortcutNames[definition.id], appName: appName)
@@ -1010,6 +1014,9 @@ final class MenuBarWidgets {
         guard let button = runtime.statusItem.button else {
             return
         }
+        if DeviceBatteryWidget.isWidget(runtime.definition) {
+            renderDeviceBattery(runtime, reading: reading, symbol: text.leadingSymbol, button: button)
+        }
         if text != runtime.text {
             runtime.text = text
             let isScript = runtime.definition.kind == .script
@@ -1027,6 +1034,11 @@ final class MenuBarWidgets {
         let spoken: String
         if runtime.definition.kind == .script {
             spoken = scriptSpeech(for: runtime, reading: reading)
+        } else if DeviceBatteryWidget.isWidget(runtime.definition),
+            let missing = DeviceBatteryWidget.spokenValue(for: reading, readsBattery: readsDeviceBattery)
+        {
+            // The lowest device says why it has no level; with one, WidgetSpeech says it (D-26).
+            spoken = missing
         } else {
             spoken = WidgetSpeech.value(
                 for: reading,
@@ -1040,6 +1052,22 @@ final class MenuBarWidgets {
             runtime.spoken = spoken
             button.setAccessibilityValue(spoken.isEmpty ? nil : spoken)
         }
+    }
+
+    private var readsDeviceBattery: Bool { appState?.connectedDevices.readsBattery ?? false }
+
+    /// The lowest device's kind as the symbol in its slot, and its name as the tooltip (D-26).
+    private func renderDeviceBattery(
+        _ runtime: Runtime,
+        reading: WidgetReading,
+        symbol: String?,
+        button: NSStatusBarButton
+    ) {
+        if let symbol, symbol != runtime.drawnSymbol {
+            runtime.drawnSymbol = symbol
+            button.image = DeviceBatteryWidget.slotImage(symbol: symbol, font: Self.font) ?? button.image
+        }
+        button.toolTip = DeviceBatteryWidget.tooltip(for: reading, readsBattery: readsDeviceBattery)
     }
 
     // MARK: Pictures

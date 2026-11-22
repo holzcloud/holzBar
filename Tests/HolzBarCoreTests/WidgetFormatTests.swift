@@ -187,6 +187,25 @@ struct WidgetFormatTests {
         #expect(samples.map(plain) == ["100%"])
     }
 
+    @Test("Lowest Device Battery names the device's kind as the leading symbol, never the name (D-26)")
+    func deviceBatteryLeadingSymbol() {
+        let pro = WidgetReading.device(LowestDeviceBattery(name: "AirPods Pro", percent: 64, symbol: "airpodspro"))
+        let shown = text(pro, definition(.deviceBattery))
+        #expect(plain(shown.string) == "64%")
+        #expect(shown.leadingSymbol == "airpodspro")
+        #expect(!shown.string.contains("AirPods"))
+        let none = text(.unavailable, definition(.deviceBattery))
+        #expect(none.isUnavailable)
+        #expect(none.leadingSymbol == ConnectedDeviceList.unknownSymbol)
+        var plainDefinition = definition(.deviceBattery)
+        plainDefinition.showsSymbol = false
+        #expect(text(pro, plainDefinition).leadingSymbol == nil)
+        #expect(text(.unavailable, plainDefinition).leadingSymbol == nil)
+        for source in [WidgetSource.cpu, .battery, .gpuLoad, .memory, .thermalState] {
+            #expect(text(.fraction(0.5), definition(source)).leadingSymbol == nil, "\(source)")
+        }
+    }
+
     @Test("CPU, memory and disk give a percent or a byte count")
     func percentAndBytes() {
         #expect(plain(text(.fraction(0.374), definition(.cpu)).string) == "37%")
