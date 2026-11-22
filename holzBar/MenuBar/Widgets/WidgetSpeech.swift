@@ -210,7 +210,7 @@ nonisolated enum WidgetSpeech {
 
     /// The battery in words: "80 percent, on battery, 2 hours, 10 minutes left", or the adapter's
     /// power. `nil` for a value the format cannot say (an adapter without watts).
-    private static func batteryValue(for reading: WidgetReading, preset: WidgetPreset, locale: Locale) -> String? {
+    static func batteryValue(for reading: WidgetReading, preset: WidgetPreset, locale: Locale) -> String? {
         let power: PowerReading
         switch reading {
         case .battery(let percent, let state):
@@ -259,7 +259,7 @@ nonisolated enum WidgetSpeech {
     }
 
     /// A rate in words, in the unit that fits its size: "1.2 megabytes per second".
-    private static func spokenRate(_ bytesPerSecond: Double, unit: ReadoutRateUnit = .bytes, locale: Locale) -> String {
+    static func spokenRate(_ bytesPerSecond: Double, unit: ReadoutRateUnit = .bytes, locale: Locale) -> String {
         let units: [UnitInformationStorage] = unit == .bits
             ? [.kilobits, .megabits, .gigabits]
             : [.kilobytes, .megabytes, .gigabytes]
@@ -279,7 +279,7 @@ nonisolated enum WidgetSpeech {
         return String(localized: "\(amount) per second")
     }
 
-    private static func gigabytes(_ bytes: UInt64, perGigabyte: Double, locale: Locale) -> String {
+    static func gigabytes(_ bytes: UInt64, perGigabyte: Double, locale: Locale) -> String {
         let measurement = Measurement(value: Double(bytes) / perGigabyte, unit: UnitInformationStorage.gigabytes)
         let style = Measurement<UnitInformationStorage>.FormatStyle(
             width: .wide,
@@ -291,7 +291,7 @@ nonisolated enum WidgetSpeech {
     }
 
     /// Days, hours and minutes in words, at most two units, rounded the way the text is.
-    private static func spoken(_ duration: Duration, roundingUp: Bool, locale: Locale) -> String {
+    static func spoken(_ duration: Duration, roundingUp: Bool, locale: Locale) -> String {
         let style = Duration.UnitsFormatStyle(
             allowedUnits: [.days, .hours, .minutes],
             width: .wide,

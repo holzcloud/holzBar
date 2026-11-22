@@ -256,4 +256,18 @@ nonisolated enum GaugeLevel: Sendable {
         default: return .critical
         }
     }
+
+    /// The level of a share that is left, from 0 to 1, for a gauge where little left is bad, such
+    /// as a battery: below 0.15 critical, below 0.30 elevated, else normal. Values outside the
+    /// range count as the nearest end; a value that is not a number counts as normal.
+    static func level(forRemaining fraction: Double) -> GaugeLevel {
+        guard fraction.isFinite else {
+            return .normal
+        }
+        switch min(max(fraction, 0), 1) {
+        case ..<0.15: return .critical
+        case ..<0.30: return .elevated
+        default: return .normal
+        }
+    }
 }

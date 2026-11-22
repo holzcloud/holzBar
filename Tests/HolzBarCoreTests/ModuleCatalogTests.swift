@@ -333,4 +333,21 @@ struct ModuleCatalogTests {
         #expect(GaugeLevel.level(for: .nan) == .normal)
         #expect(GaugeLevel.level(for: .infinity) == .normal)
     }
+
+    @Test("The remaining-share level is inverted: little left is bad")
+    func gaugeLevelsForWhatRemains() {
+        #expect(GaugeLevel.level(forRemaining: 1) == .normal)
+        #expect(GaugeLevel.level(forRemaining: 0.8) == .normal)
+        #expect(GaugeLevel.level(forRemaining: 0.30) == .normal)
+        #expect(GaugeLevel.level(forRemaining: 0.29) == .elevated)
+        #expect(GaugeLevel.level(forRemaining: 0.20) == .elevated)
+        #expect(GaugeLevel.level(forRemaining: 0.15) == .elevated)
+        #expect(GaugeLevel.level(forRemaining: 0.14) == .critical)
+        #expect(GaugeLevel.level(forRemaining: 0.10) == .critical)
+        #expect(GaugeLevel.level(forRemaining: 0) == .critical)
+        #expect(GaugeLevel.level(forRemaining: -2) == .critical)
+        #expect(GaugeLevel.level(forRemaining: 7) == .normal)
+        #expect(GaugeLevel.level(forRemaining: .nan) == .normal)
+    }
 }
+

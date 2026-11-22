@@ -102,6 +102,21 @@ nonisolated struct ReadoutTileInput: Equatable, Sendable {
     var showsThermalLine = true
     /// The load of every cluster, when the chip reports two or more whose sums agree.
     var clusters: [ClusterLoad] = []
+    /// Whether the GPU tile exists: the Read GPU load switch is on.
+    var gpuEnabled = false
+    /// The load of the graphics processor in percent, or `nil` while it is not known.
+    var gpuPercent: Int?
+    /// Whether the GPU part switched itself off for this session.
+    var gpuUnavailable = false
+    var memory: MemoryUse?
+    var swap: SwapUsage?
+    var pressure: ReadoutPressure?
+    /// The bytes per second received (first) and sent (second), or `nil` while they are not known.
+    var networkRates: ReadoutRates?
+    var diskSpace: DiskSpace?
+    /// Whether this Mac has a battery, which the first power reading tells.
+    var hasBattery = false
+    var power: PowerReading?
 }
 
 /// The value of a tile, before it is written in the user's language.
@@ -174,8 +189,17 @@ nonisolated enum ReadoutTiles {
     private static func content(of kind: ReadoutTileKind, _ input: ReadoutTileInput) -> ReadoutTileContent? {
         switch kind {
         case .cpu: cpu(input)
-        case .gpu, .memory, .network, .disk, .battery: nil
+        case .gpu: gpu(input)
+        case .memory: memory(input)
+        case .network: network(input)
+        case .disk: disk(input)
+        case .battery: battery(input)
         }
+    }
+
+    /// A tile whose value is missing, stuck or impossible: an en dash, no arc, no detail (R4).
+    private static func unavailable(_ kind: ReadoutTileKind, detail: ReadoutTileDetail? = nil) -> ReadoutTileContent {
+        ReadoutTileContent(kind: kind, value: .unavailable, detail: detail)
     }
 
     // MARK: CPU
@@ -199,6 +223,121 @@ nonisolated enum ReadoutTiles {
             detail: detail,
             spokenThermal: spoken
         )
+    }
+
+    // MARK: GPU
+
+    private static func gpu(_ input: ReadoutTileInput) -> ReadoutTileContent? {
+        guard input.gpuEnabled else {
+            return nil
+        }
+        if input.gpuUnavailable {
+            return unavailable(.gpu, detail: .notAvailable)
+        }
+        guard let percent = GPUValues.percent(input.gpuPercent) else {
+            return unavailable(.gpu)
+        }
+        let fraction = Double(percent) / 100
+        return ReadoutTileContent(
+            kind: .gpu,
+            value: .percent(percent),
+            fraction: fraction,
+            level: GaugeLevel.level(for: fraction)
+        )
+    }
+
+    // MARK: Memory
+
+    /// The used share is the ring; its colour is the memory pressure, not the share (R3). The line
+    /// names the pressure while it is not normal, else the swap in use, else the capacity.
+    private static func memory(_ input: ReadoutTileInput) -> ReadoutTileContent {
+        guard let memory = input.memory, memory.total > 0, memory.used <= memory.total else {
+            return unavailable(.memory)
+        }
+        let fraction = Double(memory.used) / Double(memory.total)
+        let pressure = input.pressure ?? .normal
+        let level: GaugeLevel = switch pressure {
+        case .normal: .normal
+        case .warning: .elevated
+        case .critical: .critical
+        }
+        let detail: ReadoutTileDetail
+        if pressure != .normal {
+            detail = .pressure(pressure)
+        } else if let swap = input.swap, swap.used > 0 {
+            detail = .swap(Int64(clamping: swap.used))
+        } else {
+            detail = .capacity(Int64(clamping: memory.total))
+        }
+        return ReadoutTileContent(
+            kind: .memory,
+            value: .percent(percent(fraction)),
+            fraction: fraction,
+            level: level,
+            detail: detail
+        )
+    }
+
+    // MARK: Network
+
+    /// A rate has no limit, so the ring is a track only.
+    private static func network(_ input: ReadoutTileInput) -> ReadoutTileContent {
+        guard let rates = input.networkRates, rates.first.isFinite, rates.second.isFinite,
+              rates.first >= 0, rates.second >= 0 else {
+            return unavailable(.network)
+        }
+        return ReadoutTileContent(kind: .network, value: .rate(rates.first), detail: .upload(rates.second))
+    }
+
+    // MARK: Disk
+
+    /// The free space is the value (D-05); the used share is the ring.
+    private static func disk(_ input: ReadoutTileInput) -> ReadoutTileContent {
+        guard let space = input.diskSpace, space.total > 0, space.available >= 0, space.available <= space.total else {
+            return unavailable(.disk)
+        }
+        let used = 1 - Double(space.available) / Double(space.total)
+        return ReadoutTileContent(
+            kind: .disk,
+            value: .bytes(space.available),
+            fraction: used,
+            level: GaugeLevel.level(for: used),
+            detail: .capacity(space.total)
+        )
+    }
+
+    // MARK: Battery
+
+    /// The charge is the ring and its colour comes from what is left (R3). A Mac without a battery
+    /// has no tile.
+    private static func battery(_ input: ReadoutTileInput) -> ReadoutTileContent? {
+        guard input.hasBattery else {
+            return nil
+        }
+        guard let power = input.power, (0...100).contains(power.percent) else {
+            return unavailable(.battery)
+        }
+        let fraction = Double(power.percent) / 100
+        return ReadoutTileContent(
+            kind: .battery,
+            value: .percent(power.percent),
+            fraction: fraction,
+            level: GaugeLevel.level(forRemaining: fraction),
+            detail: batteryDetail(power)
+        )
+    }
+
+    private static func batteryDetail(_ power: PowerReading) -> ReadoutTileDetail {
+        switch power.state {
+        case .onBattery:
+            return power.timeToEmpty.map(ReadoutTileDetail.timeLeft) ?? .onBattery
+        case .charging:
+            return power.timeToFull.map(ReadoutTileDetail.timeToFull) ?? .charging
+        case .onAdapter:
+            return power.adapterWatts.map(ReadoutTileDetail.adapterWatts) ?? .onAdapter
+        case .charged:
+            return power.adapterWatts.map(ReadoutTileDetail.adapterWatts) ?? .charged
+        }
     }
 
     /// A share from 0 to 1 as a whole percent.

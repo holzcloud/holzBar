@@ -37,8 +37,6 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
     private var reading = ReadoutTileInput()
 
     @ObservationIgnored private weak var appState: AppState?
-    /// The readings merged over the deliveries of this registration.
-    @ObservationIgnored private var latest: ReadoutSample?
     /// The earlier readings, from which the loads and rates are made.
     @ObservationIgnored private var baseline = ReadoutBaseline()
     @ObservationIgnored private var visibility = ReadoutVisibility()
@@ -172,10 +170,28 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
                 metrics.insert(.thermal)
             }
         }
+        if readouts.isOn(.memory) {
+            metrics.formUnion([.memory, .swap, .memoryPressure])
+        }
+        if readouts.isOn(.network) {
+            metrics.insert(.network)
+        }
+        if readouts.isOn(.disk) {
+            metrics.insert(.diskSpace)
+        }
+        if readouts.isOn(.battery) {
+            metrics.insert(.power)
+        }
         guard !metrics.isEmpty else {
             return nil
         }
-        return ReadoutRequest(metrics: metrics, intervalSeconds: readouts.tileRefreshSeconds, needsBaseline: true)
+        // A load and a rate are the difference of two readings.
+        let needsBaseline = !metrics.isDisjoint(with: [.cpu, .network])
+        return ReadoutRequest(
+            metrics: metrics,
+            intervalSeconds: readouts.tileRefreshSeconds,
+            needsBaseline: needsBaseline
+        )
     }
 
     /// Registers the consumer with what the tiles need now, or removes it when no tile needs a
@@ -192,9 +208,7 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
             return
         }
         registeredRequest = request
-        latest = nil
-        baseline.reset()
-        reading = ReadoutTileInput()
+        resetReadings()
         appState.systemMonitor.register(Self.consumerID, kind: .visible, request: request) { [weak self] sample in
             self?.receive(sample)
         }
@@ -205,22 +219,46 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
     private func unregister() {
         appState?.systemMonitor.unregister(Self.consumerID)
         registeredRequest = nil
-        latest = nil
+        resetReadings()
+    }
+
+    /// Forgets the readings and the baseline. Whether this Mac has a battery stays known, so the
+    /// tiles do not move when the hub opens again.
+    private func resetReadings() {
         baseline.reset()
-        reading = ReadoutTileInput()
+        reading = ReadoutTileInput(hasBattery: reading.hasBattery)
     }
 
     private func receive(_ sample: ReadoutSample) {
         guard registeredRequest != nil else {
             return
         }
-        latest = latest?.merging(sample) ?? sample
         var next = reading
         if sample.read.contains(.cpu) {
             next.cpuLoad = baseline.cpuLoad(sample.cpuTicks)
         }
         if sample.read.contains(.thermal) {
             next.thermal = sample.thermal
+        }
+        if sample.read.contains(.memory) {
+            next.memory = sample.memory
+        }
+        if sample.read.contains(.swap) {
+            next.swap = sample.swap
+        }
+        if sample.read.contains(.memoryPressure) {
+            next.pressure = sample.memoryPressure
+        }
+        if sample.read.contains(.network) {
+            next.networkRates = baseline.networkRates(sample.network)
+        }
+        if sample.read.contains(.diskSpace) {
+            next.diskSpace = sample.diskSpace
+        }
+        if sample.read.contains(.power) {
+            next.power = sample.power
+            // The first reading that has a battery tells that this Mac has one.
+            next.hasBattery = next.hasBattery || sample.power != nil
         }
         reading = next
     }
