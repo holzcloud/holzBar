@@ -23,6 +23,7 @@ struct ReopenGateTests {
         "com.apple.finder",
         "com.apple.Spotlight",
         "com.apple.launchpad.launcher",
+        "com.apple.apps.launcher",
         "COM.APPLE.DOCK",
     ])
     func userLaunchOpens(_ bundleID: String) {

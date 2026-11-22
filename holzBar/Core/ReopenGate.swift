@@ -51,6 +51,12 @@ nonisolated enum ReopenGate {
     /// The launchers whose reopen opens Settings: the Dock, the Finder, Spotlight and
     /// Launchpad. Strict on purpose; it is fitted to what a real Mac measures.
     ///
+    /// Launchpad has two identifiers. Before macOS 26 it is `com.apple.launchpad.launcher`. From
+    /// macOS 26 the Apps app (`/System/Applications/Apps.app`) replaced it with
+    /// `com.apple.apps.launcher`; read from the bundle on macOS 27.2.1, where the Dock's own
+    /// migration table also maps the old identifier to Apps.app. Both open Settings: the same
+    /// path, not a wider list.
+    ///
     /// Not measured on a Mac yet: probe P1 is deferred to the 1.2.0 beta test (2026-11-22), so no value
     /// here was measured on a Mac. The strict list stays as built (fail safe: an unknown sender
     /// never opens Settings); the beta test's measurement may widen it, per the runbook.
@@ -59,6 +65,7 @@ nonisolated enum ReopenGate {
         "com.apple.finder",
         "com.apple.Spotlight",
         "com.apple.launchpad.launcher",
+        "com.apple.apps.launcher",
     ]
 
     /// Lower-case words that mark a sender as the Siri or Shortcuts machinery. A sender

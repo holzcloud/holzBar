@@ -164046,6 +164046,242 @@
           }
         }
       }
+    },
+    "Open Settings when holzBar is opened again" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otevřít nastavení při opětovném otevření holzBar"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen öffnen, wenn holzBar erneut geöffnet wird"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir Ajustes al abrir holzBar de nuevo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir les réglages quand holzBar est rouvert"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beállítások megnyitása a holzBar ismételt megnyitásakor"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buka pengaturan saat holzBar dibuka lagi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri le impostazioni quando holzBar viene riaperto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar を再度開いたときに設定を開く"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar를 다시 열면 설정 열기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open instellingen wanneer holzBar opnieuw wordt geopend"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otwórz ustawienia po ponownym otwarciu holzBar"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir Ajustes ao abrir o holzBar de novo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avrir las configuraziuns cura che holzBar vegn avert danovamain"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открывать настройки при повторном открытии holzBar"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öppna inställningar när holzBar öppnas igen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar yeniden açıldığında ayarları aç"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відкривати параметри, коли holzBar відкрито повторно"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再次打开 holzBar 时打开设置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再次打開 holzBar 時打開設定"
+          }
+        }
+      }
+    },
+    "When holzBar is already running, it opens Settings only if you open it again from the Dock, Finder, Spotlight or Launchpad; the same request from Siri, Shortcuts or any other app is ignored." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Když holzBar už běží, otevře nastavení, jen když ho znovu otevřete z Docku, Finderu, Spotlightu nebo Launchpadu; stejný požadavek od Siri, Zkratek nebo jiné aplikace se ignoruje."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn holzBar bereits läuft, öffnet es die Einstellungen nur, wenn du es erneut über das Dock, den Finder, Spotlight oder das Launchpad öffnest; dieselbe Anfrage von Siri, Kurzbefehlen oder einer anderen App wird ignoriert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si holzBar ya se está ejecutando, solo abre los Ajustes cuando lo abres de nuevo desde el Dock, el Finder, Spotlight o Launchpad; la misma petición de Siri, Atajos o cualquier otra app se ignora."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quand holzBar est déjà ouvert, il n'ouvre les réglages que si vous le rouvrez depuis le Dock, le Finder, Spotlight ou le Launchpad ; la même demande venant de Siri, de Raccourcis ou de toute autre app est ignorée."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ha a holzBar már fut, csak akkor nyitja meg a Beállításokat, ha újra megnyitja a Dockból, a Finderből, a Spotlightból vagy a Launchpadről; ugyanez a kérés a Siritől, a Parancsoktól vagy bármely más alkalmazástól figyelmen kívül marad."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saat holzBar sudah berjalan, holzBar hanya membuka pengaturan jika Anda membukanya lagi dari Dock, Finder, Spotlight, atau Launchpad; permintaan yang sama dari Siri, Pintasan, atau app lain diabaikan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se holzBar è già in esecuzione, apre le impostazioni solo se lo riapri dal Dock, dal Finder, da Spotlight o dal Launchpad; la stessa richiesta da Siri, Comandi rapidi o qualsiasi altra app viene ignorata."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar がすでに起動しているときは、Dock、Finder、Spotlight、Launchpad からもう一度開いた場合にだけ設定を開きます。Siri、「ショートカット」、その他の App からの同じ要求は無視されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar가 이미 실행 중이면 Dock, Finder, Spotlight 또는 Launchpad에서 다시 열 때만 설정을 엽니다. Siri, 단축어 또는 다른 앱에서 보낸 같은 요청은 무시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als holzBar al draait, opent het de instellingen alleen als je het opnieuw opent via het Dock, Finder, Spotlight of Launchpad; hetzelfde verzoek van Siri, Opdrachten of een andere app wordt genegeerd."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gdy holzBar już działa, otwiera ustawienia tylko wtedy, gdy otworzysz go ponownie z Docka, Findera, Spotlightu lub Launchpada; to samo żądanie od Siri, Skrótów lub innej aplikacji jest ignorowane."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando o holzBar já está aberto, ele só abre os Ajustes se você abri-lo de novo pelo Dock, Finder, Spotlight ou Launchpad; o mesmo pedido da Siri, dos Atalhos ou de qualquer outro app é ignorado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sche holzBar è gia avert, avra el be las configuraziuns, sche ti al avras puspè dal Dock, dal Finder, cun Spotlight u dal Launchpad; la medema dumonda da Siri, da Shortcuts u d’in auter app vegn ignorada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Если holzBar уже запущен, он открывает настройки, только когда вы снова открываете его из Dock, Finder, Spotlight или Launchpad; такой же запрос от Siri, «Быстрых команд» или другого приложения игнорируется."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "När holzBar redan körs öppnar det bara inställningarna om du öppnar det igen från Dock, Finder, Spotlight eller Launchpad; samma begäran från Siri, Genvägar eller någon annan app ignoreras."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar zaten açıkken ayarları yalnızca onu Dock’tan, Finder’dan, Spotlight’tan veya Launchpad’den yeniden açtığınızda açar; Siri’den, Kestirmeler’den ya da başka bir uygulamadan gelen aynı istek yok sayılır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Якщо holzBar уже запущено, він відкриває параметри, лише коли ви знову відкриваєте його з Dock, Finder, Spotlight або Launchpad; такий самий запит від Siri, «Команд» чи іншої програми ігнорується."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 已在运行时，只有当你从 Dock、Finder、聚焦或启动台再次打开它时，才会打开设置；来自 Siri、快捷指令或其他 App 的同样请求会被忽略。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 已在執行時，只有當你從 Dock、Finder、Spotlight 或啟動台再次打開它時，才會打開設定；來自 Siri、捷徑或其他 App 的同樣請求會被忽略。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -124,7 +124,7 @@ On macOS 27.0.1, Command-dragging the microphone or screen recording indicator m
 
 ## Reopening holzBar
 
-Opening holzBar while it runs (a click on its icon in the Dock, a double-click in the Finder, Spotlight or Launchpad) opens Settings. A reopen sent by anything else, such as Siri on macOS 27, is ignored, and so is a second one within 2 seconds of the last one that opened Settings. holzBar's menu always opens Settings. Settings → About → Copy Diagnostics has a Reopen line with how many reopens opened Settings and how many were ignored, never who sent them.
+Opening holzBar while it runs (a click on its icon in the Dock, a double-click in the Finder, Spotlight, or Launchpad, which is the Apps app from macOS 26) opens Settings. A reopen sent by anything else, such as Siri on macOS 27, is ignored, and so is a second one within 2 seconds of the last one that opened Settings. holzBar's menu always opens Settings. Settings → Advanced → Menu bar says the same in one row. Settings → About → Copy Diagnostics has a Reopen line with how many reopens opened Settings and how many were ignored, never who sent them.
 
 ## Updating from macOS 26
 

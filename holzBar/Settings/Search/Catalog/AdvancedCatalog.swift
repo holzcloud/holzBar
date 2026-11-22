@@ -25,6 +25,7 @@ extension SettingsCatalog {
                 entries += [.advancedDividerStyle, .advancedShowAllSectionsOnDrag]
             }
             entries.append(.advancedSecondaryContextMenu)
+            entries.append(.advancedReopenSettings)
             if #available(macOS 27.0, *), MenuBarBackendKind.current == .accessibility27 {
                 entries.append(.advancedMenuBarCommands27)
                 entries.append(.advancedSystemLiveActivities27)
@@ -75,6 +76,14 @@ extension SettingsEntry {
         group: SettingsCatalog.AdvancedPane.menuBar,
         label: String(localized: "Right-click on empty menu bar opens holzBar's menu"),
         info: String(localized: "Right-click in an empty area of the menu bar to display a minimal version of holzBar's menu. From macOS 27.2, hold ⌥ Option as you right-click; a plain right-click opens Apple's menu. Disable this setting if you encounter conflicts with other apps.")
+    )
+
+    static let advancedReopenSettings = SettingsEntry(
+        id: "advancedReopenSettings",
+        pane: .advanced,
+        group: SettingsCatalog.AdvancedPane.menuBar,
+        label: String(localized: "Open Settings when holzBar is opened again"),
+        info: String(localized: "When holzBar is already running, it opens Settings only if you open it again from the Dock, Finder, Spotlight or Launchpad; the same request from Siri, Shortcuts or any other app is ignored.")
     )
 
     static let advancedMenuBarCommands27 = SettingsEntry(

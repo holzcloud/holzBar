@@ -36,6 +36,12 @@ struct AdvancedSettingsPane: View {
                     )
                 }
                 SettingsToggleRow(.advancedSecondaryContextMenu, isOn: $settings.enableSecondaryContextMenu)
+                // A fact, not a choice: only a launch by the user opens Settings (``ReopenGate``).
+                // The Apple launchers are product names and stay as they are.
+                SettingsRow(.advancedReopenSettings, badge: .preview) {
+                    Text(verbatim: "Dock, Finder, Spotlight, Launchpad")
+                        .foregroundStyle(.secondary)
+                }
                 if #available(macOS 27.0, *), MenuBarBackendKind.current == .accessibility27 {
                     // The same two commands as holzBar's menu and the command palette. The restart
                     // is offered only while MenuBarAgent is visible (D-07).
