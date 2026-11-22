@@ -40,6 +40,7 @@ sources=(
   CalendarEvent
   CalendarReadFreshness
   CalendarSelection
+  ClickPairing
   ClockClickPolicy
   CommandDragSection
   ControlCenterControl
@@ -190,6 +191,7 @@ tests=(
   BuiltInItemTests
   CalendarReadFreshnessTests
   CalendarSelectionTests
+  ClickPairingTests
   ClockClickPolicyTests
   CommandDragSectionTests
   ControlCenterControlTests

@@ -19,10 +19,10 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
     /// The shared app state.
     private weak var appState: AppState?
 
-    /// Until when the release of a held-back click is held back as well (see
-    /// `handle(_:)`). The deadline keeps a release that never comes from
-    /// swallowing an unrelated one later.
-    private var heldBackReleaseUntil: ContinuousClock.Instant?
+    /// The presses held back and not yet released, by mouse event number. A press's own
+    /// release is held back with it; no other click's release is ever taken (see
+    /// `ClickPairing`).
+    private var pairing = ClickPairing()
 
     /// System items that do not open from an Accessibility press, so a click on them has to
     /// go through MenuBarAgent. Seeded with what was measured on macOS 27.0; anything else
@@ -68,6 +68,8 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
 
     func stop() {
         tap.disable()
+        // A stopped tap sees no release any more, so no held press waits for one.
+        _ = pairing.flush()
         // The stopped tap no longer sees the clicks that close the panel.
         panelMemory.forget()
     }
@@ -86,6 +88,12 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         guard event.getIntegerValueField(.eventSourceUserData) != Self.replayedClickMarker else {
             return event
         }
+        let expired = pairing.expire(at: .now)
+        if !expired.isEmpty {
+            Self.bridgeLogger.debug(
+                "Click bridge: \(expired.count, privacy: .public) held press(es) never saw their release and were let go"
+            )
+        }
         if event.type == .rightMouseDown || event.type == .otherMouseDown {
             // Never bridged, but it may close the panel holzBar saw open, and nothing would tell.
             panelMemory.forget()
@@ -94,13 +102,10 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         if event.type == .leftMouseUp {
             // A press holzBar holds back has its release held back with it. MenuBarAgent would
             // otherwise be handed a release with no press behind it, moments before the
-            // replayed click that carries both.
-            guard let until = heldBackReleaseUntil, ContinuousClock.now < until else {
-                heldBackReleaseUntil = nil
-                return event
-            }
-            heldBackReleaseUntil = nil
-            return nil
+            // replayed click that carries both. Only the release with the press's own event
+            // number is taken.
+            let number = event.getIntegerValueField(.mouseEventNumber)
+            return pairing.release(number: number) == .swallowRelease ? nil : event
         }
         let concealer = appState.concealer27
         // The frames of the display the click landed on, so the clock of the display whose bar
@@ -235,7 +240,7 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             let opened = await Self.waitForOpenedPanel(item: systemItem?.identifier, baseline: baseline, polls: 8)
             self.panelMemory.remember(opened, openedBy: taken.click)
         }
-        heldBackReleaseUntil = .now + .seconds(1)
+        _ = pairing.press(number: event.getIntegerValueField(.mouseEventNumber), shouldHold: true, at: .now)
         return nil
     }
 
