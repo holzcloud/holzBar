@@ -19,7 +19,10 @@ import SwiftUI
 ///
 /// The tiles show the readings as plain values through the rules of ``ReadoutTiles``; a missing,
 /// stuck or impossible value shows an en dash (MON-09). Readings stay in memory and are never
-/// logged or stored.
+/// logged or stored. The curve tiles (CPU, GPU, memory and network) also keep the last two minutes
+/// of their value in a ``ReadoutHistory``, filled only by the deliveries of the open hub and kept
+/// while the runtime lives, so a hub opened again within two minutes still has its earlier points
+/// (MON-10, D-06, D-18).
 @MainActor
 @Observable
 final class SystemReadoutsRuntime: HubModuleRuntime {
@@ -36,6 +39,10 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
     /// The latest readings as the tile rules take them. Changing it redraws the tiles.
     private var reading = ReadoutTileInput()
 
+    /// The last two minutes of the curve tiles. Changing it redraws the curves, which move left
+    /// with every delivery.
+    private var histories = Histories()
+
     @ObservationIgnored private weak var appState: AppState?
     /// The earlier readings, from which the loads and rates are made.
     @ObservationIgnored private var baseline = ReadoutBaseline()
@@ -51,6 +58,11 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
     private struct Choice: Equatable {
         var tiles: [String]?
         var refreshSeconds: Int
+    }
+
+    /// The histories of the tiles that draw a curve; the disk and battery tiles have none (D-18).
+    private struct Histories {
+        var cpu = ReadoutHistory()
     }
 
     /// Follows the hub and the Mac's rest. Registers at once when the hub is open already (the hub
@@ -84,8 +96,26 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
         var current = reading
         current.showsThermalLine = readouts.showsThermalLine
         let locale = Locale.autoupdatingCurrent
+        let now = ContinuousClock.now
+        let refreshSeconds = readouts.tileRefreshSeconds
         return ReadoutTiles.contents(current, stored: readouts.enabledTiles).map {
-            ReadoutTileBuilder.tile(for: $0, input: current, rateUnit: readouts.rateUnit, locale: locale)
+            ReadoutTileBuilder.tile(
+                for: $0,
+                input: current,
+                rateUnit: readouts.rateUnit,
+                locale: locale,
+                history: curve(of: $0.kind, now: now, refreshSeconds: refreshSeconds)
+            )
+        }
+    }
+
+    /// The mini curve of a tile, or `nil` for a tile without one.
+    private func curve(of kind: ReadoutTileKind, now: ContinuousClock.Instant, refreshSeconds: Int) -> HubTileHistory? {
+        switch kind {
+        case .cpu:
+            HubTileHistory(primary: histories.cpu.segments(now: now, refreshSeconds: refreshSeconds, top: 1))
+        case .gpu, .memory, .network, .disk, .battery:
+            nil
         }
     }
 
@@ -234,8 +264,11 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
             return
         }
         var next = reading
+        let now = ContinuousClock.now
+        var updated = histories
         if sample.read.contains(.cpu) {
             next.cpuLoad = baseline.cpuLoad(sample.cpuTicks)
+            updated.cpu.append(next.cpuLoad, at: now)
         }
         if sample.read.contains(.thermal) {
             next.thermal = sample.thermal
@@ -260,6 +293,7 @@ final class SystemReadoutsRuntime: HubModuleRuntime {
             // The first reading that has a battery tells that this Mac has one.
             next.hasBattery = next.hasBattery || sample.power != nil
         }
+        histories = updated
         reading = next
     }
 }

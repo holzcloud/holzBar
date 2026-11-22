@@ -161,6 +161,21 @@ nonisolated enum DesignTokens {
         /// The fill of a widget card, normally and under Reduce Transparency.
         static let tileFillAlpha: Double = 0.045
         static let tileFillAlphaOpaque: Double = 0.10
+        /// The mini curve of a readout tile (concept R1): 24 pt high with its baseline on the
+        /// ring's bottom, 8 pt after the ring, left out below 40 pt of free width. The line is
+        /// 1.5 pt, the baseline 1 pt; the line is white at 55 percent (85 under Increase
+        /// Contrast, which also drops the area), the area under it white at 6 percent and the
+        /// baseline white at 8 percent. A second series is dashed 2 on, 2 off.
+        static let curveHeight: Double = 24
+        static let curveGap: Double = 8
+        static let curveMinimumWidth: Double = 40
+        static let curveLineWidth: Double = 1.5
+        static let curveBaselineWidth: Double = 1
+        static let curveLineAlpha: Double = 0.55
+        static let curveLineAlphaIncreased: Double = 0.85
+        static let curveAreaAlpha: Double = 0.06
+        static let curveBaselineAlpha: Double = 0.08
+        static let curveDash: [Double] = [2, 2]
         /// The File drop tab's file tile: its size, the type icon, the remove button's circle and
         /// the border (white at 6 percent). A missing file is drawn at half strength.
         static let fileTileWidth: Double = 72

@@ -133,6 +133,7 @@ sources=(
   PlaybackClock
   PrivateFeatureGate
   ReadoutFormat
+  ReadoutHistory
   ReadoutLedger
   ReadoutTiles
   ReadoutValues
@@ -287,6 +288,7 @@ tests=(
   PlaybackClockTests
   PrivateFeatureGateTests
   ReadoutFormatTests
+  ReadoutHistoryTests
   ReadoutLedgerTests
   ReadoutTilesTests
   ReadoutValuesTests

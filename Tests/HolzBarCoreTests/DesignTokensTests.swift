@@ -295,6 +295,22 @@ struct DesignTokensTests {
         #expect(Tokens.Island.gearSize >= Tokens.minimumTargetSize)
     }
 
+    @Test("The mini curve's numbers equal the design's R1")
+    func curveNumbers() {
+        #expect(Tokens.Hub.curveHeight == 24)
+        #expect(Tokens.Hub.curveGap == 8)
+        #expect(Tokens.Hub.curveMinimumWidth == 40)
+        #expect(Tokens.Hub.curveLineWidth == 1.5)
+        #expect(Tokens.Hub.curveBaselineWidth == 1)
+        #expect(Tokens.Hub.curveLineAlpha == 0.55)
+        #expect(Tokens.Hub.curveLineAlphaIncreased == 0.85)
+        #expect(Tokens.Hub.curveAreaAlpha == 0.06)
+        #expect(Tokens.Hub.curveBaselineAlpha == 0.08)
+        #expect(Tokens.Hub.curveDash == [2, 2])
+        // Increase Contrast strengthens the line.
+        #expect(Tokens.Hub.curveLineAlphaIncreased > Tokens.Hub.curveLineAlpha)
+    }
+
     @Test("The island's numbers equal section 10b")
     func islandNumbers() {
         let island = Tokens.Island.self

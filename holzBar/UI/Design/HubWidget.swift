@@ -24,6 +24,7 @@ struct HubWidget: View {
     private let stateLine: HubTileStateLine?
     private let accessibilityText: Text?
     private let help: Text?
+    private let history: HubTileHistory?
 
     /// Creates a widget.
     ///
@@ -40,6 +41,8 @@ struct HubWidget: View {
     ///   - accessibilityValue: What VoiceOver reads as the value. With it the widget is one
     ///     element named by the title; without it the texts are read combined.
     ///   - help: The tooltip.
+    ///   - history: The last two minutes as a mini curve right of the ring; the curve is left out
+    ///     when less than its minimum width is free.
     init(
         systemImage: String,
         title: Text,
@@ -50,7 +53,8 @@ struct HubWidget: View {
         level: GaugeLevel? = nil,
         stateLine: HubTileStateLine? = nil,
         accessibilityValue: Text? = nil,
-        help: Text? = nil
+        help: Text? = nil,
+        history: HubTileHistory? = nil
     ) {
         self.systemImage = systemImage
         self.title = title
@@ -62,6 +66,7 @@ struct HubWidget: View {
         self.stateLine = stateLine
         self.accessibilityText = accessibilityValue
         self.help = help
+        self.history = history
     }
 
     private var clampedFraction: Double? {
@@ -87,7 +92,7 @@ struct HubWidget: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ring
+            topRow
             title
                 .font(.system(size: 9, weight: .medium))
                 .textCase(.uppercase)
@@ -143,6 +148,28 @@ struct HubWidget: View {
         return "\(value), \(Int((clampedFraction * 100).rounded())) %"
     }
 
+    /// The ring, and with a history the curve after it: it fills the rest of the row, with its
+    /// bottom on the ring's bottom, and adds no height. With less than the curve's minimum width
+    /// free the row is the ring alone.
+    @ViewBuilder private var topRow: some View {
+        if let history {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .bottom, spacing: CGFloat(DesignTokens.Hub.curveGap)) {
+                    ring
+                    ReadoutCurve(primary: history.primary, secondary: history.secondary)
+                        .frame(
+                            minWidth: CGFloat(DesignTokens.Hub.curveMinimumWidth),
+                            idealWidth: CGFloat(DesignTokens.Hub.curveMinimumWidth),
+                            maxWidth: .infinity
+                        )
+                }
+                ring
+            }
+        } else {
+            ring
+        }
+    }
+
     private var ring: some View {
         ZStack {
             Circle()
@@ -175,7 +202,8 @@ extension HubWidget {
             level: tile.level,
             stateLine: tile.stateLine,
             accessibilityValue: tile.accessibilityValue,
-            help: tile.help
+            help: tile.help,
+            history: tile.history
         )
     }
 }

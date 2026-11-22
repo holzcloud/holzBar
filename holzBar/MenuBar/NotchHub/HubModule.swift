@@ -58,6 +58,14 @@ struct HubTileStateLine {
     var tint: HubTint
 }
 
+/// The lines of a tile's mini curve (concept R1): the runs of points of the main series and, for a
+/// second series such as the upload speed, its own runs (drawn dashed, without an area). Built by
+/// ``ReadoutHistory``; kept in memory only.
+struct HubTileHistory {
+    var primary: [[CurvePoint]]
+    var secondary: [[CurvePoint]] = []
+}
+
 /// A module's card on the Overview: the same inputs as ``HubWidget``.
 struct HubTile {
     /// The name of the SF Symbol inside the ring.
@@ -85,6 +93,8 @@ struct HubTile {
     var accessibilityValue: Text?
     /// The tooltip.
     var help: Text?
+    /// The last two minutes as a mini curve right of the ring, or `nil` for a tile without one.
+    var history: HubTileHistory?
 
     init(
         symbol: String,
@@ -97,7 +107,8 @@ struct HubTile {
         level: GaugeLevel? = nil,
         stateLine: HubTileStateLine? = nil,
         accessibilityValue: Text? = nil,
-        help: Text? = nil
+        help: Text? = nil,
+        history: HubTileHistory? = nil
     ) {
         self.symbol = symbol
         self.title = title
@@ -110,6 +121,7 @@ struct HubTile {
         self.stateLine = stateLine
         self.accessibilityValue = accessibilityValue
         self.help = help
+        self.history = history
     }
 }
 

@@ -21,15 +21,18 @@ enum ReadoutTileBuilder {
     ///   - input: The readings behind it, for the amounts the spoken value names.
     ///   - rateUnit: How the network speed counts.
     ///   - locale: The language and the number format of the user.
+    ///   - history: The tile's mini curve, for a tile that has one.
     static func tile(
         for content: ReadoutTileContent,
         input: ReadoutTileInput,
         rateUnit: ReadoutRateUnit,
-        locale: Locale
+        locale: Locale,
+        history: HubTileHistory? = nil
     ) -> HubTile {
         let texts = ReadoutTexts.localized(locale: locale)
         let (value, unit) = valueAndUnit(of: content.value, rateUnit: rateUnit, texts: texts, locale: locale)
-        let spoken = Text(verbatim: spokenValue(for: content, input: input, rateUnit: rateUnit, texts: texts, locale: locale))
+        let reading = spokenValue(for: content, input: input, rateUnit: rateUnit, texts: texts, locale: locale)
+        let spoken = Text(verbatim: reading)
         let parts = detail(of: content.detail, kind: content.kind, rateUnit: rateUnit, texts: texts, locale: locale)
         return HubTile(
             symbol: symbol(for: content, input: input),
@@ -42,7 +45,8 @@ enum ReadoutTileBuilder {
             level: content.level,
             stateLine: parts.stateLine,
             accessibilityValue: spoken,
-            help: spoken
+            help: spoken,
+            history: history
         )
     }
 
