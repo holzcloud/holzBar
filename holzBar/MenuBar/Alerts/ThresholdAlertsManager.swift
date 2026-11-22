@@ -56,6 +56,8 @@ final class ThresholdAlertsManager {
     @ObservationIgnored private var settleTask: Task<Void, Never>?
     /// The one wait for the next hold, clear hold or quiet period to run out.
     @ObservationIgnored private var deadlineTask: Task<Void, Never>?
+    /// The one wait that turns the test alert into its done state.
+    @ObservationIgnored private var testTask: Task<Void, Never>?
     @ObservationIgnored private let logger = Logger(category: "ThresholdAlerts")
 
     /// What the stored settings decide: whether the module is on and the five rules.
@@ -79,7 +81,79 @@ final class ThresholdAlertsManager {
         }, onChange: { [weak self] _ in
             self?.configDidChange()
         })
+        // The handler list is append-only, so this registers once. A display change and the settle
+        // after a wake give 30 seconds of quiet (D-15).
+        appState.systemActivityMonitor.onSettled { [weak self] in
+            self?.activityDidSettle()
+        }
         configDidChange()
+    }
+
+    /// The bar settled after a wake, an unlock, a session switch or a display change: nothing fires
+    /// for 30 seconds, and a fire that was due is deferred to their end, not dropped.
+    private func activityDidSettle() {
+        guard isModuleOn else {
+            return
+        }
+        evaluator.resume(at: .now)
+        rearmDeadline()
+    }
+
+    // MARK: Test alert
+
+    /// Shows the look of an alert on demand (D-16): the CPU look with 92 percent and the title
+    /// "Test alert" for ``DesignTokens/Alert/testSeconds``, then its done state. It is no rule of
+    /// the evaluator, so the quiet period, the cooldown and the rate cap do not hold it back, and
+    /// it asks for no permission. A second press starts it again. Only while the module is on.
+    func showTestAlert() {
+        guard isModuleOn else {
+            return
+        }
+        testTask?.cancel()
+        let startedAt = Date.now
+        upsert(LiveActivity(
+            id: AlertLook.testID,
+            moduleID: AlertLook.moduleID,
+            kind: .other,
+            symbol: AlertLook.testSymbol,
+            title: AlertTexts.testTitle,
+            detail: AlertTexts.testBody,
+            priority: AlertLook.priority(for: .cpu),
+            startedAt: startedAt,
+            tint: .amber,
+            announcesItself: false,
+            compactValue: AlertTexts.shortValue(.percent(AlertLook.testPercent))
+        ))
+        testTask = Task { [weak self] in
+            do {
+                try await Task.sleep(for: .seconds(DesignTokens.Alert.testSeconds))
+            } catch {
+                return
+            }
+            self?.finishTestAlert(startedAt: startedAt)
+        }
+    }
+
+    /// The test alert's done state: the same id and start, so the board drops it after its hold.
+    private func finishTestAlert(startedAt: Date) {
+        testTask = nil
+        guard isModuleOn else {
+            return
+        }
+        upsert(LiveActivity(
+            id: AlertLook.testID,
+            moduleID: AlertLook.moduleID,
+            kind: .other,
+            symbol: AlertLook.recoveredSymbol,
+            title: AlertTexts.testTitle,
+            priority: AlertLook.priority(for: .cpu),
+            startedAt: startedAt,
+            finishedAt: .now,
+            tint: AlertLook.recoveredTint,
+            announcesItself: false,
+            compactValue: AlertTexts.normalText
+        ))
+        prune(at: .now)
     }
 
     // MARK: Configuration
@@ -133,6 +207,8 @@ final class ThresholdAlertsManager {
     private func tearDown() {
         settleTask?.cancel()
         settleTask = nil
+        testTask?.cancel()
+        testTask = nil
         if !activities.isEmpty {
             activities = []
         }

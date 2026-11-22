@@ -53,6 +53,16 @@ enum AlertTexts {
         String(localized: "Normal")
     }
 
+    /// The title of the test alert.
+    static var testTitle: String {
+        String(localized: "Test alert")
+    }
+
+    /// The detail line of the test alert.
+    static var testBody: String {
+        String(localized: "This is how an alert looks.")
+    }
+
     /// The title of a firing alert: what VoiceOver says once and the list shows. The closed notch
     /// never draws it. Memory pressure and the thermal state follow the level they are at now.
     static func title(for snapshot: AlertSnapshot) -> String {

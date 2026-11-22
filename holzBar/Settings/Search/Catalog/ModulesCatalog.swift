@@ -108,6 +108,7 @@ extension SettingsCatalog {
             .modulesSystemAlertsMacBattery,
             .modulesSystemAlertsMacBatteryThreshold,
             .modulesSystemAlertsMacBatteryDuration,
+            .modulesSystemAlertsTest,
         ]
 
         /// The Mac battery rule's entries: a Mac without an internal battery has no such rule.
@@ -621,6 +622,15 @@ extension SettingsEntry {
         group: SettingsCatalog.ModulesPane.monitor,
         label: String(localized: "Held for"),
         info: String(localized: "The condition must last this long before an alert shows."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsTest = SettingsEntry(
+        id: "modulesSystemAlertsTest",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Test alert"),
+        info: String(localized: "Shows a sample alert in the notch, and as a notification when those are on."),
         module: SystemAlertsSettings.moduleID
     )
 }

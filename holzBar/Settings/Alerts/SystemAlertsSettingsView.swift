@@ -10,10 +10,11 @@ import SwiftUI
 /// Mac battery), each a switch with its threshold or level and how long the condition has to hold
 /// as dependent sub rows. The rows dim while the module is off and a rule's sub rows dim while the
 /// rule is off. The Mac battery rows are left out on a Mac without an internal battery. With the
-/// module on and every shown rule off, one line says so.
+/// module on and every shown rule off, one line says so. The Test alert button comes last: it
+/// shows a sample alert whatever the rules say.
 ///
-/// The view only flips stored values: it runs and measures nothing, so it also works while the
-/// Notch hub and System readouts are off.
+/// The view only flips stored values and starts the sample: it measures nothing, so it also works
+/// while the Notch hub and System readouts are off.
 struct SystemAlertsSettingsView: View {
     @Environment(AppState.self) private var appState
 
@@ -50,6 +51,12 @@ struct SystemAlertsSettingsView: View {
         if isModuleOn, !shownRules.contains(where: \.isOn) {
             SettingsStateLine(.info, Text("No alert rule is switched on"))
         }
+        SettingsButtonRow(unlabeled: .modulesSystemAlertsTest) {
+            Button("Test alert") {
+                appState.systemAlerts.showTestAlert()
+            }
+        }
+        .settingsDependent(on: isModuleOn)
     }
 
     /// The rules the settings show: all five, or four on a Mac without an internal battery.
