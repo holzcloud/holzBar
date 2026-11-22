@@ -235,6 +235,69 @@ nonisolated enum NotchHubGeometry {
         )
     }
 
+    /// The pill an alert is drawn in when the menu bar beside the notch has no free span on either
+    /// side, so ``live(display:room:)`` has no shape (UI-SPEC A3), or `nil` when the display has no
+    /// usable size, the value's width is not finite or is negative, or the display is too
+    /// narrow for it.
+    ///
+    /// The pill hangs detached below the top row, its top edge ``DesignTokens/Island/islandGap``
+    /// below the notch (below the menu bar without a notch), so it covers no menu bar item; its top
+    /// corners are convex (``LiveLayout/isDetached``). It is centred on the notch's axis (the
+    /// display's centre without a notch) and kept ``screenMargin`` from the display's edges. It is
+    /// as high as the top row. Its width is the symbol's area
+    /// (``DesignTokens/Island/liveMinimumSideWidth``), ``DesignTokens/Alert/detachedValueGap``, the
+    /// value's width and an end inset of ``DesignTokens/Island/liveBottomRadius``, held between
+    /// ``DesignTokens/Alert/detachedMinimumWidth`` and ``DesignTokens/Alert/detachedMaximumWidth``.
+    /// The symbol's area is `leading` and the value's `trailing`; the hover zone is the shape.
+    ///
+    /// Only an alert uses it: an alert must not vanish silently, and the live state of any other
+    /// activity never covers a menu bar item and so is not drawn on a crowded bar. A display with
+    /// Apple's Dynamic Island returns what ``live(display:room:)`` returns there, which is already
+    /// detached and never crowded.
+    ///
+    /// - Parameter valueWidth: The measured width of the short value, in points.
+    static func detachedAlert(display: Display, valueWidth: Double) -> LiveLayout? {
+        guard
+            display.width.isFinite, display.width > 0,
+            display.height.isFinite, display.height > 0,
+            valueWidth.isFinite, valueWidth >= 0
+        else {
+            return nil
+        }
+        if detachedIsland(of: display) != nil {
+            return live(display: display)
+        }
+        let capped = display.width - 2 * screenMargin
+        guard capped >= 1 else {
+            return nil
+        }
+        let notch = validated(display.notch, in: display.width)
+        let topRowHeight = resolvedTopRowHeight(of: display, notch: notch)
+        let symbolWidth = DesignTokens.Island.liveMinimumSideWidth
+        let gap = DesignTokens.Alert.detachedValueGap
+        let endInset = DesignTokens.Island.liveBottomRadius
+        let wanted = symbolWidth + gap + valueWidth + endInset
+        let width = min(
+            max(wanted, DesignTokens.Alert.detachedMinimumWidth),
+            DesignTokens.Alert.detachedMaximumWidth,
+            capped
+        )
+        let axis = notch.map { ($0.minX + $0.maxX) / 2 } ?? display.width / 2
+        let minX = min(max(axis - width / 2, screenMargin), display.width - screenMargin - width)
+        let top = topRowHeight + DesignTokens.Island.islandGap
+        let shape = Rect(x: minX, y: top, width: width, height: topRowHeight)
+        let leading = Rect(x: shape.x, y: top, width: min(symbolWidth, width), height: topRowHeight)
+        let trailingStart = leading.maxX + gap
+        let trailingEnd = shape.maxX - endInset
+        return LiveLayout(
+            shape: shape,
+            leading: leading,
+            trailing: Rect(x: trailingStart, y: top, width: max(trailingEnd - trailingStart, 0), height: topRowHeight),
+            hoverZone: shape,
+            isDetached: true
+        )
+    }
+
     /// The open island on a display, or `nil` when the display has no usable size or the content
     /// height is not a number or negative.
     ///

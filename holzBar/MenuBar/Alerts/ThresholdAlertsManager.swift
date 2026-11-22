@@ -252,14 +252,11 @@ final class ThresholdAlertsManager {
         surface = nil
     }
 
-    /// Hands the alerts to the surface while the Notch hub is off; while it is on the hub draws the
-    /// widened notch itself and the surface hides.
+    /// Hands the alerts to the surface. With the Notch hub off the surface draws the widened notch;
+    /// with it on the hub does, and the surface shows only where the hub cannot (a bar with no free
+    /// span beside the notch), which it works out itself.
     private func surfaceDidChange() {
         guard isModuleOn, let appState else {
-            surface?.hide()
-            return
-        }
-        if appState.notchHub.isActive {
             surface?.hide()
             return
         }

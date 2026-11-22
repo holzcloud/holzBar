@@ -23,6 +23,12 @@ import SwiftUI
 /// mirrored or shared, and on a display the hub's setting excludes (``NotchHubPolicy``, T-95-07).
 /// Its panel is the hub's non-activating panel and never takes the keyboard (T-95-08).
 ///
+/// On a bar so crowded that no free span is left beside the notch, the live shape does not exist
+/// and an alert must not vanish: the surface then draws a detached pill below the notch, and only
+/// an alert does (``NotchHubGeometry/detachedAlert(display:valueWidth:)``, UI-SPEC A3). It does so
+/// with the hub off, and with the hub on while the hub cannot draw its live state; where the hub
+/// can, the hub draws the alert and the surface stays away, so exactly one of them shows it.
+///
 /// Nothing exists while nothing is to show: no panel, no task and no observation. While an alert is
 /// live the surface follows what moves its place (the active space, the displays, the free menu bar,
 /// a fullscreen space and a hidden menu bar) and waits once for the next time the board changes; it
@@ -72,6 +78,10 @@ final class AlertNotchSurface {
         var isFullscreenSpace: Bool
         var isMenuBarHidden: Bool
         var room: NotchHubGeometry.LiveRoom?
+        var isHubActive: Bool
+        var isHubOpen: Bool
+
+        static let none = Inputs(isFullscreenSpace: false, isMenuBarHidden: false, room: nil, isHubActive: false, isHubOpen: false)
     }
 
     /// How long the panel stays larger than the shape after it opens, for the spring's overshoot.
@@ -102,6 +112,7 @@ final class AlertNotchSurface {
     /// Takes everything away at once: the panel, the observation and the waits.
     func hide() {
         activities = []
+        announcedKey = nil
         stopFollowing()
         cancelExpiry()
         tearDownPanel()
@@ -116,6 +127,8 @@ final class AlertNotchSurface {
         }
         let board = HubActivityBoard.board(activities, now: .now, forClosedNotch: true)
         guard board.compact != nil else {
+            // Nothing is live in the closed notch any more: the next alert is announced afresh.
+            announcedKey = nil
             cancelExpiry()
             stopFollowing()
             close()
@@ -124,6 +137,11 @@ final class AlertNotchSurface {
         armExpiry(at: board.nextExpiry)
         startFollowing()
         let hub = appState.notchHub
+        // An open hub shows the alert in its right pill and in the Live activities list.
+        guard !hub.isOpen else {
+            close()
+            return
+        }
         guard
             let screen = hub.preferredScreen(),
             NotchHubPolicy.blockReason(hub.policyEnvironment(of: screen, appState: appState), trigger: .compact) == nil
@@ -132,13 +150,21 @@ final class AlertNotchSurface {
             return
         }
         let display = hub.display(of: screen)
-        guard
-            let seed = NotchHubGeometry.seed(display: display),
-            let layout = NotchHubGeometry.live(
-                display: display,
-                room: NotchHubLiveRoom.room(on: screen, display: display, appState: appState)
-            )
-        else {
+        guard let seed = NotchHubGeometry.seed(display: display) else {
+            close()
+            return
+        }
+        let live = NotchHubGeometry.live(
+            display: display,
+            room: NotchHubLiveRoom.room(on: screen, display: display, appState: appState)
+        )
+        // With the hub on, the hub draws the widened notch wherever it has a live shape.
+        if hub.isActive, live != nil {
+            close()
+            return
+        }
+        // No free span beside the notch: the alert hangs detached below it (UI-SPEC A3).
+        guard let layout = live ?? NotchHubGeometry.detachedAlert(display: display, valueWidth: Self.valueWidth(of: board)) else {
             close()
             return
         }
@@ -147,6 +173,36 @@ final class AlertNotchSurface {
             placement: Placement(screenID: screen.displayID, screenFrame: screen.frame, layout: layout),
             seed: seed
         )
+    }
+
+    /// How wide the value area of the detached pill must be for the value the board shows now, in
+    /// points: the live value's text in its own font (digits of equal width), and the `+n` badge when
+    /// more alerts are live. The geometry holds it between its limits.
+    private static func valueWidth(of board: HubActivityBoard.Board) -> Double {
+        guard let state = HubLiveState.make(board: board, now: .now) else {
+            return 0
+        }
+        func width(of text: String, size: Double, weight: NSFont.Weight) -> Double {
+            let font = NSFont.monospacedDigitSystemFont(ofSize: CGFloat(size), weight: weight)
+            return Double((text as NSString).size(withAttributes: [.font: font]).width.rounded(.up))
+        }
+        var total: Double
+        switch state.trailing {
+        case .countdown:
+            total = width(of: "00:00", size: DesignTokens.Island.liveValueSize, weight: .semibold)
+        case .percent(let percent):
+            total = width(of: (Double(percent) / 100).formatted(.percent), size: DesignTokens.Island.liveValueSize, weight: .semibold)
+        case .word(let word):
+            total = width(of: word, size: DesignTokens.Island.liveValueSize, weight: .semibold)
+        case .none:
+            total = 0
+        }
+        if state.extraCount > 0 {
+            // The badge: its text, the padding on both sides and the space before it.
+            total += width(of: "+\(state.extraCount)", size: DesignTokens.Hub.pillTextSize, weight: .semibold)
+                + 3 * DesignTokens.Spacing.xs
+        }
+        return total
     }
 
     // MARK: Showing
@@ -240,7 +296,6 @@ final class AlertNotchSurface {
         transitionGeneration += 1
         let generation = transitionGeneration
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
-        announcedKey = nil
         if placement.layout.isDetached || reduceMotion {
             withAnimation(HolzBarTheme.Motion.reduced) {
                 state.fadeOut()
@@ -292,7 +347,6 @@ final class AlertNotchSurface {
         guard panel != nil else {
             phase = .hidden
             placement = nil
-            announcedKey = nil
             return
         }
         panel?.orderOut(nil)
@@ -300,7 +354,6 @@ final class AlertNotchSurface {
         panel = nil
         phase = .hidden
         placement = nil
-        announcedKey = nil
         state.reset()
     }
 
@@ -340,7 +393,7 @@ final class AlertNotchSurface {
             return
         }
         inputsLoop = ObservationLoop.observe({ [weak self] in
-            self?.inputs() ?? Inputs(isFullscreenSpace: false, isMenuBarHidden: false, room: nil)
+            self?.inputs() ?? .none
         }, onChange: { [weak self] _ in
             self?.reconcile()
         })
@@ -379,7 +432,7 @@ final class AlertNotchSurface {
     /// Reads, in one place, what the place depends on, so that the loop follows each of them.
     private func inputs() -> Inputs {
         guard let appState else {
-            return Inputs(isFullscreenSpace: false, isMenuBarHidden: false, room: nil)
+            return .none
         }
         var room: NotchHubGeometry.LiveRoom?
         if let screen = appState.notchHub.preferredScreen() {
@@ -392,7 +445,9 @@ final class AlertNotchSurface {
         return Inputs(
             isFullscreenSpace: appState.activeSpace.isFullscreen,
             isMenuBarHidden: appState.menuBarManager.isMenuBarHiddenBySystem,
-            room: room
+            room: room,
+            isHubActive: appState.notchHub.isActive,
+            isHubOpen: appState.notchHub.isOpen
         )
     }
 
