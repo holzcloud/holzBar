@@ -134,6 +134,7 @@ sources=(
   PrivateFeatureGate
   ReadoutFormat
   ReadoutLedger
+  ReadoutTiles
   ReadoutValues
   ReopenGate
   ReorderDrag
@@ -287,6 +288,7 @@ tests=(
   PrivateFeatureGateTests
   ReadoutFormatTests
   ReadoutLedgerTests
+  ReadoutTilesTests
   ReadoutValuesTests
   ReopenGateTests
   ReorderDragTests

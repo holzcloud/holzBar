@@ -283,6 +283,36 @@ struct SettingsSchemaTests {
         #expect(ReadoutRateUnit(rawValue: 1) == .bits)
     }
 
+    @Test("The tile switches of System readouts travel with a settings file, and only known ids")
+    func readoutTilesTravel() {
+        #expect(Defaults.Key.readoutTiles.rawValue == "ReadoutTiles")
+        #expect(Defaults.Key.readoutTiles.settingsKind == .stringArray)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.readoutTiles))
+        #expect(Defaults.Key.importableKinds["ReadoutTiles"] == .stringArray)
+        let result = Defaults.Key.validatedSettings(["ReadoutTiles": ["cpu", "x", "cpu"]], ownBundleIdentifier: ownBundle)
+        #expect(result.accepted["ReadoutTiles"] as? [String] == ["cpu"])
+        let mixed: [Any] = ["cpu", 1]
+        let refused = Defaults.Key.validatedSettings(["ReadoutTiles": mixed], ownBundleIdentifier: ownBundle)
+        #expect(refused.accepted["ReadoutTiles"] == nil)
+        #expect(refused.ignored == ["ReadoutTiles"])
+    }
+
+    @Test("The tile refresh of System readouts travels with a settings file, from 2 to 30 seconds")
+    func readoutsTileRefreshTravels() {
+        #expect(Defaults.Key.readoutsTileRefresh.rawValue == "ReadoutsTileRefresh")
+        #expect(Defaults.Key.readoutsTileRefresh.settingsKind == .number)
+        #expect(Defaults.Key.readoutsTileRefresh.numberRule == .wholeNumber(2...30))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.readoutsTileRefresh))
+        #expect(Defaults.Key.importableKinds["ReadoutsTileRefresh"] == .number)
+        let accepted = Defaults.Key.validatedSettings(["ReadoutsTileRefresh": 10], ownBundleIdentifier: ownBundle)
+        #expect((accepted.accepted["ReadoutsTileRefresh"] as? NSNumber)?.intValue == 10)
+        for refused: Any in [45, 1, 2.5] {
+            let result = Defaults.Key.validatedSettings(["ReadoutsTileRefresh": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted["ReadoutsTileRefresh"] == nil)
+            #expect(result.ignored == ["ReadoutsTileRefresh"])
+        }
+    }
+
     @Test("The Notch hub's display cutout override is a local-only whole number that no file can set")
     func notchHubCutoutStaysLocal() {
         #expect(Defaults.Key.notchHubCutout.rawValue == "NotchHubCutout")

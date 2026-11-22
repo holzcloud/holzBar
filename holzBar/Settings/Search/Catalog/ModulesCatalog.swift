@@ -81,7 +81,14 @@ extension SettingsCatalog {
             .modulesNowPlayingAppleMusic,
             .modulesNowPlayingSpotify,
             .modulesNowPlayingReadsAllApps,
-            // Settings of the System monitor modules.
+            // Settings of the System monitor modules, in the order of the pane.
+            .modulesReadoutsTileCPU,
+            .modulesReadoutsThermalState,
+            .modulesReadoutsTileMemory,
+            .modulesReadoutsTileNetwork,
+            .modulesReadoutsTileDisk,
+            .modulesReadoutsTileBattery,
+            .modulesReadoutsTileRefresh,
             .modulesReadoutsRateUnit,
         ]
 
@@ -364,6 +371,69 @@ extension SettingsEntry {
     )
 
     // MARK: Settings of the System monitor modules
+
+    static let modulesReadoutsTileCPU = SettingsEntry(
+        id: "modulesReadoutsTileCPU",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "CPU tile"),
+        info: String(localized: "Total load, and the load of each core cluster when the chip reports them."),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsThermalState = SettingsEntry(
+        id: "modulesReadoutsThermalState",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Thermal state"),
+        info: String(localized: "Shows on the CPU tile when the Mac runs warm: Fair, Serious or Critical."),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsTileMemory = SettingsEntry(
+        id: "modulesReadoutsTileMemory",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Memory tile"),
+        info: String(localized: "Memory in use. The ring turns amber or red with memory pressure, and swap shows when it is used."),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsTileNetwork = SettingsEntry(
+        id: "modulesReadoutsTileNetwork",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Network tile"),
+        info: String(localized: "Download speed, with the upload speed below it. Counts Wi-Fi and Ethernet, not VPN tunnels."),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsTileDisk = SettingsEntry(
+        id: "modulesReadoutsTileDisk",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Disk tile"),
+        info: String(localized: "Free space on the startup disk; the ring shows how much is used."),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsTileBattery = SettingsEntry(
+        id: "modulesReadoutsTileBattery",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Battery tile"),
+        info: String(localized: "Charge, time left and charging state. The charge respects the charge limit."),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsTileRefresh = SettingsEntry(
+        id: "modulesReadoutsTileRefresh",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Refresh tiles every"),
+        info: String(localized: "Tiles read only while the hub is open. Free disk space is read about once a minute."),
+        module: ReadoutsSettings.moduleID
+    )
 
     static let modulesReadoutsRateUnit = SettingsEntry(
         id: "modulesReadoutsRateUnit",

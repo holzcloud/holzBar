@@ -388,6 +388,14 @@ nonisolated extension Defaults {
         /// and works while the System readouts module is off, because the Network Speed widget
         /// follows it too.
         case readoutsRateUnit = "ReadoutsRateUnit"
+        /// The tiles of System readouts the user left on, and "thermal" for the thermal state
+        /// line under the CPU tile (a list of strings, each a known id). Absent means every tile
+        /// is on. It is exported with the settings; an imported list keeps only known ids.
+        case readoutTiles = "ReadoutTiles"
+        /// How often the System readouts tiles read CPU, GPU, memory and network while the hub is
+        /// open, in seconds (a whole number from 2 to 30, 2 by default). It is exported with the
+        /// settings.
+        case readoutsTileRefresh = "ReadoutsTileRefresh"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -542,6 +550,7 @@ nonisolated extension Defaults.Key {
             .lastRunMacOSMajor,
             .accessoryAlertsLowBatteryLevel,
             .readoutsRateUnit,
+            .readoutsTileRefresh,
             .menuBarBorderWidth,
             .menuBarTintKind:
             .number
@@ -574,7 +583,8 @@ nonisolated extension Defaults.Key {
             .titleChangingItemOwners,
             .revealOnChangeItems,
             .calendarHiddenCalendars,
-            .notificationsExcludedApps:
+            .notificationsExcludedApps,
+            .readoutTiles:
             .stringArray
         case .hotkeys,
             .revealRules,
@@ -628,6 +638,8 @@ nonisolated extension Defaults.Key {
             .wholeNumber(1...3)
         case .readoutsRateUnit:
             .wholeNumber(0...1)
+        case .readoutsTileRefresh:
+            .wholeNumber(2...30)
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,
@@ -753,6 +765,12 @@ nonisolated extension Defaults.Key {
                 result.accepted.removeValue(forKey: replacementsKey)
                 result.ignored = (result.ignored + [replacementsKey]).sorted()
             }
+        }
+        // A file never brings a tile id this build does not know, a repeated one, or more than
+        // `ReadoutTileChoice.maximumChecked` entries looked at: the list is sanitized.
+        let tilesKey = Self.readoutTiles.rawValue
+        if let tiles = result.accepted[tilesKey] as? [String] {
+            result.accepted[tilesKey] = ReadoutTileChoice.sanitized(tiles)
         }
         // A file never brings a stored order of more keys than `ItemOrder` keeps, or an empty,
         // overlong or repeated key: the order is read on the main thread at every restore.
