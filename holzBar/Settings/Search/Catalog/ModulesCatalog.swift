@@ -72,6 +72,7 @@ extension SettingsCatalog {
             .modulesFileDropRemovesAfterDrop,
             .modulesDisplayControlsBrightness,
             .modulesDisplayControlsExternalMonitors,
+            .modulesAccessoryAlertsDevices,
             .modulesAccessoryAlertsConnect,
             .modulesAccessoryAlertsDisconnect,
             .modulesAccessoryAlertsReadsBattery,
@@ -320,6 +321,15 @@ extension SettingsEntry {
         label: String(localized: "External monitors (DDC)"),
         info: String(localized: "Sets brightness, contrast, volume and mute of external monitors that support DDC. Uses a private macOS interface. It switches itself off if macOS changes it."),
         module: "display-controls"
+    )
+
+    static let modulesAccessoryAlertsDevices = SettingsEntry(
+        id: "modulesAccessoryAlertsDevices",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Devices"),
+        info: String(localized: "Levels need Read battery levels below. Names stay on this Mac."),
+        module: "accessory-alerts"
     )
 
     static let modulesAccessoryAlertsConnect = SettingsEntry(

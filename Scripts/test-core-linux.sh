@@ -46,6 +46,7 @@ sources=(
   ClickPairing
   ClockClickPolicy
   CommandDragSection
+  ConnectedDeviceList
   ControlCenterControl
   ControlItemOrder
   CPUClusters
@@ -211,6 +212,7 @@ tests=(
   ClickPairingTests
   ClockClickPolicyTests
   CommandDragSectionTests
+  ConnectedDeviceListTests
   ControlCenterControlTests
   ControlItemOrderTests
   CPUClustersTests

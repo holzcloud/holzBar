@@ -78,6 +78,11 @@ final class AppState {
     /// are registered, and nothing while there are none (Phase 94).
     let systemMonitor = SystemMonitor()
 
+    /// The connected devices and their battery levels for the Devices list and the hub's
+    /// Accessories tab: one reader and one Bluetooth monitor, consumer-counted, and nothing
+    /// while no surface shows them (Phase 95).
+    let connectedDevices = ConnectedDevicesService()
+
     /// The System alerts module: the one background consumer of the shared monitor and the alerts
     /// it raises as live activities. It lives without the Notch hub and holds nothing while the
     /// module or every rule is off (Phase 95).
@@ -311,6 +316,7 @@ final class AppState {
         appleItems.performSetup(with: self)
         spacers.performSetup()
         systemMonitor.performSetup(with: self)
+        connectedDevices.performSetup(with: self)
         systemAlerts.performSetup(with: self)
         widgets.performSetup(with: self)
         if #available(macOS 27.0, *) {
