@@ -255,6 +255,7 @@ struct WidgetsSection: View {
         case .networkSpeed: Text("Network Speed")
         case .diskActivity: Text("Disk Activity")
         case .gpuLoad: Text("GPU Load")
+        case .deviceBattery: Text("Lowest Device Battery")
         case .thermalState: Text("Thermal State")
         }
     }

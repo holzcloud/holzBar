@@ -87,6 +87,7 @@ nonisolated enum WidgetSpeech {
         case .networkSpeed: String(localized: "Network Speed")
         case .diskActivity: String(localized: "Disk Activity")
         case .gpuLoad: String(localized: "GPU Load")
+        case .deviceBattery: String(localized: "Lowest device battery")
         case .thermalState: String(localized: "Thermal State")
         }
     }
@@ -147,6 +148,13 @@ nonisolated enum WidgetSpeech {
             return WidgetFormat.text(for: reading, definition: definition, locale: locale, calendar: calendar).string
         case (.battery, .battery), (.battery, .power):
             return batteryValue(for: reading, preset: definition.preset, locale: locale) ?? unavailable
+        case (.deviceBattery, .device(let device)):
+            // VoiceOver says the name: a tooltip is not reachable without a pointer. The menu bar
+            // never draws it (D-26).
+            let percent = min(max(device.percent, 0), 100)
+            return String(localized: "\(device.name), \(percent) percent")
+        case (.deviceBattery, .unavailable):
+            return String(localized: "No device reports a battery level")
         case (.thermalState, .thermal(let level)):
             let word = switch level {
             case .nominal: String(localized: "Nominal")

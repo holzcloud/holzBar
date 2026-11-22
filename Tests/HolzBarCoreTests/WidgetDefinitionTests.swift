@@ -44,7 +44,7 @@ struct WidgetDefinitionTests {
     func sources() {
         #expect(
             WidgetSource.allCases.map(\.rawValue)
-                == ["dateTime", "battery", "cpu", "memory", "uptime", "freeDisk", "countdown", "networkSpeed", "diskActivity", "thermalState", "gpuLoad"]
+                == ["dateTime", "battery", "cpu", "memory", "uptime", "freeDisk", "countdown", "networkSpeed", "diskActivity", "thermalState", "gpuLoad", "deviceBattery"]
         )
         #expect(WidgetKind(rawValue: "text") == .text)
         #expect(WidgetKind(rawValue: "button") == .button)
@@ -53,10 +53,12 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource(rawValue: "wifi") == nil)
         #expect(
             WidgetSource.allCases.map(\.symbolName)
-                == ["clock", "battery.75percent", "cpu", "memorychip", "power", "internaldrive", "hourglass", "arrow.up.arrow.down", "cylinder.split.1x2", "thermometer.medium", "square.3.layers.3d"]
+                == ["clock", "battery.75percent", "cpu", "memorychip", "power", "internaldrive", "hourglass", "arrow.up.arrow.down", "cylinder.split.1x2", "thermometer.medium", "square.3.layers.3d", "dot.radiowaves.left.and.right"]
         )
-        // Only the new source is a Preview (D-15).
-        #expect(WidgetSource.allCases.filter(\.isPreview) == [.networkSpeed, .diskActivity, .thermalState, .gpuLoad])
+        // Only the new sources are a Preview (D-15, D-26).
+        #expect(
+            WidgetSource.allCases.filter(\.isPreview) == [.networkSpeed, .diskActivity, .thermalState, .gpuLoad, .deviceBattery]
+        )
         #expect(
             WidgetPreset.allCases.filter(\.isPreview)
                 == [.download, .upload, .downloadAndUpload, .read, .write, .readAndWrite, .pressure, .swapUsed, .state,
@@ -77,6 +79,7 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource.diskActivity.presets == [.read, .write, .readAndWrite])
         #expect(WidgetSource.thermalState.presets == [.state])
         #expect(WidgetSource.gpuLoad.presets == [.percent])
+        #expect(WidgetSource.deviceBattery.presets == [.percent])
         // The twenty-four formats of the sources, and the three widths that belong to the script kind
         // alone (D-23).
         #expect(Set(WidgetSource.allCases.flatMap(\.presets)).count == 24)
@@ -97,6 +100,7 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource.diskActivity.defaultPreset == .readAndWrite)
         #expect(WidgetSource.thermalState.defaultPreset == .state)
         #expect(WidgetSource.gpuLoad.defaultPreset == .percent)
+        #expect(WidgetSource.deviceBattery.defaultPreset == .percent)
     }
 
     @Test("The network speed and the disk activity refresh every 2 s, tunable from 2 to 60 s (D-09)")
@@ -126,12 +130,23 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource(rawValue: "gpuLoad") == .gpuLoad)
     }
 
-    @Test("The editor lists every source once, GPU Load between Disk Activity and Thermal State (D-02)")
+    @Test("Lowest Device Battery has one format and no interval of its own (D-26, D-27, A7)")
+    func deviceBatteryHasNoRefresh() {
+        let source = WidgetSource.deviceBattery
+        #expect(source.refreshRange == nil)
+        #expect(source.defaultRefreshSeconds == nil)
+        #expect(source.refreshChoices.isEmpty)
+        #expect(text(source, refreshSeconds: 30).validated(now: now)?.refreshSeconds == nil)
+        #expect(!text(source).offersRefresh)
+        #expect(WidgetSource(rawValue: "deviceBattery") == .deviceBattery)
+    }
+
+    @Test("The editor lists every source once, GPU Load between Disk Activity and Thermal State, Lowest Device Battery after Battery (D-02, D-27)")
     func editorOrder() {
         #expect(
             WidgetSource.editorOrder
-                == [.dateTime, .battery, .cpu, .memory, .uptime, .freeDisk, .countdown, .networkSpeed, .diskActivity,
-                    .gpuLoad, .thermalState]
+                == [.dateTime, .battery, .deviceBattery, .cpu, .memory, .uptime, .freeDisk, .countdown, .networkSpeed,
+                    .diskActivity, .gpuLoad, .thermalState]
         )
         #expect(Set(WidgetSource.editorOrder) == Set(WidgetSource.allCases))
         #expect(WidgetSource.editorOrder.count == WidgetSource.allCases.count)

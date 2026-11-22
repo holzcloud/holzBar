@@ -76,6 +76,9 @@ nonisolated enum WidgetFormat {
             }
         case (.thermalState, .thermal(let level)):
             return WidgetText(string: ReadoutFormat.thermalWord(level, texts: texts))
+        case (.deviceBattery, .device(let device)):
+            // The level only: the device's name is never drawn in the menu bar (D-26).
+            return WidgetText(string: percentText(Double(min(max(device.percent, 0), 100)) / 100, locale: locale))
         case (.cpu, .clusters(let loads)) where preset == .perCluster:
             guard loads.count >= 2, loads.allSatisfy({ $0.load.isFinite }) else {
                 break
@@ -297,7 +300,7 @@ nonisolated enum WidgetFormat {
                 add(clusterText(texts.clusterLabels.map { ($0, 1) }, locale: locale, texts: texts))
             }
             add(percentText(1, locale: locale))
-        case .battery, .cpu, .gpuLoad:
+        case .battery, .cpu, .gpuLoad, .deviceBattery:
             add(percentText(1, locale: locale))
         case .thermalState:
             for level in ReadoutThermal.allCases {

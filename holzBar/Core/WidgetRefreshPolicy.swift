@@ -77,6 +77,11 @@ nonisolated enum WidgetCadence: Equatable, Sendable {
                 intervalSeconds: Self.tunedSeconds(definition, for: .gpuLoad),
                 needsBaseline: false
             ))
+        case .deviceBattery:
+            // The 5-minute wait of the Accessory alerts (`AccessoryRefreshPolicy.interval`): a
+            // level, so no baseline. The power-source events and the rest while Read battery
+            // levels is off come from the monitor (D-26, D-27); there is no interval to tune.
+            self = .sampled(ReadoutRequest(metrics: [.deviceBattery], intervalSeconds: 300, needsBaseline: false))
         case .memory:
             // Pressure is fed by the system's event and has no interval; swap and the memory in
             // use are read at the tuned interval (D-10).

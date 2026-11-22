@@ -85,6 +85,9 @@ nonisolated enum WidgetReading: Equatable, Sendable {
     case power(PowerReading)
     /// The load of every CPU cluster, for the Per Core Cluster format of CPU Load.
     case clusters([ClusterLoad])
+    /// The accessory with the lowest charge, for Lowest Device Battery. The text shows the level
+    /// only; the name is for the tooltip and VoiceOver (D-26).
+    case device(LowestDeviceBattery)
     case unavailable
 }
 

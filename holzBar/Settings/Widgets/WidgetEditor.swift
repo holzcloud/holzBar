@@ -66,6 +66,8 @@ struct WidgetEditor: View {
                 return Text("Reads and writes of all internal and external disks, per second.")
             case .gpuLoad:
                 return Text("Uses a private macOS interface, switched on in System readouts.")
+            case .deviceBattery:
+                return Text("Uses a private macOS interface, switched on in Accessory alerts.")
             case .dateTime, .battery, .cpu, .memory, .uptime, .freeDisk, .countdown, .thermalState:
                 return nil
             }

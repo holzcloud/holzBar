@@ -78,11 +78,11 @@ final class WidgetReadoutLink {
     }
 
     /// Whether a source's reading is a value of one sample, so a format change can be shown from the
-    /// kept sample: the memory, the free disk space, the battery and the thermal state. A rate needs
-    /// its baseline.
+    /// kept sample: the memory, the free disk space, the battery, the thermal state and the lowest
+    /// device battery. A rate needs its baseline.
     private static func isOneSampleValue(_ source: WidgetSource) -> Bool {
         switch source {
-        case .memory, .freeDisk, .battery, .thermalState: true
+        case .memory, .freeDisk, .battery, .thermalState, .deviceBattery: true
         case .dateTime, .cpu, .networkSpeed, .diskActivity, .gpuLoad, .uptime, .countdown: false
         }
     }
@@ -174,6 +174,14 @@ final class WidgetReadoutLink {
                 return nil
             }
             return sample.gpuPercent.map { WidgetReading.fraction(Double($0) / 100) } ?? .unavailable
+        case .deviceBattery:
+            // The monitor reads the accessories only while Read battery levels is on; without a
+            // read, or when no accessory reports a level, the widget shows the en dash and never
+            // an old value (D-26, MON-09).
+            guard sample.read.contains(.deviceBattery) else {
+                return nil
+            }
+            return ConnectedDeviceList.lowest(sample.deviceBatteries ?? []).map(WidgetReading.device) ?? .unavailable
         case .dateTime, .uptime, .countdown:
             return nil
         }

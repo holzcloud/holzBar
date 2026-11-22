@@ -171,6 +171,22 @@ struct WidgetFormatTests {
         #expect(samples.map(plain) == ["100%"])
     }
 
+    @Test("Lowest Device Battery gives a percent and never the name, the en dash without a level (D-26, MON-09)")
+    func deviceBatteryText() {
+        let airpods = WidgetReading.device(LowestDeviceBattery(name: "AirPods", percent: 82, symbol: "airpods"))
+        let shown = text(airpods, definition(.deviceBattery))
+        #expect(plain(shown.string) == "82%")
+        #expect(!shown.string.contains("AirPods"))
+        #expect(plain(text(.device(LowestDeviceBattery(name: "Mouse", percent: 140, symbol: "computermouse")), definition(.deviceBattery)).string) == "100%")
+        #expect(plain(text(.device(LowestDeviceBattery(name: "Mouse", percent: -3, symbol: "computermouse")), definition(.deviceBattery)).string) == "0%")
+        #expect(plain(text(airpods, definition(.deviceBattery), locale: german).string) == "82 %")
+        #expect(text(.unavailable, definition(.deviceBattery)).isUnavailable)
+        #expect(text(.fraction(0.5), definition(.deviceBattery)).isUnavailable)
+        #expect(text(airpods, definition(.cpu)).isUnavailable)
+        let samples = WidgetFormat.widthSamples(for: definition(.deviceBattery), locale: english, calendar: calendar, capacityBytes: nil)
+        #expect(samples.map(plain) == ["100%"])
+    }
+
     @Test("CPU, memory and disk give a percent or a byte count")
     func percentAndBytes() {
         #expect(plain(text(.fraction(0.374), definition(.cpu)).string) == "37%")

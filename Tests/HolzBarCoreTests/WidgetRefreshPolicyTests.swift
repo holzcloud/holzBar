@@ -627,6 +627,13 @@ struct WidgetRefreshPolicyTests {
         #expect(WidgetCadence(definition: make(.gpuLoad)) == memoryCadence([.gpu], seconds: 5))
         #expect(WidgetCadence(definition: make(.gpuLoad, refreshSeconds: 30)) == memoryCadence([.gpu], seconds: 30))
         #expect(WidgetCadence(definition: make(.gpuLoad, refreshSeconds: 1)) == memoryCadence([.gpu], seconds: 2))
+        // The accessories' lowest level: the 5-minute wait of the Accessory alerts; the power-source
+        // events and the rest while the read is off come from the monitor (D-26, D-27), and the
+        // tuned interval of a stored definition changes nothing.
+        #expect(WidgetCadence(definition: make(.deviceBattery)) == memoryCadence([.deviceBattery], seconds: 300))
+        #expect(
+            WidgetCadence(definition: make(.deviceBattery, refreshSeconds: 5)) == memoryCadence([.deviceBattery], seconds: 300)
+        )
         #expect(WidgetCadence(definition: make(.memory)) == memoryCadence([.memory], seconds: 10))
         #expect(WidgetCadence(definition: make(.memory, preset: .gigabytesUsed)) == memoryCadence([.memory], seconds: 10))
         #expect(WidgetCadence(definition: make(.memory, preset: .swapUsed)) == memoryCadence([.swap], seconds: 10))
