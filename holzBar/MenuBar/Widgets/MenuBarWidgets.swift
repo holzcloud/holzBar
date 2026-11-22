@@ -900,6 +900,7 @@ final class MenuBarWidgets {
             calendar: Self.calendar,
             capacityBytes: capacityBytes(for: definition),
             now: .now,
+            rateUnit: rateUnit,
             texts: ReadoutTexts.localized(locale: Self.locale)
         )
         guard let button = runtime.statusItem.button, var widest = samples.first else {
@@ -998,6 +999,7 @@ final class MenuBarWidgets {
             definition: runtime.definition,
             locale: Self.locale,
             calendar: Self.calendar,
+            rateUnit: rateUnit,
             texts: ReadoutTexts.localized(locale: Self.locale)
         )
         if runtime.definition.showsButtonSymbolOnly {
@@ -1029,7 +1031,8 @@ final class MenuBarWidgets {
                 for: reading,
                 definition: runtime.definition,
                 locale: Self.locale,
-                calendar: Self.calendar
+                calendar: Self.calendar,
+                rateUnit: rateUnit
             )
         }
         if spoken != runtime.spoken {
@@ -1437,6 +1440,9 @@ final class MenuBarWidgets {
         observe(NSLocale.currentLocaleDidChangeNotification) { widgets in
             widgets.localeChanged()
         }
+        observe(ReadoutsSettings.rateUnitDidChange) { widgets in
+            widgets.rateUnitChanged()
+        }
     }
 
     private func observe(_ name: Notification.Name, handler: @escaping @MainActor (MenuBarWidgets) -> Void) {
@@ -1463,6 +1469,19 @@ final class MenuBarWidgets {
             configure(runtime)
             render(runtime, reading: runtime.reading)
             send(.cadenceChanged(WidgetCadence(definition: runtime.definition)), to: runtime)
+        }
+    }
+
+    /// The network speed unit the System readouts settings choose, bytes until they are loaded.
+    private var rateUnit: ReadoutRateUnit {
+        appState?.settings.readouts.rateUnit ?? .bytes
+    }
+
+    /// Measures and draws the Network Speed widgets again after the unit changed.
+    private func rateUnitChanged() {
+        for runtime in runtimes.values where runtime.definition.source == .networkSpeed {
+            configure(runtime)
+            render(runtime, reading: runtime.reading)
         }
     }
 }

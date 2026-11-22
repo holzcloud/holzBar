@@ -44,6 +44,9 @@ final class AppSettings {
     /// The model for the Now Playing module's settings.
     let nowPlaying = NowPlayingSettings()
 
+    /// The model for the System readouts module's settings.
+    let readouts = ReadoutsSettings()
+
     /// Performs the initial setup of the settings model.
     func performSetup(with appState: AppState) {
         advanced.performSetup(with: appState)
@@ -57,5 +60,6 @@ final class AppSettings {
         displayControls.performSetup(with: appState)
         notifications.performSetup(with: appState)
         nowPlaying.performSetup(with: appState)
+        readouts.performSetup(with: appState)
     }
 }

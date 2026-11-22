@@ -382,6 +382,13 @@ nonisolated extension Defaults {
         /// part, stored on this Mac only).
         case displayControlsExternalMonitors = "DisplayControlsExternalMonitors"
 
+        // MARK: System readouts
+        /// How the network speed counts: the raw value of `ReadoutRateUnit` (a whole number, 0
+        /// for bytes per second and 1 for bits per second). It is exported with the settings
+        /// and works while the System readouts module is off, because the Network Speed widget
+        /// follows it too.
+        case readoutsRateUnit = "ReadoutsRateUnit"
+
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
         /// entry event is dropped, so the real event never reaches the item, the exit event
@@ -534,6 +541,7 @@ nonisolated extension Defaults.Key {
             .macOS27ClickRestoreDelay,
             .lastRunMacOSMajor,
             .accessoryAlertsLowBatteryLevel,
+            .readoutsRateUnit,
             .menuBarBorderWidth,
             .menuBarTintKind:
             .number
@@ -618,6 +626,8 @@ nonisolated extension Defaults.Key {
             .wholeNumber(0...5)
         case .nowPlayingPlayers:
             .wholeNumber(1...3)
+        case .readoutsRateUnit:
+            .wholeNumber(0...1)
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,

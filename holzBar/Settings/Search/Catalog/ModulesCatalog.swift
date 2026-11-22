@@ -11,6 +11,7 @@ extension SettingsCatalog {
     enum ModulesPane {
         static let menuBar = String(localized: "Menu Bar")
         static let notch = String(localized: "Notch")
+        static let monitor = String(localized: "System monitor")
 
         /// The group of an area. A module of another area needs its group here and in the pane;
         /// the test of the module catalog fails until it has one.
@@ -18,6 +19,7 @@ extension SettingsCatalog {
             switch area {
             case .menuBar: menuBar
             case .notch: notch
+            case .monitor: monitor
             default: area.rawValue
             }
         }
@@ -79,6 +81,8 @@ extension SettingsCatalog {
             .modulesNowPlayingAppleMusic,
             .modulesNowPlayingSpotify,
             .modulesNowPlayingReadsAllApps,
+            // Settings of the System monitor modules.
+            .modulesReadoutsRateUnit,
         ]
 
         /// Whether a row entry belongs to a module this Mac can run.
@@ -357,5 +361,16 @@ extension SettingsEntry {
         label: String(localized: "Read all apps"),
         info: String(localized: "Shows what browsers and video apps play, too, through a helper that runs only while the hub is open. Uses a private macOS interface. It switches itself off if macOS changes it."),
         module: "now-playing"
+    )
+
+    // MARK: Settings of the System monitor modules
+
+    static let modulesReadoutsRateUnit = SettingsEntry(
+        id: "modulesReadoutsRateUnit",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Network speed unit"),
+        info: String(localized: "Used by the Network tile and the Network Speed widget."),
+        module: ReadoutsSettings.moduleID
     )
 }

@@ -118,11 +118,13 @@ nonisolated enum WidgetSpeech {
     ///   - definition: The widget; its preset decides which parts are spoken.
     ///   - locale: The language and the number format of the user.
     ///   - calendar: The calendar the date is written in.
+    ///   - rateUnit: Whether the network speed is said in bytes or bits per second.
     static func value(
         for reading: WidgetReading,
         definition: WidgetDefinition,
         locale: Locale,
-        calendar: Calendar
+        calendar: Calendar,
+        rateUnit: ReadoutRateUnit = .bytes
     ) -> String {
         if definition.kind == .button {
             // A button has no reading: VoiceOver says its label and its hint.
@@ -183,8 +185,8 @@ nonisolated enum WidgetSpeech {
             guard first.isFinite, second.isFinite, first >= 0, second >= 0 else {
                 return unavailable
             }
-            let download = spokenRate(first, locale: locale)
-            let upload = spokenRate(second, locale: locale)
+            let download = spokenRate(first, unit: rateUnit, locale: locale)
+            let upload = spokenRate(second, unit: rateUnit, locale: locale)
             switch definition.preset {
             case .download: return String(localized: "Download \(download)")
             case .upload: return String(localized: "Upload \(upload)")
@@ -257,9 +259,11 @@ nonisolated enum WidgetSpeech {
     }
 
     /// A rate in words, in the unit that fits its size: "1.2 megabytes per second".
-    private static func spokenRate(_ bytesPerSecond: Double, locale: Locale) -> String {
-        let units: [UnitInformationStorage] = [.kilobytes, .megabytes, .gigabytes]
-        var scaled = bytesPerSecond / 1_000
+    private static func spokenRate(_ bytesPerSecond: Double, unit: ReadoutRateUnit = .bytes, locale: Locale) -> String {
+        let units: [UnitInformationStorage] = unit == .bits
+            ? [.kilobits, .megabits, .gigabits]
+            : [.kilobytes, .megabytes, .gigabytes]
+        var scaled = (unit == .bits ? bytesPerSecond * 8 : bytesPerSecond) / 1_000
         var index = 0
         while scaled >= 999.5, index < units.count - 1 {
             scaled /= 1_000

@@ -266,6 +266,23 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["DisplayControlsExternalMonitors"])
     }
 
+    @Test("The network speed unit travels with a settings file, as 0 or 1 only")
+    func readoutsRateUnitTravels() {
+        #expect(Defaults.Key.readoutsRateUnit.rawValue == "ReadoutsRateUnit")
+        #expect(Defaults.Key.readoutsRateUnit.settingsKind == .number)
+        #expect(Defaults.Key.readoutsRateUnit.numberRule == .wholeNumber(0...1))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.readoutsRateUnit))
+        #expect(Defaults.Key.importableKinds["ReadoutsRateUnit"] == .number)
+        let accepted = Defaults.Key.validatedSettings(["ReadoutsRateUnit": 1], ownBundleIdentifier: ownBundle)
+        #expect((accepted.accepted["ReadoutsRateUnit"] as? NSNumber)?.intValue == 1)
+        for refused: Any in [2, 0.5, -1] {
+            let result = Defaults.Key.validatedSettings(["ReadoutsRateUnit": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted["ReadoutsRateUnit"] == nil)
+            #expect(result.ignored == ["ReadoutsRateUnit"])
+        }
+        #expect(ReadoutRateUnit(rawValue: 1) == .bits)
+    }
+
     @Test("The Notch hub's display cutout override is a local-only whole number that no file can set")
     func notchHubCutoutStaysLocal() {
         #expect(Defaults.Key.notchHubCutout.rawValue == "NotchHubCutout")

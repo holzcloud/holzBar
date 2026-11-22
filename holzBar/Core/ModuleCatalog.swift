@@ -76,7 +76,9 @@ nonisolated enum ModuleCatalog {
     /// and creates no source, live state or wait while off. Display controls, a fourth module of the hub, is off until
     /// the user switches it on, asks for no permission and creates no runtime or CoreAudio listener while
     /// off. Now Playing, a fifth module of the hub, is off until the user switches it on, asks for no
-    /// permission and creates no observer, runtime or model while off. The title and the summary are the English
+    /// permission and creates no observer, runtime or model while off. System readouts, the module
+    /// of the System monitor group, is off until the user switches it on, asks for no permission and
+    /// reads nothing while off; its settings are built only when its row is opened. The title and the summary are the English
     /// strings the settings show; their keys are those strings.
     static let all: [ModuleDescriptor] = [
         ModuleDescriptor(
@@ -175,6 +177,15 @@ nonisolated enum ModuleCatalog {
             titleKey: "Now Playing",
             summaryKey: "Shows what is playing, at the notch.",
             permission: nil
+        ),
+        ModuleDescriptor(
+            id: "system-readouts",
+            area: .monitor,
+            symbol: "gauge.with.dots.needle.67percent",
+            titleKey: "System readouts",
+            summaryKey: "CPU, memory, network, disk and battery as tiles in the Notch hub, with a short history.",
+            permission: nil,
+            isPreview: true
         ),
     ]
 

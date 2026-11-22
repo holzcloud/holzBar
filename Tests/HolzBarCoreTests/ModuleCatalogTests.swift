@@ -234,10 +234,25 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["now-playing"], knownTo: ModuleCatalog.all) == ["now-playing"])
     }
 
+    @Test("System readouts is a preview module of its own area, off by default, without a permission")
+    func systemReadoutsDescriptor() throws {
+        let module = try #require(ModuleCatalog.all.first { $0.id == "system-readouts" })
+        #expect(module.area == .monitor)
+        #expect(module.symbol == "gauge.with.dots.needle.67percent")
+        #expect(module.titleKey == "System readouts")
+        #expect(module.summaryKey == "CPU, memory, network, disk and battery as tiles in the Notch hub, with a short history.")
+        #expect(module.permission == nil)
+        #expect(module.isPreview)
+        #expect(ModuleCatalog.modules(in: .monitor).map(\.id) == ["system-readouts"])
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+    }
+
     @Test("The Modules pane knows everything the catalog ships")
     func modulesPaneKnowsTheCatalog() {
         #expect(
-            ModuleCatalog.populatedAreas(of: ModuleCatalog.all) == [.menuBar, .notch],
+            ModuleCatalog.populatedAreas(of: ModuleCatalog.all) == [.menuBar, .notch, .monitor],
             """
             A module of another area needs its group title in SettingsCatalog.ModulesPane \
             (ModulesCatalog.swift) and its group in ModulesSettingsPane. Teach both, then \
