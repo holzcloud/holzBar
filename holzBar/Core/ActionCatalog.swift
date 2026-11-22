@@ -25,6 +25,11 @@ nonisolated struct PaletteCommand: Hashable, Sendable, Identifiable {
         case openItem(String)
         /// Opens the Settings window.
         case openSettings
+        /// Restarts macOS's menu bar process (macOS 27). Not a hotkey action, so no hotkey,
+        /// URL command, Shortcut or automation rule can reach it.
+        case restartMenuBar
+        /// Pauses or resumes holzBar's hiding (macOS 27). Not a hotkey action, for the same reason.
+        case togglePause
     }
 
     let kind: Kind
@@ -47,6 +52,10 @@ nonisolated struct PaletteCommand: Hashable, Sendable, Identifiable {
             "item:\(key)"
         case .openSettings:
             "settings"
+        case .restartMenuBar:
+            "restart-menu-bar"
+        case .togglePause:
+            "pause"
         }
     }
 

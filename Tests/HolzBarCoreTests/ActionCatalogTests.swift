@@ -54,4 +54,18 @@ struct ActionCatalogTests {
         #expect(first == second)
         #expect(Set(Self.commands.map(\.id)).count == Self.commands.count)
     }
+
+    @Test("The macOS 27 menu bar commands have stable identifiers, are actions and keep the prefix")
+    func menuBarCommands() {
+        let restart = PaletteCommand(kind: .restartMenuBar, title: "Restart the menu bar")
+        let pause = PaletteCommand(kind: .togglePause, title: "Pause holzBar")
+        #expect(restart.id == "restart-menu-bar")
+        #expect(pause.id == "pause")
+        #expect(restart.isAction)
+        #expect(pause.isAction)
+        let results = ActionCatalog.results(for: ">pause", in: Self.commands + [restart, pause])
+        #expect(results.first?.kind == .togglePause)
+        let restartResults = ActionCatalog.results(for: ">restart", in: Self.commands + [restart, pause])
+        #expect(restartResults.first?.kind == .restartMenuBar)
+    }
 }

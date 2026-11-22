@@ -34,6 +34,7 @@ enum CommandPaletteCommands {
             )
         }
         commands.append(PaletteCommand(kind: .openSettings, title: String(localized: "Open Settings"), keywords: [String(localized: "Preferences")]))
+        commands += menuBarCommands(appState: appState)
         for profile in appState.profiles.profiles {
             commands.append(PaletteCommand(
                 kind: .applyProfile(profile.name),
@@ -67,6 +68,28 @@ enum CommandPaletteCommands {
         return commands
     }
 
+    /// Restart the menu bar and Pause holzBar, on macOS 27 only, without a badge (D-15). The
+    /// restart is offered only while MenuBarAgent is visible (D-07).
+    private static func menuBarCommands(appState: AppState) -> [PaletteCommand] {
+        guard #available(macOS 27.0, *), MenuBarBackendKind.current == .accessibility27 else {
+            return []
+        }
+        var commands = [PaletteCommand]()
+        if MenuBarAgentRestart27.isAvailable {
+            commands.append(PaletteCommand(
+                kind: .restartMenuBar,
+                title: String(localized: "Restart the menu bar")
+            ))
+        }
+        commands.append(PaletteCommand(
+            kind: .togglePause,
+            title: appState.concealer27.pause.isPaused
+                ? String(localized: "Resume holzBar")
+                : String(localized: "Pause holzBar")
+        ))
+        return commands
+    }
+
     static func perform(_ command: PaletteCommand, appState: AppState) {
         switch command.kind {
         case .action(let action):
@@ -82,6 +105,14 @@ enum CommandPaletteCommands {
         case .openSettings:
             appState.activate(for: .settings)
             appState.openWindow(.settings)
+        case .restartMenuBar:
+            if #available(macOS 27.0, *) {
+                MenuBarAgentRestart27.restart(appState: appState)
+            }
+        case .togglePause:
+            if #available(macOS 27.0, *) {
+                appState.concealer27.togglePause()
+            }
         }
     }
 
@@ -96,12 +127,14 @@ enum CommandPaletteCommands {
         case .setRule: "wand.and.stars"
         case .openItem: "menubar.rectangle"
         case .openSettings: "gearshape"
+        case .restartMenuBar: "arrow.clockwise"
+        case .togglePause: "pause.circle"
         }
     }
 
     static func kindLabel(for command: PaletteCommand) -> Text {
         switch command.kind {
-        case .action, .openSettings: Text("Action")
+        case .action, .openSettings, .restartMenuBar, .togglePause: Text("Action")
         case .applyProfile: Text("Profile")
         case .applyMood: Text("Mood")
         case .setRule: Text("Rule")
