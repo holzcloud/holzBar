@@ -41,13 +41,14 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
     case freeDisk
     case countdown
     case networkSpeed
+    case diskActivity
 
     /// Whether the source is new and not yet tried on a Mac: the editor and the widget list show
     /// the Preview badge beside it (D-15). The maintainer flips a source to `false` after the Mac
     /// test.
     var isPreview: Bool {
         switch self {
-        case .networkSpeed: true
+        case .networkSpeed, .diskActivity: true
         case .dateTime, .battery, .cpu, .memory, .uptime, .freeDisk, .countdown: false
         }
     }
@@ -64,6 +65,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         case .freeDisk: "internaldrive"
         case .countdown: "hourglass"
         case .networkSpeed: "arrow.up.arrow.down"
+        case .diskActivity: "cylinder.split.1x2"
         }
     }
 
@@ -78,6 +80,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         case .uptime, .countdown: [.duration, .compactDuration]
         case .freeDisk: [.gigabytesFree, .percentFree]
         case .networkSpeed: [.download, .upload, .downloadAndUpload]
+        case .diskActivity: [.read, .write, .readAndWrite]
         }
     }
 
@@ -91,16 +94,17 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         case .uptime, .countdown: .duration
         case .freeDisk: .gigabytesFree
         case .networkSpeed: .downloadAndUpload
+        case .diskActivity: .readAndWrite
         }
     }
 
     /// The seconds a stored refresh interval is kept within, for the sources the user may tune;
     /// `nil` for the others (D-15). CPU never refreshes faster than every 2 s and memory never
-    /// faster than every 5 s, and the network speed never faster than every 2 s, whatever the
-    /// defaults hold.
+    /// faster than every 5 s, and the network speed and the disk activity never faster than every
+    /// 2 s, whatever the defaults hold.
     var refreshRange: ClosedRange<Int>? {
         switch self {
-        case .cpu, .networkSpeed: 2...60
+        case .cpu, .networkSpeed, .diskActivity: 2...60
         case .memory: 5...300
         case .dateTime, .battery, .uptime, .freeDisk, .countdown: nil
         }
@@ -111,7 +115,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         switch self {
         case .cpu: 5
         case .memory: 10
-        case .networkSpeed: 2
+        case .networkSpeed, .diskActivity: 2
         case .dateTime, .battery, .uptime, .freeDisk, .countdown: nil
         }
     }
@@ -122,7 +126,7 @@ nonisolated enum WidgetSource: String, Codable, CaseIterable, Sendable {
         switch self {
         case .cpu: [2, 5, 10, 30]
         case .memory: [5, 10, 30, 60]
-        case .networkSpeed: [2, 5, 10, 30, 60]
+        case .networkSpeed, .diskActivity: [2, 5, 10, 30, 60]
         case .dateTime, .battery, .uptime, .freeDisk, .countdown: []
         }
     }
@@ -157,13 +161,17 @@ nonisolated enum WidgetPreset: String, Codable, CaseIterable, Sendable {
     case download
     case upload
     case downloadAndUpload
+    // Disk activity
+    case read
+    case write
+    case readAndWrite
 
     /// Whether the format is new and not yet tried on a Mac: the editor and the widget list show
     /// the Preview badge beside it (D-15). The maintainer flips a format to `false` after the
     /// Mac test.
     var isPreview: Bool {
         switch self {
-        case .download, .upload, .downloadAndUpload: true
+        case .download, .upload, .downloadAndUpload, .read, .write, .readAndWrite: true
         case .time, .weekdayAndTime, .dateAndTime, .weekdayDateAndTime, .percent, .percentAndState,
             .percentUsed, .gigabytesUsed, .duration, .compactDuration, .gigabytesFree, .percentFree,
             .narrowText, .mediumText, .wideText: false
@@ -208,7 +216,7 @@ nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable 
     var uses24HourClock = false
     /// Whether the clock shows seconds; only the clock has seconds (D-10).
     var showsSeconds = false
-    /// The seconds between two readings of CPU, memory or the network speed; `nil` for the other sources (D-15).
+    /// The seconds between two readings of CPU, memory, the network speed or the disk activity; `nil` for the other sources (D-15).
     var refreshSeconds: Int?
     /// The moment a countdown counts down to.
     var countdownTarget: Date?

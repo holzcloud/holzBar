@@ -40,11 +40,11 @@ struct WidgetDefinitionTests {
         )
     }
 
-    @Test("The seven permission-free sources and the network speed, appended (D-01, D-02, D-04)")
+    @Test("The seven permission-free sources and the network speed and disk activity, appended (D-01, D-02, D-04)")
     func sources() {
         #expect(
             WidgetSource.allCases.map(\.rawValue)
-                == ["dateTime", "battery", "cpu", "memory", "uptime", "freeDisk", "countdown", "networkSpeed"]
+                == ["dateTime", "battery", "cpu", "memory", "uptime", "freeDisk", "countdown", "networkSpeed", "diskActivity"]
         )
         #expect(WidgetKind(rawValue: "text") == .text)
         #expect(WidgetKind(rawValue: "button") == .button)
@@ -53,11 +53,11 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource(rawValue: "wifi") == nil)
         #expect(
             WidgetSource.allCases.map(\.symbolName)
-                == ["clock", "battery.75percent", "cpu", "memorychip", "power", "internaldrive", "hourglass", "arrow.up.arrow.down"]
+                == ["clock", "battery.75percent", "cpu", "memorychip", "power", "internaldrive", "hourglass", "arrow.up.arrow.down", "cylinder.split.1x2"]
         )
         // Only the new source is a Preview (D-15).
-        #expect(WidgetSource.allCases.filter(\.isPreview) == [.networkSpeed])
-        #expect(WidgetPreset.allCases.filter(\.isPreview) == [.download, .upload, .downloadAndUpload])
+        #expect(WidgetSource.allCases.filter(\.isPreview) == [.networkSpeed, .diskActivity])
+        #expect(WidgetPreset.allCases.filter(\.isPreview) == [.download, .upload, .downloadAndUpload, .read, .write, .readAndWrite])
     }
 
     @Test("Each source offers a fixed set of presets (D-09)")
@@ -70,11 +70,12 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource.countdown.presets == [.duration, .compactDuration])
         #expect(WidgetSource.freeDisk.presets == [.gigabytesFree, .percentFree])
         #expect(WidgetSource.networkSpeed.presets == [.download, .upload, .downloadAndUpload])
-        // The fifteen formats of the sources, and the three widths that belong to the script kind
+        #expect(WidgetSource.diskActivity.presets == [.read, .write, .readAndWrite])
+        // The eighteen formats of the sources, and the three widths that belong to the script kind
         // alone (D-23).
-        #expect(Set(WidgetSource.allCases.flatMap(\.presets)).count == 15)
+        #expect(Set(WidgetSource.allCases.flatMap(\.presets)).count == 18)
         #expect(WidgetKind.scriptPresets == [.narrowText, .mediumText, .wideText])
-        #expect(WidgetPreset.allCases.count == 18)
+        #expect(WidgetPreset.allCases.count == 21)
         let sourcePresets = Set(WidgetSource.allCases.flatMap(\.presets))
         #expect(sourcePresets.isDisjoint(with: WidgetKind.scriptPresets))
         #expect(sourcePresets.union(WidgetKind.scriptPresets).count == WidgetPreset.allCases.count)
@@ -87,17 +88,23 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource.memory.defaultPreset == .percentUsed)
         #expect(WidgetSource.freeDisk.defaultPreset == .gigabytesFree)
         #expect(WidgetSource.networkSpeed.defaultPreset == .downloadAndUpload)
+        #expect(WidgetSource.diskActivity.defaultPreset == .readAndWrite)
     }
 
-    @Test("The network speed refreshes every 2 s, tunable from 2 to 60 s (D-09)")
-    func networkSpeedRefresh() {
-        #expect(WidgetSource.networkSpeed.refreshRange == 2...60)
-        #expect(WidgetSource.networkSpeed.defaultRefreshSeconds == 2)
-        #expect(WidgetSource.networkSpeed.refreshChoices == [2, 5, 10, 30, 60])
-        #expect(text(.networkSpeed, refreshSeconds: 1).validated(now: now)?.refreshSeconds == 2)
-        #expect(text(.networkSpeed, refreshSeconds: 99).validated(now: now)?.refreshSeconds == 60)
-        #expect(text(.networkSpeed).validated(now: now)?.refreshSeconds == 2)
+    @Test("The network speed and the disk activity refresh every 2 s, tunable from 2 to 60 s (D-09)")
+    func rateSourcesRefresh() {
+        for source in [WidgetSource.networkSpeed, .diskActivity] {
+            #expect(source.refreshRange == 2...60)
+            #expect(source.defaultRefreshSeconds == 2)
+            #expect(source.refreshChoices == [2, 5, 10, 30, 60])
+            #expect(text(source, refreshSeconds: 1).validated(now: now)?.refreshSeconds == 2)
+            #expect(text(source, refreshSeconds: 99).validated(now: now)?.refreshSeconds == 60)
+            #expect(text(source).validated(now: now)?.refreshSeconds == 2)
+        }
         #expect(WidgetPreset(rawValue: "downloadAndUpload") == .downloadAndUpload)
+        #expect(WidgetPreset(rawValue: "readAndWrite") == .readAndWrite)
+        // A format of the other source is replaced by the source's default.
+        #expect(text(.diskActivity, preset: .download).validated(now: now)?.preset == .readAndWrite)
     }
 
     @Test("A definition round-trips through the list unchanged")

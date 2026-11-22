@@ -89,6 +89,13 @@ final class WidgetReadoutLink {
             reading = baseline.networkRates(sample.network).map {
                 WidgetReading.rates(first: $0.first, second: $0.second)
             } ?? .unavailable
+        case .diskActivity:
+            guard sample.read.contains(.diskActivity) else {
+                return
+            }
+            reading = baseline.diskRates(sample.disk).map {
+                WidgetReading.rates(first: $0.first, second: $0.second)
+            } ?? .unavailable
         default:
             return
         }

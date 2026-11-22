@@ -576,6 +576,11 @@ struct WidgetRefreshPolicyTests {
         .sampled(ReadoutRequest(metrics: [.network], intervalSeconds: seconds, needsBaseline: true))
     }
 
+    /// The cadence of a disk activity widget: the shared monitor feeds it, with a baseline.
+    private func diskCadence(seconds: Int) -> WidgetCadence {
+        .sampled(ReadoutRequest(metrics: [.diskActivity], intervalSeconds: seconds, needsBaseline: true))
+    }
+
     @Test("The cadence follows the source of the definition")
     func cadenceFromDefinition() {
         let now = date(0)
@@ -598,6 +603,9 @@ struct WidgetRefreshPolicyTests {
         #expect(WidgetCadence(definition: make(.networkSpeed, refreshSeconds: 30)) == networkCadence(seconds: 30))
         #expect(WidgetCadence(definition: make(.networkSpeed, refreshSeconds: 1)) == networkCadence(seconds: 2))
         #expect(WidgetCadence(definition: make(.networkSpeed, refreshSeconds: 999)) == networkCadence(seconds: 60))
+        #expect(WidgetCadence(definition: make(.diskActivity)) == diskCadence(seconds: 2))
+        #expect(WidgetCadence(definition: make(.diskActivity, refreshSeconds: 10)) == diskCadence(seconds: 10))
+        #expect(WidgetCadence(definition: make(.diskActivity, refreshSeconds: 1)) == diskCadence(seconds: 2))
         #expect(WidgetCadence(definition: make(.memory)) == .interval(seconds: 10, needsBaseline: false))
         #expect(WidgetCadence(definition: make(.uptime)) == .interval(seconds: 60, needsBaseline: false))
         #expect(WidgetCadence(definition: make(.freeDisk)) == .interval(seconds: 300, needsBaseline: false))

@@ -108,10 +108,33 @@ nonisolated enum WidgetFormat {
                     return WidgetText(string: downloadAndUpload(download.text, upload.text))
                 }
             }
+        case (.diskActivity, .rates(let first, let second)):
+            // Disk activity is always counted in bytes: the unit setting is the network's.
+            let read = ReadoutFormat.rate(first, unit: .bytes, texts: texts, locale: locale)
+            let written = ReadoutFormat.rate(second, unit: .bytes, texts: texts, locale: locale)
+            switch preset {
+            case .read:
+                if let read {
+                    return WidgetText(string: read.text)
+                }
+            case .write:
+                if let written {
+                    return WidgetText(string: written.text)
+                }
+            default:
+                if let read, let written {
+                    return WidgetText(string: readAndWrite(read.text, written.text, texts: texts))
+                }
+            }
         default:
             break
         }
         return WidgetText(string: unavailable)
+    }
+
+    /// The read and the write rate in one text, each with its translated one-letter label.
+    private static func readAndWrite(_ read: String, _ written: String, texts: ReadoutTexts) -> String {
+        texts.fill(texts.readFormat, with: read) + " " + texts.fill(texts.writeFormat, with: written)
     }
 
     /// The download and the upload in one text: the arrows are characters and never translated.
@@ -133,6 +156,7 @@ nonisolated enum WidgetFormat {
     /// - A rate (network speed): 99.9 and 999 in kilo, mega and giga, in the unit and the labels
     ///   of the locale; the download and the upload are written the same way, so the widest
     ///   sample of the two joined with the arrows is the widest text.
+    /// - A disk rate: the same samples in bytes, with the labels of the language for the pair.
     /// - A button: its title.
     /// - A timer item: 00:00. The other built-in items have no text.
     /// - A script widget: 8, 16 or 32 zeros for its width (``scriptWidthDigits(for:)``). Digits
@@ -195,6 +219,17 @@ nonisolated enum WidgetFormat {
                 for download in rates {
                     for upload in rates {
                         add(downloadAndUpload(download, upload))
+                    }
+                }
+            } else {
+                rates.forEach(add)
+            }
+        case .diskActivity:
+            let rates = ReadoutFormat.rateWidthSamples(unit: .bytes, texts: texts, locale: locale)
+            if preset == .readAndWrite {
+                for read in rates {
+                    for written in rates {
+                        add(readAndWrite(read, written, texts: texts))
                     }
                 }
             } else {

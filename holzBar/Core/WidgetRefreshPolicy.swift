@@ -58,6 +58,12 @@ nonisolated enum WidgetCadence: Equatable, Sendable {
                 intervalSeconds: Self.tunedSeconds(definition, for: .networkSpeed),
                 needsBaseline: true
             ))
+        case .diskActivity:
+            self = .sampled(ReadoutRequest(
+                metrics: [.diskActivity],
+                intervalSeconds: Self.tunedSeconds(definition, for: .diskActivity),
+                needsBaseline: true
+            ))
         case .memory:
             self = .interval(seconds: Self.tunedSeconds(definition, for: .memory), needsBaseline: false)
         case .uptime:

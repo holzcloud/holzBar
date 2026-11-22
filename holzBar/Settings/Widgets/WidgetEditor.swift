@@ -62,6 +62,8 @@ struct WidgetEditor: View {
             switch definition.source {
             case .networkSpeed:
                 return Text("Counts Wi-Fi and Ethernet, not VPN tunnels, in the unit chosen in System readouts.")
+            case .diskActivity:
+                return Text("Reads and writes of all internal and external disks, per second.")
             case .dateTime, .battery, .cpu, .memory, .uptime, .freeDisk, .countdown:
                 return nil
             }
@@ -110,6 +112,9 @@ struct WidgetEditor: View {
         case .download: Text("Download")
         case .upload: Text("Upload")
         case .downloadAndUpload: Text("Download and Upload")
+        case .read: Text("Read")
+        case .write: Text("Write")
+        case .readAndWrite: Text("Read and Write")
         }
     }
 

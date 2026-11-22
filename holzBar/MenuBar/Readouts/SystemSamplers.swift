@@ -5,6 +5,7 @@
 
 import Darwin
 import Foundation
+import IOKit
 
 /// Reads the numbers of the system readouts that come from the kernel and the file system.
 ///
@@ -23,7 +24,7 @@ nonisolated enum SystemSamplers {
     ///
     /// The sample lists in ``ReadoutSample/read`` exactly the metrics this function filled, so a
     /// consumer can tell a metric that failed (listed, value `nil`) from one that was not asked
-    /// for. The total CPU and the network counters are filled so far; the plans that add a metric
+    /// for. The total CPU, the network counters and the disk counters are filled so far; the plans that add a metric
     /// add its reader here.
     ///
     /// - Parameters:
@@ -39,6 +40,10 @@ nonisolated enum SystemSamplers {
         if metrics.contains(.network) {
             sample.read.insert(.network)
             sample.network = networkCounters(at: sample.at)
+        }
+        if metrics.contains(.diskActivity) {
+            sample.read.insert(.diskActivity)
+            sample.disk = diskCounters(at: sample.at)
         }
         return sample
     }
@@ -198,5 +203,56 @@ nonisolated enum SystemSamplers {
         }
         let bytes = buffer.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }
         return String(decoding: bytes, as: UTF8.self) // swiftlint:disable:this optional_data_string_conversion
+    }
+
+    /// The bytes read and written since boot by each block storage driver, as one snapshot keyed
+    /// by the driver's registry entry ID, so a disk that is removed vanishes from the sum and
+    /// never makes a negative rate (``RateBaseline`` leaves out a counter only one snapshot has).
+    /// Every iterator and entry is released in `defer`; the copied property is taken with
+    /// `takeRetainedValue()` (T-94-08).
+    ///
+    /// - Returns: `nil` when the registry could not be read or holds no driver with statistics.
+    static func diskCounters(at instant: ContinuousClock.Instant) -> CounterSnapshot? {
+        var iterator = io_iterator_t()
+        guard
+            IOServiceGetMatchingServices(kIOMainPortDefault, IOServiceMatching("IOBlockStorageDriver"), &iterator)
+                == KERN_SUCCESS
+        else {
+            return nil
+        }
+        defer {
+            IOObjectRelease(iterator)
+        }
+        var counters = [String: CounterPair]()
+        while counters.count < maximumInterfaceRecords {
+            let entry = IOIteratorNext(iterator)
+            guard entry != 0 else {
+                break
+            }
+            defer {
+                IOObjectRelease(entry)
+            }
+            var identifier: UInt64 = 0
+            guard
+                IORegistryEntryGetRegistryEntryID(entry, &identifier) == KERN_SUCCESS,
+                let property = IORegistryEntryCreateCFProperty(entry, "Statistics" as CFString, kCFAllocatorDefault, 0),
+                let statistics = property.takeRetainedValue() as? [String: Any]
+            else {
+                continue
+            }
+            var bytes = [String: Int64]()
+            for key in [DiskStatistics.readKey, DiskStatistics.writeKey] {
+                if let number = statistics[key] as? NSNumber {
+                    bytes[key] = number.int64Value
+                }
+            }
+            if let pair = DiskStatistics.counters(bytes) {
+                counters[String(identifier)] = pair
+            }
+        }
+        guard !counters.isEmpty else {
+            return nil
+        }
+        return CounterSnapshot(at: instant, counters: counters)
     }
 }

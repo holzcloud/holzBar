@@ -1213,7 +1213,7 @@ final class MenuBarWidgets {
                 return .unavailable
             }
             return .battery(percent: percent, state: battery.state)
-        case .cpu, .networkSpeed:
+        case .cpu, .networkSpeed, .diskActivity:
             // The shared monitor feeds it; the first reading after a reveal is only the baseline.
             return readoutLink.lastReading(for: definition.id) ?? .unavailable
         case .memory:

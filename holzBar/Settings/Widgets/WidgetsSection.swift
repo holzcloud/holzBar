@@ -252,6 +252,7 @@ struct WidgetsSection: View {
         case .freeDisk: Text("Free Disk Space")
         case .countdown: Text("Countdown")
         case .networkSpeed: Text("Network Speed")
+        case .diskActivity: Text("Disk Activity")
         }
     }
 }

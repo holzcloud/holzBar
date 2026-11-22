@@ -85,6 +85,7 @@ nonisolated enum WidgetSpeech {
         case .freeDisk: String(localized: "Free Disk Space")
         case .countdown: String(localized: "Countdown")
         case .networkSpeed: String(localized: "Network Speed")
+        case .diskActivity: String(localized: "Disk Activity")
         }
     }
 
@@ -178,6 +179,17 @@ nonisolated enum WidgetSpeech {
             case .download: return String(localized: "Download \(download)")
             case .upload: return String(localized: "Upload \(upload)")
             default: return String(localized: "Download \(download), upload \(upload)")
+            }
+        case (.diskActivity, .rates(let first, let second)):
+            guard first.isFinite, second.isFinite, first >= 0, second >= 0 else {
+                return unavailable
+            }
+            let read = spokenRate(first, locale: locale)
+            let written = spokenRate(second, locale: locale)
+            switch definition.preset {
+            case .read: return String(localized: "Read \(read)")
+            case .write: return String(localized: "Write \(written)")
+            default: return String(localized: "Read \(read), write \(written)")
             }
         default:
             return unavailable

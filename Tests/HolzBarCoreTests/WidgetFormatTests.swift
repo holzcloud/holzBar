@@ -393,6 +393,51 @@ struct WidgetFormatTests {
         }
     }
 
+    @Test("Disk activity writes bytes with the read and write labels, whatever the unit (MON-04, D-08)")
+    func diskActivityText() {
+        let reading = WidgetReading.rates(first: 12_000_000, second: 3_400_000)
+        #expect(text(reading, definition(.diskActivity, preset: .read)).string == "12.0 MB/s")
+        #expect(text(reading, definition(.diskActivity, preset: .write)).string == "3.4 MB/s")
+        #expect(text(reading, definition(.diskActivity, preset: .readAndWrite)).string == "R 12.0 MB/s W 3.4 MB/s")
+        let bits = WidgetFormat.text(
+            for: reading,
+            definition: definition(.diskActivity, preset: .read),
+            locale: english,
+            calendar: calendar,
+            rateUnit: .bits
+        )
+        #expect(bits.string == "12.0 MB/s")
+        #expect(text(.rates(first: 1, second: -2), definition(.diskActivity)).isUnavailable)
+        #expect(text(.rates(first: .infinity, second: 2), definition(.diskActivity, preset: .read)).isUnavailable)
+        #expect(text(.fraction(0.2), definition(.diskActivity)).isUnavailable)
+        #expect(text(.rates(first: 1, second: 2), definition(.freeDisk)).isUnavailable)
+    }
+
+    @Test("Disk activity has fixed width samples that cover every rate (D-11, MON-09)")
+    func diskActivityWidth() {
+        func samples(_ preset: WidgetPreset) -> [String] {
+            WidgetFormat.widthSamples(
+                for: definition(.diskActivity, preset: preset),
+                locale: english,
+                calendar: calendar,
+                capacityBytes: nil
+            )
+        }
+        #expect(samples(.read).contains("999 GB/s"))
+        #expect(samples(.write) == samples(.read))
+        let both = samples(.readAndWrite)
+        #expect(both.contains("R 999 GB/s W 999 GB/s"))
+        #expect(both.contains("R 99.9 kB/s W 999 GB/s"))
+        #expect(Set(both).count == both.count)
+        let widest = both.map(\.count).max() ?? 0
+        for first in [0.0, 5_000, 123_456, 98_000_000, 999_000_000_000] {
+            for second in [0.0, 85_000, 999_900, 12_000_000] {
+                let shown = text(.rates(first: first, second: second), definition(.diskActivity)).string
+                #expect(shown.count <= widest, "\(shown)")
+            }
+        }
+    }
+
     @Test("A script widget shows its line as given, never parsed (T-12-25)")
     func scriptLineIsShownAsGiven() {
         let lines = [
