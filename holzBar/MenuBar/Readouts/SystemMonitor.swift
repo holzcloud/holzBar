@@ -54,6 +54,11 @@ final class SystemMonitor {
     @ObservationIgnored private var timerTask: Task<Void, Never>?
     /// Tells a task that was replaced from the current one.
     @ObservationIgnored private var generation = 0
+    /// The generation whose task is reading right now, or `nil` while none is.
+    @ObservationIgnored private var readingToken: Int?
+    /// How often each consumer registered, so a read can tell a consumer that registered anew
+    /// (with a request it was not made for) from the one it was made for.
+    @ObservationIgnored private var registrationEpochs = [String: Int]()
     /// Follows whether the Mac rests, only while the ledger is not idle.
     @ObservationIgnored private var pauseLoop: ObservationLoop?
     /// Follows Low Power Mode, only while the ledger is not idle.
@@ -99,7 +104,8 @@ final class SystemMonitor {
         ledger.register(id, kind: kind, request: request)
         deliveries[id] = nil
         sinks[id] = deliver
-        reschedule()
+        registrationEpochs[id, default: 0] += 1
+        reschedule(interruptingRead: false)
     }
 
     /// Removes a consumer. An id that is not registered changes nothing.
@@ -110,14 +116,30 @@ final class SystemMonitor {
         ledger.unregister(id)
         deliveries[id] = nil
         sinks[id] = nil
-        reschedule()
+        registrationEpochs[id] = nil
+        reschedule(interruptingRead: false)
     }
 
     // MARK: Scheduling
 
     /// Replaces the timer task with one for the next tick, or with none when nothing is to be
     /// read. Called after every change of what the schedule depends on.
-    private func reschedule() {
+    ///
+    /// - Parameter interruptingRead: Whether a read that is already in flight is thrown away. A
+    ///   change of the consumers does not interrupt it: the read finishes, goes to the consumers
+    ///   of its tick that are still the same, and then the next tick is scheduled (L-04). The Mac's
+    ///   rest and Low Power Mode interrupt it.
+    private func reschedule(interruptingRead: Bool = true) {
+        let isReadInFlight = readingToken == generation
+        if !interruptingRead, isReadInFlight {
+            updateObservations()
+            visibleCount = ledger.visibleCount
+            backgroundCount = ledger.backgroundCount
+            let observers = ReadoutSchedule.observers(ledger: ledger, isPaused: isPaused)
+            observerCount = observers.count
+            updateEventObservers(observers)
+            return
+        }
         generation &+= 1
         timerTask?.cancel()
         timerTask = nil
@@ -146,24 +168,49 @@ final class SystemMonitor {
             } catch {
                 return
             }
-            // The precise capacity of the volume is read about once a minute (D-10); the decision
-            // is made here, on the main actor, where the cache lives.
             guard let self, token == self.generation else {
                 return
             }
-            let refreshesDisk = refreshesDiskSpace(for: tick)
-            var sample = await SystemSamplers.read(tick.metrics, refreshesDiskSpace: refreshesDisk)
-            // A tick that was replaced while it read must not go on to the private interface: the
-            // consumer of the GPU load may be gone by now (M-03).
-            guard !Task.isCancelled, token == generation else {
-                return
+            await read(tick, token: token)
+        }
+    }
+
+    /// Reads what the tick asks for and delivers it. The read is in flight from here until it is
+    /// delivered or dropped (``reschedule(interruptingRead:)``).
+    private func read(_ tick: ReadoutSchedule.Tick, token: Int) async {
+        readingToken = token
+        defer {
+            if readingToken == token {
+                readingToken = nil
             }
-            if tick.metrics.contains(.gpu) {
-                // The GPU goes through its own start check, on the main actor where the gate lives.
-                sample.read.insert(.gpu)
+        }
+        // The consumers as they are now: one that registers again meanwhile (a new request) is
+        // not served by this read (L-04).
+        let epochs = registrationEpochs
+        // The precise capacity of the volume is read about once a minute (D-10); the decision
+        // is made here, on the main actor, where the cache lives.
+        let refreshesDisk = refreshesDiskSpace(for: tick)
+        var sample = await SystemSamplers.read(tick.metrics, refreshesDiskSpace: refreshesDisk)
+        // A read that was interrupted must not go on to the private interface (M-03), and neither
+        // must one whose consumers of the GPU load are all gone by now.
+        guard !Task.isCancelled, token == generation else {
+            return
+        }
+        if tick.metrics.contains(.gpu) {
+            // The GPU goes through its own start check, on the main actor where the gate lives.
+            sample.read.insert(.gpu)
+            if stillWants(.gpu, in: tick, epochs: epochs) {
                 sample.gpuPercent = await readGPU(token: token)
             }
-            deliver(sample, for: tick, token: token, refreshedDiskSpace: refreshesDisk)
+        }
+        deliver(sample, for: tick, token: token, epochs: epochs, refreshedDiskSpace: refreshesDisk)
+    }
+
+    /// Whether a consumer of the tick that has not registered anew still asks for the metric.
+    private func stillWants(_ metric: ReadoutMetric, in tick: ReadoutSchedule.Tick, epochs: [String: Int]) -> Bool {
+        tick.consumers.contains { id in
+            sinks[id] != nil && registrationEpochs[id] == epochs[id]
+                && ledger.request(for: id)?.metrics.contains(metric) == true
         }
     }
 
@@ -188,6 +235,7 @@ final class SystemMonitor {
         _ read: ReadoutSample,
         for tick: ReadoutSchedule.Tick,
         token: Int,
+        epochs: [String: Int],
         refreshedDiskSpace: Bool
     ) {
         guard token == generation else {
@@ -195,10 +243,11 @@ final class SystemMonitor {
         }
         let sample = cachingDiskSpace(of: read, refreshed: refreshedDiskSpace)
         samplesTaken += 1
-        for id in tick.consumers where sinks[id] != nil {
+        let served = tick.consumers.filter { sinks[$0] != nil && registrationEpochs[$0] == epochs[$0] }
+        for id in served {
             deliveries[id] = ReadoutSchedule.Delivery(last: sample.at, count: (deliveries[id]?.count ?? 0) + 1)
         }
-        for id in tick.consumers {
+        for id in served {
             sinks[id]?(sample)
         }
         reschedule()
