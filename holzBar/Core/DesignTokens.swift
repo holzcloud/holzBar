@@ -300,6 +300,9 @@ nonisolated enum DesignTokens {
         /// Closing: the shape returns into the notch without overshoot.
         static let closeResponse: Double = 0.34
         static let closeDamping: Double = 0.9
+        /// The plain ease every move of the island takes when Bounce is off (decision D-13, H4):
+        /// opening, resizing, closing and widening, with no overshoot.
+        static let plainEaseDuration: Double = 0.3
         /// The content appears this long after the shape starts to grow, from a blur and a
         /// smaller scale, with a curve that takes this long; it leaves faster.
         static let contentDelay: Double = 0.09

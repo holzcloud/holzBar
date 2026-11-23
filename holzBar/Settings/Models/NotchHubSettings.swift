@@ -38,6 +38,14 @@ final class NotchHubSettings {
         }
     }
 
+    /// A Boolean value that indicates whether the island moves with springs that overshoot. On by
+    /// default; off, it opens, resizes, closes and widens with a plain ease. Reduce Motion wins.
+    var bounces = true {
+        didSet {
+            Defaults.set(bounces, forKey: .notchHubBounces)
+        }
+    }
+
     /// The displays the hub may open on.
     var displays: NotchHubDisplays = .all {
         didSet {
@@ -59,6 +67,7 @@ final class NotchHubSettings {
         Defaults.ifPresent(key: .notchHubShowsActiveFirst, assign: &showsActiveFirst)
         Defaults.ifPresent(key: .notchHubOpensOnHover, assign: &opensOnHover)
         Defaults.ifPresent(key: .notchHubGestures, assign: &gestures)
+        Defaults.ifPresent(key: .notchHubBounces, assign: &bounces)
         Defaults.ifPresent(key: .notchHubDisplays) { (rawValue: Int) in
             if let stored = NotchHubDisplays(rawValue: rawValue) {
                 displays = stored

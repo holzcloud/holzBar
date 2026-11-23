@@ -282,6 +282,19 @@ struct HubIslandPhaseTests {
         #expect(Phase.completionFallbackDelay < 3)
     }
 
+    @Test("The fallback also covers the plain ease of Bounce off, for an opening and for a closing, by the margin")
+    func fallbackDelayCoversThePlainEase() {
+        let island = DesignTokens.Island.self
+        #expect(island.plainEaseDuration == 0.3)
+        let open = island.plainEaseDuration
+        let close = island.contentOutDuration + island.plainEaseDuration
+        #expect(Phase.completionFallbackDelay >= open + island.completionMargin - 1e-9)
+        #expect(Phase.completionFallbackDelay >= close + island.completionMargin - 1e-9)
+        // Still one wait, longer than the ease and shorter than 3 s.
+        #expect(Phase.completionFallbackDelay > close)
+        #expect(Phase.completionFallbackDelay < 3)
+    }
+
     @Test("The targets are ordered closed, live, open")
     func targetOrder() {
         #expect(Phase.Target.closed < Phase.Target.live)

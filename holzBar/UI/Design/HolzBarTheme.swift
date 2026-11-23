@@ -421,6 +421,8 @@ enum HolzBarTheme {
             response: DesignTokens.Island.closeResponse,
             dampingFraction: DesignTokens.Island.closeDamping
         )
+        /// What every move of the island takes when Bounce is off: a plain ease, no overshoot.
+        static let islandPlain = Animation.smooth(duration: DesignTokens.Island.plainEaseDuration)
         /// The content appearing a moment after the shape starts to grow.
         static let islandContentIn = Animation.timingCurve(
             DesignTokens.Island.contentCurve[0],

@@ -510,6 +510,7 @@ final class NotchHubController: HubHost {
         let panel = panel ?? NotchHubPanel()
         self.panel = panel
         let presentation = ensurePresentation()
+        presentation.bounces = appState.settings.notchHub.bounces
         // On a display with Apple's Dynamic Island the hub is a separate shape with convex top
         // corners (concept section 10b); read before anything is shown or placed.
         presentation.convexTop = layout.isDetached
@@ -1337,6 +1338,7 @@ final class NotchHubController: HubHost {
         let panel = panel ?? NotchHubPanel()
         self.panel = panel
         let presentation = ensurePresentation()
+        presentation.bounces = appState?.settings.notchHub.bounces ?? true
         presentation.convexTop = live.isDetached
         let existing = wasVisible && panelScreenFrame == screen.frame ? panel.contentView as? IslandHostingView : nil
         restShape = live.shape

@@ -148,7 +148,8 @@ nonisolated enum HubIslandPhase {
 
     /// How long after a transition starts the fallback settles it when its animation has not
     /// reported the end: the longest motion of the island (the opening's two springs, the
-    /// closing's spring after its delay, the content's curve after its delay) plus
+    /// closing's spring after its delay, the content's curve after its delay, and the plain ease
+    /// of Bounce off, alone and after the content) plus
     /// ``DesignTokens/Island/completionMargin``. One wait per transition; it never repeats.
     static let completionFallbackDelay: Double = {
         let island = DesignTokens.Island.self
@@ -158,7 +159,10 @@ nonisolated enum HubIslandPhase {
             settlingTime(response: island.openHeightResponse, damping: island.openHeightDamping, threshold: threshold),
             island.contentOutDuration
                 + settlingTime(response: island.closeResponse, damping: island.closeDamping, threshold: threshold),
-            island.contentDelay + island.contentInDuration
+            island.contentDelay + island.contentInDuration,
+            // Bounce off: the plain ease of an opening, and the one of a closing after the content.
+            island.plainEaseDuration,
+            island.contentOutDuration + island.plainEaseDuration
         )
         return longest + island.completionMargin
     }()

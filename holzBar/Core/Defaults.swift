@@ -307,6 +307,9 @@ nonisolated extension Defaults {
         // MARK: Notch hub
         /// Whether resting the pointer at the notch opens the Notch hub (a boolean, on by default).
         case notchHubOpensOnHover = "NotchHubOpensOnHover"
+        /// Whether the island opens, resizes, closes and widens with springs that overshoot (a
+        /// boolean, on by default); off, it takes a plain 0.3 s ease. Reduce Motion still wins.
+        case notchHubBounces = "NotchHubBounces"
         /// Whether a scroll on the closed notch opens and closes the Notch hub and a sideways swipe
         /// skips a track (a boolean, off by default). The scroll monitor exists only while it is on.
         case notchHubGestures = "NotchHubGestures"
@@ -567,6 +570,7 @@ nonisolated extension Defaults.Key {
             .autoZenWhileSharingScreen,
             .notchHubOpensOnHover,
             .notchHubGestures,
+            .notchHubBounces,
             .notchHubShowsActiveFirst,
             .calendarShowsAllDay,
             .nowPlayingReadsAllApps,

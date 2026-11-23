@@ -63,6 +63,7 @@ extension SettingsCatalog {
             .modulesNotchHubGestures,
             .modulesNotchHubDisplays,
             .modulesNotchHubCutout,
+            .modulesNotchHubBounces,
             // Settings of the hub modules, in catalog order.
             .modulesTimersFinishSound,
             .modulesCalendarShowsAllDay,
@@ -252,6 +253,15 @@ extension SettingsEntry {
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Display cutout"),
         info: String(localized: "Where the hub opens around the camera. Automatic tells a notch from Apple's Dynamic Island; choose one if it is wrong. With the Dynamic Island the hub opens below it."),
+        module: NotchHubController.moduleID
+    )
+
+    static let modulesNotchHubBounces = SettingsEntry(
+        id: "modulesNotchHubBounces",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Bounce"),
+        info: String(localized: "Off opens and closes the hub with a plain ease and no overshoot."),
         module: NotchHubController.moduleID
     )
 

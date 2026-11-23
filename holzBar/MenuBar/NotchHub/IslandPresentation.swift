@@ -44,6 +44,11 @@ final class IslandPresentation {
     /// it never changes during an animation.
     var convexTop = false
 
+    /// Whether the shape moves with springs that overshoot (the Bounce setting). Off, every move
+    /// takes ``HolzBarTheme/Motion/islandPlain``. The controller sets it right before an opening
+    /// and a live widening; Reduce Motion wins over both.
+    var bounces = true
+
     /// Whether the content is shown: it appears after the shape starts to grow, and leaves first.
     var contentShown = false
 
@@ -97,6 +102,20 @@ final class IslandPresentation {
     var contentAnimation: Animation?
     var rowAnimation: Animation?
 
+    /// The width's, the height's and the closing's animation: the springs, or the plain ease when
+    /// Bounce is off.
+    private var openWidthMotion: Animation {
+        bounces ? HolzBarTheme.Motion.islandOpenWidth : HolzBarTheme.Motion.islandPlain
+    }
+
+    private var openHeightMotion: Animation {
+        bounces ? HolzBarTheme.Motion.islandOpenHeight : HolzBarTheme.Motion.islandPlain
+    }
+
+    private var closeMotion: Animation {
+        bounces ? HolzBarTheme.Motion.islandClose : HolzBarTheme.Motion.islandPlain
+    }
+
     /// The generation of the transition that runs, so that a completion that arrives late never
     /// changes the shape of a newer one.
     @ObservationIgnored private var transitionGeneration = 0
@@ -139,16 +158,16 @@ final class IslandPresentation {
         completion: @escaping @MainActor (Int) -> Void
     ) {
         transitionGeneration = generation
-        let driver = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandOpenHeight
+        let driver = reduceMotion ? HolzBarTheme.Motion.reduced : openHeightMotion
         // A row that is already on screen (a hub that opens again while it closes) springs to its
         // new place; one that appears is placed at once.
         let rowMoves = self.layout != nil && !reduceMotion
         withAnimation(driver, completionCriteria: .removed) {
             self.layout = layout
             moduleRowY = layout.moduleRow.y
-            rowAnimation = rowMoves ? HolzBarTheme.Motion.islandOpenHeight : nil
-            widthAnimation = reduceMotion ? nil : HolzBarTheme.Motion.islandOpenWidth
-            heightAnimation = reduceMotion ? nil : HolzBarTheme.Motion.islandOpenHeight
+            rowAnimation = rowMoves ? openHeightMotion : nil
+            widthAnimation = reduceMotion ? nil : openWidthMotion
+            heightAnimation = reduceMotion ? nil : openHeightMotion
             contentAnimation = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandContentIn
             // The live content, if it shows, leaves at once as the shape starts to grow.
             liveContentAnimation = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandContentOut
@@ -188,10 +207,10 @@ final class IslandPresentation {
             completion(generation)
             return
         }
-        withAnimation(HolzBarTheme.Motion.islandOpenHeight, completionCriteria: .removed) {
+        withAnimation(openHeightMotion, completionCriteria: .removed) {
             self.layout = layout
-            heightAnimation = HolzBarTheme.Motion.islandOpenHeight
-            rowAnimation = HolzBarTheme.Motion.islandOpenHeight
+            heightAnimation = openHeightMotion
+            rowAnimation = openHeightMotion
             moduleRowY = layout.moduleRow.y
             height = layout.shape.height
         } completion: {
@@ -232,7 +251,7 @@ final class IslandPresentation {
             }
             return
         }
-        let spring = HolzBarTheme.Motion.islandClose.delay(DesignTokens.Island.contentOutDuration)
+        let spring = closeMotion.delay(DesignTokens.Island.contentOutDuration)
         withAnimation(spring, completionCriteria: .removed) {
             widthAnimation = spring
             heightAnimation = spring
@@ -263,10 +282,10 @@ final class IslandPresentation {
         completion: @escaping @MainActor (Int) -> Void
     ) {
         transitionGeneration = generation
-        let driver = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandOpenWidth
+        let driver = reduceMotion ? HolzBarTheme.Motion.reduced : openWidthMotion
         withAnimation(driver, completionCriteria: .removed) {
             liveLayout = live
-            widthAnimation = reduceMotion ? nil : HolzBarTheme.Motion.islandOpenWidth
+            widthAnimation = reduceMotion ? nil : openWidthMotion
             heightAnimation = nil
             liveContentAnimation = reduceMotion ? HolzBarTheme.Motion.reduced : HolzBarTheme.Motion.islandContentIn
             centreX = live.shape.x + live.shape.width / 2

@@ -25,6 +25,7 @@ struct NotchHubSettingsView: View {
                 Text(cutout.localized).tag(cutout)
             }
         }
+        SettingsToggleRow(.modulesNotchHubBounces, isOn: $settings.bounces, badge: .preview)
     }
 }
 
