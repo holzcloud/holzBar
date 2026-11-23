@@ -151,7 +151,7 @@ struct NotificationsBodyView: View {
             hoverDidChange(isInside, record: record)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(verbatim: spokenText(of: record, isUnseen: isUnseen)))
+        .accessibilityLabel(Text(verbatim: spokenText(of: record, isUnseen: isUnseen, isFront: isFront)))
         .accessibilityFocused($spokenID, equals: record.id)
         .accessibilityAction(named: Text("Remove")) {
             remove(record.id, isFront: isFront)
@@ -216,6 +216,9 @@ struct NotificationsBodyView: View {
                     Spacer(minLength: 0)
                     age(of: record)
                     buttons(for: record, isFront: isFront)
+                    if isFront, runtime.queue.extraCount > 0 {
+                        queueCapsule(runtime.queue.extraCount)
+                    }
                 }
                 if let title = record.title {
                     Text(verbatim: title)
@@ -240,6 +243,28 @@ struct NotificationsBodyView: View {
                 .stroke(.white.opacity(contrast == .increased ? 0.4 : 0.06), lineWidth: HolzBarTheme.Spacing.hairline)
         }
         .clipShape(HolzBarTheme.shape(radius))
+    }
+
+    /// The `+N` capsule at the front card's top trailing corner: how many unseen notifications
+    /// wait behind it. It shows a number only, never a title, an app or a text, and it keeps its
+    /// width, so the header's app name gives way first.
+    private func queueCapsule(_ count: Int) -> some View {
+        Text(verbatim: "+\(count)")
+            .font(HolzBarTheme.Hub.pillFont)
+            .monospacedDigit()
+            .foregroundStyle(contrast == .increased ? HolzBarTheme.Hub.pillText : HolzBarTheme.Hub.neutral)
+            .lineLimit(1)
+            .fixedSize()
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(HolzBarTheme.Hub.pillFill, in: Capsule())
+            .overlay {
+                if contrast == .increased {
+                    Capsule().stroke(HolzBarTheme.Hub.neutral)
+                }
+            }
+            .layoutPriority(1)
+            .accessibilityLabel(Text("+\(count) more"))
     }
 
     private func age(of record: NotificationRecord) -> some View {
@@ -328,12 +353,16 @@ struct NotificationsBodyView: View {
         .help(label)
     }
 
-    /// What VoiceOver reads for a row: "new" for one not seen yet, the app, the title, the text
-    /// and how long ago it came.
-    private func spokenText(of record: NotificationRecord, isUnseen: Bool) -> String {
+    /// What VoiceOver reads for a row: "new" for one not seen yet, the app, the title, the text,
+    /// how long ago it came and, for the front card with more behind it, "+N more".
+    private func spokenText(of record: NotificationRecord, isUnseen: Bool, isFront: Bool) -> String {
         let age = record.received.formatted(.relative(presentation: .numeric, unitsStyle: .wide))
         let newWord: String? = isUnseen ? String(localized: "new") : nil
-        return [newWord, record.app, record.title, record.body, age].compactMap(\.self).joined(separator: ", ")
+        let extra = runtime.queue.extraCount
+        let moreWord: String? = isFront && extra > 0 ? String(localized: "+\(extra) more") : nil
+        return [newWord, record.app, record.title, record.body, age, moreWord]
+            .compactMap(\.self)
+            .joined(separator: ", ")
     }
 
     /// The icon of the app among the running ones, found by its name, else a bell.
