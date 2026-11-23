@@ -36,6 +36,9 @@ final class NotchHubModel {
     /// is closed.
     private(set) var session: HubContext.Session?
 
+    /// Whether the open hub is pinned (D-12). Never stored: the controller's `close()` clears it.
+    var pin = HubPin()
+
     init() {
         lastChosenID = Defaults.string(forKey: .notchHubLastTab) ?? HubTabStrip.overviewID
     }

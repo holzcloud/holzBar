@@ -589,6 +589,8 @@ final class NotchHubController: HubHost {
         guard isOpen else {
             return
         }
+        // Every close ends the pin: it is never kept across closing.
+        model.pin.unpin()
         stopOpenObservers()
         endLateDecision()
         cancelHover()
@@ -836,7 +838,10 @@ final class NotchHubController: HubHost {
     private func startOpenObservers() {
         stopOpenObservers()
         let monitor = EventMonitor.global(for: [.leftMouseDown, .rightMouseDown, .otherMouseDown]) { [weak self] _ in
-            self?.close()
+            // A pinned hub ignores a click outside.
+            if self?.model.pin.allowsClose(.outsideClick) ?? true {
+                self?.close()
+            }
         }
         monitor.start()
         outsideClickMonitor = monitor
@@ -1098,7 +1103,10 @@ final class NotchHubController: HubHost {
             }
             open(on: NSScreen.screens.first { $0.displayID == screenID }, trigger: trigger)
         case .close:
-            close()
+            // A pinned hub stays open when the pointer leaves.
+            if model.pin.allowsClose(.pointerLeft) {
+                close()
+            }
         }
     }
 
