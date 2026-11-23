@@ -84,7 +84,9 @@ sources=(
   HubModuleRow
   HubStatusPills
   HubTabStrip
+  IndicatorPolicy
   InputMonitors
+  InputSourceLabel
   InterfaceWindowRule
   ItemCategory
   ItemChangeCadence
@@ -249,7 +251,9 @@ tests=(
   HubModuleRowTests
   HubStatusPillsTests
   HubTabStripTests
+  IndicatorPolicyTests
   InputMonitorsTests
+  InputSourceLabelTests
   InterfaceWindowRuleTests
   ItemCategoryTests
   ItemChangeCadenceTests

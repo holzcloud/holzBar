@@ -16,7 +16,8 @@ import Foundation
 /// 3. its short word (``LiveActivity/compactValue``);
 /// 4. nothing.
 /// A finished activity shows its short word or nothing: it is done, so neither a countdown nor
-/// a percentage. The rule reads no clock and never a title, a detail or a name: only the symbol,
+/// a percentage; an activity whose finish still lies ahead counts as running until then. A flash
+/// that shows a word also carries its second text and its icon file. The rule reads no clock and never a title, a detail or a name: only the symbol,
 /// the tint, the end, the progress and the short word reach the content.
 nonisolated enum HubLiveState {
     /// The value drawn after the symbol.
@@ -40,6 +41,26 @@ nonisolated enum HubLiveState {
         var trailing: Trailing
         /// How many live activities are not the top one, for the `+n` badge.
         var extraCount: Int
+        /// The second text of a flash whose trailing value is a word, or `nil`.
+        var secondary: String?
+        /// The icon file of a flash whose trailing value is a word, or `nil`.
+        var symbolImageURL: URL?
+
+        init(
+            symbol: String,
+            tint: LiveActivityTint,
+            trailing: Trailing,
+            extraCount: Int,
+            secondary: String? = nil,
+            symbolImageURL: URL? = nil
+        ) {
+            self.symbol = symbol
+            self.tint = tint
+            self.trailing = trailing
+            self.extraCount = extraCount
+            self.secondary = secondary
+            self.symbolImageURL = symbolImageURL
+        }
     }
 
     /// The content for a board at a moment, or `nil` when nothing is live.
@@ -47,16 +68,23 @@ nonisolated enum HubLiveState {
         guard let activity = board.compact else {
             return nil
         }
-        return Content(
+        let value = trailing(of: activity, now: now)
+        var content = Content(
             symbol: activity.symbol,
             tint: activity.tint,
-            trailing: trailing(of: activity, now: now),
+            trailing: value,
             extraCount: board.hiddenCount
         )
+        if case .word = value, let flash = activity.flash {
+            content.secondary = flash.secondaryValue
+            content.symbolImageURL = flash.symbolImageURL
+        }
+        return content
     }
 
     private static func trailing(of activity: LiveActivity, now: Date) -> Trailing {
-        if activity.finishedAt == nil {
+        let isRunning = activity.finishedAt.map { $0 > now } ?? true
+        if isRunning {
             if let end = activity.endsAt, end > now {
                 return .countdown(end: end)
             }

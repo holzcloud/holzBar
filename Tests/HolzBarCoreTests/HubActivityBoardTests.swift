@@ -15,7 +15,8 @@ struct HubActivityBoardTests {
         started: TimeInterval = 0,
         finished: TimeInterval? = nil,
         widened: TimeInterval? = nil,
-        hold: TimeInterval? = nil
+        hold: TimeInterval? = nil,
+        flash: LiveActivityFlash? = nil
     ) -> LiveActivity {
         LiveActivity(
             id: id,
@@ -27,7 +28,8 @@ struct HubActivityBoardTests {
             startedAt: now.addingTimeInterval(started),
             finishedAt: finished.map { now.addingTimeInterval($0) },
             widenedSeconds: widened,
-            holdSeconds: hold
+            holdSeconds: hold,
+            flash: flash
         )
     }
 
@@ -389,5 +391,51 @@ struct HubActivityBoardTests {
         )
         #expect(board.nextExpiry == at(1))
         #expect(board.listed.count == 2)
+    }
+
+    // MARK: Flashes (D-09)
+
+    @Test("A flash is drawn by the closed notch only: the full view lists, counts and waits for none")
+    func flashIsClosedNotchOnly() {
+        let flash = activity("flash", priority: 40, finished: 0, hold: 1.5, flash: LiveActivityFlash(secondaryValue: "German"))
+        let plain = activity("plain", priority: 30)
+        #expect(flash.isFlash)
+        #expect(!plain.isFlash)
+        let closed = Board.board([plain, flash], now: at(0.5), forClosedNotch: true)
+        #expect(closed.listed.map(\.id) == ["flash", "plain"])
+        #expect(closed.compact?.id == "flash")
+        #expect(closed.hiddenCount == 1)
+        #expect(closed.nextExpiry == at(1.5))
+        let full = Board.board([plain, flash], now: at(0.5))
+        #expect(full.listed.map(\.id) == ["plain"])
+        #expect(full.compact?.id == "plain")
+        #expect(full.hiddenCount == 0)
+        #expect(full.nextExpiry == nil)
+        let onlyFlash = Board.board([flash], now: at(0.5))
+        #expect(onlyFlash.compact == nil)
+        #expect(onlyFlash.listed.isEmpty)
+        #expect(Board.board([flash], now: at(1.5), forClosedNotch: true).compact == nil)
+    }
+
+    @Test("A flash is cut to short text, file URLs and a short width sample")
+    func flashCaps() {
+        let long = LiveActivityFlash(
+            secondaryValue: String(repeating: "s", count: 40),
+            symbolImageURL: URL(string: "file:///Library/Icons/de.png"),
+            widthSample: String(repeating: "w", count: 20)
+        )
+        #expect(LiveActivityFlash.maximumSecondaryLength == 32)
+        #expect(LiveActivityFlash.maximumSampleLength == 16)
+        #expect(long.secondaryValue?.count == 32)
+        #expect(long.widthSample?.count == 16)
+        #expect(long.symbolImageURL?.isFileURL == true)
+        let remote = LiveActivityFlash(symbolImageURL: URL(string: "https://example.com/icon.png"))
+        #expect(remote.symbolImageURL == nil)
+        let web = LiveActivityFlash(symbolImageURL: URL(string: "http://example.com/icon.png"))
+        #expect(web.symbolImageURL == nil)
+        let empty = LiveActivityFlash()
+        #expect(empty.secondaryValue == nil)
+        #expect(empty.widthSample == nil)
+        #expect(empty.symbolImageURL == nil)
     }
 }

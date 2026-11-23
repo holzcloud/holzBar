@@ -25,6 +25,9 @@ import Foundation
 ///    holds the notch open, and lives on in the full view, which the open hub and the Live
 ///    activities list read. The leave times of finished activities and the ends of widenings stay
 ///    in ``Board/nextExpiry`` in both views, so the one wait of the hub still wakes for each.
+/// 6. A flash (``LiveActivity/isFlash``) is the user's own feedback and only the closed notch
+///    draws it: the full view, which the open hub's right pill and the Live activities list read,
+///    leaves it out entirely (not listed, not compact, not counted, no expiry of its own).
 nonisolated enum HubActivityBoard {
     /// How long a finished activity stays when it names no ``LiveActivity/holdSeconds`` of its own.
     static let finishedHold: TimeInterval = 5
@@ -49,11 +52,11 @@ nonisolated enum HubActivityBoard {
     /// The board at a moment.
     ///
     /// - Parameter forClosedNotch: Whether the board is for the widened closed notch: an activity
-    ///   whose widening has passed is then left out. The default is the full view, which lists every
-    ///   live activity.
+    ///   whose widening has passed is then left out, and flashes are kept. The default is the full
+    ///   view, which lists every live activity but a flash.
     static func board(_ activities: [LiveActivity], now: Date, forClosedNotch: Bool = false) -> Board {
         var byKey = [String: LiveActivity]()
-        for activity in activities where !isExpired(activity, now: now) {
+        for activity in activities where (forClosedNotch || !activity.isFlash) && !isExpired(activity, now: now) {
             if let existing = byKey[activity.key], existing.startedAt >= activity.startedAt {
                 continue
             }

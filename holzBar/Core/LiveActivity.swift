@@ -27,6 +27,32 @@ nonisolated enum LiveActivityTint: String, CaseIterable, Sendable {
     case green
 }
 
+/// The extra parts of an indicator that is a flash: the user's own feedback, such as the input
+/// source that just changed, which only the closed notch draws.
+///
+/// Whatever enters it from outside is bounded here, so no view can draw an unbounded text or load
+/// a remote image: the second text and the width sample are cut and only a file URL is kept.
+nonisolated struct LiveActivityFlash: Equatable, Sendable {
+    /// The most characters of the second text.
+    static let maximumSecondaryLength = 32
+    /// The most characters of a width sample.
+    static let maximumSampleLength = 16
+
+    /// A second, longer text next to the short value, such as a source's full name, or `nil`.
+    let secondaryValue: String?
+    /// The file URL of an image that replaces the symbol, or `nil`; never a remote URL.
+    let symbolImageURL: URL?
+    /// The widest text the closed notch reserves room for, so it does not jump between values.
+    let widthSample: String?
+
+    /// Creates a flash. A text beyond its cap is cut and a URL that is not a file URL is dropped.
+    init(secondaryValue: String? = nil, symbolImageURL: URL? = nil, widthSample: String? = nil) {
+        self.secondaryValue = secondaryValue.map { String($0.prefix(Self.maximumSecondaryLength)) }
+        self.symbolImageURL = symbolImageURL.flatMap { $0.isFileURL ? $0 : nil }
+        self.widthSample = widthSample.map { String($0.prefix(Self.maximumSampleLength)) }
+    }
+}
+
 /// Something that is going on, as a plain value: a camera in use, a download, a timer.
 ///
 /// A module of the Notch hub returns its activities through ``HubModuleRuntime/activities``;
@@ -90,6 +116,15 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
     /// ``finishedAt``, which may lie ahead: a countdown that ends at a set moment is running until
     /// then. A negative or non-finite value is stored as `nil`.
     let holdSeconds: TimeInterval?
+    /// Marks the activity as a flash, the user's own feedback such as an input source change, or
+    /// `nil` for any other activity. Only the closed notch draws a flash: the board's full view,
+    /// which the open hub's right pill and the Live activities list read, leaves it out.
+    let flash: LiveActivityFlash?
+
+    /// Whether the activity is a flash.
+    var isFlash: Bool {
+        flash != nil
+    }
 
     /// The moment a finished activity leaves the board, the open hub's right pill and the Live
     /// activities list: ``finishedAt`` plus ``holdSeconds``, else plus
@@ -128,7 +163,8 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
         announcesItself: Bool = false,
         compactValue: String? = nil,
         widenedSeconds: TimeInterval? = nil,
-        holdSeconds: TimeInterval? = nil
+        holdSeconds: TimeInterval? = nil,
+        flash: LiveActivityFlash? = nil
     ) {
         self.id = id
         self.moduleID = moduleID
@@ -148,5 +184,6 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
         self.compactValue = compactValue.map { String($0.prefix(Self.maximumCompactValueLength)) }
         self.widenedSeconds = widenedSeconds.flatMap { $0.isFinite && $0 >= 0 ? $0 : nil }
         self.holdSeconds = holdSeconds.flatMap { $0.isFinite && $0 >= 0 ? $0 : nil }
+        self.flash = flash
     }
 }

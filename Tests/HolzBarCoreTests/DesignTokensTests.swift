@@ -543,4 +543,17 @@ struct DesignTokensTests {
         #expect(toast.menuBarGap == 8)
         #expect(toast.screenMargin == 8)
     }
+
+    @Test("The indicator's hold, durations, coalescing, priority and announce delay are the design's numbers")
+    func indicatorTokens() {
+        let indicator = Tokens.Indicator.self
+        #expect(indicator.holdSeconds == 1.5)
+        #expect(indicator.inputSourceDurations == [0.5, 1, 1.5, 2, 3])
+        #expect(indicator.inputSourceDefaultDuration == 1.5)
+        #expect(indicator.coalescingSeconds == 0.05)
+        #expect(indicator.flashPriority == 40)
+        #expect(indicator.announceDelay == 0.3)
+        #expect(indicator.inputSourceDurations.contains(indicator.inputSourceDefaultDuration))
+        #expect(indicator.flashPriority > AlertLook.priority(for: .thermal))
+    }
 }

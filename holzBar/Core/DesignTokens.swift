@@ -340,6 +340,26 @@ nonisolated enum DesignTokens {
         static let detachedValueGap: Double = 8
     }
 
+    /// The numbers of the indicators of the closed notch (concept H1 and H10): how long a flash
+    /// stays, the durations the user may choose for the input source, how fast events are
+    /// coalesced, where a flash ranks among live activities and when it is announced.
+    nonisolated enum Indicator {
+        /// How long a flash stays after it finished (H1).
+        static let holdSeconds: TimeInterval = 1.5
+        /// What the "Show for" setting of the input source offers, in seconds.
+        static let inputSourceDurations: [Double] = [0.5, 1, 1.5, 2, 3]
+        /// The default of that setting.
+        static let inputSourceDefaultDuration: Double = 1.5
+        /// Volume, brightness and gesture events within this many seconds become one flash: three
+        /// frames at 60 Hz.
+        static let coalescingSeconds: TimeInterval = 0.05
+        /// A flash ranks above the thermal and battery alerts (30) so it shows at once.
+        static let flashPriority = 40
+        /// How long after a flash VoiceOver waits before it announces it, so a burst is one
+        /// announcement (H10).
+        static let announceDelay: TimeInterval = 0.3
+    }
+
     /// The gradient of fills that carry white text, the same in both appearances.
     nonisolated enum Fill {
         static let start = RGB(hex: 0x1C78AE)
