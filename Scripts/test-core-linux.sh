@@ -58,6 +58,7 @@ sources=(
   DDCPacket
   DDCRegistryPairing
   DDCReply
+  DDCWakeGate
   DDCWriteCoalescer
   Defaults
   DesignTokens
@@ -229,6 +230,7 @@ tests=(
   DDCPacketTests
   DDCRegistryPairingTests
   DDCReplyTests
+  DDCWakeGateTests
   DDCWriteCoalescerTests
   DefaultsKeyNamesTests
   DesignTokensTests

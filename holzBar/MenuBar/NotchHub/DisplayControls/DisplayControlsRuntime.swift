@@ -198,6 +198,10 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// The CoreAudio listeners, added while the hub is open.
     @ObservationIgnored private let listener = OutputVolume.Listener()
 
+    /// Follows the wake gate while the hub is open: a wake or a display change asks for the
+    /// monitors to be read again once the wait is over.
+    @ObservationIgnored private var wakeLoop: ObservationLoop?
+
     /// The one-shot wait that ends an output switch the system never confirmed, while it runs.
     @ObservationIgnored private var outputSwitchTask: Task<Void, Never>?
 
@@ -463,10 +467,15 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         let bus = bus ?? DDCBus()
         self.bus = bus
         let opening = hubOpening
-        startReadingIndicatorWait(generation: generation)
+        // While the wake gate is closed every card shows its reading state, with a spinner too.
+        startReadingIndicatorWait(generation: generation, includingKnownValues: wakeWaitEnd() != nil)
         surveyTask = Task { [weak self] in
+            // No transfer for ``DDCTiming/wakeWait`` after a wake or a display change (D-20).
+            guard let self, await self.waitForWakeGate(), self.ddcGeneration == generation else {
+                return
+            }
             let load = await bus.load()
-            guard !Task.isCancelled, let self, self.ddcGeneration == generation else {
+            guard !Task.isCancelled, self.ddcGeneration == generation else {
                 return
             }
             self.ddcGate.setEnabled(true, load: load)
@@ -677,7 +686,14 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// The writer of one control: writes the latest value until none is left, then waits for the
     /// monitor to settle and reads the control back once.
     private func runWriter(_ key: ExternalControl, on bus: DDCBus, generation: Int) async {
-        while ddcGeneration == generation, !Task.isCancelled, let raw = channels[key]?.coalescer.next() {
+        while ddcGeneration == generation, !Task.isCancelled {
+            // The wait comes before the value is taken, so a newer value still coalesces into it.
+            guard await waitForWakeGate(), ddcGeneration == generation else {
+                return
+            }
+            guard let raw = channels[key]?.coalescer.next() else {
+                break
+            }
             let succeeded = await bus.write(key.control, raw: raw, to: key.display)
             guard ddcGeneration == generation, !Task.isCancelled else {
                 return
@@ -693,7 +709,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         channels[key]?.writer = nil
         channels[key]?.settle = Task { [weak self] in
             try? await Task.sleep(for: DDCTiming.settle)
-            guard !Task.isCancelled, let self, self.ddcGeneration == generation else {
+            guard !Task.isCancelled, let self, await self.waitForWakeGate(), self.ddcGeneration == generation else {
                 return
             }
             let value = await bus.readBack(key.control, of: key.display)
@@ -715,11 +731,51 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         }
     }
 
+    // MARK: Wake wait
+
+    /// When the wake gate opens, or `nil` when it is open now: no wake or display change was seen
+    /// in the last ``DDCTiming/wakeWait``.
+    private func wakeWaitEnd() -> ContinuousClock.Instant? {
+        guard let gate = appState?.systemActivityMonitor.ddcWakeGate, !gate.isOpen(at: .now) else {
+            return nil
+        }
+        return gate.opensAt
+    }
+
+    /// Waits until no DDC transfer is held back by a wake or a display change (D-20, DISP-02).
+    /// A later event moves the end, so the gate is asked again after every wait. Answers `false`
+    /// when the task was cancelled, which every caller treats as "stop".
+    private func waitForWakeGate() async -> Bool {
+        while let end = wakeWaitEnd() {
+            try? await Task.sleep(until: end, clock: .continuous)
+            if Task.isCancelled {
+                return false
+            }
+        }
+        return !Task.isCancelled
+    }
+
+    /// A wake or a display change while the hub is open: the monitors are read again once the
+    /// wait is over, where their values are shown. The cards show their reading state until then.
+    private func wakeGateDidChange() {
+        guard isHubOpen, appState?.settings.displayControls.showsExternalMonitors == true else {
+            return
+        }
+        refreshExternalMonitors(surveying: showsExternalValues)
+    }
+
     /// Starts the one wait that lets a first read show its spinner: a monitor with no values to
     /// show waits ``DDCTiming/readingIndicatorDelay`` and, if its survey still runs then, shows
     /// the indicator. A monitor with values shows them at once and never a spinner.
-    private func startReadingIndicatorWait(generation: Int) {
-        guard externals.contains(where: { $0.state == .reading && $0.values.isEmpty }) else {
+    ///
+    /// While the wake gate holds the transfers back (`includingKnownValues`), every card in its
+    /// reading state shows the spinner, also one that has values, because nothing can be set
+    /// until the wait is over.
+    private func startReadingIndicatorWait(generation: Int, includingKnownValues: Bool = false) {
+        func needsIndicator(_ monitor: ExternalMonitor) -> Bool {
+            monitor.state == .reading && (includingKnownValues || monitor.values.isEmpty)
+        }
+        guard externals.contains(where: needsIndicator) else {
             return
         }
         indicatorTask = Task { [weak self] in
@@ -727,8 +783,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             guard !Task.isCancelled, let self, self.ddcGeneration == generation else {
                 return
             }
-            for index in self.externals.indices
-            where self.externals[index].state == .reading && self.externals[index].values.isEmpty {
+            for index in self.externals.indices where needsIndicator(self.externals[index]) {
                 self.externals[index].showsReadingIndicator = true
             }
             self.indicatorTask = nil
@@ -754,7 +809,10 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             channel.writer?.cancel()
             channel.settle?.cancel()
             if let flushBus, let raw = channel.coalescer.next() {
-                Task {
+                // The last position a slider showed is still written, after the wake wait when one
+                // is on: a monitor coming back from sleep drops it otherwise.
+                Task { [weak self] in
+                    _ = await self?.waitForWakeGate()
                     _ = await flushBus.write(key.control, raw: raw, to: key.display)
                 }
             }
@@ -792,7 +850,14 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             listener.start(followsDeviceList: true) { [weak self] in
                 self?.refreshVolume()
             }
+            wakeLoop = ObservationLoop.observe { [weak self] in
+                self?.appState?.systemActivityMonitor.ddcWakeGate.lastEvent
+            } onChange: { [weak self] _ in
+                self?.wakeGateDidChange()
+            }
         } else {
+            wakeLoop?.cancel()
+            wakeLoop = nil
             listener.stop()
             clearOutputs()
             cancelExternalWork(flushingPendingWrites: true)
@@ -881,6 +946,8 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     func shutDown() {
         externalSettingLoop?.cancel()
         externalSettingLoop = nil
+        wakeLoop?.cancel()
+        wakeLoop = nil
         listener.stop()
         clearOutputs()
         cancelExternalWork()

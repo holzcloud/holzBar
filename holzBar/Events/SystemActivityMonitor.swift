@@ -28,6 +28,10 @@ final class SystemActivityMonitor {
         activity.settled(at: .now)
     }
 
+    /// When the Mac last woke or its displays last changed, for the wait before a DDC transfer
+    /// (``DDCWakeGate``, D-20). It counts from the event itself, not from the settle delay.
+    private(set) var ddcWakeGate = DDCWakeGate()
+
     /// The state fed by the notifications.
     @ObservationIgnored private var activity = SystemActivity()
 
@@ -91,6 +95,10 @@ final class SystemActivityMonitor {
 
     /// Records an event, publishes the pause and waits for the bar to settle.
     private func handle(_ event: SystemActivity.Event) {
+        // First of all: the wait before a DDC transfer counts from the event, not from the settle.
+        if event == .didWake || event == .displaysChanged {
+            ddcWakeGate.record(at: .now)
+        }
         activity.handle(event, at: .now)
         logger.info("System activity: \(String(describing: event), privacy: .public), paused: \(self.activity.isPaused, privacy: .public)")
         if isPaused != activity.isPaused {

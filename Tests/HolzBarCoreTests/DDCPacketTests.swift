@@ -59,4 +59,10 @@ struct DDCPacketTests {
         #expect(DDCTiming.settle == .milliseconds(300))
         #expect(DDCTiming.readingIndicatorDelay == .milliseconds(150))
     }
+
+    @Test("No transfer for 3 seconds after wake, and longer than the bar's own settle")
+    func wakeWait() {
+        #expect(DDCTiming.wakeWait == .seconds(3))
+        #expect(DDCTiming.wakeWait > DDCTiming.settle)
+    }
 }
