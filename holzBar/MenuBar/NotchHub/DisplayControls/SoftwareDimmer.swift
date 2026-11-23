@@ -39,6 +39,13 @@ final class SoftwareDimmer {
     /// Follows the switches that decide whether any layer may exist.
     @ObservationIgnored private var switchLoop: ObservationLoop?
 
+    /// The task that follows screen parameter changes. It exists only while ``ClosedHubWork``
+    /// lists the dim layers: a layer is on screen and has to follow its display.
+    @ObservationIgnored private var screenParametersTask: Task<Void, Never>?
+
+    /// Puts the layers back 0.1 s after the screens stop changing.
+    @ObservationIgnored private let debouncer = Debouncer(delay: .milliseconds(100))
+
     /// The overlay window: it takes no input and never becomes the key or main window.
     private final class DimPanel: NSPanel {
         override var canBecomeKey: Bool {
@@ -50,25 +57,72 @@ final class SoftwareDimmer {
         }
     }
 
-    /// Starts following the switches of the hub and of Display controls. Creates nothing until a
-    /// level is above 0.
+    /// Starts following the switches of the hub and of Display controls and the levels. Creates
+    /// nothing, and observes nothing about displays, until a level is above 0.
     func performSetup(with appState: AppState) {
         self.appState = appState
-        switchLoop = ObservationLoop.observe({ [weak appState] in
-            Switches(
-                hubOn: appState?.modules.isEnabled(NotchHubController.moduleID) ?? false,
-                moduleOn: appState?.modules.isEnabled(DisplayControlsRuntime.identifier) ?? false
-            )
+        switchLoop = ObservationLoop.observe({ [weak self] in
+            self?.currentSwitches() ?? ClosedHubWork.Switches()
         }, onChange: { [weak self] _ in
-            self?.reconcile()
+            self?.workDidChange()
         })
+        // The handler list is append-only, so this registers once. After a wake, an unlock or a
+        // display change the bar settles, and the layers are put back on their displays.
+        appState.systemActivityMonitor.onSettled { [weak self] in
+            self?.activityDidSettle()
+        }
+        workDidChange()
+    }
+
+    /// The switches that decide what exists, in the form of ``ClosedHubWork``.
+    private func currentSwitches() -> ClosedHubWork.Switches {
+        guard let appState else {
+            return ClosedHubWork.Switches()
+        }
+        return ClosedHubWork.Switches(
+            hubOn: appState.modules.isEnabled(NotchHubController.moduleID),
+            displayControlsOn: appState.modules.isEnabled(DisplayControlsRuntime.identifier),
+            dimmedDisplays: appState.settings.displayControls.dimLevels.count
+        )
+    }
+
+    /// Starts or stops the screen observer as ``ClosedHubWork`` says, and puts the layers right.
+    private func workDidChange() {
+        if ClosedHubWork.observers(currentSwitches()).contains(.dimLayers) {
+            startObservingScreens()
+        } else {
+            stopObservingScreens()
+        }
         reconcile()
     }
 
-    /// The two switches that allow a layer.
-    private struct Switches: Equatable {
-        var hubOn: Bool
-        var moduleOn: Bool
+    private func startObservingScreens() {
+        guard screenParametersTask == nil else {
+            return
+        }
+        screenParametersTask = Task { [weak self] in
+            let center = NotificationCenter.default
+            for await _ in center.notifications(named: NSApplication.didChangeScreenParametersNotification) {
+                self?.debouncer.schedule { [weak self] in
+                    self?.reconcile()
+                }
+            }
+        }
+    }
+
+    private func stopObservingScreens() {
+        screenParametersTask?.cancel()
+        screenParametersTask = nil
+        debouncer.cancel()
+    }
+
+    /// The bar settled after a wake, an unlock or a display change: the layers are put back on
+    /// their displays. It does nothing while no layer is wanted.
+    private func activityDidSettle() {
+        guard screenParametersTask != nil else {
+            return
+        }
+        reconcile()
     }
 
     // MARK: Levels

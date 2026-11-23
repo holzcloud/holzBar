@@ -197,6 +197,28 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         appState?.softwareDimmer
     }
 
+    /// Whether a monitor's card offers the dim row (D-25). Every monitor of ``externals`` is
+    /// external and one macOS cannot change itself, so the rule is the External monitors setting
+    /// and what the monitor answered: with the setting off every card has the row; with it on only
+    /// a monitor that does not answer DDC brightness has it, and one still being read waits for
+    /// the answer.
+    func offersDimming(_ monitor: ExternalMonitor) -> Bool {
+        let answer: DimmingDDCAnswer = switch monitor.state {
+        case .reading:
+            .reading
+        case .ready:
+            monitor.values[.brightness] != nil ? .answersBrightness : .noBrightness
+        case .doesNotAnswer, .notPaired, .indistinguishable, .unavailable, .switchedOff:
+            .noBrightness
+        }
+        return SoftwareDimming.offersDimming(
+            isExternal: true,
+            macOSCanChange: false,
+            ddcSwitchOn: appState?.settings.displayControls.showsExternalMonitors ?? false,
+            answer: answer
+        )
+    }
+
     /// The device the volume was read from.
     @ObservationIgnored private var device: AudioObjectID?
 

@@ -187136,6 +187136,124 @@
           }
         }
       }
+    },
+    "Dimming is paused until this display is available again" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ztmavení je pozastaveno, dokud tento displej nebude znovu k dispozici"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Abdunkeln pausiert, bis dieser Bildschirm wieder verfügbar ist"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La atenuación está en pausa hasta que esta pantalla vuelva a estar disponible"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'assombrissement est en pause jusqu'à ce que cet écran soit de nouveau disponible"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az elsötétítés szünetel, amíg ez a kijelző újra elérhető nem lesz"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peredupan dijeda sampai layar ini tersedia lagi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'oscuramento è in pausa finché questo schermo non è di nuovo disponibile"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このディスプレイが再び使用可能になるまで、減光は一時停止中です"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 디스플레이를 다시 사용할 수 있을 때까지 어둡게 하기가 일시 중지됩니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dimmen is onderbroken totdat dit beeldscherm weer beschikbaar is"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przyciemnianie jest wstrzymane, dopóki ten wyświetlacz nie będzie znów dostępny"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O escurecimento está pausado até que esta tela volte a estar disponível"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il stgirentar è en pausa fin che questa visur è puspè disponibla"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Затемнение приостановлено, пока этот дисплей снова не станет доступен"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dimningen är pausad tills den här skärmen är tillgänglig igen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu ekran yeniden kullanılabilir olana kadar karartma duraklatıldı"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Затемнення призупинено, доки цей дисплей знову не стане доступним"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在此显示器再次可用之前，调暗已暂停"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在此顯示器再次可用之前，調暗已暫停"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -21,7 +21,9 @@ struct ClosedHubWorkTests {
             gesturesOn: true,
             calendarOn: true,
             countdownOn: true,
-            calendarAccess: true
+            calendarAccess: true,
+            displayControlsOn: true,
+            dimmedDisplays: 2
         )
         #expect(ClosedHubWork.observers(rest).isEmpty)
     }
@@ -65,10 +67,22 @@ struct ClosedHubWorkTests {
         #expect(ClosedHubWork.observers(Switches(hubOn: false, calendarOn: true, countdownOn: true, calendarAccess: true)).isEmpty)
     }
 
+    @Test("The dim layers exist only with the hub on, Display controls on and a display dimmed")
+    func dimLayers() {
+        #expect(ClosedHubWork.observers(Switches(hubOn: true, displayControlsOn: true, dimmedDisplays: 1)) == [.dimLayers])
+        #expect(ClosedHubWork.observers(Switches(hubOn: true, displayControlsOn: true, dimmedDisplays: 32)) == [.dimLayers])
+        // No dimmed display: nothing observes.
+        #expect(ClosedHubWork.observers(Switches(hubOn: true, displayControlsOn: true, dimmedDisplays: 0)).isEmpty)
+        // Display controls off: nothing observes, whatever the levels.
+        #expect(ClosedHubWork.observers(Switches(hubOn: true, displayControlsOn: false, dimmedDisplays: 3)).isEmpty)
+        // Hub off: nothing exists.
+        #expect(ClosedHubWork.observers(Switches(hubOn: false, displayControlsOn: true, dimmedDisplays: 3)).isEmpty)
+    }
+
     @Test("Every observer is reachable and each switch combination gives exactly what its rule names")
     func exhaustive() {
         var seen = Set<ClosedHubWork.Observer>()
-        for bits in 0..<256 {
+        for bits in 0..<1024 {
             let switches = Switches(
                 hubOn: bits & 1 != 0,
                 indicatorsOn: bits & 2 != 0,
@@ -77,7 +91,9 @@ struct ClosedHubWorkTests {
                 gesturesOn: bits & 16 != 0,
                 calendarOn: bits & 32 != 0,
                 countdownOn: bits & 64 != 0,
-                calendarAccess: bits & 128 != 0
+                calendarAccess: bits & 128 != 0,
+                displayControlsOn: bits & 256 != 0,
+                dimmedDisplays: bits & 512 != 0 ? 1 : 0
             )
             let result = ClosedHubWork.observers(switches)
             seen.formUnion(result)
@@ -93,6 +109,10 @@ struct ClosedHubWorkTests {
             #expect(
                 result.contains(.countdown)
                     == (switches.hubOn && switches.calendarOn && switches.countdownOn && switches.calendarAccess)
+            )
+            #expect(
+                result.contains(.dimLayers)
+                    == (switches.hubOn && switches.displayControlsOn && switches.dimmedDisplays > 0)
             )
         }
         #expect(seen == Set(ClosedHubWork.Observer.allCases))

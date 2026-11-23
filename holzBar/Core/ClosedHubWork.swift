@@ -34,6 +34,10 @@ nonisolated enum ClosedHubWork {
         var countdownOn = false
         /// Calendar access has been granted.
         var calendarAccess = false
+        /// The Display controls module is on.
+        var displayControlsOn = false
+        /// How many displays have a software dimming level above 0.
+        var dimmedDisplays = 0
     }
 
     /// A piece of work that runs while the hub is closed.
@@ -49,6 +53,9 @@ nonisolated enum ClosedHubWork {
         /// The meeting countdown of the Calendar module: the next meeting's start time held in
         /// memory and up to two one-shot wakes (never a title, never polling, D-24).
         case countdown
+        /// What puts the dim layers back after a wake or a display change: the screen-parameter
+        /// observer and its debounce. Software dimming (D-19) needs it only while a layer exists.
+        case dimLayers
     }
 
     /// The observers that exist for these switches: none unless the hub is on.
@@ -71,6 +78,9 @@ nonisolated enum ClosedHubWork {
         }
         if switches.calendarOn, switches.countdownOn, switches.calendarAccess {
             result.insert(.countdown)
+        }
+        if switches.displayControlsOn, switches.dimmedDisplays > 0 {
+            result.insert(.dimLayers)
         }
         return result
     }

@@ -122,7 +122,9 @@ struct DisplayControlsBodyView: View {
                 caption(Text("Turn on External monitors in Settings to control this display"))
                 openSettingsButton
             }
-            dimRow(monitor)
+            if runtime.offersDimming(monitor) {
+                dimRow(monitor)
+            }
         }
         .accessibilityLabel(Text(verbatim: monitor.name))
     }
@@ -135,6 +137,8 @@ struct DisplayControlsBodyView: View {
     private func dimRow(_ monitor: DisplayControlsRuntime.ExternalMonitor) -> some View {
         if let dimmer = runtime.softwareDimmer {
             let shown = dimmer.level(for: monitor.id)
+            // A layer that cannot be put on its display is paused, never silently gone.
+            let isPaused = shown > 0 && !dimmer.isPlaced(monitor.id)
             HStack(spacing: HolzBarTheme.Spacing.xs) {
                 Image(systemName: "sun.min.fill")
                     .font(HolzBarTheme.Hub.compactSymbolFont)
@@ -144,6 +148,8 @@ struct DisplayControlsBodyView: View {
                     .accessibilityHidden(true)
                 Slider(value: dimLevel(dimmer, monitor: monitor), in: 0...SoftwareDimming.maximum)
                     .tint(HolzBarTheme.Palette.accent)
+                    .disabled(isPaused)
+                    .opacity(isPaused ? Row.disabledOpacity : 1)
                     .accessibilityLabel(Text("Dim, \(monitor.name)"))
                     .accessibilityValue(Text("\(DisplayControlsLevel.percent(shown)) percent"))
                     .accessibilityAdjustableAction { direction in
@@ -180,6 +186,9 @@ struct DisplayControlsBodyView: View {
                     .layoutPriority(1)
             }
             .frame(height: Row.height)
+            if isPaused {
+                caption(Text("Dimming is paused until this display is available again"))
+            }
         }
     }
 
