@@ -357,6 +357,22 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("The countdown lead travels with a settings file, from 0 to 15 minutes")
+    func calendarCountdownLeadTravels() {
+        #expect(Defaults.Key.calendarCountdownLead.rawValue == "CalendarCountdownLead")
+        #expect(Defaults.Key.calendarCountdownLead.settingsKind == .number)
+        #expect(Defaults.Key.calendarCountdownLead.numberRule == .wholeNumber(0...15))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.calendarCountdownLead))
+        #expect(Defaults.Key.importableKinds["CalendarCountdownLead"] == .number)
+        let accepted = Defaults.Key.validatedSettings(["CalendarCountdownLead": 10], ownBundleIdentifier: ownBundle)
+        #expect((accepted.accepted["CalendarCountdownLead"] as? NSNumber)?.intValue == 10)
+        for refused: Any in [100, -1, 2.5, "5"] {
+            let result = Defaults.Key.validatedSettings(["CalendarCountdownLead": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted["CalendarCountdownLead"] == nil)
+            #expect(result.ignored == ["CalendarCountdownLead"])
+        }
+    }
+
     @Test("The System alerts rule settings travel with a settings file: five switches and ten whole numbers")
     func systemAlertsKeysTravel() {
         let switches: [Defaults.Key] = [

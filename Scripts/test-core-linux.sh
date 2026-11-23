@@ -52,6 +52,7 @@ sources=(
   ConnectedDeviceList
   ControlCenterControl
   ControlItemOrder
+  CountdownSchedule
   CPUClusters
   DDCCapabilities
   DDCDisplayMatch
@@ -229,6 +230,7 @@ tests=(
   ConnectedDeviceListTests
   ControlCenterControlTests
   ControlItemOrderTests
+  CountdownScheduleTests
   CPUClustersTests
   DDCCapabilitiesTests
   DDCDisplayMatchTests

@@ -18,7 +18,10 @@ struct ClosedHubWorkTests {
             indicatorsOn: true,
             inputSourceOn: true,
             volumeBrightnessOn: true,
-            gesturesOn: true
+            gesturesOn: true,
+            calendarOn: true,
+            countdownOn: true,
+            calendarAccess: true
         )
         #expect(ClosedHubWork.observers(rest).isEmpty)
     }
@@ -48,16 +51,33 @@ struct ClosedHubWorkTests {
         #expect(ClosedHubWork.observers(Switches(hubOn: true, indicatorsOn: true, gesturesOn: false)).isEmpty)
     }
 
+    @Test("The countdown exists only with the hub, the Calendar module, the countdown on and Calendar access")
+    func countdown() {
+        let all = Switches(hubOn: true, calendarOn: true, countdownOn: true, calendarAccess: true)
+        #expect(ClosedHubWork.observers(all) == [.countdown])
+        // The lead Off.
+        #expect(ClosedHubWork.observers(Switches(hubOn: true, calendarOn: true, countdownOn: false, calendarAccess: true)).isEmpty)
+        // No Calendar access.
+        #expect(ClosedHubWork.observers(Switches(hubOn: true, calendarOn: true, countdownOn: true, calendarAccess: false)).isEmpty)
+        // The Calendar module off.
+        #expect(ClosedHubWork.observers(Switches(hubOn: true, calendarOn: false, countdownOn: true, calendarAccess: true)).isEmpty)
+        // The hub off.
+        #expect(ClosedHubWork.observers(Switches(hubOn: false, calendarOn: true, countdownOn: true, calendarAccess: true)).isEmpty)
+    }
+
     @Test("Every observer is reachable and each switch combination gives exactly what its rule names")
     func exhaustive() {
         var seen = Set<ClosedHubWork.Observer>()
-        for bits in 0..<32 {
+        for bits in 0..<256 {
             let switches = Switches(
                 hubOn: bits & 1 != 0,
                 indicatorsOn: bits & 2 != 0,
                 inputSourceOn: bits & 4 != 0,
                 volumeBrightnessOn: bits & 8 != 0,
-                gesturesOn: bits & 16 != 0
+                gesturesOn: bits & 16 != 0,
+                calendarOn: bits & 32 != 0,
+                countdownOn: bits & 64 != 0,
+                calendarAccess: bits & 128 != 0
             )
             let result = ClosedHubWork.observers(switches)
             seen.formUnion(result)
@@ -70,6 +90,10 @@ struct ClosedHubWorkTests {
             #expect(result.contains(.inputSource) == (switches.hubOn && switches.indicatorsOn && switches.inputSourceOn))
             #expect(result.contains(.volumeListener) == (switches.hubOn && switches.indicatorsOn && switches.volumeBrightnessOn))
             #expect(result.contains(.scrollMonitor) == (switches.hubOn && switches.gesturesOn))
+            #expect(
+                result.contains(.countdown)
+                    == (switches.hubOn && switches.calendarOn && switches.countdownOn && switches.calendarAccess)
+            )
         }
         #expect(seen == Set(ClosedHubWork.Observer.allCases))
     }

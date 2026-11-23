@@ -342,6 +342,10 @@ nonisolated extension Defaults {
         /// The identifiers of the calendars the user switched off in the Calendar module. They
         /// name the user's accounts, so this stays on this Mac: never exported or imported.
         case calendarHiddenCalendars = "CalendarHiddenCalendars"
+        /// How many minutes before a meeting the closed notch counts down to it (a whole number,
+        /// 0 Off, 1, 5, 10 or 15; the raw values of `CountdownLead`, new ones only appended; 5 by
+        /// default).
+        case calendarCountdownLead = "CalendarCountdownLead"
         /// Whether the Live activities module shows a camera or the microphone in use by another
         /// app (a boolean, on by default).
         case liveActivitiesCapture = "LiveActivitiesCapture"
@@ -651,6 +655,7 @@ nonisolated extension Defaults.Key {
             .systemAlertsMacBatteryHold,
             .indicatorsInputSourceDuration,
             .notificationsDisplayTime,
+            .calendarCountdownLead,
             .menuBarBorderWidth,
             .menuBarTintKind:
             .number
@@ -766,6 +771,9 @@ nonisolated extension Defaults.Key {
         case .notificationsDisplayTime:
             // Seconds; the model snaps them to the choices of NotificationQueue.
             .wholeNumber(3...30)
+        case .calendarCountdownLead:
+            // Minutes; exactly the raw values of CountdownLead, which the model snaps.
+            .wholeNumber(0...15)
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,

@@ -28,6 +28,12 @@ nonisolated enum ClosedHubWork {
         var volumeBrightnessOn = false
         /// Notch hub: Gestures.
         var gesturesOn = false
+        /// The Calendar module is on.
+        var calendarOn = false
+        /// Calendar: the countdown before a meeting is not Off.
+        var countdownOn = false
+        /// Calendar access has been granted.
+        var calendarAccess = false
     }
 
     /// A piece of work that runs while the hub is closed.
@@ -40,6 +46,9 @@ nonisolated enum ClosedHubWork {
         case volumeListener
         /// The listen-only scroll monitor of the gestures.
         case scrollMonitor
+        /// The meeting countdown of the Calendar module: the next meeting's start time held in
+        /// memory and up to two one-shot wakes (never a title, never polling, D-24).
+        case countdown
     }
 
     /// The observers that exist for these switches: none unless the hub is on.
@@ -59,6 +68,9 @@ nonisolated enum ClosedHubWork {
         }
         if switches.gesturesOn {
             result.insert(.scrollMonitor)
+        }
+        if switches.calendarOn, switches.countdownOn, switches.calendarAccess {
+            result.insert(.countdown)
         }
         return result
     }
