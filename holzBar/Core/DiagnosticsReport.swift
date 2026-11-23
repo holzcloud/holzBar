@@ -85,6 +85,12 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// reading, a threshold value, an alert title or a name (D-04). Empty keeps the report as it
     /// was.
     var alerts = ""
+    /// What the Indicators module does, in counts and fixed words
+    /// (``DiagnosticsReport/indicatorsSummary(isModuleOn:inputSource:volume:replaces:tapRunning:disables:)``),
+    /// such as `input on, volume on, keys on, tap running, disabled 2`, or `off` while the module
+    /// is off. Switch states, whether the media-key tap exists and how often macOS disabled it,
+    /// never a key, a device name or a display name (D-05). Empty keeps the report as it was.
+    var indicators = ""
 }
 
 /// Writes the text a user can copy into a bug report. It holds an allowlist of facts and
@@ -111,6 +117,10 @@ nonisolated enum DiagnosticsReport {
     /// The longest text kept for the System alerts line (two counts of five digits, their words and
     /// the longest notification word fit).
     static let maximumAlertsLength = 80
+
+    /// The longest text kept for the Indicators line (four switch words, the tap word and one count
+    /// of five digits fit).
+    static let maximumIndicatorsLength = 80
 
     /// The longest text kept for a field.
     static let maximumFieldLength = 40
@@ -159,6 +169,9 @@ nonisolated enum DiagnosticsReport {
         }
         if !input.alerts.isEmpty {
             lines.append("System alerts: \(field(input.alerts, limit: maximumAlertsLength))")
+        }
+        if !input.indicators.isEmpty {
+            lines.append("Indicators: \(field(input.indicators, limit: maximumIndicatorsLength))")
         }
         if !input.reopen.isEmpty {
             lines.append("Reopen: \(field(input.reopen))")
@@ -243,6 +256,32 @@ nonisolated enum DiagnosticsReport {
             return "off"
         }
         return "rules \(count(rulesOn)), firing \(count(firing)), notifications \(word(notifications))"
+    }
+
+    /// The Indicators line: `off` while the module is off, else the states of the Input source,
+    /// Volume and brightness and Replace the system display switches, whether the media-key tap
+    /// exists (`tap running` or `tap off`) and, once macOS disabled it, how often. Counts and
+    /// fixed words only, never a key, a device name or a display name.
+    static func indicatorsSummary(
+        isModuleOn: Bool,
+        inputSource: Bool,
+        volume: Bool,
+        replaces: Bool,
+        tapRunning: Bool,
+        disables: Int
+    ) -> String {
+        guard isModuleOn else {
+            return "off"
+        }
+        func state(_ isOn: Bool) -> String {
+            isOn ? "on" : "off"
+        }
+        var line = "input \(state(inputSource)), volume \(state(volume)), keys \(state(replaces)), "
+            + (tapRunning ? "tap running" : "tap off")
+        if disables > 0 {
+            line += ", disabled \(count(disables))"
+        }
+        return line
     }
 
     /// A fixed word of a summary: lowercase letters and spaces only.

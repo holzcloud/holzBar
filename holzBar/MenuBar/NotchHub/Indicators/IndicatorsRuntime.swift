@@ -133,6 +133,11 @@ final class IndicatorsRuntime: HubModuleRuntime {
         flashes
     }
 
+    /// Whether the media-key tap exists, for Copy Diagnostics.
+    var isMediaKeyTapRunning: Bool {
+        mediaKeyTap?.isRunning ?? false
+    }
+
     /// Never called: the module has no tab.
     func makeBody(host _: any HubHost) -> AnyView {
         AnyView(EmptyView())

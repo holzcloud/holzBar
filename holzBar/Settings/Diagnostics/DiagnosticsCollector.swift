@@ -48,7 +48,8 @@ enum DiagnosticsCollector {
             barClicks: BarClickLog.trace.lines,
             reopen: reopenWords(),
             readouts: readoutsWords(appState),
-            alerts: alertsWords(appState)
+            alerts: alertsWords(appState),
+            indicators: indicatorsWords(appState)
         )
     }
 
@@ -81,6 +82,22 @@ enum DiagnosticsCollector {
             rulesOn: alerts.enabledRuleCount,
             firing: alerts.firingCount,
             notifications: notifications
+        )
+    }
+
+    /// What the Indicators module does, in fixed words: the three switches, whether the media-key
+    /// tap exists and how often macOS disabled it; `off` while the module is off. It reads no key,
+    /// device or display name.
+    private static func indicatorsWords(_ appState: AppState) -> String {
+        let indicators = appState.settings.indicators
+        let runtime = appState.notchHub.runtime(IndicatorsRuntime.self)
+        return DiagnosticsReport.indicatorsSummary(
+            isModuleOn: appState.modules.isEnabled(IndicatorsRuntime.identifier),
+            inputSource: indicators.showsInputSource,
+            volume: indicators.showsVolumeBrightness,
+            replaces: indicators.replacesSystemDisplay,
+            tapRunning: runtime?.isMediaKeyTapRunning ?? false,
+            disables: MediaKeyTap.disableCount
         )
     }
 

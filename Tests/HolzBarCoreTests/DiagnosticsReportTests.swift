@@ -473,4 +473,56 @@ struct DiagnosticsReportTests {
         input.alerts = ""
         #expect(!DiagnosticsReport.make(input).split(separator: "\n").contains { $0.hasPrefix("System alerts:") })
     }
+
+    @Test("The indicators summary says off, or the switches, the tap and how often it was disabled")
+    func indicatorsSummary() {
+        #expect(
+            DiagnosticsReport.indicatorsSummary(
+                isModuleOn: false, inputSource: true, volume: true, replaces: true, tapRunning: true, disables: 2
+            ) == "off"
+        )
+        #expect(
+            DiagnosticsReport.indicatorsSummary(
+                isModuleOn: true, inputSource: true, volume: true, replaces: true, tapRunning: true, disables: 2
+            ) == "input on, volume on, keys on, tap running, disabled 2"
+        )
+        #expect(
+            DiagnosticsReport.indicatorsSummary(
+                isModuleOn: true, inputSource: false, volume: true, replaces: false, tapRunning: false, disables: 0
+            ) == "input off, volume on, keys off, tap off"
+        )
+        // A count is capped and never negative.
+        #expect(
+            DiagnosticsReport.indicatorsSummary(
+                isModuleOn: true, inputSource: true, volume: true, replaces: true, tapRunning: true, disables: .max
+            ).hasSuffix("disabled 99999")
+        )
+        #expect(
+            DiagnosticsReport.indicatorsSummary(
+                isModuleOn: true, inputSource: true, volume: true, replaces: true, tapRunning: false, disables: -5
+            ) == "input on, volume on, keys on, tap off"
+        )
+        let allowed = Set("abcdefghijklmnopqrstuvwxyz0123456789 ,")
+        let line = DiagnosticsReport.indicatorsSummary(
+            isModuleOn: true, inputSource: true, volume: true, replaces: true, tapRunning: true, disables: 7
+        )
+        #expect(line.allSatisfy { allowed.contains($0) })
+    }
+
+    @Test("The Indicators line follows the System alerts line, is cut at its maximum and absent without one")
+    func indicatorsLine() {
+        var input = sample
+        input.alerts = "off"
+        input.indicators = "input on, volume on, keys on, tap running, disabled 2"
+        let lines = DiagnosticsReport.make(input).split(separator: "\n")
+        #expect(lines.contains("Indicators: input on, volume on, keys on, tap running, disabled 2"))
+        let alertsIndex = lines.firstIndex { $0.hasPrefix("System alerts:") }
+        let indicatorsIndex = lines.firstIndex { $0.hasPrefix("Indicators:") }
+        #expect(alertsIndex != nil && indicatorsIndex == alertsIndex.map { $0 + 1 })
+        input.indicators = String(repeating: "a", count: 500)
+        let cut = DiagnosticsReport.make(input).split(separator: "\n").first { $0.hasPrefix("Indicators:") }
+        #expect(cut?.count == "Indicators: ".count + DiagnosticsReport.maximumIndicatorsLength)
+        input.indicators = ""
+        #expect(!DiagnosticsReport.make(input).split(separator: "\n").contains { $0.hasPrefix("Indicators:") })
+    }
 }
