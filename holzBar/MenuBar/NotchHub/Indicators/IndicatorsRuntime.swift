@@ -214,11 +214,35 @@ final class IndicatorsRuntime: HubModuleRuntime {
             return
         }
         tapStartFailures = 0
+        watchTrust()
     }
 
     private func stopMediaKeyTap() {
         mediaKeyTap?.stop()
         mediaKeyTap = nil
+        trustWatchTasks.forEach { $0.cancel() }
+        trustWatchTasks.removeAll()
+    }
+
+    /// Looks at Accessibility again whenever holzBar or another app becomes active and after a
+    /// wake, only while the tap exists: revoking the permission in System Settings brings one of
+    /// them forward, and an event tap that outlives its permission can freeze input (Pitfall 1).
+    private func watchTrust() {
+        guard trustWatchTasks.isEmpty else {
+            return
+        }
+        func watch(_ center: NotificationCenter, _ name: Notification.Name) -> Task<Void, Never> {
+            Task { [weak self] in
+                for await _ in center.notifications(named: name) {
+                    self?.refreshTrust()
+                }
+            }
+        }
+        trustWatchTasks = [
+            watch(.default, NSApplication.didBecomeActiveNotification),
+            watch(NSWorkspace.shared.notificationCenter, NSWorkspace.didActivateApplicationNotification),
+            watch(NSWorkspace.shared.notificationCenter, NSWorkspace.didWakeNotification),
+        ]
     }
 
     /// The permission is gone (the tap said so, or a check found it): the rule drops the tap at
