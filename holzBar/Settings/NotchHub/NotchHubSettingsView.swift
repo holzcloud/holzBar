@@ -15,7 +15,7 @@ struct NotchHubSettingsView: View {
         SettingsToggleRow(.modulesNotchHubShowsActiveFirst, isOn: $settings.showsActiveFirst)
         SettingsToggleRow(.modulesNotchHubOpensOnHover, isOn: $settings.opensOnHover)
         SettingsToggleRow(.modulesNotchHubGestures, isOn: $settings.gestures, badge: .preview)
-        SettingsPickerRow(.modulesNotchHubDisplays, selection: $settings.displays) {
+        SettingsPickerRow(.modulesNotchHubDisplays, selection: $settings.displays, badge: .preview) {
             ForEach(NotchHubDisplays.allCases, id: \.self) { displays in
                 Text(displays.localized).tag(displays)
             }
@@ -35,6 +35,7 @@ private extension NotchHubDisplays {
         case .all: "All displays"
         case .builtIn: "Built-in display only"
         case .notched: "Displays with a notch only"
+        case .followPointer: "Follow the pointer"
         }
     }
 }

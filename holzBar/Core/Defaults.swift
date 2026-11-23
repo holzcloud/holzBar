@@ -723,8 +723,9 @@ nonisolated extension Defaults.Key {
             .clamped(0.5...3)
         case .spacerCount:
             .wholeNumber(0...10)
+        // The raw values of NotchHubDisplays (0 to 3); new ones are only appended.
         case .notchHubDisplays:
-            .wholeNumber(0...2)
+            .wholeNumber(0...3)
         case .notchHubCutout:
             .wholeNumber(0...3)
         case .timersFinishSound:

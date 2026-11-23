@@ -430,7 +430,10 @@ struct SettingsSchemaTests {
             ownBundleIdentifier: ownBundle
         )
         #expect(accepted.accepted.keys.sorted() == ["NotchHubDisplays", "NotchHubOpensOnHover", "NotchHubShowsActiveFirst"])
-        for refused: Double in [3, 1.5, .nan] {
+        // Follow the pointer, the fourth choice, is raw value 3 and imports as 3 (D-11).
+        let followPointer = Defaults.Key.validatedSettings(["NotchHubDisplays": 3], ownBundleIdentifier: ownBundle)
+        #expect((followPointer.accepted["NotchHubDisplays"] as? NSNumber)?.intValue == 3)
+        for refused: Double in [4, -1, 1.5, .nan] {
             let result = Defaults.Key.validatedSettings(["NotchHubDisplays": refused], ownBundleIdentifier: ownBundle)
             #expect(result.accepted.isEmpty)
             #expect(result.ignored == ["NotchHubDisplays"])

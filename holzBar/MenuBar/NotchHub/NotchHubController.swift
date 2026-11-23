@@ -400,15 +400,23 @@ final class NotchHubController: HubHost {
         }
     }
 
-    /// The display the hotkey opens the hub on, and the live state shows on: the one under the
-    /// pointer when the setting includes it, else the first one it includes. The alerts' own
-    /// surface (``AlertNotchSurface``) uses this one rule too, so a change of it reaches the alert
-    /// as well (D-09).
+    /// The display the hotkey opens the hub on, and the live state shows on, chosen by
+    /// ``NotchHubDisplays/preferred(pointer:keyWindow:included:)``: the one under the pointer when
+    /// the setting includes it, else (Follow the pointer only) the key window's, else the first one
+    /// it includes. The alerts' own surface (``AlertNotchSurface``) uses this one rule too, so a
+    /// change of it reaches the alert as well (D-09, D-11). Nothing watches the pointer for it.
     func preferredScreen() -> NSScreen? {
-        if let screen = NSScreen.screenWithMouse, isIncluded(screen) {
-            return screen
+        guard let displays = appState?.settings.notchHub.displays else {
+            return nil
         }
-        return NSScreen.screens.first { isIncluded($0) }
+        let included = NSScreen.screens.filter { isIncluded($0) }
+        let keyScreen = NSApp.keyWindow?.screen ?? NSScreen.main
+        let id = displays.preferred(
+            pointer: NSScreen.screenWithMouse?.displayID,
+            keyWindow: keyScreen?.displayID,
+            included: included.map(\.displayID)
+        )
+        return included.first { $0.displayID == id }
     }
 
     private func isIncluded(_ screen: NSScreen) -> Bool {
