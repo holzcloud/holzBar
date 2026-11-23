@@ -1580,11 +1580,12 @@ final class NotchHubController: HubHost {
         }
         let notch = cutout == .notch ? span : nil
         let island = cutout == .island ? span : nil
+        let measured = frame.maxY - screen.visibleFrame.maxY
         let menuBarHeight: CGFloat
         if screen.hasNotch {
-            menuBarHeight = screen.safeAreaInsets.top
-        } else if frame.maxY - screen.visibleFrame.maxY > 0 {
-            menuBarHeight = frame.maxY - screen.visibleFrame.maxY
+            menuBarHeight = ClosedNotchHeight.resolve(safeAreaTop: screen.safeAreaInsets.top, menuBarHeight: measured)
+        } else if measured > 0 {
+            menuBarHeight = measured
         } else {
             menuBarHeight = NSStatusBar.system.thickness
         }
