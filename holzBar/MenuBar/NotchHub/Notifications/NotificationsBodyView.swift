@@ -16,6 +16,10 @@ import SwiftUI
 /// counts as seen when the tab goes away. A row expands in place to a card while the pointer rests
 /// on it, while it has keyboard focus or while the VoiceOver cursor is on it, one at a time. What
 /// the card shows is view state only: nothing of it is stored in the runtime.
+///
+/// The newest unseen notification is the front card: it stands first in the list, already
+/// expanded, and removing it brings the next unseen one to the front. With none unseen the tab is
+/// the plain list.
 struct NotificationsBodyView: View {
     let runtime: NotificationsRuntime
 
@@ -53,6 +57,14 @@ struct NotificationsBodyView: View {
         hoveredID ?? focus?.recordID ?? spokenID
     }
 
+    /// The newest unseen notification, when the log still holds it: the front card.
+    private var frontRecord: NotificationRecord? {
+        guard let id = runtime.queue.front else {
+            return nil
+        }
+        return runtime.log.records.first { $0.id == id }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
             if runtime.log.records.isEmpty {
@@ -66,8 +78,12 @@ struct NotificationsBodyView: View {
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-                        ForEach(runtime.log.records) { record in
-                            row(record)
+                        let front = frontRecord
+                        if let front {
+                            row(front, isFront: true)
+                        }
+                        ForEach(runtime.log.records.filter { $0.id != front?.id }) { record in
+                            row(record, isFront: false)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -120,11 +136,11 @@ struct NotificationsBodyView: View {
 
     // MARK: Rows
 
-    private func row(_ record: NotificationRecord) -> some View {
+    private func row(_ record: NotificationRecord, isFront: Bool) -> some View {
         let isUnseen = runtime.queue.isUnseen(record.id)
         return Group {
-            if expandedID == record.id {
-                card(record)
+            if isFront || expandedID == record.id {
+                card(record, isFront: isFront)
             } else {
                 collapsedRow(record, isUnseen: isUnseen)
             }
@@ -138,7 +154,7 @@ struct NotificationsBodyView: View {
         .accessibilityLabel(Text(verbatim: spokenText(of: record, isUnseen: isUnseen)))
         .accessibilityFocused($spokenID, equals: record.id)
         .accessibilityAction(named: Text("Remove")) {
-            remove(record.id)
+            remove(record.id, isFront: isFront)
         }
         .modifier(ExcludeAction(app: record.app) { app in
             runtime.exclude(app: app)
@@ -174,7 +190,7 @@ struct NotificationsBodyView: View {
             }
             Spacer(minLength: 0)
             age(of: record)
-            buttons(for: record)
+            buttons(for: record, isFront: false)
         }
     }
 
@@ -182,7 +198,7 @@ struct NotificationsBodyView: View {
     /// (two lines), the text (three lines), the age and the two buttons. Every text is plain text,
     /// never markup or a link. It is at most ``DesignTokens/Indicator/cardMaximumHeight`` high and
     /// sits inside the tab's scroll, so the hub's height never changes.
-    private func card(_ record: NotificationRecord) -> some View {
+    private func card(_ record: NotificationRecord, isFront: Bool) -> some View {
         let radius = CGFloat(DesignTokens.Hub.tileRadius)
         let fill = reduceTransparency ? DesignTokens.Hub.tileFillAlphaOpaque : DesignTokens.Hub.tileFillAlpha
         return HStack(alignment: .top, spacing: HolzBarTheme.Spacing.sm) {
@@ -199,7 +215,7 @@ struct NotificationsBodyView: View {
                     PreviewBadge()
                     Spacer(minLength: 0)
                     age(of: record)
-                    buttons(for: record)
+                    buttons(for: record, isFront: isFront)
                 }
                 if let title = record.title {
                     Text(verbatim: title)
@@ -235,7 +251,7 @@ struct NotificationsBodyView: View {
 
     /// The two buttons of a notification: never show its app again, and remove it.
     @ViewBuilder
-    private func buttons(for record: NotificationRecord) -> some View {
+    private func buttons(for record: NotificationRecord, isFront: Bool) -> some View {
         if let app = record.app {
             iconButton(
                 "eye.slash",
@@ -247,13 +263,19 @@ struct NotificationsBodyView: View {
             }
         }
         iconButton("xmark", label: Text("Remove"), target: .remove(record.id)) {
-            remove(record.id)
+            remove(record.id, isFront: isFront)
         }
     }
 
-    private func remove(_ id: NotificationRecord.ID) {
+    /// Removes a notification; the front card goes through ``NotificationsRuntime/dismissFront(_:)``,
+    /// which brings the next unseen one to the front.
+    private func remove(_ id: NotificationRecord.ID, isFront: Bool) {
         hoveredID = nil
-        runtime.remove(id)
+        if isFront {
+            runtime.dismissFront(id)
+        } else {
+            runtime.remove(id)
+        }
     }
 
     // MARK: Hover

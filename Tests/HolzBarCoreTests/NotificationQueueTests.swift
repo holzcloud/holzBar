@@ -52,6 +52,43 @@ struct NotificationQueueTests {
         #expect(queue.unseen == [c, a])
     }
 
+    @Test("The front is the newest unseen one and the extra count is the unseen behind it")
+    func frontAndExtraCount() {
+        var queue = NotificationQueue()
+        #expect(queue.front == nil)
+        #expect(queue.extraCount == 0)
+        let (a, b, c) = (UUID(), UUID(), UUID())
+        queue.arrived(a, at: start)
+        #expect(queue.front == a)
+        #expect(queue.extraCount == 0)
+        queue.arrived(b, at: start.addingTimeInterval(1))
+        queue.arrived(c, at: start.addingTimeInterval(2))
+        #expect(queue.front == c)
+        #expect(queue.extraCount == 2)
+        queue.forget(UUID())
+        #expect(queue.front == c)
+        #expect(queue.extraCount == 2)
+        queue.forget(c)
+        #expect(queue.front == b)
+        #expect(queue.extraCount == 1)
+        queue.forget(b)
+        #expect(queue.front == a)
+        #expect(queue.extraCount == 0)
+        queue.forget(a)
+        #expect(queue.front == nil)
+        #expect(queue.extraCount == 0)
+    }
+
+    @Test("Marking all seen leaves no front and no extra count")
+    func frontAfterMarkAllSeen() {
+        var queue = NotificationQueue()
+        queue.arrived(UUID(), at: start)
+        queue.arrived(UUID(), at: start)
+        queue.markAllSeen()
+        #expect(queue.front == nil)
+        #expect(queue.extraCount == 0)
+    }
+
     @Test("The same identifier twice counts once and does not restart the count")
     func idempotent() {
         var queue = NotificationQueue()

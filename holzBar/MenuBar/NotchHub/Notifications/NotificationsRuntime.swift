@@ -97,6 +97,16 @@ final class NotificationsRuntime: HubModuleRuntime {
         queue.forget(id)
     }
 
+    /// Dismisses the front card: erases that notification through ``remove(_:)``, so the log's
+    /// privacy rules apply, and the next unseen one becomes the front. It does nothing for an
+    /// identifier that is not the front.
+    func dismissFront(_ id: NotificationRecord.ID) {
+        guard queue.front == id else {
+            return
+        }
+        remove(id)
+    }
+
     /// Erases every notification at once.
     func removeAll() {
         log.removeAll()

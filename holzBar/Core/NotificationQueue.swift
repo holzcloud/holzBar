@@ -34,6 +34,17 @@ nonisolated struct NotificationQueue: Equatable, Sendable {
         unseen.count
     }
 
+    /// The newest unseen notification, which the open tab shows as its front card, or `nil` when
+    /// none is unseen.
+    var front: UUID? {
+        unseen.first
+    }
+
+    /// How many unseen notifications wait behind the front one; never negative.
+    var extraCount: Int {
+        max(unseen.count - 1, 0)
+    }
+
     /// Notes a new notification. The same identifier again changes nothing, so a notification
     /// counts once and does not restart the count; the oldest unseen one leaves beyond
     /// ``maximumUnseen``.
