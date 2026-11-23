@@ -11,14 +11,16 @@ import SwiftUI
 ///
 /// The first indicator is the input source (D-09). While the Input source switch is on, the
 /// runtime listens to the system's input source notifications through an ``InputSourceObserver``
-/// and nothing else; with the switch off it holds no observer and no task.
+/// and to app activations, and nothing else; with the switch off it holds no observer and no task.
 /// Every change is read once, offered to ``IndicatorPolicy`` (the activation quiet, the repeat of
 /// the shown source and the rate limit are decided there, nowhere else) and, where the policy says
 /// so, published as one flash activity of ``IndicatorLook``: the source's icon, its short code and
 /// its name, held for the Show for duration. A deferred change is offered again, with the source
 /// read at that moment, when its window ends, so a quick second switch still shows.
 ///
-/// The runtime exists only while the hub and the module are both on. Names stay in memory, are
+/// The runtime exists only while the hub and the module are both on. While the hub is open it makes
+/// no flash (the open hub has its own surface and never lists a flash). VoiceOver hears "Input
+/// source" and the name once, a moment after the last change of a burst. Names stay in memory, are
 /// dropped when the flash is, and are never logged.
 @MainActor
 @Observable
@@ -36,9 +38,12 @@ final class IndicatorsRuntime: HubModuleRuntime {
     @ObservationIgnored private var policy = IndicatorPolicy()
     @ObservationIgnored private let observer = InputSourceObserver()
     @ObservationIgnored private var switchLoop: ObservationLoop?
+    @ObservationIgnored private var activationTask: Task<Void, Never>?
     @ObservationIgnored private var deferredTask: Task<Void, Never>?
+    @ObservationIgnored private var announceTask: Task<Void, Never>?
     @ObservationIgnored private var enabledCount = 0
     @ObservationIgnored private var isObserving = false
+    @ObservationIgnored private var isHubOpen = false
 
     init(appState: AppState) {
         self.appState = appState
@@ -60,6 +65,20 @@ final class IndicatorsRuntime: HubModuleRuntime {
     /// Never called: the module has no tab.
     func makeBody(host _: any HubHost) -> AnyView {
         AnyView(EmptyView())
+    }
+
+    /// While the hub is open nothing flashes, and a flash still on show goes: it would come back
+    /// into the closed notch when the hub closes.
+    func hubVisibilityDidChange(isOpen: Bool) {
+        isHubOpen = isOpen
+        guard isOpen else {
+            return
+        }
+        deferredTask?.cancel()
+        deferredTask = nil
+        if !flashes.isEmpty {
+            flashes = []
+        }
     }
 
     func shutDown() {
@@ -87,13 +106,26 @@ final class IndicatorsRuntime: HubModuleRuntime {
         observer.start { [weak self] change in
             self?.inputSourceDidChange(change)
         }
+        // macOS selects the per-document input source when an app comes forward; the policy needs
+        // to know when that happened, to tell it from the user's own switch.
+        activationTask = Task { [weak self] in
+            for await _ in NSWorkspace.shared.notificationCenter.notifications(
+                named: NSWorkspace.didActivateApplicationNotification
+            ) {
+                self?.policy.appDidActivate(at: .now)
+            }
+        }
     }
 
     private func stopObservingInputSource() {
         isObserving = false
         observer.stop()
+        activationTask?.cancel()
+        activationTask = nil
         deferredTask?.cancel()
         deferredTask = nil
+        announceTask?.cancel()
+        announceTask = nil
         policy.reset(.inputSource)
         enabledCount = 0
         if !flashes.isEmpty {
@@ -131,6 +163,12 @@ final class IndicatorsRuntime: HubModuleRuntime {
         guard let source = InputSourceObserver.current() else {
             return
         }
+        if isHubOpen {
+            // Not shown, and not remembered as shown: the same source flashes again after the hub
+            // closes.
+            policy.reset(.inputSource)
+            return
+        }
         let now = Date.now
         switch policy.offer(.inputSource, value: source.id, at: now) {
         case .show:
@@ -166,8 +204,34 @@ final class IndicatorsRuntime: HubModuleRuntime {
             value: code,
             title: title,
             at: moment,
-            hold: duration
+            hold: duration,
+            flash: LiveActivityFlash(
+                secondaryValue: name.isEmpty ? nil : name,
+                symbolImageURL: source.iconURL
+            )
         )
         flashes = [flash]
+        announce(flash)
+    }
+
+    /// Tells VoiceOver once per burst: the announcement is armed again by every change, so it is
+    /// spoken only after the last one of a quick series, never once per notification. Nothing is
+    /// posted while VoiceOver is off. The text names the source, which stays in the accessibility
+    /// layer of this Mac and is never logged.
+    private func announce(_ flash: LiveActivity) {
+        announceTask?.cancel()
+        guard NSWorkspace.shared.isVoiceOverEnabled else {
+            announceTask = nil
+            return
+        }
+        let text = flash.title
+        announceTask = Task {
+            do {
+                try await Task.sleep(for: .seconds(DesignTokens.Indicator.announceDelay))
+            } catch {
+                return
+            }
+            AccessibilityNotification.Announcement(text).post()
+        }
     }
 }
