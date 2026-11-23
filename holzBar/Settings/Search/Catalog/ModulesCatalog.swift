@@ -80,6 +80,7 @@ extension SettingsCatalog {
             .modulesAccessoryAlertsLowBatteryLevel,
             .modulesIndicatorsInputSource,
             .modulesIndicatorsInputSourceDuration,
+            .modulesIndicatorsVolumeBrightness,
             .modulesNotificationsExcludedApps,
             .modulesNowPlayingAppleMusic,
             .modulesNowPlayingSpotify,
@@ -392,6 +393,15 @@ extension SettingsEntry {
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Show for"),
         info: String(localized: "How long the input source stays in the notch."),
+        module: IndicatorLook.moduleID
+    )
+
+    static let modulesIndicatorsVolumeBrightness = SettingsEntry(
+        id: "modulesIndicatorsVolumeBrightness",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Volume and brightness"),
+        info: String(localized: "Shows the volume in the notch when it changes. macOS still shows its own display unless you replace it below."),
         module: IndicatorLook.moduleID
     )
 

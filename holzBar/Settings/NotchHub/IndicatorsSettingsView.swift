@@ -7,7 +7,8 @@ import SwiftUI
 
 /// The Indicators module's settings, in the open area of the module's row: the Input source
 /// switch, with its Show for choice as a dependent sub row, and a line that says so while only one
-/// input source is enabled, because then there is nothing to switch between and nothing flashes.
+/// input source is enabled, because then there is nothing to switch between and nothing flashes;
+/// then the Volume and brightness switch.
 ///
 /// The view only flips stored values and reads how many input sources are enabled once, when it
 /// appears; it observes nothing and the running module is the one that listens to the system.
@@ -37,5 +38,6 @@ struct IndicatorsSettingsView: View {
         .onAppear {
             enabledSourceCount = InputSourceObserver.enabledCount()
         }
+        SettingsToggleRow(.modulesIndicatorsVolumeBrightness, isOn: $settings.showsVolumeBrightness, badge: .preview)
     }
 }

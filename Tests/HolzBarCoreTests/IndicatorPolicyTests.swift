@@ -120,6 +120,21 @@ struct IndicatorPolicyTests {
         #expect(policy.offer(.inputSource, value: "DE", at: at(1)) == .ignored)
     }
 
+    // MARK: Volume look
+
+    @Test("The volume symbol follows the level: wave.1 below 34, wave.2 below 67, else wave.3, slash when muted")
+    func volumeSymbol() {
+        #expect(IndicatorLook.volumeSymbol(percent: 0, isMuted: false) == "speaker.wave.1.fill")
+        #expect(IndicatorLook.volumeSymbol(percent: 33, isMuted: false) == "speaker.wave.1.fill")
+        #expect(IndicatorLook.volumeSymbol(percent: 34, isMuted: false) == "speaker.wave.2.fill")
+        #expect(IndicatorLook.volumeSymbol(percent: 66, isMuted: false) == "speaker.wave.2.fill")
+        #expect(IndicatorLook.volumeSymbol(percent: 67, isMuted: false) == "speaker.wave.3.fill")
+        #expect(IndicatorLook.volumeSymbol(percent: 100, isMuted: false) == "speaker.wave.3.fill")
+        for percent in [0, 33, 34, 67, 100] {
+            #expect(IndicatorLook.volumeSymbol(percent: percent, isMuted: true) == "speaker.slash.fill")
+        }
+    }
+
     // MARK: IndicatorLook
 
     @Test("The kinds and their activity ids")

@@ -460,6 +460,10 @@ nonisolated extension Defaults {
         /// How long the input source flash stays, in seconds (a number from 0.5 to 3; the model snaps
         /// it to 0.5, 1, 1.5, 2 or 3, 1.5 by default).
         case indicatorsInputSourceDuration = "IndicatorsInputSourceDuration"
+        /// Whether a change of the volume (and, for the keys holzBar takes, of the brightness) shows
+        /// in the closed notch (a boolean, off by default). It starts the volume listener only while
+        /// it is on.
+        case indicatorsVolumeBrightness = "IndicatorsVolumeBrightness"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -580,6 +584,7 @@ nonisolated extension Defaults.Key {
             .systemAlertsMacBattery,
             .systemAlertsNotifications,
             .indicatorsInputSource,
+            .indicatorsVolumeBrightness,
             .openHiddenItemsInMenuBar,
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,

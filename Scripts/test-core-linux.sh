@@ -178,6 +178,7 @@ sources=(
   UngovernedItemOwners
   URLCommand
   URLPrompt
+  VolumeSteps
   WidgetDefinition
   WidgetFormat
   WidgetReadings
@@ -340,6 +341,7 @@ tests=(
   UngovernedItemOwnersTests
   URLCommandTests
   URLPromptTests
+  VolumeStepsTests
   WidgetDefinitionTests
   WidgetFormatTests
   WidgetReadingsTests

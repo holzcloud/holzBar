@@ -569,6 +569,20 @@ struct SettingsSchemaTests {
         #expect(IndicatorLook.inputSourceDuration(1.7) == 1.5)
     }
 
+    @Test("The Indicators volume and brightness switch is a bool and importable")
+    func indicatorsVolumeBrightnessTravels() {
+        #expect(Defaults.Key.indicatorsVolumeBrightness.rawValue == "IndicatorsVolumeBrightness")
+        #expect(Defaults.Key.indicatorsVolumeBrightness.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.indicatorsVolumeBrightness))
+        #expect(Defaults.Key.importableKinds["IndicatorsVolumeBrightness"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(["IndicatorsVolumeBrightness": true], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["IndicatorsVolumeBrightness"])
+        for refused: Any in [1.5, 2, "yes", ["a"]] {
+            let result = Defaults.Key.validatedSettings(["IndicatorsVolumeBrightness": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+    }
+
     @Test("The display controls' brightness setting travels")
     func displayControlsBrightnessSettingTravels() {
         #expect(Defaults.Key.importableKinds["DisplayControlsBrightness"] == .bool)

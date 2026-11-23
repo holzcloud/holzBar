@@ -7,10 +7,12 @@ import Foundation
 import Observation
 
 /// Model for the Indicators module's own settings: whether a change of the keyboard input source
-/// flashes in the closed notch, and for how long. Each saves itself in its `didSet`.
+/// flashes in the closed notch, and for how long, and whether a change of the volume does. Each
+/// saves itself in its `didSet`.
 ///
 /// The running module (``IndicatorsRuntime``) follows ``showsInputSource`` and starts the system's
-/// input source notifications only while it is on, so nothing observes while it is off.
+/// input source notifications only while it is on, and follows ``showsVolumeBrightness`` and starts
+/// its volume listener only while that is on, so nothing observes while they are off.
 @MainActor
 @Observable
 final class IndicatorsSettings {
@@ -41,10 +43,22 @@ final class IndicatorsSettings {
         }
     }
 
+    /// A Boolean value that indicates whether a change of the volume shows in the closed notch. Off
+    /// by default.
+    var showsVolumeBrightness = false {
+        didSet {
+            guard showsVolumeBrightness != oldValue else {
+                return
+            }
+            Defaults.set(showsVolumeBrightness, forKey: .indicatorsVolumeBrightness)
+        }
+    }
+
     /// Loads the stored settings. The duration is clamped to its range and snapped to the nearest
     /// choice, because the defaults can hold anything.
     func performSetup(with appState: AppState) {
         Defaults.ifPresent(key: .indicatorsInputSource, assign: &showsInputSource)
+        Defaults.ifPresent(key: .indicatorsVolumeBrightness, assign: &showsVolumeBrightness)
         Defaults.ifPresent(key: .indicatorsInputSourceDuration) { (stored: Double) in
             let clamped = Defaults.Key.indicatorsInputSourceDuration.clamped(
                 stored,

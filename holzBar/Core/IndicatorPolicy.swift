@@ -122,6 +122,21 @@ nonisolated enum IndicatorLook {
         return best
     }
 
+    /// The speaker symbol of the volume indicator: the slash while muted, else one, two or three
+    /// waves below 34 %, below 67 % and from there up.
+    static func volumeSymbol(percent: Int, isMuted: Bool) -> String {
+        if isMuted {
+            return "speaker.slash.fill"
+        }
+        if percent < 34 {
+            return "speaker.wave.1.fill"
+        }
+        if percent < 67 {
+            return "speaker.wave.2.fill"
+        }
+        return "speaker.wave.3.fill"
+    }
+
     /// The live activity of a flash: finished at the moment it happens, so its hold runs from there.
     static func flash(
         kind: IndicatorKind,
