@@ -111,10 +111,12 @@ struct CalendarBodyView: View {
 
     // MARK: Details
 
-    /// Whether the row has something to show beyond its line: a place or invitees.
+    /// Whether the row has something to show beyond its line: a place, invitees, a meeting
+    /// service or notes.
     private func hasDetails(_ model: CalendarRowModel) -> Bool {
         let event = model.row.event
         return place(of: event) != nil || attendees(of: event) != nil
+            || model.link != nil || excerpt(of: event) != nil
     }
 
     /// The place, when there is one that is not only blank.
@@ -131,6 +133,15 @@ struct CalendarBodyView: View {
             return nil
         }
         return count
+    }
+
+    /// The notes cut to the detail length (300 characters), when there are some that
+    /// are not only blank. The row shows three lines of it.
+    private func excerpt(of event: CalendarEvent) -> String? {
+        guard let text = event.notes?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else {
+            return nil
+        }
+        return String(text.prefix(CalendarEvent.detailNotesLength))
     }
 
     /// The 10 pt chevron in a 24 pt target: down while closed, up while open.
@@ -164,21 +175,39 @@ struct CalendarBodyView: View {
     }
 
     /// The quiet lines under the title, each a symbol in a column and its text, drawn only when
-    /// its data exists. Every text from the calendar is plain text, never markup or a link.
+    /// its data exists, with the Preview badge at the block's top trailing corner. Every text
+    /// from the calendar is plain text, never markup or a link, and the link line names the
+    /// service, never the address.
     private func detailLines(_ model: CalendarRowModel) -> some View {
         let event = model.row.event
-        return VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
-            if let place = place(of: event) {
-                detailLine("mappin.and.ellipse") {
-                    Text(verbatim: place)
-                        .lineLimit(1)
+        return HStack(alignment: .top, spacing: HolzBarTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
+                if let place = place(of: event) {
+                    detailLine("mappin.and.ellipse") {
+                        Text(verbatim: place)
+                            .lineLimit(1)
+                    }
+                }
+                if let count = attendees(of: event) {
+                    detailLine("person.2") {
+                        Text("\(count) attendees")
+                    }
+                }
+                if let link = model.link {
+                    detailLine("link") {
+                        Text(verbatim: serviceName(of: link))
+                            .lineLimit(1)
+                    }
+                }
+                if let excerpt = excerpt(of: event) {
+                    detailLine("note.text") {
+                        Text(verbatim: excerpt)
+                            .lineLimit(3)
+                    }
                 }
             }
-            if let count = attendees(of: event) {
-                detailLine("person.2") {
-                    Text("\(count) attendees")
-                }
-            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            PreviewBadge()
         }
         .padding(.leading, Self.dotColumn + HolzBarTheme.Spacing.sm + Self.whenColumn + HolzBarTheme.Spacing.sm)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -196,6 +225,8 @@ struct CalendarBodyView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+        // One element per line, read in order; the symbol is decoration.
+        .accessibilityElement(children: .combine)
     }
 
     /// "Now", the start time, or "All day".
