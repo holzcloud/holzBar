@@ -28,7 +28,7 @@ import SwiftUI
 ///
 /// A context line below the notch says why the module in front is in front, in one fixed sentence
 /// per reason (``HubContext/Reason``) that never names an event, a track or a file. VoiceOver is
-/// told it once for each opening.
+/// told it once for each opening, and again when the pin changes it.
 struct IslandView: View {
     let presentation: IslandPresentation
     let model: NotchHubModel
@@ -43,6 +43,10 @@ struct IslandView: View {
 
     /// The live activity VoiceOver was last told about.
     @State private var announcedLiveKey: String?
+
+    /// The Preview badge's width beside the pin, measured once by the top row; the context line
+    /// keeps clear of it.
+    @State private var pinBadgeWidth: CGFloat = 0
 
     private var canvasWidth: CGFloat {
         CGFloat(presentation.canvas.width)
@@ -101,6 +105,12 @@ struct IslandView: View {
             // A hub that opens again while it closes keeps this view.
             announceContextLine()
         }
+        .onChange(of: model.pin.isPinned) {
+            // The line changes with the pin, so VoiceOver is told the new one once.
+            if let line = contextLineText {
+                AccessibilityNotification.Announcement(line).post()
+            }
+        }
         .onChange(of: presentation.liveBoard?.compact?.key) {
             announceLiveActivity()
         }
@@ -117,11 +127,11 @@ struct IslandView: View {
     /// Tells VoiceOver why the module is in front, once for each opening; a later change of the
     /// line during the same opening is not announced.
     private func announceContextLine() {
-        guard presentation.openingCount != announcedOpening, let reason = model.frontReason else {
+        guard presentation.openingCount != announcedOpening, let line = contextLineText else {
             return
         }
         announcedOpening = presentation.openingCount
-        AccessibilityNotification.Announcement(reason.line).post()
+        AccessibilityNotification.Announcement(line).post()
     }
 
     /// Tells VoiceOver once that an activity started or came to the top. The activity's own title
@@ -215,17 +225,29 @@ struct IslandView: View {
                 width: layout.shape.width,
                 height: layout.contextRow.maxY - layout.shape.y
             )
-            staged(IslandTopRowView(model: model, layout: layout, host: host), in: area, alignment: .topLeading)
+            staged(
+                IslandTopRowView(model: model, layout: layout, host: host, badgeWidth: $pinBadgeWidth),
+                in: area,
+                alignment: .topLeading
+            )
         }
     }
 
-    /// The context line, centred in its row below the notch and clear of the gear at the row's end.
+    /// The sentence of the context line: the pin's own while the hub is pinned (also when no
+    /// reason is in front), else the reason why the module in front is in front.
+    private var contextLineText: String? {
+        model.pin.isPinned ? String(localized: "Pinned by you") : model.frontReason?.line
+    }
+
+    /// The context line, centred in its row below the notch and clear of the pin, its badge and
+    /// the gear at the row's ends, so it stays centred.
     @ViewBuilder
     private var contextLine: some View {
-        if let area = presentation.layout?.contextRow, let reason = model.frontReason {
-            let room = CGFloat(area.width) - 2 * (HolzBarTheme.Island.gearSize + HolzBarTheme.Spacing.xs)
+        if let area = presentation.layout?.contextRow, let line = contextLineText {
+            let clear = HolzBarTheme.Island.gearSize + HolzBarTheme.Spacing.xs + pinBadgeWidth + HolzBarTheme.Spacing.xs
+            let room = CGFloat(area.width) - 2 * clear
             staged(
-                IslandContextLine(line: reason.line, maxWidth: max(room, 0)),
+                IslandContextLine(line: line, maxWidth: max(room, 0)),
                 in: area,
                 alignment: .center
             )
