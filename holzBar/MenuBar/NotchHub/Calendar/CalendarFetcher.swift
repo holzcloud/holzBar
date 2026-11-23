@@ -77,7 +77,8 @@ actor CalendarFetcher {
             notes: event.notes,
             url: event.url,
             isCancelled: event.status == .canceled,
-            isDeclined: event.attendees?.contains { $0.isCurrentUser && $0.participantStatus == .declined } ?? false
+            isDeclined: event.attendees?.contains { $0.isCurrentUser && $0.participantStatus == .declined } ?? false,
+            attendeeCount: event.attendees?.count
         )
     }
 

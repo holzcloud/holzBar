@@ -218,6 +218,7 @@ tests=(
   BarClickTraceTests
   BatteryLevelTests
   BuiltInItemTests
+  CalendarEventTests
   CalendarReadFreshnessTests
   CalendarSelectionTests
   ClickPairingTests

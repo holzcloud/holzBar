@@ -12,6 +12,15 @@ struct CalendarBodyView: View {
     let runtime: CalendarRuntime
     let host: any HubHost
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// The row whose details are open: one at a time, view state only.
+    @State private var openID: CalendarRowModel.ID?
+
+    /// The column of a detail line's symbol, and the width of an event's time column.
+    private static let symbolColumn: CGFloat = 16
+    private static let whenColumn: CGFloat = 64
+    private static let dotColumn: CGFloat = 8
+
     var body: some View {
         Group {
             switch runtime.authorization {
@@ -47,13 +56,27 @@ struct CalendarBodyView: View {
     }
 
     private func row(_ model: CalendarRowModel) -> some View {
+        let isOpen = openID == model.id && hasDetails(model)
+        return VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
+            header(model, isOpen: isOpen)
+            if isOpen {
+                detailLines(model)
+            }
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    /// The row's line: the colour, the time, the title, Join, the end time and, when there is
+    /// something to show, the disclosure. A click outside Join and the disclosure opens or closes
+    /// the details.
+    private func header(_ model: CalendarRowModel, isOpen: Bool) -> some View {
         let event = model.row.event
         return HStack(spacing: HolzBarTheme.Spacing.sm) {
             CalendarColorDot(color: event.calendarColor)
             when(model.row)
                 .font(HolzBarTheme.Typography.callout.monospacedDigit())
                 .foregroundStyle(model.row.phase == .happening ? HolzBarTheme.Palette.accent : HolzBarTheme.Palette.textSecondary)
-                .frame(width: 64, alignment: .leading)
+                .frame(width: Self.whenColumn, alignment: .leading)
             Text(verbatim: event.title.isEmpty ? String(localized: "Untitled") : event.title)
                 .font(HolzBarTheme.Typography.body)
                 .foregroundStyle(HolzBarTheme.Palette.text)
@@ -67,8 +90,112 @@ struct CalendarBodyView: View {
                     .font(HolzBarTheme.Typography.caption.monospacedDigit())
                     .foregroundStyle(HolzBarTheme.Palette.textTertiary)
             }
+            if hasDetails(model) {
+                disclosure(model, isOpen: isOpen)
+            }
         }
-        .accessibilityElement(children: .contain)
+        .background {
+            // Behind the controls, so Join and the disclosure keep their own clicks.
+            if hasDetails(model) {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        toggle(model)
+                    }
+                    // The disclosure is the accessible way; this layer only widens the click.
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHidden(true)
+            }
+        }
+    }
+
+    // MARK: Details
+
+    /// Whether the row has something to show beyond its line: a place or invitees.
+    private func hasDetails(_ model: CalendarRowModel) -> Bool {
+        let event = model.row.event
+        return place(of: event) != nil || attendees(of: event) != nil
+    }
+
+    /// The place, when there is one that is not only blank.
+    private func place(of event: CalendarEvent) -> String? {
+        guard let place = event.location?.trimmingCharacters(in: .whitespacesAndNewlines), !place.isEmpty else {
+            return nil
+        }
+        return place
+    }
+
+    /// The number of invitees, when it is above zero. Never a name.
+    private func attendees(of event: CalendarEvent) -> Int? {
+        guard let count = event.attendeeCount, count > 0 else {
+            return nil
+        }
+        return count
+    }
+
+    /// The 10 pt chevron in a 24 pt target: down while closed, up while open.
+    private func disclosure(_ model: CalendarRowModel, isOpen: Bool) -> some View {
+        Button {
+            toggle(model)
+        } label: {
+            Image(systemName: isOpen ? "chevron.up" : "chevron.down")
+                .font(HolzBarTheme.Hub.chevronFont)
+                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                .frame(width: HolzBarTheme.minimumTargetSize, height: HolzBarTheme.minimumTargetSize)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(isOpen ? Text("Hide details") : Text("Show details"))
+        .accessibilityValue(isOpen ? Text("Expanded") : Text("Collapsed"))
+        .help(isOpen ? Text("Hide details") : Text("Show details"))
+    }
+
+    /// Opens the row and closes any other; a second click closes it. No animation under Reduce
+    /// Motion.
+    private func toggle(_ model: CalendarRowModel) {
+        let next: CalendarRowModel.ID? = openID == model.id ? nil : model.id
+        if reduceMotion {
+            openID = next
+        } else {
+            withAnimation(.smooth(duration: 0.2)) {
+                openID = next
+            }
+        }
+    }
+
+    /// The quiet lines under the title, each a symbol in a column and its text, drawn only when
+    /// its data exists. Every text from the calendar is plain text, never markup or a link.
+    private func detailLines(_ model: CalendarRowModel) -> some View {
+        let event = model.row.event
+        return VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
+            if let place = place(of: event) {
+                detailLine("mappin.and.ellipse") {
+                    Text(verbatim: place)
+                        .lineLimit(1)
+                }
+            }
+            if let count = attendees(of: event) {
+                detailLine("person.2") {
+                    Text("\(count) attendees")
+                }
+            }
+        }
+        .padding(.leading, Self.dotColumn + HolzBarTheme.Spacing.sm + Self.whenColumn + HolzBarTheme.Spacing.sm)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// One detail line: a 12 pt symbol in a 16 pt column, 8 pt, then the text.
+    private func detailLine(_ symbol: String, @ViewBuilder text: () -> some View) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: HolzBarTheme.Spacing.xs) {
+            Image(systemName: symbol)
+                .font(HolzBarTheme.Typography.callout)
+                .frame(width: Self.symbolColumn)
+                .accessibilityHidden(true)
+            text()
+                .font(HolzBarTheme.Typography.callout)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
     }
 
     /// "Now", the start time, or "All day".
