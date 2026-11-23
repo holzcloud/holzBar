@@ -341,6 +341,22 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("The notification display time travels with a settings file, from 3 to 30 seconds")
+    func notificationsDisplayTimeTravels() {
+        #expect(Defaults.Key.notificationsDisplayTime.rawValue == "NotificationsDisplayTime")
+        #expect(Defaults.Key.notificationsDisplayTime.settingsKind == .number)
+        #expect(Defaults.Key.notificationsDisplayTime.numberRule == .wholeNumber(3...30))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.notificationsDisplayTime))
+        #expect(Defaults.Key.importableKinds["NotificationsDisplayTime"] == .number)
+        let accepted = Defaults.Key.validatedSettings(["NotificationsDisplayTime": 10], ownBundleIdentifier: ownBundle)
+        #expect((accepted.accepted["NotificationsDisplayTime"] as? NSNumber)?.intValue == 10)
+        for refused: Any in [100, 1, 2.5, "5"] {
+            let result = Defaults.Key.validatedSettings(["NotificationsDisplayTime": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted["NotificationsDisplayTime"] == nil)
+            #expect(result.ignored == ["NotificationsDisplayTime"])
+        }
+    }
+
     @Test("The System alerts rule settings travel with a settings file: five switches and ten whole numbers")
     func systemAlertsKeysTravel() {
         let switches: [Defaults.Key] = [

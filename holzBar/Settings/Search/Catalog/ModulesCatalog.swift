@@ -84,6 +84,7 @@ extension SettingsCatalog {
             .modulesIndicatorsInputSourceDuration,
             .modulesIndicatorsVolumeBrightness,
             .modulesNotificationsExcludedApps,
+            .modulesNotificationsDisplayTime,
             .modulesNowPlayingAppleMusic,
             .modulesNowPlayingSpotify,
             .modulesNowPlayingReadsAllApps,
@@ -432,6 +433,15 @@ extension SettingsEntry {
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Excluded apps"),
         info: String(localized: "Hide an app with the crossed-out eye on one of its notifications."),
+        module: "notifications"
+    )
+
+    static let modulesNotificationsDisplayTime = SettingsEntry(
+        id: "modulesNotificationsDisplayTime",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Display time"),
+        info: String(localized: "How long a new notification shows as a count in the closed notch."),
         module: "notifications"
     )
 

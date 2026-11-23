@@ -129,6 +129,7 @@ sources=(
   NotchHubPolicy
   NotificationBannerParser
   NotificationLog
+  NotificationQueue
   NowPlayingModel
   NowPlayingPayload
   NowPlayingPlayers
@@ -300,6 +301,7 @@ tests=(
   NotchHubPolicyTests
   NotificationBannerParserTests
   NotificationLogTests
+  NotificationQueueTests
   NowPlayingModelTests
   NowPlayingPayloadTests
   NowPlayingPlayersTests

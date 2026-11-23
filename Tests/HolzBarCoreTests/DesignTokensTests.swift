@@ -556,4 +556,16 @@ struct DesignTokensTests {
         #expect(indicator.inputSourceDurations.contains(indicator.inputSourceDefaultDuration))
         #expect(indicator.flashPriority > AlertLook.priority(for: .thermal))
     }
+
+    @Test("The notification count's display times, priority, hover dwell and card height are the design's numbers")
+    func notificationTokens() {
+        let indicator = Tokens.Indicator.self
+        #expect(indicator.notificationDisplayTimes == [3, 5, 10, 15, 30])
+        #expect(indicator.notificationDefaultDisplayTime == 5)
+        #expect(indicator.notificationDisplayTimes.contains(indicator.notificationDefaultDisplayTime))
+        #expect(indicator.notificationCountPriority == 12)
+        #expect(indicator.notificationCountPriority < indicator.flashPriority)
+        #expect(indicator.cardHoverDwell == 0.15)
+        #expect(indicator.cardMaximumHeight == 96)
+    }
 }

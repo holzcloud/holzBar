@@ -361,6 +361,18 @@ nonisolated enum DesignTokens {
         /// How long after a flash VoiceOver waits before it announces it, so a burst is one
         /// announcement (H10).
         static let announceDelay: TimeInterval = 0.3
+        /// What the Notifications module's "Display time" offers, in seconds: how long a new
+        /// notification shows as a count in the closed notch (D-17).
+        static let notificationDisplayTimes = [3, 5, 10, 15, 30]
+        /// The default of that setting.
+        static let notificationDefaultDisplayTime = 5
+        /// The count of unseen notifications ranks between a download (10) and the meeting
+        /// countdown (15), below a flash (``flashPriority``).
+        static let notificationCountPriority = 12
+        /// How long the pointer rests on a notification row before it expands to a card.
+        static let cardHoverDwell: TimeInterval = 0.15
+        /// The tallest a notification card grows, in points.
+        static let cardMaximumHeight = 96.0
     }
 
     /// The gradient of fills that carry white text, the same in both appearances.

@@ -378,6 +378,9 @@ nonisolated extension Defaults {
         /// list of strings). They name the apps the user runs, so this stays on this Mac:
         /// never exported or imported.
         case notificationsExcludedApps = "NotificationsExcludedApps"
+        /// How long a new notification shows as a count in the closed notch, in seconds (a whole
+        /// number from 3 to 30; the model snaps it to 3, 5, 10, 15 or 30, 5 by default).
+        case notificationsDisplayTime = "NotificationsDisplayTime"
 
         // MARK: Display Controls
         /// Whether the Display controls module shows brightness sliders, which use a private
@@ -647,6 +650,7 @@ nonisolated extension Defaults.Key {
             .systemAlertsMacBatteryThreshold,
             .systemAlertsMacBatteryHold,
             .indicatorsInputSourceDuration,
+            .notificationsDisplayTime,
             .menuBarBorderWidth,
             .menuBarTintKind:
             .number
@@ -759,6 +763,9 @@ nonisolated extension Defaults.Key {
             .systemAlertsMacBatteryHold:
             // Seconds; the model snaps them to AlertHold's presets.
             .wholeNumber(0...900)
+        case .notificationsDisplayTime:
+            // Seconds; the model snaps them to the choices of NotificationQueue.
+            .wholeNumber(3...30)
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,
