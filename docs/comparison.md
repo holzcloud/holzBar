@@ -58,6 +58,13 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | A file stash at the notch: drag files in, drag them out later as copies (optional module in that hub, no permission) | ❌ | — | — | ✅ |
 | Volume and brightness sliders at the notch, and brightness, contrast, volume and mute of external monitors over DDC (optional module in that hub, no permission; brightness and external monitors use macOS calls that Apple does not document) | ❌ | — | — | ✅ |
 | The banners of your apps listed at the notch (optional module in that hub; read through Accessibility, kept in memory only, no Notifications permission; only what macOS shows on screen, and it follows a structure macOS may change) | ❌ | — | — | ✅ |
+| Input source and volume shown in the closed notch (Indicators, an optional module in that hub, no permission; volume read through Core Audio) | ❌ | — | — | 🔜 1.2.0: a flash of the keyboard layout and of the volume, for a time you choose, and no polling |
+| Replace macOS's volume and brightness display with holzBar's own at the notch (optional switch, Accessibility asked only then; the brightness keys use macOS calls that Apple does not document; a key holzBar cannot handle goes to macOS unchanged) | ❌ | — | — | 🔜 1.2.0 |
+| Notch gestures: scroll on the notch to open and close the hub, swipe sideways to skip a track (optional, off by default) | ❌ | — | — | 🔜 1.2.0 |
+| Choose the sound output in the hub's Display tab | ❌ | — | — | 🔜 1.2.0: sets the default output only |
+| Software dimming of an external monitor that has no brightness control (a dark layer, 0 to 90 percent; shows in screenshots) | ❌ | — | — | 🔜 1.2.0 |
+| Pin the hub open, open it on the display where the pointer is, switch the island's bounce off | ❌ | — | — | 🔜 1.2.0 |
+| Notification count in the closed notch, a card with the full text and a +N queue in the Notifications tab; calendar details and a countdown to the next meeting in the closed notch (never the title) | ❌ | — | — | 🔜 1.2.0 |
 | Show or hide a single item while a condition holds (a VPN is connected, an app is running) | ❌ | ✅ | — | ✅ |
 | Automatic layout snapshots with a one-click restore | — | — | — | ✅ |
 | Command palette for holzBar's own actions | — | — | — | ✅ |
