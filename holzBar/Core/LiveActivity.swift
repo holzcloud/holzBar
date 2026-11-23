@@ -67,7 +67,8 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
     /// When the activity ends by itself, such as a timer, or `nil`.
     let endsAt: Date?
     /// When the activity finished, or `nil` while it runs. A finished activity stays for
-    /// ``HubActivityBoard/finishedHold`` seconds with its own done title and symbol.
+    /// ``expiresAt`` (``HubActivityBoard/finishedHold`` seconds by default) with its own done title
+    /// and symbol.
     let finishedAt: Date?
     let tint: LiveActivityTint
     /// Whether the module that returned the activity speaks it to VoiceOver itself, so the hub
@@ -80,10 +81,23 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
     /// How long after ``startedAt`` the activity may widen the closed notch, or `nil` for as long as
     /// it runs. After that the activity stays in the open hub's right pill and in the Live activities
     /// list but no longer holds the notch open (``HubActivityBoard/board(_:now:forClosedNotch:)``):
-    /// an alert that holds for hours widens the notch for its first seconds only. Phase 96's planned
-    /// hold for a recurring activity is the same idea and reuses this field instead of adding a
-    /// second one. A negative or non-finite value is stored as `nil`.
+    /// an alert that holds for hours widens the notch for its first seconds only. This bounds only
+    /// the widening of a running activity; how long a finished one stays is ``holdSeconds``. A
+    /// negative or non-finite value is stored as `nil`.
     let widenedSeconds: TimeInterval?
+    /// How long a finished activity stays after ``finishedAt``, or `nil` for the board's default
+    /// (``HubActivityBoard/finishedHold``). A hold of 0 ends the activity exactly at its
+    /// ``finishedAt``, which may lie ahead: a countdown that ends at a set moment is running until
+    /// then. A negative or non-finite value is stored as `nil`.
+    let holdSeconds: TimeInterval?
+
+    /// The moment a finished activity leaves the board, the open hub's right pill and the Live
+    /// activities list: ``finishedAt`` plus ``holdSeconds``, else plus
+    /// ``HubActivityBoard/finishedHold``. `nil` while the activity runs. Every view that decides
+    /// when a finished activity leaves reads this, so none keeps its own copy of the hold.
+    var expiresAt: Date? {
+        finishedAt.map { $0.addingTimeInterval(holdSeconds ?? HubActivityBoard.finishedHold) }
+    }
 
     /// The moment the closed notch stops widening for this activity, or `nil` when it has no limit.
     var widenedUntil: Date? {
@@ -97,7 +111,7 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
 
     /// Creates an activity. A title, detail or short word beyond its cap is cut, a progress outside
     /// ``progressRange`` is clamped into it and a progress that is not a number is dropped, and a
-    /// widening that is negative or not a number is dropped.
+    /// widening or a hold that is negative or not a number is dropped.
     init(
         id: String,
         moduleID: String,
@@ -113,7 +127,8 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
         tint: LiveActivityTint = .accent,
         announcesItself: Bool = false,
         compactValue: String? = nil,
-        widenedSeconds: TimeInterval? = nil
+        widenedSeconds: TimeInterval? = nil,
+        holdSeconds: TimeInterval? = nil
     ) {
         self.id = id
         self.moduleID = moduleID
@@ -132,5 +147,6 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
         self.announcesItself = announcesItself
         self.compactValue = compactValue.map { String($0.prefix(Self.maximumCompactValueLength)) }
         self.widenedSeconds = widenedSeconds.flatMap { $0.isFinite && $0 >= 0 ? $0 : nil }
+        self.holdSeconds = holdSeconds.flatMap { $0.isFinite && $0 >= 0 ? $0 : nil }
     }
 }

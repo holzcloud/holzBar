@@ -117,7 +117,7 @@ struct IslandTopRowView: View {
         let now = Date.now
         let expiries = model.activities
             .filter { $0.moduleID != HubStatusPills.leftModuleID }
-            .compactMap { activity in activity.finishedAt?.addingTimeInterval(HubActivityBoard.finishedHold) }
+            .compactMap(\.expiresAt)
             .filter { $0 > now }
             .sorted()
         return [now] + expiries

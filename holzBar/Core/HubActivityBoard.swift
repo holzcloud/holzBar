@@ -13,8 +13,9 @@ import Foundation
 /// arms one wait for ``Board/nextExpiry`` and asks again.
 ///
 /// Rules, in order:
-/// 1. An activity that finished ``finishedHold`` seconds ago or longer is dropped; one that
-///    finishes in the future counts as running.
+/// 1. An activity that has reached its ``LiveActivity/expiresAt`` (its finish plus its own
+///    ``LiveActivity/holdSeconds``, else ``finishedHold``) is dropped; one that finishes in the
+///    future counts as running until then.
 /// 2. Of two activities with the same ``LiveActivity/key`` the one that started later stays.
 /// 3. The order is the higher priority first, then the newer start, then the key.
 /// 4. The first of the order is the compact one; the first ``maximumListed`` are listed; every
@@ -25,7 +26,7 @@ import Foundation
 ///    activities list read. The leave times of finished activities and the ends of widenings stay
 ///    in ``Board/nextExpiry`` in both views, so the one wait of the hub still wakes for each.
 nonisolated enum HubActivityBoard {
-    /// How long a finished activity stays.
+    /// How long a finished activity stays when it names no ``LiveActivity/holdSeconds`` of its own.
     static let finishedHold: TimeInterval = 5
 
     /// The most activities the tab lists.
@@ -61,7 +62,7 @@ nonisolated enum HubActivityBoard {
         let live = byKey.values.sorted(by: isOrderedBefore)
         let expiries = live.flatMap { activity in
             [
-                activity.finishedAt.map { $0.addingTimeInterval(finishedHold) },
+                activity.expiresAt,
                 activity.widenedUntil,
             ].compactMap { $0 }
         }
@@ -76,10 +77,10 @@ nonisolated enum HubActivityBoard {
 
     /// Whether a finished activity has stayed long enough.
     private static func isExpired(_ activity: LiveActivity, now: Date) -> Bool {
-        guard let finishedAt = activity.finishedAt else {
+        guard let expiresAt = activity.expiresAt else {
             return false
         }
-        return now.timeIntervalSince(finishedAt) >= finishedHold
+        return now >= expiresAt
     }
 
     /// Whether an activity's widening of the closed notch is over.

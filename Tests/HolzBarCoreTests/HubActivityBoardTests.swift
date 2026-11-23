@@ -14,7 +14,8 @@ struct HubActivityBoardTests {
         priority: Int = 10,
         started: TimeInterval = 0,
         finished: TimeInterval? = nil,
-        widened: TimeInterval? = nil
+        widened: TimeInterval? = nil,
+        hold: TimeInterval? = nil
     ) -> LiveActivity {
         LiveActivity(
             id: id,
@@ -25,7 +26,8 @@ struct HubActivityBoardTests {
             priority: priority,
             startedAt: now.addingTimeInterval(started),
             finishedAt: finished.map { now.addingTimeInterval($0) },
-            widenedSeconds: widened
+            widenedSeconds: widened,
+            holdSeconds: hold
         )
     }
 
@@ -326,5 +328,66 @@ struct HubActivityBoardTests {
         #expect(make(nil).widenedSeconds == nil)
         #expect(make(30).widenedUntil == at(30))
         #expect(make(nil).widenedUntil == nil)
+    }
+
+    // MARK: The hold of a finished activity (D-08)
+
+    @Test("A finished activity with a hold of 1.5 seconds is on the board at 1.4 and gone at 1.5")
+    func holdOfOneAndAHalfSeconds() {
+        let held = activity("a", finished: 0, hold: 1.5)
+        #expect(Board.board([held], now: at(1.4)).compact?.id == "a")
+        #expect(Board.board([held], now: at(1.5)).compact == nil)
+        #expect(Board.board([held], now: at(1.5)).listed.isEmpty)
+        #expect(Board.board([held], now: at(0)).nextExpiry == at(1.5))
+        #expect(held.expiresAt == at(1.5))
+    }
+
+    @Test("A finished activity without a hold still leaves after five seconds")
+    func noHoldKeepsTheDefault() {
+        let plain = activity("a", finished: 0)
+        #expect(plain.holdSeconds == nil)
+        #expect(plain.expiresAt == at(5))
+        #expect(Board.board([plain], now: at(4.9)).compact?.id == "a")
+        #expect(Board.board([plain], now: at(5)).compact == nil)
+        #expect(Board.board([plain], now: at(0)).nextExpiry == at(5))
+    }
+
+    @Test("A hold that is negative or not a number is stored as nil, a hold of zero stays")
+    func invalidHoldIsNil() {
+        #expect(activity("a", finished: 0, hold: -1).holdSeconds == nil)
+        #expect(activity("a", finished: 0, hold: .infinity).holdSeconds == nil)
+        #expect(activity("a", finished: 0, hold: .nan).holdSeconds == nil)
+        #expect(activity("a", finished: 0, hold: 0).holdSeconds == 0)
+        #expect(activity("a", finished: 0, hold: 2).holdSeconds == 2)
+        #expect(activity("a", finished: 0, hold: -1).expiresAt == at(5))
+    }
+
+    @Test("A running activity has no expiry")
+    func runningHasNoExpiry() {
+        #expect(activity("a").expiresAt == nil)
+        #expect(activity("a", hold: 3).expiresAt == nil)
+    }
+
+    @Test("A hold of zero ends the activity exactly at its finish, also when that lies ahead")
+    func zeroHoldEndsAtTheFinish() {
+        let countdown = activity("meeting", finished: 60, hold: 0)
+        #expect(countdown.expiresAt == at(60))
+        let before = Board.board([countdown], now: at(59))
+        #expect(before.compact?.id == "meeting")
+        #expect(before.nextExpiry == at(60))
+        let atEnd = Board.board([countdown], now: at(60))
+        #expect(atEnd.compact == nil)
+        #expect(atEnd.listed.isEmpty)
+        #expect(atEnd.nextExpiry == nil)
+    }
+
+    @Test("The next expiry takes each activity's own hold")
+    func nextExpiryTakesTheOwnHold() {
+        let board = Board.board(
+            [activity("short", finished: -1, hold: 2), activity("default", finished: -1)],
+            now: now
+        )
+        #expect(board.nextExpiry == at(1))
+        #expect(board.listed.count == 2)
     }
 }
