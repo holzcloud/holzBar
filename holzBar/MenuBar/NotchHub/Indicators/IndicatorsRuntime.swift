@@ -35,7 +35,9 @@ import SwiftUI
 /// (``MediaKeyRule``) says holzBar can perform them and show its own flash, and passes everything
 /// else unchanged; a taken key moves the default output by Apple's step of 1/16 (1/64 with Option
 /// and Shift), and the flash shows the level the output reads back through the same path as the
-/// observed volume. The brightness keys pass until their targets are known. The snapshot the tap
+/// observed volume. The brightness keys are taken where a ``BrightnessKeyController`` can change the
+/// display under the pointer (D-22: through the two existing Display controls wrappers only) and
+/// pass everywhere else; the flash shows the level the display reads back. The snapshot the tap
 /// reads is refreshed from observed state and the system's notifications, never on a clock. Trust is
 /// re-read when holzBar or another app becomes active and after a wake, and the tap is removed the
 /// moment it is gone; it comes back only after the permission has returned (2 s, then 8 s later).
@@ -89,6 +91,12 @@ final class IndicatorsRuntime: HubModuleRuntime {
     @ObservationIgnored private var trustWatchTasks = [Task<Void, Never>]()
     @ObservationIgnored private var tapStartFailures = 0
     @ObservationIgnored private var mediaKeyInputsLoop: ObservationLoop?
+    @ObservationIgnored private var pendingBrightness: Int?
+    @ObservationIgnored private var brightnessDeferredTask: Task<Void, Never>?
+
+    /// Performs the taken brightness keys while the tap exists. Tracked, so the Settings view
+    /// follows a part that switched itself off.
+    private(set) var brightnessKeys: BrightnessKeyController?
 
     /// Whether holzBar held Accessibility when it was last looked at. It is what ``ClosedHubWork``
     /// sees as trust: it goes false at once when the permission is found gone, and true again only
@@ -142,6 +150,9 @@ final class IndicatorsRuntime: HubModuleRuntime {
         volumeDeferredTask?.cancel()
         volumeDeferredTask = nil
         pendingVolume = nil
+        brightnessDeferredTask?.cancel()
+        brightnessDeferredTask = nil
+        pendingBrightness = nil
         if !flashes.isEmpty {
             flashes = []
         }
@@ -210,6 +221,8 @@ final class IndicatorsRuntime: HubModuleRuntime {
         var isHubOpen = false
         var displays = NotchHubDisplays.all
         var wakeGate = DDCWakeGate()
+        var displayControlsOn = false
+        var brightnessOn = false
     }
 
     /// Creates the tap when the rule allows it and removes it when the rule no longer does. Asking
@@ -225,13 +238,21 @@ final class IndicatorsRuntime: HubModuleRuntime {
         let tap = MediaKeyTap { [weak self] in
             self?.trustWasLost()
         }
-        tap.onTaken = { [weak self] press, _, quarter in
-            self?.mediaKeyWasTaken(press, quarter: quarter)
+        tap.onTaken = { [weak self] press, display, quarter in
+            self?.mediaKeyWasTaken(press, display: display, quarter: quarter)
         }
         mediaKeyTap = tap
+        if let appState {
+            let controller = BrightnessKeyController(appState: appState)
+            controller.onChange = { [weak self] in
+                self?.refreshMediaKeySnapshot()
+            }
+            brightnessKeys = controller
+        }
         guard tap.start() else {
             // macOS refused the tap or the permission is gone: no tap, and no trust until it is back.
             mediaKeyTap = nil
+            releaseBrightnessKeys()
             tapStartFailures += 1
             trustWasLost()
             return
@@ -256,6 +277,18 @@ final class IndicatorsRuntime: HubModuleRuntime {
         mediaKeyTap = nil
         trustWatchTasks.forEach { $0.cancel() }
         trustWatchTasks.removeAll()
+        releaseBrightnessKeys()
+    }
+
+    /// Drops the brightness controller and everything of a brightness flash.
+    private func releaseBrightnessKeys() {
+        brightnessKeys?.shutDown()
+        brightnessKeys = nil
+        brightnessDeferredTask?.cancel()
+        brightnessDeferredTask = nil
+        pendingBrightness = nil
+        policy.reset(.brightness)
+        removeFlash(of: .brightness)
     }
 
     private func mediaKeyInputs() -> MediaKeyInputs {
@@ -270,19 +303,25 @@ final class IndicatorsRuntime: HubModuleRuntime {
             isHubActive: appState.notchHub.isActive,
             isHubOpen: appState.notchHub.isOpen,
             displays: appState.settings.notchHub.displays,
-            wakeGate: appState.systemActivityMonitor.ddcWakeGate
+            wakeGate: appState.systemActivityMonitor.ddcWakeGate,
+            displayControlsOn: appState.modules.isEnabled(DisplayControlsRuntime.identifier),
+            brightnessOn: appState.settings.displayControls.showsBrightness
         )
     }
 
     /// Builds what the tap's thread reads and hands it over. A key is taken only on a display where
     /// a hub may show and only while the hub is closed (an open hub draws no flash, so a key
-    /// taken then would show nothing). Every brightness target is unknown here, so those keys pass.
+    /// taken then would show nothing). A brightness target is known only where the brightness
+    /// controller can change the display; every other one is unknown and its keys pass.
     private func refreshMediaKeySnapshot() {
         guard let appState, let tap = mediaKeyTap else {
             return
         }
         let hub = appState.notchHub
+        brightnessKeys?.refreshGates()
         var snapshot = MediaKeyState.Snapshot()
+        snapshot.displayControlsOn = brightnessKeys?.isDisplayControlsOn ?? false
+        snapshot.brightnessSwitchOn = brightnessKeys?.isBuiltInSwitchOn ?? false
         snapshot.isTrusted = isTrustedForTap && MediaKeyState.accessibilityIsTrusted()
         snapshot.replaceOn = appState.settings.indicators.replacesSystemDisplay
         snapshot.wakeGate = appState.systemActivityMonitor.ddcWakeGate
@@ -302,7 +341,8 @@ final class IndicatorsRuntime: HubModuleRuntime {
                 MediaKeyState.Snapshot.Display(
                     id: screen.displayID,
                     bounds: CGDisplayBounds(screen.displayID),
-                    hubAllowed: mayShow && NotchHubPolicy.blockReason(environment, trigger: .compact) == nil
+                    hubAllowed: mayShow && NotchHubPolicy.blockReason(environment, trigger: .compact) == nil,
+                    target: brightnessKeys?.target(for: screen.displayID) ?? .unknown
                 )
             )
         }
@@ -310,16 +350,22 @@ final class IndicatorsRuntime: HubModuleRuntime {
     }
 
     /// Performs a taken key, which was already consumed: the volume and mute keys move the default
-    /// output and show holzBar's own flash with the level the output reads back. The brightness
-    /// keys are never taken in this release of the rule, so none reaches here.
-    private func mediaKeyWasTaken(_ press: MediaKeyPress, quarter: Bool) {
+    /// output and show holzBar's own flash with the level the output reads back; a brightness key
+    /// moves the display under the pointer and shows the level it reads back.
+    private func mediaKeyWasTaken(_ press: MediaKeyPress, display: CGDirectDisplayID, quarter: Bool) {
         // A release is consumed and does nothing; a repeat of a held key is one more step (the
         // flash coalesces them at 50 ms and VoiceOver speaks once per burst), except for mute.
-        guard
-            press.isDown,
-            !press.isRepeat || MediaKeyRule.repeatsWhileHeld(press.code),
-            let output = OutputVolume.current()
-        else {
+        guard press.isDown, !press.isRepeat || MediaKeyRule.repeatsWhileHeld(press.code) else {
+            return
+        }
+        switch press.code {
+        case .brightnessUp, .brightnessDown:
+            performBrightnessKey(press.code, display: display, quarter: quarter)
+            return
+        case .soundUp, .soundDown, .mute:
+            break
+        }
+        guard let output = OutputVolume.current() else {
             return
         }
         switch press.code {
@@ -582,6 +628,73 @@ final class IndicatorsRuntime: HubModuleRuntime {
                 secondaryValue: name.isEmpty ? nil : name,
                 symbolImageURL: source.iconURL
             )
+        )
+        setFlash(flash)
+        announce(flash)
+    }
+
+    // MARK: Brightness
+
+    /// Moves the display under the pointer by one step and shows the level it reads back. A step
+    /// that changed nothing (the display refused) shows nothing.
+    private func performBrightnessKey(_ code: MediaKeyCode, display: CGDirectDisplayID, quarter: Bool) {
+        guard let controller = brightnessKeys else {
+            return
+        }
+        Task { [weak self] in
+            guard let level = await controller.step(code, display: display, quarter: quarter) else {
+                return
+            }
+            self?.presentBrightness(percent: DisplayControlsLevel.percent(level))
+        }
+    }
+
+    /// Offers a level to the policy: it shows now, or when its 50 ms window ends with the latest
+    /// level then (a burst is one flash).
+    private func presentBrightness(percent: Int) {
+        guard mediaKeyTap != nil, !isHubOpen else {
+            return
+        }
+        let now = Date.now
+        switch policy.offer(.brightness, value: String(percent), at: now) {
+        case .show:
+            brightnessDeferredTask?.cancel()
+            brightnessDeferredTask = nil
+            pendingBrightness = nil
+            showBrightness(percent: percent, at: now)
+        case .deferred(let moment):
+            pendingBrightness = percent
+            brightnessDeferredTask?.cancel()
+            brightnessDeferredTask = Task { [weak self] in
+                do {
+                    try await Task.sleep(for: .seconds(max(0, moment.timeIntervalSinceNow)))
+                } catch {
+                    return
+                }
+                self?.presentPendingBrightness()
+            }
+        case .ignored:
+            break
+        }
+    }
+
+    private func presentPendingBrightness() {
+        guard !isHubOpen, let percent = pendingBrightness else {
+            return
+        }
+        pendingBrightness = nil
+        presentBrightness(percent: percent)
+    }
+
+    private func showBrightness(percent: Int, at moment: Date) {
+        let flash = IndicatorLook.flash(
+            kind: .brightness,
+            symbol: IndicatorLook.brightnessSymbol(percent: percent),
+            value: (Double(percent) / 100).formatted(.percent),
+            title: String(localized: "Brightness \(percent) percent"),
+            at: moment,
+            hold: DesignTokens.Indicator.holdSeconds,
+            flash: LiveActivityFlash(widthSample: (1.0).formatted(.percent))
         )
         setFlash(flash)
         announce(flash)

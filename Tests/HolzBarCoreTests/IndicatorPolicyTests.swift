@@ -135,6 +135,16 @@ struct IndicatorPolicyTests {
         }
     }
 
+    @Test("The brightness symbol switches between 49 and 50 percent")
+    func brightnessSymbol() {
+        #expect(IndicatorLook.brightnessSymbol(percent: 0) == "sun.min.fill")
+        #expect(IndicatorLook.brightnessSymbol(percent: 2) == "sun.min.fill")
+        #expect(IndicatorLook.brightnessSymbol(percent: 49) == "sun.min.fill")
+        #expect(IndicatorLook.brightnessSymbol(percent: 50) == "sun.max.fill")
+        #expect(IndicatorLook.brightnessSymbol(percent: 51) == "sun.max.fill")
+        #expect(IndicatorLook.brightnessSymbol(percent: 100) == "sun.max.fill")
+    }
+
     // MARK: IndicatorLook
 
     @Test("The kinds and their activity ids")
