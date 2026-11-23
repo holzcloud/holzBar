@@ -8,9 +8,9 @@ import AppKit
 /// The Notch hub's gestures (HUB-03, D-14): a scroll on the closed notch opens and closes the hub,
 /// and a sideways swipe skips a track while Now Playing reports that something plays.
 ///
-/// The object follows the Gestures switch itself and owns one scroll monitor only while the switch
-/// is on; the hub creates it with the module and drops it with it, so nothing exists while either
-/// is off. The monitor only listens: the local handler returns every event unchanged and the
+/// The object follows the Gestures switch itself and owns one scroll monitor only while
+/// ``ClosedHubWork`` lists it (the hub and the switch are on); the hub creates it with the module
+/// and drops it with it, so nothing exists while either is off. The monitor only listens: the local handler returns every event unchanged and the
 /// global one observes, so another app's scrolling is never consumed, delayed or changed, and no
 /// event is logged.
 ///
@@ -24,7 +24,7 @@ final class NotchHubGestures {
     private weak var hub: NotchHubController?
     private weak var appState: AppState?
 
-    /// Follows the Gestures switch.
+    /// Follows what ``ClosedHubWork`` decides from the hub and the Gestures switch.
     private var switchLoop: ObservationLoop?
 
     /// The scroll monitor; exists only while the switch is on.
@@ -41,11 +41,24 @@ final class NotchHubGestures {
         self.hub = hub
         self.appState = appState
         switchLoop = ObservationLoop.observe { [weak appState] in
-            appState?.settings.notchHub.gestures ?? false
+            Self.wantsMonitor(appState)
         } onChange: { [weak self] isOn in
             self?.update(isOn: isOn)
         }
-        update(isOn: appState.settings.notchHub.gestures)
+        update(isOn: Self.wantsMonitor(appState))
+    }
+
+    /// Whether the scroll monitor exists now, as ``ClosedHubWork`` decides it.
+    private static func wantsMonitor(_ appState: AppState?) -> Bool {
+        guard let appState else {
+            return false
+        }
+        return ClosedHubWork.observers(
+            ClosedHubWork.Switches(
+                hubOn: appState.modules.isEnabled(NotchHubController.moduleID),
+                gesturesOn: appState.settings.notchHub.gestures
+            )
+        ).contains(.scrollMonitor)
     }
 
     /// Stops following the switch and removes the monitor.

@@ -56,8 +56,7 @@ final class IndicatorsRuntime: HubModuleRuntime {
     @ObservationIgnored private weak var appState: AppState?
     @ObservationIgnored private var policy = IndicatorPolicy()
     @ObservationIgnored private let observer = InputSourceObserver()
-    @ObservationIgnored private var switchLoop: ObservationLoop?
-    @ObservationIgnored private var volumeSwitchLoop: ObservationLoop?
+    @ObservationIgnored private var observersLoop: ObservationLoop?
     @ObservationIgnored private let volumeListener = OutputVolume.Listener()
     @ObservationIgnored private var volumeSteps = VolumeSteps()
     @ObservationIgnored private var volumeDevice: AudioObjectID?
@@ -75,24 +74,15 @@ final class IndicatorsRuntime: HubModuleRuntime {
 
     init(appState: AppState) {
         self.appState = appState
-        switchLoop = ObservationLoop.observe(
+        observersLoop = ObservationLoop.observe(
             { [weak self] in
-                self?.appState?.settings.indicators.showsInputSource ?? false
+                self?.wantedObservers() ?? []
             },
-            onChange: { [weak self] isOn in
-                self?.setObservingInputSource(isOn)
+            onChange: { [weak self] observers in
+                self?.apply(observers)
             }
         )
-        setObservingInputSource(appState.settings.indicators.showsInputSource)
-        volumeSwitchLoop = ObservationLoop.observe(
-            { [weak self] in
-                self?.appState?.settings.indicators.showsVolumeBrightness ?? false
-            },
-            onChange: { [weak self] isOn in
-                self?.setObservingVolume(isOn)
-            }
-        )
-        setObservingVolume(appState.settings.indicators.showsVolumeBrightness)
+        apply(wantedObservers())
     }
 
     var activities: [LiveActivity] {
@@ -122,12 +112,9 @@ final class IndicatorsRuntime: HubModuleRuntime {
     }
 
     func shutDown() {
-        switchLoop?.cancel()
-        switchLoop = nil
-        volumeSwitchLoop?.cancel()
-        volumeSwitchLoop = nil
-        stopObservingInputSource()
-        stopObservingVolume()
+        observersLoop?.cancel()
+        observersLoop = nil
+        apply([])
         releaseSurface()
     }
 
@@ -171,6 +158,30 @@ final class IndicatorsRuntime: HubModuleRuntime {
 
     // MARK: Switch
 
+    /// The observers that exist now, decided by ``ClosedHubWork`` and nowhere else. The module's
+    /// own switches are read here, so the loop follows them and the hub's and the module's on
+    /// switches alike.
+    private func wantedObservers() -> Set<ClosedHubWork.Observer> {
+        guard let appState else {
+            return []
+        }
+        return ClosedHubWork.observers(
+            ClosedHubWork.Switches(
+                hubOn: appState.modules.isEnabled(NotchHubController.moduleID),
+                indicatorsOn: appState.modules.isEnabled(Self.identifier),
+                inputSourceOn: appState.settings.indicators.showsInputSource,
+                volumeBrightnessOn: appState.settings.indicators.showsVolumeBrightness
+            )
+        )
+    }
+
+    /// Starts exactly the observers in the set and stops the rest.
+    private func apply(_ observers: Set<ClosedHubWork.Observer>) {
+        setObservingInputSource(observers.contains(.inputSource))
+        setObservingActivation(observers.contains(.appActivation))
+        setObservingVolume(observers.contains(.volumeListener))
+    }
+
     private func setObservingInputSource(_ isOn: Bool) {
         if isOn {
             startObservingInputSource()
@@ -188,8 +199,19 @@ final class IndicatorsRuntime: HubModuleRuntime {
         observer.start { [weak self] change in
             self?.inputSourceDidChange(change)
         }
-        // macOS selects the per-document input source when an app comes forward; the policy needs
-        // to know when that happened, to tell it from the user's own switch.
+    }
+
+    /// macOS selects the per-document input source when an app comes forward; the policy needs to
+    /// know when that happened, to tell it from the user's own switch.
+    private func setObservingActivation(_ isOn: Bool) {
+        guard isOn else {
+            activationTask?.cancel()
+            activationTask = nil
+            return
+        }
+        guard activationTask == nil else {
+            return
+        }
         activationTask = Task { [weak self] in
             for await _ in NSWorkspace.shared.notificationCenter.notifications(
                 named: NSWorkspace.didActivateApplicationNotification
@@ -202,8 +224,6 @@ final class IndicatorsRuntime: HubModuleRuntime {
     private func stopObservingInputSource() {
         isObserving = false
         observer.stop()
-        activationTask?.cancel()
-        activationTask = nil
         deferredTask?.cancel()
         deferredTask = nil
         announceTask?.cancel()

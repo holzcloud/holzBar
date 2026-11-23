@@ -1,0 +1,65 @@
+//
+//  ClosedHubWork.swift
+//  holzBar
+//
+
+import Foundation
+
+/// The one rule that says which observers, listeners, taps and monitors exist while the Notch hub
+/// is closed (Phase 96, D-05, D-15, HUB-10: off means no cost).
+///
+/// Every piece of work this phase adds to the closed hub is listed here as an ``Observer`` with the
+/// switches that own it. The owners (the Indicators runtime, the gestures) start exactly what
+/// ``observers(_:)`` returns for the switches as they are now and nothing else, so "does this exist
+/// right now" has one tested answer. With every switch off, or the hub off, the answer is nothing.
+/// Later plans append their cases (notifications, countdown wakes, the media-key tap, the brightness
+/// keys) and the switches that own them.
+nonisolated enum ClosedHubWork {
+    /// The state of the switches that decide what exists. A value is the user's setting, or for the
+    /// hub and its modules whether they are switched on.
+    nonisolated struct Switches: Equatable, Sendable {
+        /// The Notch hub is on.
+        var hubOn = false
+        /// The Indicators module is on.
+        var indicatorsOn = false
+        /// Indicators: Input source.
+        var inputSourceOn = false
+        /// Indicators: Volume and brightness.
+        var volumeBrightnessOn = false
+        /// Notch hub: Gestures.
+        var gesturesOn = false
+    }
+
+    /// A piece of work that runs while the hub is closed.
+    nonisolated enum Observer: String, CaseIterable, Sendable {
+        /// The system's input source notifications.
+        case inputSource
+        /// The observation of app activations that tells a user's switch from the system's.
+        case appActivation
+        /// The listener for the default output's volume and mute.
+        case volumeListener
+        /// The listen-only scroll monitor of the gestures.
+        case scrollMonitor
+    }
+
+    /// The observers that exist for these switches: none unless the hub is on.
+    static func observers(_ switches: Switches) -> Set<Observer> {
+        guard switches.hubOn else {
+            return []
+        }
+        var result = Set<Observer>()
+        if switches.indicatorsOn {
+            if switches.inputSourceOn {
+                result.insert(.inputSource)
+                result.insert(.appActivation)
+            }
+            if switches.volumeBrightnessOn {
+                result.insert(.volumeListener)
+            }
+        }
+        if switches.gesturesOn {
+            result.insert(.scrollMonitor)
+        }
+        return result
+    }
+}

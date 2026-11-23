@@ -46,6 +46,7 @@ sources=(
   CalendarSelection
   ClickPairing
   ClockClickPolicy
+  ClosedHubWork
   ClosedNotchHeight
   CommandDragSection
   ConnectedDeviceList
@@ -220,6 +221,7 @@ tests=(
   CalendarSelectionTests
   ClickPairingTests
   ClockClickPolicyTests
+  ClosedHubWorkTests
   ClosedNotchHeightTests
   CommandDragSectionTests
   ConnectedDeviceListTests
