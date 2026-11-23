@@ -8,13 +8,50 @@ import SwiftUI
 
 /// The Notifications tab: the banners macOS showed while the hub was on, newest first.
 ///
-/// The view draws what the runtime holds as plain text, never as markup or a link, and holds
-/// nothing itself. Each row can be removed, or its app excluded for good; Clear all erases the
-/// list. When the module cannot read, a quiet line says why.
+/// The view draws what the runtime holds as plain text, never as markup or a link. Each row can be
+/// removed, or its app excluded for good; Clear all erases the list. When the module cannot read,
+/// a quiet line says why.
+///
+/// A notification not seen yet carries a small accent dot before its icon; everything listed
+/// counts as seen when the tab goes away. A row expands in place to a card while the pointer rests
+/// on it, while it has keyboard focus or while the VoiceOver cursor is on it, one at a time. What
+/// the card shows is view state only: nothing of it is stored in the runtime.
 struct NotificationsBodyView: View {
     let runtime: NotificationsRuntime
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorSchemeContrast) private var contrast
+
+    /// The row the pointer has rested on long enough, or `nil`.
+    @State private var hoveredID: NotificationRecord.ID?
+    /// The wait before a hovered row expands; one at a time, cancelled when the pointer leaves.
+    @State private var dwellTask: Task<Void, Never>?
+    @FocusState private var focus: FocusTarget?
+    @AccessibilityFocusState private var spokenID: NotificationRecord.ID?
+
     private static let iconSize = HolzBarTheme.minimumTargetSize
+    private static let cardIconSize: CGFloat = 28
+    private static let unseenDotSize: CGFloat = 6
+
+    /// Where keyboard focus can be: the row itself or one of its two buttons.
+    private enum FocusTarget: Hashable {
+        case row(NotificationRecord.ID)
+        case exclude(NotificationRecord.ID)
+        case remove(NotificationRecord.ID)
+
+        var recordID: NotificationRecord.ID {
+            switch self {
+            case .row(let id), .exclude(let id), .remove(let id): id
+            }
+        }
+    }
+
+    /// The row that shows as a card: the one the pointer rests on, else the one with keyboard
+    /// focus (on it or on one of its buttons), else the one the VoiceOver cursor is on.
+    private var expandedID: NotificationRecord.ID? {
+        hoveredID ?? focus?.recordID ?? spokenID
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
@@ -40,6 +77,10 @@ struct NotificationsBodyView: View {
             footer
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .onDisappear {
+            dwellTask?.cancel()
+            runtime.tabDidDisappear()
+        }
     }
 
     // MARK: Footer
@@ -80,7 +121,41 @@ struct NotificationsBodyView: View {
     // MARK: Rows
 
     private func row(_ record: NotificationRecord) -> some View {
+        let isUnseen = runtime.queue.isUnseen(record.id)
+        return Group {
+            if expandedID == record.id {
+                card(record)
+            } else {
+                collapsedRow(record, isUnseen: isUnseen)
+            }
+        }
+        .focusable()
+        .focused($focus, equals: .row(record.id))
+        .onHover { isInside in
+            hoverDidChange(isInside, record: record)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: spokenText(of: record, isUnseen: isUnseen)))
+        .accessibilityFocused($spokenID, equals: record.id)
+        .accessibilityAction(named: Text("Remove")) {
+            remove(record.id)
+        }
+        .modifier(ExcludeAction(app: record.app) { app in
+            runtime.exclude(app: app)
+        })
+    }
+
+    private func collapsedRow(_ record: NotificationRecord, isUnseen: Bool) -> some View {
         HStack(alignment: .top, spacing: HolzBarTheme.Spacing.sm) {
+            if isUnseen {
+                // The unseen marker, 8 pt before the icon; the row's spoken text says "new".
+                Circle()
+                    .fill(HolzBarTheme.Palette.accent)
+                    .frame(width: Self.unseenDotSize, height: Self.unseenDotSize)
+                    .padding(.top, (Self.iconSize - Self.unseenDotSize) / 2)
+                    .padding(.trailing, HolzBarTheme.Spacing.xs - HolzBarTheme.Spacing.sm)
+                    .accessibilityHidden(true)
+            }
             icon(for: record.app)
                 .frame(width: Self.iconSize, height: Self.iconSize)
             VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.hairline) {
@@ -98,31 +173,126 @@ struct NotificationsBodyView: View {
                 }
             }
             Spacer(minLength: 0)
-            Text(record.received, style: .relative)
-                .font(HolzBarTheme.Typography.caption)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                .monospacedDigit()
-            if let app = record.app {
-                iconButton("eye.slash", label: Text("Never show notifications from this app")) {
-                    runtime.exclude(app: app)
+            age(of: record)
+            buttons(for: record)
+        }
+    }
+
+    /// The card a row expands to: the app icon, the app name with the Preview badge, the title
+    /// (two lines), the text (three lines), the age and the two buttons. Every text is plain text,
+    /// never markup or a link. It is at most ``DesignTokens/Indicator/cardMaximumHeight`` high and
+    /// sits inside the tab's scroll, so the hub's height never changes.
+    private func card(_ record: NotificationRecord) -> some View {
+        let radius = CGFloat(DesignTokens.Hub.tileRadius)
+        let fill = reduceTransparency ? DesignTokens.Hub.tileFillAlphaOpaque : DesignTokens.Hub.tileFillAlpha
+        return HStack(alignment: .top, spacing: HolzBarTheme.Spacing.sm) {
+            icon(for: record.app)
+                .frame(width: Self.cardIconSize, height: Self.cardIconSize)
+            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.hairline) {
+                HStack(spacing: HolzBarTheme.Spacing.xs) {
+                    if let app = record.app {
+                        Text(verbatim: app)
+                            .font(HolzBarTheme.Typography.caption)
+                            .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                            .lineLimit(1)
+                    }
+                    PreviewBadge()
+                    Spacer(minLength: 0)
+                    age(of: record)
+                    buttons(for: record)
+                }
+                if let title = record.title {
+                    Text(verbatim: title)
+                        .font(HolzBarTheme.Typography.body)
+                        .foregroundStyle(HolzBarTheme.Palette.text)
+                        .lineLimit(2)
+                }
+                if let body = record.body {
+                    Text(verbatim: body)
+                        .font(HolzBarTheme.Typography.callout)
+                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                        .lineLimit(3)
                 }
             }
-            iconButton("xmark", label: Text("Remove")) {
-                runtime.remove(record.id)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+        }
+        .padding(CGFloat(DesignTokens.Hub.tilePadding))
+        .frame(maxWidth: .infinity, maxHeight: DesignTokens.Indicator.cardMaximumHeight, alignment: .topLeading)
+        .background(.white.opacity(fill), in: HolzBarTheme.shape(radius))
+        .overlay {
+            HolzBarTheme.shape(radius)
+                .stroke(.white.opacity(contrast == .increased ? 0.4 : 0.06), lineWidth: HolzBarTheme.Spacing.hairline)
+        }
+        .clipShape(HolzBarTheme.shape(radius))
+    }
+
+    private func age(of record: NotificationRecord) -> some View {
+        Text(record.received, style: .relative)
+            .font(HolzBarTheme.Typography.caption)
+            .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+            .monospacedDigit()
+    }
+
+    /// The two buttons of a notification: never show its app again, and remove it.
+    @ViewBuilder
+    private func buttons(for record: NotificationRecord) -> some View {
+        if let app = record.app {
+            iconButton(
+                "eye.slash",
+                label: Text("Never show notifications from this app"),
+                target: .exclude(record.id)
+            ) {
+                hoveredID = nil
+                runtime.exclude(app: app)
             }
         }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(verbatim: spokenText(of: record)))
-        .accessibilityAction(named: Text("Remove")) {
-            runtime.remove(record.id)
+        iconButton("xmark", label: Text("Remove"), target: .remove(record.id)) {
+            remove(record.id)
         }
-        .modifier(ExcludeAction(app: record.app) { app in
-            runtime.exclude(app: app)
-        })
+    }
+
+    private func remove(_ id: NotificationRecord.ID) {
+        hoveredID = nil
+        runtime.remove(id)
+    }
+
+    // MARK: Hover
+
+    /// Starts the wait before a row expands when the pointer arrives, and collapses the card when
+    /// it leaves. The change is a 0.2 s smooth one, and none at all under Reduce Motion.
+    private func hoverDidChange(_ isInside: Bool, record: NotificationRecord) {
+        dwellTask?.cancel()
+        dwellTask = nil
+        if isInside {
+            dwellTask = Task {
+                try? await Task.sleep(for: .seconds(DesignTokens.Indicator.cardHoverDwell))
+                guard !Task.isCancelled else {
+                    return
+                }
+                setHovered(record.id)
+            }
+        } else if hoveredID == record.id {
+            setHovered(nil)
+        }
+    }
+
+    private func setHovered(_ id: NotificationRecord.ID?) {
+        if reduceMotion {
+            hoveredID = id
+        } else {
+            withAnimation(.smooth(duration: 0.2)) {
+                hoveredID = id
+            }
+        }
     }
 
     /// A 24 pt button with a symbol.
-    private func iconButton(_ systemImage: String, label: Text, action: @escaping () -> Void) -> some View {
+    private func iconButton(
+        _ systemImage: String,
+        label: Text,
+        target: FocusTarget,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             Image(systemName: systemImage)
                 .font(HolzBarTheme.Typography.caption)
@@ -131,14 +301,17 @@ struct NotificationsBodyView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .focused($focus, equals: target)
         .accessibilityLabel(label)
         .help(label)
     }
 
-    /// What VoiceOver reads for a row: the app, the title, the text and how long ago it came.
-    private func spokenText(of record: NotificationRecord) -> String {
+    /// What VoiceOver reads for a row: "new" for one not seen yet, the app, the title, the text
+    /// and how long ago it came.
+    private func spokenText(of record: NotificationRecord, isUnseen: Bool) -> String {
         let age = record.received.formatted(.relative(presentation: .numeric, unitsStyle: .wide))
-        return [record.app, record.title, record.body, age].compactMap(\.self).joined(separator: ", ")
+        let newWord: String? = isUnseen ? String(localized: "new") : nil
+        return [newWord, record.app, record.title, record.body, age].compactMap(\.self).joined(separator: ", ")
     }
 
     /// The icon of the app among the running ones, found by its name, else a bell.
