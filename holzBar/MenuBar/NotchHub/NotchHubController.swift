@@ -80,6 +80,9 @@ final class NotchHubController: HubHost {
     /// Follows whether a module accepts file drags, while the hub is on.
     @ObservationIgnored private var dragLoop: ObservationLoop?
 
+    /// The scroll gestures on the closed notch, while the hub is on; they follow their own switch.
+    @ObservationIgnored private var gestures: NotchHubGestures?
+
     /// The runtimes of the hub modules that are on, by identifier. Empty while the hub is off.
     @ObservationIgnored private var runtimes = [String: any HubModuleRuntime]()
 
@@ -286,7 +289,12 @@ final class NotchHubController: HubHost {
             reconcileRuntimes()
             updateHover()
             activitiesDidChange()
+            if let appState {
+                gestures = NotchHubGestures(hub: self, appState: appState)
+            }
         } else {
+            gestures?.stop()
+            gestures = nil
             modulesLoop = nil
             dragLoop = nil
             settingsLoop = nil
@@ -408,6 +416,15 @@ final class NotchHubController: HubHost {
             return false
         }
         return displays.includes(isBuiltIn: CGDisplayIsBuiltin(screen.displayID) != 0, hasNotch: screen.hasNotch)
+    }
+
+    /// Opens the hub for a scroll gesture on the closed notch of a screen. Does nothing while the
+    /// module is off or the hub is open; the policy may still keep it closed.
+    func openFromGesture(on screen: NSScreen) {
+        guard isActive, !isOpen else {
+            return
+        }
+        open(on: screen, trigger: .gesture)
     }
 
     /// Opens the hub for an alert that was clicked: on the preferred display, with the compact
@@ -541,8 +558,9 @@ final class NotchHubController: HubHost {
         openedBy = trigger
         openScreenID = screen.displayID
         dragWatch?.hubOpened(byDrag: trigger == .fileDrag)
-        if trigger == .fileDrag {
-            // The hub a drag opened closes when the pointer leaves it, even without Open on hover.
+        if trigger == .fileDrag || trigger == .gesture {
+            // The hub a drag or a gesture opened closes when the pointer leaves it, even without
+            // Open on hover.
             updateHover()
         }
         // The one late re-decision starts before the modules are told, so that what they load
@@ -569,7 +587,7 @@ final class NotchHubController: HubHost {
         hoverIsArmed = false
         panel?.acceptsKeyboard = false
         panel?.onEscape = nil
-        let wasOpenedByDrag = openedBy == .fileDrag
+        let needsHoverRefresh = openedBy == .fileDrag || openedBy == .gesture
         let screen = NSScreen.screens.first { $0.displayID == openScreenID }
         // The hub returns to the live state only where the live shape has a layout.
         if phase.isLive, screen.flatMap({ liveLayout(on: $0) }) == nil {
@@ -579,7 +597,7 @@ final class NotchHubController: HubHost {
         openedBy = nil
         openScreenID = nil
         dragWatch?.hubClosed()
-        if wasOpenedByDrag {
+        if needsHoverRefresh {
             updateHover()
         }
         notifyRuntimes(isOpen: false)
@@ -922,10 +940,11 @@ final class NotchHubController: HubHost {
         updateZones()
     }
 
-    /// Whether the hover monitor is wanted: Open on hover is on, or the hub a file drag opened is
-    /// open and has to close when the pointer leaves it.
+    /// Whether the hover monitor is wanted: Open on hover is on, or the hub a file drag or a gesture
+    /// opened is open and has to close when the pointer leaves it.
     private var wantsHover: Bool {
-        appState?.settings.notchHub.opensOnHover == true || (isOpen && openedBy == .fileDrag)
+        appState?.settings.notchHub.opensOnHover == true
+            || (isOpen && (openedBy == .fileDrag || openedBy == .gesture))
     }
 
     /// Builds the zones and follows the displays while the hover or the drag watch needs them, and

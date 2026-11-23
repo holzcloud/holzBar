@@ -60,6 +60,7 @@ extension SettingsCatalog {
             .modulesAppleItemsReplacements,
             .modulesNotchHubShowsActiveFirst,
             .modulesNotchHubOpensOnHover,
+            .modulesNotchHubGestures,
             .modulesNotchHubDisplays,
             .modulesNotchHubCutout,
             // Settings of the hub modules, in catalog order.
@@ -224,6 +225,15 @@ extension SettingsEntry {
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Open on hover"),
         info: String(localized: "The pointer has to rest at the notch, or at the top center on a display without one."),
+        module: NotchHubController.moduleID
+    )
+
+    static let modulesNotchHubGestures = SettingsEntry(
+        id: "modulesNotchHubGestures",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Gestures"),
+        info: String(localized: "Scroll down on the notch to open the hub and up to close it. Swipe sideways to skip a track."),
         module: NotchHubController.moduleID
     )
 

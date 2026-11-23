@@ -29,6 +29,15 @@ final class NotchHubSettings {
         }
     }
 
+    /// A Boolean value that indicates whether a scroll on the closed notch opens and closes the hub
+    /// and a sideways swipe skips a track. Off by default. The running hub (``NotchHubGestures``)
+    /// follows it and listens to scroll events only while it is on.
+    var gestures = false {
+        didSet {
+            Defaults.set(gestures, forKey: .notchHubGestures)
+        }
+    }
+
     /// The displays the hub may open on.
     var displays: NotchHubDisplays = .all {
         didSet {
@@ -49,6 +58,7 @@ final class NotchHubSettings {
     func performSetup(with appState: AppState) {
         Defaults.ifPresent(key: .notchHubShowsActiveFirst, assign: &showsActiveFirst)
         Defaults.ifPresent(key: .notchHubOpensOnHover, assign: &opensOnHover)
+        Defaults.ifPresent(key: .notchHubGestures, assign: &gestures)
         Defaults.ifPresent(key: .notchHubDisplays) { (rawValue: Int) in
             if let stored = NotchHubDisplays(rawValue: rawValue) {
                 displays = stored

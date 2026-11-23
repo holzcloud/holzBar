@@ -583,6 +583,20 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("The notch hub's Gestures switch is a bool and importable")
+    func notchHubGesturesTravels() {
+        #expect(Defaults.Key.notchHubGestures.rawValue == "NotchHubGestures")
+        #expect(Defaults.Key.notchHubGestures.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.notchHubGestures))
+        #expect(Defaults.Key.importableKinds["NotchHubGestures"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(["NotchHubGestures": true], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["NotchHubGestures"])
+        for refused: Any in [1.5, 2, "yes", ["a"]] {
+            let result = Defaults.Key.validatedSettings(["NotchHubGestures": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+    }
+
     @Test("The display controls' brightness setting travels")
     func displayControlsBrightnessSettingTravels() {
         #expect(Defaults.Key.importableKinds["DisplayControlsBrightness"] == .bool)

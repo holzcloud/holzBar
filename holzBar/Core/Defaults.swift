@@ -307,6 +307,9 @@ nonisolated extension Defaults {
         // MARK: Notch hub
         /// Whether resting the pointer at the notch opens the Notch hub (a boolean, on by default).
         case notchHubOpensOnHover = "NotchHubOpensOnHover"
+        /// Whether a scroll on the closed notch opens and closes the Notch hub and a sideways swipe
+        /// skips a track (a boolean, off by default). The scroll monitor exists only while it is on.
+        case notchHubGestures = "NotchHubGestures"
         /// Whether the Notch hub opens on what is active (a meeting soon, a live activity, music)
         /// instead of the module last chosen (a boolean, on by default).
         case notchHubShowsActiveFirst = "NotchHubShowsActiveFirst"
@@ -563,6 +566,7 @@ nonisolated extension Defaults.Key {
             .keepLiveActivitiesVisible,
             .autoZenWhileSharingScreen,
             .notchHubOpensOnHover,
+            .notchHubGestures,
             .notchHubShowsActiveFirst,
             .calendarShowsAllDay,
             .nowPlayingReadsAllApps,

@@ -26,12 +26,16 @@ nonisolated enum NotchHubPolicy {
         /// A file is being dragged to the notch (File drop). It follows the rules of ``hover`` in
         /// every way.
         case fileDrag
+        /// A scroll gesture on the closed notch (Gestures, D-14). It follows the rules of ``hover``
+        /// in every way, so a hub it opened closes when the pointer leaves it, with Open on hover
+        /// off too. Never persisted.
+        case gesture
 
         /// Whether a hub opened by this trigger closes when the pointer leaves it: the pointer
         /// asked for it, so the pointer takes it back.
         var closesOnLeave: Bool {
             switch self {
-            case .hover, .compact, .fileDrag: true
+            case .hover, .compact, .fileDrag, .gesture: true
             case .hotkey: false
             }
         }

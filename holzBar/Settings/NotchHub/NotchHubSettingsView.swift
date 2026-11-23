@@ -6,13 +6,15 @@
 import SwiftUI
 
 /// The Notch hub's own settings: whether it opens on what is active, whether resting the pointer
-/// opens it, which displays it opens on and how it treats the camera cutout. Its hotkey is in Hotkeys. Shown in the open area of the module's row.
+/// opens it, whether scrolling on the notch does, which displays it opens on and how it treats the
+/// camera cutout. Its hotkey is in Hotkeys. Shown in the open area of the module's row.
 struct NotchHubSettingsView: View {
     @Bindable var settings: NotchHubSettings
 
     var body: some View {
         SettingsToggleRow(.modulesNotchHubShowsActiveFirst, isOn: $settings.showsActiveFirst)
         SettingsToggleRow(.modulesNotchHubOpensOnHover, isOn: $settings.opensOnHover)
+        SettingsToggleRow(.modulesNotchHubGestures, isOn: $settings.gestures, badge: .preview)
         SettingsPickerRow(.modulesNotchHubDisplays, selection: $settings.displays) {
             ForEach(NotchHubDisplays.allCases, id: \.self) { displays in
                 Text(displays.localized).tag(displays)

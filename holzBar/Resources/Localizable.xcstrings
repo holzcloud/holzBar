@@ -183547,6 +183547,242 @@
           }
         }
       }
+    },
+    "Gestures" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesta"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestes"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesztusok"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ジェスチャ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제스처"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebaren"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesty"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestos"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gests"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жесты"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gester"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hareketler"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жести"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手势"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手勢"
+          }
+        }
+      }
+    },
+    "Scroll down on the notch to open the hub and up to close it. Swipe sideways to skip a track." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posunutím dolů na výřezu otevřete centrum, posunutím nahoru ho zavřete. Přejetím do strany přeskočíte skladbu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrolle auf der Notch nach unten, um den Hub zu öffnen, und nach oben, um ihn zu schließen. Wische zur Seite, um einen Titel zu überspringen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desplázate hacia abajo sobre el notch para abrir el hub y hacia arriba para cerrarlo. Desliza hacia un lado para saltar una pista."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faites défiler vers le bas sur l’encoche pour ouvrir le hub, et vers le haut pour le fermer. Balayez sur le côté pour passer un morceau."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Görgess lefelé a notchon a központ megnyitásához, felfelé a bezárásához. Húzd oldalra az ujjad a szám átugrásához."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gulir ke bawah pada notch untuk membuka pusat dan ke atas untuk menutupnya. Geser ke samping untuk melewati satu lagu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scorri verso il basso sul notch per aprire il hub e verso l’alto per chiuderlo. Scorri di lato per saltare un brano."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ノッチの上で下にスクロールするとハブが開き、上にスクロールすると閉じます。横にスワイプすると曲をスキップします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노치 위에서 아래로 스크롤하면 허브가 열리고, 위로 스크롤하면 닫힙니다. 옆으로 쓸어 넘기면 곡을 건너뜁니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scroll omlaag op de notch om de hub te openen en omhoog om hem te sluiten. Veeg zijwaarts om een nummer over te slaan."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przewiń w dół nad notchem, aby otworzyć centrum, a w górę, aby je zamknąć. Przesuń palcem w bok, aby pominąć utwór."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Role para baixo sobre o notch para abrir o hub e para cima para fechá-lo. Deslize para o lado para pular uma faixa."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scorra giu sin la notch per avrir il hub e si per al serrar. Scorra a lain per sursiglir ina tema."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прокрутите вниз над вырезом, чтобы открыть хаб, и вверх, чтобы закрыть его. Смахните в сторону, чтобы пропустить трек."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rulla nedåt på notchen för att öppna centret och uppåt för att stänga det. Svep åt sidan för att hoppa över ett spår."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merkezi açmak için notch üzerinde aşağı, kapatmak için yukarı kaydırın. Bir parçayı atlamak için yana kaydırın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прокрутіть униз над вирізом, щоб відкрити центр, і вгору, щоб закрити його. Проведіть убік, щоб пропустити трек."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在刘海上向下滚动可打开中枢，向上滚动可关闭。向两侧轻扫可跳过曲目。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在瀏海上向下捲動可打開中心，向上捲動可關閉。向兩側輕掃可跳過曲目。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

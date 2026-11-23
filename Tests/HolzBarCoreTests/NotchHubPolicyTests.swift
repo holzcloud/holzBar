@@ -223,6 +223,30 @@ struct NotchHubPolicyTests {
         #expect(Policy.Trigger.fileDrag.closesOnLeave)
     }
 
+    @Test("A gesture is judged exactly as a hover is, and a hub it opened closes when the pointer leaves")
+    func gestureTriggerEqualsHover() {
+        let flags = [false, true]
+        for fullscreen in flags {
+            for hidden in flags {
+                for presenting in flags {
+                    for allowed in flags {
+                        let environment = Policy.Environment(
+                            isFullscreenSpace: fullscreen,
+                            isMenuBarHiddenBySystem: hidden,
+                            isPresenting: presenting,
+                            isDisplayAllowed: allowed
+                        )
+                        #expect(
+                            Policy.blockReason(environment, trigger: .gesture)
+                                == Policy.blockReason(environment, trigger: .hover)
+                        )
+                    }
+                }
+            }
+        }
+        #expect(Policy.Trigger.gesture.closesOnLeave)
+    }
+
     @Test("A wish and the pending action decide what to schedule")
     func decisionTruthTable() {
         #expect(Policy.decision(desired: .open, pending: nil) == .schedule(.open))

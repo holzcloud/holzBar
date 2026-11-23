@@ -82,6 +82,7 @@ sources=(
   HubLiveState
   HubModuleLifecycle
   HubModuleRow
+  HubScrollGesture
   HubStatusPills
   HubTabStrip
   IndicatorPolicy
@@ -250,6 +251,7 @@ tests=(
   HubLiveStateTests
   HubModuleLifecycleTests
   HubModuleRowTests
+  HubScrollGestureTests
   HubStatusPillsTests
   HubTabStripTests
   IndicatorPolicyTests
