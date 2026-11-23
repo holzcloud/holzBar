@@ -88,6 +88,10 @@ final class AppState {
     /// module or every rule is off (Phase 95).
     let systemAlerts = ThresholdAlertsManager()
 
+    /// Software dimming of external displays: one dark overlay window per dimmed display, kept
+    /// only while the Notch hub and Display controls are on and a level is above 0 (Phase 96).
+    let softwareDimmer = SoftwareDimmer()
+
     /// Menu bar items of the user's own: text from built-in sources and Shortcut buttons (Phase 12).
     let widgets = MenuBarWidgets()
 
@@ -318,6 +322,7 @@ final class AppState {
         systemMonitor.performSetup(with: self)
         connectedDevices.performSetup(with: self)
         systemAlerts.performSetup(with: self)
+        softwareDimmer.performSetup(with: self)
         widgets.performSetup(with: self)
         if #available(macOS 27.0, *) {
             // The stand-ins of apps macOS hides anyway; after the item manager's setup.

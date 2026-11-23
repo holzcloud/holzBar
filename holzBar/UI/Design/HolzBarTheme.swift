@@ -353,6 +353,8 @@ enum HolzBarTheme {
         static let compactSymbolFont = Font.system(size: CGFloat(DesignTokens.Hub.compactSymbolSize))
         /// The 10 pt chevron of a disclosure in the hub, such as the output picker's.
         static let chevronFont = Font.system(size: 10, weight: .semibold)
+        /// The 13 pt reset arrow of the dim row, in its 24 pt target.
+        static let resetSymbolFont = Font.system(size: 13)
         /// The 12 pt checkmark of the chosen row of a list in the hub.
         static let checkmarkFont = Font.system(size: 12, weight: .semibold)
         /// The words in the File drop tab's outline while a file is dragged over it.

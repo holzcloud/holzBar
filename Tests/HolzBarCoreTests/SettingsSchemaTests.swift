@@ -266,6 +266,20 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["DisplayControlsExternalMonitors"])
     }
 
+    @Test("The dimming levels are a local-only dictionary that no file can set")
+    func displayControlsDimLevelsStayLocal() {
+        #expect(Defaults.Key.displayControlsDimLevels.rawValue == "DisplayControlsDimLevels")
+        #expect(Defaults.Key.displayControlsDimLevels.settingsKind == .dictionary)
+        #expect(Defaults.Key.localOnlyKeys.contains(.displayControlsDimLevels))
+        #expect(Defaults.Key.importableKinds["DisplayControlsDimLevels"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["DisplayControlsDimLevels": ["A": 0.5], "DisplayControlsBrightness": false],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["DisplayControlsBrightness"])
+        #expect(result.ignored == ["DisplayControlsDimLevels"])
+    }
+
     @Test("The System readouts switch for the GPU read is a local-only Boolean that no file can set")
     func readoutsReadsGPUStaysLocal() {
         #expect(Defaults.Key.readoutsReadsGPU.rawValue == "ReadoutsReadsGPU")

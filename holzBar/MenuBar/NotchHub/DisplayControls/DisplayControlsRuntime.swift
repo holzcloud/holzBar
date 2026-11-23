@@ -192,6 +192,11 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// The app state, for the Brightness setting.
     @ObservationIgnored private weak var appState: AppState?
 
+    /// The service that owns the dim layers; the dim row of a card sets its levels through it.
+    var softwareDimmer: SoftwareDimmer? {
+        appState?.softwareDimmer
+    }
+
     /// The device the volume was read from.
     @ObservationIgnored private var device: AudioObjectID?
 

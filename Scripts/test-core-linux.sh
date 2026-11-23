@@ -175,6 +175,7 @@ sources=(
   ShelfFind
   ShelfFindRanking
   ShortcutLink
+  SoftwareDimming
   SystemActivity
   ThresholdEvaluator
   ThresholdRule
@@ -347,6 +348,7 @@ tests=(
   ShelfDropTests
   ShelfFindTests
   ShortcutLinkTests
+  SoftwareDimmingTests
   SystemActivityTests
   ThresholdEvaluatorTests
   ThresholdRuleTests

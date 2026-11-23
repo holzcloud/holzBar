@@ -49,6 +49,8 @@ struct DisplayControlsBodyView: View {
         static let valueWidth: CGFloat = 44
         static let gap = HolzBarTheme.Spacing.xxs
         static let disabledOpacity = 0.4
+        /// The dim slider moves by 5 percent for VoiceOver and the arrow keys.
+        static let dimStep = 0.05
         /// The picker's rows: 28 pt high, 4 pt apart, a 24 pt symbol column, a 16 pt spinner.
         static let outputRowHeight: CGFloat = 28
         static let outputSymbolColumn: CGFloat = 24
@@ -120,8 +122,90 @@ struct DisplayControlsBodyView: View {
                 caption(Text("Turn on External monitors in Settings to control this display"))
                 openSettingsButton
             }
+            dimRow(monitor)
         }
         .accessibilityLabel(Text(verbatim: monitor.name))
+    }
+
+    /// The dim row, the card's last row: the 28 pt slot with the dim symbol, the slider from 0 to
+    /// the floor, the value in the 44 pt column, the reset button (enabled above 0 percent) and
+    /// the Preview badge 8 pt after it. It carries no visible name; the accessibility label names
+    /// the monitor. The value shown is the value set: there is nothing to read back.
+    @ViewBuilder
+    private func dimRow(_ monitor: DisplayControlsRuntime.ExternalMonitor) -> some View {
+        if let dimmer = runtime.softwareDimmer {
+            let shown = dimmer.level(for: monitor.id)
+            HStack(spacing: HolzBarTheme.Spacing.xs) {
+                Image(systemName: "sun.min.fill")
+                    .font(HolzBarTheme.Hub.compactSymbolFont)
+                    .foregroundStyle(HolzBarTheme.Hub.pillText)
+                    .frame(width: Row.slot, height: Row.slot)
+                    .help(Text("Dims this display with a dark layer. It can show in screenshots."))
+                    .accessibilityHidden(true)
+                Slider(value: dimLevel(dimmer, monitor: monitor), in: 0...SoftwareDimming.maximum)
+                    .tint(HolzBarTheme.Palette.accent)
+                    .accessibilityLabel(Text("Dim, \(monitor.name)"))
+                    .accessibilityValue(Text("\(DisplayControlsLevel.percent(shown)) percent"))
+                    .accessibilityAdjustableAction { direction in
+                        switch direction {
+                        case .increment: stepDim(1, dimmer, monitor)
+                        case .decrement: stepDim(-1, dimmer, monitor)
+                        @unknown default: break
+                        }
+                    }
+                    .onKeyPress(.leftArrow) { stepDimKey(-1, dimmer, monitor) }
+                    .onKeyPress(.downArrow) { stepDimKey(-1, dimmer, monitor) }
+                    .onKeyPress(.rightArrow) { stepDimKey(1, dimmer, monitor) }
+                    .onKeyPress(.upArrow) { stepDimKey(1, dimmer, monitor) }
+                Text(verbatim: "\(DisplayControlsLevel.percent(shown)) %")
+                    .font(HolzBarTheme.Typography.mono.monospacedDigit())
+                    .foregroundStyle(HolzBarTheme.Hub.neutral)
+                    .frame(width: Row.valueWidth, alignment: .trailing)
+                    .accessibilityHidden(true)
+                Button {
+                    dimmer.reset(monitor.id)
+                } label: {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(HolzBarTheme.Hub.resetSymbolFont)
+                        .foregroundStyle(HolzBarTheme.Hub.neutral)
+                        .frame(width: HolzBarTheme.minimumTargetSize, height: HolzBarTheme.minimumTargetSize)
+                        .frame(width: Row.slot, height: Row.slot)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .disabled(shown <= 0)
+                .accessibilityLabel(Text("Reset dimming"))
+                PreviewBadge()
+                    .fixedSize()
+                    .layoutPriority(1)
+            }
+            .frame(height: Row.height)
+        }
+    }
+
+    /// The dim slider's value: the level set, set through the dimmer.
+    private func dimLevel(_ dimmer: SoftwareDimmer, monitor: DisplayControlsRuntime.ExternalMonitor) -> Binding<Double> {
+        Binding(
+            get: { dimmer.level(for: monitor.id) },
+            set: { dimmer.setLevel($0, for: monitor.id) }
+        )
+    }
+
+    /// Moves the dim level by 5 percent steps, held between 0 and the floor.
+    private func stepDim(_ steps: Int, _ dimmer: SoftwareDimmer, _ monitor: DisplayControlsRuntime.ExternalMonitor) {
+        let moved = dimmer.level(for: monitor.id) + Double(steps) * Row.dimStep
+        // Rounded to two decimals so that many steps in a row do not drift.
+        dimmer.setLevel((moved * 100).rounded() / 100, for: monitor.id)
+    }
+
+    /// An arrow key steps the dim level by 5 percent when its slider has focus.
+    private func stepDimKey(
+        _ steps: Int,
+        _ dimmer: SoftwareDimmer,
+        _ monitor: DisplayControlsRuntime.ExternalMonitor
+    ) -> KeyPress.Result {
+        stepDim(steps, dimmer, monitor)
+        return .handled
     }
 
     /// The line of a card while the external part is unavailable. Only a part that switched itself

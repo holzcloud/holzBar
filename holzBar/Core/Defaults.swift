@@ -394,6 +394,10 @@ nonisolated extension Defaults {
         /// which uses a private macOS interface (a boolean, off by default; the switch of that
         /// part, stored on this Mac only).
         case displayControlsExternalMonitors = "DisplayControlsExternalMonitors"
+        /// How far software dimming darkens each external display: a dictionary of display UUID
+        /// to a level above 0 and up to 0.9 (D-19). The identifiers are those of this Mac's
+        /// displays, so it stays on this Mac only: never exported or imported.
+        case displayControlsDimLevels = "DisplayControlsDimLevels"
 
         // MARK: System readouts
         /// How the network speed counts: the raw value of `ReadoutRateUnit` (a whole number, 0
@@ -695,6 +699,7 @@ nonisolated extension Defaults.Key {
             .revealRules,
             .macOS27Layout,
             .displayBehaviors,
+            .displayControlsDimLevels,
             .itemSections,
             .itemIcons,
             .widgetShortcutNames,
@@ -814,7 +819,8 @@ nonisolated extension Defaults.Key {
     /// the user switched off (their identifiers name the user's accounts), the version the
     /// What's New window last covered (it describes this install), whether the
     /// Shelf's fold was left open and what each display does with the hidden items (the
-    /// displays' identifiers are those of this Mac), and the two switches that turn a private
+    /// displays' identifiers are those of this Mac), how far software dimming darkens each display
+    /// (also keyed by display), and the two switches that turn a private
     /// interface on: Now Playing's Read all apps, Display controls' External monitors and System
     /// readouts' Read GPU load, the System alerts' System notifications switch (a per-Mac
     /// permission state) and the display cutout, which describes this Mac's hardware.
@@ -833,6 +839,7 @@ nonisolated extension Defaults.Key {
         .calendarHiddenCalendars,
         .nowPlayingReadsAllApps,
         .displayControlsExternalMonitors,
+        .displayControlsDimLevels,
         .readoutsReadsGPU,
         .systemAlertsNotifications,
         .notchHubCutout,
