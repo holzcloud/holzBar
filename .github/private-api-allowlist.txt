@@ -18,7 +18,8 @@ holzBar/MenuBar/NotchHub/AccessoryAlerts/AccessoryBatterySource.swift: dlsym
 #
 # The Display controls module sets brightness through DisplayServices, which Apple does not
 # document: brightness has no public API (agreed 2026-10-09). The wrapper loads it on first
-# use and only while the module's Brightness setting is on.
+# use and only while the module's Brightness setting is on (also the brightness keys of the
+# Indicators module, agreed 2026-11-23).
 holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: dlopen
 holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: dlsym
 holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: PrivateFrameworks
@@ -26,7 +27,8 @@ holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: Privat
 # The Display controls module's External monitors (DDC) switch reads and sets external monitors
 # over DDC/CI through IOAVService, which Apple does not document: Apple silicon has no public
 # DDC path (agreed 2026-11-05; scope 2026-11-14). The wrapper looks the functions up at run time
-# and only while that switch is on.
+# and only while that switch is on (also the brightness keys of the
+# Indicators module, agreed 2026-11-23).
 holzBar/MenuBar/NotchHub/DisplayControls/IOAVServiceBridge.swift: dlsym
 #
 # The Now Playing module's Read all apps reads what any app plays through MediaRemote, which
