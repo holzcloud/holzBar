@@ -31,7 +31,12 @@ import SwiftUI
 /// The third is the media-key tap (D-21), the first part of replacing the system's own display:
 /// while Replace the system display is on as well and holzBar holds Accessibility, the runtime
 /// keeps one ``MediaKeyTap``, a session event tap on a thread of its own, and exactly then
-/// (``ClosedHubWork`` decides). In this plan every key passes through it unchanged. Trust is
+/// (``ClosedHubWork`` decides). The tap takes the volume and mute keys where the one rule
+/// (``MediaKeyRule``) says holzBar can perform them and show its own flash, and passes everything
+/// else unchanged; a taken key moves the default output by Apple's step of 1/16 (1/64 with Option
+/// and Shift), and the flash shows the level the output reads back through the same path as the
+/// observed volume. The brightness keys pass until their targets are known. The snapshot the tap
+/// reads is refreshed from observed state and the system's notifications, never on a clock. Trust is
 /// re-read when holzBar or another app becomes active and after a wake, and the tap is removed the
 /// moment it is gone; it comes back only after the permission has returned (2 s, then 8 s later).
 ///
@@ -83,6 +88,7 @@ final class IndicatorsRuntime: HubModuleRuntime {
     @ObservationIgnored private var trustRetryTask: Task<Void, Never>?
     @ObservationIgnored private var trustWatchTasks = [Task<Void, Never>]()
     @ObservationIgnored private var tapStartFailures = 0
+    @ObservationIgnored private var mediaKeyInputsLoop: ObservationLoop?
 
     /// Whether holzBar held Accessibility when it was last looked at. It is what ``ClosedHubWork``
     /// sees as trust: it goes false at once when the permission is found gone, and true again only
@@ -192,6 +198,20 @@ final class IndicatorsRuntime: HubModuleRuntime {
 
     // MARK: Media keys
 
+    /// What the media-key snapshot is built from, read inside the observation: when one of these
+    /// changes the snapshot is built again (the displays, the output and the presenting signals
+    /// follow their own notifications).
+    private struct MediaKeyInputs: Equatable {
+        var replaceOn = false
+        var isTrusted = false
+        var isFullscreenSpace = false
+        var isMenuBarHidden = false
+        var isHubActive = false
+        var isHubOpen = false
+        var displays = NotchHubDisplays.all
+        var wakeGate = DDCWakeGate()
+    }
+
     /// Creates the tap when the rule allows it and removes it when the rule no longer does. Asking
     /// for what already is changes nothing.
     private func setObservingMediaKeys(_ isOn: Bool) {
@@ -205,6 +225,9 @@ final class IndicatorsRuntime: HubModuleRuntime {
         let tap = MediaKeyTap { [weak self] in
             self?.trustWasLost()
         }
+        tap.onTaken = { [weak self] press, _, quarter in
+            self?.mediaKeyWasTaken(press, quarter: quarter)
+        }
         mediaKeyTap = tap
         guard tap.start() else {
             // macOS refused the tap or the permission is gone: no tap, and no trust until it is back.
@@ -215,13 +238,116 @@ final class IndicatorsRuntime: HubModuleRuntime {
         }
         tapStartFailures = 0
         watchTrust()
+        mediaKeyInputsLoop = ObservationLoop.observe(
+            { [weak self] in
+                self?.mediaKeyInputs() ?? MediaKeyInputs()
+            },
+            onChange: { [weak self] _ in
+                self?.refreshMediaKeySnapshot()
+            }
+        )
+        refreshMediaKeySnapshot()
     }
 
     private func stopMediaKeyTap() {
+        mediaKeyInputsLoop?.cancel()
+        mediaKeyInputsLoop = nil
         mediaKeyTap?.stop()
         mediaKeyTap = nil
         trustWatchTasks.forEach { $0.cancel() }
         trustWatchTasks.removeAll()
+    }
+
+    private func mediaKeyInputs() -> MediaKeyInputs {
+        guard let appState else {
+            return MediaKeyInputs()
+        }
+        return MediaKeyInputs(
+            replaceOn: appState.settings.indicators.replacesSystemDisplay,
+            isTrusted: isTrustedForTap,
+            isFullscreenSpace: appState.activeSpace.isFullscreen,
+            isMenuBarHidden: appState.menuBarManager.isMenuBarHiddenBySystem,
+            isHubActive: appState.notchHub.isActive,
+            isHubOpen: appState.notchHub.isOpen,
+            displays: appState.settings.notchHub.displays,
+            wakeGate: appState.systemActivityMonitor.ddcWakeGate
+        )
+    }
+
+    /// Builds what the tap's thread reads and hands it over. A key is taken only on a display where
+    /// a hub may show and only while the hub is closed (an open hub draws no flash, so a key
+    /// taken then would show nothing). Every brightness target is unknown here, so those keys pass.
+    private func refreshMediaKeySnapshot() {
+        guard let appState, let tap = mediaKeyTap else {
+            return
+        }
+        let hub = appState.notchHub
+        var snapshot = MediaKeyState.Snapshot()
+        snapshot.isTrusted = isTrustedForTap && MediaKeyState.accessibilityIsTrusted()
+        snapshot.replaceOn = appState.settings.indicators.replacesSystemDisplay
+        snapshot.wakeGate = appState.systemActivityMonitor.ddcWakeGate
+        if let output = OutputVolume.current() {
+            snapshot.outputSettable = output.plan != .unsupported
+            snapshot.muteSettable = output.capabilities.muteSettable
+        }
+        let mayShow = hub.isActive && !hub.isOpen
+        for (index, screen) in NSScreen.screens.enumerated() {
+            let environment = hub.policyEnvironment(of: screen, appState: appState)
+            if index == 0 {
+                snapshot.fullScreenSpace = environment.isFullscreenSpace
+                snapshot.menuBarHidden = environment.isMenuBarHiddenBySystem
+                snapshot.mirroredOrShared = environment.isPresenting
+            }
+            snapshot.displays.append(
+                MediaKeyState.Snapshot.Display(
+                    id: screen.displayID,
+                    bounds: CGDisplayBounds(screen.displayID),
+                    hubAllowed: mayShow && NotchHubPolicy.blockReason(environment, trigger: .compact) == nil
+                )
+            )
+        }
+        tap.update(snapshot)
+    }
+
+    /// Performs a taken key, which was already consumed: the volume and mute keys move the default
+    /// output and show holzBar's own flash with the level the output reads back. The brightness
+    /// keys are never taken in this release of the rule, so none reaches here.
+    private func mediaKeyWasTaken(_ press: MediaKeyPress, quarter: Bool) {
+        guard press.isDown, let output = OutputVolume.current() else {
+            return
+        }
+        switch press.code {
+        case .soundUp, .soundDown:
+            guard let level = OutputVolume.volume(of: output.device, plan: output.plan) else {
+                return
+            }
+            let next = MediaKeyRule.next(level: level, code: press.code, quarter: quarter)
+            OutputVolume.setVolume(next, of: output.device, plan: output.plan)
+            // A volume key unmutes, as the system's own does.
+            if OutputVolume.isMuted(output.device) == true {
+                OutputVolume.setMuted(false, output.device)
+            }
+        case .mute:
+            let isMuted = OutputVolume.isMuted(output.device) ?? false
+            OutputVolume.setMuted(!isMuted, output.device)
+        case .brightnessUp, .brightnessDown:
+            return
+        }
+        showTakenVolume(of: output)
+    }
+
+    /// Reads the output back and shows it as one flash through the volume path of the observed
+    /// volume, so a key at the end of the range (where nothing changes) still shows and there is
+    /// no second path. The listener's own callback for this change then reports nothing more, since
+    /// the baseline is kept in step here.
+    private func showTakenVolume(of output: OutputVolume.Output) {
+        let level = OutputVolume.volume(of: output.device, plan: output.plan)
+        let isMuted = OutputVolume.isMuted(output.device)
+        _ = volumeSteps.offer(level: level, isMuted: isMuted)
+        guard isObservingVolume, !isHubOpen, let level else {
+            return
+        }
+        presentVolume(isMuted == true ? .muted : .level(percent: VolumeSteps.percent(level)))
     }
 
     /// Looks at Accessibility again whenever holzBar or another app becomes active and after a
@@ -231,15 +357,25 @@ final class IndicatorsRuntime: HubModuleRuntime {
         guard trustWatchTasks.isEmpty else {
             return
         }
-        func watch(_ center: NotificationCenter, _ name: Notification.Name) -> Task<Void, Never> {
+        func watch(
+            _ center: NotificationCenter,
+            _ name: Notification.Name,
+            checksTrust: Bool = true
+        ) -> Task<Void, Never> {
             Task { [weak self] in
                 for await _ in center.notifications(named: name) {
-                    self?.refreshTrust()
+                    if checksTrust {
+                        self?.refreshTrust()
+                    }
+                    // The same events change what the tap may take: the displays, the apps that
+                    // present the screen, the Mac's wake.
+                    self?.refreshMediaKeySnapshot()
                 }
             }
         }
         trustWatchTasks = [
             watch(.default, NSApplication.didBecomeActiveNotification),
+            watch(.default, NSApplication.didChangeScreenParametersNotification, checksTrust: false),
             watch(NSWorkspace.shared.notificationCenter, NSWorkspace.didActivateApplicationNotification),
             watch(NSWorkspace.shared.notificationCenter, NSWorkspace.didWakeNotification),
         ]
@@ -493,12 +629,18 @@ final class IndicatorsRuntime: HubModuleRuntime {
         }
         guard let output = OutputVolume.current() else {
             volumeSteps.reset()
-            volumeDevice = nil
+            if volumeDevice != nil {
+                volumeDevice = nil
+                // The output is gone: the tap's snapshot must not take a volume key.
+                refreshMediaKeySnapshot()
+            }
             return
         }
         if output.device != volumeDevice {
             volumeSteps.reset()
             volumeDevice = output.device
+            // Another output: what the volume keys can do there is read again.
+            refreshMediaKeySnapshot()
         }
         let change = volumeSteps.offer(
             level: OutputVolume.volume(of: output.device, plan: output.plan),

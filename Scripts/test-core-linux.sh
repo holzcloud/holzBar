@@ -119,6 +119,7 @@ sources=(
   MenuBarIconChoice
   MenuBarDrop
   MenuBarPills
+  MediaKeyPress
   MeetingLinks
   MenuBarStyleOptions
   ModuleCatalog
@@ -294,6 +295,7 @@ tests=(
   MenuBarIconChoiceTests
   MenuBarDropTests
   MenuBarPillsTests
+  MediaKeyPressTests
   MeetingLinksTests
   MenuBarStyleOptionsTests
   ModuleCatalogTests

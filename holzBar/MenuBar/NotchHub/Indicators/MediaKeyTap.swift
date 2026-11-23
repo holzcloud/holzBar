@@ -19,8 +19,10 @@ import OSLog
 /// whether to enable it again (only while Accessibility holds); when the answer is no, the tap
 /// removes itself and tells the runtime, which waits for the permission to return.
 ///
-/// In this plan every event passes unchanged: no key is taken, decoded or acted on, and nothing
-/// about an event is logged.
+/// The callback takes a key only where ``MediaKeyState`` says so (the one rule,
+/// ``MediaKeyRule/takes(_:in:downWasTaken:)``): it returns `nil` for a taken key and starts one task
+/// on the main actor that calls ``onTaken`` for a press; every other event is returned unchanged.
+/// The callback never waits for the main actor. Nothing about an event is logged.
 @MainActor
 final class MediaKeyTap {
     /// The type of system-defined events, which carry the media keys: `NX_SYSDEFINED` (14) in
@@ -41,6 +43,11 @@ final class MediaKeyTap {
 
     /// Called on the main actor when the tap removed itself because Accessibility is gone.
     private let onTrustLost: @MainActor () -> Void
+
+    /// Called on the main actor for every press (and every repeat) of a key that was taken, with
+    /// the display under the pointer and whether Option and Shift were held (the quarter step).
+    /// The release of a taken key is consumed and not reported.
+    var onTaken: (@MainActor (MediaKeyPress, CGDirectDisplayID, Bool) -> Void)?
 
     /// The tap, while it exists. Releasing it takes it out of the event stream and ends its thread.
     private var tap: EventTap?
@@ -93,7 +100,18 @@ final class MediaKeyTap {
                 return action
             },
             callback: { event in
-                state.filter(event)
+                switch state.decide(event) {
+                case .pass:
+                    return event
+                case let .take(press, display, quarter):
+                    // One hand-over to the main actor; the callback does not wait for it.
+                    if press.isDown {
+                        Task { @MainActor in
+                            box.tap?.keyWasTaken(press, display: display, quarter: quarter)
+                        }
+                    }
+                    return nil
+                }
             }
         )
         guard newTap.isValid else {
@@ -107,6 +125,14 @@ final class MediaKeyTap {
         return true
     }
 
+    /// Hands the tap thread a new snapshot of the Mac. Does nothing while no tap exists.
+    func update(_ snapshot: MediaKeyState.Snapshot) {
+        guard tap != nil else {
+            return
+        }
+        state.update(snapshot)
+    }
+
     /// Takes the tap out of the event stream. Removing a tap that does not exist changes nothing.
     func stop() {
         state.update(trusted: false)
@@ -117,6 +143,12 @@ final class MediaKeyTap {
         tap.disable()
         self.tap = nil
         Self.logger.notice("Media keys: the tap was removed")
+    }
+
+    /// A key was taken on the tap's thread: the runtime performs it. It is performed even when the
+    /// tap was removed in the meantime, because the key was already consumed.
+    private func keyWasTaken(_ press: MediaKeyPress, display: CGDirectDisplayID, quarter: Bool) {
+        onTaken?(press, display, quarter)
     }
 
     /// The tap removed itself because macOS disabled it with Accessibility gone: it is taken out
