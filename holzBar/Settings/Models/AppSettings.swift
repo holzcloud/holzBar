@@ -38,6 +38,9 @@ final class AppSettings {
     /// The model for the Display controls module's settings.
     let displayControls = DisplayControlsSettings()
 
+    /// The model for the Indicators module's settings.
+    let indicators = IndicatorsSettings()
+
     /// The model for the Notifications module's settings.
     let notifications = NotificationsSettings()
 
@@ -61,6 +64,7 @@ final class AppSettings {
         liveActivities.performSetup(with: appState)
         fileDrop.performSetup(with: appState)
         displayControls.performSetup(with: appState)
+        indicators.performSetup(with: appState)
         notifications.performSetup(with: appState)
         nowPlaying.performSetup(with: appState)
         readouts.performSetup(with: appState)

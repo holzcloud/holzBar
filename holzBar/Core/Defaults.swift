@@ -453,6 +453,14 @@ nonisolated extension Defaults {
         /// per-Mac permission state, stored on this Mac only and never exported or imported).
         case systemAlertsNotifications = "SystemAlertsNotifications"
 
+        // MARK: Indicators
+        /// Whether a change of the keyboard input source flashes in the closed notch (a boolean, off
+        /// by default). It starts the system's input source notifications only while it is on.
+        case indicatorsInputSource = "IndicatorsInputSource"
+        /// How long the input source flash stays, in seconds (a number from 0.5 to 3; the model snaps
+        /// it to 0.5, 1, 1.5, 2 or 3, 1.5 by default).
+        case indicatorsInputSourceDuration = "IndicatorsInputSourceDuration"
+
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
         /// entry event is dropped, so the real event never reaches the item, the exit event
@@ -571,6 +579,7 @@ nonisolated extension Defaults.Key {
             .systemAlertsFreeDisk,
             .systemAlertsMacBattery,
             .systemAlertsNotifications,
+            .indicatorsInputSource,
             .openHiddenItemsInMenuBar,
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,
@@ -624,6 +633,7 @@ nonisolated extension Defaults.Key {
             .systemAlertsFreeDiskHold,
             .systemAlertsMacBatteryThreshold,
             .systemAlertsMacBatteryHold,
+            .indicatorsInputSourceDuration,
             .menuBarBorderWidth,
             .menuBarTintKind:
             .number
@@ -699,6 +709,9 @@ nonisolated extension Defaults.Key {
             .clamped(1...3)
         case .accessoryAlertsLowBatteryLevel:
             .clamped(10...30)
+        case .indicatorsInputSourceDuration:
+            // Seconds; the model snaps them to the choices of IndicatorLook.
+            .clamped(0.5...3)
         case .spacerCount:
             .wholeNumber(0...10)
         case .notchHubDisplays:

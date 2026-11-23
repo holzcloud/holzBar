@@ -42,6 +42,11 @@ enum HubModules {
             makeSettings: { AnyView(AccessoryAlertsSettingsView()) }
         ),
         HubModuleRegistration(
+            id: IndicatorsRuntime.identifier,
+            makeRuntime: { IndicatorsRuntime(appState: $0) },
+            makeSettings: { AnyView(IndicatorsSettingsView()) }
+        ),
+        HubModuleRegistration(
             id: "notifications",
             makeRuntime: { NotificationsRuntime(appState: $0) },
             makeSettings: { AnyView(NotificationsSettingsView()) }

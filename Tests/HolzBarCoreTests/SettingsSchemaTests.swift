@@ -530,6 +530,45 @@ struct SettingsSchemaTests {
         #expect(clamped.accepted["AccessoryAlertsLowBatteryLevel"] as? Double == 30)
     }
 
+    @Test("The Indicators settings travel: the input source switch and its duration, clamped to 0.5 to 3")
+    func indicatorsSettingsTravel() {
+        #expect(Defaults.Key.indicatorsInputSource.rawValue == "IndicatorsInputSource")
+        #expect(Defaults.Key.indicatorsInputSourceDuration.rawValue == "IndicatorsInputSourceDuration")
+        #expect(Defaults.Key.indicatorsInputSource.settingsKind == .bool)
+        #expect(Defaults.Key.indicatorsInputSourceDuration.settingsKind == .number)
+        #expect(Defaults.Key.indicatorsInputSourceDuration.numberRule == .clamped(0.5...3))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.indicatorsInputSource))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.indicatorsInputSourceDuration))
+        #expect(Defaults.Key.importableKinds["IndicatorsInputSource"] == .bool)
+        #expect(Defaults.Key.importableKinds["IndicatorsInputSourceDuration"] == .number)
+        let accepted = Defaults.Key.validatedSettings(
+            ["IndicatorsInputSource": true, "IndicatorsInputSourceDuration": 2],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(accepted.accepted.keys.sorted() == ["IndicatorsInputSource", "IndicatorsInputSourceDuration"])
+        for refused: Any in [1.5, 2, "yes", ["a"]] {
+            let result = Defaults.Key.validatedSettings(["IndicatorsInputSource": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+        for refused: Any in ["2", true, ["a"]] {
+            let result = Defaults.Key.validatedSettings(["IndicatorsInputSourceDuration": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+        // A number out of range is clamped on import and on every read; a value that is not a number
+        // never reaches the model.
+        let high = Defaults.Key.validatedSettings(["IndicatorsInputSourceDuration": 9], ownBundleIdentifier: ownBundle)
+        #expect(high.accepted["IndicatorsInputSourceDuration"] as? Double == 3)
+        let low = Defaults.Key.validatedSettings(["IndicatorsInputSourceDuration": 0.1], ownBundleIdentifier: ownBundle)
+        #expect(low.accepted["IndicatorsInputSourceDuration"] as? Double == 0.5)
+        #expect(Defaults.Key.indicatorsInputSourceDuration.clamped(9, fallback: 1.5) == 3)
+        #expect(Defaults.Key.indicatorsInputSourceDuration.clamped(0.1, fallback: 1.5) == 0.5)
+        #expect(Defaults.Key.indicatorsInputSourceDuration.clamped(.nan, fallback: 1.5) == 1.5)
+        // The model then snaps what it reads to the nearest choice (96-02's IndicatorLook).
+        #expect(IndicatorLook.inputSourceDuration(Defaults.Key.indicatorsInputSourceDuration.clamped(9, fallback: 1.5)) == 3)
+        #expect(IndicatorLook.inputSourceDuration(Defaults.Key.indicatorsInputSourceDuration.clamped(0.1, fallback: 1.5)) == 0.5)
+        #expect(IndicatorLook.inputSourceDuration(1.7) == 1.5)
+    }
+
     @Test("The display controls' brightness setting travels")
     func displayControlsBrightnessSettingTravels() {
         #expect(Defaults.Key.importableKinds["DisplayControlsBrightness"] == .bool)

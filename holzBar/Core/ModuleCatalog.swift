@@ -163,6 +163,15 @@ nonisolated enum ModuleCatalog {
             permission: .bluetooth
         ),
         ModuleDescriptor(
+            id: "indicators",
+            area: .notch,
+            symbol: "dial.medium",
+            titleKey: "Indicators",
+            summaryKey: "Shows keyboard layout changes and volume and brightness levels in the notch.",
+            permission: nil,
+            isPreview: true
+        ),
+        ModuleDescriptor(
             id: "notifications",
             area: .notch,
             symbol: "bell.badge",

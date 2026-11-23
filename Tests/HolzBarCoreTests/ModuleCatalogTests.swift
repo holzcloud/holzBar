@@ -192,6 +192,26 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["accessory-alerts"], knownTo: ModuleCatalog.all) == ["accessory-alerts"])
     }
 
+    @Test("Indicators is a preview module of the notch area without a permission, directly after Accessory alerts")
+    func indicatorsModule() throws {
+        let indicators = try #require(ModuleCatalog.all.first { $0.id == "indicators" })
+        #expect(indicators.area == .notch)
+        #expect(indicators.permission == nil)
+        #expect(indicators.isPreview)
+        #expect(indicators.symbol == "dial.medium")
+        #expect(indicators.titleKey == "Indicators")
+        #expect(indicators.summaryKey == "Shows keyboard layout changes and volume and brightness levels in the notch.")
+        #expect(indicators.id == IndicatorLook.moduleID)
+        let notch = ModuleCatalog.modules(in: .notch).map(\.id)
+        let alertsIndex = try #require(notch.firstIndex(of: "accessory-alerts"))
+        let indicatorsIndex = try #require(notch.firstIndex(of: "indicators"))
+        #expect(indicatorsIndex == alertsIndex + 1)
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["indicators"], knownTo: ModuleCatalog.all) == ["indicators"])
+    }
+
     @Test("Notifications is a module of the notch area that needs Accessibility, after the hub's other modules")
     func notificationsModule() throws {
         let notifications = try #require(ModuleCatalog.all.first { $0.id == "notifications" })

@@ -78,6 +78,8 @@ extension SettingsCatalog {
             .modulesAccessoryAlertsReadsBattery,
             .modulesAccessoryAlertsLowBattery,
             .modulesAccessoryAlertsLowBatteryLevel,
+            .modulesIndicatorsInputSource,
+            .modulesIndicatorsInputSourceDuration,
             .modulesNotificationsExcludedApps,
             .modulesNowPlayingAppleMusic,
             .modulesNowPlayingSpotify,
@@ -373,6 +375,24 @@ extension SettingsEntry {
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Low battery level"),
         module: "accessory-alerts"
+    )
+
+    static let modulesIndicatorsInputSource = SettingsEntry(
+        id: "modulesIndicatorsInputSource",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Input source"),
+        info: String(localized: "Flashes the keyboard layout in the notch when you switch it. It needs two or more input sources."),
+        module: IndicatorLook.moduleID
+    )
+
+    static let modulesIndicatorsInputSourceDuration = SettingsEntry(
+        id: "modulesIndicatorsInputSourceDuration",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Show for"),
+        info: String(localized: "How long the input source stays in the notch."),
+        module: IndicatorLook.moduleID
     )
 
     static let modulesNotificationsExcludedApps = SettingsEntry(
