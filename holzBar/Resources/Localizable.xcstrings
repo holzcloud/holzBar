@@ -186546,6 +186546,242 @@
           }
         }
       }
+    },
+    "Countdown before a meeting" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odpočítávání před schůzkou"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Countdown vor einem Termin"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta atrás antes de una reunión"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compte à rebours avant une réunion"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visszaszámlálás megbeszélés előtt"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hitung mundur sebelum rapat"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conto alla rovescia prima di una riunione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会議前のカウントダウン"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "회의 전 카운트다운"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aftellen vóór een afspraak"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odliczanie przed spotkaniem"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contagem regressiva antes de uma reunião"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Countdown avant ina radunanza"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обратный отсчёт перед встречей"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nedräkning före ett möte"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toplantıdan önce geri sayım"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зворотний відлік перед зустріччю"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会议前倒计时"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "會議前倒數計時"
+          }
+        }
+      }
+    },
+    "Counts down in the closed notch before a meeting starts. It never shows the event's title." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odpočítává v zavřeném notchi před začátkem schůzky. Nikdy nezobrazuje název události."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zählt in der geschlossenen Notch bis zum Beginn eines Termins herunter. Der Titel des Termins wird nie angezeigt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta atrás en el notch cerrado antes de que empiece una reunión. Nunca muestra el título del evento."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affiche un compte à rebours dans le notch fermé avant le début d’une réunion. Il n’affiche jamais le titre de l’événement."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visszaszámol a zárt notchban a megbeszélés kezdete előtt. Az esemény címét soha nem mutatja."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menghitung mundur di notch yang tertutup sebelum rapat dimulai. Judul acara tidak pernah ditampilkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conta alla rovescia nel notch chiuso prima dell’inizio di una riunione. Non mostra mai il titolo dell’evento."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会議が始まる前に、閉じた状態のノッチでカウントダウンします。予定のタイトルは表示しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "회의가 시작되기 전에 닫힌 노치에서 카운트다운합니다. 일정 제목은 절대 표시하지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telt in de gesloten notch af voordat een afspraak begint. De titel van de afspraak wordt nooit getoond."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odlicza w zamkniętym notchu czas do rozpoczęcia spotkania. Nigdy nie pokazuje tytułu wydarzenia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faz uma contagem regressiva no notch fechado antes do início de uma reunião. Nunca mostra o título do evento."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fa in countdown en la notch serrada avant che ina radunanza cumenza. Mussa mai il titel da l’eveniment."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ведёт обратный отсчёт в закрытом вырезе до начала встречи. Название события никогда не показывается."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Räknar ner i den stängda notchen innan ett möte börjar. Visar aldrig händelsens titel."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir toplantı başlamadan önce kapalı çentikte geri sayım yapar. Etkinliğin başlığını hiçbir zaman göstermez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відлічує час у закритому вирізі до початку зустрічі. Ніколи не показує назву події."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会议开始前在收起的刘海中倒计时，绝不显示日程的标题。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "會議開始前在收合的瀏海中倒數計時，絕不顯示行程的標題。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

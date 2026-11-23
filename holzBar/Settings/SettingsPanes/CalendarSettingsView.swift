@@ -6,8 +6,8 @@
 import SwiftUI
 
 /// The Calendar module's settings, in the open area of the module's row: whether all-day events
-/// show, and which calendars, chosen in a sheet. Without access, one state line says so with one
-/// button; nothing asks by itself.
+/// show, which calendars, chosen in a sheet, and how long before a meeting the closed notch counts
+/// down. Without access, one state line says so with one button; nothing asks by itself.
 ///
 /// The calendars' names are read only while this view is on screen and are held in view state;
 /// they are never stored or logged.
@@ -31,6 +31,16 @@ struct CalendarSettingsView: View {
                 }
                 .sheet(isPresented: $isChoosingCalendars) {
                     CalendarChoiceSheet(calendars: calendars, settings: settings)
+                }
+                SettingsPickerRow(.modulesCalendarCountdown, selection: $settings.countdownLead, badge: .preview) {
+                    ForEach(CountdownLead.allCases, id: \.self) { lead in
+                        if lead == .off {
+                            Text("Off").tag(lead)
+                        } else {
+                            Text(Duration.seconds(lead.rawValue * 60), format: .units(allowed: [.minutes], width: .wide))
+                                .tag(lead)
+                        }
+                    }
                 }
             } else {
                 SettingsStateLine(.warning, Text("Calendar access is off")) {

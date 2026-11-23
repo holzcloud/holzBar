@@ -68,6 +68,7 @@ extension SettingsCatalog {
             .modulesTimersFinishSound,
             .modulesCalendarShowsAllDay,
             .modulesCalendarCalendars,
+            .modulesCalendarCountdown,
             .modulesLiveActivitiesCapture,
             .modulesLiveActivitiesDownloads,
             .modulesFileDropOpensOnDrag,
@@ -291,6 +292,15 @@ extension SettingsEntry {
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Calendars"),
         info: String(localized: "A calendar you switch off is hidden only in the hub."),
+        module: "calendar"
+    )
+
+    static let modulesCalendarCountdown = SettingsEntry(
+        id: "modulesCalendarCountdown",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Countdown before a meeting"),
+        info: String(localized: "Counts down in the closed notch before a meeting starts. It never shows the event's title."),
         module: "calendar"
     )
 
