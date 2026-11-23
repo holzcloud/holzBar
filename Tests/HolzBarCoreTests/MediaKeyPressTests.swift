@@ -175,6 +175,52 @@ struct MediaKeyPressTests {
         #expect(!MediaKeyRule.takes(press(.brightnessUp), in: off, downWasTaken: false))
     }
 
+    @Test("A first brightness press on a monitor with no known answer asks it once and passes")
+    func unknownAnswerAsksOnce() {
+        var context = readyContext()
+        context.displayControlsOn = true
+        context.externalSwitchOn = true
+        context.target = .external(answersBrightness: nil)
+        #expect(!MediaKeyRule.takes(press(.brightnessUp), in: context, downWasTaken: false))
+        #expect(MediaKeyRule.needsSurvey(press(.brightnessUp), in: context))
+        #expect(MediaKeyRule.needsSurvey(press(.brightnessDown), in: context))
+        // A repeat, a release and the other keys never ask.
+        #expect(!MediaKeyRule.needsSurvey(press(.brightnessUp, isRepeat: true), in: context))
+        #expect(!MediaKeyRule.needsSurvey(press(.brightnessUp, isDown: false), in: context))
+        #expect(!MediaKeyRule.needsSurvey(press(.soundUp), in: context))
+        #expect(!MediaKeyRule.needsSurvey(press(.mute), in: context))
+        // A known answer decides, a display that is not external does not ask.
+        for target: MediaKeyRule.Target in [.external(answersBrightness: true), .external(answersBrightness: false), .builtIn(canChange: true), .unknown] {
+            var known = context
+            known.target = target
+            #expect(!MediaKeyRule.needsSurvey(press(.brightnessUp), in: known))
+        }
+    }
+
+    @Test("No survey while the switch or the module is off, or in the wake wait, or where no key is taken")
+    func noSurveyWithoutPermission() {
+        var context = readyContext()
+        context.displayControlsOn = true
+        context.externalSwitchOn = true
+        context.target = .external(answersBrightness: nil)
+        let mutations: [(inout MediaKeyRule.Context) -> Void] = [
+            { $0.externalSwitchOn = false },
+            { $0.displayControlsOn = false },
+            { $0.inWakeWait = true },
+            { $0.replaceOn = false },
+            { $0.trusted = false },
+            { $0.hubAllowed = false },
+            { $0.fullScreenSpace = true },
+            { $0.menuBarHidden = true },
+            { $0.mirroredOrShared = true },
+        ]
+        for mutate in mutations {
+            var changed = context
+            mutate(&changed)
+            #expect(!MediaKeyRule.needsSurvey(press(.brightnessUp), in: changed))
+        }
+    }
+
     @Test("An unknown target passes the brightness keys whatever else is on")
     func unknownTargetPasses() {
         var context = readyContext()

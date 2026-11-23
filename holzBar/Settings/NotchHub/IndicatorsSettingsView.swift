@@ -13,8 +13,9 @@ import SwiftUI
 /// is missing, a warning line says so and opens System Settings.
 ///
 /// The view only flips stored values and reads how many input sources are enabled once, when it
-/// appears (and the Accessibility flag when Settings becomes active); it observes nothing else and
-/// the running module is the one that listens to the system.
+/// appears (and the Accessibility flag when Settings becomes active); it observes nothing else but
+/// the two state lines of the brightness keys, which follow the Display controls switches and the
+/// running module's start check, and the running module is the one that listens to the system.
 struct IndicatorsSettingsView: View {
     @Environment(AppState.self) private var appState
 
@@ -62,6 +63,21 @@ struct IndicatorsSettingsView: View {
                     appState.permissions.accessibility.openSettings()
                 }
             }
+        }
+        if settings.showsVolumeBrightness, settings.replacesSystemDisplay {
+            brightnessKeyLines
+        }
+    }
+
+    /// What the brightness keys say about themselves: they need a part of Display controls, and a
+    /// part that switched itself off says so (no badge on either line). Only the stored switches
+    /// and the running controller's gates are read.
+    @ViewBuilder private var brightnessKeyLines: some View {
+        let displayControls = appState.settings.displayControls
+        if !displayControls.showsBrightness, !displayControls.showsExternalMonitors {
+            SettingsStateLine(.info, Text("Brightness keys need Brightness or External monitors in Display controls"))
+        } else if appState.notchHub.runtime(IndicatorsRuntime.self)?.brightnessKeys?.hasSwitchedItselfOff == true {
+            SettingsStateLine(.warning, Text("Brightness is not available on this Mac"))
         }
     }
 

@@ -177,6 +177,31 @@ nonisolated enum MediaKeyRule {
         }
     }
 
+    /// Whether a brightness key that passes should make holzBar ask the external monitor under the
+    /// pointer once whether it answers DDC brightness: a first press, with everything else in
+    /// place, on a monitor whose answer is not known yet in this session. The key itself passes to
+    /// macOS (holzBar never swallows a key it might not perform); the asking is the user's own
+    /// request for a change, which the DDC rules allow (D-22).
+    static func needsSurvey(_ press: MediaKeyPress, in context: Context) -> Bool {
+        guard
+            press.isDown,
+            !press.isRepeat,
+            press.code == .brightnessUp || press.code == .brightnessDown,
+            context.replaceOn,
+            context.trusted,
+            context.hubAllowed,
+            !context.fullScreenSpace,
+            !context.menuBarHidden,
+            !context.mirroredOrShared,
+            !context.inWakeWait,
+            context.displayControlsOn,
+            context.externalSwitchOn
+        else {
+            return false
+        }
+        return context.target == .external(answersBrightness: nil)
+    }
+
     /// Whether a held key repeats its action. The volume and brightness keys move one step per
     /// repeat; the mute key acts once per press, so holding it never toggles the sound back and
     /// forth (a repeat of a taken mute is consumed and does nothing).

@@ -36,6 +36,10 @@ nonisolated final class MediaKeyState: @unchecked Sendable {
         case take(MediaKeyPress, display: CGDirectDisplayID, quarter: Bool)
         /// The event goes to macOS unchanged.
         case pass
+        /// The event goes to macOS unchanged, and the main actor asks the external monitor under
+        /// the pointer once whether it answers DDC brightness (the key was a first press on a
+        /// monitor whose answer is not known yet).
+        case passAndSurvey(display: CGDirectDisplayID)
     }
 
     /// What the main actor tells the tap thread.
@@ -199,9 +203,11 @@ nonisolated final class MediaKeyState: @unchecked Sendable {
             let downWasTaken = state.taken.contains(press.code)
             let display = state.snapshot.displays.first { $0.bounds.contains(location) }
             let takes: Bool
+            var surveys = false
             if let display {
                 let context = state.snapshot.context(for: display, at: instant)
                 takes = MediaKeyRule.takes(press, in: context, downWasTaken: downWasTaken)
+                surveys = !takes && MediaKeyRule.needsSurvey(press, in: context)
             } else {
                 // No display under the pointer: a press passes, and a release or repeat follows
                 // its press as the rule says.
@@ -217,6 +223,9 @@ nonisolated final class MediaKeyState: @unchecked Sendable {
                 state.taken.remove(press.code)
             }
             guard takes else {
+                if surveys, let display {
+                    return .passAndSurvey(display: display.id)
+                }
                 return .pass
             }
             return .take(press, display: display?.id ?? CGDirectDisplayID(0), quarter: quarter)

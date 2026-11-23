@@ -223,6 +223,8 @@ final class IndicatorsRuntime: HubModuleRuntime {
         var wakeGate = DDCWakeGate()
         var displayControlsOn = false
         var brightnessOn = false
+        var externalOn = false
+        var dimLevels = [String: Double]()
     }
 
     /// Creates the tap when the rule allows it and removes it when the rule no longer does. Asking
@@ -240,6 +242,10 @@ final class IndicatorsRuntime: HubModuleRuntime {
         }
         tap.onTaken = { [weak self] press, display, quarter in
             self?.mediaKeyWasTaken(press, display: display, quarter: quarter)
+        }
+        tap.onSurveyNeeded = { [weak self] display in
+            // The key passed to macOS; the monitor under the pointer is asked once.
+            self?.brightnessKeys?.survey(display)
         }
         mediaKeyTap = tap
         if let appState {
@@ -305,7 +311,9 @@ final class IndicatorsRuntime: HubModuleRuntime {
             displays: appState.settings.notchHub.displays,
             wakeGate: appState.systemActivityMonitor.ddcWakeGate,
             displayControlsOn: appState.modules.isEnabled(DisplayControlsRuntime.identifier),
-            brightnessOn: appState.settings.displayControls.showsBrightness
+            brightnessOn: appState.settings.displayControls.showsBrightness,
+            externalOn: appState.settings.displayControls.showsExternalMonitors,
+            dimLevels: appState.settings.displayControls.dimLevels
         )
     }
 
@@ -322,6 +330,7 @@ final class IndicatorsRuntime: HubModuleRuntime {
         var snapshot = MediaKeyState.Snapshot()
         snapshot.displayControlsOn = brightnessKeys?.isDisplayControlsOn ?? false
         snapshot.brightnessSwitchOn = brightnessKeys?.isBuiltInSwitchOn ?? false
+        snapshot.externalSwitchOn = brightnessKeys?.canUseExternal ?? false
         snapshot.isTrusted = isTrustedForTap && MediaKeyState.accessibilityIsTrusted()
         snapshot.replaceOn = appState.settings.indicators.replacesSystemDisplay
         snapshot.wakeGate = appState.systemActivityMonitor.ddcWakeGate
@@ -342,7 +351,8 @@ final class IndicatorsRuntime: HubModuleRuntime {
                     id: screen.displayID,
                     bounds: CGDisplayBounds(screen.displayID),
                     hubAllowed: mayShow && NotchHubPolicy.blockReason(environment, trigger: .compact) == nil,
-                    target: brightnessKeys?.target(for: screen.displayID) ?? .unknown
+                    target: brightnessKeys?.target(for: screen.displayID) ?? .unknown,
+                    softwareDimmedOnly: brightnessKeys?.isSoftwareDimmedOnly(screen.displayID) ?? false
                 )
             )
         }
@@ -412,12 +422,17 @@ final class IndicatorsRuntime: HubModuleRuntime {
         func watch(
             _ center: NotificationCenter,
             _ name: Notification.Name,
-            checksTrust: Bool = true
+            checksTrust: Bool = true,
+            changesDisplays: Bool = false
         ) -> Task<Void, Never> {
             Task { [weak self] in
                 for await _ in center.notifications(named: name) {
                     if checksTrust {
                         self?.refreshTrust()
+                    }
+                    if changesDisplays {
+                        // What each monitor answered is forgotten after a wake or a display change.
+                        self?.brightnessKeys?.displaysDidChange()
                     }
                     // The same events change what the tap may take: the displays, the apps that
                     // present the screen, the Mac's wake.
@@ -427,9 +442,9 @@ final class IndicatorsRuntime: HubModuleRuntime {
         }
         trustWatchTasks = [
             watch(.default, NSApplication.didBecomeActiveNotification),
-            watch(.default, NSApplication.didChangeScreenParametersNotification, checksTrust: false),
+            watch(.default, NSApplication.didChangeScreenParametersNotification, checksTrust: false, changesDisplays: true),
             watch(NSWorkspace.shared.notificationCenter, NSWorkspace.didActivateApplicationNotification),
-            watch(NSWorkspace.shared.notificationCenter, NSWorkspace.didWakeNotification),
+            watch(NSWorkspace.shared.notificationCenter, NSWorkspace.didWakeNotification, changesDisplays: true),
         ]
     }
 

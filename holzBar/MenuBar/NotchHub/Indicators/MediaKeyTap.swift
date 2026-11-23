@@ -49,6 +49,10 @@ final class MediaKeyTap {
     /// The release of a taken key is consumed and not reported.
     var onTaken: (@MainActor (MediaKeyPress, CGDirectDisplayID, Bool) -> Void)?
 
+    /// Called on the main actor for a brightness press that passed to macOS on an external monitor
+    /// whose DDC answer is not known yet, with that display: the runtime asks it once.
+    var onSurveyNeeded: (@MainActor (CGDirectDisplayID) -> Void)?
+
     /// The tap, while it exists. Releasing it takes it out of the event stream and ends its thread.
     private var tap: EventTap?
 
@@ -103,6 +107,11 @@ final class MediaKeyTap {
                 switch state.decide(event) {
                 case .pass:
                     return event
+                case .passAndSurvey(let display):
+                    Task { @MainActor in
+                        box.tap?.surveyWasNeeded(display)
+                    }
+                    return event
                 case let .take(press, display, quarter):
                     // One hand-over to the main actor; the callback does not wait for it.
                     if press.isDown {
@@ -149,6 +158,11 @@ final class MediaKeyTap {
     /// tap was removed in the meantime, because the key was already consumed.
     private func keyWasTaken(_ press: MediaKeyPress, display: CGDirectDisplayID, quarter: Bool) {
         onTaken?(press, display, quarter)
+    }
+
+    /// A brightness key passed on an external monitor nobody asked yet: the runtime asks it.
+    private func surveyWasNeeded(_ display: CGDirectDisplayID) {
+        onSurveyNeeded?(display)
     }
 
     /// The tap removed itself because macOS disabled it with Accessibility gone: it is taken out

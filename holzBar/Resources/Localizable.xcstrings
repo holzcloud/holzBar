@@ -187608,6 +187608,124 @@
           }
         }
       }
+    },
+    "Brightness keys need Brightness or External monitors in Display controls" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klávesy jasu potřebují v Ovládání displeje volbu Jas nebo Externí monitory"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Helligkeitstasten brauchen in der Anzeigesteuerung Helligkeit oder Externe Monitore"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las teclas de brillo necesitan Brillo o Monitores externos en Controles de pantalla"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les touches de luminosité nécessitent Luminosité ou Écrans externes dans Contrôles d’affichage"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A fényerő-billentyűkhöz a Kijelzővezérlőkben a Fényerő vagy a Külső monitorok kell"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tombol kecerahan memerlukan Kecerahan atau Monitor eksternal di Kontrol Layar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I tasti della luminosità richiedono Luminosità o Monitor esterni in Controlli dello schermo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "輝度キーを使うには、ディスプレイコントロールで「輝度」または「外部モニター」が必要です"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "밝기 키를 사용하려면 디스플레이 제어에서 밝기 또는 외부 모니터가 필요합니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De helderheidstoetsen hebben Helderheid of Externe monitoren in Schermbediening nodig"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klawisze jasności wymagają opcji Jasność lub Monitory zewnętrzne w Sterowaniu wyświetlaczem"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As teclas de brilho precisam de Brilho ou Monitores externos em Controles de tela"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las tastas da la glischur dovran Glischur u Monituors externs en ils Controlls da la visualisaziun"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Клавишам яркости нужен пункт «Яркость» или «Внешние мониторы» в разделе «Управление дисплеем»"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ljusstyrketangenterna kräver Ljusstyrka eller Externa bildskärmar i Skärmkontroller"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parlaklık tuşları için Ekran Denetimleri’nde Parlaklık veya Harici monitörler gerekir"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Клавішам яскравості потрібен пункт «Яскравість» або «Зовнішні монітори» в розділі «Керування дисплеєм»"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "亮度键需要在“显示控制”中开启“亮度”或“外接显示器”"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "亮度鍵需要在「顯示器控制」中開啟「亮度」或「外接顯示器」"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
