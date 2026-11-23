@@ -207,6 +207,15 @@ struct MediaKeyPressTests {
         #expect(MediaKeyRule.takes(press(.soundUp, isRepeat: true), in: MediaKeyRule.Context(), downWasTaken: true))
     }
 
+    @Test("A held volume or brightness key steps again, a held mute key acts once")
+    func onlyStepKeysRepeat() {
+        #expect(MediaKeyRule.repeatsWhileHeld(.soundUp))
+        #expect(MediaKeyRule.repeatsWhileHeld(.soundDown))
+        #expect(MediaKeyRule.repeatsWhileHeld(.brightnessUp))
+        #expect(MediaKeyRule.repeatsWhileHeld(.brightnessDown))
+        #expect(!MediaKeyRule.repeatsWhileHeld(.mute))
+    }
+
     @Test("An empty context takes nothing")
     func emptyContextPasses() {
         let context = MediaKeyRule.Context()

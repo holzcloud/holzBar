@@ -177,6 +177,18 @@ nonisolated enum MediaKeyRule {
         }
     }
 
+    /// Whether a held key repeats its action. The volume and brightness keys move one step per
+    /// repeat; the mute key acts once per press, so holding it never toggles the sound back and
+    /// forth (a repeat of a taken mute is consumed and does nothing).
+    static func repeatsWhileHeld(_ code: MediaKeyCode) -> Bool {
+        switch code {
+        case .soundUp, .soundDown, .brightnessUp, .brightnessDown:
+            true
+        case .mute:
+            false
+        }
+    }
+
     /// Whether holzBar can change the brightness of the display under the pointer.
     private static func brightnessIsPerformable(_ context: Context) -> Bool {
         guard context.displayControlsOn else {

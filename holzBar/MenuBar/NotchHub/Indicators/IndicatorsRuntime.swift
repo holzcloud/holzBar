@@ -313,7 +313,13 @@ final class IndicatorsRuntime: HubModuleRuntime {
     /// output and show holzBar's own flash with the level the output reads back. The brightness
     /// keys are never taken in this release of the rule, so none reaches here.
     private func mediaKeyWasTaken(_ press: MediaKeyPress, quarter: Bool) {
-        guard press.isDown, let output = OutputVolume.current() else {
+        // A release is consumed and does nothing; a repeat of a held key is one more step (the
+        // flash coalesces them at 50 ms and VoiceOver speaks once per burst), except for mute.
+        guard
+            press.isDown,
+            !press.isRepeat || MediaKeyRule.repeatsWhileHeld(press.code),
+            let output = OutputVolume.current()
+        else {
             return
         }
         switch press.code {
