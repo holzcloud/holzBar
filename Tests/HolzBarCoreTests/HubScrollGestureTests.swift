@@ -213,4 +213,10 @@ struct HubScrollGestureTests {
         #expect(!area.contains(x: 700, y: 24.5))
         #expect(!area.contains(x: 649, y: 10))
     }
+
+    @Test("The gesture flash lasts one second, shorter than an indicator's hold")
+    func flashSeconds() {
+        #expect(Gesture.flashSeconds == 1)
+        #expect(Gesture.flashSeconds < DesignTokens.Indicator.holdSeconds)
+    }
 }

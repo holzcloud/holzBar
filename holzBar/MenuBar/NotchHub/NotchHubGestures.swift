@@ -5,7 +5,8 @@
 
 import AppKit
 
-/// The Notch hub's gestures (HUB-03, D-14): a scroll on the closed notch opens and closes the hub.
+/// The Notch hub's gestures (HUB-03, D-14): a scroll on the closed notch opens and closes the hub,
+/// and a sideways swipe skips a track while Now Playing reports that something plays.
 ///
 /// The object follows the Gestures switch itself and owns one scroll monitor only while the switch
 /// is on; the hub creates it with the module and drops it with it, so nothing exists while either
@@ -13,10 +14,11 @@ import AppKit
 /// global one observes, so another app's scrolling is never consumed, delayed or changed, and no
 /// event is logged.
 ///
-/// Every event is first tested against the closed shape's area
+/// Every event is first tested against two places: the closed shape's area
 /// (``HubScrollGesture/area(of:menuBarHeight:)``: the notch, or the top centre of a display without
-/// one, never the wider hover zone); outside it nothing happens and the gesture state is dropped. Inside it, the event becomes one
-/// ``HubScrollGesture/Sample`` and only an action the Core type returns does anything.
+/// one, never the wider hover zone) and the open hub's panel while its Now Playing tab is in
+/// front. Anywhere else nothing happens and the gesture state is dropped. In one of them, the event
+/// becomes one ``HubScrollGesture/Sample`` and only an action the Core type returns does anything.
 @MainActor
 final class NotchHubGestures {
     private weak var hub: NotchHubController?
@@ -83,16 +85,13 @@ final class NotchHubGestures {
 
     private func handle(_ event: NSEvent) {
         let location = NSEvent.mouseLocation
-        guard let hub, hub.isActive, let screen = screen(under: location) else {
+        guard let hub, hub.isActive, let screen = screen(containing: location) else {
             resetGesture()
             return
         }
-        let display = hub.display(of: screen)
-        guard
-            let seed = NotchHubGeometry.seed(display: display),
-            case let area = HubScrollGesture.area(of: seed, menuBarHeight: display.menuBarHeight),
-            Self.isInside(location, on: screen, area: area)
-        else {
+        let inNotch = isInNotch(location, on: screen, hub: hub)
+        let inHub = isInNowPlayingHub(location, on: screen, hub: hub)
+        guard inNotch || inHub else {
             resetGesture()
             return
         }
@@ -121,21 +120,40 @@ final class NotchHubGestures {
         guard let action = gesture.offer(sample) else {
             return
         }
-        perform(action, on: screen, hub: hub)
+        perform(action, on: screen, hub: hub, inNotch: inNotch, inHub: inHub)
     }
 
-    private func perform(_ action: HubScrollGesture.Action, on screen: NSScreen, hub: NotchHubController) {
+    /// Does what a swipe asks, where it is allowed. Opening and closing belong to the closed shape's
+    /// area; skipping belongs to the same area while the hub is closed and something plays, and to
+    /// the whole open hub while its Now Playing tab is in front.
+    private func perform(
+        _ action: HubScrollGesture.Action,
+        on screen: NSScreen,
+        hub: NotchHubController,
+        inNotch: Bool,
+        inHub: Bool
+    ) {
         switch action {
         case .open:
-            if !hub.isOpen {
+            if inNotch, !hub.isOpen {
                 hub.openFromGesture(on: screen)
             }
         case .close:
-            if hub.isOpen, hub.screenID == screen.displayID {
+            if inNotch, hub.isOpen, hub.screenID == screen.displayID {
                 hub.close()
             }
         case .next, .previous:
-            break
+            guard let nowPlaying = hub.runtime(NowPlayingRuntime.self) else {
+                return
+            }
+            let forward = action == .next
+            if hub.isOpen {
+                if inHub {
+                    nowPlaying.skip(forward: forward, showsFlash: false)
+                }
+            } else if inNotch, nowPlaying.contextSignal == .playing(true) {
+                nowPlaying.skip(forward: forward, showsFlash: true)
+            }
         }
     }
 
@@ -143,25 +161,24 @@ final class NotchHubGestures {
 
     /// The screen the pointer is on, the top edge included. The top-edge row is part of the screen
     /// for a pointer, though `CGRect.contains` leaves it out. Cheap: a few frame reads, no layout.
-    private func screen(under location: CGPoint) -> NSScreen? {
-        for screen in NSScreen.screens {
-            let frame = screen.frame
-            guard
-                location.x >= frame.minX, location.x <= frame.maxX,
-                location.y >= frame.minY, location.y <= frame.maxY
-            else {
-                continue
-            }
-            // Only the top row can hold the area, so a pointer lower than the menu bar or the notch
-            // is out before anything is worked out.
-            let topRow = max(screen.safeAreaInsets.top, frame.maxY - screen.visibleFrame.maxY, NSStatusBar.system.thickness)
-            return frame.maxY - location.y <= topRow ? screen : nil
-        }
-        return nil
+    private func screen(containing location: CGPoint) -> NSScreen? {
+        NSScreen.screens.first { Self.contains($0.frame, location) }
     }
 
-    private static func isInside(_ location: CGPoint, on screen: NSScreen, area: NotchHubGeometry.Rect) -> Bool {
+    /// Whether the pointer is in the closed shape's area on the screen. Only the top row can hold
+    /// the area, so a pointer lower than the menu bar or the notch is out before anything is worked
+    /// out; the layout of the display is read only for a pointer in the top row.
+    private func isInNotch(_ location: CGPoint, on screen: NSScreen, hub: NotchHubController) -> Bool {
         let frame = screen.frame
+        let topRow = max(screen.safeAreaInsets.top, frame.maxY - screen.visibleFrame.maxY, NSStatusBar.system.thickness)
+        guard frame.maxY - location.y <= topRow else {
+            return false
+        }
+        let display = hub.display(of: screen)
+        guard let seed = NotchHubGeometry.seed(display: display) else {
+            return false
+        }
+        let area = HubScrollGesture.area(of: seed, menuBarHeight: display.menuBarHeight)
         let local = NotchHubPolicy.localPoint(
             globalX: Double(location.x),
             globalY: Double(location.y),
@@ -169,6 +186,24 @@ final class NotchHubGestures {
             displayMaxY: Double(frame.maxY)
         )
         return area.contains(x: local.x, y: local.y)
+    }
+
+    /// Whether the pointer is in the open hub's panel on its own screen while the Now Playing tab is
+    /// in front.
+    private func isInNowPlayingHub(_ location: CGPoint, on screen: NSScreen, hub: NotchHubController) -> Bool {
+        guard
+            hub.isOpen,
+            hub.screenID == screen.displayID,
+            hub.model.selectedID == NowPlayingRuntime.identifier,
+            let frame = hub.visiblePanelFrame
+        else {
+            return false
+        }
+        return Self.contains(frame, location)
+    }
+
+    private static func contains(_ rect: CGRect, _ point: CGPoint) -> Bool {
+        point.x >= rect.minX && point.x <= rect.maxX && point.y >= rect.minY && point.y <= rect.maxY
     }
 
     private static func phase(_ phase: NSEvent.Phase) -> HubScrollGesture.Phase {

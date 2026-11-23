@@ -70,6 +70,11 @@ final class NowPlayingRuntime: HubModuleRuntime {
     /// The artwork of the current song, when it is a local file that has one.
     private(set) var artwork: NSImage?
 
+    /// The flash of the track a sideways swipe over the closed notch skipped
+    /// (``skip(forward:showsFlash:)``), or `nil`. It is the module's only activity: a flash is drawn
+    /// by the closed notch alone, and the next skip replaces it.
+    private(set) var gestureFlash: LiveActivity?
+
     @ObservationIgnored private let source = NowPlayingSource()
     @ObservationIgnored private let actions = BuiltInItemActions()
     @ObservationIgnored private weak var appState: AppState?
@@ -303,6 +308,29 @@ final class NowPlayingRuntime: HubModuleRuntime {
         actions.press(key)
     }
 
+    /// Skips to the next or the previous track for a sideways swipe (D-14, H9): presses the same
+    /// media key as the buttons, so it works only where they do (Accessibility). Over the closed
+    /// notch (`showsFlash`) it also shows the gesture flash, so that a swipe is never dead; in the
+    /// open hub the tab shows the new track and no flash is made.
+    func skip(forward: Bool, showsFlash: Bool) {
+        guard canControl else {
+            return
+        }
+        send(forward ? .next : .previous)
+        guard showsFlash else {
+            return
+        }
+        gestureFlash = IndicatorLook.flash(
+            kind: .gesture,
+            moduleID: moduleID,
+            symbol: forward ? "forward.fill" : "backward.fill",
+            value: forward ? String(localized: "Next") : String(localized: "Previous"),
+            title: forward ? String(localized: "Next track") : String(localized: "Previous track"),
+            at: .now,
+            hold: HubScrollGesture.flashSeconds
+        )
+    }
+
     /// Whether the buttons work: posting a key needs holzBar's Accessibility grant, which is
     /// observable, so the buttons enable and disable themselves when the grant changes.
     var canControl: Bool {
@@ -354,6 +382,11 @@ final class NowPlayingRuntime: HubModuleRuntime {
         .playing(current?.event.state == .playing)
     }
 
+    /// The gesture flash while there is one; the hub reads it with every module's activities.
+    var activities: [LiveActivity] {
+        gestureFlash.map { [$0] } ?? []
+    }
+
     /// The player cannot scroll, so it asks for the island's largest content height; it fitted the
     /// old 200 point body.
     var preferredContentHeight: Double? {
@@ -387,6 +420,8 @@ final class NowPlayingRuntime: HubModuleRuntime {
     func hubVisibilityDidChange(isOpen: Bool) {
         hubIsOpen = isOpen
         if isOpen {
+            // The open hub never lists a flash, and one that is left would come back on closing.
+            gestureFlash = nil
             startRemote()
         } else {
             stopRemote()
@@ -409,5 +444,6 @@ final class NowPlayingRuntime: HubModuleRuntime {
         clearArtwork()
         model.removeAll()
         progress = nil
+        gestureFlash = nil
     }
 }

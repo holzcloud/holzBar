@@ -138,8 +138,11 @@ nonisolated enum IndicatorLook {
     }
 
     /// The live activity of a flash: finished at the moment it happens, so its hold runs from there.
+    /// `moduleID` is the module the flash belongs to: the Indicators module by default, Now Playing
+    /// for the flash of a skipped track.
     static func flash(
         kind: IndicatorKind,
+        moduleID: String = IndicatorLook.moduleID,
         symbol: String,
         value: String,
         title: String,

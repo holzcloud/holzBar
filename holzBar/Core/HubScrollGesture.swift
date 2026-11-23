@@ -72,6 +72,10 @@ nonisolated struct HubScrollGesture: Equatable, Sendable {
     static let lineThreshold = 1.0
     /// How long a wheel (or a device without phases) waits after an action.
     static let coolDown: TimeInterval = 0.4
+    /// How long the flash of a skipped track stays over the closed notch (H9): shorter than an
+    /// indicator's hold, because the swipe itself is the feedback and the flash only says it was
+    /// understood. A constant of the gesture, not a visual token.
+    static let flashSeconds: TimeInterval = 1
 
     /// The area a gesture counts in, in the display's coordinates (origin top-left, y downward): the
     /// closed shape's horizontal span (the notch, or the top-centre strip of a display without one)
