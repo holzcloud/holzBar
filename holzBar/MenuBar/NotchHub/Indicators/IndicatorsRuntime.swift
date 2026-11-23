@@ -28,6 +28,13 @@ import SwiftUI
 /// value keeps one width: every volume flash carries the wider of "100 %" and "Muted" in the user's
 /// locale as its width sample.
 ///
+/// The third is the media-key tap (D-21), the first part of replacing the system's own display:
+/// while Replace the system display is on as well and holzBar holds Accessibility, the runtime
+/// keeps one ``MediaKeyTap``, a session event tap on a thread of its own, and exactly then
+/// (``ClosedHubWork`` decides). In this plan every key passes through it unchanged. Trust is
+/// re-read when holzBar or another app becomes active and after a wake, and the tap is removed the
+/// moment it is gone; it comes back only after the permission has returned (2 s, then 8 s later).
+///
 /// On a bar so crowded that no free span is left beside the notch the hub has no live shape; the
 /// runtime then has its own ``AlertNotchSurface`` (created on the first flash, released when the
 /// last switch goes off) draw the flash detached below the notch (H2). Where the hub can draw its
@@ -71,6 +78,16 @@ final class IndicatorsRuntime: HubModuleRuntime {
     @ObservationIgnored private var enabledCount = 0
     @ObservationIgnored private var isObserving = false
     @ObservationIgnored private var isHubOpen = false
+    @ObservationIgnored private var mediaKeyTap: MediaKeyTap?
+    @ObservationIgnored private var trustLoop: ObservationLoop?
+    @ObservationIgnored private var trustRetryTask: Task<Void, Never>?
+    @ObservationIgnored private var trustWatchTasks = [Task<Void, Never>]()
+    @ObservationIgnored private var tapStartFailures = 0
+
+    /// Whether holzBar held Accessibility when it was last looked at. It is what ``ClosedHubWork``
+    /// sees as trust: it goes false at once when the permission is found gone, and true again only
+    /// after the retry of ``refreshTrust()`` found it back. Tracked, so the loop follows it.
+    private var isTrustedForTap = MediaKeyState.accessibilityIsTrusted()
 
     init(appState: AppState) {
         self.appState = appState
@@ -80,6 +97,19 @@ final class IndicatorsRuntime: HubModuleRuntime {
             },
             onChange: { [weak self] observers in
                 self?.apply(observers)
+            }
+        )
+        trustLoop = ObservationLoop.observe(
+            { [weak appState] in
+                // The permission model's flag is read only while the switch is on, so nothing
+                // follows it with the switch off.
+                guard let appState, appState.settings.indicators.replacesSystemDisplay else {
+                    return false
+                }
+                return appState.permissions.accessibility.hasPermission
+            },
+            onChange: { [weak self] _ in
+                self?.refreshTrust()
             }
         )
         apply(wantedObservers())
@@ -114,6 +144,10 @@ final class IndicatorsRuntime: HubModuleRuntime {
     func shutDown() {
         observersLoop?.cancel()
         observersLoop = nil
+        trustLoop?.cancel()
+        trustLoop = nil
+        trustRetryTask?.cancel()
+        trustRetryTask = nil
         apply([])
         releaseSurface()
     }
@@ -156,6 +190,75 @@ final class IndicatorsRuntime: HubModuleRuntime {
         }
     }
 
+    // MARK: Media keys
+
+    /// Creates the tap when the rule allows it and removes it when the rule no longer does. Asking
+    /// for what already is changes nothing.
+    private func setObservingMediaKeys(_ isOn: Bool) {
+        guard isOn else {
+            stopMediaKeyTap()
+            return
+        }
+        guard mediaKeyTap == nil else {
+            return
+        }
+        let tap = MediaKeyTap { [weak self] in
+            self?.trustWasLost()
+        }
+        mediaKeyTap = tap
+        guard tap.start() else {
+            // macOS refused the tap or the permission is gone: no tap, and no trust until it is back.
+            mediaKeyTap = nil
+            tapStartFailures += 1
+            trustWasLost()
+            return
+        }
+        tapStartFailures = 0
+    }
+
+    private func stopMediaKeyTap() {
+        mediaKeyTap?.stop()
+        mediaKeyTap = nil
+    }
+
+    /// The permission is gone (the tap said so, or a check found it): the rule drops the tap at
+    /// once, and the permission is looked for again.
+    private func trustWasLost() {
+        isTrustedForTap = false
+        refreshTrust()
+    }
+
+    /// Looks at Accessibility again. Gone: trust drops at once, which removes the tap. There again
+    /// while the tap is not trusted: it is accepted only at a try 2 s, then 8 s later, never before.
+    private func refreshTrust() {
+        guard appState?.settings.indicators.replacesSystemDisplay == true else {
+            trustRetryTask?.cancel()
+            trustRetryTask = nil
+            return
+        }
+        if !MediaKeyState.accessibilityIsTrusted() {
+            isTrustedForTap = false
+        }
+        // Three refused tries in a row keep the tap off for the session.
+        guard !isTrustedForTap, trustRetryTask == nil, tapStartFailures < 3 else {
+            return
+        }
+        trustRetryTask = Task { [weak self] in
+            for delay in MediaKeyTap.trustRetryDelays {
+                try? await Task.sleep(for: delay)
+                guard !Task.isCancelled, let self else {
+                    return
+                }
+                if MediaKeyState.accessibilityIsTrusted() {
+                    isTrustedForTap = true
+                    trustRetryTask = nil
+                    return
+                }
+            }
+            self?.trustRetryTask = nil
+        }
+    }
+
     // MARK: Switch
 
     /// The observers that exist now, decided by ``ClosedHubWork`` and nowhere else. The module's
@@ -170,7 +273,9 @@ final class IndicatorsRuntime: HubModuleRuntime {
                 hubOn: appState.modules.isEnabled(NotchHubController.moduleID),
                 indicatorsOn: appState.modules.isEnabled(Self.identifier),
                 inputSourceOn: appState.settings.indicators.showsInputSource,
-                volumeBrightnessOn: appState.settings.indicators.showsVolumeBrightness
+                volumeBrightnessOn: appState.settings.indicators.showsVolumeBrightness,
+                replaceSystemDisplayOn: appState.settings.indicators.replacesSystemDisplay,
+                accessibilityTrusted: isTrustedForTap
             )
         )
     }
@@ -180,6 +285,7 @@ final class IndicatorsRuntime: HubModuleRuntime {
         setObservingInputSource(observers.contains(.inputSource))
         setObservingActivation(observers.contains(.appActivation))
         setObservingVolume(observers.contains(.volumeListener))
+        setObservingMediaKeys(observers.contains(.mediaKeyTap))
     }
 
     private func setObservingInputSource(_ isOn: Bool) {

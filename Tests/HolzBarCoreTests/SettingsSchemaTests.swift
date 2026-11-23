@@ -632,6 +632,19 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("The Indicators Replace the system display switch is a bool and stays on this Mac")
+    func indicatorsReplacesSystemDisplayStaysLocal() {
+        #expect(Defaults.Key.indicatorsReplacesSystemDisplay.rawValue == "IndicatorsReplacesSystemDisplay")
+        #expect(Defaults.Key.indicatorsReplacesSystemDisplay.settingsKind == .bool)
+        #expect(Defaults.Key.localOnlyKeys.contains(.indicatorsReplacesSystemDisplay))
+        #expect(Defaults.Key.importableKinds["IndicatorsReplacesSystemDisplay"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["IndicatorsReplacesSystemDisplay": true, "ShowOnHover": true], ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["IndicatorsReplacesSystemDisplay"])
+    }
+
     @Test("The notch hub's Bounce switch is a bool and importable")
     func notchHubBouncesTravels() {
         #expect(Defaults.Key.notchHubBounces.rawValue == "NotchHubBounces")

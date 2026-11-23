@@ -12,7 +12,9 @@ import Observation
 ///
 /// The running module (``IndicatorsRuntime``) follows ``showsInputSource`` and starts the system's
 /// input source notifications only while it is on, and follows ``showsVolumeBrightness`` and starts
-/// its volume listener only while that is on, so nothing observes while they are off.
+/// its volume listener only while that is on, so nothing observes while they are off. It follows
+/// ``replacesSystemDisplay`` as well and keeps the media-key tap only while that is on too and holzBar
+/// holds Accessibility.
 @MainActor
 @Observable
 final class IndicatorsSettings {
@@ -54,11 +56,25 @@ final class IndicatorsSettings {
         }
     }
 
+    /// A Boolean value that indicates whether holzBar takes the volume and brightness keys it can
+    /// handle and shows its own display instead of the system's. Off by default; a private-interface
+    /// switch, stored on this Mac only. Turning it on is the only moment holzBar asks for
+    /// Accessibility.
+    var replacesSystemDisplay = false {
+        didSet {
+            guard replacesSystemDisplay != oldValue else {
+                return
+            }
+            Defaults.set(replacesSystemDisplay, forKey: .indicatorsReplacesSystemDisplay)
+        }
+    }
+
     /// Loads the stored settings. The duration is clamped to its range and snapped to the nearest
     /// choice, because the defaults can hold anything.
     func performSetup(with appState: AppState) {
         Defaults.ifPresent(key: .indicatorsInputSource, assign: &showsInputSource)
         Defaults.ifPresent(key: .indicatorsVolumeBrightness, assign: &showsVolumeBrightness)
+        Defaults.ifPresent(key: .indicatorsReplacesSystemDisplay, assign: &replacesSystemDisplay)
         Defaults.ifPresent(key: .indicatorsInputSourceDuration) { (stored: Double) in
             let clamped = Defaults.Key.indicatorsInputSourceDuration.clamped(
                 stored,

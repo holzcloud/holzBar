@@ -38,6 +38,10 @@ nonisolated enum ClosedHubWork {
         var displayControlsOn = false
         /// How many displays have a software dimming level above 0.
         var dimmedDisplays = 0
+        /// Indicators: Replace the system display (a private interface, off by default).
+        var replaceSystemDisplayOn = false
+        /// holzBar holds the Accessibility permission right now (`AXIsProcessTrusted()`).
+        var accessibilityTrusted = false
     }
 
     /// A piece of work that runs while the hub is closed.
@@ -56,6 +60,9 @@ nonisolated enum ClosedHubWork {
         /// What puts the dim layers back after a wake or a display change: the screen-parameter
         /// observer and its debounce. Software dimming (D-19) needs it only while a layer exists.
         case dimLayers
+        /// The session event tap for the media keys, on its own thread. It exists only with
+        /// Accessibility, so an input freeze after a revocation cannot happen (Phase 96, D-21).
+        case mediaKeyTap
     }
 
     /// The observers that exist for these switches: none unless the hub is on.
@@ -71,6 +78,9 @@ nonisolated enum ClosedHubWork {
             }
             if switches.volumeBrightnessOn {
                 result.insert(.volumeListener)
+                if switches.replaceSystemDisplayOn, switches.accessibilityTrusted {
+                    result.insert(.mediaKeyTap)
+                }
             }
         }
         if switches.gesturesOn {

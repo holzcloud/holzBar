@@ -481,6 +481,11 @@ nonisolated extension Defaults {
         /// in the closed notch (a boolean, off by default). It starts the volume listener only while
         /// it is on.
         case indicatorsVolumeBrightness = "IndicatorsVolumeBrightness"
+        /// Whether holzBar takes the volume and brightness keys it can handle and shows its own
+        /// display instead of the system's (a boolean, off by default; a private-interface switch,
+        /// stored on this Mac only and never exported or imported). Turning it on asks for
+        /// Accessibility, and a session event tap exists only while it is on and trusted.
+        case indicatorsReplacesSystemDisplay = "IndicatorsReplacesSystemDisplay"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -604,6 +609,7 @@ nonisolated extension Defaults.Key {
             .systemAlertsNotifications,
             .indicatorsInputSource,
             .indicatorsVolumeBrightness,
+            .indicatorsReplacesSystemDisplay,
             .openHiddenItemsInMenuBar,
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,
@@ -822,7 +828,7 @@ nonisolated extension Defaults.Key {
     /// displays' identifiers are those of this Mac), how far software dimming darkens each display
     /// (also keyed by display), and the two switches that turn a private
     /// interface on: Now Playing's Read all apps, Display controls' External monitors and System
-    /// readouts' Read GPU load, the System alerts' System notifications switch (a per-Mac
+    /// readouts' Read GPU load, Indicators' Replace the system display, the System alerts' System notifications switch (a per-Mac
     /// permission state) and the display cutout, which describes this Mac's hardware.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .lastRunMacOSMajor,
@@ -841,6 +847,7 @@ nonisolated extension Defaults.Key {
         .displayControlsExternalMonitors,
         .displayControlsDimLevels,
         .readoutsReadsGPU,
+        .indicatorsReplacesSystemDisplay,
         .systemAlertsNotifications,
         .notchHubCutout,
         .notificationsExcludedApps,

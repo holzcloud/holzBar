@@ -187254,6 +187254,242 @@
           }
         }
       }
+    },
+    "Replace the system display" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nahradit systémové zobrazení"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systemanzeige ersetzen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sustituir el indicador del sistema"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remplacer l’affichage du système"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A rendszerkijelző cseréje"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ganti tampilan sistem"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostituisci l’indicatore di sistema"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "システム表示を置き換える"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시스템 표시 대체"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systeemweergave vervangen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zastąp wyświetlacz systemowy"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Substituir a exibição do sistema"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remplazzar la visualisaziun dal sistem"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заменить системный индикатор"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ersätt systemets visning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sistem göstergesini değiştir"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Замінити системний індикатор"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "替换系统显示"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取代系統顯示"
+          }
+        }
+      }
+    },
+    "holzBar takes the volume and brightness keys it can handle and shows its own display. It needs Accessibility. Uses a private macOS interface. It switches itself off if macOS changes it." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar převezme klávesy hlasitosti a jasu, které zvládne, a zobrazí vlastní indikátor. Vyžaduje Zpřístupnění. Používá soukromé rozhraní macOS. Pokud macOS rozhraní změní, samo se vypne."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar übernimmt die Lautstärke- und Helligkeitstasten, die es verarbeiten kann, und zeigt eine eigene Anzeige. Dafür ist Bedienungshilfen nötig. Nutzt eine private macOS-Schnittstelle. Schaltet sich selbst aus, wenn macOS sie ändert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar toma las teclas de volumen y brillo que puede gestionar y muestra su propio indicador. Necesita Accesibilidad. Usa una interfaz privada de macOS. Se desactiva sola si macOS la cambia."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar prend en charge les touches de volume et de luminosité qu’il sait gérer et affiche son propre indicateur. Il nécessite l’accès Accessibilité. Utilise une interface privée de macOS. Il se désactive de lui-même si macOS la modifie."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar átveszi a kezelni képes hangerő- és fényerőbillentyűket, és saját kijelzőt mutat. Kisegítő lehetőségek hozzáférés szükséges hozzá. A macOS egy privát felületét használja. Magától kikapcsol, ha a macOS megváltoztatja."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar mengambil tombol volume dan kecerahan yang dapat ditanganinya dan menampilkan indikatornya sendiri. Memerlukan Aksesibilitas. Menggunakan antarmuka pribadi macOS. Akan mati sendiri jika macOS mengubahnya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar prende in carico i tasti del volume e della luminosità che sa gestire e mostra un proprio indicatore. Richiede Accessibilità. Usa un’interfaccia privata di macOS. Si disattiva da solo se macOS la modifica."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar が対応できる音量キーと輝度キーを引き受け、独自の表示を出します。アクセシビリティの許可が必要です。macOS のプライベートなインターフェースを使用します。macOS が変更した場合は自動的にオフになります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar가 처리할 수 있는 음량 및 밝기 키를 대신 받아 자체 표시를 보여 줍니다. 손쉬운 사용 권한이 필요합니다. macOS의 비공개 인터페이스를 사용합니다. macOS가 이를 변경하면 스스로 꺼집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar neemt de volume- en helderheidstoetsen over die het kan verwerken en toont een eigen weergave. Het vereist Toegankelijkheid. Gebruikt een privé-interface van macOS. Het schakelt zichzelf uit als macOS die wijzigt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar przejmuje klawisze głośności i jasności, które potrafi obsłużyć, i pokazuje własny wskaźnik. Wymaga Dostępności. Używa prywatnego interfejsu macOS. Wyłącza się samo, jeśli macOS go zmieni."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar assume as teclas de volume e brilho que consegue tratar e mostra sua própria exibição. Requer Acessibilidade. Usa uma interface privada do macOS. Desliga-se sozinho se o macOS a alterar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar surpiglia las tastas da volumen e da clerezza ch’el sa tractar e mussa sia atgna visualisaziun. Ha basegn d’Accessibilitad. Dovra ina interfascha privata da macOS. El sa deactivescha sez, sche macOS la midada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar перехватывает клавиши громкости и яркости, которые умеет обрабатывать, и показывает собственный индикатор. Требуется доступ «Универсальный доступ». Использует закрытый интерфейс macOS. Отключается сам, если macOS его изменит."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar tar över de volym- och ljusstyrkeknappar som den kan hantera och visar en egen visning. Kräver Hjälpmedel. Använder ett privat macOS-gränssnitt. Stänger av sig själv om macOS ändrar det."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar, işleyebildiği ses ve parlaklık tuşlarını devralır ve kendi göstergesini gösterir. Erişilebilirlik gerektirir. macOS’in özel bir arayüzünü kullanır. macOS bunu değiştirirse kendiliğinden kapanır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar перехоплює клавіші гучності та яскравості, які може обробити, і показує власний індикатор. Потрібен доступ до універсального доступу. Використовує закритий інтерфейс macOS. Вимикається сам, якщо macOS його змінить."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 接管它能够处理的音量和亮度按键，并显示自己的指示。需要辅助功能权限。使用 macOS 的私有接口。如果 macOS 更改了该接口，它会自动关闭。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 會接管它能處理的音量與亮度按鍵，並顯示自己的指示。需要輔助使用權限。使用 macOS 的私有介面。若 macOS 變更該介面，它會自動關閉。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

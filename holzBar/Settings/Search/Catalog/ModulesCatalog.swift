@@ -84,6 +84,7 @@ extension SettingsCatalog {
             .modulesIndicatorsInputSource,
             .modulesIndicatorsInputSourceDuration,
             .modulesIndicatorsVolumeBrightness,
+            .modulesIndicatorsReplacesSystemDisplay,
             .modulesNotificationsExcludedApps,
             .modulesNotificationsDisplayTime,
             .modulesNowPlayingAppleMusic,
@@ -434,6 +435,17 @@ extension SettingsEntry {
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Volume and brightness"),
         info: String(localized: "Shows the volume in the notch when it changes. macOS still shows its own display unless you replace it below."),
+        module: IndicatorLook.moduleID
+    )
+
+    static let modulesIndicatorsReplacesSystemDisplay = SettingsEntry(
+        id: "modulesIndicatorsReplacesSystemDisplay",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Replace the system display"),
+        info: String(
+            localized: "holzBar takes the volume and brightness keys it can handle and shows its own display. It needs Accessibility. Uses a private macOS interface. It switches itself off if macOS changes it."
+        ),
         module: IndicatorLook.moduleID
     )
 
