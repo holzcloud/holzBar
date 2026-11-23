@@ -24,7 +24,14 @@ import SwiftUI
 /// default output's level and mute on every callback and lets ``VolumeSteps`` decide whether it is
 /// a key-sized step, a mute change or an end of the range. A change is shown as one flash with the
 /// speaker symbol and the level the output reads back, or "Muted". holzBar takes no key here, so
-/// macOS's own display shows too. With the switch off the listener does not exist.
+/// macOS's own display shows too. With the switch off the listener does not exist. The volume
+/// value keeps one width: every volume flash carries the wider of "100 %" and "Muted" in the user's
+/// locale as its width sample.
+///
+/// On a bar so crowded that no free span is left beside the notch the hub has no live shape; the
+/// runtime then has its own ``AlertNotchSurface`` (created on the first flash, released when the
+/// last switch goes off) draw the flash detached below the notch (H2). Where the hub can draw its
+/// live state the surface stays away, so exactly one of them draws the flash.
 ///
 /// The runtime exists only while the hub and the module are both on. While the hub is open it makes
 /// no flash (the open hub has its own surface and never lists a flash). VoiceOver hears "Input
@@ -40,7 +47,11 @@ final class IndicatorsRuntime: HubModuleRuntime {
     let offersTab = false
 
     /// The flashes on show: at most one per kind, which a second change of that kind replaces.
-    private var flashes = [LiveActivity]()
+    private var flashes = [LiveActivity]() {
+        didSet {
+            surfaceDidChange()
+        }
+    }
 
     @ObservationIgnored private weak var appState: AppState?
     @ObservationIgnored private var policy = IndicatorPolicy()
@@ -53,6 +64,8 @@ final class IndicatorsRuntime: HubModuleRuntime {
     @ObservationIgnored private var pendingVolume: VolumeSteps.Change?
     @ObservationIgnored private var volumeDeferredTask: Task<Void, Never>?
     @ObservationIgnored private var isObservingVolume = false
+    @ObservationIgnored private var surface: AlertNotchSurface?
+    @ObservationIgnored private var widthSample: (locale: String, text: String)?
     @ObservationIgnored private var activationTask: Task<Void, Never>?
     @ObservationIgnored private var deferredTask: Task<Void, Never>?
     @ObservationIgnored private var announceTask: Task<Void, Never>?
@@ -115,6 +128,7 @@ final class IndicatorsRuntime: HubModuleRuntime {
         volumeSwitchLoop = nil
         stopObservingInputSource()
         stopObservingVolume()
+        releaseSurface()
     }
 
     // MARK: Flashes
@@ -124,6 +138,27 @@ final class IndicatorsRuntime: HubModuleRuntime {
         var updated = flashes.filter { $0.id != flash.id }
         updated.append(flash)
         flashes = updated
+    }
+
+    /// Hands the flashes to the surface of the crowded-bar form. It is created on the first flash,
+    /// and with no switch on none is made.
+    private func surfaceDidChange() {
+        guard isObserving || isObservingVolume, let appState else {
+            releaseSurface()
+            return
+        }
+        if flashes.isEmpty, surface == nil {
+            return
+        }
+        let surface = surface ?? AlertNotchSurface(appState: appState)
+        self.surface = surface
+        surface.update(activities: flashes)
+    }
+
+    /// Hides and drops the surface, when there is one.
+    private func releaseSurface() {
+        surface?.hide()
+        surface = nil
     }
 
     /// Takes the flash of a kind away, if it is on show.
@@ -176,6 +211,9 @@ final class IndicatorsRuntime: HubModuleRuntime {
         policy.reset(.inputSource)
         enabledCount = 0
         removeFlash(of: .inputSource)
+        if !isObservingVolume {
+            releaseSurface()
+        }
     }
 
     // MARK: Changes
@@ -290,6 +328,9 @@ final class IndicatorsRuntime: HubModuleRuntime {
         volumeDevice = nil
         policy.reset(.volume)
         removeFlash(of: .volume)
+        if !isObserving {
+            releaseSurface()
+        }
     }
 
     /// Reads the default output and shows a key-sized change of it. A new default output, and the
@@ -375,10 +416,29 @@ final class IndicatorsRuntime: HubModuleRuntime {
             value: Self.volumeText(change),
             title: title,
             at: moment,
-            hold: DesignTokens.Indicator.holdSeconds
+            hold: DesignTokens.Indicator.holdSeconds,
+            flash: LiveActivityFlash(widthSample: volumeWidthSample())
         )
         setFlash(flash)
         announce(flash)
+    }
+
+    /// The wider of "100 %" and "Muted" in the user's locale, measured in the live value's font once
+    /// per locale, so the value never moves the shape while it changes.
+    private func volumeWidthSample() -> String {
+        let identifier = Locale.current.identifier
+        if let widthSample, widthSample.locale == identifier {
+            return widthSample.text
+        }
+        let font = NSFont.monospacedDigitSystemFont(ofSize: CGFloat(DesignTokens.Island.liveValueSize), weight: .semibold)
+        func width(of text: String) -> CGFloat {
+            (text as NSString).size(withAttributes: [.font: font]).width
+        }
+        let full = (1.0).formatted(.percent)
+        let muted = String(localized: "Muted")
+        let text = width(of: full) >= width(of: muted) ? full : muted
+        widthSample = (locale: identifier, text: text)
+        return text
     }
 
     /// The value the flash shows: the level as a percentage in the user's locale, or Muted.

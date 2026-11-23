@@ -27,7 +27,9 @@ import SwiftUI
 /// and an alert must not vanish: the surface then draws a detached pill below the notch, and only
 /// an alert does (``NotchHubGeometry/detachedAlert(display:valueWidth:)``, UI-SPEC A3). It does so
 /// with the hub off, and with the hub on while the hub cannot draw its live state; where the hub
-/// can, the hub draws the alert and the surface stays away, so exactly one of them shows it.
+/// can, the hub draws the alert and the surface stays away, so exactly one of them shows it. The
+/// detached form also serves the indicator flashes of the Indicators module (H2), which keep a
+/// surface of their own; the countdown and the notification count never fall back to it.
 ///
 /// Nothing exists while nothing is to show: no panel, no task and no observation. While an alert is
 /// live the surface follows what moves its place (the active space, the displays, the free menu bar,
@@ -176,8 +178,9 @@ final class AlertNotchSurface {
     }
 
     /// How wide the value area of the detached pill must be for the value the board shows now, in
-    /// points: the live value's text in its own font (digits of equal width), and the `+n` badge when
-    /// more alerts are live. The geometry holds it between its limits.
+    /// points: the live value's text in its own font (digits of equal width) or, for a flash that
+    /// carries one, the wider of the value and its width sample, and the `+n` badge when more
+    /// alerts are live. The geometry holds it between its limits.
     private static func valueWidth(of board: HubActivityBoard.Board) -> Double {
         guard let state = HubLiveState.make(board: board, now: .now) else {
             return 0
@@ -194,6 +197,11 @@ final class AlertNotchSurface {
             total = width(of: (Double(percent) / 100).formatted(.percent), size: DesignTokens.Island.liveValueSize, weight: .semibold)
         case .word(let word):
             total = width(of: word, size: DesignTokens.Island.liveValueSize, weight: .semibold)
+            // A flash names the widest text its value takes, so the pill keeps one width while the
+            // value changes (D-10).
+            if let sample = board.compact?.flash?.widthSample {
+                total = max(total, width(of: sample, size: DesignTokens.Island.liveValueSize, weight: .semibold))
+            }
         case .none:
             total = 0
         }
