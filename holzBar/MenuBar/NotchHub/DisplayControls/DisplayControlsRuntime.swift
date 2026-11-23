@@ -65,6 +65,15 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// The output's name, for the open tab only.
     private(set) var outputName: String?
 
+    /// The outputs the picker lists, for the open tab only: the names are kept in memory and
+    /// emptied when the hub closes. Empty while the hub is closed.
+    private(set) var outputs: [AudioOutputRow] = []
+
+    /// The switch of the default output that was asked for and the system has not confirmed
+    /// yet (the picker shows a spinner on its row). It ends when the default read back equals
+    /// the target or after ``AudioOutputList/switchTimeout``.
+    private(set) var outputSwitch: AudioOutputSwitch?
+
     /// One display and what the module knows of its brightness.
     struct DisplayBrightness: Identifiable {
         let id: CGDirectDisplayID
@@ -189,6 +198,9 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// The CoreAudio listeners, added while the hub is open.
     @ObservationIgnored private let listener = OutputVolume.Listener()
 
+    /// The one-shot wait that ends an output switch the system never confirmed, while it runs.
+    @ObservationIgnored private var outputSwitchTask: Task<Void, Never>?
+
     /// Creates the runtime. It has nothing to start: the state is read when the hub opens. It
     /// only follows the External monitors setting, which costs nothing while the setting stays.
     init(appState: AppState) {
@@ -213,6 +225,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// Reads the default output's plan, level, mute and name again. Nothing of the displays is
     /// touched, so a volume change made elsewhere never starts a transfer to a monitor.
     func refreshVolume() {
+        refreshOutputs()
         guard let output = OutputVolume.current() else {
             clear()
             return
@@ -223,6 +236,57 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         canMute = output.capabilities.muteSettable
         isMuted = canMute ? OutputVolume.isMuted(output.device) ?? false : false
         outputName = OutputVolume.name(of: output.device)
+    }
+
+    /// Builds the picker's list from what the system reports and ends a switch the read-back
+    /// has settled, either way (``AudioOutputSwitch``): the check is always on the default the
+    /// system reports.
+    private func refreshOutputs() {
+        let currentUID = OutputVolume.defaultOutputDevice().flatMap(OutputVolume.uid(of:))
+        outputs = AudioOutputList.rows(OutputVolume.outputDevices(), currentUID: currentUID)
+        if let outputSwitch, outputSwitch.state(currentUID: currentUID, now: .now) != .pending {
+            clearOutputSwitch()
+        }
+    }
+
+    /// Asks the system to make the device with this UID the default output (never the output of
+    /// system sounds). The row shows a spinner until the default read back equals it, at most
+    /// ``AudioOutputList/switchTimeout``; when the system refuses, or the default changes by
+    /// itself, the check stays on, or returns to, the default the system reports and nothing is
+    /// said (D-16). holzBar stores no choice of its own.
+    func selectOutput(uid: String) {
+        let currentUID = OutputVolume.defaultOutputDevice().flatMap(OutputVolume.uid(of:))
+        guard uid != currentUID else {
+            return
+        }
+        outputSwitch = AudioOutputSwitch(targetUID: uid, startedAt: .now)
+        guard OutputVolume.setDefaultOutput(uid: uid) else {
+            clearOutputSwitch()
+            return
+        }
+        outputSwitchTask?.cancel()
+        outputSwitchTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(AudioOutputList.switchTimeout))
+            guard !Task.isCancelled, let self else {
+                return
+            }
+            self.outputSwitchTask = nil
+            self.clearOutputSwitch()
+            self.refreshVolume()
+        }
+        refreshVolume()
+    }
+
+    private func clearOutputSwitch() {
+        outputSwitchTask?.cancel()
+        outputSwitchTask = nil
+        outputSwitch = nil
+    }
+
+    /// Empties the picker's list and drops a pending switch: the device names leave memory.
+    private func clearOutputs() {
+        clearOutputSwitch()
+        outputs = []
     }
 
     /// Sets the level. The level shown afterwards is the one read back, not the argument.
@@ -725,11 +789,12 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             refreshDisplayOrder()
             refreshExternalMonitors(surveying: showsExternalValues)
             refreshVolume()
-            listener.start { [weak self] in
+            listener.start(followsDeviceList: true) { [weak self] in
                 self?.refreshVolume()
             }
         } else {
             listener.stop()
+            clearOutputs()
             cancelExternalWork(flushingPendingWrites: true)
         }
     }
@@ -817,6 +882,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         externalSettingLoop?.cancel()
         externalSettingLoop = nil
         listener.stop()
+        clearOutputs()
         cancelExternalWork()
         bus = nil
         externals = []

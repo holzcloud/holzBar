@@ -351,6 +351,10 @@ enum HolzBarTheme {
         static let idleTabFill = Color.white.opacity(DesignTokens.Hub.idleTabFillAlpha)
         /// The symbols of the Now Playing and Display controls modules.
         static let compactSymbolFont = Font.system(size: CGFloat(DesignTokens.Hub.compactSymbolSize))
+        /// The 10 pt chevron of a disclosure in the hub, such as the output picker's.
+        static let chevronFont = Font.system(size: 10, weight: .semibold)
+        /// The 12 pt checkmark of the chosen row of a list in the hub.
+        static let checkmarkFont = Font.system(size: 12, weight: .semibold)
         /// The words in the File drop tab's outline while a file is dragged over it.
         static let fileDropLabelFont = Font.system(size: CGFloat(DesignTokens.Hub.fileDropLabelSize), weight: .semibold)
         static let columns = DesignTokens.Hub.columns

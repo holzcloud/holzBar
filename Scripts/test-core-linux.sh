@@ -34,6 +34,7 @@ sources=(
   AppearanceMoods
   AppleItemReplacement
   AppVersion
+  AudioOutputList
   AutomationEngine
   AutomationRule
   AXSnapshot
@@ -206,6 +207,7 @@ tests=(
   AppearanceMoodsTests
   AppleItemReplacementTests
   AppVersionTests
+  AudioOutputListTests
   AutomationEngineTests
   AXSnapshotTests
   BarClickTraceTests

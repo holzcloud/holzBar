@@ -138,16 +138,132 @@ nonisolated enum OutputVolume {
     /// The device's name, such as "MacBook Pro Speakers". It is personal when it is a person's
     /// headphones: it is read for the open tab only, kept in memory and never logged.
     static func name(of device: AudioObjectID) -> String? {
-        var address = address(kAudioObjectPropertyName, scope: kAudioObjectPropertyScopeGlobal)
-        var name: Unmanaged<CFString>?
+        readString(device, selector: kAudioObjectPropertyName)
+    }
+
+    // MARK: Outputs
+
+    /// Every sound device the system reports, as the output list wants it. A device whose UID
+    /// cannot be read is skipped, and a failure to read the list gives an empty list. Names are
+    /// kept in memory for the open tab only and are never logged.
+    static func outputDevices() -> [AudioOutputDevice] {
+        deviceIDs().compactMap { device in
+            guard let uid = uid(of: device) else {
+                return nil
+            }
+            return AudioOutputDevice(
+                uid: uid,
+                name: name(of: device) ?? uid,
+                outputChannels: outputChannelCount(of: device),
+                isHidden: readUInt32(device, selector: kAudioDevicePropertyIsHidden) == 1,
+                transport: transport(of: device)
+            )
+        }
+    }
+
+    /// The device's UID, which stays the same when a device leaves and returns (the object
+    /// identifier does not).
+    static func uid(of device: AudioObjectID) -> String? {
+        readString(device, selector: kAudioDevicePropertyDeviceUID)
+    }
+
+    /// Makes the device with this UID the default output, and only the default output: the output
+    /// of system sounds stays as the user set it in System Settings. The system decides; the
+    /// caller reads the default back. Answers whether the system accepted the call.
+    @discardableResult
+    static func setDefaultOutput(uid: String) -> Bool {
+        guard
+            let device = deviceIDs().first(where: { self.uid(of: $0) == uid && outputChannelCount(of: $0) > 0 })
+        else {
+            return false
+        }
+        var address = address(kAudioHardwarePropertyDefaultOutputDevice, scope: kAudioObjectPropertyScopeGlobal)
+        var value = device
+        return AudioObjectSetPropertyData(
+            AudioObjectID(kAudioObjectSystemObject),
+            &address,
+            0,
+            nil,
+            UInt32(MemoryLayout<AudioObjectID>.size),
+            &value
+        ) == noErr
+    }
+
+    /// The identifiers of every audio device.
+    private static func deviceIDs() -> [AudioObjectID] {
+        var address = address(kAudioHardwarePropertyDevices, scope: kAudioObjectPropertyScopeGlobal)
+        let system = AudioObjectID(kAudioObjectSystemObject)
+        var size = UInt32(0)
+        guard AudioObjectGetPropertyDataSize(system, &address, 0, nil, &size) == noErr, size > 0 else {
+            return []
+        }
+        var devices = [AudioObjectID](repeating: 0, count: Int(size) / MemoryLayout<AudioObjectID>.size)
+        guard AudioObjectGetPropertyData(system, &address, 0, nil, &size, &devices) == noErr else {
+            return []
+        }
+        return devices
+    }
+
+    /// The number of output channels of a device, 0 for a microphone or when it cannot be read.
+    private static func outputChannelCount(of device: AudioObjectID) -> Int {
+        var address = address(kAudioDevicePropertyStreamConfiguration)
+        var size = UInt32(0)
+        guard AudioObjectGetPropertyDataSize(device, &address, 0, nil, &size) == noErr, size > 0 else {
+            return 0
+        }
+        let list = UnsafeMutableRawPointer.allocate(byteCount: Int(size), alignment: MemoryLayout<AudioBufferList>.alignment)
+        defer { list.deallocate() }
+        guard AudioObjectGetPropertyData(device, &address, 0, nil, &size, list) == noErr else {
+            return 0
+        }
+        let buffers = UnsafeMutableAudioBufferListPointer(list.assumingMemoryBound(to: AudioBufferList.self))
+        return buffers.reduce(0) { $0 + Int($1.mNumberChannels) }
+    }
+
+    /// How the device is connected.
+    private static func transport(of device: AudioObjectID) -> AudioTransport {
+        guard let value = readUInt32(device, selector: kAudioDevicePropertyTransportType) else {
+            return .other
+        }
+        switch value {
+        case kAudioDeviceTransportTypeBuiltIn: return .builtIn
+        case kAudioDeviceTransportTypeBluetooth, kAudioDeviceTransportTypeBluetoothLE: return .bluetooth
+        case kAudioDeviceTransportTypeHDMI: return .hdmi
+        case kAudioDeviceTransportTypeDisplayPort: return .displayPort
+        case kAudioDeviceTransportTypeAirPlay: return .airPlay
+        case kAudioDeviceTransportTypeUSB: return .usb
+        case kAudioDeviceTransportTypeAggregate: return .aggregate
+        case kAudioDeviceTransportTypeVirtual: return .virtual
+        default: return .other
+        }
+    }
+
+    /// A string property of a device in the global scope, or `nil` when it cannot be read.
+    private static func readString(_ device: AudioObjectID, selector: AudioObjectPropertySelector) -> String? {
+        var address = address(selector, scope: kAudioObjectPropertyScopeGlobal)
+        var value: Unmanaged<CFString>?
         var size = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
-        let status = withUnsafeMutablePointer(to: &name) {
+        let status = withUnsafeMutablePointer(to: &value) {
             AudioObjectGetPropertyData(device, &address, 0, nil, &size, $0)
         }
-        guard status == noErr, let name else {
+        guard status == noErr, let value else {
             return nil
         }
-        return name.takeRetainedValue() as String
+        return value.takeRetainedValue() as String
+    }
+
+    /// A 32-bit integer property of a device in the global scope, or `nil` when it cannot be read.
+    private static func readUInt32(_ device: AudioObjectID, selector: AudioObjectPropertySelector) -> UInt32? {
+        var address = address(selector, scope: kAudioObjectPropertyScopeGlobal)
+        guard AudioObjectHasProperty(device, &address) else {
+            return nil
+        }
+        var value: UInt32 = 0
+        var size = UInt32(MemoryLayout<UInt32>.size)
+        guard AudioObjectGetPropertyData(device, &address, 0, nil, &size, &value) == noErr else {
+            return nil
+        }
+        return value
     }
 
     // MARK: Properties
@@ -198,7 +314,8 @@ nonisolated enum OutputVolume {
 extension OutputVolume {
     /// Tells the module that something about the default output changed, while the hub is open.
     ///
-    /// It listens to the default output device, and on the current device to the volume property
+    /// It listens to the default output device, with `followsDeviceList` to the list of devices
+    /// too (a device that appears or leaves), and on the current device to the volume property
     /// the plan chose (each channel for a channel plan) and to the mute. When the default device
     /// changes, the device's listeners are replaced by those of the new device. Every block runs
     /// on the main queue. ``stop()`` removes every block it added with the same object, address
@@ -213,6 +330,7 @@ extension OutputVolume {
         }
 
         private var systemRegistration: Registration?
+        private var deviceListRegistration: Registration?
         private var deviceRegistrations = [Registration]()
         private var onChange: (@MainActor () -> Void)?
 
@@ -221,8 +339,9 @@ extension OutputVolume {
             onChange != nil
         }
 
-        /// Adds the listeners. Does nothing when they are already added.
-        func start(onChange: @escaping @MainActor () -> Void) {
+        /// Adds the listeners. Does nothing when they are already added. With `followsDeviceList`
+        /// a device that appears or leaves is reported as well.
+        func start(followsDeviceList: Bool = false, onChange: @escaping @MainActor () -> Void) {
             guard !isRunning else {
                 return
             }
@@ -231,6 +350,12 @@ extension OutputVolume {
             let address = OutputVolume.address(kAudioHardwarePropertyDefaultOutputDevice, scope: kAudioObjectPropertyScopeGlobal)
             systemRegistration = register(system, address) { listener in
                 listener.defaultDeviceChanged()
+            }
+            if followsDeviceList {
+                let listAddress = OutputVolume.address(kAudioHardwarePropertyDevices, scope: kAudioObjectPropertyScopeGlobal)
+                deviceListRegistration = register(system, listAddress) { listener in
+                    listener.valueChanged()
+                }
             }
             addDeviceListeners()
         }
@@ -242,6 +367,10 @@ extension OutputVolume {
                 unregister(systemRegistration)
             }
             systemRegistration = nil
+            if let deviceListRegistration {
+                unregister(deviceListRegistration)
+            }
+            deviceListRegistration = nil
             onChange = nil
         }
 
