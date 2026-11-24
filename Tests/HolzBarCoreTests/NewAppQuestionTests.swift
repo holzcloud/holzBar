@@ -114,4 +114,22 @@ struct NewAppQuestionTests {
         #expect(cleaned == "ToolelppA")
         #expect(ItemRuleNotices.cleanedName("\u{202E}\n", fallback: "com.example.Tool") == "com.example.Tool")
     }
+
+    @Test("The waiting list adds once in order, drops the oldest past the cap and removes one")
+    func rememberedList() {
+        #expect(NewAppQuestion.remembered(adding: ["b", "c"], to: ["a", "b"]) == ["a", "b", "c"])
+        #expect(NewAppQuestion.remembered(adding: ["c", "c"], to: []) == ["c"])
+        #expect(NewAppQuestion.remembered(adding: [""], to: ["a"]) == ["a"])
+        let cap = NewAppQuestion.Policy.maximumRemembered
+        #expect(cap == 512)
+        let full = (0..<cap).map { "com.example.\($0)" }
+        let grown = NewAppQuestion.remembered(adding: ["com.example.new"], to: full)
+        #expect(grown.count == cap)
+        #expect(grown.first == "com.example.1")
+        #expect(grown.last == "com.example.new")
+        let hugeEdit = (0..<(cap + 40)).map { "com.example.\($0)" }
+        #expect(NewAppQuestion.remembered(adding: [], to: hugeEdit).count == cap)
+        #expect(NewAppQuestion.remembered(removing: "b", from: ["a", "b", "c"]) == ["a", "c"])
+        #expect(NewAppQuestion.remembered(removing: "z", from: ["a"]) == ["a"])
+    }
 }

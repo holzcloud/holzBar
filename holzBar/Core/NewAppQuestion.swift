@@ -49,6 +49,12 @@ nonisolated struct NewAppQuestion: Equatable, Sendable {
         }
     }
 
+    /// The fixed numbers of the question.
+    nonisolated enum Policy {
+        /// The most bundle identifiers either stored list keeps; the oldest go first.
+        static let maximumRemembered = 512
+    }
+
     /// The most rows a card shows before it says "+N more".
     static let defaultRowLimit = 4
 
@@ -116,6 +122,22 @@ nonisolated struct NewAppQuestion: Equatable, Sendable {
     mutating func clear() {
         waiting.removeAll()
         asked.removeAll()
+    }
+
+    /// The stored list of waiting questions with identifiers added: each once, in the order of
+    /// first adding, with empty ones skipped and only the newest ``Policy/maximumRemembered`` kept.
+    static func remembered(adding bundleIDs: [String], to stored: [String]) -> [String] {
+        var seen = Set<String>()
+        var list = [String]()
+        for id in stored + bundleIDs where !id.isEmpty && seen.insert(id).inserted {
+            list.append(id)
+        }
+        return Array(list.suffix(Policy.maximumRemembered))
+    }
+
+    /// The stored list of waiting questions without one identifier.
+    static func remembered(removing bundleID: String, from stored: [String]) -> [String] {
+        remembered(adding: [], to: stored.filter { $0 != bundleID })
     }
 
     /// The rows a card shows and how many apps come after them.

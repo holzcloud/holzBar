@@ -210,6 +210,7 @@ final class AppState {
         }
         let questions = NewAppQuestions27(appState: self)
         newAppQuestions27Storage = questions
+        questions.restoreWaitingQuestions()
         return questions
     }
 
@@ -374,6 +375,11 @@ final class AppState {
             // Hiding does not need the item cache, and the first read of the items can
             // take seconds (measured 9 s), so it starts before the item manager's setup.
             concealer27.performSetup(with: self)
+            // A question kept from before the last quit waits again; with the switch off, or
+            // with nothing kept, nothing is created (D-05, D-19).
+            if settings.advanced.asksWhereNewAppGoes, let kept = Defaults.stringArray(forKey: .newAppQuestionPending), !kept.isEmpty {
+                _ = newAppQuestions27
+            }
         }
         await itemManager.performSetup(with: self)
         imageCache.performSetup(with: self)

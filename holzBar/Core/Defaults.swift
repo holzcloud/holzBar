@@ -285,6 +285,10 @@ nonisolated extension Defaults {
         case itemRuleShownSections = "ItemRuleShownSections"
         case knownItemTags = "KnownItemTags"
         case knownApplications27 = "KnownApplications27"
+        /// The bundle identifiers of new menu bar apps whose question is not answered yet (a list
+        /// of strings, at most 512), kept so a quit does not lose a question. They name the apps the
+        /// user runs, so this stays on this Mac: never exported or imported.
+        case newAppQuestionPending = "NewAppQuestionPending"
         /// The section of each item before macOS 27, keyed by its identity (`ItemIdentity`):
         /// 0 visible, 1 hidden, 2 always hidden.
         case itemSections = "ItemSections"
@@ -702,6 +706,7 @@ nonisolated extension Defaults.Key {
         case .knownItemTags,
             .itemOrder,
             .knownApplications27,
+            .newAppQuestionPending,
             .hiddenSystemItems27,
             .titleChangingItemOwners,
             .revealOnChangeItems,
@@ -840,7 +845,9 @@ nonisolated extension Defaults.Key {
     /// (also keyed by display), and the two switches that turn a private
     /// interface on: Now Playing's Read all apps, Display controls' External monitors and System
     /// readouts' Read GPU load, Indicators' Replace the system display, the System alerts' System notifications switch (a per-Mac
-    /// permission state) and the display cutout, which describes this Mac's hardware.
+    /// permission state) and the display cutout, which describes this Mac's hardware. The bundle
+    /// identifiers of the new menu bar apps whose question waits (and, with them, of those the
+    /// user asked never to be asked about) name the apps the user runs and stay here too.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .lastRunMacOSMajor,
         .lockHiddenItems,
@@ -862,6 +869,7 @@ nonisolated extension Defaults.Key {
         .systemAlertsNotifications,
         .notchHubCutout,
         .notificationsExcludedApps,
+        .newAppQuestionPending,
         .shelfAlwaysHiddenFoldOpen,
         .displayBehaviors,
         .debugDropsBarrierExitEvent,

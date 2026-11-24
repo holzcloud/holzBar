@@ -45,23 +45,59 @@ final class NewAppQuestions27 {
     }
 
     /// Notes the apps that appeared in the menu bar for the first time. Those that are never asked
-    /// about are skipped; the others are asked as soon as the gate is open.
+    /// about are skipped; the others are kept on this Mac until answered (a quit does not lose
+    /// them) and asked as soon as the gate is open.
     func noteNewApplications(_ bundleIDs: Set<String>) {
         let now = ContinuousClock.now
-        for bundleID in bundleIDs.sorted() {
-            let running = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first
-            guard NewAppQuestion.isEligible(
-                bundleID: bundleID,
-                bundlePath: running?.bundleURL?.path,
-                ownBundleID: Constants.bundleIdentifier,
-                declined: []
-            ) else {
-                continue
-            }
-            let name = ItemRuleNotices.cleanedName(running?.localizedName ?? "", fallback: bundleID)
-            question.note(NewAppQuestion.App(bundleID: bundleID, name: name, noticedAt: now))
+        let noted = bundleIDs.sorted().filter { noteApplication($0, at: now) }
+        if !noted.isEmpty {
+            storePending { NewAppQuestion.remembered(adding: noted, to: $0) }
         }
         releaseIfOpen()
+    }
+
+    /// Notes the questions kept from before the last quit, once, when the model is created: they
+    /// wait for the gate like new ones. An identifier that is refused now is taken out of the list.
+    func restoreWaitingQuestions() {
+        guard appState?.settings.advanced.asksWhereNewAppGoes == true else {
+            return
+        }
+        let now = ContinuousClock.now
+        let stored = Defaults.stringArray(forKey: .newAppQuestionPending) ?? []
+        let kept = stored.filter { noteApplication($0, at: now) }
+        if kept != stored {
+            storePending { _ in NewAppQuestion.remembered(adding: kept, to: []) }
+        }
+        releaseIfOpen()
+    }
+
+    /// Notes one app when it may be asked about.
+    ///
+    /// - Returns: Whether the app may be asked about, so it is waiting or asked.
+    private func noteApplication(_ bundleID: String, at now: ContinuousClock.Instant) -> Bool {
+        let running = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first
+        let url = running?.bundleURL ?? NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID)
+        guard NewAppQuestion.isEligible(
+            bundleID: bundleID,
+            bundlePath: url?.path,
+            ownBundleID: Constants.bundleIdentifier,
+            declined: []
+        ) else {
+            return false
+        }
+        let displayName = running?.localizedName ?? url.map { FileManager.default.displayName(atPath: $0.path) } ?? ""
+        let name = ItemRuleNotices.cleanedName(displayName, fallback: bundleID)
+        question.note(NewAppQuestion.App(bundleID: bundleID, name: name, noticedAt: now))
+        return true
+    }
+
+    /// Writes the waiting list: bundle identifiers only, never names.
+    private func storePending(_ change: ([String]) -> [String]) {
+        let stored = Defaults.stringArray(forKey: .newAppQuestionPending) ?? []
+        let changed = change(stored)
+        if changed != stored {
+            Defaults.set(changed, forKey: .newAppQuestionPending)
+        }
     }
 
     /// Answers the question of an app: a section moves it at once as one Undo step, and the row
@@ -90,6 +126,7 @@ final class NewAppQuestions27 {
             }
         }
         question.remove(bundleID)
+        storePending { NewAppQuestion.remembered(removing: bundleID, from: $0) }
         publish()
     }
 
