@@ -199904,6 +199904,839 @@
           }
         }
       }
+    },
+    "Accessibility is not granted" : {
+      "comment" : "Dock badges settings: state line while holzBar does not have the Accessibility permission",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zpřístupnění není povoleno"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bedienungshilfen sind nicht erlaubt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accesibilidad no está permitida"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’accessibilité n’est pas autorisée"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Kisegítő lehetőségek nincsenek engedélyezve"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aksesibilitas belum diizinkan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’accessibilità non è consentita"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクセシビリティが許可されていません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "손쉬운 사용이 허용되지 않았습니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toegankelijkheid is niet toegestaan"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dostępność nie jest przyznana"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Acessibilidade não foi concedida"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bedienungshilfen n’èn betg permessas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Универсальный доступ не разрешён"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hjälpmedel är inte tillåtet"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erişilebilirlik izni verilmedi"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступність не дозволено"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未授予辅助功能权限"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未授予輔助使用權限"
+          }
+        }
+      }
+    },
+    "holzBar reads the badge numbers on the Dock's icons through Accessibility. It reads nothing else and sends nothing anywhere." : {
+      "comment" : "Dock badges settings: info popover of the Accessibility state line",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar čte čísla na odznacích ikon v Docku prostřednictvím Zpřístupnění. Nečte nic dalšího a nikam nic neposílá."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar liest die Kennzeichen-Zahlen auf den Symbolen im Dock über die Bedienungshilfen. Es liest nichts anderes und sendet nichts irgendwohin."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar lee los números de los globos de los iconos del Dock mediante Accesibilidad. No lee nada más y no envía nada a ningún sitio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar lit les nombres des pastilles sur les icônes du Dock grâce à l’accessibilité. Il ne lit rien d’autre et n’envoie rien nulle part."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar a Kisegítő lehetőségeken keresztül olvassa a Dock ikonjain lévő jelvényszámokat. Mást nem olvas, és sehová nem küld semmit."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar membaca angka lencana pada ikon Dock melalui Aksesibilitas. holzBar tidak membaca hal lain dan tidak mengirim apa pun ke mana pun."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar legge i numeri dei badge sulle icone del Dock tramite l’accessibilità. Non legge nient’altro e non invia nulla da nessuna parte."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar は、アクセシビリティを通じて Dock のアイコンのバッジの数字を読み取ります。それ以外は何も読み取らず、どこにも送信しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar는 손쉬운 사용을 통해 Dock 아이콘의 배지 숫자를 읽습니다. 그 밖의 내용은 읽지 않으며 어디로도 보내지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar leest de badgeaantallen op de symbolen in het Dock via Toegankelijkheid. Het leest niets anders en verstuurt nergens iets naartoe."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar odczytuje liczby na plakietkach ikon w Docku przez Dostępność. Nie odczytuje niczego więcej i nigdzie niczego nie wysyła."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar lê os números dos emblemas nos ícones do Dock por meio da Acessibilidade. Não lê mais nada e não envia nada para lugar nenhum."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar legia ils numers dals badges sin ils simbols dal Dock cun agid da las Bedienungshilfen. El na legia nagut auter e n’tira nagut enagiu."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar считывает числа на значках в Dock через универсальный доступ. Больше ничего он не считывает и никуда ничего не отправляет."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar läser märkesnumren på ikonerna i Dock via Hjälpmedel. Det läser inget annat och skickar ingenting någonstans."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar, Dock simgelerindeki rozet sayılarını Erişilebilirlik üzerinden okur. Başka hiçbir şeyi okumaz ve hiçbir yere bir şey göndermez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar зчитує числа на значках у Dock через доступність. Більше нічого він не зчитує й нічого нікуди не надсилає."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 通过辅助功能读取 Dock 图标上的标记数字。它不读取其他任何内容，也不会向任何地方发送任何数据。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 透過輔助使用讀取 Dock 圖像上的標記數字。它不會讀取其他任何內容，也不會將任何資料傳送到任何地方。"
+          }
+        }
+      }
+    },
+    "Grant Accessibility…" : {
+      "comment" : "Dock badges settings: button on the Accessibility state line that asks for the permission",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Povolit Zpřístupnění…"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bedienungshilfen erlauben …"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permitir Accesibilidad…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autoriser l’accessibilité…"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kisegítő lehetőségek engedélyezése…"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izinkan Aksesibilitas…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consenti l’accessibilità…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクセシビリティを許可…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "손쉬운 사용 허용…"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toegankelijkheid toestaan…"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przyznaj Dostępność…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conceder Acessibilidade…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permetter las Bedienungshilfen …"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешить универсальный доступ…"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tillåt Hjälpmedel…"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erişilebilirlik İzni Ver…"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дозволити доступність…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "授予辅助功能权限…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "授予輔助使用權限⋯"
+          }
+        }
+      }
+    },
+    "Switch on Dock badges to choose apps." : {
+      "comment" : "Dock badges settings: empty row while the module is off",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapněte odznaky Docku a vyberte aplikace."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schalte die Dock-Kennzeichen ein, um Apps auszuwählen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activa los globos del Dock para elegir apps."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activez les pastilles du Dock pour choisir des apps."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapcsold be a Dock-jelvényeket az alkalmazások kiválasztásához."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktifkan Lencana Dock untuk memilih app."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attiva i badge del Dock per scegliere le app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App を選ぶには、Dock のバッジをオンにしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱을 선택하려면 Dock 배지를 켜세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zet de Dock-badges aan om apps te kiezen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Włącz plakietki Docka, aby wybrać aplikacje."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ative os emblemas do Dock para escolher apps."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activescha ils badges dal Dock per tscherner apps."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Включите значки Dock, чтобы выбрать приложения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slå på Dock-märken för att välja appar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulama seçmek için Dock rozetlerini açın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Увімкніть значки Dock, щоб вибрати програми."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开“Dock 标记”以选择 App。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟「Dock 標記」以選擇 App。"
+          }
+        }
+      }
+    },
+    "Grant Accessibility to list the apps in your Dock." : {
+      "comment" : "Dock badges settings: empty row in the app list while holzBar does not have the Accessibility permission",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Povolte Zpřístupnění a zobrazí se seznam aplikací ve vašem Docku."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaube die Bedienungshilfen, um die Apps in deinem Dock aufzulisten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permite Accesibilidad para listar las apps de tu Dock."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autorisez l’accessibilité pour lister les apps de votre Dock."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Engedélyezd a Kisegítő lehetőségeket a Dockban lévő alkalmazások listázásához."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izinkan Aksesibilitas untuk menampilkan daftar app di Dock Anda."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consenti l’accessibilità per elencare le app nel tuo Dock."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock にある App を一覧表示するには、アクセシビリティを許可してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock에 있는 앱을 나열하려면 손쉬운 사용을 허용하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sta Toegankelijkheid toe om de apps in je Dock op te sommen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przyznaj Dostępność, aby wyświetlić aplikacje z Docka."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conceda a Acessibilidade para listar os apps do seu Dock."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permetta las Bedienungshilfen per glistar las apps en tes Dock."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешите универсальный доступ, чтобы показать приложения из Dock."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tillåt Hjälpmedel för att lista apparna i din Dock."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock’inizdeki uygulamaları listelemek için Erişilebilirlik izni verin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дозвольте доступність, щоб показати програми з Dock."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "授予辅助功能权限，以列出 Dock 中的 App。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "授予輔助使用權限，以列出 Dock 中的 App。"
+          }
+        }
+      }
+    },
+    "No apps in the Dock. Add an app to the Dock to choose it here." : {
+      "comment" : "Dock badges settings: empty row in the app list when the Dock holds no apps",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V Docku nejsou žádné aplikace. Přidejte aplikaci do Docku a vyberete ji tady."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Apps im Dock. Lege eine App im Dock ab, um sie hier auszuwählen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay apps en el Dock. Añade una app al Dock para elegirla aquí."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune app dans le Dock. Ajoutez une app au Dock pour la choisir ici."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nincs alkalmazás a Dockban. Adj hozzá egyet a Dockhoz, hogy itt kiválaszthasd."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidak ada app di Dock. Tambahkan app ke Dock untuk memilihnya di sini."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna app nel Dock. Aggiungi un’app al Dock per sceglierla qui."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock に App がありません。ここで選ぶには、App を Dock に追加してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock에 앱이 없습니다. 여기에서 선택하려면 앱을 Dock에 추가하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen apps in het Dock. Voeg een app toe aan het Dock om die hier te kiezen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak aplikacji w Docku. Dodaj aplikację do Docka, aby wybrać ją tutaj."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum app no Dock. Adicione um app ao Dock para escolhê-lo aqui."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Naginas apps en il Dock. Agiuntescha ina app al Dock per la tscherner qua."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В Dock нет приложений. Добавьте приложение в Dock, чтобы выбрать его здесь."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inga appar i Dock. Lägg till en app i Dock för att välja den här."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock’te uygulama yok. Burada seçmek için Dock’e bir uygulama ekleyin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У Dock немає програм. Додайте програму до Dock, щоб вибрати її тут."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock 中没有 App。将 App 添加到 Dock 后即可在此选择。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock 中沒有 App。將 App 加入 Dock 後即可在此選擇。"
+          }
+        }
+      }
+    },
+    "The Dock could not be read. Reopen this list to try again." : {
+      "comment" : "Dock badges settings: state line when the Dock could not be read",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock se nepodařilo načíst. Znovu otevřete tento seznam a zkuste to znovu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Dock konnte nicht gelesen werden. Öffne diese Liste erneut, um es noch einmal zu versuchen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo leer el Dock. Vuelve a abrir esta lista para intentarlo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le Dock n’a pas pu être lu. Rouvrez cette liste pour réessayer."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Dockot nem sikerült beolvasni. Nyisd meg újra ezt a listát az újrapróbálkozáshoz."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock tidak dapat dibaca. Buka kembali daftar ini untuk mencoba lagi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile leggere il Dock. Riapri questo elenco per riprovare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock を読み取れませんでした。この一覧を開き直して、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock을 읽을 수 없습니다. 이 목록을 다시 열어 다시 시도하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het Dock kon niet worden gelezen. Open deze lijst opnieuw om het nogmaals te proberen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się odczytać Docka. Otwórz tę listę ponownie, aby spróbować jeszcze raz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível ler o Dock. Abra esta lista novamente para tentar de novo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il Dock n’ha betg pudì vegnir legì. Avra danovamain questa glista per empruvar anc ina giada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось считать Dock. Откройте этот список снова, чтобы повторить попытку."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock kunde inte läsas. Öppna listan igen för att försöka på nytt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock okunamadı. Yeniden denemek için bu listeyi tekrar açın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося зчитати Dock. Відкрийте цей список знову, щоб спробувати ще раз."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法读取 Dock。请重新打开此列表再试一次。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法讀取 Dock。請重新打開此列表再試一次。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -3,6 +3,7 @@
 //  holzBar
 //
 
+import AppKit
 import Foundation
 import Observation
 
@@ -13,7 +14,9 @@ import Observation
 /// list, no task and no observer. Even with the module on, it reads the Dock only while the
 /// module's settings are open (``settingsDidAppear()``), through ``DockReader`` off the main
 /// actor, and drops what it read when they close (``settingsDidDisappear()``) or the module goes
-/// off. App names and bundle identifiers stay in memory and are never logged.
+/// off. While they are open it reads again when an app launches or quits (the Dock then adds or
+/// removes an icon) after one short wait, and when Accessibility is granted or withdrawn; there is
+/// no timer. App names and bundle identifiers stay in memory and are never logged.
 @MainActor
 @Observable
 final class DockBadges {
@@ -47,6 +50,19 @@ final class DockBadges {
 
     /// The read that is running, if any.
     @ObservationIgnored private var readTask: Task<Void, Never>?
+
+    /// The observations of launching and quitting apps, and the wait that follows one. They exist
+    /// only while the settings are open and the module is on.
+    @ObservationIgnored private var launchTask: Task<Void, Never>?
+    @ObservationIgnored private var terminateTask: Task<Void, Never>?
+    @ObservationIgnored private var rereadTask: Task<Void, Never>?
+
+    /// Follows Accessibility while the settings are open and the module is on.
+    @ObservationIgnored private var permissionLoop: ObservationLoop?
+
+    /// How long to wait after an app launched or quit before the Dock is read again, so that the
+    /// Dock has added or removed its icon.
+    private static let dockSettleWait = Duration.milliseconds(500)
 
     /// The names of chosen apps that are not in the Dock, found once per opening.
     @ObservationIgnored private var namesOfAppsOutsideTheDock = [String: String]()
@@ -98,14 +114,62 @@ final class DockBadges {
         appState?.modules.isEnabled(Self.moduleID) ?? false
     }
 
-    /// Brings the reading in line with the module switch and the open settings.
+    /// Whether holzBar has the Accessibility permission now.
+    private var hasAccessibility: Bool {
+        appState?.permissions.accessibility.hasPermission ?? false
+    }
+
+    /// Brings the reading in line with the module switch, the open settings and the permission.
     private func update() {
         guard isSettingsOpen, isModuleOn else {
             stopReading()
             return
         }
-        if appState?.permissions.accessibility.hasPermission == true {
+        startObserving()
+        if hasAccessibility {
             read()
+        } else {
+            dropList()
+        }
+    }
+
+    /// Starts following launching and quitting apps and the permission; does nothing when it
+    /// already does.
+    private func startObserving() {
+        guard launchTask == nil else {
+            return
+        }
+        let center = NSWorkspace.shared.notificationCenter
+        launchTask = Task { [weak self] in
+            for await _ in center.notifications(named: NSWorkspace.didLaunchApplicationNotification) {
+                self?.appsDidChange()
+            }
+        }
+        terminateTask = Task { [weak self] in
+            for await _ in center.notifications(named: NSWorkspace.didTerminateApplicationNotification) {
+                self?.appsDidChange()
+            }
+        }
+        permissionLoop = ObservationLoop.observe { [weak appState] in
+            appState?.permissions.accessibility.hasPermission ?? false
+        } onChange: { [weak self] _ in
+            self?.update()
+        }
+    }
+
+    /// An app launched or quit: the Dock changes its icons a moment later, so wait once (a new
+    /// event replaces the wait) and read again.
+    private func appsDidChange() {
+        guard isSettingsOpen, isModuleOn, hasAccessibility else {
+            return
+        }
+        rereadTask?.cancel()
+        rereadTask = Task { [weak self] in
+            try? await Task.sleep(for: Self.dockSettleWait, tolerance: .milliseconds(250))
+            guard !Task.isCancelled else {
+                return
+            }
+            self?.read()
         }
     }
 
@@ -121,7 +185,7 @@ final class DockBadges {
     }
 
     private func finishRead(_ result: DockReader.Result) {
-        guard isSettingsOpen, isModuleOn else {
+        guard isSettingsOpen, isModuleOn, hasAccessibility else {
             return
         }
         switch result {
@@ -133,8 +197,22 @@ final class DockBadges {
         }
     }
 
-    /// Cancels a running read and drops everything that was read.
+    /// Cancels every task and observation and drops everything that was read.
     private func stopReading() {
+        launchTask?.cancel()
+        launchTask = nil
+        terminateTask?.cancel()
+        terminateTask = nil
+        rereadTask?.cancel()
+        rereadTask = nil
+        permissionLoop?.cancel()
+        permissionLoop = nil
+        dropList()
+        namesOfAppsOutsideTheDock.removeAll()
+    }
+
+    /// Cancels a running read and forgets the list.
+    private func dropList() {
         readTask?.cancel()
         readTask = nil
         if !dockApps.isEmpty {
@@ -143,6 +221,5 @@ final class DockBadges {
         if listState != .notRead {
             listState = .notRead
         }
-        namesOfAppsOutsideTheDock.removeAll()
     }
 }
