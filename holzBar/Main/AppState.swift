@@ -92,6 +92,12 @@ final class AppState {
     /// only while the Notch hub and Display controls are on and a level is above 0 (Phase 96).
     let softwareDimmer = SoftwareDimmer()
 
+    /// The one DDC bus that Display controls and the brightness keys of the Indicators share, so
+    /// that two transfers to a monitor can never interleave (Phase 96, WR-03). It is held weakly:
+    /// each user keeps its own strong reference while its part runs and drops it when the part
+    /// goes off, and the bus is gone when the last one lets go.
+    @ObservationIgnored private weak var sharedBus: DDCBus?
+
     /// Menu bar items of the user's own: text from built-in sources and Shortcut buttons (Phase 12).
     let widgets = MenuBarWidgets()
 
@@ -186,6 +192,18 @@ final class AppState {
             return []
         }
         return (standInItems27Storage as? StandInItems27)?.hitTestFrames ?? []
+    }
+
+    /// The shared DDC bus, created when the first user asks for it and while any user holds it
+    /// (Phase 96, WR-03). It carries no private API of its own: the bus is the existing
+    /// ``DDCBus``, which calls ``IOAVServiceBridge`` only.
+    func ddcBus() -> DDCBus {
+        if let sharedBus {
+            return sharedBus
+        }
+        let bus = DDCBus()
+        sharedBus = bus
+        return bus
     }
 
     /// Passes a mouse release on to a Command-drag that is armed. Nothing is created for it: a

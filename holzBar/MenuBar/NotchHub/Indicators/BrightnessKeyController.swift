@@ -55,7 +55,10 @@ final class BrightnessKeyController {
 
     @ObservationIgnored private weak var appState: AppState?
 
-    /// The bus, created on the first survey and dropped when the part goes off.
+    /// The bus, taken from the app state's shared one on the first survey and dropped when the
+    /// part goes off. Display controls uses the same bus, so one transfer at a time reaches a
+    /// monitor (WR-03). Its surveys count in negative numbers, so they never share the
+    /// capabilities cache of a hub opening of Display controls.
     @ObservationIgnored private var bus: DDCBus?
     /// What counts against the external gate.
     @ObservationIgnored private var policy = DDCFailurePolicy()
@@ -424,7 +427,7 @@ final class BrightnessKeyController {
         surveyCount += 1
         let opening = surveyCount
         let generation = generation
-        let bus = bus ?? DDCBus()
+        let bus = bus ?? appState?.ddcBus() ?? DDCBus()
         self.bus = bus
         surveyTask = Task { [weak self] in
             let load = await bus.load()
@@ -437,7 +440,7 @@ final class BrightnessKeyController {
                 self.onChange?()
                 return
             }
-            let reports = await bus.survey(candidates, opening: opening)
+            let reports = await bus.survey(candidates, opening: -opening)
             guard !Task.isCancelled, self.generation == generation else {
                 return
             }

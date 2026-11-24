@@ -163,7 +163,9 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// What counts against the gate. It remembers which monitors answered in this session.
     @ObservationIgnored private var ddcPolicy = DDCFailurePolicy()
 
-    /// The bus, created when the part first runs and dropped with it.
+    /// The bus, taken from the app state's shared one when the part first runs and dropped with
+    /// it. The brightness keys of the Indicators use the same bus, so a transfer of one never
+    /// interleaves with one of the other.
     @ObservationIgnored private var bus: DDCBus?
 
     /// The number of hub openings so far. The bus reads each monitor's capabilities once per
@@ -496,7 +498,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             monitor.state = .reading
             return monitor
         }
-        let bus = bus ?? DDCBus()
+        let bus = bus ?? appState?.ddcBus() ?? DDCBus()
         self.bus = bus
         let opening = hubOpening
         // While the wake gate is closed every card shows its reading state, with a spinner too.
