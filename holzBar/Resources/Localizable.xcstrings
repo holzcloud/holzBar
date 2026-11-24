@@ -192685,6 +192685,363 @@
           }
         }
       }
+    },
+    "Readable menu bar" : {
+      "comment" : "Label of the built-in mood that gives the menu bar an opaque background; shown in the Moods group, the command palette and automation rules.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Čitelná lišta nabídek"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gut lesbare Menüleiste"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barra de menús legible"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barre des menus lisible"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Olvasható menüsor"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilah menu yang mudah dibaca"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barra dei menu leggibile"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読みやすいメニューバー"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "읽기 쉬운 메뉴 막대"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leesbare menubalk"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czytelny pasek menu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barra de menus legível"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bara da menus legibla"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Читаемая строка меню"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Läsbar menyrad"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Okunaklı menü çubuğu"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Читабельний рядок меню"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "易读的菜单栏"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "易讀的選單列"
+          }
+        }
+      }
+    },
+    "Gives the menu bar an opaque background in the light or dark look of your Mac, so its icons and text stay readable." : {
+      "comment" : "Info text of the built-in mood Readable menu bar.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dá liště nabídek neprůhledné pozadí ve světlém nebo tmavém vzhledu vašeho Macu, aby ikony a text zůstaly čitelné."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gibt der Menüleiste einen undurchsichtigen Hintergrund im hellen oder dunklen Erscheinungsbild deines Macs, damit Symbole und Text lesbar bleiben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da a la barra de menús un fondo opaco, en el aspecto claro u oscuro de tu Mac, para que sus iconos y su texto sigan siendo legibles."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Donne à la barre des menus un fond opaque, dans l’apparence claire ou sombre de votre Mac, pour que ses icônes et son texte restent lisibles."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Átlátszatlan hátteret ad a menüsornak a Mac világos vagy sötét megjelenésében, hogy az ikonok és a szöveg olvashatók maradjanak."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memberi bilah menu latar belakang buram dalam tampilan terang atau gelap Mac Anda, agar ikon dan teksnya tetap mudah dibaca."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dà alla barra dei menu uno sfondo opaco, nell’aspetto chiaro o scuro del Mac, così che icone e testo restino leggibili."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メニューバーに、Macのライトまたはダークの外観に合わせた不透明な背景を付け、アイコンと文字を読みやすく保ちます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac의 라이트 또는 다크 모습에 맞춰 메뉴 막대에 불투명한 배경을 적용해 아이콘과 텍스트를 읽기 쉽게 유지합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geeft de menubalk een ondoorzichtige achtergrond in het lichte of donkere uiterlijk van je Mac, zodat symbolen en tekst leesbaar blijven."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nadaje paskowi menu nieprzezroczyste tło w jasnym lub ciemnym wyglądzie Maca, aby ikony i tekst pozostały czytelne."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dá à barra de menus um fundo opaco, na aparência clara ou escura do seu Mac, para que os ícones e o texto continuem legíveis."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dat a la bara da menus in fund betg transparent, en l’aspect cler u stgir da tes Mac, uschia che las icònas ed il text restan legibels."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Делает фон строки меню непрозрачным, в светлом или тёмном оформлении вашего Mac, чтобы значки и текст оставались читаемыми."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ger menyraden en ogenomskinlig bakgrund i din Macs ljusa eller mörka utseende, så att ikoner och text förblir läsbara."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menü çubuğuna Mac’inizin açık veya koyu görünümünde opak bir arka plan verir; böylece simgeler ve metin okunaklı kalır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Робить тло рядка меню непрозорим, у світлому або темному вигляді вашого Mac, щоб значки й текст залишалися читабельними."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "为菜单栏设置不透明背景，采用 Mac 的浅色或深色外观，使图标和文字保持清晰易读。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "為選單列設定不透明背景，採用 Mac 的淺色或深色外觀，讓圖示和文字保持清晰易讀。"
+          }
+        }
+      }
+    },
+    "Apply Mood" : {
+      "comment" : "Button that switches the menu bar to a saved or built-in mood.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Použít náladu"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stimmung anwenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aplicar ambiente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appliquer l’ambiance"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hangulat alkalmazása"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terapkan suasana"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Applica atmosfera"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ムードを適用"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "분위기 적용"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stemming toepassen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zastosuj nastrój"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aplicar clima"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Applitgar l’atmosfera"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Применить настроение"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Använd stämning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ruh halini uygula"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Застосувати настрій"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用氛围"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "套用心情"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

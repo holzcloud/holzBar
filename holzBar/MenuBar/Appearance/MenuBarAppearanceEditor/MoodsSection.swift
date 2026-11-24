@@ -24,6 +24,9 @@ struct MoodsSection: View {
             SettingsCatalog.AppearancePane.moods,
             footnote: Text("At most \(MoodNaming.maximumCount) moods. A name has up to \(MoodNaming.maximumNameLength) characters.")
         ) {
+            if #available(macOS 26.0, *) {
+                readableMenuBarRow
+            }
             if appearanceManager.moods.isEmpty {
                 SettingsEmptyRow(systemImage: "paintpalette", Text("No moods yet: save the current look to switch to it in one click."))
             }
@@ -46,6 +49,22 @@ struct MoodsSection: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("Give the look of the menu bar a name.")
+        }
+    }
+
+    /// The built-in mood for Liquid Glass: no delete button, no rename, not counted in the limit.
+    private var readableMenuBarRow: some View {
+        let isCurrent = appearanceManager.isReadableMenuBarCurrent
+        return SettingsButtonRow(
+            Text("Readable menu bar"),
+            small: isCurrent ? Text("In use") : nil,
+            badge: .preview,
+            info: Text("Gives the menu bar an opaque background in the light or dark look of your Mac, so its icons and text stay readable.")
+        ) {
+            Button("Apply Mood") {
+                appearanceManager.applyMood(named: BuiltInMood.readableMenuBarID)
+            }
+            .disabled(isCurrent)
         }
     }
 
