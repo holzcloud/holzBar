@@ -84,15 +84,41 @@ struct DockBadgesSettingsView: View {
             ForEach(rows) { row in
                 SettingsToggleRow(
                     Text(verbatim: row.name),
+                    icon: Self.icon(forBundleID: row.bundleID),
                     isOn: Binding(
                         get: { settings.isChosen(row.bundleID) },
                         set: { settings.setChosen(row.bundleID, $0) }
                     ),
                     small: row.isChosen && !row.isInDock && dockBadges.listState == .read ? Text("Not in Dock") : nil
                 )
+                // One line with the tail cut; the whole name is the tooltip and, as the row's
+                // label, what VoiceOver reads.
+                .lineLimit(1)
+                .truncationMode(.tail)
                 .help(row.name)
             }
         }
+    }
+
+    /// The icons already fetched, by bundle identifier, so a row that redraws does not ask the
+    /// system again. Dropped by the system under memory pressure.
+    private static let icons = NSCache<NSString, NSImage>()
+
+    /// The app's icon for a row, or `nil` when it is not installed.
+    private static func icon(forBundleID bundleID: String) -> Image? {
+        let key = bundleID as NSString
+        // The settings kit hides the icon from VoiceOver; the row's label names the app.
+        if let cached = icons.object(forKey: key) {
+            // swiftlint:disable:next accessibility_label_for_image
+            return Image(nsImage: cached)
+        }
+        guard let url = BuiltInItemActions.applicationURL(forBundleID: bundleID) else {
+            return nil
+        }
+        let image = NSWorkspace.shared.icon(forFile: url.path(percentEncoded: false))
+        icons.setObject(image, forKey: key)
+        // swiftlint:disable:next accessibility_label_for_image
+        return Image(nsImage: image)
     }
 
     /// The header of the list, laid out as a row of the open area.

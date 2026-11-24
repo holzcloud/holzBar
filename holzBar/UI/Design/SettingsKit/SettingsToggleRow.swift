@@ -53,14 +53,17 @@ struct SettingsToggleRow: View {
         self.info = info
     }
 
+    /// The text form. An `icon` leads the label (an app's icon, B4); it is decoration and the
+    /// label stays the row's name for VoiceOver.
     init(
         _ title: Text,
+        icon: Image? = nil,
         isOn: Binding<Bool>,
         small: Text? = nil,
         badge: SettingsBadge? = nil,
         info: Text? = nil
     ) {
-        label = SettingsRowTitle(title)
+        label = SettingsRowTitle(title, icon: icon)
         _isOn = isOn
         self.small = small
         self.badge = badge
