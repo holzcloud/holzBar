@@ -592,6 +592,17 @@ struct WidgetDefinitionTests {
         #expect(list.map(\.builtIn) == [.focus])
     }
 
+    @Test("A Spotlight item survives validation with its item kept and no option")
+    func spotlightValidated() throws {
+        var spotlight = WidgetDefinition.builtIn(.spotlight)
+        spotlight.timerMinutes = 500
+        spotlight.mediaOnlyWhenActive = true
+        spotlight.launcherBundleID = "com.apple.Music"
+        let valid = try #require(spotlight.validated(now: now))
+        #expect(valid.builtIn == .spotlight)
+        #expect(valid.kind == .builtIn)
+    }
+
     @Test("A built-in item reads on events only; its symbol is its item's")
     func builtInCadenceAndSymbol() {
         for item in BuiltInItem.allCases {

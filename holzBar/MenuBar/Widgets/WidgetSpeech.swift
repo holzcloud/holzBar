@@ -37,6 +37,7 @@ nonisolated enum WidgetSpeech {
         case .userSwitching: String(localized: "Fast User Switching")
         case .timer: String(localized: "Timer")
         case .launcher: appName ?? String(localized: "App Launcher")
+        case .spotlight: String(localized: "Spotlight")
         }
     }
 
@@ -64,6 +65,7 @@ nonisolated enum WidgetSpeech {
         case .airDrop: String(localized: "Opens AirDrop. Drop files here to share them.")
         case .media: String(localized: "Plays or pauses. Right-click for previous and next.")
         case .userSwitching: String(localized: "Opens fast user switching")
+        case .spotlight: String(localized: "Opens Spotlight")
         case .timer: String(localized: "Starts or stops the timer")
         case .launcher:
             if let appName {

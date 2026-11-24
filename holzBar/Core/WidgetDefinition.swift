@@ -425,7 +425,7 @@ nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable 
                 result.launcherBundleID = launcherBundleID.flatMap {
                     SharedProfile.isValidBundleIdentifier($0) ? $0 : nil
                 }
-            case .focus, .airDrop, .media, .userSwitching:
+            case .focus, .airDrop, .media, .userSwitching, .spotlight:
                 break
             }
         case .button:

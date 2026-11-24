@@ -89,6 +89,8 @@ struct WidgetEditor: View {
                 return Text("A click opens fast user switching.")
             case .launcher:
                 return Text(verbatim: WidgetSpeech.hint(for: .launcher, appName: appName))
+            case .spotlight:
+                return Text("A click opens Spotlight.")
             case nil:
                 return nil
             }
@@ -505,7 +507,7 @@ private struct BuiltInItemFields: View {
                 }
             }
             .settingsSubRow()
-        case .airDrop, .focus, .userSwitching, nil:
+        case .airDrop, .focus, .userSwitching, .spotlight, nil:
             // What a click does is the info of the widget's row.
             EmptyView()
         }

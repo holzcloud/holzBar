@@ -375,6 +375,8 @@ final class MenuBarWidgets {
                 return
             }
             openModulesSettings()
+        case .spotlight:
+            builtInActions.openSpotlight()
         case nil:
             break
         }
