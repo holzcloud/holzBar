@@ -44,6 +44,7 @@ extension SettingsCatalog {
                 .advancedDefaultSpacing,
                 .advancedExportSettings,
                 .advancedImportSettings,
+                .advancedImportFromApp,
                 .advancedPermissionAccessibility,
                 .advancedPermissionScreenRecording,
                 .advancedPermissionCalendar,
@@ -51,6 +52,15 @@ extension SettingsCatalog {
             ]
             return entries
         }()
+    }
+}
+
+extension SettingsCatalog {
+    /// The group titles of the import sheet, which is not a pane but follows the pane's rule that
+    /// a group title is a catalogue constant.
+    enum ImportSheet {
+        static let apps = String(localized: "Apps")
+        static let changes = String(localized: "Changes")
     }
 }
 
@@ -147,6 +157,14 @@ extension SettingsEntry {
         pane: .advanced,
         group: SettingsCatalog.AdvancedPane.backUp,
         label: String(localized: "Import settings")
+    )
+
+    static let advancedImportFromApp = SettingsEntry(
+        id: "advancedImportFromApp",
+        pane: .advanced,
+        group: SettingsCatalog.AdvancedPane.backUp,
+        label: String(localized: "Import from another app"),
+        info: String(localized: "Brings over matching settings from Thaw or Hidden Bar. You see what changes first, holzBar keeps a backup and you can undo it.")
     )
 
     static let advancedPermissionAccessibility = SettingsEntry(

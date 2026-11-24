@@ -151,6 +151,7 @@ struct AdvancedSettingsPane: View {
                         SettingsBackup.importFromFile(attachedTo: appState.navigationState.settingsWindow)
                     }
                 }
+                AdvancedImportRows()
             }
             SettingsGroup(SettingsCatalog.AdvancedPane.permissions) {
                 ForEach(listedPermissions, id: \.self) { kind in

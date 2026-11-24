@@ -585,4 +585,13 @@ struct DesignTokensTests {
         #expect(widget.largePercentGlyphShrink == 2)
         #expect(widget.largePercentGap == 4)
     }
+
+    @Test("The import sheet is 480 wide and its list of changes scrolls between 120 and 320")
+    func importSheetTokens() {
+        let sheet = Tokens.ImportSheet.self
+        #expect(sheet.width == 480)
+        #expect(sheet.listMinHeight == 120)
+        #expect(sheet.listMaxHeight == 320)
+        #expect(sheet.listMinHeight < sheet.listMaxHeight)
+    }
 }

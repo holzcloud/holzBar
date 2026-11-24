@@ -396,6 +396,16 @@ nonisolated enum DesignTokens {
         static let largePercentGap = 4.0
     }
 
+    /// The import sheet's measures in points (Phase 98, concept B5 and B8).
+    nonisolated enum ImportSheet {
+        /// The width of the sheet, the same as the profile import sheet.
+        static let width = 480.0
+        /// The smallest height of the scrolling list of changes.
+        static let listMinHeight = 120.0
+        /// The largest height of the list of changes; a longer list scrolls.
+        static let listMaxHeight = 320.0
+    }
+
     /// The gradient of fills that carry white text, the same in both appearances.
     nonisolated enum Fill {
         static let start = RGB(hex: 0x1C78AE)

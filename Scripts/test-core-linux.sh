@@ -92,6 +92,7 @@ sources=(
   HubScrollGesture
   HubStatusPills
   HubTabStrip
+  ImportBackupRecord
   IndicatorPolicy
   InputMonitors
   InputSourceLabel
@@ -151,6 +152,7 @@ sources=(
   PermissionListing
   PinnedSystemItems
   PlaybackClock
+  PreviousAppImport
   PrivateFeatureGate
   ReadoutFormat
   ReadoutHistory
@@ -331,6 +333,7 @@ tests=(
   PermissionListingTests
   PinnedSystemItemsTests
   PlaybackClockTests
+  PreviousAppImportTests
   PrivateFeatureGateTests
   ReadoutFormatTests
   ReadoutHistoryTests
