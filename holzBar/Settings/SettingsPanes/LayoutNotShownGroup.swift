@@ -36,6 +36,9 @@ struct NotShownGroup: View {
                             row.fix.label
                         }
                     }
+                    // VoiceOver reads the row as "name, reason"; its button is read by the fix.
+                    .accessibilityLabel(Text(verbatim: row.name))
+                    .accessibilityValue(row.reason.title)
                 }
             }
         }
