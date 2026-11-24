@@ -484,6 +484,19 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("Whether holzBar asks where a new app goes travels with a settings file, as a Boolean only")
+    func asksWhereNewAppGoesTravels() {
+        #expect(Defaults.Key.asksWhereNewAppGoes.rawValue == "AsksWhereNewAppGoes")
+        #expect(Defaults.Key.asksWhereNewAppGoes.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.asksWhereNewAppGoes))
+        #expect(Defaults.Key.importableKinds["AsksWhereNewAppGoes"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(["AsksWhereNewAppGoes": true], ownBundleIdentifier: ownBundle)
+        #expect((accepted.accepted["AsksWhereNewAppGoes"] as? Bool) == true)
+        let refused = Defaults.Key.validatedSettings(["AsksWhereNewAppGoes": "yes"], ownBundleIdentifier: ownBundle)
+        #expect(refused.accepted["AsksWhereNewAppGoes"] == nil)
+        #expect(refused.ignored == ["AsksWhereNewAppGoes"])
+    }
+
     @Test("The notch hub's settings travel with a settings file, and only the displays within their choices")
     func notchHubSettingsTravel() {
         #expect(Defaults.Key.importableKinds["NotchHubOpensOnHover"] == .bool)

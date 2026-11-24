@@ -20,6 +20,7 @@ struct MakingRoomGroup: View {
                 Text(MakeRoomMode.off.localized).tag(MakeRoomMode.off)
                 Text(MakeRoomMode.ask.localized).tag(MakeRoomMode.ask)
             }
+            SettingsToggleRow(.layoutAsksWhereNewAppGoes, isOn: $advanced.asksWhereNewAppGoes, badge: .preview)
         }
     }
 

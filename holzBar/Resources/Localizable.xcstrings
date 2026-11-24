@@ -190781,6 +190781,482 @@
           }
         }
       }
+    },
+    "Ask shows a notice with a Move to Hidden button." : {
+      "comment" : "First sentence of the info of the pop-up When the menu bar is full; Ask is its choice and Hidden is a section of the menu bar.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Možnost Zeptat se zobrazí oznámení s tlačítkem pro přesun do Skrytých."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Fragen“ zeigt einen Hinweis mit einer Schaltfläche zum Verschieben nach „Ausgeblendet“."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Preguntar» muestra un aviso con un botón para mover a Oculto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Demander » affiche un avis avec un bouton pour déplacer vers « Masqué »."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Rákérdezés értesítést mutat egy gombbal, amely a rejtettek közé helyez át."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tanya menampilkan pemberitahuan dengan tombol untuk memindahkan ke Tersembunyi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Chiedi» mostra un avviso con un pulsante per spostare in «Nascosto»."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「確認」では、「非表示」へ移動するボタン付きのお知らせが表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“묻기”를 선택하면 “숨김”으로 이동하는 버튼이 있는 알림이 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bij Vragen verschijnt een melding met een knop om naar Verborgen te verplaatsen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opcja Pytaj pokazuje powiadomienie z przyciskiem przenoszącym do sekcji Ukryte."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Perguntar” mostra um aviso com um botão para mover para Oculto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Dumandar» mussa in avis cun in buttun per spustar en «Zuppà»."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Спрашивать» показывает уведомление с кнопкой для перемещения в «Скрыто»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fråga visar ett meddelande med en knapp som flyttar till Dolda."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sor, Gizli bölümüne taşıma düğmesi olan bir bildirim gösterir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Запитувати» показує сповіщення з кнопкою для переміщення в «Приховано»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择“询问”会显示通知，并带有将项目移到“隐藏”的按钮。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇「詢問」會顯示通知，並附有移到「已隱藏」的按鈕。"
+          }
+        }
+      }
+    },
+    "Apple's items and holzBar's own never move. You can undo every move." : {
+      "comment" : "Last sentence of the info of the pop-up When the menu bar is full.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Položky Applu a samotného holzBaru se nikdy nepřesouvají. Každý přesun můžeš vrátit zpět."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemente von Apple und die von holzBar selbst werden nie verschoben. Du kannst jede Verschiebung rückgängig machen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los elementos de Apple y los de holzBar nunca se mueven. Puedes deshacer cada movimiento."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les éléments d'Apple et ceux de holzBar ne sont jamais déplacés. Vous pouvez annuler chaque déplacement."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az Apple elemei és a holzBar saját elemei soha nem mozognak. Minden áthelyezést visszavonhatsz."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item Apple dan item holzBar sendiri tidak pernah dipindahkan. Anda dapat mengurungkan setiap perpindahan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli elementi di Apple e quelli di holzBar non vengono mai spostati. Puoi annullare ogni spostamento."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple の項目と holzBar 自身の項目は移動されません。どの移動も取り消せます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple의 항목과 holzBar 자체 항목은 절대 이동하지 않습니다. 모든 이동을 실행 취소할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderdelen van Apple en die van holzBar zelf worden nooit verplaatst. Je kunt elke verplaatsing ongedaan maken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementy Apple i samego holzBar nigdy nie są przenoszone. Możesz cofnąć każde przeniesienie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os itens da Apple e os do próprio holzBar nunca são movidos. Você pode desfazer cada movimento."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils elements d'Apple e quels da holzBar na vegnan mai spustads. Ti pos revocar mintga spustada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Элементы Apple и самого holzBar никогда не перемещаются. Любое перемещение можно отменить."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apples objekt och holzBars egna flyttas aldrig. Du kan ångra varje flytt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple'ın öğeleri ve holzBar'ın kendi öğeleri asla taşınmaz. Her taşımayı geri alabilirsin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Елементи Apple і самого holzBar ніколи не переміщуються. Будь-яке переміщення можна скасувати."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple 的项目和 holzBar 自己的项目永远不会移动。你可以撤销每一次移动。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple 的項目和 holzBar 自己的項目永遠不會移動。你可以復原每一次移動。"
+          }
+        }
+      }
+    },
+    "Ask where a new app goes" : {
+      "comment" : "Label of a switch in the Layout pane: holzBar asks, once per app, which section a new menu bar app goes to.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ptát se, kam patří nová aplikace"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fragen, wohin eine neue App kommt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preguntar dónde va una app nueva"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demander où va une nouvelle app"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rákérdezés, hová kerüljön az új app"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tanya ke mana app baru ditempatkan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiedi dove va una nuova app"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しい App の配置先を確認"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 앱의 위치 묻기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vragen waar een nieuwe app komt"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pytaj, gdzie trafia nowa aplikacja"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perguntar onde vai um app novo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dumandar nua che ina nova app va"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спрашивать, куда поместить новое приложение"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fråga var en ny app hamnar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yeni uygulamanın nereye gideceğini sor"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запитувати, куди помістити нову програму"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "询问新 App 放在哪里"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "詢問新 App 放在哪裡"
+          }
+        }
+      }
+    },
+    "The first time an app adds a menu bar item, holzBar asks where it should go and remembers your answer. Apple's items and holzBar's own are not asked about." : {
+      "comment" : "Info of the switch Ask where a new app goes in the Layout pane.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Když aplikace poprvé přidá položku do řádku nabídek, holzBar se zeptá, kam patří, a zapamatuje si tvou odpověď. Na položky Applu a samotného holzBaru se neptá."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn eine App zum ersten Mal ein Element in der Menüleiste hinzufügt, fragt holzBar, wohin es kommen soll, und merkt sich deine Antwort. Nach Elementen von Apple und von holzBar selbst wird nicht gefragt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La primera vez que una app añade un elemento a la barra de menús, holzBar pregunta dónde debe ir y recuerda tu respuesta. No se pregunta por los elementos de Apple ni por los de holzBar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La première fois qu'une app ajoute un élément à la barre des menus, holzBar demande où le placer et mémorise votre réponse. Les éléments d'Apple et ceux de holzBar ne font pas l'objet de cette question."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amikor egy app először ad hozzá elemet a menüsorhoz, a holzBar megkérdezi, hová kerüljön, és megjegyzi a válaszodat. Az Apple elemeiről és a holzBar saját elemeiről nem kérdez."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saat sebuah app pertama kali menambahkan item ke bar menu, holzBar menanyakan ke mana item itu harus ditempatkan dan mengingat jawaban Anda. Item Apple dan item holzBar sendiri tidak ditanyakan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La prima volta che un'app aggiunge un elemento alla barra dei menu, holzBar chiede dove metterlo e ricorda la tua risposta. Per gli elementi di Apple e di holzBar non viene chiesto nulla."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App がメニューバーに項目を初めて追加すると、holzBar が配置先を尋ね、その回答を記憶します。Apple の項目と holzBar 自身の項目については尋ねません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱이 메뉴 막대에 항목을 처음 추가하면 holzBar가 항목을 어디에 둘지 묻고 답변을 기억합니다. Apple의 항목과 holzBar 자체 항목은 묻지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De eerste keer dat een app een onderdeel aan de menubalk toevoegt, vraagt holzBar waar het moet komen en onthoudt je antwoord. Voor onderdelen van Apple en van holzBar zelf vraagt het niets."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gdy aplikacja po raz pierwszy doda element do paska menu, holzBar pyta, gdzie ma trafić, i zapamiętuje twoją odpowiedź. O elementy Apple i samego holzBar nie pyta."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na primeira vez que um app adiciona um item à barra de menus, o holzBar pergunta onde ele deve ficar e lembra a sua resposta. Não se pergunta sobre os itens da Apple nem sobre os do próprio holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La emprima giada che ina app agiuntescha in element al trav da menu, dumonda holzBar nua che quel duai ir e memorisescha tia resposta. Per ils elements d'Apple e da holzBar na vegn betg dumandà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Когда приложение впервые добавляет элемент в строку меню, holzBar спрашивает, куда его поместить, и запоминает ответ. Об элементах Apple и самого holzBar он не спрашивает."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Första gången en app lägger till ett objekt i menyraden frågar holzBar var det ska hamna och kommer ihåg ditt svar. Apples objekt och holzBars egna frågar den inte om."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir uygulama menü çubuğuna ilk kez bir öğe eklediğinde holzBar nereye gitmesi gerektiğini sorar ve yanıtını hatırlar. Apple'ın öğeleri ve holzBar'ın kendi öğeleri için soru sorulmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли програма вперше додає елемент до смуги меню, holzBar запитує, куди його помістити, і запам'ятовує відповідь. Про елементи Apple і самого holzBar він не запитує."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用首次向菜单栏添加项目时，holzBar 会询问它应放在哪里，并记住你的回答。Apple 的项目和 holzBar 自己的项目不会询问。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App 首次在選單列加入項目時，holzBar 會詢問它應放在哪裡，並記住你的回答。Apple 的項目和 holzBar 自己的項目不會詢問。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

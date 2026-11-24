@@ -225,6 +225,8 @@ nonisolated extension Defaults {
         /// The raw values of `MakeRoomMode`: 0 Off, 1 Ask, 2 Automatic. Absent means Ask; new
         /// values are only appended.
         case makeRoomMode = "MakeRoomMode"
+        /// macOS 27: whether holzBar asks where a new menu bar app goes, once per app. Off by default.
+        case asksWhereNewAppGoes = "AsksWhereNewAppGoes"
         case keepLiveActivitiesVisible = "KeepLiveActivitiesVisible"
         case autoZenWhileSharingScreen = "AutoZenWhileSharingScreen"
         case openHiddenItemsInMenuBar = "OpenHiddenItemsInMenuBar"
@@ -587,6 +589,7 @@ nonisolated extension Defaults.Key {
             .smartCategories,
             .enableSecondaryContextMenu,
             .keepLiveActivitiesVisible,
+            .asksWhereNewAppGoes,
             .autoZenWhileSharingScreen,
             .notchHubOpensOnHover,
             .notchHubGestures,

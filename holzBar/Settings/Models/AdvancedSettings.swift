@@ -90,6 +90,14 @@ final class AdvancedSettings {
         }
     }
 
+    /// A Boolean value that indicates whether holzBar asks, once per app, where a new menu bar
+    /// app goes (macOS 27). Off by default; independent of ``makeRoomMode``.
+    var asksWhereNewAppGoes = false {
+        didSet {
+            Defaults.set(asksWhereNewAppGoes, forKey: .asksWhereNewAppGoes)
+        }
+    }
+
     /// A Boolean value that indicates whether Live Activities stay in the
     /// visible section.
     var keepLiveActivitiesVisible = true {
@@ -145,6 +153,7 @@ final class AdvancedSettings {
         Defaults.ifPresent(key: .openHiddenItemsInMenuBar, assign: &openHiddenItemsInMenuBar)
         Defaults.ifPresent(key: .keepLiveActivitiesVisible, assign: &keepLiveActivitiesVisible)
         Defaults.ifPresent(key: .autoZenWhileSharingScreen, assign: &autoZenWhileSharingScreen)
+        Defaults.ifPresent(key: .asksWhereNewAppGoes, assign: &asksWhereNewAppGoes)
 
         Defaults.ifPresent(key: .sectionDividerStyle) { rawValue in
             if let style = SectionDividerStyle(rawValue: rawValue) {

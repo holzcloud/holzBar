@@ -34,6 +34,7 @@ extension SettingsCatalog {
                 entries.append(.layoutCommandDragSetsSection)
                 entries.append(.layoutStandInIcons)
                 entries.append(.layoutMakeRoomMode)
+                entries.append(.layoutAsksWhereNewAppGoes)
             }
             entries += [
                 .layoutSuggestRarelyUsed,
@@ -124,7 +125,20 @@ extension SettingsEntry {
         id: "layoutMakeRoomMode",
         pane: .layout,
         group: SettingsCatalog.LayoutPane.makingRoom,
-        label: String(localized: "When the menu bar is full")
+        label: String(localized: "When the menu bar is full"),
+        // Two sentences, each its own string, so a later release can put one between them.
+        info: [
+            String(localized: "Ask shows a notice with a Move to Hidden button."),
+            String(localized: "Apple's items and holzBar's own never move. You can undo every move."),
+        ].joined(separator: " ")
+    )
+
+    static let layoutAsksWhereNewAppGoes = SettingsEntry(
+        id: "layoutAsksWhereNewAppGoes",
+        pane: .layout,
+        group: SettingsCatalog.LayoutPane.makingRoom,
+        label: String(localized: "Ask where a new app goes"),
+        info: String(localized: "The first time an app adds a menu bar item, holzBar asks where it should go and remembers your answer. Apple's items and holzBar's own are not asked about.")
     )
 
     static let layoutSuggestRarelyUsed = SettingsEntry(
