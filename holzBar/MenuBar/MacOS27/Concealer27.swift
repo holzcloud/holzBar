@@ -1523,6 +1523,10 @@ final class Concealer27 {
         guard !newBundleIDs.isEmpty else {
             return
         }
+        // The question is asked later; the placement below applies at once.
+        if appState.settings.advanced.asksWhereNewAppGoes {
+            appState.newAppQuestions27.noteNewApplications(newBundleIDs)
+        }
         guard
             var name = appState.settings.advanced.newItemsPlacement.section,
             name != .visible

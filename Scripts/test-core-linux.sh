@@ -126,6 +126,7 @@ sources=(
   ModuleCatalog
   MoveBackoff
   MoveNeighbourCheck
+  NewAppQuestion
   NextEvents
   NotchHubDisplays
   NotchHubGeometry
@@ -304,6 +305,7 @@ tests=(
   ModuleCatalogTests
   MoveBackoffTests
   MoveNeighbourCheckTests
+  NewAppQuestionTests
   NextEventsTests
   NotchHubDisplaysTests
   NotchHubGeometryTests

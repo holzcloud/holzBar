@@ -199,6 +199,27 @@ final class AppState {
         return list
     }
 
+    /// Storage for ``newAppQuestions27``, typed loosely so the property exists on every macOS.
+    @ObservationIgnored private var newAppQuestions27Storage: AnyObject?
+
+    /// Asks where an app that macOS 27 shows for the first time should go; created on first use.
+    @available(macOS 27.0, *)
+    var newAppQuestions27: NewAppQuestions27 {
+        if let questions = newAppQuestions27Storage as? NewAppQuestions27 {
+            return questions
+        }
+        let questions = NewAppQuestions27(appState: self)
+        newAppQuestions27Storage = questions
+        return questions
+    }
+
+    /// The new-app question when it exists; reading it never creates it, so with the switch off
+    /// there is none.
+    @available(macOS 27.0, *)
+    var existingNewAppQuestions27: NewAppQuestions27? {
+        newAppQuestions27Storage as? NewAppQuestions27
+    }
+
     /// Storage for ``standInItems27``, typed loosely so the property exists on every macOS.
     @ObservationIgnored private var standInItems27Storage: AnyObject?
 

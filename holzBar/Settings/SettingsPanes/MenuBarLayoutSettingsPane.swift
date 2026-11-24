@@ -32,6 +32,10 @@ struct MenuBarLayoutSettingsPane: View {
                 topRow
                 if #available(macOS 27.0, *) {
                     MakeRoomBanner(makeRoom: appState.makeRoom27)
+                    NewAppsGroup(
+                        questions: appState.settings.advanced.asksWhereNewAppGoes ? appState.newAppQuestions27 : nil,
+                        advanced: appState.settings.advanced
+                    )
                 }
                 menuBarGroup
                 LayoutDraftSection()

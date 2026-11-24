@@ -33,3 +33,44 @@ struct MakingRoomGroup: View {
         )
     }
 }
+
+/// The group New apps of the Layout pane (Phase 97, D-12, COMF-04): one row for each app that
+/// macOS 27 showed in the menu bar for the first time while "Ask where a new app goes" is on.
+/// Choosing a section moves the app at once as one Undo step, and the row leaves.
+///
+/// The group exists only while the switch is on and an app is asked about. Always Hidden is
+/// offered only while that section is enabled.
+@available(macOS 27.0, *)
+struct NewAppsGroup: View {
+    let questions: NewAppQuestions27?
+    let advanced: AdvancedSettings
+
+    var body: some View {
+        if advanced.asksWhereNewAppGoes, let questions, !questions.asked.isEmpty {
+            SettingsGroup(SettingsCatalog.LayoutPane.newApps) {
+                ForEach(questions.asked) { app in
+                    SettingsPickerRow(Text(verbatim: app.name), selection: binding(for: app, in: questions), badge: .preview) {
+                        Text("Choose…").tag(nil as NewAppQuestion.Answer?)
+                        Text("Visible").tag(NewAppQuestion.Answer.visible as NewAppQuestion.Answer?)
+                        Text("Hidden").tag(NewAppQuestion.Answer.hidden as NewAppQuestion.Answer?)
+                        if questions.offersAlwaysHidden {
+                            Text("Always Hidden").tag(NewAppQuestion.Answer.alwaysHidden as NewAppQuestion.Answer?)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// The pop-up always reads "Choose…"; choosing a section answers and the row leaves.
+    private func binding(for app: NewAppQuestion.App, in questions: NewAppQuestions27) -> Binding<NewAppQuestion.Answer?> {
+        Binding(
+            get: { nil },
+            set: { answer in
+                if let answer {
+                    questions.answer(answer, for: app.bundleID, place: .settings)
+                }
+            }
+        )
+    }
+}
