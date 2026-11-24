@@ -67,6 +67,50 @@ struct DockBadgeLabelTests {
         #expect(DockBadgeLabel.none.isZero)
     }
 
+    // MARK: Bubble and full text
+
+    @Test("The bubble shows nothing for no badge and zero, the number to 99 and 99+ above")
+    func bubbleCounts() {
+        #expect(DockBadgeLabel.none.bubbleText == nil)
+        #expect(DockBadgeLabel.count(0).bubbleText == nil)
+        #expect(DockBadgeLabel.count(1).bubbleText == "1")
+        #expect(DockBadgeLabel.count(99).bubbleText == "99")
+        #expect(DockBadgeLabel.count(100).bubbleText == "99+")
+        #expect(DockBadgeLabel.count(142).bubbleText == "99+")
+        #expect(DockBadgeLabel.count(Int.max).bubbleText == "99+")
+    }
+
+    @Test("A mark shows as it is up to three characters, longer as two characters and an ellipsis")
+    func bubbleMarks() {
+        #expect(DockBadgeLabel.mark("•").bubbleText == "•")
+        #expect(DockBadgeLabel.mark("!").bubbleText == "!")
+        #expect(DockBadgeLabel.mark("New").bubbleText == "New")
+        #expect(DockBadgeLabel.mark("Hello").bubbleText == "He…")
+        #expect(DockBadgeLabel.mark("Neu!").bubbleText == "Ne…")
+        // Characters are whole letters: an accent or an emoji is never cut apart.
+        #expect(DockBadgeLabel.mark("e\u{0301}e\u{0301}e\u{0301}e\u{0301}").bubbleText == "e\u{0301}e\u{0301}…")
+        #expect(DockBadgeLabel.mark("👍🏽👍🏽👍🏽👍🏽").bubbleText == "👍🏽👍🏽…")
+    }
+
+    @Test("The full text is the real count or the whole label, and nothing without a badge")
+    func fullTexts() {
+        #expect(DockBadgeLabel.none.fullText == nil)
+        #expect(DockBadgeLabel.count(0).fullText == nil)
+        #expect(DockBadgeLabel.count(1).fullText == "1")
+        #expect(DockBadgeLabel.count(142).fullText == "142")
+        #expect(DockBadgeLabel.mark("Hello").fullText == "Hello")
+        #expect(DockBadgeLabel.mark("•").fullText == "•")
+    }
+
+    @Test("A bubble shows exactly when the label is not zero")
+    func bubbleFollowsIsZero() {
+        let labels: [DockBadgeLabel] = [.none, .count(0), .count(5), .count(500), .mark("•"), .mark("Hello")]
+        for label in labels {
+            #expect((label.bubbleText == nil) == label.isZero)
+            #expect((label.fullText == nil) == label.isZero)
+        }
+    }
+
     // MARK: Start check
 
     @Test("An attribute the Dock lists means the interface is there")

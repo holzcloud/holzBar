@@ -406,6 +406,27 @@ nonisolated enum DesignTokens {
         static let listMaxHeight = 320.0
     }
 
+    /// The Dock badge item's measures in points and its limits (Phase 98, concept B1 and B8): the
+    /// menu bar item that reproduces an app's Dock badge as the app's icon with a red bubble.
+    nonisolated enum DockBadge {
+        /// The edge of the app's icon in the item, in points.
+        static let iconSize = 16.0
+        /// How far the second icon of a group item overlaps the first, in points.
+        static let groupIconOverlap = 8.0
+        /// How far the bubble's trailing edge lies beyond the icon's trailing edge, in points.
+        static let bubbleOverhang = 4.0
+        /// How far the bubble's top edge lies above the icon's top edge, in points.
+        static let bubbleRise = 2.0
+        /// The opacity of the icon while the count is zero in the mode that dims it.
+        static let dimAlpha = 0.5
+        /// The largest count the bubble shows as a number; a larger one reads "99+".
+        static let countLimit = 99
+        /// The most characters of a label that is not a number the bubble shows as they are.
+        static let labelCharacterLimit = 3
+        /// The bubble's red, the same in both appearances, with white text.
+        static let fill = Light.danger
+    }
+
     /// The gradient of fills that carry white text, the same in both appearances.
     nonisolated enum Fill {
         static let start = RGB(hex: 0x1C78AE)

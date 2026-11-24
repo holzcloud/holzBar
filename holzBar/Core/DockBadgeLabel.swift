@@ -61,6 +61,44 @@ nonisolated enum DockBadgeLabel: Equatable, Sendable {
         }
     }
 
+    /// The text in the badge item's bubble, or `nil` while there is nothing to show.
+    ///
+    /// A count shows as the number up to ``DesignTokens/DockBadge/countLimit`` and as "99+" above
+    /// it. A mark shows as it is up to ``DesignTokens/DockBadge/labelCharacterLimit`` characters,
+    /// and longer as its first characters with "…" in the last place, so the text is never wider
+    /// than "99+". Characters are whole letters, so an accent or an emoji is never cut apart.
+    var bubbleText: String? {
+        guard !isZero else {
+            return nil
+        }
+        switch self {
+        case .none:
+            return nil
+        case .count(let number):
+            let limit = DesignTokens.DockBadge.countLimit
+            return number > limit ? "\(limit)+" : String(number)
+        case .mark(let text):
+            let limit = DesignTokens.DockBadge.labelCharacterLimit
+            guard text.count > limit else {
+                return text
+            }
+            return String(text.prefix(limit - 1)) + "…"
+        }
+    }
+
+    /// The real count or the whole label, for the tooltip and VoiceOver; `nil` when there is no
+    /// badge or the count is zero, which both read "No badge".
+    var fullText: String? {
+        guard !isZero else {
+            return nil
+        }
+        switch self {
+        case .none: return nil
+        case .count(let number): return String(number)
+        case .mark(let text): return text
+        }
+    }
+
     // MARK: Parsing
 
     /// The characters that may group the digits of a count.

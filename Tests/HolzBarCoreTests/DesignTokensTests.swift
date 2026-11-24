@@ -594,4 +594,18 @@ struct DesignTokensTests {
         #expect(sheet.listMaxHeight == 320)
         #expect(sheet.listMinHeight < sheet.listMaxHeight)
     }
+
+    @Test("The Dock badge item's icon, overlap, bubble placement, dim, limits and red are the design's numbers")
+    func dockBadgeTokens() {
+        let badge = Tokens.DockBadge.self
+        #expect(badge.iconSize == 16)
+        #expect(badge.groupIconOverlap == 8)
+        #expect(badge.bubbleOverhang == 4)
+        #expect(badge.bubbleRise == 2)
+        #expect(badge.dimAlpha == 0.5)
+        #expect(badge.countLimit == 99)
+        #expect(badge.labelCharacterLimit == 3)
+        #expect(badge.fill == Tokens.Light.danger)
+        #expect(badge.fill == Tokens.RGB(hex: 0xDC2626))
+    }
 }

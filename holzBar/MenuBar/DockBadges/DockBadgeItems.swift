@@ -11,20 +11,58 @@ import AppKit
 /// An item is a status item of holzBar's own, created the way a widget's is: its autosave name
 /// (``DockBadgeItemName``) is registered with ``OwnStatusItemWindows`` and set as the button's
 /// accessibility identifier, so that holzBar finds it among the menu bar's items on every macOS.
-/// The bubble is a ``CountBadgeView`` over the icon's top trailing corner, hidden while the badge
-/// is zero or absent. The class holds no timer, no observer and no task: ``DockBadges`` tells it
+/// The bubble is a ``CountBadgeView`` in the Dock's red over the icon's top trailing corner,
+/// hidden while the badge is zero or absent. Every item has one length, measured once from the
+/// widest bubble ("99+") and the icon, so a changing count never moves a neighbour; the bubble
+/// grows toward the icon's middle. The tooltip and VoiceOver carry the real count or the whole
+/// label; nothing is announced when it changes. A click opens the app, found through the item's
+/// own autosave name. The class holds no timer, no observer and no task: ``DockBadges`` tells it
 /// what to show. App names and badge texts stay in memory and are never logged.
 @MainActor
 final class DockBadgeItems {
     /// One app's item.
     private final class Entry {
         let statusItem: NSStatusItem
-        let bubble = CountBadgeView()
+        let name: String
+        let bubble = CountBadgeView(style: .dockBadge)
+        let clickTarget: ClickTarget
+
+        init(statusItem: NSStatusItem, name: String) {
+            self.statusItem = statusItem
+            self.name = name
+            clickTarget = ClickTarget(statusItem: statusItem)
+        }
+    }
+
+    /// What a click on an item does: opens the app the item belongs to. The app comes from the
+    /// item's own autosave name, a chosen bundle identifier, and never from any text the Dock
+    /// delivered.
+    private final class ClickTarget: NSObject {
+        private weak var statusItem: NSStatusItem?
 
         init(statusItem: NSStatusItem) {
             self.statusItem = statusItem
         }
+
+        @objc func clicked(_ sender: Any?) {
+            guard
+                let autosaveName = statusItem?.autosaveName,
+                let bundleID = DockBadgeItemName.bundleID(fromAutosaveName: autosaveName)
+            else {
+                return
+            }
+            DockBadgeItems.open(bundleID)
+        }
     }
+
+    /// The one length of every item: the icon centred with room on both sides for the bubble's
+    /// overhang or for the widest bubble, whichever is more. Measured once, never again (R7).
+    private static let itemLength: CGFloat = {
+        let icon = CGFloat(DesignTokens.DockBadge.iconSize)
+        let overhang = CGFloat(DesignTokens.DockBadge.bubbleOverhang)
+        let widest = CountBadgeView.width(for: "\(DesignTokens.DockBadge.countLimit)+")
+        return icon + 2 * max(overhang, widest - icon - overhang)
+    }()
 
     /// The items by bundle identifier.
     private var entries = [String: Entry]()
@@ -60,11 +98,12 @@ final class DockBadgeItems {
 
     private func makeEntry(for bundleID: String) -> Entry {
         let autosaveName = DockBadgeItemName.app(bundleID)
-        let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        let statusItem = NSStatusBar.system.statusItem(withLength: Self.itemLength)
         statusItem.autosaveName = autosaveName
         // On macOS 26, holzBar recognises its own items' windows by their frames.
         OwnStatusItemWindows.register(statusItem, forAutosaveName: autosaveName)
-        let entry = Entry(statusItem: statusItem)
+        let name = BuiltInItemActions.applicationName(forBundleID: bundleID) ?? bundleID
+        let entry = Entry(statusItem: statusItem, name: name)
         entries[bundleID] = entry
         guard let button = statusItem.button else {
             return entry
@@ -72,19 +111,46 @@ final class DockBadgeItems {
         // On macOS 27, holzBar finds its own items through Accessibility by this identifier; a
         // plain status item reports an empty one, and so it would not be listed.
         button.setAccessibilityIdentifier(autosaveName)
-        let name = BuiltInItemActions.applicationName(forBundleID: bundleID) ?? bundleID
         button.setAccessibilityLabel(name)
         OwnStatusItemNames.set(name, forAutosaveName: autosaveName)
-        if let icon = BuiltInItemActions.applicationIcon(forBundleID: bundleID) {
-            button.image = icon
-        } else {
-            let image = NSImage(systemSymbolName: "app.dashed", accessibilityDescription: nil)
-            image?.isTemplate = true
-            button.image = image
-        }
+        button.image = Self.icon(forBundleID: bundleID)
+        button.imagePosition = .imageOnly
+        // A click in the Dock acts when the button is released, and so does this one.
+        button.target = entry.clickTarget
+        button.action = #selector(ClickTarget.clicked(_:))
+        button.sendAction(on: [.leftMouseUp])
         button.addSubview(entry.bubble)
         entry.bubble.isHidden = true
         return entry
+    }
+
+    /// The app's own icon at the item's icon size, in full colour: this is the one coloured item
+    /// of holzBar, so the image is never a template. A symbol stands in for an app that is not
+    /// installed.
+    private static func icon(forBundleID bundleID: String) -> NSImage? {
+        let size = NSSize(width: DesignTokens.DockBadge.iconSize, height: DesignTokens.DockBadge.iconSize)
+        guard let url = BuiltInItemActions.applicationURL(forBundleID: bundleID) else {
+            let placeholder = NSImage(systemSymbolName: "app.dashed", accessibilityDescription: nil)
+            placeholder?.size = size
+            placeholder?.isTemplate = true
+            return placeholder
+        }
+        let image = NSWorkspace.shared.icon(forFile: url.path(percentEncoded: false))
+        image.size = size
+        image.isTemplate = false
+        return image
+    }
+
+    /// Opens the app, or brings it forward when it runs, as a click in the Dock does. An app that
+    /// is not installed makes the Mac beep.
+    private static func open(_ bundleID: String) {
+        guard let url = BuiltInItemActions.applicationURL(forBundleID: bundleID) else {
+            NSSound.beep()
+            return
+        }
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = true
+        NSWorkspace.shared.openApplication(at: url, configuration: configuration, completionHandler: nil)
     }
 
     private func remove(_ bundleID: String, keepingPosition: Bool) {
@@ -110,40 +176,57 @@ final class DockBadgeItems {
 
     // MARK: Bubble
 
+    /// Shows the label: the bubble with its text (hidden at zero), the tooltip and the VoiceOver
+    /// value. Nothing is posted to VoiceOver, so a changing count is read only when the item is
+    /// focused.
     private func show(_ label: DockBadgeLabel, on entry: Entry) {
-        let text = Self.text(of: label)
-        if entry.bubble.text != text {
-            entry.bubble.text = text
+        let text = label.bubbleText
+        if let text {
+            if entry.bubble.text != text {
+                entry.bubble.text = text
+            }
+            entry.bubble.isHidden = false
+        } else {
+            entry.bubble.isHidden = true
         }
-        entry.bubble.isHidden = label.isZero
-        entry.bubble.frame.size.width = CountBadgeView.width(for: text)
-        position(entry.bubble, on: entry.statusItem.button)
-    }
-
-    /// The text in the bubble: the number, or the mark as the Dock shows it.
-    private static func text(of label: DockBadgeLabel) -> String {
-        switch label {
-        case .none: ""
-        case .count(let number): String(number)
-        case .mark(let text): text
-        }
-    }
-
-    /// Places the bubble at the top trailing corner of the drawn icon, overlapping it and kept
-    /// inside the button.
-    private func position(_ bubble: CountBadgeView, on button: NSStatusBarButton?) {
-        guard let button else {
+        guard let button = entry.statusItem.button else {
             return
         }
-        let imageRect = button.cell?.imageRect(forBounds: button.bounds) ?? button.bounds
-        let width = bubble.frame.width
-        let height = CountBadgeView.height
-        let x = max(min(imageRect.maxX - width + 2, button.bounds.maxX - width), button.bounds.minX)
-        let y = if button.isFlipped {
-            max(imageRect.minY - 1, button.bounds.minY)
-        } else {
-            min(imageRect.maxY - height + 1, button.bounds.maxY - height)
+        let value = label.fullText ?? String(localized: "No badge")
+        let tooltip = String(localized: "\(entry.name): \(value)")
+        if button.toolTip != tooltip {
+            button.toolTip = tooltip
         }
-        bubble.frame = CGRect(x: x, y: y, width: width, height: height)
+        if button.accessibilityValue() as? String != value {
+            button.setAccessibilityValue(value)
+        }
+        if let text {
+            position(entry.bubble, text: text, on: button)
+        }
+    }
+
+    /// Places the bubble on the icon's top trailing corner: its trailing edge `bubbleOverhang`
+    /// beyond the icon's trailing edge and its top `bubbleRise` above the icon's top, growing
+    /// toward the icon's middle. The icon sits in the middle of the item, so the place follows
+    /// from the item's fixed length and the bar's height and not from how the button has laid
+    /// itself out; a text wider than the item is cut to the item.
+    private func position(_ bubble: CountBadgeView, text: String, on button: NSStatusBarButton) {
+        let icon = CGFloat(DesignTokens.DockBadge.iconSize)
+        let barHeight = button.bounds.height > 0 ? button.bounds.height : NSStatusBar.system.thickness
+        let width = min(CountBadgeView.width(for: text), Self.itemLength)
+        let height = CountBadgeView.height
+        let iconTrailing = (Self.itemLength + icon) / 2
+        let x = max(iconTrailing + CGFloat(DesignTokens.DockBadge.bubbleOverhang) - width, 0)
+        let iconBottom = (barHeight - icon) / 2
+        let rise = CGFloat(DesignTokens.DockBadge.bubbleRise)
+        let y = if button.isFlipped {
+            iconBottom - rise
+        } else {
+            iconBottom + icon + rise - height
+        }
+        let frame = CGRect(x: x, y: y, width: width, height: height)
+        if bubble.frame != frame {
+            bubble.frame = frame
+        }
     }
 }
