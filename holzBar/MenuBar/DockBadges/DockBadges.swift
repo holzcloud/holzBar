@@ -119,6 +119,14 @@ final class DockBadges {
     /// The badge of each chosen app at the last pass.
     @ObservationIgnored private var labels = [String: DockBadgeLabel]()
 
+    /// The pictures holzBar draws of the items, by autosave name, for the Shelf, the Layout pane
+    /// and the search. In memory only; empty while there are no items.
+    private var pictures = [String: NSImage]()
+
+    /// Follows where the items stand (their sections and whether the Mac is in use); exists only
+    /// while the items do.
+    @ObservationIgnored private var visibilityLoop: ObservationLoop?
+
     // MARK: Setup
 
     /// Follows the module switch. With the module off, nothing else is created.
@@ -135,6 +143,12 @@ final class DockBadges {
             self?.refreshBadges()
         }
         refreshBadges()
+    }
+
+    /// The picture holzBar draws of the item with the given autosave name, or `nil` when it is not
+    /// in the menu bar.
+    func image(forAutosaveName name: String) -> NSImage? {
+        pictures[name]
     }
 
     // MARK: Settings
@@ -322,10 +336,11 @@ final class DockBadges {
             return
         }
         let apps = inputs.apps
-        let appItems = items ?? DockBadgeItems()
+        let appItems = items ?? makeItems()
         items = appItems
         labels = labels.filter { apps.contains($0.key) }
         appItems.update(apps: apps, labels: labels)
+        appItems.apply(visibility: visibilityInputs())
         guard !apps.isEmpty, !inputs.isPaused else {
             cancelPasses()
             return
@@ -335,9 +350,39 @@ final class DockBadges {
         }
     }
 
+    /// Creates the items and starts following where they stand.
+    private func makeItems() -> DockBadgeItems {
+        visibilityLoop = ObservationLoop.observe { [weak self] in
+            self?.visibilityInputs() ?? DockBadgeVisibility.Inputs()
+        } onChange: { [weak self] inputs in
+            self?.items?.apply(visibility: inputs)
+        }
+        return DockBadgeItems { [weak self] name, picture in
+            guard let self else {
+                return
+            }
+            if let picture {
+                pictures[name] = picture
+            } else if pictures[name] != nil {
+                pictures[name] = nil
+            }
+        }
+    }
+
+    /// Where the chosen apps' items stand now.
+    private func visibilityInputs() -> DockBadgeVisibility.Inputs {
+        guard let appState else {
+            return DockBadgeVisibility.Inputs()
+        }
+        let names = appState.settings.dockBadges.apps.map(DockBadgeItemName.app)
+        return DockBadgeVisibility.inputs(for: names, in: appState)
+    }
+
     /// Takes the items out, keeping their places, and cancels the task.
     private func stopBadges() {
         cancelPasses()
+        visibilityLoop?.cancel()
+        visibilityLoop = nil
         items?.removeAll(keepingPosition: true)
         items = nil
         labels.removeAll()
