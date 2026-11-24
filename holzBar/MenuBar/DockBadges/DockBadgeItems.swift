@@ -141,6 +141,23 @@ final class DockBadgeItems {
         return image
     }
 
+    /// Handles a click that holzBar itself routes to one of its Dock badges items, from the
+    /// Shelf, the search, a group or a hotkey: it opens the app as a click on the item does.
+    /// Returns whether the item is a Dock badges item; the other mouse buttons do nothing, as
+    /// the item has no secondary menu.
+    static func handlesOpen(of item: MenuBarItem, mouseButton: CGMouseButton) -> Bool {
+        guard
+            item.tag.namespace == .holzBar,
+            let bundleID = DockBadgeItemName.bundleID(fromAutosaveName: item.tag.title)
+        else {
+            return false
+        }
+        if mouseButton == .left {
+            open(bundleID)
+        }
+        return true
+    }
+
     /// Opens the app, or brings it forward when it runs, as a click in the Dock does. An app that
     /// is not installed makes the Mac beep.
     private static func open(_ bundleID: String) {
