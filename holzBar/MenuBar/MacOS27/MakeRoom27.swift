@@ -411,7 +411,7 @@ final class MakeRoom27 {
     ) -> Bool {
         guard
             item.layoutKey27 != nil,
-            !item.isWidget,
+            !item.isOwnArrangedItem,
             item.tag.namespace != .holzBar,
             item.canBeHidden,
             item.isMovable,

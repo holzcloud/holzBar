@@ -145,8 +145,9 @@ nonisolated enum DockBadgeItemName {
         return SharedProfile.isValidBundleIdentifier(bundleID) ? bundleID : nil
     }
 
-    /// Whether a name belongs to an item of Dock badges.
+    /// Whether a name is the autosave name of an item of Dock badges: its prefix alone, an empty
+    /// or an invalid identifier does not make one.
     static func isAutosaveName(_ name: String) -> Bool {
-        name.hasPrefix(prefix)
+        bundleID(fromAutosaveName: name) != nil
     }
 }

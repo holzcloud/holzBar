@@ -283,9 +283,9 @@ final class Concealer27 {
     }
 
     /// Whether a key may be recorded as a known application: holzBar's own bundle never is (it
-    /// has no section), and a widget's autosave name is no application.
+    /// has no section), and an own item's autosave name is no application.
     private func isApplicationKey(_ key: String) -> Bool {
-        !OwnBundle.matches(key, bundleIdentifier: Constants.bundleIdentifier) && !WidgetDefinition.isAutosaveName(key)
+        !OwnBundle.matches(key, bundleIdentifier: Constants.bundleIdentifier) && !OwnArrangedItem.isAutosaveName(key)
     }
 
     /// Adds applications to the ones holzBar knows on macOS 27 (`Defaults.Key.knownApplications27`),
@@ -864,7 +864,7 @@ final class Concealer27 {
             byPID[application.processIdentifier] = application
         }
         var owners = [UnnameableApps27.Owner]()
-        for item in appState.itemManager.itemCache[.visible] where !item.isControlItem && !item.isWidget {
+        for item in appState.itemManager.itemCache[.visible] where !item.isControlItem && !item.isOwnArrangedItem {
             guard
                 let pid = item.sourcePID,
                 let application = byPID[pid],
@@ -1500,7 +1500,7 @@ final class Concealer27 {
                 item.canBeHidden,
                 !item.isSystemClone,
                 !item.isControlItem,
-                !item.isWidget,
+                !item.isOwnArrangedItem,
                 let bundleID = item.sourceApplication?.bundleIdentifier,
                 isApplicationKey(bundleID)
             else {
@@ -1656,7 +1656,7 @@ final class Concealer27 {
                 item.canBeHidden,
                 !item.isSystemClone,
                 !item.isControlItem,
-                !item.isWidget,
+                !item.isOwnArrangedItem,
                 let bundleID = item.sourceApplication?.bundleIdentifier
             else {
                 return nil

@@ -149,6 +149,7 @@ sources=(
   OpenMenuWait
   OutputVolumePlan
   OverflowAutoMove
+  OwnArrangedItem
   OwnBundle
   PauseState
   PermissionListing
@@ -332,6 +333,7 @@ tests=(
   OpenMenuWaitTests
   OutputVolumePlanTests
   OverflowAutoMoveTests
+  OwnArrangedItemTests
   OwnBundleTests
   PauseStateTests
   PermissionListingTests

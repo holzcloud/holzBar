@@ -192,5 +192,8 @@ struct DockBadgeSettingsTests {
         #expect(DockBadgeItemName.bundleID(fromAutosaveName: "") == nil)
         #expect(!DockBadgeItemName.isAutosaveName("holzBar.Widget.0F3A"))
         #expect(!DockBadgeItemName.isAutosaveName("com.apple.Safari"))
+        // A name is an item's only when it names a valid app, never by its prefix alone.
+        #expect(!DockBadgeItemName.isAutosaveName("holzBar.DockBadge.App."))
+        #expect(!DockBadgeItemName.isAutosaveName("holzBar.DockBadge."))
     }
 }

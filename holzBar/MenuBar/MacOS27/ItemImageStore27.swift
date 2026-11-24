@@ -280,7 +280,7 @@ final class ItemImageStore27 {
         // one item from passing for its glyph (see `ItemImages27.toneVotes`).
         var votes = (light: 0, dark: 0)
         // A widget is drawn by holzBar itself (`MenuBarWidgets`), so it is never photographed.
-        for item in items where item.isOnScreen && !item.isControlItem && !item.isWidget && !concealedPIDs.contains(item.ownerPID) {
+        for item in items where item.isOnScreen && !item.isControlItem && !item.isOwnArrangedItem && !concealedPIDs.contains(item.ownerPID) {
             guard
                 settled.contains(item.tag.description),
                 let rect = ItemImages27.cropRect(itemFrame: item.bounds, stripFrame: stripFrame, scale: scale),
@@ -295,13 +295,13 @@ final class ItemImageStore27 {
         }
         // Two items drawn over one another cannot both be where they say (D-09): neither gets a
         // picture, and a stored one of either is dropped, so no tile shows another item's glyph.
-        let drawn = items.filter { $0.isOnScreen && !$0.isControlItem && !$0.isWidget && !concealedPIDs.contains($0.ownerPID) }
+        let drawn = items.filter { $0.isOnScreen && !$0.isControlItem && !$0.isOwnArrangedItem && !concealedPIDs.contains($0.ownerPID) }
         let overlapping = ItemImages27.overlappingTags(frames: frames(drawn))
         let tone: ItemImages27.GlyphTone? = votes.light + votes.dark == 0 ? nil : (votes.light >= votes.dark ? .light : .dark)
         // The tiles on the bar in this capture: a stored tile equal to a new glyph whose item is
         // not among them cannot be its own (see `ItemImages27.duplicateGlyph`).
         let onBar = Set(items.filter { $0.isOnScreen && !concealedPIDs.contains($0.ownerPID) }.map(\.tag.description))
-        for item in items where item.isOnScreen && !item.isControlItem && !item.isWidget && !concealedPIDs.contains(item.ownerPID) {
+        for item in items where item.isOnScreen && !item.isControlItem && !item.isOwnArrangedItem && !concealedPIDs.contains(item.ownerPID) {
             if overlapping.contains(item.tag.description) {
                 forget(key: item.tag.description)
                 skipped += 1
@@ -350,7 +350,7 @@ final class ItemImageStore27 {
         }
         let now = ProcessInfo.processInfo.systemUptime
         let bundleIDs = Set(items.compactMap { item -> String? in
-            guard !item.isControlItem, !item.isWidget, image(for: item) == nil else {
+            guard !item.isControlItem, !item.isOwnArrangedItem, image(for: item) == nil else {
                 return nil
             }
             return item.sourceApplication?.bundleIdentifier
