@@ -150,6 +150,9 @@ final class IndicatorsRuntime: HubModuleRuntime {
         guard isOpen else {
             return
         }
+        // No key is taken while the hub is open: the tap's snapshot is built again at once, not
+        // when the observation loop gets to it (IN-02).
+        refreshMediaKeySnapshot()
         deferredTask?.cancel()
         deferredTask = nil
         volumeDeferredTask?.cancel()

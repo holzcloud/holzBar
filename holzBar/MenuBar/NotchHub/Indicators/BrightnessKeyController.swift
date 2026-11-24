@@ -184,14 +184,12 @@ final class BrightnessKeyController {
     /// display then reports (an external monitor: the level asked for while writes are pending),
     /// from 0 to 1, or `nil` when nothing changed (nothing is shown then).
     ///
-    /// While the hub is open the Display controls runtime's own setters do it, so one writer talks
-    /// to a display and the open tab follows; otherwise the controller's own path does.
+    /// A key is taken only while the hub is closed (the snapshot of the tap is built again the
+    /// moment the hub opens), so this is always the controller's own path; the shared ``DDCBus``
+    /// keeps its transfers apart from those of an open Display tab.
     func step(_ code: MediaKeyCode, display: CGDirectDisplayID, quarter: Bool) async -> Double? {
         guard code == .brightnessUp || code == .brightnessDown else {
             return nil
-        }
-        if let level = stepThroughOpenHub(code, display: display, quarter: quarter) {
-            return level
         }
         if let level = stepBuiltIn(code, display: display, quarter: quarter) {
             return level
@@ -204,29 +202,6 @@ final class BrightnessKeyController {
         onChange = nil
         resetExternal()
         bus = nil
-    }
-
-    /// The Display controls runtime is running with its tab open: its setters move the display.
-    private func stepThroughOpenHub(_ code: MediaKeyCode, display: CGDirectDisplayID, quarter: Bool) -> Double? {
-        guard
-            let hub = appState?.notchHub,
-            hub.isOpen,
-            let runtime = hub.runtime(DisplayControlsRuntime.self)
-        else {
-            return nil
-        }
-        if let shown = runtime.displays.first(where: { $0.id == display && $0.canChange })?.value {
-            runtime.setBrightness(MediaKeyRule.next(level: shown, code: code, quarter: quarter), for: display)
-            return runtime.displays.first { $0.id == display }?.value
-        }
-        guard
-            runtime.externals.contains(where: { $0.id == display && $0.state == .ready }),
-            let shown = runtime.externalLevel(control: .brightness, display: display)
-        else {
-            return nil
-        }
-        runtime.setExternalLevel(MediaKeyRule.next(level: shown, code: code, quarter: quarter), control: .brightness, display: display)
-        return runtime.externalLevel(control: .brightness, display: display)
     }
 
     /// The built-in display: read, write the step, read back; never below the 2 % floor.
