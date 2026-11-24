@@ -125,7 +125,7 @@ final class NotShownList27 {
                 return NotShownApps.Source(
                     id: "pid:\(owner.pid)",
                     name: owner.name,
-                    fallbackName: last.isEmpty ? "pid \(owner.pid)" : last,
+                    fallbackName: last.isEmpty ? String(localized: "Process \(Int(owner.pid))") : last,
                     path: owner.path,
                     reason: .noAppIdentifier
                 )
