@@ -180,6 +180,7 @@ final class MakeRoom27 {
         wakeTask = nil
         quietUntil = nil
         isRunningPass = false
+        failedCount = 0
         banner = nil
     }
 
@@ -257,6 +258,10 @@ final class MakeRoom27 {
             || !appState.concealer27.launchGraceBundleIDs.isEmpty
             || isQuiet
         guard !isBlocked, settle.shown.isOverflowing else {
+            // A bar that fits again has no failed pass to report.
+            if !settle.shown.isOverflowing, failedCount != 0 {
+                failedCount = 0
+            }
             setBanner(nil)
             return
         }
