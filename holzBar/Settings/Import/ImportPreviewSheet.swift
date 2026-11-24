@@ -195,13 +195,14 @@ struct ImportPreviewSheet: View {
     /// The changes in the order of the Settings window, each with the name its row has there.
     private func rows(for plan: ImportPlan) -> [ChangeRow] {
         plan.changes
-            .sorted { ImportTargets.sortIndex(of: $0.key) < ImportTargets.sortIndex(of: $1.key) }
+            .sorted { ImportTargets.sortIndex(of: $0) < ImportTargets.sortIndex(of: $1) }
             .compactMap { change in
-                guard let entry = ImportTargets.entry(for: change.key) else {
+                guard let entry = ImportTargets.entry(for: change) else {
                     return nil
                 }
                 return ChangeRow(
-                    id: change.key.rawValue,
+                    // A hotkey change shares the key of every other, so its action names it.
+                    id: change.hotkeyAction ?? change.key.rawValue,
                     label: entry.label,
                     before: ImportTargets.text(for: change.before, of: change.key),
                     after: ImportTargets.text(for: change.after, of: change.key),

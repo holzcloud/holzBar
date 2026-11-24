@@ -50,9 +50,32 @@ enum PreviousAppImporter {
             source: source,
             settings: settings,
             current: ImportTargets.currentValues(in: appState.settings),
+            currentHotkeys: currentHotkeys(),
+            hotkeyRules: hotkeyRules,
             excludedPrefixes: SettingsBackup.excludedKeyPrefixes,
             ownBundleIdentifier: Constants.bundleIdentifier
         )
+    }
+
+    /// holzBar's stored hotkeys now, by action: the merged write starts from them, so a hotkey the
+    /// source does not have, an item's or a profile's included, is written back unchanged. An entry
+    /// that is not a combination is one holzBar cannot read at launch either.
+    private static func currentHotkeys() -> [String: Data] {
+        (Defaults.dictionary(forKey: .hotkeys) ?? [:]).compactMapValues { $0 as? Data }
+    }
+
+    /// The rules a hotkey of another app must pass: an action holzBar has and shows in Settings,
+    /// and a combination holzBar would load. A combination it would refuse at launch (a key code out
+    /// of range, an unknown modifier bit, no modifier or Shift alone, and Option alone where the
+    /// system refuses it) is never imported.
+    private static let hotkeyRules = ImportHotkeyRules(
+        knownActions: Set(HotkeyAction.allCases.map(\.rawValue).filter { ImportTargets.hotkeyEntry(for: $0) != nil })
+    ) { data in
+        guard let combination = HotkeyStorage.decode(data) else {
+            return false
+        }
+        let refusesOptionOnly = if #available(macOS 15.0, *) { true } else { false }
+        return HotkeyStorage.loadRejection(modifiers: combination.modifiers, refusesOptionOnly: refusesOptionOnly) == nil
     }
 
     /// Writes the record of the settings the plan overwrites, then the plan's keys, then restarts

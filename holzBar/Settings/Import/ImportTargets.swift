@@ -33,6 +33,23 @@ enum ImportTargets {
         .tempShowInterval: .hidingTempShowInterval,
     ]
 
+    /// The Hotkeys-pane entry of each hotkey action, by the action's stored name. Its label is the
+    /// name the action has in Settings.
+    private static let hotkeyEntries: [String: SettingsEntry] = [
+        HotkeyAction.toggleHiddenSection.rawValue: .hotkeysToggleHidden,
+        HotkeyAction.toggleAlwaysHiddenSection.rawValue: .hotkeysToggleAlwaysHidden,
+        HotkeyAction.showHiddenSectionTemporarily.rawValue: .hotkeysShowForAMoment,
+        HotkeyAction.searchMenuBarItems.rawValue: .hotkeysSearch,
+        HotkeyAction.showItemHints.rawValue: .hotkeysItemHints,
+        HotkeyAction.openCommandPalette.rawValue: .hotkeysCommandPalette,
+        HotkeyAction.enableShelf.rawValue: .hotkeysShelf,
+        HotkeyAction.toggleAutoRehide.rawValue: .hotkeysAutoRehide,
+        HotkeyAction.toggleZenMode.rawValue: .hotkeysZenMode,
+        HotkeyAction.toggleKeepAwake.rawValue: .hotkeysKeepAwake,
+        HotkeyAction.toggleApplicationMenus.rawValue: .hotkeysAppMenus,
+        HotkeyAction.toggleNotchHub.rawValue: .hotkeysNotchHub,
+    ]
+
     /// The position of every entry of this macOS in the Settings window, in sidebar order.
     private static let order: [String: Int] = Dictionary(
         uniqueKeysWithValues: SettingsCatalog.all.enumerated().map { ($1.id, $0) }
@@ -46,9 +63,32 @@ enum ImportTargets {
         return entry
     }
 
+    /// The entry of a hotkey action, by its stored name, or `nil` when the action has no row on
+    /// this macOS: such an action is not offered to the plan, so it is ignored and never named.
+    static func hotkeyEntry(for action: String) -> SettingsEntry? {
+        guard let entry = hotkeyEntries[action], order[entry.id] != nil else {
+            return nil
+        }
+        return entry
+    }
+
+    /// The entry whose row names a change: the hotkey's row for a hotkey change, the setting's
+    /// row for any other.
+    static func entry(for change: ImportChange) -> SettingsEntry? {
+        if let action = change.hotkeyAction {
+            return hotkeyEntry(for: action)
+        }
+        return entry(for: change.key)
+    }
+
     /// The place of the setting's row in the Settings window; settings without a row sort last.
     static func sortIndex(of key: Defaults.Key) -> Int {
         entry(for: key).flatMap { order[$0.id] } ?? Int.max
+    }
+
+    /// The place of a change's row in the Settings window; a change without a row sorts last.
+    static func sortIndex(of change: ImportChange) -> Int {
+        entry(for: change).flatMap { order[$0.id] } ?? Int.max
     }
 
     /// What each target holds now: the effective value of the models the rows bind, for every

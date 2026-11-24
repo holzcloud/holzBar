@@ -51,6 +51,22 @@ nonisolated struct ImportOmission: Equatable, Sendable {
     let hotkeyAction: String?
 }
 
+/// What the import needs to know about holzBar's hotkeys to take another app's over safely.
+///
+/// The hotkey types live in the app (``HotkeyAction`` and ``HotkeyStorage`` are not part of this
+/// file's Foundation-only core), so the importer hands the two rules in: which actions holzBar
+/// has, and whether a stored combination is one holzBar would load.
+nonisolated struct ImportHotkeyRules: Sendable {
+    /// The stored names of the hotkey actions holzBar knows and shows in Settings. A hotkey of
+    /// the source for any other action is ignored.
+    let knownActions: Set<String>
+    /// Whether the stored combination decodes and holzBar would load it: a key code in range, no
+    /// unknown modifier bit and the same modifier rule the hotkey recorder applies. A combination
+    /// that fails is never imported, because holzBar would refuse it at launch or, worse, take a
+    /// bare key from every app.
+    let isValid: @Sendable (Data) -> Bool
+}
+
 /// What an import would do: the settings it changes, the ones it names as not imported, how
 /// many other keys it ignores, and the validated values it would write.
 nonisolated struct ImportPlan {
@@ -76,6 +92,9 @@ nonisolated struct ImportPlan {
 ///
 /// The merge replaces only the keys it carries. A setting the source does not have stays as it
 /// is: a plan never removes a key, unlike the replacing import of holzBar's own settings file.
+/// The hotkeys merge per action: an action of the source that holzBar knows and whose
+/// combination holzBar would load replaces that action's combination, and every other holzBar
+/// hotkey, shortcuts of items and profiles included, stays exactly as it is.
 nonisolated enum PreviousAppImport {
     /// The kind of value a rule takes and how it checks it.
     private enum Translation {
@@ -163,6 +182,15 @@ nonisolated enum PreviousAppImport {
         }
     }
 
+    /// Whether the source stores hotkeys the way holzBar does: the `Hotkeys` dictionary of the
+    /// action's raw value to the JSON `[key, modifiers]`. Thaw keeps Ice's form; the wrong form is
+    /// ignored, never written, because every combination must pass the rules of the importer.
+    private static func readsHotkeys(of source: ImportSource) -> Bool {
+        switch source {
+        case .thaw: true
+        }
+    }
+
     /// The stored names of a source's settings that have a rule, with the holzBar setting each
     /// belongs to.
     static func sourceNames(of source: ImportSource) -> [String: Defaults.Key] {
@@ -176,6 +204,9 @@ nonisolated enum PreviousAppImport {
     ///   - settings: The source's defaults domain, as read after the user's click.
     ///   - current: The effective value of every holzBar setting the import may change and
     ///     that has a label on this macOS. A setting that is not in it is ignored.
+    ///   - currentHotkeys: holzBar's stored hotkeys now, by action. The merged `Hotkeys` write
+    ///     starts from it.
+    ///   - hotkeyRules: Which hotkey actions holzBar has and which combinations it would load.
     ///   - excludedPrefixes: Keys that start with one of these are never taken
     ///     (`SettingsBackup.excludedKeyPrefixes`).
     ///   - ownBundleIdentifier: holzBar's own bundle identifier.
@@ -183,6 +214,8 @@ nonisolated enum PreviousAppImport {
         source: ImportSource,
         settings: [String: Any],
         current: [Defaults.Key: ImportValue],
+        currentHotkeys: [String: Data],
+        hotkeyRules: ImportHotkeyRules,
         excludedPrefixes: [String],
         ownBundleIdentifier: String
     ) -> ImportPlan {
@@ -224,9 +257,72 @@ nonisolated enum PreviousAppImport {
                 writes[target.rawValue] = value
             }
         }
-        changes.sort { $0.key.rawValue < $1.key.rawValue }
+        // Hotkeys merge per action: the write is holzBar's dictionary with the imported actions
+        // replaced, never the source's dictionary as a whole.
+        let hotkeys = hotkeyPlan(of: source, settings: settings, currentHotkeys: currentHotkeys, rules: hotkeyRules, excludedPrefixes: excludedPrefixes)
+        var sourceKeys = settings.count
+        if hotkeys.isRead {
+            // The dictionary counts as the actions it holds, not as one key.
+            sourceKeys += hotkeys.entryCount - 1
+        }
+        unchanged += hotkeys.unchanged
+        if !hotkeys.changes.isEmpty {
+            let merged: [String: Any] = hotkeys.merged
+            let accepted = Defaults.Key.validatedSettings([Defaults.Key.hotkeys.rawValue: merged], ownBundleIdentifier: ownBundleIdentifier).accepted
+            if let value = accepted[Defaults.Key.hotkeys.rawValue] {
+                changes += hotkeys.changes
+                writes[Defaults.Key.hotkeys.rawValue] = value
+            }
+        }
+        changes.sort {
+            ($0.key.rawValue, $0.hotkeyAction ?? "") < ($1.key.rawValue, $1.hotkeyAction ?? "")
+        }
         let omissions: [ImportOmission] = []
-        let ignored = max(0, settings.count - changes.count - unchanged - omissions.count)
+        let ignored = max(0, sourceKeys - changes.count - unchanged - omissions.count)
         return ImportPlan(source: source, changes: changes, omissions: omissions, ignoredCount: ignored, writes: writes)
+    }
+
+    /// What the source's `Hotkeys` dictionary gives: the changed actions (each one change of a
+    /// composite), how many entries it holds, how many equal holzBar's, and holzBar's dictionary
+    /// with the changed actions replaced.
+    private struct HotkeyPlan {
+        var isRead = false
+        var entryCount = 0
+        var unchanged = 0
+        var changes: [ImportChange] = []
+        var merged: [String: Data] = [:]
+    }
+
+    private static func hotkeyPlan(
+        of source: ImportSource,
+        settings: [String: Any],
+        currentHotkeys: [String: Data],
+        rules: ImportHotkeyRules,
+        excludedPrefixes: [String]
+    ) -> HotkeyPlan {
+        var result = HotkeyPlan(merged: currentHotkeys)
+        let name = Defaults.Key.hotkeys.rawValue
+        guard
+            readsHotkeys(of: source),
+            !excludedPrefixes.contains(where: { name.hasPrefix($0) }),
+            let stored = settings[name] as? [String: Any]
+        else {
+            return result
+        }
+        result.isRead = true
+        result.entryCount = stored.count
+        for (action, raw) in stored {
+            // Only an action holzBar has, with data that is a combination holzBar would load.
+            guard rules.knownActions.contains(action), let data = raw as? Data, rules.isValid(data) else {
+                continue
+            }
+            if currentHotkeys[action] == data {
+                result.unchanged += 1
+            } else {
+                result.merged[action] = data
+                result.changes.append(ImportChange(key: .hotkeys, hotkeyAction: action, before: .composite, after: .composite))
+            }
+        }
+        return result
     }
 }

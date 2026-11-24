@@ -77,11 +77,38 @@ struct PreviousAppImportTests {
         ]
     }
 
-    private func plan(_ settings: [String: Any], current: [Defaults.Key: ImportValue]) -> ImportPlan {
+    /// The stored form of a hotkey combination: the JSON array `[key, modifiers]`, as
+    /// `HotkeyStorage.encode` writes it (that file is not part of the Linux list).
+    private func combination(_ key: Int, _ modifiers: Int) -> Data {
+        Data("[\(key),\(modifiers)]".utf8)
+    }
+
+    /// The actions the importer hands in: two of holzBar's, as the app builds them from
+    /// `HotkeyAction` and the catalogue.
+    private let knownActions: Set<String> = ["ToggleHiddenSection", "SearchMenuBarItems", "EnableIceBar"]
+
+    /// The rules of the importer, reduced to what the tests need: a combination is valid when it
+    /// is a JSON array of two integers whose modifier is not zero.
+    private var hotkeyRules: ImportHotkeyRules {
+        ImportHotkeyRules(knownActions: knownActions) { data in
+            guard let values = try? JSONDecoder().decode([Int].self, from: data), values.count == 2 else {
+                return false
+            }
+            return (0...127).contains(values[0]) && values[1] != 0
+        }
+    }
+
+    private func plan(
+        _ settings: [String: Any],
+        current: [Defaults.Key: ImportValue],
+        hotkeys: [String: Data] = [:]
+    ) -> ImportPlan {
         PreviousAppImport.plan(
             source: .thaw,
             settings: settings,
             current: current,
+            currentHotkeys: hotkeys,
+            hotkeyRules: hotkeyRules,
             excludedPrefixes: excluded,
             ownBundleIdentifier: ownBundle
         )
@@ -268,6 +295,101 @@ struct PreviousAppImportTests {
     func changesAreSorted() {
         let result = plan(thawFixture(booleans: true), current: allOff)
         #expect(result.changes.map(\.key.rawValue) == result.changes.map(\.key.rawValue).sorted())
+    }
+
+    // MARK: Hotkeys
+
+    @Test("A known action with a valid combination that differs is one composite change and a merged write")
+    func hotkeyChangesPerAction() throws {
+        let mine = combination(4, 256)
+        let theirs = combination(40, 768)
+        let result = plan(["Hotkeys": ["ToggleHiddenSection": theirs]], current: allOff, hotkeys: ["ToggleHiddenSection": mine])
+        #expect(result.changes == [
+            ImportChange(key: .hotkeys, hotkeyAction: "ToggleHiddenSection", before: .composite, after: .composite),
+        ])
+        let written = try #require(result.writes["Hotkeys"] as? [String: Data])
+        #expect(written == ["ToggleHiddenSection": theirs])
+        #expect(result.ignoredCount == 0)
+    }
+
+    @Test("Every holzBar hotkey the source lacks stays, item and profile hotkeys included")
+    func mergeKeepsTheOtherHotkeys() throws {
+        let kept = combination(1, 256)
+        let keptItem = combination(2, 512)
+        let mine = ["SearchMenuBarItems": kept, "Item:com.example.app": keptItem, "ToggleHiddenSection": combination(4, 256)]
+        let result = plan(["Hotkeys": ["ToggleHiddenSection": combination(40, 768)]], current: allOff, hotkeys: mine)
+        let written = try #require(result.writes["Hotkeys"] as? [String: Data])
+        #expect(written["SearchMenuBarItems"] == kept)
+        #expect(written["Item:com.example.app"] == keptItem)
+        #expect(written["ToggleHiddenSection"] == combination(40, 768))
+        #expect(written.count == 3)
+    }
+
+    @Test("An action that holzBar has no entry for is ignored and counted, never written")
+    func unknownActionIsIgnored() {
+        let result = plan(["Hotkeys": ["ToggleThawOnly": combination(40, 768)]], current: allOff)
+        #expect(result.changes.isEmpty)
+        #expect(result.writes["Hotkeys"] == nil)
+        #expect(result.ignoredCount == 1)
+    }
+
+    @Test("A combination that is not data, is not two integers, is out of range or has no modifier is ignored and counted")
+    func invalidCombinationsAreIgnored() {
+        let hotkeys: [String: Any] = [
+            "ToggleHiddenSection": "not data",
+            "SearchMenuBarItems": Data("[1]".utf8),
+            "EnableIceBar": combination(500, 256),
+            "ToggleThawOnly": combination(40, 0),
+        ]
+        let result = plan(["Hotkeys": hotkeys], current: allOff)
+        #expect(result.changes.isEmpty)
+        #expect(result.writes.isEmpty)
+        #expect(result.ignoredCount == 4)
+        let bare = plan(["Hotkeys": ["ToggleHiddenSection": combination(40, 0)]], current: allOff)
+        #expect(bare.changes.isEmpty)
+        #expect(bare.ignoredCount == 1)
+    }
+
+    @Test("An action whose combination equals holzBar's gives nothing and is not counted as ignored")
+    func equalHotkeyIsSilent() {
+        let same = combination(4, 256)
+        let result = plan(["Hotkeys": ["ToggleHiddenSection": same]], current: allOff, hotkeys: ["ToggleHiddenSection": same])
+        #expect(result.changes.isEmpty)
+        #expect(result.writes.isEmpty)
+        #expect(result.ignoredCount == 0)
+    }
+
+    @Test("Several actions are several changes, in a fixed order, and settings and hotkeys count together")
+    func hotkeysAndSettingsTogether() throws {
+        let result = plan(
+            [
+                "ShowOnClick": true,
+                "Hotkeys": [
+                    "SearchMenuBarItems": combination(1, 256),
+                    "ToggleHiddenSection": combination(2, 256),
+                    "ToggleThawOnly": combination(3, 256),
+                ],
+                "IceIcon": Data([1]),
+            ],
+            current: allOff
+        )
+        #expect(result.changes.map(\.key) == [.hotkeys, .hotkeys, .showOnClick])
+        #expect(result.changes.compactMap(\.hotkeyAction) == ["SearchMenuBarItems", "ToggleHiddenSection"])
+        #expect(result.ignoredCount == 2)
+        let written = try #require(result.writes["Hotkeys"] as? [String: Data])
+        #expect(written.keys.sorted() == ["SearchMenuBarItems", "ToggleHiddenSection"])
+        let validated = Defaults.Key.validatedSettings(result.writes, ownBundleIdentifier: ownBundle)
+        #expect(validated.ignored.isEmpty)
+    }
+
+    @Test("A Hotkeys value that is not a dictionary is one ignored key; an empty one is nothing")
+    func hotkeysOfTheWrongKind() {
+        let wrong = plan(["Hotkeys": "x"], current: allOff)
+        #expect(wrong.changes.isEmpty)
+        #expect(wrong.ignoredCount == 1)
+        let empty = plan(["Hotkeys": [String: Any]()], current: allOff)
+        #expect(empty.changes.isEmpty)
+        #expect(empty.ignoredCount == 0)
     }
 }
 
