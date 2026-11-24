@@ -68,6 +68,74 @@ enum LargePercentWidget {
         return title
     }
 
+    /// The one length of the item: the widest number (100 percent in the locale, or the en dash)
+    /// with the widest glyph slot and the gap while the glyph shows, and the padding, rounded
+    /// up. Measured with the item, never on a refresh.
+    static func length(
+        for definition: WidgetDefinition,
+        font: NSFont,
+        locale: Locale,
+        padding: CGFloat
+    ) -> CGFloat {
+        let attributes: [NSAttributedString.Key: Any] = [.font: numberFont(for: font)]
+        let samples = WidgetFormat.widthSamples(
+            for: definition, locale: locale, calendar: .autoupdatingCurrent, capacityBytes: nil
+        ) + [WidgetFormat.unavailable]
+        let numberWidth = samples
+            .map { NSAttributedString(string: $0, attributes: attributes).size().width }
+            .max() ?? 0
+        var glyphWidth = CGFloat.zero
+        if definition.showsSymbol {
+            glyphWidth = slotSize(pointSize: glyphPointSize(menuFontSize: font.pointSize)).width
+                + DesignTokens.Widget.largePercentGap
+        }
+        return (numberWidth + glyphWidth + padding).rounded(.up)
+    }
+
+    /// The widget as an image of its own, for the Shelf and the layout editor: the same glyph and
+    /// number as the menu bar, as a template at the height of a menu bar item. It takes plain
+    /// values only: the image's drawing block runs whenever and wherever the image is drawn, so
+    /// it holds nothing of the main actor.
+    nonisolated static func picture(
+        text: WidgetText,
+        reading: WidgetReading,
+        showsGlyph: Bool,
+        fontSize: CGFloat,
+        height: CGFloat
+    ) -> NSImage? {
+        let number = numberFont(pointSize: fontSize)
+        let numberText = NSAttributedString(
+            string: text.string,
+            attributes: [.font: number, .foregroundColor: NSColor.black]
+        )
+        let textSize = numberText.size()
+        let glyphSize = glyphPointSize(menuFontSize: fontSize)
+        let slot = showsGlyph ? slotSize(pointSize: glyphSize) : .zero
+        let gap = showsGlyph ? DesignTokens.Widget.largePercentGap : 0
+        let width = (slot.width + gap + textSize.width).rounded(.up)
+        guard width > 0, height > 0 else {
+            return nil
+        }
+        let charge = charge(of: reading)
+        let symbol = BatteryGlyph.symbolName(percent: charge.percent, isCharging: charge.isCharging)
+        let image = NSImage(size: NSSize(width: width, height: height), flipped: false) { bounds in
+            let textY = (bounds.height - textSize.height) / 2
+            if showsGlyph {
+                // The slot's middle sits on the middle of the number's capitals.
+                let middle = textY - number.descender + number.capHeight / 2
+                drawGlyph(
+                    named: symbol,
+                    pointSize: glyphSize,
+                    in: NSRect(x: 0, y: middle - slot.height / 2, width: slot.width, height: slot.height)
+                )
+            }
+            numberText.draw(at: NSPoint(x: slot.width + gap, y: textY))
+            return true
+        }
+        image.isTemplate = true
+        return image
+    }
+
     // MARK: Measures and drawing
 
     nonisolated private static func numberFont(pointSize: CGFloat) -> NSFont {

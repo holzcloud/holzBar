@@ -906,6 +906,11 @@ final class MenuBarWidgets {
     /// when its definition or the locale changes, never on a refresh.
     private func measuredLength(for runtime: Runtime) -> CGFloat {
         let definition = runtime.definition
+        if LargePercentWidget.isWidget(definition) {
+            return LargePercentWidget.length(
+                for: definition, font: Self.font, locale: Self.locale, padding: Self.minimumPadding
+            )
+        }
         // A button that shows its symbol has no text; the symbol and the padding are measured.
         let samples = definition.showsButtonSymbolOnly ? [""] : WidgetFormat.widthSamples(
             for: definition,
@@ -1026,11 +1031,19 @@ final class MenuBarWidgets {
                 )
                 : Self.attributedTitle(for: text, truncates: isScript)
             // The same text as a picture, for the surfaces that show items elsewhere (D-24).
-            images[runtime.definition.autosaveName] = launcherIcon(for: runtime.definition) ?? Self.picture(
-                for: runtime.definition,
-                text: text,
-                maximumTextWidth: isScript && runtime.textWidth > 0 ? runtime.textWidth : nil
-            )
+            images[runtime.definition.autosaveName] = LargePercentWidget.isWidget(runtime.definition)
+                ? LargePercentWidget.picture(
+                    text: text,
+                    reading: reading,
+                    showsGlyph: runtime.definition.showsSymbol,
+                    fontSize: Self.font.pointSize,
+                    height: ItemIconStore.drawnHeight
+                )
+                : launcherIcon(for: runtime.definition) ?? Self.picture(
+                    for: runtime.definition,
+                    text: text,
+                    maximumTextWidth: isScript && runtime.textWidth > 0 ? runtime.textWidth : nil
+                )
         }
         // VoiceOver reads the reading in full, not the short text (D-27). A button has no
         // reading: it says its label and its hint. A script widget says its line, or what is
