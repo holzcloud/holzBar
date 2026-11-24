@@ -15,22 +15,34 @@ import SwiftUI
 struct MakeRoomBanner: View {
     let makeRoom: MakeRoom27
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
-        if let banner = makeRoom.banner, banner.verdict.isOverflowing {
-            SettingsGroup {
-                SettingsStateLine(.warning, Text(sentence(for: banner))) {
-                    PreviewBadge()
-                    SettingsInfoButton(Text(info(for: banner)))
-                    action(for: banner)
+        // The group appears and leaves with a fade; the model already waited out the settle time,
+        // so nothing flickers. Reduce Motion shortens the fade.
+        Group {
+            if let banner = makeRoom.banner, banner.verdict.isOverflowing {
+                SettingsGroup {
+                    SettingsStateLine(.warning, Text(sentence(for: banner))) {
+                        PreviewBadge()
+                        SettingsInfoButton(Text(info(for: banner)))
+                        action(for: banner)
+                    }
+                    if makeRoom.failedCount > 0 {
+                        SettingsStateLine(.warning, Text("Could not be moved: \(makeRoom.failedCount)"))
+                    }
                 }
-                if makeRoom.failedCount > 0 {
-                    SettingsStateLine(.warning, Text("Could not be moved: \(makeRoom.failedCount)"))
+                .transition(.opacity)
+                .onAppear {
+                    // Once, when the banner appears while Layout is open; leaving is not announced.
+                    LayoutBarItemView.announce(sentence(for: banner))
                 }
-            }
-            .onAppear {
-                LayoutBarItemView.announce(sentence(for: banner))
             }
         }
+        .animation(
+            HolzBarTheme.Motion.resolved(HolzBarTheme.Motion.smooth, reduceMotion: reduceMotion),
+            value: makeRoom.banner != nil
+        )
     }
 
     /// The button, the busy state while a pass runs, or nothing when no app may move.

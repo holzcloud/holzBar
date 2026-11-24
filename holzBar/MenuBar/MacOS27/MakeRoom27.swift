@@ -52,6 +52,13 @@ final class MakeRoom27 {
     @ObservationIgnored private var surfaces = Set<Surface>()
     @ObservationIgnored private var loop: ObservationLoop?
     @ObservationIgnored private var passTask: Task<Void, Never>?
+    /// What the user sees: a verdict that differs from it is taken over only after it stayed the
+    /// same for the settle time (T-97-06).
+    @ObservationIgnored private var settle = MenuBarFit.Settle(shown: .fits)
+    /// The banner stays away until this instant after a pass (D-19).
+    @ObservationIgnored private var quietUntil: ContinuousClock.Instant?
+    /// The one one-shot wait for the next instant something is due; each evaluation replaces it.
+    @ObservationIgnored private var wakeTask: Task<Void, Never>?
     @ObservationIgnored private let logger = Logger(category: "MakeRoom27")
 
     /// What the observation watches: a change of any of it evaluates the model again.
@@ -61,6 +68,12 @@ final class MakeRoom27 {
         var usageIsEnabled: Bool
         var menuFrame: CGRect?
         var revealsAll: Bool
+        /// The gates of D-03: a drag, the Mac resting, a display change or wake that is still
+        /// settling (the gate records when), an application in its launch grace.
+        var isDragging = false
+        var isPaused = false
+        var wakeGate = DDCWakeGate()
+        var graceIDs = Set<String>()
     }
 
     /// An item's window and where it is drawn; an item macOS folded away is not drawn.
@@ -74,6 +87,11 @@ final class MakeRoom27 {
     private struct Reading {
         let input: MenuBarFit.Input
         let hasNotch: Bool
+
+        /// What the model says about these inputs, before the settle time.
+        var verdict: MenuBarFit.Verdict {
+            MenuBarFit.evaluate(input)
+        }
     }
 
     init(appState: AppState?) {
@@ -87,6 +105,12 @@ final class MakeRoom27 {
     func surfaceDidOpen(_ surface: Surface) {
         surfaces.insert(surface)
         if loop == nil {
+            // A banner that is already true shows at once; later changes wait for the settle time.
+            settle = MenuBarFit.Settle(shown: .fits)
+            quietUntil = nil
+            if let appState, let current = reading(appState) {
+                settle = MenuBarFit.Settle(shown: current.verdict)
+            }
             loop = ObservationLoop.observe({ [weak self] in
                 self?.trigger() ?? Trigger(overflow: .unknown, items: [], usageIsEnabled: false, menuFrame: nil, revealsAll: false)
             }, onChange: { [weak self] _ in
@@ -106,6 +130,9 @@ final class MakeRoom27 {
         loop = nil
         passTask?.cancel()
         passTask = nil
+        wakeTask?.cancel()
+        wakeTask = nil
+        quietUntil = nil
         isRunningPass = false
         banner = nil
     }
@@ -127,25 +154,74 @@ final class MakeRoom27 {
             items: items,
             usageIsEnabled: appState.usage.isEnabled,
             menuFrame: menuFrame,
-            revealsAll: revealsAll(appState)
+            revealsAll: revealsAll(appState),
+            isDragging: appState.isDraggingMenuBarItem,
+            isPaused: appState.systemActivityMonitor.isPaused,
+            wakeGate: appState.systemActivityMonitor.ddcWakeGate,
+            graceIDs: appState.concealer27.launchGraceBundleIDs
         )
     }
 
-    /// Asks the model and keeps the banner when it changed.
+    /// Asks the model, lets the verdict settle and keeps the banner when it changed.
+    ///
+    /// The banner follows the settled verdict, never the raw one, and it is not drawn while a
+    /// gate is closed (D-03, D-19): during a drag, before the system has settled after a wake or a
+    /// display change, while an application is in its launch grace and for a few seconds after a
+    /// pass. The gates that are events (drag, wake, display change, grace) re-run this through the
+    /// observation; the ones that are only time (the settle time, the quiet time, the system
+    /// settling) arm one one-shot wait for the earliest instant.
     private func evaluate() {
+        wakeTask?.cancel()
+        wakeTask = nil
         guard let appState, !surfaces.isEmpty, let reading = reading(appState) else {
             setBanner(nil)
             return
         }
-        let verdict = MenuBarFit.evaluate(reading.input)
-        guard verdict.isOverflowing else {
+        let now = ContinuousClock.now
+        var due = [ContinuousClock.Instant]()
+        if let instant = settle.note(reading.verdict, at: now) {
+            due.append(instant)
+        }
+        var isQuiet = false
+        if let quietUntil {
+            if quietUntil > now {
+                isQuiet = true
+                due.append(quietUntil)
+            } else {
+                self.quietUntil = nil
+            }
+        }
+        let monitor = appState.systemActivityMonitor
+        let isSettled = monitor.isSettled
+        if !isSettled, !monitor.isPaused {
+            // Time only: the monitor publishes no event when the bar has settled.
+            due.append(now + SystemActivity.settleDelay)
+        }
+        if let next = due.min() {
+            wakeTask = Task { [weak self] in
+                try? await Task.sleep(until: next, tolerance: .milliseconds(200), clock: .continuous)
+                guard !Task.isCancelled else {
+                    return
+                }
+                self?.evaluate()
+            }
+        }
+        let isBlocked = appState.isDraggingMenuBarItem
+            || !isSettled
+            || !appState.concealer27.launchGraceBundleIDs.isEmpty
+            || isQuiet
+        guard !isBlocked, settle.shown.isOverflowing else {
             setBanner(nil)
             return
         }
         let usesUsage = appState.usage.isEnabled
+        // The button follows what is true now: while the shown verdict lingers after the bar
+        // fits again, no move is offered.
         setBanner(Banner(
-            verdict: verdict,
-            candidates: MenuBarFit.plan(reading.input, verdict: verdict, usesUsage: usesUsage),
+            verdict: settle.shown,
+            candidates: reading.verdict.isOverflowing
+                ? MenuBarFit.plan(reading.input, verdict: reading.verdict, usesUsage: usesUsage)
+                : [],
             hasNotch: reading.hasNotch,
             usesUsage: usesUsage
         ))
@@ -189,7 +265,7 @@ final class MakeRoom27 {
             apps: apps(appState, on: displayBounds, from: referenceX),
             native: native(appState.concealer27.nativeOverflow.state),
             revealsAll: revealsAll(appState),
-            wasOverflowing: banner?.verdict.isOverflowing == true
+            wasOverflowing: settle.shown.isOverflowing
         )
         return Reading(input: input, hasNotch: hasNotch)
     }
@@ -334,6 +410,8 @@ final class MakeRoom27 {
     /// The items were read again: counts what stayed and evaluates the model once more.
     private func passDidEnd(movedKeys: [String]) {
         isRunningPass = false
+        // Quiet for a few seconds, so the banner never offers a move that fights what just happened.
+        quietUntil = .now + MenuBarFit.Policy.quietAfterPass
         guard let appState else {
             return
         }

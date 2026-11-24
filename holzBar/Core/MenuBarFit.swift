@@ -150,6 +150,49 @@ nonisolated enum MenuBarFit {
         static let quietAfterPass = Duration.seconds(3)
     }
 
+    // MARK: - Settle
+
+    /// Keeps a verdict from flickering on screen: a verdict that differs from the one shown is
+    /// shown only after it stayed the same for ``Policy/bannerSettle``, so a condition that flips
+    /// within that time changes nothing (T-97-06). Pure and clock-free: the caller passes the
+    /// time of each note and arms one wait for the instant ``note(_:at:)`` returns.
+    nonisolated struct Settle: Equatable, Sendable {
+        /// The verdict on screen.
+        private(set) var shown: Verdict
+
+        /// A different verdict and when it was first seen.
+        private var pending: (verdict: Verdict, since: ContinuousClock.Instant)?
+
+        /// Starts with `shown` on screen: a verdict that is already true at the start shows at once.
+        init(shown: Verdict) {
+            self.shown = shown
+        }
+
+        static func == (lhs: Settle, rhs: Settle) -> Bool {
+            lhs.shown == rhs.shown && lhs.pending?.verdict == rhs.pending?.verdict && lhs.pending?.since == rhs.pending?.since
+        }
+
+        /// Notes the latest verdict.
+        ///
+        /// - Returns: The instant to note again (the verdict stayed different and will be due
+        ///   then), or `nil` when nothing is waiting: the verdict is the one shown, or it just
+        ///   became the one shown.
+        mutating func note(_ verdict: Verdict, at now: ContinuousClock.Instant) -> ContinuousClock.Instant? {
+            guard verdict != shown else {
+                pending = nil
+                return nil
+            }
+            let since = pending?.verdict == verdict ? pending?.since ?? now : now
+            guard now - since < Policy.bannerSettle else {
+                shown = verdict
+                pending = nil
+                return nil
+            }
+            pending = (verdict, since)
+            return since + Policy.bannerSettle
+        }
+    }
+
     // MARK: - Room
 
     /// The room beside a notch: the unobscured area right of the notch minus the system items

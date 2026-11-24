@@ -238,8 +238,14 @@ final class Concealer27 {
     @ObservationIgnored private var lastReadHadFoldedItems = false
 
     /// Applications that launched while their section is concealed, shown until their item
-    /// exists (jordanbaird/Ice#1007).
-    @ObservationIgnored private var launchGrace = LaunchGrace27()
+    /// exists (jordanbaird/Ice#1007). Observed, so the Layout banner learns when a grace ends.
+    private var launchGrace = LaunchGrace27()
+
+    /// The applications in their launch grace now; empty almost always. The Layout banner stays
+    /// away while it is not (D-03).
+    var launchGraceBundleIDs: Set<String> {
+        launchGrace.allowed
+    }
 
     /// The one task that sleeps until the earliest launch grace ends at its cap
     /// (``scheduleGraceExpiry()``).

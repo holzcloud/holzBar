@@ -320,4 +320,53 @@ struct MenuBarFitTests {
         #expect(MenuBarFit.sentenceNames(["Docker", "Slack", "Mail"]) == (shown: ["Docker", "Slack"], more: 1))
         #expect(MenuBarFit.sentenceNames(["a", "b", "c", "d", "e"]) == (shown: ["a", "b"], more: 3))
     }
+
+    // MARK: - Settle
+
+    @Test("A verdict that differs from the one shown is shown only after it stayed for 3 seconds")
+    func settleWaits() {
+        let start = ContinuousClock.now
+        var settle = MenuBarFit.Settle(shown: .fits)
+        #expect(settle.note(.doesNotFit(items: 1), at: start) == start + .seconds(3))
+        #expect(settle.shown == .fits)
+        #expect(settle.note(.doesNotFit(items: 1), at: start + .seconds(2)) == start + .seconds(3))
+        #expect(settle.shown == .fits)
+        #expect(settle.note(.doesNotFit(items: 1), at: start + .seconds(3)) == nil)
+        #expect(settle.shown == .doesNotFit(items: 1))
+    }
+
+    @Test("A flip back within the settle time resets the wait and changes nothing")
+    func settleResets() {
+        let start = ContinuousClock.now
+        var settle = MenuBarFit.Settle(shown: .fits)
+        _ = settle.note(.doesNotFit(items: 1), at: start)
+        #expect(settle.note(.fits, at: start + .seconds(1)) == nil)
+        // The wait begins again from the next different verdict.
+        #expect(settle.note(.doesNotFit(items: 1), at: start + .seconds(2)) == start + .seconds(5))
+        #expect(settle.note(.doesNotFit(items: 1), at: start + .seconds(4)) == start + .seconds(5))
+        #expect(settle.shown == .fits)
+        #expect(settle.note(.doesNotFit(items: 1), at: start + .seconds(5)) == nil)
+        #expect(settle.shown == .doesNotFit(items: 1))
+    }
+
+    @Test("A verdict equal to the shown one waits for nothing")
+    func settleEqualReturnsNil() {
+        let now = ContinuousClock.now
+        var settle = MenuBarFit.Settle(shown: .doesNotFit(items: 2))
+        #expect(settle.note(.doesNotFit(items: 2), at: now) == nil)
+        #expect(settle.shown == .doesNotFit(items: 2))
+    }
+
+    @Test("A different verdict restarts the wait, and the banner leaves after the same time")
+    func settleRestartsOnAnotherVerdict() {
+        let start = ContinuousClock.now
+        var settle = MenuBarFit.Settle(shown: .doesNotFit(items: 1))
+        #expect(settle.note(.fits, at: start) == start + .seconds(3))
+        // Another number is another verdict: the wait counts from it.
+        #expect(settle.note(.doesNotFit(items: 2), at: start + .seconds(2)) == start + .seconds(5))
+        #expect(settle.note(.fits, at: start + .seconds(3)) == start + .seconds(6))
+        #expect(settle.shown == .doesNotFit(items: 1))
+        #expect(settle.note(.fits, at: start + .seconds(6)) == nil)
+        #expect(settle.shown == .fits)
+    }
 }
