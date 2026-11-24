@@ -144,10 +144,7 @@ final class SoftwareDimmer {
               let uuid = Bridging.getDisplayUUIDString(for: display) else {
             return
         }
-        let clamped = SoftwareDimming.clamped(level)
-        var levels = settings.dimLevels
-        levels[uuid] = clamped > 0 ? clamped : nil
-        let stored = SoftwareDimming.cleaned(levels.mapValues { $0 as Any })
+        let stored = SoftwareDimming.setting(level, for: uuid, in: settings.dimLevels)
         if stored != settings.dimLevels {
             settings.dimLevels = stored
         }

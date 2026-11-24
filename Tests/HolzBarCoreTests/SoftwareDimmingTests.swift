@@ -66,6 +66,43 @@ struct SoftwareDimmingTests {
         #expect(SoftwareDimming.cleaned([:]).isEmpty)
     }
 
+    @Test("Setting a level clamps it, removes an entry at 0 and keeps the other displays")
+    func setting() {
+        let start = ["a": 0.3, "b": 0.6]
+        #expect(SoftwareDimming.setting(0.5, for: "c", in: start) == ["a": 0.3, "b": 0.6, "c": 0.5])
+        #expect(SoftwareDimming.setting(1, for: "a", in: start) == ["a": 0.9, "b": 0.6])
+        #expect(SoftwareDimming.setting(0, for: "a", in: start) == ["b": 0.6])
+        #expect(SoftwareDimming.setting(-1, for: "b", in: start) == ["a": 0.3])
+        #expect(SoftwareDimming.setting(.nan, for: "b", in: start) == ["a": 0.3])
+        #expect(SoftwareDimming.setting(0, for: "unknown", in: start) == start)
+    }
+
+    @Test("A new display past the limit is refused and no existing display loses its level")
+    func refusesBeyondTheLimit() {
+        var full = [String: Double]()
+        for index in 0..<SoftwareDimming.maximumDisplays {
+            // Identifiers that sort after the new one: the old rule evicted one of them.
+            full[String(format: "z%02d", index)] = 0.5
+        }
+        let refused = SoftwareDimming.setting(0.5, for: "a-new", in: full)
+        #expect(refused == full)
+        // A display that has an entry may still change and clear, also at the limit.
+        #expect(SoftwareDimming.setting(0.7, for: "z00", in: full)["z00"] == 0.7)
+        #expect(SoftwareDimming.setting(0, for: "z00", in: full).count == SoftwareDimming.maximumDisplays - 1)
+        // After one is cleared, a new display fits again.
+        let freed = SoftwareDimming.setting(0, for: "z00", in: full)
+        #expect(SoftwareDimming.setting(0.5, for: "a-new", in: freed)["a-new"] == 0.5)
+        // Zero for a new display at the limit stays a no-op, not a refusal that changes anything.
+        #expect(SoftwareDimming.setting(0, for: "a-new", in: full) == full)
+    }
+
+    @Test("An empty or over-long identifier is refused")
+    func refusesBadIdentifiers() {
+        let tooLong = String(repeating: "x", count: SoftwareDimming.maximumIdentifierLength + 1)
+        #expect(SoftwareDimming.setting(0.5, for: "", in: [:]).isEmpty)
+        #expect(SoftwareDimming.setting(0.5, for: tooLong, in: [:]).isEmpty)
+    }
+
     @Test("A layer exists only for a level above 0 with the hub on, the module on and the display present")
     func layer() {
         #expect(SoftwareDimming.layerExists(level: 0.5, hubOn: true, moduleOn: true, displayPresent: true))

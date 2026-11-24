@@ -66,6 +66,28 @@ nonisolated enum SoftwareDimming {
         return result
     }
 
+    /// The levels after a display is set to `level`: held to 0 through ``maximum``, and a level
+    /// of 0 removes the entry. A display that has no entry yet is refused when the list already
+    /// holds ``maximumDisplays`` (or its identifier is empty or too long): the levels come back
+    /// unchanged, and no other display loses its dimming to a new one.
+    static func setting(_ level: Double, for uuid: String, in levels: [String: Double]) -> [String: Double] {
+        var result = levels
+        let clamped = clamped(level)
+        guard clamped > 0 else {
+            result[uuid] = nil
+            return result
+        }
+        guard
+            levels[uuid] != nil || levels.count < maximumDisplays,
+            !uuid.isEmpty,
+            uuid.utf8.count <= maximumIdentifierLength
+        else {
+            return levels
+        }
+        result[uuid] = clamped
+        return result
+    }
+
     /// Whether the card of a monitor offers the dim row (D-25): an external display that macOS
     /// cannot change itself, and, while External monitors (DDC) is on, only when the monitor does
     /// not answer DDC brightness. A monitor still being read hides the row until the read
