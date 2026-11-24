@@ -19,41 +19,57 @@ extension SettingsCatalog {
         /// The last group has no header; the search lists its row under the pane's name.
         static let untitledGroup = String(localized: "Appearance")
 
-        static let entries: [SettingsEntry] = [
-            .appearanceSaveCurrentLook,
-            .appearanceShapeKind,
-            .appearanceLeadingEnd,
-            .appearanceTrailingEnd,
-            .appearanceInsetShape,
-            .appearanceAppleLogoShape,
-            .appearanceDynamic,
-            .appearanceEditScope,
-            .appearanceTint,
-            .appearanceTintColor,
-            .appearanceAccentColor,
-            .appearanceTintGradient,
-            .appearanceTintStrength,
-            .appearanceGradientDirection,
-            .appearanceGradientPerShape,
-            .appearanceAppleLogoFill,
-            .appearanceAppleLogoColor,
-            .appearanceShadow,
-            .appearanceBorder,
-            .appearanceBorderFill,
-            .appearanceBorderColor,
-            .appearanceBorderGradient,
-            .appearanceBorderWidth,
-            .appearanceBorderStyle,
-            .appearanceBlackMenuBar,
-            .appearanceRoundCorners,
-            .appearanceCornerRadius,
-            .appearanceReset,
-        ]
+        /// The built-in mood's row exists from macOS 26 on (Liquid Glass), so its entry does too.
+        static let entries: [SettingsEntry] = {
+            var entries: [SettingsEntry] = []
+            if #available(macOS 26.0, *) {
+                entries.append(.appearanceReadableMenuBar)
+            }
+            entries += [
+                .appearanceSaveCurrentLook,
+                .appearanceShapeKind,
+                .appearanceLeadingEnd,
+                .appearanceTrailingEnd,
+                .appearanceInsetShape,
+                .appearanceAppleLogoShape,
+                .appearanceDynamic,
+                .appearanceEditScope,
+                .appearanceTint,
+                .appearanceTintColor,
+                .appearanceAccentColor,
+                .appearanceTintGradient,
+                .appearanceTintStrength,
+                .appearanceGradientDirection,
+                .appearanceGradientPerShape,
+                .appearanceAppleLogoFill,
+                .appearanceAppleLogoColor,
+                .appearanceShadow,
+                .appearanceBorder,
+                .appearanceBorderFill,
+                .appearanceBorderColor,
+                .appearanceBorderGradient,
+                .appearanceBorderWidth,
+                .appearanceBorderStyle,
+                .appearanceBlackMenuBar,
+                .appearanceRoundCorners,
+                .appearanceCornerRadius,
+                .appearanceReset,
+            ]
+            return entries
+        }()
     }
 }
 
 extension SettingsEntry {
     // MARK: Moods
+
+    static let appearanceReadableMenuBar = SettingsEntry(
+        id: "appearanceReadableMenuBar",
+        pane: .appearance,
+        group: SettingsCatalog.AppearancePane.moods,
+        label: String(localized: "Readable menu bar"),
+        info: String(localized: "Gives the menu bar an opaque background in the light or dark look of your Mac, so its icons and text stay readable.")
+    )
 
     static let appearanceSaveCurrentLook = SettingsEntry(
         id: "appearanceSaveCurrentLook",

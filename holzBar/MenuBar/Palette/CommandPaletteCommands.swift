@@ -48,6 +48,14 @@ enum CommandPaletteCommands {
                 keywords: [String(localized: "look"), String(localized: "appearance")]
             ))
         }
+        if #available(macOS 26.0, *) {
+            let label = MenuBarAppearanceManager.displayName(ofMood: BuiltInMood.readableMenuBarID)
+            commands.append(PaletteCommand(
+                kind: .applyMood(BuiltInMood.readableMenuBarID),
+                title: String(localized: "Apply mood \(label)"),
+                keywords: [String(localized: "look"), String(localized: "appearance")]
+            ))
+        }
         for rule in appState.automation.rules {
             let name = URLPrompt.displayName(rule.name)
             if rule.isEnabled {

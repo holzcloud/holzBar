@@ -56,7 +56,7 @@ struct MoodsSection: View {
     private var readableMenuBarRow: some View {
         let isCurrent = appearanceManager.isReadableMenuBarCurrent
         return SettingsButtonRow(
-            Text("Readable menu bar"),
+            .appearanceReadableMenuBar,
             small: isCurrent ? Text("In use") : nil,
             badge: .preview,
             info: Text("Gives the menu bar an opaque background in the light or dark look of your Mac, so its icons and text stay readable.")
@@ -72,7 +72,7 @@ struct MoodsSection: View {
     private func row(for mood: AppearanceMood) -> some View {
         let isCurrent = mood.name == appearanceManager.currentMoodName
         return SettingsButtonRow(Text(verbatim: mood.name), small: isCurrent ? Text("In use") : nil) {
-            Button("Apply") {
+            Button("Apply Mood") {
                 appearanceManager.applyMood(named: mood.name)
             }
             .disabled(isCurrent)

@@ -345,7 +345,7 @@ struct AutomationRuleEditor: View {
                 case .profile:
                     rule.action = .applyProfile(profileNames.first ?? "")
                 case .mood:
-                    rule.action = .applyMood(appState.appearanceManager.moods.first?.name ?? "")
+                    rule.action = .applyMood(defaultMoodName)
                 case .hiddenSection:
                     rule.action = .showSection(.hidden)
                 case .alwaysHiddenSection:
@@ -401,9 +401,24 @@ struct AutomationRuleEditor: View {
         }
     }
 
+    /// The moods a rule can name, as stored strings: the user's moods, then the built-in
+    /// "Readable menu bar" (by its identifier) from macOS 26 on.
+    private var moodNames: [String] {
+        var names = appState.appearanceManager.moods.map(\.name)
+        if #available(macOS 26.0, *) {
+            names.append(BuiltInMood.readableMenuBarID)
+        }
+        return names
+    }
+
+    /// The mood a new rule starts with: the first one, else none.
+    private var defaultMoodName: String {
+        moodNames.first ?? ""
+    }
+
     @ViewBuilder
     private func moodPicker(selection name: String) -> some View {
-        let moods = appState.appearanceManager.moods
+        let moods = moodNames
         if moods.isEmpty && name.isEmpty {
             SettingsStateLine(.info, Text("Save a mood in Appearance first."))
         } else {
@@ -416,8 +431,8 @@ struct AutomationRuleEditor: View {
             ) {
                 // A mood the rule names that was deleted stays in the list, so the row says what
                 // it was for.
-                ForEach(moods.map(\.name).contains(name) || name.isEmpty ? moods.map(\.name) : moods.map(\.name) + [name], id: \.self) { moodName in
-                    Text(verbatim: moodName).tag(moodName)
+                ForEach(moods.contains(name) || name.isEmpty ? moods : moods + [name], id: \.self) { moodName in
+                    Text(verbatim: MenuBarAppearanceManager.displayName(ofMood: moodName)).tag(moodName)
                 }
             }
         }
