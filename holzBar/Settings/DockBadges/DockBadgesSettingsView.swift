@@ -31,6 +31,9 @@ struct DockBadgesSettingsView: View {
                     small: Text("private interface"),
                     badge: .preview
                 )
+                if settings.readsCounts, dockBadges.countsAreUnavailable {
+                    SettingsStateLine(.warning, Text("Badge counts are not available on this Mac"))
+                }
                 if !hasAccess {
                     accessibilityLine
                 } else if dockBadges.listState == .unreadable {
