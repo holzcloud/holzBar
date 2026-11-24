@@ -292,6 +292,11 @@ final class BrightnessKeyController {
             return nil
         }
         let floor = DDCLevel.floor(for: .brightness)
+        if code == .brightnessDown, current <= floor {
+            // Already at or below the floor: a press down never raises the level, so nothing is
+            // written and the flash shows the level the monitor has (IN-04).
+            return current
+        }
         let kept = max(DisplayControlsLevel.clamped(MediaKeyRule.next(level: current, code: code, quarter: quarter)), floor)
         requested[display] = kept
         let raw = DDCLevel.raw(fromLevel: kept, maximum: value.maximum, floor: floor)

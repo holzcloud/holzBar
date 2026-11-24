@@ -278,7 +278,9 @@ nonisolated enum MediaKeyRule {
         case .brightnessUp:
             return min(max(level + step, brightnessFloor), 1)
         case .brightnessDown:
-            return min(max(level - step, brightnessFloor), 1)
+            // Down never raises the level: a display already below the floor (0 % through System
+            // Settings or another tool) keeps its level.
+            return min(level, max(level - step, brightnessFloor))
         case .mute:
             return level
         }

@@ -369,6 +369,10 @@ struct MediaKeyPressTests {
     func brightnessBounds() {
         #expect(MediaKeyRule.next(level: 0.05, code: .brightnessDown, quarter: false) == 0.02)
         #expect(MediaKeyRule.next(level: 0.02, code: .brightnessDown, quarter: true) == 0.02)
+        // A display already below the floor is never raised by a press down.
+        #expect(MediaKeyRule.next(level: 0, code: .brightnessDown, quarter: false) == 0)
+        #expect(MediaKeyRule.next(level: 0.01, code: .brightnessDown, quarter: true) == 0.01)
+        #expect(MediaKeyRule.next(level: 0, code: .brightnessUp, quarter: true) == 0.02)
         #expect(MediaKeyRule.next(level: 0.99, code: .brightnessUp, quarter: false) == 1)
         #expect(MediaKeyRule.next(level: 0.5, code: .brightnessUp, quarter: false) == 0.5625)
     }
