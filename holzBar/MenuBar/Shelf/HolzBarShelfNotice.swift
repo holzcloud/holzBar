@@ -39,13 +39,13 @@ struct HolzBarShelfNotice: View {
         appState.makeRoom27.shelfBanner?.verdict.isOverflowing == true
     }
 
-    /// The apps that are asked about now, while the switch is on. The question model is created
-    /// here while the switch is on, so the row follows it from the first question on.
+    /// The apps that are asked about now, while the switch is on. Reading never creates the
+    /// question model: an event does, so with the switch off there is none.
     private static func questionsAsked(appState: AppState) -> [NewAppQuestion.App] {
         guard appState.settings.advanced.asksWhereNewAppGoes else {
             return []
         }
-        return appState.newAppQuestions27.asked
+        return appState.existingNewAppQuestions27?.asked ?? []
     }
 
     /// The answers the question offers: the sections that are on, then Don't ask again.
@@ -91,7 +91,7 @@ struct HolzBarShelfNotice: View {
         guard let (bundleID, answer) = parse(chipID: chipID) else {
             return
         }
-        appState.newAppQuestions27.answer(answer, for: bundleID, place: .menuBar)
+        appState.existingNewAppQuestions27?.answer(answer, for: bundleID, place: .menuBar)
     }
 
     private static func chipID(bundleID: String, answer: NewAppQuestion.Answer) -> String {
@@ -322,7 +322,7 @@ struct HolzBarShelfNotice: View {
 
     private func icon(for app: NewAppQuestion.App, size: CGFloat) -> some View {
         Group {
-            if let image = appState.newAppQuestions27.icon(for: app.bundleID) {
+            if let image = appState.existingNewAppQuestions27?.icon(for: app.bundleID) {
                 Image(nsImage: image)
                     .resizable()
                     .interpolation(.high)

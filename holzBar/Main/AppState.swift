@@ -241,6 +241,8 @@ final class AppState {
     @ObservationIgnored private var newAppQuestions27Storage: AnyObject?
 
     /// Asks where an app that macOS 27 shows for the first time should go; created on first use.
+    /// Only an event creates it (the switch turning on, the launch with the switch on, a new app),
+    /// never a view: views read ``existingNewAppQuestions27``.
     @available(macOS 27.0, *)
     var newAppQuestions27: NewAppQuestions27 {
         if let questions = newAppQuestions27Storage as? NewAppQuestions27 {
@@ -413,9 +415,10 @@ final class AppState {
             // Hiding does not need the item cache, and the first read of the items can
             // take seconds (measured 9 s), so it starts before the item manager's setup.
             concealer27.performSetup(with: self)
-            // A question kept from before the last quit waits again; with the switch off, or
-            // with nothing kept, nothing is created (D-05, D-19).
-            if settings.advanced.asksWhereNewAppGoes, let kept = Defaults.stringArray(forKey: .newAppQuestionPending), !kept.isEmpty {
+            // With the switch on the question model is created here, so a question kept from
+            // before the last quit waits again and no view has to create it; with the switch off
+            // nothing is created (D-05, D-19).
+            if settings.advanced.asksWhereNewAppGoes {
                 _ = newAppQuestions27
             }
             // Automatic starts here when it is the stored mode; before this point it must not.

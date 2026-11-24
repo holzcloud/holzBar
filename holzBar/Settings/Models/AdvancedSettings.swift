@@ -97,9 +97,14 @@ final class AdvancedSettings {
     var asksWhereNewAppGoes = false {
         didSet {
             Defaults.set(asksWhereNewAppGoes, forKey: .asksWhereNewAppGoes)
-            if !asksWhereNewAppGoes, #available(macOS 27.0, *) {
-                // Off means no cost: every waiting question goes, and so does the kept list.
-                appState?.existingNewAppQuestions27?.switchDidTurnOff()
+            if #available(macOS 27.0, *) {
+                if asksWhereNewAppGoes {
+                    // The model is created by this event, never by a view reading it.
+                    _ = appState?.newAppQuestions27
+                } else {
+                    // Off means no cost: every waiting question goes, and so does the kept list.
+                    appState?.existingNewAppQuestions27?.switchDidTurnOff()
+                }
             }
         }
     }

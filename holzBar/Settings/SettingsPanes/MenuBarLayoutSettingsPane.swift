@@ -33,7 +33,7 @@ struct MenuBarLayoutSettingsPane: View {
                 if #available(macOS 27.0, *) {
                     MakeRoomBanner(makeRoom: appState.makeRoom27)
                     NewAppsGroup(
-                        questions: appState.settings.advanced.asksWhereNewAppGoes ? appState.newAppQuestions27 : nil,
+                        questions: appState.existingNewAppQuestions27,
                         advanced: appState.settings.advanced
                     )
                 }
