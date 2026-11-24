@@ -12,16 +12,49 @@ import SwiftUI
 /// The group exists only on macOS 27, where the Layout pane has the fit model.
 @available(macOS 27.0, *)
 struct MakingRoomGroup: View {
+    @Environment(AppState.self) private var appState
     @Bindable var advanced: AdvancedSettings
 
     var body: some View {
         SettingsGroup(SettingsCatalog.LayoutPane.makingRoom) {
-            SettingsPickerRow(.layoutMakeRoomMode, selection: $advanced.makeRoomMode, badge: .preview) {
+            SettingsPickerRow(
+                .layoutMakeRoomMode,
+                selection: $advanced.makeRoomMode,
+                badge: .preview,
+                info: Text(SettingsEntry.makeRoomModeInfo(usesUsage: appState.usage.isEnabled))
+            ) {
                 Text(MakeRoomMode.off.localized).tag(MakeRoomMode.off)
                 Text(MakeRoomMode.ask.localized).tag(MakeRoomMode.ask)
                 Text(MakeRoomMode.automatic.localized).tag(MakeRoomMode.automatic)
             }
             SettingsToggleRow(.layoutAsksWhereNewAppGoes, isOn: $advanced.asksWhereNewAppGoes, badge: .preview)
+        }
+    }
+}
+
+/// The row of the Notices group that reports a pass Automatic made, so a change of the saved
+/// layout without a click is never silent (Phase 97, D-10, UI-SPEC Automatic result row): the
+/// sentence, Undo for exactly that pass and a button to dismiss it. It stays until it is dismissed,
+/// undone or replaced by the next pass, and is never stored.
+@available(macOS 27.0, *)
+struct AutomaticPassNoticeRow: View {
+    let makeRoom: MakeRoom27
+
+    var body: some View {
+        if let pass = makeRoom.lastAutomaticPass {
+            let sentence = String(localized: "holzBar moved \(pass.count) items to Hidden to make room.")
+            SettingsButtonRow(Text(verbatim: sentence)) {
+                Button("Undo") {
+                    Task {
+                        await makeRoom.undoAutomaticPass()
+                    }
+                }
+                Button("Dismiss Notice") {
+                    makeRoom.dismissAutomaticPass()
+                }
+            }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(sentence)
         }
     }
 }

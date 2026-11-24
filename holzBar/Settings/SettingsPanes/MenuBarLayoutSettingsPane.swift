@@ -131,13 +131,15 @@ struct MenuBarLayoutSettingsPane: View {
             return true
         }
         if #available(macOS 27.0, *) {
-            return !appState.commandDragSection27.notices.isEmpty || appState.concealer27.isOverflowStuck
+            return !appState.commandDragSection27.notices.isEmpty
+                || appState.concealer27.isOverflowStuck
+                || appState.makeRoom27.lastAutomaticPass != nil
         }
         return false
     }
 
-    /// What was put back by a rule, what a Command-drag did and the folded-away warning; the
-    /// group exists only while there is something to report.
+    /// What was put back by a rule, what a Command-drag did, what Automatic moved and the
+    /// folded-away warning; the group exists only while there is something to report.
     @ViewBuilder
     private var noticesGroup: some View {
         if hasNotices {
@@ -145,6 +147,7 @@ struct MenuBarLayoutSettingsPane: View {
                 ItemRuleNoticeRows()
                 if #available(macOS 27.0, *) {
                     CommandDragNoticeRows()
+                    AutomaticPassNoticeRow(makeRoom: appState.makeRoom27)
                     StuckOverflowWarning(concealer: appState.concealer27)
                 }
             }

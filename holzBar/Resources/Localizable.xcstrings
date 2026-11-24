@@ -193895,6 +193895,363 @@
           }
         }
       }
+    },
+    "Automatic moves the apps you use least by itself, a few at a time." : {
+      "comment" : "Part of the info of the pop-up 'When the menu bar is full' in the Layout pane, shown while Usage suggestions is on: what the option Automatic does",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Možnost Automaticky sama přesouvá nejméně používané aplikace, po několika najednou."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Automatisch“ verschiebt die Apps, die du am seltensten nutzt, von selbst, ein paar auf einmal."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Automático» mueve por sí solo las apps que menos usas, unas pocas cada vez."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Automatique » déplace tout seul les apps que vous utilisez le moins, quelques-unes à la fois."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az Automatikus magától áthelyezi a legkevesebbet használt appokat, egyszerre néhányat."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otomatis memindahkan app yang paling jarang Anda pakai dengan sendirinya, beberapa sekaligus."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Automatico» sposta da solo le app che usi meno, poche alla volta."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「自動」では、あまり使わないアプリが数個ずつ自動的に移動されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“자동”을 선택하면 가장 적게 사용하는 앱이 한 번에 몇 개씩 저절로 이동합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bij Automatisch verplaatst holzBar de apps die je het minst gebruikt vanzelf, een paar tegelijk."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opcja Automatycznie sama przenosi najrzadziej używane aplikacje, po kilka naraz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Automático” move sozinho os apps que você menos usa, poucos de cada vez."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Automatic» spusta sezs las apps che ins duvra il main, in pèr a la giada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Автоматически» сам перемещает редко используемые приложения, по несколько за раз."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatiskt flyttar de appar du använder minst av sig självt, några åt gången."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otomatik, en az kullandığın uygulamaları kendiliğinden, her seferinde birkaç tanesini taşır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Автоматично» саме переміщує програми, якими ви користуєтеся найменше, по кілька за раз."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择“自动”后，会自动把你最少使用的 App 每次几个地移走。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇「自動」後，會自動把你最少使用的 App 每次幾個地移走。"
+          }
+        }
+      }
+    },
+    "Automatic moves some apps to Hidden by itself, a few at a time." : {
+      "comment" : "Part of the info of the pop-up 'When the menu bar is full' in the Layout pane, shown while Usage suggestions is off: what the option Automatic does",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Možnost Automaticky sama přesouvá některé aplikace do Skryté, po několika najednou."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Automatisch“ verschiebt einige Apps von selbst nach „Ausgeblendet“, ein paar auf einmal."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Automático» mueve por sí solo algunas apps a Oculto, unas pocas cada vez."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Automatique » déplace tout seul certaines apps vers « Masqué », quelques-unes à la fois."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az Automatikus magától áthelyez néhány appot a Rejtett közé, egyszerre csak keveset."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otomatis memindahkan beberapa app ke Tersembunyi dengan sendirinya, sedikit demi sedikit."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Automatico» sposta da solo alcune app in «Nascosto», poche alla volta."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「自動」では、一部のアプリが数個ずつ自動的に「非表示」に移動されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“자동”을 선택하면 일부 앱이 한 번에 몇 개씩 저절로 숨김으로 이동합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bij Automatisch verplaatst holzBar een aantal apps vanzelf naar Verborgen, een paar tegelijk."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opcja Automatycznie sama przenosi niektóre aplikacje do sekcji Ukryte, po kilka naraz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Automático” move sozinho alguns apps para Oculto, poucos de cada vez."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Automatic» spusta sezs enqual apps a «Zuppà», in pèr a la giada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Автоматически» сам перемещает часть приложений в «Скрыто», по несколько за раз."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatiskt flyttar några appar till Dold av sig självt, några åt gången."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otomatik, bazı uygulamaları kendiliğinden, her seferinde birkaç tanesini Gizli bölümüne taşır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Автоматично» саме переміщує частину програм до «Приховано», по кілька за раз."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择“自动”后，会自动把部分 App 每次几个地移到“隐藏”。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇「自動」後，會自動把部分 App 每次幾個地移至「已隱藏」。"
+          }
+        }
+      }
+    },
+    "Dismiss Notice" : {
+      "comment" : "Button in the Notices group of the Layout pane that removes a notice without acting on it",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zavřít oznámení"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hinweis schließen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descartar aviso"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fermer l’avis"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Értesítés elvetése"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutup Pemberitahuan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiudi avviso"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "お知らせを閉じる"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알림 닫기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Melding sluiten"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zamknij powiadomienie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispensar aviso"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serrar l’avis"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть уведомление"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stäng meddelandet"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildirimi Kapat"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрити сповіщення"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭通知"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關閉通知"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

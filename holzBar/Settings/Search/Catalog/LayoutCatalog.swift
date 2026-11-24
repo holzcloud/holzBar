@@ -128,12 +128,24 @@ extension SettingsEntry {
         pane: .layout,
         group: SettingsCatalog.LayoutPane.makingRoom,
         label: String(localized: "When the menu bar is full"),
-        // Two sentences, each its own string, so a later release can put one between them.
-        info: [
+        // Three sentences, each its own string; the search shows the neutral wording of the middle
+        // one, the row itself follows Usage suggestions (D-17).
+        info: makeRoomModeInfo(usesUsage: false)
+    )
+
+    /// The info of "When the menu bar is full": what Ask does, what Automatic does and that
+    /// nothing protected moves. Each sentence is its own string. The middle one says "the apps you
+    /// use least" only while Usage suggestions is on, because only then the planner orders by use
+    /// (D-17); otherwise it says "some apps".
+    static func makeRoomModeInfo(usesUsage: Bool) -> String {
+        [
             String(localized: "Ask shows a notice with a Move to Hidden button."),
+            usesUsage
+                ? String(localized: "Automatic moves the apps you use least by itself, a few at a time.")
+                : String(localized: "Automatic moves some apps to Hidden by itself, a few at a time."),
             String(localized: "Apple's items and holzBar's own never move. You can undo every move."),
         ].joined(separator: " ")
-    )
+    }
 
     static let layoutAsksWhereNewAppGoes = SettingsEntry(
         id: "layoutAsksWhereNewAppGoes",
