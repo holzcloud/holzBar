@@ -45,6 +45,8 @@ final class LayoutUndo {
         /// Whether the toast reports an undo that could not put everything back (D-17).
         let isFailure: Bool
         let place: Place
+        /// The history entry the toast belongs to, so a notice can find its own toast.
+        var changeID: UUID?
     }
 
     /// The one wait on macOS 27 after an undo, before holzBar reads the items again: macOS
@@ -86,7 +88,7 @@ final class LayoutUndo {
         // A new change ends what could be redone, in the window's undo manager as here.
         redoChanges.removeAll()
         push(change)
-        setToast(ToastContent(id: UUID(), sentence: change.sentence, isFailure: false, place: resolved(place)))
+        setToast(ToastContent(id: UUID(), sentence: change.sentence, isFailure: false, place: resolved(place), changeID: change.id))
         LayoutBarItemView.announce(change.sentence)
     }
 
@@ -337,7 +339,7 @@ final class LayoutUndo {
     }
 
     /// Shows a toast when an undo could not put everything back; otherwise nothing (D-17).
-    private func report(isRestored: Bool, place: Place) {
+    func report(isRestored: Bool, place: Place) {
         guard !isRestored else {
             return
         }

@@ -69,8 +69,10 @@ final class MakeRoom27 {
     struct AutomaticPass {
         /// How many apps the pass moved.
         let count: Int
-        /// The arrangement before the pass, which Undo puts back.
+        /// The arrangement before the pass: Undo puts back the section each moved app had in it.
         let before: LayoutSnapshot
+        /// The apps the pass moved; Undo touches no others.
+        let movedKeys: [String]
         /// The pass's entry in the undo history, taken out when the row undoes it.
         let changeID: UUID
         /// The sentence of that entry's toast.
@@ -506,8 +508,11 @@ final class MakeRoom27 {
         lastAutomaticPass = nil
     }
 
-    /// Puts the last automatic pass back, exactly that pass, and takes its entry out of the undo
-    /// history so a later Undo does not undo it twice.
+    /// Puts the apps of the last automatic pass back, only those, and takes the pass's entry out
+    /// of the undo history so a later Undo does not undo it twice. A change the user made to the
+    /// layout after the pass stays: only an app that is still in Hidden goes back to the section
+    /// it had before. A failure is reported like any other undo that could not put everything
+    /// back, and the bar is quiet for a moment afterwards so Ask does not offer the same move at once.
     func undoAutomaticPass() async {
         guard let pass = lastAutomaticPass, let appState else {
             return
@@ -516,10 +521,22 @@ final class MakeRoom27 {
         let undo = appState.layoutUndo
         undo.forget(id: pass.changeID)
         // The toast of that pass would otherwise offer an Undo that acts on another change.
-        if let toast = undo.toast, !toast.isFailure, toast.sentence == pass.sentence {
+        if let toast = undo.toast, !toast.isFailure, toast.changeID == pass.changeID {
             undo.dismissToast(id: toast.id)
         }
-        _ = await undo.restoreArrangement(pass.before)
+        let concealer = appState.concealer27
+        let back = pass.movedKeys.filter { concealer.section(forKey: $0) == .hidden }
+        concealer.setSections(Dictionary(uniqueKeysWithValues: back.map {
+            ($0, pass.before.applicationSections[$0].flatMap(MacOS27Section.init(rawValue:)) ?? .visible)
+        }))
+        appState.automation.itemsWereArrangedByHand()
+        quietUntil = .now + MenuBarFit.Policy.quietAfterPass
+        // macOS arranges per application and needs a moment, as after any undo.
+        try? await Task.sleep(for: LayoutUndo.settleDelay27)
+        await appState.itemManager.cacheItemsRegardless()
+        let stillAway = Set((appState.itemManager.itemCache[.hidden] + appState.itemManager.itemCache[.alwaysHidden]).compactMap(\.layoutKey27))
+        undo.report(isRestored: !back.contains(where: stillAway.contains), place: .settings)
+        evaluate()
     }
 
     // MARK: - A pass
@@ -557,7 +574,7 @@ final class MakeRoom27 {
             : String(localized: "\(keys.count) items moved to Hidden")
         let changeID = appState.layoutUndo.recordArrangementChange(sentence, before: before, place: place)
         if origin == .automatic {
-            lastAutomaticPass = AutomaticPass(count: keys.count, before: before, changeID: changeID, sentence: sentence)
+            lastAutomaticPass = AutomaticPass(count: keys.count, before: before, movedKeys: keys, changeID: changeID, sentence: sentence)
         }
         logger.info("A pass moved \(keys.count, privacy: .public) apps to Hidden")
         isRunningPass = true
