@@ -322,6 +322,40 @@ final class MenuBarAppearanceManager {
         } catch {
             Logger.serialization.error("Error decoding menu bar appearance configuration: \(error, privacy: .private)")
         }
+        // The current mood is not stored, so the stored look is recognised: the built-in mood's
+        // opaque tints are a look of their own. Its border is then brought in line with
+        // Increase Contrast as it is now, and the listener starts, as after applying the mood.
+        if Self.isReadableMenuBarLook(configuration) {
+            currentMoodName = BuiltInMood.readableMenuBarID
+            applyReadableMenuBarBorder(increaseContrast: TransparencyOptions.system.increaseContrast)
+        }
+    }
+
+    /// Whether a configuration carries the built-in mood's tints in both appearances: dynamic, solid,
+    /// opaque, not following the accent colour, and the mood's ground colours (the border is not
+    /// compared, it follows Increase Contrast).
+    private static func isReadableMenuBarLook(_ configuration: MenuBarAppearanceConfigurationV2) -> Bool {
+        configuration.isDynamic
+            && hasReadableTint(configuration.lightModeConfiguration, tint: BuiltInMood.lightTint)
+            && hasReadableTint(configuration.darkModeConfiguration, tint: BuiltInMood.darkTint)
+    }
+
+    private static func hasReadableTint(_ partial: MenuBarAppearancePartialConfiguration, tint: DesignTokens.RGB) -> Bool {
+        guard
+            partial.tintKind == .solid,
+            !partial.tintFollowsAccentColor,
+            partial.style.tintStrength == MenuBarPartialStyle.opaqueTintStrength,
+            let space = CGColorSpace(name: CGColorSpace.sRGB),
+            let components = partial.tintColor.converted(to: space, intent: .defaultIntent, options: nil)?.components,
+            components.count >= 3
+        else {
+            return false
+        }
+        // A stored colour is a few bits off the constant; one 8-bit step is far more than that.
+        let tolerance = 1.0 / 255
+        return abs(components[0] - tint.red) < tolerance
+            && abs(components[1] - tint.green) < tolerance
+            && abs(components[2] - tint.blue) < tolerance
     }
 
     /// Configures the internal observers for the manager.
