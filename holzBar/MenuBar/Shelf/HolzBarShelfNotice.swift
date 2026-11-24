@@ -11,8 +11,13 @@ import SwiftUI
 /// the menu bar.
 ///
 /// The row is the Shelf's own look: the Shelf's text colour, the Shelf's chip, no accent and no
-/// glass. It draws nothing while the apps fit. The row keeps the model running while the Shelf is
-/// open and stops it when the Shelf goes, so nothing evaluates while the Shelf is closed.
+/// glass. It draws nothing while the apps fit and no app waits for an answer. The row keeps the
+/// model running while the Shelf is open and stops it when the Shelf goes, so nothing evaluates
+/// while the Shelf is closed.
+///
+/// The row also carries the question where a new menu bar app should go (D-12, COMF-04): the
+/// banner shows first and the question after it is gone, never both. The question has no close
+/// button; Don't ask again is the way to dismiss it.
 @available(macOS 27.0, *)
 struct HolzBarShelfNotice: View {
     /// The identifier of the chip that moves the apps, for the Shelf's keyboard highlight.
@@ -26,37 +31,93 @@ struct HolzBarShelfNotice: View {
         appState.makeRoom27
     }
 
-    /// Whether the row is drawn now.
-    static func isShown(appState: AppState) -> Bool {
+    /// The first part of the identifier of a question's chip: `notice.q.<bundle identifier>.<answer>`.
+    private static let questionChipPrefix = "notice.q."
+
+    /// Whether the banner form is drawn now; it comes before the question.
+    private static func isBannerShown(appState: AppState) -> Bool {
         appState.makeRoom27.shelfBanner?.verdict.isOverflowing == true
     }
 
-    /// The chips the keyboard can reach, in order: the move chip while an app may move.
-    static func chipIDs(appState: AppState) -> [String] {
-        let makeRoom = appState.makeRoom27
-        guard
-            let banner = makeRoom.shelfBanner,
-            banner.verdict.isOverflowing,
-            !banner.candidates.isEmpty,
-            !makeRoom.isRunningPass
-        else {
+    /// The apps that are asked about now, while the switch is on. The question model is created
+    /// here while the switch is on, so the row follows it from the first question on.
+    private static func questionsAsked(appState: AppState) -> [NewAppQuestion.App] {
+        guard appState.settings.advanced.asksWhereNewAppGoes else {
             return []
         }
-        return [moveChipID]
+        return appState.newAppQuestions27.asked
     }
 
-    /// What a click or the keyboard on a chip does: the same pass as the Layout banner's button.
+    /// The answers the question offers: the sections that are on, then Don't ask again.
+    private static func answersOffered(appState: AppState) -> [NewAppQuestion.Answer] {
+        let offersAlwaysHidden = appState.newAppQuestions27.offersAlwaysHidden
+        return NewAppQuestion.Answer.allCases.filter { offersAlwaysHidden || $0 != .alwaysHidden }
+    }
+
+    /// Whether the row is drawn now.
+    static func isShown(appState: AppState) -> Bool {
+        isBannerShown(appState: appState) || !questionsAsked(appState: appState).isEmpty
+    }
+
+    /// The chips the keyboard can reach, in order: the move chip while an app may move, and after
+    /// the banner the chips of the question.
+    static func chipIDs(appState: AppState) -> [String] {
+        let makeRoom = appState.makeRoom27
+        if isBannerShown(appState: appState) {
+            guard
+                let banner = makeRoom.shelfBanner,
+                !banner.candidates.isEmpty,
+                !makeRoom.isRunningPass
+            else {
+                return []
+            }
+            return [moveChipID]
+        }
+        let answers = answersOffered(appState: appState)
+        return questionsAsked(appState: appState).prefix(1).flatMap { app in
+            answers.map { chipID(bundleID: app.bundleID, answer: $0) }
+        }
+    }
+
+    /// What a click or the keyboard on a chip does: the same pass as the Layout banner's button,
+    /// or an answer to the question.
     static func activate(chipID: String, appState: AppState) {
-        guard chipID == moveChipID else {
+        if chipID == moveChipID {
+            appState.makeRoom27.moveCandidates(place: .menuBar)
             return
         }
-        appState.makeRoom27.moveCandidates(place: .menuBar)
+        guard let (bundleID, answer) = parse(chipID: chipID) else {
+            return
+        }
+        appState.newAppQuestions27.answer(answer, for: bundleID, place: .menuBar)
+    }
+
+    private static func chipID(bundleID: String, answer: NewAppQuestion.Answer) -> String {
+        "\(questionChipPrefix)\(bundleID).\(answer.rawValue)"
+    }
+
+    /// The bundle identifier and the answer of a question chip's identifier. The identifier of an
+    /// app contains dots, the answer is what follows the last one.
+    private static func parse(chipID: String) -> (bundleID: String, answer: NewAppQuestion.Answer)? {
+        guard chipID.hasPrefix(questionChipPrefix) else {
+            return nil
+        }
+        let rest = chipID.dropFirst(questionChipPrefix.count)
+        guard
+            let dot = rest.lastIndex(of: "."),
+            let answer = NewAppQuestion.Answer(rawValue: String(rest[rest.index(after: dot)...]))
+        else {
+            return nil
+        }
+        return (String(rest[..<dot]), answer)
     }
 
     var body: some View {
         VStack(spacing: 0) {
             if let banner = makeRoom.shelfBanner, banner.verdict.isOverflowing {
                 row(for: banner)
+            } else if let app = Self.questionsAsked(appState: appState).first {
+                questionRow(for: app)
             }
         }
         // The row is always in the tree, so it learns when the Shelf opens and goes even while
@@ -113,6 +174,136 @@ struct HolzBarShelfNotice: View {
         // One container after the tiles; the chip inside it is a named button.
         .accessibilityElement(children: .contain)
         .accessibilityLabel(Text(sentence))
+    }
+
+    // MARK: - The question
+
+    /// The notice row's frame: the hairline above, the row's padding and its width.
+    private func container(@ViewBuilder _ content: () -> some View) -> some View {
+        VStack(spacing: 0) {
+            Rectangle()
+                .fill(HolzBarTheme.Palette.stroke)
+                .frame(height: HolzBarTheme.Spacing.hairline)
+            content()
+                .padding(.horizontal, HolzBarTheme.Spacing.sm)
+                .padding(.vertical, HolzBarTheme.Spacing.xs)
+                .frame(
+                    minWidth: DesignTokens.Comfort.shelfNoticeMinWidth,
+                    maxWidth: DesignTokens.Comfort.shelfNoticeMaxWidth,
+                    alignment: .leading
+                )
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// The question for one app: its icon, its name with the Preview badge, the caption, and the
+    /// chips below. The block is one container whose chips are named buttons.
+    private func questionRow(for app: NewAppQuestion.App) -> some View {
+        container {
+            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
+                HStack(spacing: HolzBarTheme.Spacing.xs) {
+                    icon(for: app, size: Self.iconSize)
+                    VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
+                        nameLine(of: app)
+                        Text("New in the menu bar")
+                            .font(HolzBarTheme.Typography.caption)
+                            .foregroundStyle(Color.primary.opacity(0.7))
+                            .lineLimit(1)
+                    }
+                }
+                WrappingChipsLayout(spacing: HolzBarTheme.Spacing.xs, lineSpacing: HolzBarTheme.Spacing.xxs) {
+                    ForEach(Self.answersOffered(appState: appState), id: \.self) { answer in
+                        chip(answer, for: app)
+                    }
+                }
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text("Where should \(app.name) go?"))
+    }
+
+    /// The icon size of a question's row.
+    private static let iconSize: CGFloat = 20
+
+    private func icon(for app: NewAppQuestion.App, size: CGFloat) -> some View {
+        Group {
+            if let image = appState.newAppQuestions27.icon(for: app.bundleID) {
+                Image(nsImage: image)
+                    .resizable()
+                    .interpolation(.high)
+            } else {
+                Image(systemName: "app")
+                    .resizable()
+                    .scaledToFit()
+            }
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
+    }
+
+    /// The app's name on one line, tail truncated with the full name as the tooltip, and the
+    /// Preview badge after it.
+    private func nameLine(of app: NewAppQuestion.App) -> some View {
+        HStack(spacing: HolzBarTheme.Spacing.xs) {
+            Text(verbatim: app.name)
+                .font(HolzBarTheme.Typography.callout)
+                .foregroundStyle(Color.primary)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .help(app.name)
+            PreviewBadge()
+                .fixedSize()
+        }
+    }
+
+    /// The text of an answer's chip, which is also its tooltip.
+    private static func title(of answer: NewAppQuestion.Answer) -> String {
+        switch answer {
+        case .visible:
+            String(localized: "Visible")
+        case .hidden:
+            String(localized: "Hidden")
+        case .alwaysHidden:
+            String(localized: "Always Hidden")
+        case .dontAskAgain:
+            String(localized: "Don't ask again")
+        }
+    }
+
+    /// One answer's chip in the Shelf's chip look.
+    private func chip(_ answer: NewAppQuestion.Answer, for app: NewAppQuestion.App) -> some View {
+        let id = Self.chipID(bundleID: app.bundleID, answer: answer)
+        let isHighlighted = highlightedID == id
+        let title = Self.title(of: answer)
+        let appState = appState
+        return Text(verbatim: title)
+            .font(.caption.weight(.semibold))
+            .lineLimit(1)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 2)
+            .background(Capsule().fill(Color.primary.opacity(0.18)))
+            .padding(.horizontal, 3)
+            .frame(minHeight: HolzBarTheme.minimumTargetSize)
+            .contentShape(Rectangle())
+            .overlay {
+                HolzBarShelfClickView(
+                    toolTip: title,
+                    leftClickAction: {
+                        Self.activate(chipID: id, appState: appState)
+                    },
+                    rightClickAction: nil,
+                    drag: nil
+                )
+            }
+            .keyboardHighlight(isHighlighted)
+            .fixedSize()
+            .accessibilityElement(children: .ignore)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAddTraits(isHighlighted ? .isSelected : [])
+            .accessibilityLabel(Text(verbatim: title))
+            .accessibilityAction(.default) {
+                Self.activate(chipID: id, appState: appState)
+            }
     }
 
     /// The move chip, the busy state while a pass runs, or nothing when no app may move.

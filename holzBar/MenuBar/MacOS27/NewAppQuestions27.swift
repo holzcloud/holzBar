@@ -48,6 +48,18 @@ final class NewAppQuestions27 {
         appState?.settings.advanced.enableAlwaysHiddenSection ?? false
     }
 
+    /// The icon of an app to show beside its question: the running application's, else the one of
+    /// its bundle, else `nil`. It is read when a card draws and never kept.
+    func icon(for bundleID: String) -> NSImage? {
+        if let icon = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first?.icon {
+            return icon
+        }
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else {
+            return nil
+        }
+        return NSWorkspace.shared.icon(forFile: url.path)
+    }
+
     /// Notes the apps that appeared in the menu bar for the first time. Those that are never asked
     /// about are skipped; the others are kept on this Mac until answered (a quit does not lose
     /// them) and asked as soon as the gate is open.
