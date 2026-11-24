@@ -87,6 +87,8 @@ final class AdvancedSettings {
     var makeRoomMode: MakeRoomMode = .ask {
         didSet {
             Defaults.set(makeRoomMode.rawValue, forKey: .makeRoomMode)
+            // Automatic runs only in its mode; every other mode stops it.
+            appState?.makeRoomModeDidChange()
         }
     }
 
@@ -243,7 +245,7 @@ enum MakeRoomMode: Int, CaseIterable, Identifiable {
     case off = 0
     /// Shows a notice with a button that moves apps to Hidden.
     case ask = 1
-    /// Reserved for a later release; behaves like Ask until then.
+    /// Moves the apps by itself when macOS folds them, once per episode, with Undo.
     case automatic = 2
 
     var id: Int { rawValue }

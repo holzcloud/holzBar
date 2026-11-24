@@ -185,6 +185,44 @@ final class AppState {
         return makeRoom
     }
 
+    /// Storage for ``overflowAutoMove27``, typed loosely so the property exists on every macOS.
+    @ObservationIgnored private var overflowAutoMove27Storage: AnyObject?
+
+    /// Whether the setup got far enough for Automatic to start; the mode loaded from the stored
+    /// settings before that must not start it.
+    @ObservationIgnored private var mayStartAutomaticMove = false
+
+    /// Moves apps to Hidden by itself when macOS 27 folds them, in the mode Automatic; created on
+    /// first use.
+    @available(macOS 27.0, *)
+    var overflowAutoMove27: OverflowAutoMove27 {
+        if let automatic = overflowAutoMove27Storage as? OverflowAutoMove27 {
+            return automatic
+        }
+        let automatic = OverflowAutoMove27(appState: self)
+        overflowAutoMove27Storage = automatic
+        return automatic
+    }
+
+    /// Automatic when it exists; reading it never creates it, so in Off and Ask there is none.
+    @available(macOS 27.0, *)
+    var existingOverflowAutoMove27: OverflowAutoMove27? {
+        overflowAutoMove27Storage as? OverflowAutoMove27
+    }
+
+    /// "When the menu bar is full" changed, or the setup finished: Automatic runs only in the mode
+    /// Automatic, and an existing one stops in any other.
+    func makeRoomModeDidChange() {
+        guard #available(macOS 27.0, *), mayStartAutomaticMove else {
+            return
+        }
+        if settings.advanced.makeRoomMode == .automatic {
+            overflowAutoMove27.start()
+        } else {
+            existingOverflowAutoMove27?.stop()
+        }
+    }
+
     /// Storage for ``notShownList27``, typed loosely so the property exists on every macOS.
     @ObservationIgnored private var notShownList27Storage: AnyObject?
 
@@ -380,6 +418,9 @@ final class AppState {
             if settings.advanced.asksWhereNewAppGoes, let kept = Defaults.stringArray(forKey: .newAppQuestionPending), !kept.isEmpty {
                 _ = newAppQuestions27
             }
+            // Automatic starts here when it is the stored mode; before this point it must not.
+            mayStartAutomaticMove = true
+            makeRoomModeDidChange()
         }
         await itemManager.performSetup(with: self)
         imageCache.performSetup(with: self)

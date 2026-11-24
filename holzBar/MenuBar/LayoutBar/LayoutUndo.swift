@@ -104,8 +104,14 @@ final class LayoutUndo {
 
     /// Records a change after which the sections of `before` are to be put back: Apply, Tidy
     /// Up, a suggestion, a profile (D-15). The order within a section is not part of it.
-    func recordArrangementChange(_ sentence: String, before: LayoutSnapshot, place: Place) {
-        record(arrangementChange(sentence, before: before), place: place)
+    ///
+    /// - Returns: The identifier of the change in the history, for a notice that undoes the
+    ///   change on its own and then takes it out with ``forget(id:)``.
+    @discardableResult
+    func recordArrangementChange(_ sentence: String, before: LayoutSnapshot, place: Place) -> UUID {
+        let change = arrangementChange(sentence, before: before)
+        record(change, place: place)
+        return change.id
     }
 
     /// Undoes the newest change: the toast's button and the Undo button in Layout.

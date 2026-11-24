@@ -145,6 +145,7 @@ sources=(
   OnboardingPolicy
   OpenMenuWait
   OutputVolumePlan
+  OverflowAutoMove
   OwnBundle
   PauseState
   PermissionListing
@@ -324,6 +325,7 @@ tests=(
   OnboardingPolicyTests
   OpenMenuWaitTests
   OutputVolumePlanTests
+  OverflowAutoMoveTests
   OwnBundleTests
   PauseStateTests
   PermissionListingTests

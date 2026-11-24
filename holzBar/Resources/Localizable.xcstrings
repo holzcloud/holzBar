@@ -193518,6 +193518,383 @@
           }
         }
       }
+    },
+    "holzBar moved %lld items to Hidden to make room." : {
+      "comment" : "Undo toast and row in the Notices group after Automatic moved apps to Hidden by itself because the menu bar was full; the number is how many items it moved",
+      "localizations" : {
+        "cs" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar přesunul %lld položku do Skryté, aby uvolnil místo."
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar přesunul %lld položky do Skryté, aby uvolnil místo."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar přesunul %lld položek do Skryté, aby uvolnil místo."
+                }
+              }
+            }
+          }
+        },
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar hat %lld Element nach „Ausgeblendet“ verschoben, um Platz zu schaffen."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar hat %lld Elemente nach „Ausgeblendet“ verschoben, um Platz zu schaffen."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar moved %lld item to Hidden to make room."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar moved %lld items to Hidden to make room."
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar ha movido %lld elemento a Oculto para hacer sitio."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar ha movido %lld elementos a Oculto para hacer sitio."
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar a déplacé %lld élément vers Masqué pour faire de la place."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar a déplacé %lld éléments vers Masqué pour faire de la place."
+                }
+              }
+            }
+          }
+        },
+        "hu" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "A holzBar %lld elemet áthelyezett a Rejtett közé, hogy helyet csináljon."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "A holzBar %lld elemet áthelyezett a Rejtett közé, hogy helyet csináljon."
+                }
+              }
+            }
+          }
+        },
+        "id" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar memindahkan %lld item ke Tersembunyi untuk memberi ruang."
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar ha spostato %lld elemento in Nascosto per fare spazio."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar ha spostato %lld elementi in Nascosto per fare spazio."
+                }
+              }
+            }
+          }
+        },
+        "ja" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar が場所を空けるため、%lld 個の項目を「非表示」に移動しました。"
+                }
+              }
+            }
+          }
+        },
+        "ko" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar가 공간을 확보하기 위해 항목 %lld개를 숨김으로 이동했습니다."
+                }
+              }
+            }
+          }
+        },
+        "nl" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar heeft %lld onderdeel naar Verborgen verplaatst om ruimte te maken."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar heeft %lld onderdelen naar Verborgen verplaatst om ruimte te maken."
+                }
+              }
+            }
+          }
+        },
+        "pl" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar przeniósł %lld element do sekcji Ukryte, aby zrobić miejsce."
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar przeniósł %lld elementy do sekcji Ukryte, aby zrobić miejsce."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar przeniósł %lld elementów do sekcji Ukryte, aby zrobić miejsce."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar przeniósł %lld elementu do sekcji Ukryte, aby zrobić miejsce."
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "O holzBar moveu %lld item para Oculto para abrir espaço."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "O holzBar moveu %lld itens para Oculto para abrir espaço."
+                }
+              }
+            }
+          }
+        },
+        "rm" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar ha spustà %lld element a Zuppà per far plaz."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar ha spustà %lld elements a Zuppà per far plaz."
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar переместил %lld элемент в «Скрыто», чтобы освободить место."
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar переместил %lld элемента в «Скрыто», чтобы освободить место."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar переместил %lld элементов в «Скрыто», чтобы освободить место."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar переместил %lld элемента в «Скрыто», чтобы освободить место."
+                }
+              }
+            }
+          }
+        },
+        "sv" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar flyttade %lld objekt till Dold för att skapa plats."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar flyttade %lld objekt till Dold för att skapa plats."
+                }
+              }
+            }
+          }
+        },
+        "tr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar yer açmak için %lld öğeyi Gizli bölümüne taşıdı."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar yer açmak için %lld öğeyi Gizli bölümüne taşıdı."
+                }
+              }
+            }
+          }
+        },
+        "uk" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar перемістив %lld елемент до «Приховано», щоб звільнити місце."
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar перемістив %lld елементи до «Приховано», щоб звільнити місце."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar перемістив %lld елементів до «Приховано», щоб звільнити місце."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar перемістив %lld елемента до «Приховано», щоб звільнити місце."
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar 已将 %lld 个项目移至“隐藏”以腾出空间。"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar 已將 %lld 個項目移至「已隱藏」以騰出空間。"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

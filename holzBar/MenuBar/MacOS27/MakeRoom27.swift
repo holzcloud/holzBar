@@ -42,11 +42,11 @@ final class MakeRoom27 {
     /// The banner, or `nil` while the apps fit, nothing is known or no surface is open.
     private(set) var banner: Banner?
 
-    /// Whether the Shelf offers anything: not while "When the menu bar is full" is Off (D-10). The
-    /// Layout banner ignores the mode and shows without a switch (D-11). Automatic behaves as Ask
-    /// until a later release adds it.
+    /// Whether the Shelf offers anything: only in Ask (D-10). Off offers nothing, and Automatic
+    /// handles the overflow itself (D-11), so the Shelf shows no notice for it. The Layout banner
+    /// ignores the mode and shows without a switch (D-11).
     var offersInShelf: Bool {
-        appState?.settings.advanced.makeRoomMode != .off
+        appState?.settings.advanced.makeRoomMode == .ask
     }
 
     /// The banner the Shelf draws: the model's banner, or `nil` while the mode is Off.
@@ -56,6 +56,32 @@ final class MakeRoom27 {
 
     /// Whether a pass is running: the layout was written and the items are read again.
     private(set) var isRunningPass = false
+
+    /// Where a pass comes from.
+    enum PassOrigin {
+        /// The user pressed Move to Hidden: the banner's apps move.
+        case user
+        /// Automatic decided: the apps move that the planner names now, whether or not a banner shows.
+        case automatic
+    }
+
+    /// The last pass Automatic made: the Notices row says it and can undo it (UI-SPEC).
+    struct AutomaticPass {
+        /// How many apps the pass moved.
+        let count: Int
+        /// The arrangement before the pass, which Undo puts back.
+        let before: LayoutSnapshot
+        /// The pass's entry in the undo history, taken out when the row undoes it.
+        let changeID: UUID
+        /// The sentence of that entry's toast.
+        let sentence: String
+    }
+
+    /// The last pass Automatic made, until it is dismissed, undone or replaced by the next one.
+    private(set) var lastAutomaticPass: AutomaticPass?
+
+    /// Whether Layout is open: Automatic never acts then. Observed, so Automatic hears it close.
+    private(set) var isLayoutOpen = false
 
     /// How many apps of the last pass are still drawn in the Visible section after it.
     private(set) var failedCount = 0
@@ -116,6 +142,9 @@ final class MakeRoom27 {
     /// surface stays open.
     func surfaceDidOpen(_ surface: Surface) {
         surfaces.insert(surface)
+        if surface == .layout, !isLayoutOpen {
+            isLayoutOpen = true
+        }
         if loop == nil {
             // A banner that is already true shows at once; later changes wait for the settle time.
             settle = MenuBarFit.Settle(shown: .fits)
@@ -135,6 +164,9 @@ final class MakeRoom27 {
     /// A surface closed. With none left, the observation stops and the banner goes.
     func surfaceDidClose(_ surface: Surface) {
         surfaces.remove(surface)
+        if surface == .layout, isLayoutOpen {
+            isLayoutOpen = false
+        }
         guard surfaces.isEmpty else {
             return
         }
@@ -246,7 +278,10 @@ final class MakeRoom27 {
     }
 
     /// The model's inputs from the item cache and the display, or `nil` where there is no display.
-    private func reading(_ appState: AppState) -> Reading? {
+    ///
+    /// - Parameter forAutomatic: Whether Automatic asks: no surface shows every section and the
+    ///   last verdict does not widen the room, so only what macOS already did counts.
+    private func reading(_ appState: AppState, forAutomatic: Bool = false) -> Reading? {
         guard
             let displayID = appState.concealer27.nativeOverflow.displayID ?? Bridging.getActiveMenuBarDisplayID(),
             let screen = NSScreen.screens.first(where: { $0.displayID == displayID })
@@ -276,8 +311,8 @@ final class MakeRoom27 {
             room: room,
             apps: apps(appState, on: displayBounds, from: referenceX),
             native: native(appState.concealer27.nativeOverflow.state),
-            revealsAll: revealsAll(appState),
-            wasOverflowing: settle.shown.isOverflowing
+            revealsAll: forAutomatic ? false : revealsAll(appState),
+            wasOverflowing: forAutomatic ? false : settle.shown.isOverflowing
         )
         return Reading(input: input, hasNotch: hasNotch)
     }
@@ -438,29 +473,92 @@ final class MakeRoom27 {
         }
     }
 
+    // MARK: - Automatic
+
+    /// What Automatic sees now and whether a pass would move anything.
+    ///
+    /// Only a verdict that says macOS folded Visible apps away is `.folded`: a bar that merely
+    /// does not fit by the prediction, and a bar whose state cannot be told, are `.unknown`, so
+    /// Automatic never acts on a guess. A bar that fits is `.clear`.
+    func automaticReading() -> (OverflowAutoMove.Reading, hasCandidates: Bool) {
+        let evaluation = automaticEvaluation()
+        return (evaluation.reading, !evaluation.candidates.isEmpty)
+    }
+
+    private func automaticEvaluation() -> (reading: OverflowAutoMove.Reading, candidates: [MenuBarFit.App]) {
+        guard let appState, let reading = reading(appState, forAutomatic: true) else {
+            return (.unknown, [])
+        }
+        switch reading.verdict {
+        case .folded:
+            let usesUsage = appState.usage.isEnabled
+            return (.folded, MenuBarFit.plan(reading.input, verdict: reading.verdict, usesUsage: usesUsage))
+        case .fits:
+            // A bar whose overflow control cannot be read is not known to be clear.
+            return (reading.input.native == .unknown ? .unknown : .clear, [])
+        case .doesNotFit, .unknown:
+            return (.unknown, [])
+        }
+    }
+
+    /// Takes the Notices row of the last automatic pass away; the pass stays done.
+    func dismissAutomaticPass() {
+        lastAutomaticPass = nil
+    }
+
+    /// Puts the last automatic pass back, exactly that pass, and takes its entry out of the undo
+    /// history so a later Undo does not undo it twice.
+    func undoAutomaticPass() async {
+        guard let pass = lastAutomaticPass, let appState else {
+            return
+        }
+        lastAutomaticPass = nil
+        let undo = appState.layoutUndo
+        undo.forget(id: pass.changeID)
+        // The toast of that pass would otherwise offer an Undo that acts on another change.
+        if let toast = undo.toast, !toast.isFailure, toast.sentence == pass.sentence {
+            undo.dismissToast(id: toast.id)
+        }
+        _ = await undo.restoreArrangement(pass.before)
+    }
+
     // MARK: - A pass
 
-    /// Moves the banner's apps to Hidden: one layout write and one Undo step, nothing else moves.
+    /// Moves the apps to Hidden: one layout write and one Undo step, nothing else moves.
     ///
-    /// - Parameter place: Where the undo toast shows.
-    func moveCandidates(place: LayoutUndo.Place) {
-        guard
-            !isRunningPass,
-            let appState,
-            let candidates = banner?.candidates,
-            !candidates.isEmpty
-        else {
-            return
+    /// - Parameters:
+    ///   - place: Where the undo toast shows.
+    ///   - origin: The user's pass moves the banner's apps; Automatic's moves the ones the planner
+    ///     names now, and only while macOS has folded Visible apps away.
+    /// - Returns: Whether a pass ran.
+    @discardableResult
+    func moveCandidates(place: LayoutUndo.Place, origin: PassOrigin = .user) -> Bool {
+        guard !isRunningPass, let appState else {
+            return false
+        }
+        let candidates: [MenuBarFit.App]
+        switch origin {
+        case .user:
+            candidates = banner?.candidates ?? []
+        case .automatic:
+            let evaluation = automaticEvaluation()
+            candidates = evaluation.reading == .folded ? evaluation.candidates : []
+        }
+        guard !candidates.isEmpty else {
+            return false
         }
         let keys = candidates.map(\.key)
         let before = appState.layoutUndo.beforeSnapshot()
         appState.concealer27.setSections(Dictionary(uniqueKeysWithValues: keys.map { ($0, MacOS27Section.hidden) }))
         appState.automation.itemsWereArrangedByHand()
-        appState.layoutUndo.recordArrangementChange(
-            String(localized: "\(keys.count) items moved to Hidden"),
-            before: before,
-            place: place
-        )
+        // The toast says who moved the apps: holzBar did, when Automatic made the pass.
+        let sentence = origin == .automatic
+            ? String(localized: "holzBar moved \(keys.count) items to Hidden to make room.")
+            : String(localized: "\(keys.count) items moved to Hidden")
+        let changeID = appState.layoutUndo.recordArrangementChange(sentence, before: before, place: place)
+        if origin == .automatic {
+            lastAutomaticPass = AutomaticPass(count: keys.count, before: before, changeID: changeID, sentence: sentence)
+        }
         logger.info("A pass moved \(keys.count, privacy: .public) apps to Hidden")
         isRunningPass = true
         failedCount = 0
@@ -472,6 +570,7 @@ final class MakeRoom27 {
             }
             self?.passDidEnd(movedKeys: keys)
         }
+        return true
     }
 
     /// The items were read again: counts what stayed and evaluates the model once more.

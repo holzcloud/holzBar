@@ -16,21 +16,13 @@ struct MakingRoomGroup: View {
 
     var body: some View {
         SettingsGroup(SettingsCatalog.LayoutPane.makingRoom) {
-            SettingsPickerRow(.layoutMakeRoomMode, selection: modeBinding, badge: .preview) {
+            SettingsPickerRow(.layoutMakeRoomMode, selection: $advanced.makeRoomMode, badge: .preview) {
                 Text(MakeRoomMode.off.localized).tag(MakeRoomMode.off)
                 Text(MakeRoomMode.ask.localized).tag(MakeRoomMode.ask)
+                Text(MakeRoomMode.automatic.localized).tag(MakeRoomMode.automatic)
             }
             SettingsToggleRow(.layoutAsksWhereNewAppGoes, isOn: $advanced.asksWhereNewAppGoes, badge: .preview)
         }
-    }
-
-    /// The pop-up shows a stored Automatic as Ask until a later release lists it, because it
-    /// behaves as Ask until then; choosing never writes Automatic.
-    private var modeBinding: Binding<MakeRoomMode> {
-        Binding(
-            get: { advanced.makeRoomMode == .off ? .off : .ask },
-            set: { advanced.makeRoomMode = $0 }
-        )
     }
 }
 
