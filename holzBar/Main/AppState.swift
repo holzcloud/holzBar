@@ -185,6 +185,20 @@ final class AppState {
         return makeRoom
     }
 
+    /// Storage for ``notShownList27``, typed loosely so the property exists on every macOS.
+    @ObservationIgnored private var notShownList27Storage: AnyObject?
+
+    /// The apps macOS 27 does not show in the menu bar; it runs only while Layout is open.
+    @available(macOS 27.0, *)
+    var notShownList27: NotShownList27 {
+        if let list = notShownList27Storage as? NotShownList27 {
+            return list
+        }
+        let list = NotShownList27(appState: self)
+        notShownList27Storage = list
+        return list
+    }
+
     /// Storage for ``standInItems27``, typed loosely so the property exists on every macOS.
     @ObservationIgnored private var standInItems27Storage: AnyObject?
 

@@ -133,6 +133,7 @@ sources=(
   NotificationBannerParser
   NotificationLog
   NotificationQueue
+  NotShownApps
   NowPlayingModel
   NowPlayingPayload
   NowPlayingPlayers
@@ -310,6 +311,7 @@ tests=(
   NotificationBannerParserTests
   NotificationLogTests
   NotificationQueueTests
+  NotShownAppsTests
   NowPlayingModelTests
   NowPlayingPayloadTests
   NowPlayingPlayersTests

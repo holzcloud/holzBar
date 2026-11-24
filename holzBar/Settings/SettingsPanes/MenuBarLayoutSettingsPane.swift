@@ -38,6 +38,7 @@ struct MenuBarLayoutSettingsPane: View {
                 noticesGroup
                 if #available(macOS 27.0, *) {
                     MakingRoomGroup(advanced: appState.settings.advanced)
+                    NotShownGroup(list: appState.notShownList27)
                 }
                 UsageSuggestionsSection(usage: appState.usage)
                 SearchSettingsSection(general: appState.settings.general, opens: appState.searchOpens)
@@ -50,11 +51,13 @@ struct MenuBarLayoutSettingsPane: View {
             .onAppear {
                 if #available(macOS 27.0, *) {
                     appState.makeRoom27.surfaceDidOpen(.layout)
+                    appState.notShownList27.layoutDidOpen()
                 }
             }
             .onDisappear {
                 if #available(macOS 27.0, *) {
                     appState.makeRoom27.surfaceDidClose(.layout)
+                    appState.notShownList27.layoutDidClose()
                 }
             }
             .onChange(of: appState.automation.itemRuleNotices) { old, new in

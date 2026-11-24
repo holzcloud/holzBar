@@ -14,6 +14,7 @@ extension SettingsCatalog {
         static let changes = String(localized: "Changes")
         static let notices = String(localized: "Notices")
         static let makingRoom = String(localized: "Making room")
+        static let notShown = String(localized: "Not shown by macOS")
         static let suggestions = String(localized: "Suggestions")
         static let search = String(localized: "Search")
         static let pictures = String(localized: "Pictures of the items")

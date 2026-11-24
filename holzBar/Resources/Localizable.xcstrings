@@ -191257,6 +191257,958 @@
           }
         }
       }
+    },
+    "Not shown by macOS" : {
+      "comment" : "Title of a settings group in the Layout pane: the apps macOS does not show in the menu bar.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS nezobrazuje"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von macOS nicht angezeigt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS no las muestra"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non affichées par macOS"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A macOS nem jeleníti meg"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidak ditampilkan macOS"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non mostrate da macOS"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOSが表示しないもの"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS가 표시하지 않음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niet getoond door macOS"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie pokazuje macOS"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não exibidos pelo macOS"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betg mussà da macOS"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не показывает macOS"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visas inte av macOS"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS göstermiyor"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS не показує"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 未显示"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 未顯示"
+          }
+        }
+      }
+    },
+    "macOS decides what the menu bar shows. These apps are hidden by macOS, not by holzBar." : {
+      "comment" : "Footnote of the group Not shown by macOS in the Layout pane.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O tom, co řádek nabídek zobrazí, rozhoduje macOS. Tyto aplikace skrývá macOS, nikoli holzBar."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS entscheidet, was die Menüleiste zeigt. Diese Apps werden von macOS ausgeblendet, nicht von holzBar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS decide qué muestra la barra de menús. macOS oculta estas apps, no holzBar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS décide de ce que la barre des menus affiche. Ces apps sont masquées par macOS, pas par holzBar."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A macOS dönt arról, mit mutat a menüsor. Ezeket az alkalmazásokat a macOS rejti el, nem a holzBar."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS menentukan apa yang ditampilkan bar menu. Aplikasi ini disembunyikan oleh macOS, bukan oleh holzBar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS decide cosa mostra la barra dei menu. Queste app sono nascoste da macOS, non da holzBar."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メニューバーに何を表示するかはmacOSが決めます。これらのAppはholzBarではなく、macOSによって非表示にされています。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대에 무엇을 표시할지는 macOS가 결정합니다. 이 앱들은 holzBar가 아니라 macOS가 숨긴 것입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS bepaalt wat de menubalk toont. Deze apps worden door macOS verborgen, niet door holzBar."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To macOS decyduje, co pokazuje pasek menu. Te aplikacje ukrywa macOS, a nie holzBar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O macOS decide o que a barra de menus mostra. Estes apps são ocultados pelo macOS, não pelo holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS decida tge che la trav da menu mussa. Questas apps vegnan zuppadas da macOS, betg da holzBar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Что показывать в строке меню, решает macOS. Эти приложения скрыты macOS, а не holzBar."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS bestämmer vad menyraden visar. De här apparna döljs av macOS, inte av holzBar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menü çubuğunda nelerin görüneceğine macOS karar verir. Bu uygulamaları holzBar değil, macOS gizler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Що показувати в смузі меню, вирішує macOS. Ці програми приховує macOS, а не holzBar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "菜单栏显示什么由 macOS 决定。这些 App 是被 macOS 隐藏的，而不是被 holzBar 隐藏的。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選單列顯示什麼由 macOS 決定。這些 App 是被 macOS 隱藏的，而不是被 holzBar 隱藏的。"
+          }
+        }
+      }
+    },
+    "Not in Applications" : {
+      "comment" : "Short reason in a row of the group Not shown by macOS: the app runs from outside the Applications folder.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mimo složku Aplikace"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht im Ordner „Programme“"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No está en Aplicaciones"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hors du dossier Applications"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nincs az Alkalmazásokban"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidak di Aplikasi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non in Applicazioni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリケーションフォルダ外"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "응용 프로그램 폴더에 없음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niet in Apps"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poza folderem Programy"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fora de Aplicativos"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betg en Applicaziuns"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не в «Программах»"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inte i Program"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamalar’da değil"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не в «Програмах»"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不在“应用程序”中"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不在「應用程式」中"
+          }
+        }
+      }
+    },
+    "May be off in Settings" : {
+      "comment" : "Short reason in a row of the group Not shown by macOS: macOS may have switched the item off in System Settings.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Možná vypnuto v Nastavení"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Evtl. in den Einstellungen aus"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quizá desactivada en Ajustes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peut-être désactivée dans Réglages"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lehet, hogy ki van kapcsolva a Beállításokban"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mungkin nonaktif di Pengaturan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forse disattivata nelle Impostazioni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定でオフの可能性"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정에서 꺼져 있을 수 있음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mogelijk uit in Instellingen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Może być wyłączone w Ustawieniach"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pode estar desativado nos Ajustes"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forsa deactivà en las preferenzas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Возможно, выключено в настройках"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kan vara avstängd i Inställningar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayarlar’da kapalı olabilir"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Можливо, вимкнено в параметрах"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可能已在设置中关闭"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可能已在設定中關閉"
+          }
+        }
+      }
+    },
+    "No app identifier" : {
+      "comment" : "Short reason in a row of the group Not shown by macOS: a process without an app identifier (bundle identifier) owns a menu bar item.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bez identifikátoru aplikace"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine App-Kennung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin identificador de app"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun identifiant d’app"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nincs alkalmazásazonosító"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tanpa pengenal aplikasi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun identificatore app"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appの識別子なし"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱 식별자 없음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen app-identifier"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak identyfikatora aplikacji"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sem identificador do app"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagin identificatur dall’app"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет идентификатора приложения"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingen appidentifierare"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulama tanımlayıcısı yok"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Немає ідентифікатора програми"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无 App 标识符"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無 App 識別碼"
+          }
+        }
+      }
+    },
+    "macOS shows the items of apps in the Applications folder only. Move the app there and open it again." : {
+      "comment" : "Info of the reason Not in Applications in the group Not shown by macOS.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS zobrazuje jen položky aplikací ze složky Aplikace. Přesuňte aplikaci tam a otevřete ji znovu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS zeigt nur die Objekte von Apps aus dem Ordner „Programme“. Bewege die App dorthin und öffne sie erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS solo muestra los elementos de las apps que están en la carpeta Aplicaciones. Mueve la app allí y ábrela de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS n’affiche que les éléments des apps du dossier Applications. Déplacez l’app dans ce dossier et rouvrez-la."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A macOS csak az Alkalmazások mappában lévő appok elemeit mutatja. Helyezd át oda az appot, és nyisd meg újra."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS hanya menampilkan item dari aplikasi di folder Aplikasi. Pindahkan aplikasi ke sana dan buka lagi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS mostra solo gli elementi delle app presenti nella cartella Applicazioni. Sposta l’app lì e aprila di nuovo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOSが表示するのは、アプリケーションフォルダにあるAppの項目だけです。Appをそこへ移動して、もう一度開いてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS는 응용 프로그램 폴더에 있는 앱의 항목만 표시합니다. 앱을 그곳으로 옮긴 다음 다시 여십시오."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS toont alleen de onderdelen van apps in de map Apps. Verplaats de app daarheen en open hem opnieuw."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS pokazuje tylko elementy aplikacji z folderu Programy. Przenieś aplikację tam i otwórz ją ponownie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O macOS só mostra os itens de apps que estão na pasta Aplicativos. Mova o app para lá e abra-o novamente."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS mussa mo ils elements dad apps en l’ordinatur Applicaziuns. Spusta l’app là ed avra ella danovamain."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS показывает элементы только тех приложений, которые находятся в папке «Программы». Переместите приложение туда и откройте его снова."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS visar bara objekten från appar i mappen Program. Flytta appen dit och öppna den igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS yalnızca Uygulamalar klasöründeki uygulamaların öğelerini gösterir. Uygulamayı oraya taşıyın ve yeniden açın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS показує елементи лише тих програм, що лежать у папці «Програми». Перемістіть програму туди й відкрийте її знову."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 只显示位于“应用程序”文件夹中的 App 的项目。请将该 App 移到那里，然后重新打开。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 只會顯示位於「應用程式」檔案夾中的 App 的項目。請將該 App 移到那裡，然後重新打開。"
+          }
+        }
+      }
+    },
+    "macOS may have switched this item off. Look for it in System Settings, Menu Bar, and turn it on." : {
+      "comment" : "Info of the reason May be off in Settings in the group Not shown by macOS.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS mohl tuto položku vypnout. Najděte ji v Nastavení systému, Řádek nabídek, a zapněte ji."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS hat dieses Objekt möglicherweise ausgeschaltet. Suche es in den Systemeinstellungen unter „Menüleiste“ und schalte es ein."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es posible que macOS haya desactivado este elemento. Búscalo en Ajustes del Sistema, Barra de menús, y actívalo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS a peut-être désactivé cet élément. Cherchez-le dans Réglages Système, Barre des menus, et activez-le."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A macOS kikapcsolhatta ezt az elemet. Keresd meg a Rendszerbeállítások Menüsor részében, és kapcsold be."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS mungkin telah menonaktifkan item ini. Cari di Pengaturan Sistem, Bar menu, lalu aktifkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS potrebbe aver disattivato questo elemento. Cercalo in Impostazioni di Sistema, Barra dei menu, e attivalo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOSがこの項目をオフにした可能性があります。システム設定の「メニューバー」で探して、オンにしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS가 이 항목을 껐을 수 있습니다. 시스템 설정의 메뉴 막대에서 찾아 켜십시오."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS heeft dit onderdeel mogelijk uitgezet. Zoek het in Systeeminstellingen, Menubalk, en zet het aan."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS mogło wyłączyć ten element. Znajdź go w Ustawieniach systemowych, w sekcji Pasek menu, i włącz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O macOS pode ter desativado este item. Procure-o em Ajustes do Sistema, Barra de Menus, e ative-o."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS ha forsa deactivà quest element. Tschertga el en las preferenzas dal sistem, Trav da menu, ed activescha el."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Возможно, macOS выключила этот элемент. Найдите его в «Системных настройках» в разделе «Строка меню» и включите."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS kan ha stängt av objektet. Leta efter det i Systeminställningar, Menyrad, och slå på det."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS bu öğeyi kapatmış olabilir. Sistem Ayarları’nda Menü çubuğu bölümünde bulun ve açın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS могла вимкнути цей елемент. Знайдіть його в «Системних параметрах», у розділі «Смуга меню», і ввімкніть."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 可能已关闭此项目。请在“系统设置”的“菜单栏”中找到它并将其打开。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 可能已關閉此項目。請在「系統設定」的「選單列」中找到它並將其打開。"
+          }
+        }
+      }
+    },
+    "This app has no app identifier, so macOS cannot name its item and does not show it. Only its developer can fix this." : {
+      "comment" : "Info of the reason No app identifier in the group Not shown by macOS.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tato aplikace nemá identifikátor aplikace, takže macOS nemůže její položku pojmenovat a nezobrazí ji. Opravit to může jen její vývojář."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese App hat keine App-Kennung. macOS kann ihr Objekt deshalb nicht benennen und zeigt es nicht an. Nur ihr Entwickler kann das beheben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta app no tiene identificador de app, así que macOS no puede nombrar su elemento y no lo muestra. Solo su desarrollador puede solucionarlo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette app n’a pas d’identifiant d’app : macOS ne peut donc pas nommer son élément et ne l’affiche pas. Seul son développeur peut y remédier."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ennek az appnak nincs alkalmazásazonosítója, ezért a macOS nem tudja megnevezni az elemét, és nem jeleníti meg. Ezt csak a fejlesztője tudja javítani."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aplikasi ini tidak punya pengenal aplikasi, sehingga macOS tidak dapat menamai itemnya dan tidak menampilkannya. Hanya pengembangnya yang dapat memperbaikinya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa app non ha un identificatore app, quindi macOS non può nominare il suo elemento e non lo mostra. Solo il suo sviluppatore può risolvere il problema."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このAppには識別子がないため、macOSはその項目を特定できず、表示しません。修正できるのは開発元だけです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 앱에는 앱 식별자가 없어서 macOS가 해당 항목을 식별하지 못하고 표시하지 않습니다. 개발자만 이 문제를 해결할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze app heeft geen app-identifier, dus macOS kan het onderdeel niet benoemen en toont het niet. Alleen de ontwikkelaar kan dit oplossen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta aplikacja nie ma identyfikatora aplikacji, więc macOS nie może nazwać jej elementu i go nie pokazuje. Naprawić to może tylko jej twórca."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este app não tem identificador de app, então o macOS não consegue nomear o item dele e não o mostra. Só o desenvolvedor do app pode corrigir isso."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa app n’ha nagin identificatur dall’app; perquai na po macOS betg numnar siu element e na til mussa betg. Mo ses sviluppader po reparar quai."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У этого приложения нет идентификатора, поэтому macOS не может определить его элемент и не показывает его. Исправить это может только разработчик приложения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den här appen har ingen appidentifierare, så macOS kan inte namnge dess objekt och visar det inte. Bara utvecklaren kan åtgärda det."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu uygulamanın tanımlayıcısı olmadığından macOS öğesini adlandıramaz ve göstermez. Bunu yalnızca geliştiricisi düzeltebilir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У цієї програми немає ідентифікатора, тому macOS не може назвати її елемент і не показує його. Виправити це може лише її розробник."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 App 没有 App 标识符，因此 macOS 无法识别其项目，也就不会显示它。只有其开发者才能修复此问题。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 App 沒有 App 識別碼，因此 macOS 無法識別其項目，也就不會顯示它。只有其開發者才能修復此問題。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
