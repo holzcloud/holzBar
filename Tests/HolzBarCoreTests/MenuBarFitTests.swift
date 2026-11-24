@@ -11,7 +11,8 @@ struct MenuBarFitTests {
         movable: Bool = true,
         clicks: Int? = nil,
         launchedAt: Date? = nil,
-        distance: Double = 0
+        distance: Double = 0,
+        folded: Bool = false
     ) -> MenuBarFit.App {
         MenuBarFit.App(
             key: key,
@@ -20,7 +21,8 @@ struct MenuBarFitTests {
             isMovable: movable,
             clicks: clicks,
             launchedAt: launchedAt,
-            distanceFromNotch: distance
+            distanceFromNotch: distance,
+            isFolded: folded
         )
     }
 
@@ -28,9 +30,10 @@ struct MenuBarFitTests {
         room: Double? = 643,
         apps: [MenuBarFit.App],
         native: MenuBarFit.Native = .none,
+        revealsAll: Bool = false,
         wasOverflowing: Bool = false
     ) -> MenuBarFit.Input {
-        MenuBarFit.Input(room: room, apps: apps, native: native, revealsAll: false, wasOverflowing: wasOverflowing)
+        MenuBarFit.Input(room: room, apps: apps, native: native, revealsAll: revealsAll, wasOverflowing: wasOverflowing)
     }
 
     /// `count` one-item apps of 34 points, nearest the notch first.
@@ -234,5 +237,87 @@ struct MenuBarFitTests {
         let list = [app("some", clicks: 3), app("unrecorded", clicks: nil)]
         let plan = MenuBarFit.plan(input(room: 40, apps: list), verdict: .doesNotFit(items: 1), usesUsage: true)
         #expect(plan.first?.key == "unrecorded")
+    }
+
+    // MARK: - Folded
+
+    /// Fits in the room: five apps, two of them folded.
+    private func foldedApps() -> [MenuBarFit.App] {
+        [
+            app("a", distance: 0), app("b", distance: 32),
+            app("docker", distance: 64, folded: true), app("slack", distance: 96, folded: true),
+        ]
+    }
+
+    @Test("A collapsed bar with folded Visible apps says folded, with their names in bar order")
+    func foldedCollapsed() {
+        let verdict = MenuBarFit.evaluate(input(apps: foldedApps(), native: .collapsed))
+        #expect(verdict == .folded(names: ["docker", "slack"], items: 2))
+        #expect(verdict.isOverflowing)
+    }
+
+    @Test("Folded wins over does-not-fit")
+    func foldedWinsOverPrediction() {
+        // 21 apps do not fit; the last one is folded: the verdict is the fold, not the prediction.
+        var list = apps(21)
+        list[20].isFolded = true
+        #expect(MenuBarFit.evaluate(input(apps: list, native: .collapsed)) == .folded(names: ["app20"], items: 1))
+        #expect(MenuBarFit.evaluate(input(apps: list, native: .none)) == .doesNotFit(items: 1))
+    }
+
+    @Test("Collapsed with no folded Visible app falls back to the prediction")
+    func collapsedWithoutFoldedApps() {
+        #expect(MenuBarFit.evaluate(input(apps: apps(5), native: .collapsed)) == .fits)
+        #expect(MenuBarFit.evaluate(input(apps: apps(21), native: .collapsed)) == .doesNotFit(items: 1))
+    }
+
+    @Test("A folded app counts only while the control is collapsed")
+    func foldedNeedsCollapsedControl() {
+        #expect(MenuBarFit.evaluate(input(apps: foldedApps(), native: .none)) == .fits)
+        #expect(MenuBarFit.evaluate(input(apps: foldedApps(), native: .unknown)) == .fits)
+    }
+
+    @Test("While a surface shows every section, folded needs a folded Visible app and a does-not-fit prediction (C7)")
+    func foldedWhileRevealingAll() {
+        // The prediction says the apps fit: nothing is folded for lack of room, whatever macOS shows.
+        #expect(MenuBarFit.evaluate(input(apps: foldedApps(), native: .collapsed, revealsAll: true)) == .fits)
+        // The prediction says they do not fit, but no Visible app is folded: the prediction stands.
+        #expect(MenuBarFit.evaluate(input(apps: apps(21), native: .collapsed, revealsAll: true)) == .doesNotFit(items: 1))
+        // Both agree: folded.
+        var list = apps(21)
+        list[19].isFolded = true
+        list[20].isFolded = true
+        #expect(
+            MenuBarFit.evaluate(input(apps: list, native: .collapsed, revealsAll: true))
+                == .folded(names: ["app19", "app20"], items: 2)
+        )
+    }
+
+    @Test("A folded verdict without a room plans against the pitches of the folded apps")
+    func foldedPlansWithoutRoom() {
+        let list = (0..<6).map { app("app\($0)", distance: Double($0) * 32, folded: $0 >= 4) }
+        let verdict = MenuBarFit.evaluate(input(room: nil, apps: list, native: .collapsed))
+        #expect(verdict == .folded(names: ["app4", "app5"], items: 2))
+        // The two folded apps are 64 points of pitch: two apps of 32 free exactly that.
+        let plan = MenuBarFit.plan(input(room: nil, apps: list, native: .collapsed), verdict: verdict, usesUsage: false)
+        #expect(plan.count == 2)
+    }
+
+    @Test("A folded verdict plans for the folded pitches even when the prediction fits")
+    func foldedPlansBeyondPrediction() {
+        let list = (0..<6).map { app("app\($0)", distance: Double($0) * 32, folded: $0 >= 3) }
+        let verdict = MenuBarFit.evaluate(input(apps: list, native: .collapsed))
+        #expect(verdict == .folded(names: ["app3", "app4", "app5"], items: 3))
+        // Three folded apps of 32 points need three apps moved (never more than three).
+        #expect(MenuBarFit.plan(input(apps: list, native: .collapsed), verdict: verdict, usesUsage: false).count == 3)
+    }
+
+    @Test("The sentence names the first two apps and counts the rest")
+    func sentenceNames() {
+        #expect(MenuBarFit.sentenceNames([]) == (shown: [], more: 0))
+        #expect(MenuBarFit.sentenceNames(["Docker"]) == (shown: ["Docker"], more: 0))
+        #expect(MenuBarFit.sentenceNames(["Docker", "Slack"]) == (shown: ["Docker", "Slack"], more: 0))
+        #expect(MenuBarFit.sentenceNames(["Docker", "Slack", "Mail"]) == (shown: ["Docker", "Slack"], more: 1))
+        #expect(MenuBarFit.sentenceNames(["a", "b", "c", "d", "e"]) == (shown: ["a", "b"], more: 3))
     }
 }

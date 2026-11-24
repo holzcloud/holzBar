@@ -62,6 +62,15 @@ struct MakeRoomBanner: View {
     }
 
     private func sentence(for banner: MakeRoom27.Banner) -> String {
+        if case let .folded(names, _) = banner.verdict {
+            // The first two names, then the rest as a count, verbatim.
+            let parts = MenuBarFit.sentenceNames(names)
+            var namesText = parts.shown.joined(separator: ", ")
+            if parts.more > 0 {
+                namesText += " +\(parts.more)"
+            }
+            return String(localized: "Folded away: \(namesText)")
+        }
         let items = itemCount(of: banner)
         return banner.hasNotch
             ? String(localized: "\(items) items do not fit beside the notch")
@@ -75,12 +84,28 @@ struct MakeRoomBanner: View {
         guard !banner.candidates.isEmpty else {
             return String(localized: "Nothing can move: the rest are Apple's items, holzBar's own or protected. Quit an app or remove an item to make room.")
         }
-        let why = banner.hasNotch
-            ? String(localized: "These items are wider than the room beside the notch, so macOS folds some away.")
-            : String(localized: "These items are wider than the room in the menu bar, so macOS folds some away.")
+        let why: String
+        let can: String
+        if case .folded = banner.verdict {
+            why = String(localized: "macOS ran out of room and folded these items away.")
+            can = canMoveAFewAtATime(for: banner)
+        } else {
+            why = banner.hasNotch
+                ? String(localized: "These items are wider than the room beside the notch, so macOS folds some away.")
+                : String(localized: "These items are wider than the room in the menu bar, so macOS folds some away.")
+            can = canMakeRoom(for: banner)
+        }
         // The names are the apps' own, shown as they are; they never reach a log line.
         let names = ListFormatter.localizedString(byJoining: banner.candidates.map(\.name))
-        return [why, canMakeRoom(for: banner), String(localized: "You can undo it."), names].joined(separator: " ")
+        return [why, can, String(localized: "You can undo it."), names].joined(separator: " ")
+    }
+
+    /// What the Folded variant says holzBar can do (D-17): the apps you use least while Usage
+    /// suggestions is on, some apps otherwise, a few at a time.
+    private func canMoveAFewAtATime(for banner: MakeRoom27.Banner) -> String {
+        banner.usesUsage
+            ? String(localized: "holzBar can move the apps you use least to Hidden, a few at a time.")
+            : String(localized: "holzBar can move some apps to Hidden, a few at a time.")
     }
 
     /// The apps you use least while Usage suggestions is on, some apps otherwise (D-17).

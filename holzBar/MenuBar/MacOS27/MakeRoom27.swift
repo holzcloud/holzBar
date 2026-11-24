@@ -60,12 +60,14 @@ final class MakeRoom27 {
         var items: [ItemSignature]
         var usageIsEnabled: Bool
         var menuFrame: CGRect?
+        var revealsAll: Bool
     }
 
-    /// An item's window and where it is drawn.
+    /// An item's window and where it is drawn; an item macOS folded away is not drawn.
     private struct ItemSignature: Equatable {
         let windowID: CGWindowID
         let bounds: CGRect
+        let isOnScreen: Bool
     }
 
     /// The model's inputs with what the banner needs besides them.
@@ -86,7 +88,7 @@ final class MakeRoom27 {
         surfaces.insert(surface)
         if loop == nil {
             loop = ObservationLoop.observe({ [weak self] in
-                self?.trigger() ?? Trigger(overflow: .unknown, items: [], usageIsEnabled: false, menuFrame: nil)
+                self?.trigger() ?? Trigger(overflow: .unknown, items: [], usageIsEnabled: false, menuFrame: nil, revealsAll: false)
             }, onChange: { [weak self] _ in
                 self?.evaluate()
             })
@@ -113,12 +115,20 @@ final class MakeRoom27 {
     /// Reads what the observation watches, which registers the observation too.
     private func trigger() -> Trigger {
         guard let appState else {
-            return Trigger(overflow: .unknown, items: [], usageIsEnabled: false, menuFrame: nil)
+            return Trigger(overflow: .unknown, items: [], usageIsEnabled: false, menuFrame: nil, revealsAll: false)
         }
         let overflow = appState.concealer27.nativeOverflow
-        let items = appState.itemManager.itemCache[.visible].map { ItemSignature(windowID: $0.windowID, bounds: $0.bounds) }
+        let items = appState.itemManager.itemCache[.visible].map {
+            ItemSignature(windowID: $0.windowID, bounds: $0.bounds, isOnScreen: $0.isOnScreen)
+        }
         let menuFrame = overflow.displayID.flatMap { appState.applicationMenuFrames.frames[$0] }
-        return Trigger(overflow: overflow, items: items, usageIsEnabled: appState.usage.isEnabled, menuFrame: menuFrame)
+        return Trigger(
+            overflow: overflow,
+            items: items,
+            usageIsEnabled: appState.usage.isEnabled,
+            menuFrame: menuFrame,
+            revealsAll: revealsAll(appState)
+        )
     }
 
     /// Asks the model and keeps the banner when it changed.
@@ -178,10 +188,16 @@ final class MakeRoom27 {
             room: room,
             apps: apps(appState, on: displayBounds, from: referenceX),
             native: native(appState.concealer27.nativeOverflow.state),
-            revealsAll: false,
+            revealsAll: revealsAll(appState),
             wasOverflowing: banner?.verdict.isOverflowing == true
         )
         return Reading(input: input, hasNotch: hasNotch)
+    }
+
+    /// Whether a surface shows every section now (Layout): macOS may fold items only because they
+    /// are shown, so a fold counts only when the prediction agrees (C7).
+    private func revealsAll(_ appState: AppState) -> Bool {
+        appState.concealer27.revealState(appState) == .allRevealed
     }
 
     private func native(_ state: NativeOverflowState27) -> MenuBarFit.Native {
@@ -218,6 +234,10 @@ final class MakeRoom27 {
                 groups.append(AppGroup(key: key, items: [item]))
             }
         }
+        // Items macOS folded behind its overflow control are in the cache, not drawn, at the frame
+        // they were last read at; their widths count like any other item's. Only Visible-section
+        // apps are in `items`, so an app of a hidden section is never named (C7).
+        let foldedIDs = Set(MenuBarItemProvider27.foldedItems().map(\.windowID))
         var facts = ItemFactsReader()
         let controlled = appState.automation.controlledItemKeys
         let usesUsage = appState.usage.isEnabled
@@ -243,7 +263,8 @@ final class MakeRoom27 {
                 isMovable: isMovable,
                 clicks: clicks,
                 launchedAt: NSRunningApplication.runningApplications(withBundleIdentifier: group.key).first?.launchDate,
-                distanceFromNotch: Double(first.bounds.minX - referenceX)
+                distanceFromNotch: Double(first.bounds.minX - referenceX),
+                isFolded: group.items.contains { foldedIDs.contains($0.windowID) }
             )
         }
     }

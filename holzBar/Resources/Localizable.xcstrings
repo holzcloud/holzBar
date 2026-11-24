@@ -189948,6 +189948,482 @@
           }
         }
       }
+    },
+    "Folded away: %@" : {
+      "comment" : "Sentence of the banner in Layout when macOS folded apps of the Visible section away; the text is the first two app names, then a plus sign and the number of the rest, for example: Docker, Slack +2",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sbaleno: %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weggeklappt: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plegados: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repliés : %@"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Behajtogatva: %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terlipat: %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripiegati: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "たたまれた項目: %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "접힌 항목: %@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weggevouwen: %@"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwinięte: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recolhidos: %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plegads: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свернуто: %@"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bortvikta: %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Katlandı: %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Згорнуто: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已折叠：%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已摺疊：%@"
+          }
+        }
+      }
+    },
+    "macOS ran out of room and folded these items away." : {
+      "comment" : "First sentence of the info of the banner when macOS folded apps of the Visible section away",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS došlo místo a tyto položky sbalil."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS hatte nicht genug Platz und hat diese Elemente weggeklappt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS se quedó sin espacio y plegó estos elementos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS manquait de place et a replié ces éléments."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A macOS-nek elfogyott a helye, ezért behajtogatta ezeket az elemeket."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS kehabisan ruang dan melipat item-item ini."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS ha esaurito lo spazio e ha ripiegato questi elementi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS の空き領域が足りなくなり、これらの項目をたたみました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS의 공간이 부족해 이 항목들을 접었습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS had geen ruimte meer en heeft deze onderdelen weggevouwen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS zabrakło miejsca i zwinął te elementy."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O macOS ficou sem espaço e recolheu esses itens."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS n'ha betg gì avunda plaz e ha plià quests elements."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS закончилось место, и она свернула эти элементы."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS fick slut på utrymme och vek bort de här objekten."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS’in yeri kalmadı ve bu öğeleri katladı."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS закінчилося місце, і вона згорнула ці елементи."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 的空间不足，已折叠这些项目。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 的空間不足，已摺疊這些項目。"
+          }
+        }
+      }
+    },
+    "holzBar can move the apps you use least to Hidden, a few at a time." : {
+      "comment" : "Sentence of the info of the folded-items banner while Usage suggestions is on; it says what one click does, not that room appears",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar může přesunout nejméně používané aplikace do Skryté, po několika najednou."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar kann die Apps, die du am seltensten nutzt, nach „Ausgeblendet“ verschieben, ein paar auf einmal."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar puede mover a Oculto las apps que menos usas, unas pocas cada vez."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar peut déplacer vers Masqué les apps que vous utilisez le moins, quelques-unes à la fois."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar át tudja helyezni a legkevesebbet használt appokat a Rejtett közé, egyszerre néhányat."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar dapat memindahkan app yang paling jarang Anda pakai ke Tersembunyi, beberapa sekaligus."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar può spostare in Nascosto le app che usi meno, poche alla volta."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar は、あまり使わないアプリを数個ずつ「非表示」に移せます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar는 가장 적게 사용하는 앱을 한 번에 몇 개씩 숨김으로 옮길 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar kan de apps die je het minst gebruikt naar Verborgen verplaatsen, een paar tegelijk."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar może przenieść najrzadziej używane aplikacje do sekcji Ukryte, po kilka naraz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar pode mover para Oculto os apps que você menos usa, poucos de cada vez."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar po spustar las apps che ins duvra il main a Zuppà, in pèr a la giada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar может переместить редко используемые приложения в «Скрыто», по несколько за раз."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar kan flytta de appar du använder minst till Dold, några åt gången."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar, en az kullandığın uygulamaları her seferinde birkaç tanesini Gizli bölümüne taşıyabilir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar може перемістити програми, якими ви користуєтеся найменше, до «Приховано», по кілька за раз."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 可以把你最少使用的 App 每次几个地移到“隐藏”。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 可以把你最少使用的 App 每次幾個地移至「已隱藏」。"
+          }
+        }
+      }
+    },
+    "holzBar can move some apps to Hidden, a few at a time." : {
+      "comment" : "Sentence of the info of the folded-items banner while Usage suggestions is off; it says what one click does, not that room appears",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar může přesunout některé aplikace do Skryté, po několika najednou."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar kann einige Apps nach „Ausgeblendet“ verschieben, ein paar auf einmal."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar puede mover algunas apps a Oculto, unas pocas cada vez."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar peut déplacer certaines apps vers Masqué, quelques-unes à la fois."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar át tud helyezni néhány appot a Rejtett közé, egyszerre csak keveset."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar dapat memindahkan beberapa app ke Tersembunyi, sedikit demi sedikit."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar può spostare alcune app in Nascosto, poche alla volta."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar は、一部のアプリを数個ずつ「非表示」に移せます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar는 일부 앱을 한 번에 몇 개씩 숨김으로 옮길 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar kan een aantal apps naar Verborgen verplaatsen, een paar tegelijk."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar może przenieść niektóre aplikacje do sekcji Ukryte, po kilka naraz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar pode mover alguns apps para Oculto, poucos de cada vez."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar po spustar enqual apps a Zuppà, in pèr a la giada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar может переместить часть приложений в «Скрыто», по несколько за раз."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar kan flytta några appar till Dold, några åt gången."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar, bazı uygulamaları her seferinde birkaç tanesini Gizli bölümüne taşıyabilir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar може перемістити частину програм до «Приховано», по кілька за раз."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 可以把部分 App 每次几个地移到“隐藏”。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 可以把部分 App 每次幾個地移至「已隱藏」。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

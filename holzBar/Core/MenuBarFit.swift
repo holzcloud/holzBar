@@ -187,7 +187,43 @@ nonisolated enum MenuBarFit {
     /// limit: items, not apps, so it can differ from the number of apps a pass moves.
     ///
     /// Folded apps are counted with the widths they were last read at, like any other.
+    ///
+    /// What macOS already did wins over the prediction (D-08): while the overflow control is
+    /// collapsed, Visible apps that are folded give ``Verdict/folded(names:items:)``. While a
+    /// surface shows every section (`revealsAll`, Layout), macOS may fold items only because
+    /// they are shown, so the fold counts only when the prediction from the Visible apps' widths
+    /// agrees that they do not fit and a Visible app is folded (C7, D-25). Apps of the hidden
+    /// sections are never in `apps`, so they are never named.
     static func evaluate(_ input: Input) -> Verdict {
+        let prediction = predict(input)
+        let folded = input.apps.filter(\.isFolded)
+        guard !folded.isEmpty else {
+            return prediction
+        }
+        let isFold: Bool
+        if input.revealsAll {
+            if case .doesNotFit = prediction {
+                isFold = true
+            } else {
+                isFold = false
+            }
+        } else {
+            isFold = input.native == .collapsed
+        }
+        guard isFold else {
+            return prediction
+        }
+        return .folded(names: folded.map(\.name), items: folded.reduce(0) { $0 + max(1, $1.itemWidths.count) })
+    }
+
+    /// The names a sentence shows and how many more there are: the first two, then the rest as a
+    /// count (for "Folded away: Docker, Slack +2").
+    static func sentenceNames(_ names: [String]) -> (shown: [String], more: Int) {
+        (Array(names.prefix(2)), max(0, names.count - 2))
+    }
+
+    /// The prediction alone, from the widths and the room.
+    private static func predict(_ input: Input) -> Verdict {
         let items = flatItems(of: input.apps)
         guard !items.isEmpty else {
             return .fits
@@ -225,10 +261,21 @@ nonisolated enum MenuBarFit {
     ///
     /// - Returns: The empty list when the bar is not full, the room is unknown or nothing may move.
     static func plan(_ input: Input, verdict: Verdict, usesUsage: Bool) -> [App] {
-        guard verdict.isOverflowing, let room = input.room, room.isFinite else {
+        guard verdict.isOverflowing else {
             return []
         }
-        let deficit = sum(of: flatItems(of: input.apps)) - (room - Policy.margin)
+        var deficit = -Double.infinity
+        if let room = input.room, room.isFinite {
+            deficit = sum(of: flatItems(of: input.apps)) - (room - Policy.margin)
+        }
+        if case .folded = verdict {
+            // macOS folded these apps away: the room they need back is at least their pitches,
+            // whatever the prediction says, and it is the whole answer without a room.
+            deficit = max(deficit, input.apps.filter(\.isFolded).reduce(0) { $0 + $1.pitch })
+        }
+        guard deficit.isFinite else {
+            return []
+        }
         var chosen = [App]()
         var freed = 0.0
         for candidate in input.apps.filter(\.isMovable).sorted(by: { precedes($0, $1, usesUsage: usesUsage) }) {
