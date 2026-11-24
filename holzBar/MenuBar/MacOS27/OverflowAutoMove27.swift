@@ -56,11 +56,6 @@ final class OverflowAutoMove27 {
         self.appState = appState
     }
 
-    /// Whether Automatic is running.
-    var isRunning: Bool {
-        loop != nil
-    }
-
     /// Starts watching and evaluates once. The quiet start begins now, so nothing moves in the
     /// first minute after the mode is switched on.
     func start() {
