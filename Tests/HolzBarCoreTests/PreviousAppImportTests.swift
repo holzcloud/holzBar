@@ -661,6 +661,39 @@ struct PreviousAppImportTests {
         #expect(result.writes.isEmpty)
         #expect(result.ignoredCount == 0)
     }
+
+    // MARK: Source recognition
+
+    @Test("A Thaw fixture is Thaw's and a Hidden Bar fixture is Hidden Bar's, neither carrying a bundle identifier")
+    func recognizesBothSources() {
+        #expect(PreviousAppImport.recognize(thawFixture(booleans: true)) == .thaw)
+        #expect(PreviousAppImport.recognize(hiddenBarFixture()) == .hiddenBar)
+        #expect(PreviousAppImport.recognize(["ShowOnClick": true]) == .thaw)
+        #expect(PreviousAppImport.recognize(["MenuBarAppearanceConfigurationV2": Data([1])]) == .thaw)
+        #expect(PreviousAppImport.recognize(["isAutoHide": 0]) == .hiddenBar)
+        #expect(PreviousAppImport.recognize(["globalKey": Data([1])]) == .hiddenBar)
+    }
+
+    @Test("An empty dictionary and one of unrelated keys are recognised as nothing")
+    func recognizesNothing() {
+        #expect(PreviousAppImport.recognize([:]) == nil)
+        #expect(PreviousAppImport.recognize(["CFBundleName": "Something", "NSWindow Frame Settings": "1 2 3 4", "Volume": 0.5]) == nil)
+        // The keys of the never-import list and of the ignored list name no source by themselves.
+        #expect(PreviousAppImport.recognize(["LastActiveProfileID": "x", "arrowStyle": "chevron"]) == nil)
+    }
+
+    @Test("A dictionary with keys of both tables is refused, so a mixed file picks no table")
+    func recognizesNothingForBothTables() {
+        #expect(PreviousAppImport.recognize(["ShowOnClick": true, "isAutoHide": 1]) == nil)
+        #expect(PreviousAppImport.recognize(["hoverToExpand": 1, "RehideInterval": 10]) == nil)
+        #expect(PreviousAppImport.recognize(thawFixture(booleans: true).merging(hiddenBarFixture()) { first, _ in first }) == nil)
+    }
+
+    @Test("Recognition reads only the keys, never a bundle identifier or a value")
+    func recognitionIgnoresIdentifiersAndValues() {
+        #expect(PreviousAppImport.recognize(["CFBundleIdentifier": "com.stonerl.Thaw", "version": 1]) == nil)
+        #expect(PreviousAppImport.recognize(["ShowOnClick": "not a Boolean", "CFBundleIdentifier": "com.dwarvesv.minimalbar"]) == .thaw)
+    }
 }
 
 @Suite("ImportBackupRecord")

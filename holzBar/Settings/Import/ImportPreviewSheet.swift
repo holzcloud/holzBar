@@ -3,6 +3,7 @@
 //  holzBar
 //
 
+import AppKit
 import SwiftUI
 
 /// The two-step sheet that brings another app's settings into holzBar: first the choice of the
@@ -23,6 +24,8 @@ struct ImportPreviewSheet: View {
     /// What went wrong last; the sheet stays on its step.
     private enum Failure {
         case unreadable
+        /// The chosen file is not a settings file of either app.
+        case unusableFile
         /// The record of the previous settings could not be written, so nothing was imported.
         case backupFailed
         case applyFailed
@@ -49,7 +52,8 @@ struct ImportPreviewSheet: View {
     @State private var plan: ImportPlan?
     @State private var activity = Activity.idle
     @State private var failure: Failure?
-    /// The source being read: its row shows the spinner while the sheet is reading.
+    /// The source being read: its row shows the spinner while the sheet is reading. While it is
+    /// `nil` and the sheet is reading, the file the user chose is being read.
     @State private var readingSource: ImportSource?
     /// Which apps are installed, found by their bundle identifiers when the sheet opens.
     @State private var installed = Dictionary(
@@ -92,6 +96,24 @@ struct ImportPreviewSheet: View {
                     sourceRow(source)
                 }
             }
+            // Whatever the detection of the two apps says, a settings file is always a way in: a
+            // build with another bundle identifier shows as not found.
+            SettingsGroup {
+                SettingsButtonRow(
+                    Text("Settings file"),
+                    info: Text("Use this for a settings file you exported or that holzBar cannot see.")
+                ) {
+                    if activity == .reading, readingSource == nil {
+                        ProgressView()
+                            .controlSize(.small)
+                    } else {
+                        Button("Choose File…") {
+                            chooseFile()
+                        }
+                        .disabled(activity == .reading)
+                    }
+                }
+            }
             if activity == .reading {
                 SettingsGroup {
                     SettingsStateLine(.info, Text("Reading settings…"))
@@ -99,6 +121,10 @@ struct ImportPreviewSheet: View {
             } else if failure == .unreadable {
                 SettingsGroup {
                     SettingsStateLine(.warning, Text("The settings could not be read. Choose a settings file instead."))
+                }
+            } else if failure == .unusableFile {
+                SettingsGroup {
+                    SettingsStateLine(.warning, Text("That file has no settings holzBar can use. Choose another file."))
                 }
             }
             HStack {
@@ -276,6 +302,43 @@ struct ImportPreviewSheet: View {
                 return
             }
             show(PreviousAppImporter.plan(for: source, settings: domain, appState: appState))
+        }
+    }
+
+    /// Asks for a settings file, reads it and moves to the preview of the app its keys name.
+    ///
+    /// The panel starts where macOS puts it and holzBar never points it into another app's folder;
+    /// only the file the user picks is read, as a size-limited regular local file.
+    private func chooseFile() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.propertyList]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        NSApp.activate()
+        guard panel.runModal() == .OK, let url = panel.url else {
+            return
+        }
+        failure = nil
+        readingSource = nil
+        activity = .reading
+        Task {
+            // Let the spinner draw before the read.
+            await Task.yield()
+            do {
+                let settings = try PreviousAppImporter.readFile(at: url)
+                guard let source = PreviousAppImport.recognize(settings) else {
+                    activity = .idle
+                    failure = .unusableFile
+                    return
+                }
+                show(PreviousAppImporter.plan(for: source, settings: settings, appState: appState))
+            } catch PreviousAppImporter.ImportError.unusableFile {
+                activity = .idle
+                failure = .unusableFile
+            } catch {
+                activity = .idle
+                failure = .unreadable
+            }
         }
     }
 

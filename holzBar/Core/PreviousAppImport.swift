@@ -271,6 +271,24 @@ nonisolated enum PreviousAppImport {
         }
     }
 
+    /// Which app a settings dictionary belongs to, decided by its keys alone, never by a bundle
+    /// identifier or a value (flagged assumption A12): the source whose table, rules and the names
+    /// it leaves out, holds at least one of the dictionary's keys, when no other source's table
+    /// holds one. A dictionary of neither, of unrelated keys, or with keys of both is `nil`. Only
+    /// the table is picked here; every value still passes the typed rules and holzBar's own
+    /// validation.
+    ///
+    /// A settings file of holzBar itself carries Ice's stored names and so reads as Thaw's; only the
+    /// shared, validated keys are merged.
+    static func recognize(_ settings: [String: Any]) -> ImportSource? {
+        let matching = ImportSource.allCases.filter { source in
+            let ruled = rules(for: source)
+            let omitted = omissions(for: source)
+            return settings.keys.contains { ruled[$0] != nil || omitted[$0] != nil }
+        }
+        return matching.count == 1 ? matching.first : nil
+    }
+
     /// The stored names of a source's settings that have a rule, with the holzBar setting each
     /// belongs to.
     static func sourceNames(of source: ImportSource) -> [String: Defaults.Key] {

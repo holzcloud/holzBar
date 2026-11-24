@@ -21,7 +21,22 @@ enum PreviousAppImporter {
     enum ImportError: Error {
         /// The record of the previous settings could not be written, so no key was touched.
         case backupFailed
+        /// The chosen file is not something holzBar reads as settings: not a regular local file,
+        /// too large, or not a property list dictionary.
+        case unusableFile
     }
+
+    /// What a read refuses before it looks at a single key: the file is not one holzBar reads.
+    /// Any other error of the read (no permission, the file is gone) is a read that failed.
+    private static let refusedFileCodes: Set<CocoaError.Code> = [
+        .fileReadUnsupportedScheme,
+        .fileReadUnknown,
+        .fileReadTooLarge,
+        .fileReadCorruptFile,
+        .propertyListReadCorrupt,
+        .propertyListReadUnknownVersion,
+        .propertyListReadStream,
+    ]
 
     /// Where the record of the settings before the last import lives: one file in holzBar's folder
     /// in Application Support, replaced by the next import.
@@ -42,6 +57,55 @@ enum PreviousAppImporter {
             return nil
         }
         return domain
+    }
+
+    /// Reads a settings file the user chose, as a property list dictionary.
+    ///
+    /// The same guards as the import of holzBar's own settings (``SettingsBackup``): a local file
+    /// only, a regular one, of at most the import size limit checked before the read and again on
+    /// the bytes read, decoded as a property list and never unarchived. Which app the dictionary
+    /// belongs to is decided afterwards, from its keys (``PreviousAppImport/recognize(_:)``).
+    ///
+    /// - Throws: ``ImportError/unusableFile`` when the URL is not a file, the file is not a regular
+    ///   one, is too large or is not a property list dictionary, and the system's error when the
+    ///   read itself fails (no permission, the file is gone).
+    static func readFile(at url: URL) throws -> [String: Any] {
+        do {
+            return try decodeFile(at: url)
+        } catch let error as CocoaError where refusedFileCodes.contains(error.code) {
+            throw ImportError.unusableFile
+        }
+    }
+
+    private static func decodeFile(at url: URL) throws -> [String: Any] {
+        // Data(contentsOf:) would fetch an http(s) URL; holzBar reads only files.
+        guard url.isFileURL else {
+            throw CocoaError(.fileReadUnsupportedScheme)
+        }
+        let file = url.resolvingSymlinksInPath()
+        let values = try file.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
+        // A pipe or a device could block the read or never end.
+        guard values.isRegularFile == true else {
+            throw CocoaError(.fileReadUnknown)
+        }
+        // A settings file is read whole into memory: one over the limit is refused unread.
+        if let size = values.fileSize, !SettingsSchema.acceptsImport(ofSize: size) {
+            throw CocoaError(.fileReadTooLarge)
+        }
+        let handle = try FileHandle(forReadingFrom: file)
+        defer {
+            try? handle.close()
+        }
+        // The size above can change after it was read, so the read itself stops one byte past
+        // the limit.
+        let data = try handle.read(upToCount: SettingsSchema.maximumImportSize + 1) ?? Data()
+        guard SettingsSchema.acceptsImport(ofSize: data.count) else {
+            throw CocoaError(.fileReadTooLarge)
+        }
+        guard let settings = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        return settings
     }
 
     /// What importing `settings` of the app would change in holzBar now.
