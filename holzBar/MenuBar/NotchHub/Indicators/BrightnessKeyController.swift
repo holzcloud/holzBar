@@ -19,9 +19,11 @@ import Observation
 /// switch is off nothing is loaded and the keys pass; an external monitor is never written while
 /// External monitors (DDC) is off.
 ///
-/// The key is already consumed when ``step(_:display:quarter:)`` runs, so a failed step shows
-/// nothing and counts against its gate; the third failure in a row switches the part off for the
-/// session, the snapshot of the tap is built again and the keys pass from then on.
+/// The key is already consumed when ``step(_:display:quarter:)`` runs, so a failed built-in step
+/// still shows the level the display has and counts against its gate; the third failure in a row
+/// switches the part off for the session, the snapshot of the tap is built again and the keys
+/// pass from then on. A step that finds the display gone from the snapshot's view shows nothing,
+/// and the caller builds the snapshot again so the next press passes.
 ///
 /// An external monitor is asked once per session, after the user's own brightness key (that first
 /// key passes to macOS): every external monitor is surveyed together so that two identical
@@ -234,9 +236,15 @@ final class BrightnessKeyController {
             return nil
         }
         let next = MediaKeyRule.next(level: current, code: code, quarter: quarter)
-        guard DisplayServicesBrightness.write(next, to: display), let readBack = DisplayServicesBrightness.read(display) else {
+        guard DisplayServicesBrightness.write(next, to: display) else {
+            // Counts against the gate, and the press is not dead: the flash shows the level the
+            // display still has.
             recordBuiltInFailure()
-            return nil
+            return current
+        }
+        guard let readBack = DisplayServicesBrightness.read(display) else {
+            recordBuiltInFailure()
+            return next
         }
         var gate = builtInGate
         gate.recordSuccess()

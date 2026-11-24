@@ -381,11 +381,15 @@ final class IndicatorsRuntime: HubModuleRuntime {
             break
         }
         guard let output = OutputVolume.current() else {
+            // The output went between the snapshot and the key: nothing can be done for this
+            // press, but the snapshot is built again at once so the next one passes (WR-02).
+            refreshMediaKeySnapshot()
             return
         }
         switch press.code {
         case .soundUp, .soundDown:
             guard let level = OutputVolume.volume(of: output.device, plan: output.plan) else {
+                refreshMediaKeySnapshot()
                 return
             }
             let next = MediaKeyRule.next(level: level, code: press.code, quarter: quarter)
@@ -663,6 +667,9 @@ final class IndicatorsRuntime: HubModuleRuntime {
         }
         Task { [weak self] in
             guard let level = await controller.step(code, display: display, quarter: quarter) else {
+                // The display can no longer be changed (a wake, a display change, an answer that
+                // is gone): the snapshot is built again at once so the next press passes (WR-02).
+                self?.refreshMediaKeySnapshot()
                 return
             }
             self?.presentBrightness(percent: DisplayControlsLevel.percent(level))
