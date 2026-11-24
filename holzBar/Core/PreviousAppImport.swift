@@ -176,9 +176,27 @@ nonisolated enum PreviousAppImport {
         "RehideStrategy": Rule(target: .rehideStrategy, translation: .choice(0...2)),
     ]
 
+    /// What Thaw has that the import names as not imported instead of ignoring it: the menu bar
+    /// appearance. Its stored configuration is a structure whose meaning differs between the apps
+    /// (D-16), so the first cut leaves it out and says so in the preview.
+    ///
+    /// Left out without a name, and only counted as ignored: the icon keys (`IceIcon`,
+    /// `CustomIceIconIsTemplate`), the divider style (`SectionDividerStyle`; its raw values mean
+    /// something else in each app, research Pitfall 1), the Shelf location, the new-items
+    /// placement, profiles, hooks and positions.
+    private static let thawOmissions: [String: Defaults.Key] = [
+        "MenuBarAppearanceConfigurationV2": .menuBarAppearanceConfigurationV2,
+    ]
+
     private static func rules(for source: ImportSource) -> [String: Rule] {
         switch source {
         case .thaw: thaw
+        }
+    }
+
+    private static func omissions(for source: ImportSource) -> [String: Defaults.Key] {
+        switch source {
+        case .thaw: thawOmissions
         }
     }
 
@@ -277,7 +295,11 @@ nonisolated enum PreviousAppImport {
         changes.sort {
             ($0.key.rawValue, $0.hotkeyAction ?? "") < ($1.key.rawValue, $1.hotkeyAction ?? "")
         }
-        let omissions: [ImportOmission] = []
+        let omittedNames = omissions(for: source)
+        let omissions = settings.keys
+            .compactMap { omittedNames[$0] }
+            .sorted { $0.rawValue < $1.rawValue }
+            .map { ImportOmission(key: $0, hotkeyAction: nil) }
         let ignored = max(0, sourceKeys - changes.count - unchanged - omissions.count)
         return ImportPlan(source: source, changes: changes, omissions: omissions, ignoredCount: ignored, writes: writes)
     }

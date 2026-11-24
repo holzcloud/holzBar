@@ -81,6 +81,17 @@ enum ImportTargets {
         return entry(for: change.key)
     }
 
+    /// The name the preview gives a setting the import leaves out: the pane that holds it, since the
+    /// menu bar appearance is one structure over many rows and no single row names it.
+    static func omissionLabel(for key: Defaults.Key) -> String {
+        switch key {
+        case .menuBarAppearanceConfigurationV2:
+            SettingsCatalog.AppearancePane.untitledGroup
+        default:
+            key.rawValue
+        }
+    }
+
     /// The place of the setting's row in the Settings window; settings without a row sort last.
     static func sortIndex(of key: Defaults.Key) -> Int {
         entry(for: key).flatMap { order[$0.id] } ?? Int.max

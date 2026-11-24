@@ -61,6 +61,7 @@ extension SettingsCatalog {
     enum ImportSheet {
         static let apps = String(localized: "Apps")
         static let changes = String(localized: "Changes")
+        static let notImported = String(localized: "Not imported")
     }
 }
 

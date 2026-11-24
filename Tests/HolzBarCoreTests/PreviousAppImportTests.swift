@@ -391,6 +391,60 @@ struct PreviousAppImportTests {
         #expect(empty.changes.isEmpty)
         #expect(empty.ignoredCount == 0)
     }
+
+    // MARK: Not imported and nothing to change
+
+    @Test("Thaw's menu bar appearance is one omission, neither written nor counted as ignored")
+    func appearanceIsOmitted() {
+        let result = plan(["MenuBarAppearanceConfigurationV2": Data([1, 2, 3]), "ShowOnClick": true], current: allOff)
+        #expect(result.omissions == [ImportOmission(key: .menuBarAppearanceConfigurationV2, hotkeyAction: nil)])
+        #expect(result.writes["MenuBarAppearanceConfigurationV2"] == nil)
+        #expect(result.changes.map(\.key) == [.showOnClick])
+        #expect(result.ignoredCount == 0)
+    }
+
+    @Test("The omission needs the key in the source; a plan without it names nothing")
+    func noAppearanceNoOmission() {
+        let result = plan(thawFixture(booleans: true), current: allOff)
+        #expect(result.omissions.isEmpty)
+    }
+
+    @Test("The icon keys and the divider style are counted as ignored, never named or written")
+    func iconAndDividerAreIgnored() {
+        let result = plan(["IceIcon": Data([1]), "CustomIceIconIsTemplate": true, "SectionDividerStyle": 1], current: allOff)
+        #expect(result.omissions.isEmpty)
+        #expect(result.changes.isEmpty)
+        #expect(result.writes.isEmpty)
+        #expect(result.ignoredCount == 3)
+    }
+
+    @Test("The appearance with everything else ignored: the omission is not part of the ignored count")
+    func omissionIsNotIgnored() {
+        let result = plan(thawFixture(booleans: false).merging(["MenuBarAppearanceConfigurationV2": Data([9])]) { first, _ in first }, current: allOff)
+        #expect(result.omissions.count == 1)
+        #expect(result.ignoredCount == 11)
+    }
+
+    @Test("A source whose every mapped value equals the current one gives no change, no write and no hotkey write")
+    func everythingEqualGivesNothing() {
+        let same = combination(4, 256)
+        let current = allOff.merging(numbersNow) { first, _ in first }
+        let result = plan(
+            [
+                "ShowOnClick": false,
+                "ShowOnHover": false,
+                "RehideInterval": 15,
+                "RehideStrategy": 0,
+                "Hotkeys": ["ToggleHiddenSection": same],
+            ],
+            current: current,
+            hotkeys: ["ToggleHiddenSection": same]
+        )
+        #expect(result.changes.isEmpty)
+        #expect(result.writes.isEmpty)
+        #expect(result.omissions.isEmpty)
+        #expect(result.ignoredCount == 0)
+    }
 }
 
 @Suite("ImportBackupRecord")

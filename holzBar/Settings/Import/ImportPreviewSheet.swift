@@ -23,6 +23,8 @@ struct ImportPreviewSheet: View {
     /// What went wrong last; the sheet stays on its step.
     private enum Failure {
         case unreadable
+        /// The record of the previous settings could not be written, so nothing was imported.
+        case backupFailed
         case applyFailed
     }
 
@@ -120,19 +122,45 @@ struct ImportPreviewSheet: View {
     private func previewStep(_ plan: ImportPlan) -> some View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.md) {
             title(Text("Import from \(plan.source.productName)"))
-            SettingsGroup {
-                SettingsStateLine(.info, Text("\(plan.changes.count) settings will change"))
-                if plan.ignoredCount > 0 {
-                    SettingsStateLine(.info, Text("\(plan.ignoredCount) other settings are ignored"))
+            if !plan.changes.isEmpty || plan.ignoredCount > 0 {
+                SettingsGroup {
+                    // With nothing to change the empty state below says so, not a count of zero.
+                    if !plan.changes.isEmpty {
+                        SettingsStateLine(.info, Text("\(plan.changes.count) settings will change"))
+                    }
+                    if plan.ignoredCount > 0 {
+                        SettingsStateLine(.info, Text("\(plan.ignoredCount) other settings are ignored"))
+                    }
                 }
             }
             ScrollView {
-                SettingsGroup(SettingsCatalog.ImportSheet.changes) {
-                    ForEach(rows(for: plan)) { row in
-                        if row.isComposite {
-                            SettingsChangeRow(compositeLabel: row.label)
-                        } else {
-                            SettingsChangeRow(row.label, before: row.before, after: row.after)
+                VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.md) {
+                    if plan.changes.isEmpty {
+                        EmptyState(
+                            systemImage: "checkmark.circle",
+                            title: Text("Nothing to change"),
+                            message: Text("holzBar already has these settings."),
+                            isCompact: true
+                        )
+                    } else {
+                        SettingsGroup(SettingsCatalog.ImportSheet.changes) {
+                            ForEach(rows(for: plan)) { row in
+                                if row.isComposite {
+                                    SettingsChangeRow(compositeLabel: row.label)
+                                } else {
+                                    SettingsChangeRow(row.label, before: row.before, after: row.after)
+                                }
+                            }
+                        }
+                    }
+                    if !plan.omissions.isEmpty {
+                        SettingsGroup(SettingsCatalog.ImportSheet.notImported) {
+                            ForEach(plan.omissions, id: \.key) { omission in
+                                SettingsValueRow(
+                                    Text(ImportTargets.omissionLabel(for: omission.key)),
+                                    value: Text("Not imported")
+                                )
+                            }
                         }
                     }
                 }
@@ -143,7 +171,12 @@ struct ImportPreviewSheet: View {
             )
             SettingsGroup {
                 SettingsStateLine(.info, Text("holzBar makes a backup first and restarts to apply them."))
-                if failure == .applyFailed {
+                if failure == .backupFailed {
+                    SettingsStateLine(
+                        .warning,
+                        Text("The backup could not be made, so nothing was imported. Free up disk space and try again.")
+                    )
+                } else if failure == .applyFailed {
                     SettingsStateLine(.warning, Text("The settings could not be imported."))
                 }
             }
@@ -253,6 +286,10 @@ struct ImportPreviewSheet: View {
             await Task.yield()
             do {
                 try PreviousAppImporter.apply(plan)
+            } catch PreviousAppImporter.ImportError.backupFailed {
+                // Nothing was written: the primary comes back, and the user can try again.
+                activity = .idle
+                failure = .backupFailed
             } catch {
                 activity = .idle
                 failure = .applyFailed
