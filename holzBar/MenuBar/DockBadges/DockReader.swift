@@ -7,12 +7,15 @@
 import AppKit
 import Foundation
 
-/// Reads the applications the Dock lists, through public Accessibility attributes only.
+/// Reads the applications the Dock lists, through public Accessibility attributes only, and, when
+/// asked, the badge of the chosen ones through ``DockBadgeBridge``.
 ///
 /// The Dock's application element has a list among its children, and every application in the
-/// Dock is an item of that list with the subrole `AXApplicationDockItem`. The reader copies the
-/// role, subrole, title, URL and running state of those items and nothing else: no badge, no
-/// window, no document. It runs off the main actor, one read at a time. Every call into the Dock
+/// Dock is an item of that list with the subrole `AXApplicationDockItem`. ``applicationItems()``
+/// copies the role, subrole, title, URL and running state of those items and nothing else: no
+/// badge, no window, no document. ``labels(of:readsLabels:)`` walks the same list and asks the
+/// bridge for the badge of the items of the chosen apps only, and never touches the bridge when
+/// it is told not to. It runs off the main actor, one read at a time. Every call into the Dock
 /// waits at most ``messagingTimeout`` seconds, and a read gives up after ``readDeadline``, so a
 /// busy Dock cannot hold anything up for long. The names and bundle identifiers are returned as
 /// values; the reader keeps none, logs none and writes none.
@@ -25,6 +28,16 @@ nonisolated enum DockReader {
         case dockMissing
         /// The Dock did not answer in time, or its tree was not what the reader expects.
         case failed
+    }
+
+    /// What one pass over the Dock's items found when it asked for badges.
+    struct LabelPass: Sendable {
+        /// What the gate decides from: whether the Dock was readable, whether an item lists the
+        /// badge attribute and the answers for the chosen apps that are in the Dock.
+        let pass: DockLabelGate.Pass
+        /// The answer for each chosen app that is in the Dock, by bundle identifier. An app that
+        /// is not in the Dock has none, which counts as no badge.
+        let answers: [String: DockLabelAnswer]
     }
 
     /// The bundle identifier of the Dock.
@@ -45,44 +58,113 @@ nonisolated enum DockReader {
         read()
     }
 
+    /// Reads the Dock's applications and, when `readsLabels` is true, the badge of the items of
+    /// the chosen apps. With `readsLabels` false the bridge is never called, so a part that
+    /// switched itself off reads nothing of the badge.
+    ///
+    /// - Parameters:
+    ///   - chosen: The bundle identifiers of the apps whose badge is wanted.
+    ///   - readsLabels: Whether the badge may be read at all.
+    @concurrent
+    static func labels(of chosen: Set<String>, readsLabels: Bool) async -> LabelPass {
+        readLabels(of: chosen, readsLabels: readsLabels)
+    }
+
     // MARK: Reading
 
-    private static func read() -> Result {
+    /// The Dock's application list: the entries and the time the walk must end by.
+    private enum Listing {
+        case entries([AXUIElement], deadline: UInt64)
+        case dockMissing
+        case failed
+    }
+
+    private static func listing() -> Listing {
         guard let dock = NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).first else {
             return .dockMissing
         }
         let application = AXUIElementCreateApplication(dock.processIdentifier)
         AXUIElementSetMessagingTimeout(application, messagingTimeout)
         let deadline = DispatchTime.now().uptimeNanoseconds + readDeadline
-        guard let children = elements(of: application, kAXChildrenAttribute) else {
+        guard let children = elements(of: application, kAXChildrenAttribute),
+            let list = children.first(where: { string($0, kAXRoleAttribute) == kAXListRole }),
+            let entries = elements(of: list, kAXChildrenAttribute)
+        else {
             return .failed
         }
-        guard let list = children.first(where: { string($0, kAXRoleAttribute) == kAXListRole }) else {
-            return .failed
+        return .entries(entries, deadline: deadline)
+    }
+
+    /// The bundle identifier of an application item, or `nil` for any other entry.
+    private static func appBundleIdentifier(
+        of entry: AXUIElement,
+        cache: inout [URL: String?]
+    ) -> String? {
+        guard string(entry, kAXSubroleAttribute) == kAXApplicationDockItemSubrole,
+            let url = url(entry, kAXURLAttribute)
+        else {
+            return nil
         }
-        guard let entries = elements(of: list, kAXChildrenAttribute) else {
-            return .failed
+        if let known = cache[url] {
+            return known
         }
-        var bundleIdentifiers = [URL: String?]()
+        let bundleID = Bundle(url: url)?.bundleIdentifier
+        cache[url] = bundleID
+        return bundleID
+    }
+
+    private static func readLabels(of chosen: Set<String>, readsLabels: Bool) -> LabelPass {
+        let unreadable = LabelPass(pass: DockLabelGate.Pass(dockReadable: false, listed: false, answers: []), answers: [:])
+        guard case .entries(let entries, let deadline) = listing() else {
+            return unreadable
+        }
+        guard readsLabels else {
+            return LabelPass(pass: DockLabelGate.Pass(dockReadable: true, listed: false, answers: []), answers: [:])
+        }
+        var cache = [URL: String?]()
+        var answers = [String: DockLabelAnswer]()
+        var listed = false
+        var askedForListing = false
+        for entry in entries.prefix(maximumItems) {
+            guard !Task.isCancelled, DispatchTime.now().uptimeNanoseconds < deadline else {
+                return unreadable
+            }
+            guard let bundleID = appBundleIdentifier(of: entry, cache: &cache) else {
+                continue
+            }
+            if !askedForListing {
+                askedForListing = true
+                listed = DockBadgeBridge.listsLabel(entry)
+            }
+            if chosen.contains(bundleID), answers[bundleID] == nil {
+                answers[bundleID] = DockBadgeBridge.label(of: entry)
+            }
+        }
+        return LabelPass(
+            pass: DockLabelGate.Pass(dockReadable: true, listed: listed, answers: Array(answers.values)),
+            answers: answers
+        )
+    }
+
+    private static func read() -> Result {
+        switch listing() {
+        case .dockMissing:
+            return .dockMissing
+        case .failed:
+            return .failed
+        case .entries(let entries, let deadline):
+            return items(in: entries, deadline: deadline)
+        }
+    }
+
+    private static func items(in entries: [AXUIElement], deadline: UInt64) -> Result {
+        var cache = [URL: String?]()
         var items = [DockAppItem]()
         for entry in entries.prefix(maximumItems) {
             guard !Task.isCancelled, DispatchTime.now().uptimeNanoseconds < deadline else {
                 return .failed
             }
-            guard string(entry, kAXSubroleAttribute) == kAXApplicationDockItemSubrole else {
-                continue
-            }
-            guard let url = url(entry, kAXURLAttribute) else {
-                continue
-            }
-            let bundleID: String?
-            if let known = bundleIdentifiers[url] {
-                bundleID = known
-            } else {
-                bundleID = Bundle(url: url)?.bundleIdentifier
-                bundleIdentifiers[url] = bundleID
-            }
-            guard let bundleID else {
+            guard let bundleID = appBundleIdentifier(of: entry, cache: &cache) else {
                 continue
             }
             items.append(DockAppItem(

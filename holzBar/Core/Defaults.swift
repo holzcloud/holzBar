@@ -437,6 +437,10 @@ nonisolated extension Defaults {
         /// chosen (a list of strings, at most 64). It is exported with the settings; an imported
         /// list keeps only valid, unique bundle identifiers.
         case dockBadgeApps = "DockBadgeApps"
+        /// Whether Dock badges reads the badge on the Dock icons of the chosen apps, which uses a
+        /// private macOS interface (a boolean, off by default; the switch of that part, stored on
+        /// this Mac only).
+        case dockBadgesReadsCounts = "DockBadgesReadsCounts"
 
         // MARK: System alerts
         // Every System alerts value but the System notifications switch is exported with the
@@ -626,6 +630,7 @@ nonisolated extension Defaults.Key {
             .displayControlsBrightness,
             .displayControlsExternalMonitors,
             .readoutsReadsGPU,
+            .dockBadgesReadsCounts,
             .systemAlertsCPU,
             .systemAlertsMemoryPressure,
             .systemAlertsThermal,
@@ -860,8 +865,8 @@ nonisolated extension Defaults.Key {
     /// Shelf's fold was left open and what each display does with the hidden items (the
     /// displays' identifiers are those of this Mac), how far software dimming darkens each display
     /// (also keyed by display), and the two switches that turn a private
-    /// interface on: Now Playing's Read all apps, Display controls' External monitors and System
-    /// readouts' Read GPU load, Indicators' Replace the system display, the System alerts' System notifications switch (a per-Mac
+    /// interface on: Now Playing's Read all apps, Display controls' External monitors, System
+    /// readouts' Read GPU load and Dock badges' Read badge counts, Indicators' Replace the system display, the System alerts' System notifications switch (a per-Mac
     /// permission state) and the display cutout, which describes this Mac's hardware. The bundle
     /// identifiers of the new menu bar apps whose question waits (and, with them, of those the
     /// user asked never to be asked about) name the apps the user runs and stay here too. So does the marker that offers the undo
@@ -883,6 +888,7 @@ nonisolated extension Defaults.Key {
         .displayControlsExternalMonitors,
         .displayControlsDimLevels,
         .readoutsReadsGPU,
+        .dockBadgesReadsCounts,
         .indicatorsReplacesSystemDisplay,
         .systemAlertsNotifications,
         .notchHubCutout,

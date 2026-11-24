@@ -157,4 +157,40 @@ struct DockBadgeSettingsTests {
         #expect(result.accepted["DockBadgeApps"] == nil)
         #expect(result.ignored == ["DockBadgeApps"])
     }
+
+    @Test("The Read badge counts switch is a local-only Boolean that no file can set")
+    func dockBadgesReadsCountsStaysLocal() {
+        #expect(Defaults.Key.dockBadgesReadsCounts.rawValue == "DockBadgesReadsCounts")
+        #expect(Defaults.Key.dockBadgesReadsCounts.settingsKind == .bool)
+        #expect(Defaults.Key.localOnlyKeys.contains(.dockBadgesReadsCounts))
+        #expect(Defaults.Key.importableKinds["DockBadgesReadsCounts"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["DockBadgesReadsCounts": true, "ShowOnHover": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["DockBadgesReadsCounts"])
+    }
+
+    // MARK: Item names
+
+    @Test("An app's item name carries its bundle identifier and round-trips")
+    func itemNameRoundTrips() {
+        let name = DockBadgeItemName.app("com.apple.MobileSMS")
+        #expect(name == "holzBar.DockBadge.App.com.apple.MobileSMS")
+        #expect(DockBadgeItemName.bundleID(fromAutosaveName: name) == "com.apple.MobileSMS")
+        #expect(DockBadgeItemName.isAutosaveName(name))
+    }
+
+    @Test("Other names, and an empty or invalid bundle identifier, give no app")
+    func itemNameRefusesOthers() {
+        #expect(DockBadgeItemName.bundleID(fromAutosaveName: "holzBar.Widget.0F3A") == nil)
+        #expect(DockBadgeItemName.bundleID(fromAutosaveName: "holzBar.Replacement.com.apple.controlcenter") == nil)
+        #expect(DockBadgeItemName.bundleID(fromAutosaveName: "holzBar.StandIn.com.apple.Safari") == nil)
+        #expect(DockBadgeItemName.bundleID(fromAutosaveName: "holzBar.DockBadge.App.") == nil)
+        #expect(DockBadgeItemName.bundleID(fromAutosaveName: "holzBar.DockBadge.App.not a bundle id") == nil)
+        #expect(DockBadgeItemName.bundleID(fromAutosaveName: "") == nil)
+        #expect(!DockBadgeItemName.isAutosaveName("holzBar.Widget.0F3A"))
+        #expect(!DockBadgeItemName.isAutosaveName("com.apple.Safari"))
+    }
 }

@@ -200737,6 +200737,244 @@
           }
         }
       }
+    },
+    "Read badge counts" : {
+      "comment" : "Dock badges settings: label of the switch that reads the badge on the Dock icons of the chosen apps (a private macOS interface)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Číst čísla na odznacích"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kennzeichen-Zahlen lesen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leer los números de los globos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lire les nombres des pastilles"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jelvényszámok olvasása"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Baca angka lencana"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leggi i numeri dei badge"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バッジの数を読み取る"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "배지 숫자 읽기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Badgeaantallen lezen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odczytuj liczby na plakietkach"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ler os números dos emblemas"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leger ils numers dals badges"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Считывать числа на значках"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Läs märkesnumren"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozet sayılarını oku"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зчитувати числа на значках"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "读取标记数字"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讀取標記數字"
+          }
+        }
+      }
+    },
+    "Reads the badge on the Dock icons of the apps you chose. Uses a private macOS interface. It switches itself off if macOS changes it." : {
+      "comment" : "Dock badges settings: info popover of the Read badge counts switch",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Čte odznak na ikonách Docku vámi vybraných aplikací. Používá soukromé rozhraní macOS. Samo se vypne, pokud ho macOS změní."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liest das Kennzeichen auf den Dock-Symbolen der gewählten Apps. Nutzt eine private macOS-Schnittstelle. Sie schaltet sich selbst ab, wenn macOS sie ändert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lee el globo de los iconos del Dock de las apps que elegiste. Usa una interfaz privada de macOS. Se desactiva sola si macOS la cambia."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lit la pastille des icônes du Dock des apps que vous avez choisies. Utilise une interface privée de macOS. Elle se désactive d'elle-même si macOS la modifie."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kiolvassa a jelvényt a kiválasztott alkalmazások Dock-ikonjairól. A macOS privát felületét használja. Magától kikapcsol, ha a macOS megváltoztatja."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Membaca lencana pada ikon Dock dari app yang Anda pilih. Memakai antarmuka pribadi macOS. Mati sendiri jika macOS mengubahnya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legge il badge sulle icone del Dock delle app scelte. Usa un'interfaccia privata di macOS. Si disattiva da sola se macOS la cambia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選んだ App の Dock アイコンのバッジを読み取ります。macOS の非公開インターフェイスを使用します。macOS が変更した場合は自動的にオフになります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택한 앱의 Dock 아이콘에 표시된 배지를 읽습니다. macOS의 비공개 인터페이스를 사용합니다. macOS에서 변경하면 자동으로 꺼집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leest de badge op de Dock-symbolen van de apps die je koos. Gebruikt een privé-interface van macOS. Het schakelt zichzelf uit als macOS het wijzigt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odczytuje plakietkę na ikonach Docka wybranych aplikacji. Używa prywatnego interfejsu macOS. Wyłącza się samo, jeśli macOS go zmieni."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lê o emblema nos ícones do Dock dos apps que você escolheu. Usa uma interface privada do macOS. Desliga-se sozinha se o macOS a alterar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legia il badge sin ils simbols dal Dock da las apps tschernidas. Duvra ina interfascha privata da macOS. Ella sa deactiveschescha sezza sch'macOS la midada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Считывает значок на иконках Dock у выбранных вами приложений. Использует закрытый интерфейс macOS. Отключается сама, если macOS его изменит."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Läser av märket på Dock-ikonerna för de appar du valt. Använder ett privat macOS-gränssnitt. Stängs av av sig självt om macOS ändrar det."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seçtiğiniz uygulamaların Dock simgelerindeki rozeti okur. macOS’in özel bir arayüzünü kullanır. macOS bunu değiştirirse kendiliğinden kapanır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зчитує значок на іконках Dock вибраних вами програм. Використовує закритий інтерфейс macOS. Вимикається сама, якщо macOS його змінить."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "读取您所选 App 在 Dock 图标上的标记。使用 macOS 的私有接口。如果 macOS 更改了该接口，它会自动关闭。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讀取您所選 App 在 Dock 圖像上的標記。使用 macOS 的私有介面。如果 macOS 更改了該介面，它會自動關閉。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

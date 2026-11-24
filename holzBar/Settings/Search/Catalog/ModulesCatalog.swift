@@ -119,6 +119,8 @@ extension SettingsCatalog {
             .modulesSystemAlertsMacBatteryThreshold,
             .modulesSystemAlertsMacBatteryDuration,
             .modulesSystemAlertsTest,
+            // Settings of Dock badges.
+            .modulesDockBadgesReadsCounts,
         ]
 
         /// The Mac battery rule's entries: a Mac without an internal battery has no such rule.
@@ -491,6 +493,19 @@ extension SettingsEntry {
         label: String(localized: "Read all apps"),
         info: String(localized: "Shows what browsers and video apps play, too, through a helper that runs only while the hub is open. Uses a private macOS interface. It switches itself off if macOS changes it."),
         module: "now-playing"
+    )
+
+    // MARK: Settings of Dock badges
+
+    static let modulesDockBadgesReadsCounts = SettingsEntry(
+        id: "modulesDockBadgesReadsCounts",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.menuBar,
+        label: String(localized: "Read badge counts"),
+        info: String(
+            localized: "Reads the badge on the Dock icons of the apps you chose. Uses a private macOS interface. It switches itself off if macOS changes it."
+        ),
+        module: DockBadges.moduleID
     )
 
     // MARK: Settings of the System monitor modules

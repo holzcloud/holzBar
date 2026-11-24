@@ -72,6 +72,7 @@ sources=(
   DisplayControlsOrder
   DisplayCutout
   DividerPlausibility
+  DockBadgeLabel
   DockBadgeSettings
   DockIconPolicy
   DownloadScan
@@ -260,6 +261,7 @@ tests=(
   DisplayControlsOrderTests
   DisplayCutoutTests
   DividerPlausibilityTests
+  DockBadgeLabelTests
   DockBadgeSettingsTests
   DockIconPolicyTests
   DownloadScanTests

@@ -116,3 +116,37 @@ nonisolated enum DockBadgeApps {
         return cleaned.isEmpty ? fallback : cleaned
     }
 }
+
+/// The autosave names of the status items that Dock badges adds to the menu bar.
+///
+/// An item's name is its identity for macOS (its place in the bar) and for holzBar (its section
+/// and its label), so it is built here only, from the app's bundle identifier. It differs from a
+/// widget's, a replacement's and a stand-in's name by its prefix. A bundle identifier is checked
+/// when a name is taken apart, because a name can come from stored defaults.
+nonisolated enum DockBadgeItemName {
+    /// The start of every Dock badges item's autosave name.
+    static let prefix = "holzBar.DockBadge."
+
+    /// The start of the name of an app's item.
+    private static let appPrefix = prefix + "App."
+
+    /// The autosave name of the item that shows an app's badge.
+    static func app(_ bundleID: String) -> String {
+        appPrefix + bundleID
+    }
+
+    /// The bundle identifier in an app item's name, or `nil` for any other name and for an empty
+    /// or invalid identifier.
+    static func bundleID(fromAutosaveName name: String) -> String? {
+        guard name.hasPrefix(appPrefix) else {
+            return nil
+        }
+        let bundleID = String(name.dropFirst(appPrefix.count))
+        return SharedProfile.isValidBundleIdentifier(bundleID) ? bundleID : nil
+    }
+
+    /// Whether a name belongs to an item of Dock badges.
+    static func isAutosaveName(_ name: String) -> Bool {
+        name.hasPrefix(prefix)
+    }
+}

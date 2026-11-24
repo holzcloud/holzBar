@@ -5,10 +5,11 @@
 
 import SwiftUI
 
-/// The Dock badges module's settings, in the open area of the module's row: the apps currently in
-/// the Dock, in the Dock's order, one switch each, and the lines that say why the list is empty
-/// or cannot be read. The list is read only while this view is shown and the module is on, and
-/// dropped when it goes.
+/// The Dock badges module's settings, in the open area of the module's row: the switch that reads
+/// the badge through a private macOS interface (and the line that says when it switched itself
+/// off), the apps currently in the Dock, in the Dock's order, one switch each, and the lines that
+/// say why the list is empty or cannot be read. The list is read only while this view is shown
+/// and the module is on, and dropped when it goes.
 ///
 /// The states, in order: with the module off only a line that says to switch it on, and nothing
 /// is read; without Accessibility a warning line with the button that asks for it, and an empty
@@ -18,11 +19,18 @@ struct DockBadgesSettingsView: View {
     @Environment(AppState.self) private var appState
 
     var body: some View {
+        @Bindable var settings = appState.settings.dockBadges
         let isModuleOn = appState.modules.isEnabled(DockBadges.moduleID)
         let hasAccess = appState.permissions.accessibility.hasPermission
         let dockBadges = appState.dockBadges
         VStack(alignment: .leading, spacing: 0) {
             if isModuleOn {
+                SettingsToggleRow(
+                    .modulesDockBadgesReadsCounts,
+                    isOn: $settings.readsCounts,
+                    small: Text("private interface"),
+                    badge: .preview
+                )
                 if !hasAccess {
                     accessibilityLine
                 } else if dockBadges.listState == .unreadable {
