@@ -13,6 +13,7 @@ extension SettingsCatalog {
         static let menuBar = String(localized: "Menu Bar")
         static let changes = String(localized: "Changes")
         static let notices = String(localized: "Notices")
+        static let makingRoom = String(localized: "Making room")
         static let suggestions = String(localized: "Suggestions")
         static let search = String(localized: "Search")
         static let pictures = String(localized: "Pictures of the items")
@@ -32,6 +33,7 @@ extension SettingsCatalog {
             if MenuBarBackendKind.current == .accessibility27 {
                 entries.append(.layoutCommandDragSetsSection)
                 entries.append(.layoutStandInIcons)
+                entries.append(.layoutMakeRoomMode)
             }
             entries += [
                 .layoutSuggestRarelyUsed,
@@ -116,6 +118,13 @@ extension SettingsEntry {
         group: SettingsCatalog.LayoutPane.changes,
         label: String(localized: "Stand-ins for icons macOS hides"),
         info: String(localized: "Some apps outside the Applications folder lose their menu bar icon while holzBar hides anything, even in Visible. holzBar then shows a stand-in in its place: click it to open the app's menu.")
+    )
+
+    static let layoutMakeRoomMode = SettingsEntry(
+        id: "layoutMakeRoomMode",
+        pane: .layout,
+        group: SettingsCatalog.LayoutPane.makingRoom,
+        label: String(localized: "When the menu bar is full")
     )
 
     static let layoutSuggestRarelyUsed = SettingsEntry(

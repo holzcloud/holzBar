@@ -221,6 +221,10 @@ nonisolated extension Defaults {
         case showOnHoverDelay = "ShowOnHoverDelay"
         case tempShowInterval = "TempShowInterval"
         case newItemsPlacement = "NewItemsPlacement"
+        /// macOS 27: what holzBar does when macOS folds menu bar items away because the bar is full.
+        /// The raw values of `MakeRoomMode`: 0 Off, 1 Ask, 2 Automatic. Absent means Ask; new
+        /// values are only appended.
+        case makeRoomMode = "MakeRoomMode"
         case keepLiveActivitiesVisible = "KeepLiveActivitiesVisible"
         case autoZenWhileSharingScreen = "AutoZenWhileSharingScreen"
         case openHiddenItemsInMenuBar = "OpenHiddenItemsInMenuBar"
@@ -645,6 +649,7 @@ nonisolated extension Defaults.Key {
             .showOnHoverDelay,
             .tempShowInterval,
             .newItemsPlacement,
+            .makeRoomMode,
             .spacerCount,
             .spacerWidth,
             .layoutSnapshotsLimit,
@@ -785,6 +790,9 @@ nonisolated extension Defaults.Key {
         case .calendarCountdownLead:
             // Minutes; exactly the raw values of CountdownLead, which the model snaps.
             .wholeNumber(0...15)
+        case .makeRoomMode:
+            // Exactly the raw values of MakeRoomMode (0 Off, 1 Ask, 2 Automatic); new ones are only appended.
+            .wholeNumber(0...2)
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,

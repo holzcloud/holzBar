@@ -466,6 +466,24 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["NotchHubCutout"])
     }
 
+    @Test("What holzBar does when the menu bar is full travels with a settings file, as 0, 1 or 2 only")
+    func makeRoomModeTravels() {
+        #expect(Defaults.Key.makeRoomMode.rawValue == "MakeRoomMode")
+        #expect(Defaults.Key.makeRoomMode.settingsKind == .number)
+        #expect(Defaults.Key.makeRoomMode.numberRule == .wholeNumber(0...2))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.makeRoomMode))
+        #expect(Defaults.Key.importableKinds["MakeRoomMode"] == .number)
+        for accepted: Any in [1, 2] {
+            let result = Defaults.Key.validatedSettings(["MakeRoomMode": accepted], ownBundleIdentifier: ownBundle)
+            #expect((result.accepted["MakeRoomMode"] as? NSNumber)?.intValue == (accepted as? Int))
+        }
+        for refused: Any in [7, 1.5, -1] {
+            let result = Defaults.Key.validatedSettings(["MakeRoomMode": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted["MakeRoomMode"] == nil)
+            #expect(result.ignored == ["MakeRoomMode"])
+        }
+    }
+
     @Test("The notch hub's settings travel with a settings file, and only the displays within their choices")
     func notchHubSettingsTravel() {
         #expect(Defaults.Key.importableKinds["NotchHubOpensOnHover"] == .bool)

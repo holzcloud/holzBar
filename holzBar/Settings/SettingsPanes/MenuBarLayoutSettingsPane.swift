@@ -36,6 +36,9 @@ struct MenuBarLayoutSettingsPane: View {
                 menuBarGroup
                 LayoutDraftSection()
                 noticesGroup
+                if #available(macOS 27.0, *) {
+                    MakingRoomGroup(advanced: appState.settings.advanced)
+                }
                 UsageSuggestionsSection(usage: appState.usage)
                 SearchSettingsSection(general: appState.settings.general, opens: appState.searchOpens)
                 if !ScreenRecordingAccess.isGranted(appState) {

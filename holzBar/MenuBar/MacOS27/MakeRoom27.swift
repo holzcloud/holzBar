@@ -42,6 +42,18 @@ final class MakeRoom27 {
     /// The banner, or `nil` while the apps fit, nothing is known or no surface is open.
     private(set) var banner: Banner?
 
+    /// Whether the Shelf offers anything: not while "When the menu bar is full" is Off (D-10). The
+    /// Layout banner ignores the mode and shows without a switch (D-11). Automatic behaves as Ask
+    /// until a later release adds it.
+    var offersInShelf: Bool {
+        appState?.settings.advanced.makeRoomMode != .off
+    }
+
+    /// The banner the Shelf draws: the model's banner, or `nil` while the mode is Off.
+    var shelfBanner: Banner? {
+        offersInShelf ? banner : nil
+    }
+
     /// Whether a pass is running: the layout was written and the items are read again.
     private(set) var isRunningPass = false
 

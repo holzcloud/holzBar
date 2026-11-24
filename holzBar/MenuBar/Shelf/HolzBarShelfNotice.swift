@@ -28,14 +28,14 @@ struct HolzBarShelfNotice: View {
 
     /// Whether the row is drawn now.
     static func isShown(appState: AppState) -> Bool {
-        appState.makeRoom27.banner?.verdict.isOverflowing == true
+        appState.makeRoom27.shelfBanner?.verdict.isOverflowing == true
     }
 
     /// The chips the keyboard can reach, in order: the move chip while an app may move.
     static func chipIDs(appState: AppState) -> [String] {
         let makeRoom = appState.makeRoom27
         guard
-            let banner = makeRoom.banner,
+            let banner = makeRoom.shelfBanner,
             banner.verdict.isOverflowing,
             !banner.candidates.isEmpty,
             !makeRoom.isRunningPass
@@ -55,19 +55,29 @@ struct HolzBarShelfNotice: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if let banner = makeRoom.banner, banner.verdict.isOverflowing {
+            if let banner = makeRoom.shelfBanner, banner.verdict.isOverflowing {
                 row(for: banner)
             }
         }
         // The row is always in the tree, so it learns when the Shelf opens and goes even while
-        // the apps fit.
+        // the apps fit. With "When the menu bar is full" Off the model does not run for the Shelf
+        // at all, and the setting applies at once.
         .background {
             Color.clear
                 .onAppear {
-                    makeRoom.surfaceDidOpen(.shelf)
+                    if makeRoom.offersInShelf {
+                        makeRoom.surfaceDidOpen(.shelf)
+                    }
                 }
                 .onDisappear {
                     makeRoom.surfaceDidClose(.shelf)
+                }
+                .onChange(of: makeRoom.offersInShelf) { _, offers in
+                    if offers {
+                        makeRoom.surfaceDidOpen(.shelf)
+                    } else {
+                        makeRoom.surfaceDidClose(.shelf)
+                    }
                 }
         }
     }
