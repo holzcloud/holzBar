@@ -294,6 +294,20 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["ReadoutsReadsGPU"])
     }
 
+    @Test("The marker that offers the undo of an import is a local-only Boolean that no file can set")
+    func previousAppImportUndoPendingStaysLocal() {
+        #expect(Defaults.Key.previousAppImportUndoPending.rawValue == "PreviousAppImportUndoPending")
+        #expect(Defaults.Key.previousAppImportUndoPending.settingsKind == .bool)
+        #expect(Defaults.Key.localOnlyKeys.contains(.previousAppImportUndoPending))
+        #expect(Defaults.Key.importableKinds["PreviousAppImportUndoPending"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["PreviousAppImportUndoPending": true, "ShowOnHover": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["PreviousAppImportUndoPending"])
+    }
+
     @Test("The System notifications switch is a per-Mac permission state and no file can set it")
     func systemAlertsNotificationsStaysLocal() {
         #expect(Defaults.Key.systemAlertsNotifications.rawValue == "SystemAlertsNotifications")

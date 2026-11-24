@@ -17,6 +17,8 @@ nonisolated struct ImportBackupRecord {
 
     let source: ImportSource
     let date: Date
+    /// How many settings the import changed: the number the undo toast says, 0 when unknown.
+    let changeCount: Int
     /// The previous values of the keys that had one, by holzBar's stored name.
     let before: [String: Any]
     /// The keys that had no value before the import, sorted.
@@ -27,9 +29,16 @@ nonisolated struct ImportBackupRecord {
     /// - Parameters:
     ///   - source: The app the import comes from.
     ///   - date: When the import happens.
+    ///   - changeCount: How many settings the import changes; a negative number counts as 0.
     ///   - touchedKeys: The stored names the import writes.
     ///   - domain: holzBar's own defaults domain before the import.
-    static func make(source: ImportSource, date: Date, touchedKeys: [String], domain: [String: Any]) -> ImportBackupRecord {
+    static func make(
+        source: ImportSource,
+        date: Date,
+        changeCount: Int,
+        touchedKeys: [String],
+        domain: [String: Any]
+    ) -> ImportBackupRecord {
         var before: [String: Any] = [:]
         var absent: [String] = []
         for key in Set(touchedKeys) {
@@ -39,12 +48,19 @@ nonisolated struct ImportBackupRecord {
                 absent.append(key)
             }
         }
-        return ImportBackupRecord(source: source, date: date, before: before, absent: absent.sorted())
+        return ImportBackupRecord(
+            source: source,
+            date: date,
+            changeCount: max(0, changeCount),
+            before: before,
+            absent: absent.sorted()
+        )
     }
 
-    private init(source: ImportSource, date: Date, before: [String: Any], absent: [String]) {
+    private init(source: ImportSource, date: Date, changeCount: Int, before: [String: Any], absent: [String]) {
         self.source = source
         self.date = date
+        self.changeCount = changeCount
         self.before = before
         self.absent = absent
     }
@@ -56,13 +72,15 @@ nonisolated struct ImportBackupRecord {
             "version": Self.version,
             "source": source.rawValue,
             "date": date,
+            "changeCount": changeCount,
             "before": before,
             "absent": absent,
         ]
     }
 
     /// Reads a record back from a property list, or returns `nil` when it is not one: another
-    /// format, an unknown source, a missing or mistyped field. Keys that are not holzBar's own
+    /// format, an unknown source, a missing or mistyped field (the change count alone reads as 0
+    /// when it is missing, negative or not a whole number). Keys that are not holzBar's own
     /// importable settings are dropped.
     init?(propertyList: [String: Any]) {
         guard
@@ -78,9 +96,18 @@ nonisolated struct ImportBackupRecord {
         self.init(
             source: source,
             date: date,
+            changeCount: Self.count(in: propertyList["changeCount"]),
             before: before.filter { Defaults.Key.importableKinds[$0.key] != nil },
             absent: absent.filter { Defaults.Key.importableKinds[$0] != nil }.sorted()
         )
+    }
+
+    /// A stored change count: a non-negative whole number, otherwise 0.
+    private static func count(in value: Any?) -> Int {
+        guard let number = value as? Int, number >= 0 else {
+            return 0
+        }
+        return number
     }
 
     /// The writes that put the settings back as they were.

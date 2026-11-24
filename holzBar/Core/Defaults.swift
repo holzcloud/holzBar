@@ -530,6 +530,10 @@ nonisolated extension Defaults {
         /// Set once holzBar has looked for the settings of an app it replaces.
         /// The stored key keeps its earlier name.
         case hasImportedPreviousSettings = "HasImportedIceSettings"
+        /// Set by an import from another app once the record of the earlier settings is on disk,
+        /// and cleared by the launch that offers its undo, so the offer shows once. Stored on this
+        /// Mac only: never exported or imported.
+        case previousAppImportUndoPending = "PreviousAppImportUndoPending"
 
         // MARK: Deprecated (Appearance Settings)
         case menuBarHasBorder = "MenuBarHasBorder"
@@ -638,6 +642,7 @@ nonisolated extension Defaults.Key {
             .hasMigrated0_11_13,
             .hasMigrated0_11_13_1,
             .hasImportedPreviousSettings,
+            .previousAppImportUndoPending,
             .menuBarHasBorder,
             .menuBarHasShadow,
             .showSectionDividers,
@@ -852,7 +857,8 @@ nonisolated extension Defaults.Key {
     /// readouts' Read GPU load, Indicators' Replace the system display, the System alerts' System notifications switch (a per-Mac
     /// permission state) and the display cutout, which describes this Mac's hardware. The bundle
     /// identifiers of the new menu bar apps whose question waits (and, with them, of those the
-    /// user asked never to be asked about) name the apps the user runs and stay here too.
+    /// user asked never to be asked about) name the apps the user runs and stay here too. So does the marker that offers the undo
+    /// of an import once, which describes this launch only.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .lastRunMacOSMajor,
         .lockHiddenItems,
@@ -881,6 +887,7 @@ nonisolated extension Defaults.Key {
         .debugDropsBarrierExitEvent,
         .debugHangsItemImageCapture,
         .macOS27ClickBridgeOnMainThread,
+        .previousAppImportUndoPending,
     ]
 
     /// The stored key names an imported settings file may set, with the

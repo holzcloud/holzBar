@@ -142,12 +142,12 @@ enum PreviousAppImporter {
         return HotkeyStorage.loadRejection(modifiers: combination.modifiers, refusesOptionOnly: refusesOptionOnly) == nil
     }
 
-    /// Writes the record of the settings the plan overwrites, then the plan's keys, then restarts
-    /// holzBar so every model reads them at launch.
+    /// Writes the record of the settings the plan overwrites, marks the undo to be offered, writes
+    /// the plan's keys, then restarts holzBar so every model reads them at launch.
     ///
     /// The record comes first and is written atomically: when it cannot be written, this throws
-    /// before any key is touched. Only keys of the plan are written, validated once more, and no
-    /// key is removed.
+    /// before any key is touched. The marker for the undo toast is set only once the record is on
+    /// disk. Only keys of the plan are written, validated once more, and no key is removed.
     ///
     /// - Throws: ``ImportError/backupFailed`` when the record could not be written.
     static func apply(_ plan: ImportPlan) throws {
@@ -157,6 +157,7 @@ enum PreviousAppImporter {
         let record = ImportBackupRecord.make(
             source: plan.source,
             date: .now,
+            changeCount: plan.changes.count,
             touchedKeys: Array(writes.keys),
             domain: domain
         )
@@ -166,11 +167,88 @@ enum PreviousAppImporter {
             logger.error("The backup before an import could not be written: \(error, privacy: .private)")
             throw ImportError.backupFailed
         }
+        // After the record is on disk and before the first key is written: a quit in between
+        // still offers the undo of what was written.
+        Defaults.set(true, forKey: .previousAppImportUndoPending)
         for (key, value) in writes {
             defaults.set(value, forKey: key)
         }
         logger.notice("Imported \(writes.count, privacy: .public) settings from \(plan.source.rawValue, privacy: .public)")
         SettingsBackup.relaunch()
+    }
+
+    /// The record of the settings before the last import, or `nil` when there is none or the file
+    /// is not a record holzBar reads. It stays until the next import replaces it or a restore
+    /// uses it.
+    static func lastImport() -> ImportBackupRecord? {
+        guard
+            let data = try? Data(contentsOf: backupURL),
+            let list = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any]
+        else {
+            return nil
+        }
+        return ImportBackupRecord(propertyList: list)
+    }
+
+    /// Puts the settings back as the record holds them, deletes the record and restarts holzBar.
+    ///
+    /// Only the keys the import touched change: each gets its earlier value (validated again), and
+    /// each that had none is removed. No other key is read or written.
+    static func restore(_ record: ImportBackupRecord) {
+        let writes = record.restoreWrites(ownBundleIdentifier: Constants.bundleIdentifier)
+        let defaults = UserDefaults.standard
+        for (key, value) in writes.set {
+            defaults.set(value, forKey: key)
+        }
+        for key in writes.remove {
+            defaults.removeObject(forKey: key)
+        }
+        Defaults.removeObject(forKey: .previousAppImportUndoPending)
+        // Deleted once the keys are back; a record that cannot be deleted would only offer the
+        // same restore again.
+        try? FileManager.default.removeItem(at: backupURL)
+        logger.notice("Restored \(writes.set.count + writes.remove.count, privacy: .public) settings from before an import")
+        SettingsBackup.relaunch()
+    }
+
+    /// How long after the setup the undo toast waits, so that it does not compete with the bar
+    /// that comes up (as the first-run offers do).
+    private static let undoOfferDelay = Duration.seconds(1)
+
+    /// After the restart an import causes, offers its undo once as the toast at the menu bar.
+    ///
+    /// The marker is cleared first, so the offer never shows twice, also when the toast is not
+    /// shown. With no record on disk there is no toast. Undo calls ``restore(_:)`` without a
+    /// question: nothing but the import is lost.
+    ///
+    /// - Parameter appState: The app state, whose undo history holds the change.
+    static func offerUndoAfterLaunch(appState: AppState) async {
+        guard Defaults.bool(forKey: .previousAppImportUndoPending) else {
+            return
+        }
+        Defaults.removeObject(forKey: .previousAppImportUndoPending)
+        guard let record = lastImport() else {
+            return
+        }
+        do {
+            try await Task.sleep(for: undoOfferDelay)
+        } catch {
+            return
+        }
+        guard appState.isSetUp else {
+            return
+        }
+        let sentence = String(localized: "Imported \(record.changeCount) settings from \(record.source.productName)")
+        let change = LayoutUndo.Change(
+            sentence: sentence,
+            actionName: String(localized: "Import Settings"),
+            inverse: { nil },
+            perform: {
+                restore(record)
+                return true
+            }
+        )
+        appState.layoutUndo.record(change, place: .menuBar)
     }
 
     /// Writes the record: the folder is 0700, the file 0600 and excluded from backups.

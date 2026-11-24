@@ -705,6 +705,7 @@ struct ImportBackupRecordTests {
         ImportBackupRecord.make(
             source: .thaw,
             date: date,
+            changeCount: 3,
             touchedKeys: ["ShowOnClick", "AutoRehide", "ShowOnHover"],
             domain: ["ShowOnClick": true, "AutoRehide": false, "UseIceBar": true, "NSWindow Frame X": "1 2 3 4"]
         )
@@ -736,6 +737,30 @@ struct ImportBackupRecordTests {
         #expect(decoded.source == .thaw)
         #expect(decoded.absent == ["ShowOnHover"])
         #expect(decoded.before["ShowOnClick"] as? Bool == true)
+    }
+
+    @Test("The change count round-trips through the property list")
+    func changeCountRoundTrips() throws {
+        let made = record()
+        #expect(made.changeCount == 3)
+        let direct = try #require(ImportBackupRecord(propertyList: made.propertyList()))
+        #expect(direct.changeCount == 3)
+        let data = try PropertyListSerialization.data(fromPropertyList: made.propertyList(), format: .binary, options: 0)
+        let parsed = try #require(try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any])
+        #expect(try #require(ImportBackupRecord(propertyList: parsed)).changeCount == 3)
+    }
+
+    @Test("A property list without a change count, or with a negative or fractional one, reads as 0")
+    func changeCountDefaultsToZero() throws {
+        var missing = record().propertyList()
+        missing["changeCount"] = nil
+        #expect(try #require(ImportBackupRecord(propertyList: missing)).changeCount == 0)
+        for bad: Any in [-4, 2.5, "3", [1]] {
+            var list = record().propertyList()
+            list["changeCount"] = bad
+            #expect(try #require(ImportBackupRecord(propertyList: list)).changeCount == 0, "\(bad) reads as 0")
+        }
+        #expect(ImportBackupRecord.make(source: .thaw, date: date, changeCount: -1, touchedKeys: [], domain: [:]).changeCount == 0)
     }
 
     @Test("restoreWrites sets the before values and removes the absent keys")

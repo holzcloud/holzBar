@@ -463,6 +463,10 @@ final class AppState {
         Task {
             await WhatsNewOffer.offerIfNeeded(appState: self)
         }
+        Task {
+            // Only after an import from another app restarted holzBar: its undo toast, once.
+            await PreviousAppImporter.offerUndoAfterLaunch(appState: self)
+        }
     }
 
     /// Brings holzBar up to date once the bar has settled after the screen was locked, the
