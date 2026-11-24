@@ -8,6 +8,7 @@ import Foundation
 /// An app whose settings holzBar can take over, with the name it stores them under.
 nonisolated enum ImportSource: String, CaseIterable, Sendable {
     case thaw
+    case hiddenBar
 
     /// The bundle identifier of the app, which names its defaults domain. It comes from the
     /// app's source, not from a probe: a build with another identifier shows as not found, and
@@ -15,6 +16,7 @@ nonisolated enum ImportSource: String, CaseIterable, Sendable {
     var bundleIdentifier: String {
         switch self {
         case .thaw: "com.stonerl.Thaw"
+        case .hiddenBar: "com.dwarvesv.minimalbar"
         }
     }
 
@@ -22,6 +24,7 @@ nonisolated enum ImportSource: String, CaseIterable, Sendable {
     var productName: String {
         switch self {
         case .thaw: "Thaw"
+        case .hiddenBar: "Hidden Bar"
         }
     }
 }
@@ -46,9 +49,14 @@ nonisolated struct ImportChange: Equatable, Sendable {
 }
 
 /// A setting of the source that the import leaves out on purpose and names in the preview.
-nonisolated struct ImportOmission: Equatable, Sendable {
+nonisolated struct ImportOmission: Equatable, Identifiable, Sendable {
     let key: Defaults.Key
     let hotkeyAction: String?
+
+    /// A hotkey is named by its action, every other setting by its key.
+    var id: String {
+        hotkeyAction ?? key.rawValue
+    }
 }
 
 /// What the import needs to know about holzBar's hotkeys to take another app's over safely.
@@ -100,6 +108,9 @@ nonisolated enum PreviousAppImport {
     private enum Translation {
         /// A Boolean, stored as a Boolean.
         case bool
+        /// A switch that is a Boolean or a number that is exactly 0 or 1, as Hidden Bar stores its
+        /// switches. Any other number, and anything else, is refused.
+        case flag
         /// A finite number; the target's number rule clamps it to its range.
         case number
         /// The raw value of a choice: a whole number inside the range, nothing else.
@@ -110,6 +121,19 @@ nonisolated enum PreviousAppImport {
             switch self {
             case .bool:
                 return SettingsSchema.matches(value, .bool) ? value : nil
+            case .flag:
+                if SettingsSchema.matches(value, .bool) {
+                    return value
+                }
+                // Compared as a number, so NaN and every value other than 0 and 1 fail.
+                guard SettingsSchema.matches(value, .number), let number = value as? NSNumber else {
+                    return nil
+                }
+                switch number.doubleValue {
+                case 0: return false
+                case 1: return true
+                default: return nil
+                }
             case .number:
                 guard SettingsSchema.matches(value, .number), let number = value as? NSNumber, number.doubleValue.isFinite else {
                     return nil
@@ -136,7 +160,7 @@ nonisolated enum PreviousAppImport {
         /// The validated value as the preview shows it, or `nil` when it is not of this kind.
         func shown(_ value: Any) -> ImportValue? {
             switch self {
-            case .bool:
+            case .bool, .flag:
                 return (value as? Bool).map(ImportValue.bool)
             case .number:
                 return (value as? NSNumber).map { ImportValue.number($0.doubleValue) }
@@ -150,6 +174,14 @@ nonisolated enum PreviousAppImport {
     private struct Rule {
         let target: Defaults.Key
         let translation: Translation
+        /// A second setting the rule sets, as a raw choice, when its own value is `true`.
+        var impliedChoice: (target: Defaults.Key, raw: Int)?
+
+        init(target: Defaults.Key, translation: Translation, impliedChoice: (target: Defaults.Key, raw: Int)? = nil) {
+            self.target = target
+            self.translation = translation
+            self.impliedChoice = impliedChoice
+        }
     }
 
     /// Thaw's rules by the stored name in Thaw's defaults: the twelve Booleans and the three
@@ -176,6 +208,32 @@ nonisolated enum PreviousAppImport {
         "RehideStrategy": Rule(target: .rehideStrategy, translation: .choice(0...2)),
     ]
 
+    /// Hidden Bar's rules by the stored name in its defaults, which keeps its switches as the numbers
+    /// 0 and 1: its auto hide is a timed hide, so switching it on also makes holzBar's rehide
+    /// "After a fixed time", and `numberOfSecondForAutoHide` is that time. Hidden Bar's
+    /// `revealOnEmptyClickEnabled` is taken as Show on click (research A5, checked on a Mac at the
+    /// beta).
+    ///
+    /// Left out and only counted as ignored: the separator positions and the pinned sections (they
+    /// are positions, deferred), the login item (`isAutoStart`, a system registration), the arrow
+    /// style (Hidden Bar's own icon set), `notchOverflowEnabled` (not proven equal, research A6),
+    /// `newAppDefaultSection` (other raw values than holzBar's), the presentation keys and the
+    /// right-click action (holzBar has no setting for them) and every other key.
+    private static let hiddenBar: [String: Rule] = [
+        "isAutoHide": Rule(target: .autoRehide, translation: .flag, impliedChoice: (target: .rehideStrategy, raw: 1)),
+        "numberOfSecondForAutoHide": Rule(target: .rehideInterval, translation: .number),
+        "alwaysHiddenSectionEnabled": Rule(target: .enableAlwaysHiddenSection, translation: .flag),
+        "hoverToExpand": Rule(target: .showOnHover, translation: .flag),
+        "revealOnScrollEnabled": Rule(target: .showOnScroll, translation: .flag),
+        "revealOnEmptyClickEnabled": Rule(target: .showOnClick, translation: .flag),
+    ]
+
+    /// What Hidden Bar has that the import names as not imported: its global shortcut, which is a
+    /// key binding in Carbon's flags and not holzBar's combination (D-16), so it is never written.
+    private static let hiddenBarOmissions: [String: ImportOmission] = [
+        "globalKey": ImportOmission(key: .hotkeys, hotkeyAction: "ToggleHiddenSection"),
+    ]
+
     /// What Thaw has that the import names as not imported instead of ignoring it: the menu bar
     /// appearance. Its stored configuration is a structure whose meaning differs between the apps
     /// (D-16), so the first cut leaves it out and says so in the preview.
@@ -184,28 +242,32 @@ nonisolated enum PreviousAppImport {
     /// `CustomIceIconIsTemplate`), the divider style (`SectionDividerStyle`; its raw values mean
     /// something else in each app, research Pitfall 1), the Shelf location, the new-items
     /// placement, profiles, hooks and positions.
-    private static let thawOmissions: [String: Defaults.Key] = [
-        "MenuBarAppearanceConfigurationV2": .menuBarAppearanceConfigurationV2,
+    private static let thawOmissions: [String: ImportOmission] = [
+        "MenuBarAppearanceConfigurationV2": ImportOmission(key: .menuBarAppearanceConfigurationV2, hotkeyAction: nil),
     ]
 
     private static func rules(for source: ImportSource) -> [String: Rule] {
         switch source {
         case .thaw: thaw
+        case .hiddenBar: hiddenBar
         }
     }
 
-    private static func omissions(for source: ImportSource) -> [String: Defaults.Key] {
+    private static func omissions(for source: ImportSource) -> [String: ImportOmission] {
         switch source {
         case .thaw: thawOmissions
+        case .hiddenBar: hiddenBarOmissions
         }
     }
 
     /// Whether the source stores hotkeys the way holzBar does: the `Hotkeys` dictionary of the
     /// action's raw value to the JSON `[key, modifiers]`. Thaw keeps Ice's form; the wrong form is
     /// ignored, never written, because every combination must pass the rules of the importer.
+    /// Hidden Bar keeps one shortcut in another form, which is named as not imported instead.
     private static func readsHotkeys(of source: ImportSource) -> Bool {
         switch source {
         case .thaw: true
+        case .hiddenBar: false
         }
     }
 
@@ -253,6 +315,22 @@ nonisolated enum PreviousAppImport {
             }
             staged[rule.target] = (rule, raw)
         }
+        // A switch that is on and implies a choice (Hidden Bar's auto hide is a timed hide) stages
+        // that choice too. It is derived, not a key of the source, so the ignored arithmetic below
+        // leaves it out.
+        var derived: Set<Defaults.Key> = []
+        for (_, entry) in staged {
+            guard
+                let implied = entry.rule.impliedChoice,
+                entry.raw as? Bool == true,
+                staged[implied.target] == nil,
+                current[implied.target] != nil
+            else {
+                continue
+            }
+            staged[implied.target] = (Rule(target: implied.target, translation: .choice(0...2)), NSNumber(value: implied.raw))
+            derived.insert(implied.target)
+        }
         // Then holzBar's own validation, which also clamps numbers to their range.
         let candidates = Dictionary(uniqueKeysWithValues: staged.map { ($0.key.rawValue, $0.value.raw) })
         let accepted = Defaults.Key.validatedSettings(candidates, ownBundleIdentifier: ownBundleIdentifier).accepted
@@ -260,6 +338,7 @@ nonisolated enum PreviousAppImport {
         var changes: [ImportChange] = []
         var writes: [String: Any] = [:]
         var unchanged = 0
+        var derivedChanges = 0
         for (target, entry) in staged {
             guard
                 let value = accepted[target.rawValue],
@@ -269,10 +348,15 @@ nonisolated enum PreviousAppImport {
                 continue
             }
             if after == before {
-                unchanged += 1
+                if !derived.contains(target) {
+                    unchanged += 1
+                }
             } else {
                 changes.append(ImportChange(key: target, hotkeyAction: nil, before: before, after: after))
                 writes[target.rawValue] = value
+                if derived.contains(target) {
+                    derivedChanges += 1
+                }
             }
         }
         // Hotkeys merge per action: the write is holzBar's dictionary with the imported actions
@@ -298,9 +382,8 @@ nonisolated enum PreviousAppImport {
         let omittedNames = omissions(for: source)
         let omissions = settings.keys
             .compactMap { omittedNames[$0] }
-            .sorted { $0.rawValue < $1.rawValue }
-            .map { ImportOmission(key: $0, hotkeyAction: nil) }
-        let ignored = max(0, sourceKeys - changes.count - unchanged - omissions.count)
+            .sorted { ($0.key.rawValue, $0.hotkeyAction ?? "") < ($1.key.rawValue, $1.hotkeyAction ?? "") }
+        let ignored = max(0, sourceKeys - (changes.count - derivedChanges) - unchanged - omissions.count)
         return ImportPlan(source: source, changes: changes, omissions: omissions, ignoredCount: ignored, writes: writes)
     }
 

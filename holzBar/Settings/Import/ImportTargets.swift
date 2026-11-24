@@ -81,14 +81,18 @@ enum ImportTargets {
         return entry(for: change.key)
     }
 
-    /// The name the preview gives a setting the import leaves out: the pane that holds it, since the
-    /// menu bar appearance is one structure over many rows and no single row names it.
-    static func omissionLabel(for key: Defaults.Key) -> String {
-        switch key {
+    /// The name the preview gives a setting the import leaves out: for the menu bar appearance the
+    /// pane that holds it, since it is one structure over many rows and no single row names it, and
+    /// for a hotkey the name the action has in the Hotkeys pane.
+    static func omissionLabel(for omission: ImportOmission) -> String {
+        if let action = omission.hotkeyAction {
+            return hotkeyEntry(for: action)?.label ?? action
+        }
+        return switch omission.key {
         case .menuBarAppearanceConfigurationV2:
             SettingsCatalog.AppearancePane.untitledGroup
         default:
-            key.rawValue
+            omission.key.rawValue
         }
     }
 

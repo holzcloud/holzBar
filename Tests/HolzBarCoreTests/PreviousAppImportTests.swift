@@ -101,10 +101,11 @@ struct PreviousAppImportTests {
     private func plan(
         _ settings: [String: Any],
         current: [Defaults.Key: ImportValue],
-        hotkeys: [String: Data] = [:]
+        hotkeys: [String: Data] = [:],
+        source: ImportSource = .thaw
     ) -> ImportPlan {
         PreviousAppImport.plan(
-            source: .thaw,
+            source: source,
             settings: settings,
             current: current,
             currentHotkeys: hotkeys,
@@ -443,6 +444,221 @@ struct PreviousAppImportTests {
         #expect(result.changes.isEmpty)
         #expect(result.writes.isEmpty)
         #expect(result.omissions.isEmpty)
+        #expect(result.ignoredCount == 0)
+    }
+
+    // MARK: Hidden Bar
+
+    /// The stored names of Hidden Bar's defaults (research, read from its `UserDefault+Extension`
+    /// and `AppStoreMigration`; D-17): its switches are stored as the numbers 0 and 1.
+    private func hiddenBarFixture(autoHide: Int = 1, seconds: Double = 10) -> [String: Any] {
+        [
+            "globalKey": Data([1, 2, 3, 4]),
+            "findHiddenIconShortcut": Data([5, 6]),
+            "numberOfSecondForAutoHide": seconds,
+            "isAutoStart": 1,
+            "isAutoHide": autoHide,
+            "isShowPreferences": 0,
+            "areSeparatorsHidden": 0,
+            "alwaysHiddenSectionEnabled": 1,
+            "useFullStatusBarOnExpandEnabled": 0,
+            "stealthExpandIconEnabled": 0,
+            "arrowStyle": "chevron",
+            "hoverToExpand": 1,
+            "revealOnScrollEnabled": 1,
+            "revealOnEmptyClickEnabled": 1,
+            "revealOnShakeEnabled": 0,
+            "notchOverflowEnabled": 1,
+            "pauseHidingForUnkeepableItems": 1,
+            "pinnedSectionsEnabled": 1,
+            "newAppDefaultSection": 1,
+            "presentationAutoMirrorEnabled": 0,
+            "presentationSensitiveApps": ["com.example.app"],
+            "presentationShortcut": Data([7, 8]),
+            "rightClickAction": 0,
+            "pinnedSections": ["com.example.app": 1],
+        ]
+    }
+
+    /// What holzBar has now for Hidden Bar's six targets and the strategy: all off, 15 seconds,
+    /// Smart.
+    private var hiddenBarNow: [Defaults.Key: ImportValue] {
+        allOff.merging(numbersNow) { first, _ in first }
+    }
+
+    private func hiddenBarPlan(_ settings: [String: Any], current: [Defaults.Key: ImportValue]? = nil) -> ImportPlan {
+        plan(settings, current: current ?? hiddenBarNow, source: .hiddenBar)
+    }
+
+    @Test("Hidden Bar's bundle identifier and name are pinned (flagged assumption A12)")
+    func hiddenBarIdentity() {
+        #expect(ImportSource.hiddenBar.bundleIdentifier == "com.dwarvesv.minimalbar")
+        #expect(ImportSource.hiddenBar.productName == "Hidden Bar")
+        #expect(ImportSource.hiddenBar.rawValue == "hiddenBar")
+        #expect(ImportSource.allCases == [.thaw, .hiddenBar])
+    }
+
+    @Test("Hidden Bar's fixture maps to the six settings, a timed rehide and the interval")
+    func hiddenBarFixtureMaps() throws {
+        let result = hiddenBarPlan(hiddenBarFixture())
+        #expect(result.source == .hiddenBar)
+        let changed = Dictionary(uniqueKeysWithValues: result.changes.map { ($0.key, $0.after) })
+        #expect(changed == [
+            .autoRehide: .bool(true),
+            .rehideStrategy: .choice(1),
+            .rehideInterval: .number(10),
+            .enableAlwaysHiddenSection: .bool(true),
+            .showOnHover: .bool(true),
+            .showOnScroll: .bool(true),
+            .showOnClick: .bool(true),
+        ])
+        #expect(try #require(result.writes["RehideStrategy"] as? NSNumber).intValue == 1)
+        #expect(result.writes["AutoRehide"] as? Bool == true)
+        #expect(try #require(result.writes["RehideInterval"] as? NSNumber).doubleValue == 10)
+        let validated = Defaults.Key.validatedSettings(result.writes, ownBundleIdentifier: ownBundle)
+        #expect(validated.ignored.isEmpty)
+        #expect(validated.accepted.count == result.writes.count)
+    }
+
+    @Test("Every rule of Hidden Bar's table names a stored name of Hidden Bar")
+    func hiddenBarNames() {
+        let names = PreviousAppImport.sourceNames(of: .hiddenBar)
+        #expect(names == [
+            "isAutoHide": .autoRehide,
+            "numberOfSecondForAutoHide": .rehideInterval,
+            "alwaysHiddenSectionEnabled": .enableAlwaysHiddenSection,
+            "hoverToExpand": .showOnHover,
+            "revealOnScrollEnabled": .showOnScroll,
+            "revealOnEmptyClickEnabled": .showOnClick,
+        ])
+    }
+
+    @Test("The auto hide interval of 10 is 10 and 45 is clamped to 30")
+    func hiddenBarIntervalIsClamped() throws {
+        let ten = hiddenBarPlan(["numberOfSecondForAutoHide": 10.0])
+        #expect(ten.changes == [ImportChange(key: .rehideInterval, hotkeyAction: nil, before: .number(15), after: .number(10))])
+        let long = hiddenBarPlan(["numberOfSecondForAutoHide": 45.0])
+        #expect(try #require(long.writes["RehideInterval"] as? NSNumber).doubleValue == 30)
+        #expect(long.changes == [ImportChange(key: .rehideInterval, hotkeyAction: nil, before: .number(15), after: .number(30))])
+        let refused = hiddenBarPlan(["numberOfSecondForAutoHide": Double.nan])
+        #expect(refused.changes.isEmpty)
+        #expect(refused.ignoredCount == 1)
+    }
+
+    @Test("A number that is not exactly 0 or 1, and a String, under a switch are ignored and counted")
+    func hiddenBarSwitchesNeedZeroOrOne() {
+        let result = hiddenBarPlan([
+            "hoverToExpand": 2,
+            "revealOnScrollEnabled": "yes",
+            "alwaysHiddenSectionEnabled": 0.5,
+            "revealOnEmptyClickEnabled": -1,
+            "isAutoHide": Double.nan,
+        ])
+        #expect(result.changes.isEmpty)
+        #expect(result.writes.isEmpty)
+        #expect(result.ignoredCount == 5)
+    }
+
+    @Test("A switch stored as a Boolean, as a whole number or as 1.0 is accepted")
+    func hiddenBarSwitchKinds() {
+        let result = hiddenBarPlan(["hoverToExpand": true, "revealOnScrollEnabled": 1.0, "revealOnEmptyClickEnabled": 1])
+        #expect(Set(result.changes.map(\.key)) == [.showOnHover, .showOnScroll, .showOnClick])
+        #expect(result.ignoredCount == 0)
+        #expect(result.writes["ShowOnHover"] as? Bool == true)
+        #expect(result.writes["ShowOnScroll"] as? Bool == true)
+    }
+
+    @Test("Auto hide off writes Auto rehide off and leaves the strategy alone")
+    func hiddenBarAutoHideOff() {
+        var current = hiddenBarNow
+        current[.autoRehide] = .bool(true)
+        let result = hiddenBarPlan(["isAutoHide": 0], current: current)
+        #expect(result.changes == [ImportChange(key: .autoRehide, hotkeyAction: nil, before: .bool(true), after: .bool(false))])
+        #expect(result.writes["RehideStrategy"] == nil)
+        #expect(result.ignoredCount == 0)
+    }
+
+    @Test("Auto hide on leaves a timed strategy as it is and does not count it as ignored")
+    func hiddenBarAutoHideOnWithTimedStrategy() {
+        var current = hiddenBarNow
+        current[.rehideStrategy] = .choice(1)
+        let result = hiddenBarPlan(["isAutoHide": 1], current: current)
+        #expect(result.changes.map(\.key) == [.autoRehide])
+        #expect(result.writes["RehideStrategy"] == nil)
+        #expect(result.ignoredCount == 0)
+    }
+
+    @Test("Auto hide on with Auto rehide already on still makes the rehide timed")
+    func hiddenBarAutoHideOnAlreadyOn() {
+        var current = hiddenBarNow
+        current[.autoRehide] = .bool(true)
+        let result = hiddenBarPlan(["isAutoHide": 1], current: current)
+        #expect(result.changes == [ImportChange(key: .rehideStrategy, hotkeyAction: nil, before: .choice(0), after: .choice(1))])
+        #expect(result.writes.keys.sorted() == ["RehideStrategy"])
+        #expect(result.ignoredCount == 0)
+    }
+
+    @Test("Without a label for the strategy here, auto hide on changes only Auto rehide")
+    func hiddenBarAutoHideOnWithoutStrategyLabel() {
+        var current = hiddenBarNow
+        current[.rehideStrategy] = nil
+        let result = hiddenBarPlan(["isAutoHide": 1], current: current)
+        #expect(result.changes.map(\.key) == [.autoRehide])
+        #expect(result.writes["RehideStrategy"] == nil)
+        #expect(result.ignoredCount == 0)
+    }
+
+    @Test("Hidden Bar's global shortcut is one omission for the Show or hide action, never written")
+    func hiddenBarShortcutIsOmitted() {
+        let result = hiddenBarPlan(["globalKey": Data([1, 2, 3, 4]), "hoverToExpand": 1])
+        #expect(result.omissions == [ImportOmission(key: .hotkeys, hotkeyAction: "ToggleHiddenSection")])
+        #expect(result.writes["Hotkeys"] == nil)
+        #expect(result.writes["globalKey"] == nil)
+        #expect(result.changes.map(\.key) == [.showOnHover])
+        #expect(result.ignoredCount == 0)
+    }
+
+    @Test("A source without the shortcut names no omission")
+    func hiddenBarNoShortcutNoOmission() {
+        #expect(hiddenBarPlan(["hoverToExpand": 1]).omissions.isEmpty)
+    }
+
+    @Test("Separators, the login item, the arrow style, the presentation keys and the pinned sections are ignored")
+    func hiddenBarIgnoredKeys() {
+        let result = hiddenBarPlan(hiddenBarFixture())
+        let never = [
+            "findHiddenIconShortcut", "isAutoStart", "isShowPreferences", "areSeparatorsHidden",
+            "useFullStatusBarOnExpandEnabled", "stealthExpandIconEnabled", "arrowStyle", "revealOnShakeEnabled",
+            "notchOverflowEnabled", "pauseHidingForUnkeepableItems", "pinnedSectionsEnabled", "newAppDefaultSection",
+            "presentationAutoMirrorEnabled", "presentationSensitiveApps", "presentationShortcut", "rightClickAction",
+            "pinnedSections", "globalKey",
+        ]
+        for name in never {
+            #expect(result.writes[name] == nil, "\(name) must not be written")
+        }
+        // 24 keys: six mapped, one named as not imported, and the other seventeen ignored.
+        #expect(result.ignoredCount == 17)
+        #expect(result.omissions.count == 1)
+        #expect(result.writes.count == 7)
+    }
+
+    @Test("Thaw's stored names mean nothing in Hidden Bar's table, and Hidden Bar reads no Hotkeys dictionary")
+    func hiddenBarTablesAreSeparate() {
+        let result = hiddenBarPlan(["ShowOnHover": true, "Hotkeys": ["ToggleHiddenSection": combination(40, 768)]])
+        #expect(result.changes.isEmpty)
+        #expect(result.writes.isEmpty)
+        #expect(result.ignoredCount == 2)
+    }
+
+    @Test("A Hidden Bar source whose every mapped value equals the current one gives nothing")
+    func hiddenBarEverythingEqual() {
+        var current = hiddenBarNow
+        current[.autoRehide] = .bool(true)
+        current[.rehideStrategy] = .choice(1)
+        current[.rehideInterval] = .number(10)
+        let result = hiddenBarPlan(["isAutoHide": 1, "numberOfSecondForAutoHide": 10.0, "hoverToExpand": 0], current: current)
+        #expect(result.changes.isEmpty)
+        #expect(result.writes.isEmpty)
         #expect(result.ignoredCount == 0)
     }
 }

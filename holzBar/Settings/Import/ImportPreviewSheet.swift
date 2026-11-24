@@ -30,7 +30,9 @@ struct ImportPreviewSheet: View {
 
     /// The controls that can hold the focus.
     private enum Control: Hashable {
+        /// The first source's button, which has the focus when the sheet opens.
         case previewImport
+        case previewHiddenBar
         case importSettings
     }
 
@@ -47,8 +49,12 @@ struct ImportPreviewSheet: View {
     @State private var plan: ImportPlan?
     @State private var activity = Activity.idle
     @State private var failure: Failure?
-    /// Whether the source is installed, found by its bundle identifier when the sheet opens.
-    @State private var isInstalled = PreviousAppImporter.isInstalled(.thaw)
+    /// The source being read: its row shows the spinner while the sheet is reading.
+    @State private var readingSource: ImportSource?
+    /// Which apps are installed, found by their bundle identifiers when the sheet opens.
+    @State private var installed = Dictionary(
+        uniqueKeysWithValues: ImportSource.allCases.map { ($0, PreviousAppImporter.isInstalled($0)) }
+    )
     @FocusState private var focus: Control?
 
     var body: some View {
@@ -82,20 +88,8 @@ struct ImportPreviewSheet: View {
                 SettingsCatalog.ImportSheet.apps,
                 footnote: Text("Window sizes, item positions and scripts are never imported.")
             ) {
-                SettingsButtonRow(
-                    Text(verbatim: ImportSource.thaw.productName),
-                    small: isInstalled ? Text("Found") : Text("Not found")
-                ) {
-                    if activity == .reading {
-                        ProgressView()
-                            .controlSize(.small)
-                    } else {
-                        Button("Preview Import") {
-                            preview(.thaw)
-                        }
-                        .focused($focus, equals: .previewImport)
-                        .disabled(!isInstalled)
-                    }
+                ForEach(ImportSource.allCases, id: \.self) { source in
+                    sourceRow(source)
                 }
             }
             if activity == .reading {
@@ -113,6 +107,26 @@ struct ImportPreviewSheet: View {
                     dismiss()
                 }
                 .keyboardShortcut(.cancelAction)
+            }
+        }
+    }
+
+    /// One app: whether it is installed and the button that reads its settings.
+    private func sourceRow(_ source: ImportSource) -> some View {
+        let isInstalled = installed[source] ?? false
+        return SettingsButtonRow(
+            Text(verbatim: source.productName),
+            small: isInstalled ? Text("Found") : Text("Not found")
+        ) {
+            if activity == .reading, readingSource == source {
+                ProgressView()
+                    .controlSize(.small)
+            } else {
+                Button("Preview Import") {
+                    preview(source)
+                }
+                .focused($focus, equals: source == .hiddenBar ? Control.previewHiddenBar : Control.previewImport)
+                .disabled(!isInstalled || activity == .reading)
             }
         }
     }
@@ -155,9 +169,9 @@ struct ImportPreviewSheet: View {
                     }
                     if !plan.omissions.isEmpty {
                         SettingsGroup(SettingsCatalog.ImportSheet.notImported) {
-                            ForEach(plan.omissions, id: \.key) { omission in
+                            ForEach(plan.omissions) { omission in
                                 SettingsValueRow(
-                                    Text(ImportTargets.omissionLabel(for: omission.key)),
+                                    Text(ImportTargets.omissionLabel(for: omission)),
                                     value: Text("Not imported")
                                 )
                             }
@@ -251,6 +265,7 @@ struct ImportPreviewSheet: View {
     /// Reads the source's settings, only after the click, and moves to the preview.
     private func preview(_ source: ImportSource) {
         failure = nil
+        readingSource = source
         activity = .reading
         Task {
             // Let the spinner draw before the read.
@@ -260,13 +275,17 @@ struct ImportPreviewSheet: View {
                 failure = .unreadable
                 return
             }
-            let planned = PreviousAppImporter.plan(for: source, settings: domain, appState: appState)
-            activity = .idle
-            withAnimation(stepAnimation) {
-                plan = planned
-            }
-            focus = .importSettings
+            show(PreviousAppImporter.plan(for: source, settings: domain, appState: appState))
         }
+    }
+
+    /// Moves to the preview of a plan.
+    private func show(_ planned: ImportPlan) {
+        activity = .idle
+        withAnimation(stepAnimation) {
+            plan = planned
+        }
+        focus = .importSettings
     }
 
     private func goBack() {
