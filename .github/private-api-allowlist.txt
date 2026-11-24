@@ -1,6 +1,6 @@
 # Lines that reach a private macOS interface, which `privacy-check.py private` allows, as
-# `<path>: <token>`. A hit (dlopen, dlsym, a PrivateFrameworks path, @_silgen_name or the GPU
-# statistics key) is allowed when its file equals <path> and the line contains <token>. Each
+# `<path>: <token>`. A hit (dlopen, dlsym, a PrivateFrameworks path, @_silgen_name, the GPU
+# statistics key or the Dock badge attribute) is allowed when its file equals <path> and the line contains <token>. Each
 # private API sits behind one wrapper per API, and every entry was agreed with the maintainer for
 # that module (see CLAUDE.md, "Private API only by exception, per module"). A new entry needs
 # the maintainer's decision and says why.
@@ -46,3 +46,8 @@ NowPlayingRemote/NowPlayingRemote.swift: PrivateFrameworks
 holzBar/MenuBar/Readouts/GPULoadBridge.swift: PerformanceStatistics
 holzBar/MenuBar/Readouts/GPULoadBridge.swift: Device Utilization
 holzBar/MenuBar/Readouts/GPULoadBridge.swift: IOAccelerator
+#
+# The Dock badges module's Read badge counts switch reads the badge an app shows on its Dock icon
+# from an undocumented attribute of the Dock's items, through public Accessibility calls (agreed
+# 2026-11-24). The wrapper is the only file that names it and reads only while the switch is on.
+holzBar/MenuBar/DockBadges/DockBadgeBridge.swift: AXStatusLabel

@@ -19,8 +19,10 @@
 #            except the lines .github/process-allowlist.txt allows (threats T-11-H3 and
 #            T-11-H4 of SECURITY.md).
 #   private  Private API only where the list says: no dlopen, dlsym, PrivateFrameworks
-#            path, @_silgen_name or GPU statistics key (the undocumented graphics load of the
-#            System readouts module, read through public IOKit calls) appears in holzBar/,
+#            path, @_silgen_name, GPU statistics key (the undocumented graphics load of the
+#            System readouts module, read through public IOKit calls) or Dock badge attribute
+#            (the undocumented badge of the Dock badges module, read through public
+#            Accessibility calls) appears in holzBar/,
 #            Shared/ or NowPlayingRemote/ except the lines
 #            .github/private-api-allowlist.txt allows (one wrapper per private API, each
 #            agreed with the maintainer; see CLAUDE.md, "Private API only by exception").
@@ -114,13 +116,16 @@ PROCESS_PATTERNS = [
 # Ways to reach a private macOS interface, each with a short name for the message. `dlopen` and
 # `dlsym` count only as calls. The GPU statistics key is the three names of the undocumented
 # graphics load read of System readouts: the statistics dictionary, its utilization entry and
-# the accelerator class.
+# the accelerator class. The Dock badge attribute is the undocumented badge of the Dock's items
+# that the Dock badges module reads through public Accessibility calls; the regex catches its
+# name with or without the Accessibility prefix.
 PRIVATE_PATTERNS = [
     ("dlopen", re.compile(r"(?<![.\w])dlopen\s*\(")),
     ("dlsym", re.compile(r"(?<![.\w])dlsym\s*\(")),
     ("PrivateFrameworks path", re.compile(r"PrivateFrameworks")),
     ("@_silgen_name", re.compile(r"@_silgen_name")),
     ("GPU statistics key", re.compile(r"PerformanceStatistics|Device Utilization|IOAccelerator")),
+    ("Dock badge attribute", re.compile(r"StatusLabel")),
 ]
 
 LOG_LEVELS = r"(?:log|trace|debug|info|notice|warning|error|critical|fault)"
@@ -518,8 +523,8 @@ def check_processes(root):
 def check_private(root):
     """Fails on a private-API site outside the lines private-api-allowlist.txt allows.
 
-    The sites are five patterns: dlopen, dlsym, a PrivateFrameworks path, @_silgen_name and
-    the GPU statistics key."""
+    The sites are six patterns: dlopen, dlsym, a PrivateFrameworks path, @_silgen_name, the
+    GPU statistics key and the Dock badge attribute."""
     allowlist = []
     for entry in read_list(root, PRIVATE_ALLOWLIST):
         path, separator, token = entry.partition(":")
