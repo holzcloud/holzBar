@@ -445,6 +445,11 @@ final class BrightnessKeyController {
                 self.onChange?()
                 return
             }
+            // A wake or a display change during the load: nothing is sent in the wake wait (D-20).
+            guard self.wakeGateIsOpen else {
+                self.surveyTask = nil
+                return
+            }
             let reports = await bus.survey(candidates, opening: -opening)
             guard !Task.isCancelled, self.generation == generation else {
                 return
