@@ -386,6 +386,16 @@ nonisolated enum DesignTokens {
         static let combinedQuestionMaxRows = 4
     }
 
+    /// The Large Percent battery widget's sizes in points (Phase 97, concept M6).
+    nonisolated enum Widget {
+        /// How much larger than the menu bar font the number is.
+        static let largePercentGrowth = 3.0
+        /// How much smaller than the menu bar font the glyph is.
+        static let largePercentGlyphShrink = 2.0
+        /// The space between the glyph and the number.
+        static let largePercentGap = 4.0
+    }
+
     /// The gradient of fills that carry white text, the same in both appearances.
     nonisolated enum Fill {
         static let start = RGB(hex: 0x1C78AE)

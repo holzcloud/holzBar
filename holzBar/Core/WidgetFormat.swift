@@ -156,7 +156,8 @@ nonisolated enum WidgetFormat {
 
     /// The text of a battery format from a power reading (the battery's own reading of 1.1.1 is
     /// the percent and the state only); `nil` for a value the format cannot show, which is then
-    /// the en dash. Percent and State and Percent and Time Left carry the state as a symbol.
+    /// the en dash. Percent and State and Percent and Time Left carry the state as a symbol, and Large
+    /// Percent carries it for its glyph.
     private static func batteryText(
         for reading: WidgetReading,
         preset: WidgetPreset,
@@ -184,7 +185,7 @@ nonisolated enum WidgetFormat {
             return WidgetText(string: string, batteryState: power.state)
         default:
             let string = percentText(Double(min(max(power.percent, 0), 100)) / 100, locale: locale)
-            return WidgetText(string: string, batteryState: preset == .percentAndState ? power.state : nil)
+            return WidgetText(string: string, batteryState: preset == .percentAndState || preset == .largePercent ? power.state : nil)
         }
     }
 

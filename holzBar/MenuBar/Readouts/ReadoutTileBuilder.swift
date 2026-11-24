@@ -83,13 +83,7 @@ enum ReadoutTileBuilder {
     /// The battery symbol nearest to the charge: 0, 25, 50, 75 or 100 percent, with a bolt while it
     /// charges.
     static func batterySymbol(percent: Int?, isCharging: Bool) -> String {
-        if isCharging {
-            return "battery.100percent.bolt"
-        }
-        let steps = [0, 25, 50, 75, 100]
-        let level = min(max(percent ?? 0, 0), 100)
-        let nearest = steps.min { abs($0 - level) < abs($1 - level) } ?? 0
-        return "battery.\(nearest)percent"
+        BatteryGlyph.symbolName(percent: percent, isCharging: isCharging)
     }
 
     // MARK: Value and unit

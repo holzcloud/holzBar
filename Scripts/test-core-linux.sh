@@ -39,6 +39,7 @@ sources=(
   AutomationRule
   AXSnapshot
   BarClickTrace
+  BatteryGlyph
   BatteryLevel
   BuiltInItem
   CalendarEvent
@@ -222,6 +223,7 @@ tests=(
   AutomationEngineTests
   AXSnapshotTests
   BarClickTraceTests
+  BatteryGlyphTests
   BatteryLevelTests
   BuiltInItemTests
   CalendarEventTests

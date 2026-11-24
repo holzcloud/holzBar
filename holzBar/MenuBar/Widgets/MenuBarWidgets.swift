@@ -787,7 +787,9 @@ final class MenuBarWidgets {
             return
         }
         let definition = runtime.definition
-        if definition.kind == .builtIn {
+        if LargePercentWidget.isWidget(definition) {
+            LargePercentWidget.configure(button)
+        } else if definition.kind == .builtIn {
             // An app launcher shows its application's own icon; every other item, and a launcher
             // whose application is not installed, a symbol. Only the timer has a text.
             if let icon = launcherIcon(for: definition) {
@@ -966,17 +968,6 @@ final class MenuBarWidgets {
         }
     }
 
-    /// The symbol that shows the battery's state next to the percentage, if the state has one:
-    /// a bolt while it charges, a plug on the adapter when it is full or holds its level, and
-    /// nothing on battery power.
-    private static func stateSymbolName(for state: BatteryState?) -> String? {
-        switch state {
-        case .charging: "bolt.fill"
-        case .charged, .onAdapter: "powerplug.fill"
-        case .onBattery, nil: nil
-        }
-    }
-
     /// The text of a widget in the menu bar font, muted when it is a passed countdown, with the
     /// battery's state as a template symbol after it, and cut at its end when it asks for it.
     private static func attributedTitle(for text: WidgetText, truncates: Bool = false) -> NSAttributedString {
@@ -992,7 +983,7 @@ final class MenuBarWidgets {
         }
         let title = NSMutableAttributedString(string: text.string, attributes: attributes)
         if
-            let name = stateSymbolName(for: text.batteryState),
+            let name = BatteryGlyph.stateSymbolName(for: text.batteryState),
             let symbol = NSImage(systemSymbolName: name, accessibilityDescription: nil)?
                 .withSymbolConfiguration(NSImage.SymbolConfiguration(pointSize: font.pointSize, weight: .regular))
         {
@@ -1029,7 +1020,11 @@ final class MenuBarWidgets {
         if text != runtime.text {
             runtime.text = text
             let isScript = runtime.definition.kind == .script
-            button.attributedTitle = Self.attributedTitle(for: text, truncates: isScript)
+            button.attributedTitle = LargePercentWidget.isWidget(runtime.definition)
+                ? LargePercentWidget.title(
+                    for: text, reading: reading, font: Self.font, showsGlyph: runtime.definition.showsSymbol
+                )
+                : Self.attributedTitle(for: text, truncates: isScript)
             // The same text as a picture, for the surfaces that show items elsewhere (D-24).
             images[runtime.definition.autosaveName] = launcherIcon(for: runtime.definition) ?? Self.picture(
                 for: runtime.definition,
@@ -1109,7 +1104,7 @@ final class MenuBarWidgets {
             symbolName: symbolName,
             string: string,
             isMuted: text.isMuted,
-            stateSymbolName: stateSymbolName(for: text.batteryState),
+            stateSymbolName: BatteryGlyph.stateSymbolName(for: text.batteryState),
             fontSize: font.pointSize,
             height: ItemIconStore.drawnHeight,
             maximumTextWidth: maximumTextWidth

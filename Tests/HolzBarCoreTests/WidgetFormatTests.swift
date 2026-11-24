@@ -171,6 +171,21 @@ struct WidgetFormatTests {
         #expect(samples.map(plain) == ["100%"])
     }
 
+    @Test("Large Percent is the Percent text and carries the state for its glyph (D-16)")
+    func largePercent() {
+        let reading = WidgetReading.battery(percent: 62, state: .charging)
+        let large = text(reading, definition(.battery, preset: .largePercent))
+        #expect(large.string == text(reading, definition(.battery, preset: .percent)).string)
+        #expect(large.batteryState == .charging)
+        #expect(text(.power(PowerReading(percent: 140, state: .onBattery)), definition(.battery, preset: .largePercent)).string == "100%")
+        #expect(text(.unavailable, definition(.battery, preset: .largePercent)).isUnavailable)
+        // The width sample is the widest percent, shared with the other battery percent formats.
+        let samples = WidgetFormat.widthSamples(
+            for: definition(.battery, preset: .largePercent), locale: english, calendar: calendar, capacityBytes: nil
+        )
+        #expect(samples == ["100%"])
+    }
+
     @Test("Lowest Device Battery gives a percent and never the name, the en dash without a level (D-26, MON-09)")
     func deviceBatteryText() {
         let airpods = WidgetReading.device(LowestDeviceBattery(name: "AirPods", percent: 82, symbol: "airpods"))

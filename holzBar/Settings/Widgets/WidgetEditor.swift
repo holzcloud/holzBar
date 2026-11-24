@@ -127,6 +127,7 @@ struct WidgetEditor: View {
         case .percentAndTimeLeft: Text("Percent and Time Left")
         case .adapterWatts: Text("Adapter Watts")
         case .perCluster: Text("Per Core Cluster")
+        case .largePercent: Text("Large Percent")
         }
     }
 

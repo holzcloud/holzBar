@@ -577,4 +577,12 @@ struct DesignTokensTests {
         #expect(comfort.shelfNoticeMinWidth < comfort.shelfNoticeMaxWidth)
         #expect(comfort.combinedQuestionMaxRows == 4)
     }
+
+    @Test("The Large Percent widget's number, glyph and gap are the design's numbers")
+    func widgetTokens() {
+        let widget = Tokens.Widget.self
+        #expect(widget.largePercentGrowth == 3)
+        #expect(widget.largePercentGlyphShrink == 2)
+        #expect(widget.largePercentGap == 4)
+    }
 }
