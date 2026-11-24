@@ -184,6 +184,13 @@ final class DisplayControlsRuntime: HubModuleRuntime {
 
     @ObservationIgnored private var channels: [ExternalControl: Channel] = [:]
 
+    /// The last positions the sliders showed when the hub closed or a new survey began, still to
+    /// be written once, the latest per control (``cancelExternalWork(flushingPendingWrites:)``).
+    @ObservationIgnored private var pendingFlushes: [ExternalControl: UInt16] = [:]
+
+    /// The one task that writes ``pendingFlushes`` after the wake wait, while any is left.
+    @ObservationIgnored private var flushTask: Task<Void, Never>?
+
     /// Whether the hub is open. While it is closed nothing of the external part talks to a monitor.
     @ObservationIgnored private var isHubOpen = false
 
@@ -838,7 +845,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// delivered and clears the levels requested. With `flushingPendingWrites` the last value a
     /// slider asked for, which no writer had taken yet, is still written once: closing the hub or
     /// asking again must not drop the position the slider showed. The part switching off or going
-    /// unavailable never writes.
+    /// unavailable never writes, and drops a flush that was still waiting.
     private func cancelExternalWork(flushingPendingWrites: Bool = false) {
         ddcGeneration += 1
         surveyTask?.cancel()
@@ -848,22 +855,57 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         for index in externals.indices where externals[index].showsReadingIndicator {
             externals[index].showsReadingIndicator = false
         }
-        let flushBus = flushingPendingWrites && ddcGate.isAvailable ? bus : nil
+        let flushes = flushingPendingWrites && ddcGate.isAvailable
         for (key, var channel) in channels {
             channel.writer?.cancel()
             channel.settle?.cancel()
-            if let flushBus, let raw = channel.coalescer.next() {
-                // The last position a slider showed is still written, after the wake wait when one
-                // is on: a monitor coming back from sleep drops it otherwise.
-                Task { [weak self] in
-                    _ = await self?.waitForWakeGate()
-                    _ = await flushBus.write(key.control, raw: raw, to: key.display)
-                }
+            if flushes, let raw = channel.coalescer.next() {
+                pendingFlushes[key] = raw
             }
         }
         channels = [:]
         requestedLevels = [:]
         requestedMutes = [:]
+        if flushes {
+            startFlush()
+        } else {
+            cancelFlush()
+        }
+    }
+
+    /// Writes the pending positions one after the other, after the wake wait (a monitor coming
+    /// back from sleep drops them otherwise). Every write is checked again after the wait: the
+    /// part switching off, going unavailable or losing its bus means nothing is written.
+    private func startFlush() {
+        guard flushTask == nil, !pendingFlushes.isEmpty else {
+            return
+        }
+        flushTask = Task { [weak self] in
+            while let self, !Task.isCancelled {
+                guard
+                    await self.waitForWakeGate(),
+                    self.ddcGate.isAvailable,
+                    self.appState?.settings.displayControls.showsExternalMonitors == true,
+                    let bus = self.bus,
+                    let (key, raw) = self.pendingFlushes.first
+                else {
+                    break
+                }
+                self.pendingFlushes[key] = nil
+                _ = await bus.write(key.control, raw: raw, to: key.display)
+            }
+            // A task that was cancelled has been replaced or dropped already.
+            if !Task.isCancelled {
+                self?.flushTask = nil
+            }
+        }
+    }
+
+    /// Drops every position still waiting to be written and stops the task that would write it.
+    private func cancelFlush() {
+        flushTask?.cancel()
+        flushTask = nil
+        pendingFlushes = [:]
     }
 
     private func clear() {
