@@ -37,6 +37,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Script hooks before or after a profile | ❌ | ✅ | — | ✅ |
 | Menu bar items of your own (clock, battery, CPU, Shortcut button) | ❌ | — | ✅ | ✅ |
 | A Spotlight button and a Large Percent battery format among the menu bar widgets | ❌ | — | — | 🔜 1.2.0 |
+| Dock badges: the unread counts of apps you choose from the Dock, as menu bar items, with groups that show a total and open a menu of their apps (optional module, off by default; uses the Accessibility access holzBar already has; the counts are read through a macOS interface that Apple does not document) | ❌ | — | — | 🔜 1.2.0 |
 | Hide the clock, Control Center, Wi-Fi or the battery on macOS 27 | — | — | ✅ | ✅ |
 | Replacement icons for Apple items on macOS 27 | — | ✅ | — | ✅ |
 | AppleScript dictionary | — | — | ✅ | ✅ <sub>a small, read-mostly set; asks before lasting changes</sub> |
@@ -92,6 +93,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Opened items stay up to 30 s, or open without showing the item | ❌ | ✅ | — | ✅ |
 | Show an item briefly when it changes | ❌ | ✅ | — | ✅ <sub>opt-in per item</sub> |
 | Export and import settings | ❌ | ✅ | — | ✅ |
+| Import settings from Thaw and Hidden Bar, with a preview of every change, a backup file and Undo (only settings holzBar has a matching setting for; window sizes, item positions and scripts are never imported) | ❌ | ❌ | — | 🔜 1.2.0 |
 | Languages | English | many, through Crowdin | — | 20, machine-made, not yet reviewed |
 | Keep Apple's Live Activities visible | ❌ | — | — | ✅ <sub>beta, macOS 14 – 26</sub> |
 | Show on scroll with a mouse wheel | ❌ | — | — | ✅ |
@@ -187,7 +189,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Build provenance (attestation, SLSA) | ✅ SLSA 3 | ❓ | ❌ | ✅ Cosign + SLSA | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Hides desktop icons | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Clipboard history, extras beyond the menu bar | ❌ | ✅ Command Bar, Top Shelf | ❌ | ❌ | ❌ | ❌ | MCP server | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ clipboard, launcher, AI | ✅ clipboard history | ✅ clipboard, Command Bar, many tools | launcher icons | ✅ MCP server (10 tools) | Now Playing, Focus, Time Machine | ❌ none listed | ❌ none listed | actions, deep links, MCP, bookmarks |
-| Imports settings from other apps | ✅ Ice | ❓ Bartender 6 profiles (experimental) | ❌ | ❌ | ✅ Bartender, Ice | ❓ | ❓ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
+| Imports settings from other apps | ✅ Ice, 🔜 1.2.0 Thaw and Hidden Bar | ❓ Bartender 6 profiles (experimental) | ❌ | ❌ | ✅ Bartender, Ice | ❓ | ❓ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Notch hub (widgets, files, now playing in the notch) | Hub ✅, Timers ✅, Calendar ✅, Live activities ✅, File drop ✅, Display controls ✅, Accessory alerts ✅, Notifications ✅, Now Playing ✅, more modules 🔜 | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | Notch Mode (its own bar) |
 | Calendar and meeting link in the hub (reads your calendars on this Mac only) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Now Playing in the hub (Music and Spotify; any app with the opt-in Read all apps) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | media controls item | ❓ | menu bar item, not a hub | ❓ | ❓ | ❓ |
