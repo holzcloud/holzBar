@@ -184375,125 +184375,6 @@
         }
       }
     },
-    "Follow the pointer opens the hub only on the display where the pointer is." : {
-      "comment" : "Info of the Show the hub on setting",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Možnost Sledovat ukazatel otevře centrum jen na displeji, kde je ukazatel."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„Dem Zeiger folgen“ öffnet den Hub nur auf dem Display, auf dem sich der Zeiger befindet."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«Seguir el puntero» abre el hub solo en la pantalla donde está el puntero."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "« Suivre le pointeur » n’ouvre le hub que sur l’écran où se trouve le pointeur."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A Kövesse a mutatót csak azon a kijelzőn nyitja meg a központot, ahol a mutató van."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ikuti penunjuk membuka pusat hanya di layar tempat penunjuk berada."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«Segui il puntatore» apre l’hub solo sul monitor in cui si trova il puntatore."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「ポインタに追従」は、ポインタがあるディスプレイでのみハブを開きます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "‘포인터 따라가기’는 포인터가 있는 디스플레이에서만 허브를 엽니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "‘Volg de aanwijzer’ opent de hub alleen op het beeldscherm waar de aanwijzer is."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„Podążaj za wskaźnikiem” otwiera centrum tylko na wyświetlaczu, na którym znajduje się wskaźnik."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“Seguir o ponteiro” abre o hub apenas no monitor em que o ponteiro está."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«Suandar il cursur» avra il hub mo sin il monitur nua che il cursur sa chatta."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«За указателем» открывает хаб только на дисплее, где находится указатель."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Följ pekaren öppnar centret bara på den skärm där pekaren finns."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "İşaretçiyi izle, merkezi yalnızca işaretçinin bulunduğu ekranda açar."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«За вказівником» відкриває центр лише на дисплеї, де є вказівник."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“跟随指针”仅在指针所在的显示器上打开中枢。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「跟隨指標」只會在指標所在的顯示器上打開中心。"
-          }
-        }
-      }
-    },
     "Bounce" : {
       "comment" : "A switch in the Notch hub settings: whether the island's motion overshoots",
       "localizations" : {
@@ -187723,6 +187604,125 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "亮度鍵需要在「顯示器控制」中開啟「亮度」或「外接顯示器」"
+          }
+        }
+      }
+    },
+    "Follow the pointer opens the hub on the display where the pointer is, or on the display of the active window when the pointer is on none." : {
+      "comment" : "Info of the Show the hub on setting",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Možnost Sledovat ukazatel otevře centrum na displeji, kde je ukazatel, nebo na displeji aktivního okna, když ukazatel není na žádném."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Dem Zeiger folgen“ öffnet den Hub auf dem Display, auf dem sich der Zeiger befindet, oder auf dem Display des aktiven Fensters, wenn der Zeiger auf keinem ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Seguir el puntero» abre el hub en la pantalla donde está el puntero, o en la pantalla de la ventana activa si el puntero no está en ninguna."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Suivre le pointeur » ouvre le hub sur l’écran où se trouve le pointeur, ou sur l’écran de la fenêtre active si le pointeur n’est sur aucun."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Kövesse a mutatót azon a kijelzőn nyitja meg a központot, ahol a mutató van, vagy az aktív ablak kijelzőjén, ha a mutató egyiken sincs."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ikuti penunjuk membuka pusat di layar tempat penunjuk berada, atau di layar jendela aktif jika penunjuk tidak berada di layar mana pun."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Segui il puntatore» apre l’hub sul monitor in cui si trova il puntatore, o su quello della finestra attiva se il puntatore non è su nessuno."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「ポインタに追従」は、ポインタがあるディスプレイでハブを開きます。ポインタがどのディスプレイにもないときは、アクティブなウィンドウのディスプレイで開きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘포인터 따라가기’는 포인터가 있는 디스플레이에서 허브를 엽니다. 포인터가 어느 디스플레이에도 없으면 활성 윈도우의 디스플레이에서 엽니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘Volg de aanwijzer’ opent de hub op het beeldscherm waar de aanwijzer is, of op het beeldscherm van het actieve venster als de aanwijzer op geen enkel scherm staat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Podążaj za wskaźnikiem” otwiera centrum na wyświetlaczu, na którym znajduje się wskaźnik, albo na wyświetlaczu aktywnego okna, gdy wskaźnika nie ma na żadnym."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Seguir o ponteiro” abre o hub no monitor em que o ponteiro está, ou no monitor da janela ativa quando o ponteiro não está em nenhum."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Suandar il cursur» avra il hub sin il monitur nua che il cursur sa chatta, u sin il monitur da la fanestra activa sch’il cursur n’è sin nagin."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«За указателем» открывает хаб на дисплее, где находится указатель, или на дисплее активного окна, если указателя нет ни на одном дисплее."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Följ pekaren öppnar centret på den skärm där pekaren finns, eller på skärmen med det aktiva fönstret om pekaren inte finns på någon."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İşaretçiyi izle, merkezi işaretçinin bulunduğu ekranda açar; işaretçi hiçbir ekranda değilse etkin pencerenin ekranında açar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«За вказівником» відкриває центр на дисплеї, де є вказівник, або на дисплеї активного вікна, якщо вказівника немає на жодному."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“跟随指针”在指针所在的显示器上打开中枢；指针不在任何显示器上时，在活动窗口所在的显示器上打开。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「跟隨指標」會在指標所在的顯示器上打開中心；指標不在任何顯示器上時，會在使用中視窗所在的顯示器上打開。"
           }
         }
       }

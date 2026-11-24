@@ -22,7 +22,9 @@ nonisolated enum NotchHubDisplays: Int, CaseIterable, Sendable {
     /// Every display, and the one the pointer is on decides where the hub opens (decision D-11 of
     /// Phase 96): the hotkey, an alert click, the live state and the indicators go to the display
     /// under the pointer, else to the one of the key window, else to the first. The hover zones
-    /// exist on every display. Appended as raw value 3; the stored values never change meaning.
+    /// exist on every display. It differs from ``all`` only in the key-window fallback when the
+    /// pointer is on no display (kept as a maintainer decision, IN-01). Appended as raw value 3;
+    /// the stored values never change meaning.
     case followPointer = 3
 
     /// Whether the hub may open on a display.

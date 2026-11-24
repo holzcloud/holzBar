@@ -246,7 +246,7 @@ extension SettingsEntry {
         pane: .modules,
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Show the hub on"),
-        info: String(localized: "Follow the pointer opens the hub only on the display where the pointer is."),
+        info: String(localized: "Follow the pointer opens the hub on the display where the pointer is, or on the display of the active window when the pointer is on none."),
         module: NotchHubController.moduleID
     )
 
