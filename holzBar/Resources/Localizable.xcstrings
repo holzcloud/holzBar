@@ -198595,6 +198595,720 @@
           }
         }
       }
+    },
+    "Last import" : {
+      "comment" : "Advanced, Back up group: label of the row that restores the settings from before the last import",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poslední import"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzter Import"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Última importación"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dernier import"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legutóbbi importálás"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impor terakhir"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima importazione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "前回の読み込み"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마지막 가져오기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laatste import"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostatni import"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Última importação"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultim import"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последний импорт"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senaste import"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son içe aktarma"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Останній імпорт"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上次导入"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上次輸入"
+          }
+        }
+      }
+    },
+    "Puts back the settings holzBar had before the last import and restarts. Changes you made since then are lost." : {
+      "comment" : "Advanced: info popover of the Last import row",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vrátí nastavení, která holzBar měl před posledním importem, a restartuje se. Změny provedené od té doby se ztratí."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stellt die Einstellungen wieder her, die holzBar vor dem letzten Import hatte, und startet neu. Änderungen, die du seitdem vorgenommen hast, gehen verloren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recupera los ajustes que holzBar tenía antes de la última importación y se reinicia. Los cambios que hayas hecho desde entonces se pierden."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rétablit les réglages que holzBar avait avant le dernier import, puis redémarre. Les modifications effectuées depuis sont perdues."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visszaállítja a holzBar beállításait az utolsó importálás előtti állapotra, és újraindul. Az azóta végzett módosítások elvesznek."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mengembalikan pengaturan holzBar sebelum impor terakhir lalu dimulai ulang. Perubahan yang Anda buat sejak itu akan hilang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristina le impostazioni che holzBar aveva prima dell’ultima importazione e si riavvia. Le modifiche fatte da allora vanno perse."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "前回の読み込みの前の設定に戻して、再起動します。それ以降に行った変更は失われます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마지막 가져오기 전의 설정으로 되돌리고 다시 시작합니다. 그 이후에 변경한 내용은 사라집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zet de instellingen terug die holzBar had vóór de laatste import en start opnieuw. Wijzigingen die je sindsdien hebt gemaakt, gaan verloren."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przywraca ustawienia, które holzBar miał przed ostatnim importem, i uruchamia się ponownie. Zmiany wprowadzone od tego czasu zostaną utracone."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaura os ajustes que o holzBar tinha antes da última importação e reinicia. As alterações feitas desde então são perdidas."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remetta ils parameters che holzBar aveva avant l’ultim import e reavia. Las midadas che ti has fatg dapi lura van a perder."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Возвращает настройки, которые были у holzBar до последнего импорта, и перезапускает его. Изменения, внесённые с тех пор, будут потеряны."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Återställer de inställningar som holzBar hade före den senaste importen och startar om. Ändringar du har gjort sedan dess går förlorade."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar’ın son içe aktarmadan önceki ayarlarını geri yükler ve yeniden başlar. O zamandan beri yaptığınız değişiklikler kaybolur."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повертає параметри, які holzBar мав до останнього імпорту, і перезапускається. Зміни, внесені відтоді, буде втрачено."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢复 holzBar 在上次导入之前的设置并重新启动。此后所做的更改将丢失。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還原 holzBar 在上次輸入之前的設定並重新啟動。此後所做的更改將會遺失。"
+          }
+        }
+      }
+    },
+    "Restore Settings Before Import…" : {
+      "comment" : "Advanced: button that restores the settings from before the last import (asks first)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obnovit nastavení před importem…"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen vor dem Import wiederherstellen …"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar los ajustes anteriores a la importación…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rétablir les réglages d’avant l’import…"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az import előtti beállítások visszaállítása…"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pulihkan pengaturan sebelum impor…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristina le impostazioni prima dell’importazione…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読み込み前の設定に戻す…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가져오기 전 설정 복원…"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instellingen van vóór de import terugzetten…"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przywróć ustawienia sprzed importu…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar os ajustes anteriores à importação…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar ils parameters d’avant l’import …"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстановить настройки до импорта…"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Återställ inställningarna från före importen…"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İçe Aktarma Öncesi Ayarları Geri Yükle…"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відновити параметри до імпорту…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢复导入前的设置…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還原輸入前的設定⋯"
+          }
+        }
+      }
+    },
+    "Restore the settings from before the import?" : {
+      "comment" : "Confirmation sheet: title of the question before restoring the settings from before the last import",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obnovit nastavení před importem?"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen von vor dem Import wiederherstellen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Restaurar los ajustes anteriores a la importación?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rétablir les réglages d’avant l’import ?"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visszaállítja az import előtti beállításokat?"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pulihkan pengaturan sebelum impor?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristinare le impostazioni precedenti all’importazione?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読み込み前の設定に戻しますか?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가져오기 전의 설정을 복원할까요?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instellingen van vóór de import terugzetten?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przywrócić ustawienia sprzed importu?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar os ajustes anteriores à importação?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar ils parameters d’avant l’import?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстановить настройки до импорта?"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Återställa inställningarna från före importen?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İçe aktarma öncesi ayarlar geri yüklensin mi?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відновити параметри до імпорту?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要恢复导入前的设置吗？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要還原輸入前的設定嗎？"
+          }
+        }
+      }
+    },
+    "holzBar goes back to the settings it had before you imported from %@ on %@. Changes made since then are lost. holzBar restarts." : {
+      "comment" : "Confirmation sheet: body of the question before restoring the settings from before the last import; the first argument is the app the import came from, the second the date of the import",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar se vrátí k nastavení, které měl před importem z %@ dne %@. Změny provedené od té doby se ztratí. holzBar se restartuje."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar kehrt zu den Einstellungen zurück, die es vor deinem Import aus %@ am %@ hatte. Änderungen seitdem gehen verloren. holzBar startet neu."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar vuelve a los ajustes que tenía antes de que importaras desde %@ el %@. Los cambios hechos desde entonces se pierden. holzBar se reinicia."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar revient aux réglages qu’il avait avant votre import depuis %@ le %@. Les modifications effectuées depuis sont perdues. holzBar redémarre."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar visszaáll a(z) %@ alkalmazásból végzett importálás (%@) előtti beállításokra. Az azóta végzett módosítások elvesznek. A holzBar újraindul."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar kembali ke pengaturan yang dimilikinya sebelum Anda mengimpor dari %@ pada %@. Perubahan sejak itu akan hilang. holzBar dimulai ulang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar torna alle impostazioni che aveva prima dell’importazione da %@ del %@. Le modifiche fatte da allora vanno perse. holzBar si riavvia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar は、%@ からの読み込み（%@）の前の設定に戻ります。それ以降に行った変更は失われます。holzBar は再起動します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar가 %@에서 %@에 가져오기 전의 설정으로 돌아갑니다. 그 이후의 변경 사항은 사라집니다. holzBar가 다시 시작됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar gaat terug naar de instellingen van vóór je import uit %@ op %@. Wijzigingen sindsdien gaan verloren. holzBar start opnieuw."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar wróci do ustawień sprzed importu z %@ dnia %@. Zmiany wprowadzone od tego czasu zostaną utracone. holzBar uruchomi się ponownie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar volta aos ajustes que tinha antes de você importar de %@ em %@. As alterações feitas desde então são perdidas. O holzBar é reiniciado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar turna ad ils parameters ch’el aveva avant l’import da %@ ils %@. Las midadas fatgas dapi lura van a perder. holzBar reavia."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar вернётся к настройкам, которые были до вашего импорта из %@ от %@. Изменения, внесённые с тех пор, будут потеряны. holzBar перезапустится."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar går tillbaka till de inställningar det hade före din import från %@ den %@. Ändringar som gjorts sedan dess går förlorade. holzBar startar om."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar, %@ uygulamasından %@ tarihinde yaptığınız içe aktarmadan önceki ayarlarına döner. O zamandan beri yapılan değişiklikler kaybolur. holzBar yeniden başlar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar повернеться до параметрів, які були до вашого імпорту з %@ від %@. Зміни, внесені відтоді, буде втрачено. holzBar перезапуститься."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 将恢复到从 %@ 导入（%@）之前的设置。此后所做的更改将丢失。holzBar 会重新启动。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 會還原到從 %@ 輸入（%@）之前的設定。此後所做的更改將會遺失。holzBar 會重新啟動。"
+          }
+        }
+      }
+    },
+    "Restore and Restart" : {
+      "comment" : "Confirmation sheet: destructive button that restores the settings from before the last import and restarts",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obnovit a restartovat"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wiederherstellen und neu starten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar y reiniciar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rétablir et redémarrer"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visszaállítás és újraindítás"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pulihkan dan mulai ulang"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristina e riavvia"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "戻して再起動"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "복원하고 다시 시작"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zet terug en start opnieuw"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przywróć i uruchom ponownie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar e reiniciar"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar e reaviar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстановить и перезапустить"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Återställ och starta om"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geri yükle ve yeniden başlat"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відновити й перезапустити"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢复并重新启动"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還原並重新啟動"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

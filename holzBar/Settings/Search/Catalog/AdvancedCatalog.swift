@@ -45,6 +45,7 @@ extension SettingsCatalog {
                 .advancedExportSettings,
                 .advancedImportSettings,
                 .advancedImportFromApp,
+                .advancedRestoreBeforeImport,
                 .advancedPermissionAccessibility,
                 .advancedPermissionScreenRecording,
                 .advancedPermissionCalendar,
@@ -166,6 +167,14 @@ extension SettingsEntry {
         group: SettingsCatalog.AdvancedPane.backUp,
         label: String(localized: "Import from another app"),
         info: String(localized: "Brings over matching settings from Thaw or Hidden Bar. You see what changes first, holzBar keeps a backup and you can undo it.")
+    )
+
+    static let advancedRestoreBeforeImport = SettingsEntry(
+        id: "advancedRestoreBeforeImport",
+        pane: .advanced,
+        group: SettingsCatalog.AdvancedPane.backUp,
+        label: String(localized: "Last import"),
+        info: String(localized: "Puts back the settings holzBar had before the last import and restarts. Changes you made since then are lost.")
     )
 
     static let advancedPermissionAccessibility = SettingsEntry(
