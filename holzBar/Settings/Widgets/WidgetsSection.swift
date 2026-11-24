@@ -103,6 +103,7 @@ struct WidgetsSection: View {
                 }
             }
             Section {
+                // The order of `BuiltInItem.allCases` is the menu's order; new items go last.
                 ForEach(BuiltInItem.allCases.filter { $0 != .launcher }, id: \.self) { item in
                     Button {
                         addBuiltIn(item)
@@ -122,13 +123,22 @@ struct WidgetsSection: View {
         .disabled(isFull)
     }
 
+    /// Whether the row carries the Preview badge: a text widget with a new source or format, or a
+    /// built-in item that is not yet tried on a Mac.
+    private static func showsPreviewBadge(_ definition: WidgetDefinition) -> Bool {
+        switch definition.kind {
+        case .text: definition.source.isPreview || definition.preset.isPreview
+        case .builtIn: definition.builtIn?.isPreview == true
+        case .button, .script: false
+        }
+    }
+
     private func row(for definition: WidgetDefinition) -> some View {
         let isEditing = editingID == definition.id
         return SettingsButtonRow(
             title(for: definition),
             small: summary(for: definition),
-            badge: WidgetEditor.badge(isPreview: definition.kind == .text
-                && (definition.source.isPreview || definition.preset.isPreview)),
+            badge: WidgetEditor.badge(isPreview: Self.showsPreviewBadge(definition)),
             info: WidgetEditor.explanation(for: definition, appName: launcherName(of: definition))
         ) {
             Button {
