@@ -253,4 +253,48 @@ struct DockBadgeLabelTests {
         case .nothingRead: break
         }
     }
+
+    // MARK: Sum
+
+    @Test("The sum of counts is a count, and marks do not change it")
+    func sumOfCounts() {
+        #expect(DockBadgeSum.of([.count(3), .count(9)]) == .count(12))
+        #expect(DockBadgeSum.of([.count(3), .mark("\u{2022}"), .count(9), .none]) == .count(12))
+        #expect(DockBadgeSum.of([.count(142)]).fullText == "142")
+        #expect(DockBadgeSum.of([.count(60), .count(60)]).bubbleText == "99+")
+    }
+
+    @Test("With no number but a label the sum is the dot")
+    func sumOfMarksIsTheDot() {
+        #expect(DockBadgeSum.of([.mark("!"), .none]) == .mark("\u{2022}"))
+        #expect(DockBadgeSum.of([.mark("new"), .mark("!")]) == .mark("\u{2022}"))
+        #expect(DockBadgeSum.of([.count(0), .mark("!")]) == .mark("\u{2022}"))
+        #expect(DockBadgeSum.of([.mark("!")]).bubbleText == "\u{2022}")
+    }
+
+    @Test("Nothing to show is zero")
+    func sumOfNothingIsZero() {
+        #expect(DockBadgeSum.of([.none, .count(0)]).isZero)
+        #expect(DockBadgeSum.of([.none]).isZero)
+        #expect(DockBadgeSum.of([]).isZero)
+        #expect(DockBadgeSum.of([.count(0), .count(0)]).bubbleText == nil)
+    }
+
+    @Test("A huge sum does not overflow")
+    func sumDoesNotOverflow() {
+        #expect(DockBadgeSum.of([.count(Int.max), .count(Int.max)]) == .count(Int.max))
+    }
+
+    @Test("The menu lists the apps with a badge first, each part in list order")
+    func menuOrderPutsBadgesFirst() {
+        let labels: [String: DockBadgeLabel] = [
+            "com.a.one": .none, "com.a.two": .count(3), "com.a.three": .count(0), "com.a.four": .mark("!"), "com.a.five": .count(1),
+        ]
+        let members = ["com.a.one", "com.a.two", "com.a.three", "com.a.four", "com.a.five", "com.a.unknown"]
+        #expect(
+            DockBadgeSum.menuOrder(members, labels: labels)
+                == ["com.a.two", "com.a.four", "com.a.five", "com.a.one", "com.a.three", "com.a.unknown"]
+        )
+        #expect(DockBadgeSum.menuOrder([], labels: labels).isEmpty)
+    }
 }

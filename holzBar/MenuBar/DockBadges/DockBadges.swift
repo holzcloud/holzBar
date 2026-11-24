@@ -20,8 +20,8 @@ import Observation
 /// no timer for the list.
 ///
 /// The badges are a separate part, active only while the module is on, the Read badge counts
-/// switch is on and holzBar has Accessibility (``DockBadgeItems`` shows one item per chosen app;
-/// nothing exists otherwise). Then one task reads a pass over the Dock at once and every 30
+/// switch is on and holzBar has Accessibility (``DockBadgeItems`` shows one item per chosen app
+/// outside a group and one per group, ``DockBadgeItemList``; nothing exists otherwise). Then one task reads a pass over the Dock at once and every 30
 /// seconds while at least one app is chosen and the Mac is not asleep, locked or away. The read
 /// goes through a private macOS interface, so it has a start check and a self-switch-off
 /// (``PrivateFeatureGate`` and ``DockLabelGate``): when the Dock does not offer the badge, or
@@ -94,6 +94,8 @@ final class DockBadges {
         var isActive = false
         /// The chosen apps, in the order chosen.
         var apps = [String]()
+        /// The groups of the chosen apps.
+        var groups = [DockBadgeGroup]()
         /// Whether the Mac is asleep, locked or away.
         var isPaused = false
         /// What an item shows while its count is zero.
@@ -306,6 +308,7 @@ final class DockBadges {
         return BadgeInputs(
             isActive: true,
             apps: appState.settings.dockBadges.apps,
+            groups: appState.settings.dockBadges.groups,
             isPaused: appState.systemActivityMonitor.isPaused,
             zeroMode: appState.settings.dockBadges.zeroMode
         )
@@ -342,7 +345,8 @@ final class DockBadges {
         let appItems = items ?? makeItems()
         items = appItems
         labels = labels.filter { apps.contains($0.key) }
-        appItems.update(apps: apps, labels: labels, zeroMode: inputs.zeroMode)
+        let kinds = DockBadgeItemList.items(apps: apps, groups: inputs.groups)
+        appItems.update(kinds: kinds, apps: apps, groups: inputs.groups, labels: labels, zeroMode: inputs.zeroMode)
         appItems.apply(visibility: visibilityInputs())
         guard !apps.isEmpty, !inputs.isPaused else {
             cancelPasses()
@@ -377,7 +381,8 @@ final class DockBadges {
         guard let appState else {
             return DockBadgeVisibility.Inputs()
         }
-        let names = appState.settings.dockBadges.apps.map(DockBadgeItemName.app)
+        let settings = appState.settings.dockBadges
+        let names = DockBadgeItemList.items(apps: settings.apps, groups: settings.groups).map(\.autosaveName)
         return DockBadgeVisibility.inputs(for: names, in: appState)
     }
 
@@ -444,7 +449,14 @@ final class DockBadges {
         }
         if result.pass.dockReadable {
             labels = result.answers.mapValues { DockBadgeLabel($0) }
-            items?.update(apps: settings.apps, labels: labels, zeroMode: settings.zeroMode)
+            let kinds = DockBadgeItemList.items(apps: settings.apps, groups: settings.groups)
+            items?.update(
+                kinds: kinds,
+                apps: settings.apps,
+                groups: settings.groups,
+                labels: labels,
+                zeroMode: settings.zeroMode
+            )
         }
     }
 

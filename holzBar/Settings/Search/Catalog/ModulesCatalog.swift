@@ -122,6 +122,7 @@ extension SettingsCatalog {
             // Settings of Dock badges.
             .modulesDockBadgesReadsCounts,
             .modulesDockBadgesZeroMode,
+            .modulesDockBadgesNewGroup,
         ]
 
         /// The Mac battery rule's entries: a Mac without an internal battery has no such rule.
@@ -517,6 +518,14 @@ extension SettingsEntry {
         info: String(
             localized: "Dim keeps the item in place at half strength so the bar does not jump. Hide removes the item until the count is above zero."
         ),
+        module: DockBadges.moduleID
+    )
+
+    static let modulesDockBadgesNewGroup = SettingsEntry(
+        id: "modulesDockBadgesNewGroup",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.menuBar,
+        label: String(localized: "Groups"),
         module: DockBadges.moduleID
     )
 

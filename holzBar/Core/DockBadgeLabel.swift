@@ -140,6 +140,50 @@ nonisolated enum DockBadgeLabel: Equatable, Sendable {
     }
 }
 
+/// What a group of apps shows: the sum of its apps' badges, and the order of its menu (Dock badges,
+/// D-06).
+nonisolated enum DockBadgeSum {
+    /// The mark a group shows when no app has a number but one has a label.
+    static let mark = "\u{2022}"
+
+    /// The badge of a group from the badges of its apps: the sum of their counts when it is above
+    /// zero (capped by the bubble as every count is, never overflowing), the dot when the sum is
+    /// zero and an app has a label, and nothing to show (zero) otherwise. A label never changes a
+    /// sum above zero; the labels are in the group's menu.
+    static func of(_ labels: [DockBadgeLabel]) -> DockBadgeLabel {
+        var sum = 0
+        var hasNumber = false
+        var hasMark = false
+        for label in labels {
+            switch label {
+            case .none:
+                break
+            case .count(let number):
+                hasNumber = true
+                let (total, overflow) = sum.addingReportingOverflow(max(number, 0))
+                sum = overflow ? Int.max : total
+            case .mark:
+                hasMark = true
+            }
+        }
+        if sum > 0 {
+            return .count(sum)
+        }
+        if hasMark {
+            return .mark(Self.mark)
+        }
+        return hasNumber ? .count(0) : .none
+    }
+
+    /// The apps of a group in the order of its menu: those with a badge first, then those without
+    /// one (no badge, a count of zero or no entry), each part in the order of the list.
+    static func menuOrder(_ members: [String], labels: [String: DockBadgeLabel]) -> [String] {
+        let withBadge = members.filter { !(labels[$0] ?? .none).isZero }
+        let without = members.filter { (labels[$0] ?? .none).isZero }
+        return withBadge + without
+    }
+}
+
 /// The rules that decide whether the Dock offers the badge at all, and whether a pass that read
 /// it counts as a success.
 ///

@@ -6,11 +6,12 @@ import Testing
 struct OwnArrangedItemTests {
     private let id = UUID()
 
-    @Test("A widget's and a Dock badge item's autosave name are holzBar's own arranged items")
+    @Test("A widget's, a Dock badge item's and a Dock badge group's autosave name are holzBar's own arranged items")
     func recognisesOwnKinds() {
         #expect(OwnArrangedItem.isAutosaveName("holzBar.Widget.\(id.uuidString)"))
         #expect(OwnArrangedItem.isAutosaveName(DockBadgeItemName.app("com.apple.MobileSMS")))
         #expect(OwnArrangedItem.isAutosaveName("holzBar.DockBadge.App.com.tinyspeck.slackmacgap"))
+        #expect(OwnArrangedItem.isAutosaveName(DockBadgeItemName.group(id)))
     }
 
     @Test("Every other name of holzBar's and every foreign name is refused")
@@ -25,6 +26,8 @@ struct OwnArrangedItemTests {
         #expect(!OwnArrangedItem.isAutosaveName("holzBar.DockBadge.App."))
         #expect(!OwnArrangedItem.isAutosaveName("holzBar.DockBadge.App.not a bundle id"))
         #expect(!OwnArrangedItem.isAutosaveName("holzBar.DockBadge."))
+        #expect(!OwnArrangedItem.isAutosaveName("holzBar.DockBadge.Group."))
+        #expect(!OwnArrangedItem.isAutosaveName("holzBar.DockBadge.Group.not-a-uuid"))
         #expect(!OwnArrangedItem.isAutosaveName(""))
     }
 }

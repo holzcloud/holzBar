@@ -8,8 +8,8 @@ import SwiftUI
 /// The Dock badges module's settings, in the open area of the module's row: the switch that reads
 /// the badge through a private macOS interface (and the line that says when it switched itself
 /// off), the one setting for what an item shows while its count is zero, the apps currently in the
-/// Dock, in the Dock's order, one switch each, and the lines that say why the list is empty or
-/// cannot be read. The list is read only while this view is shown and the module is on, and
+/// Dock, in the Dock's order, one switch each, the lines that say why the list is empty or cannot
+/// be read, and below them the groups of the chosen apps. The list is read only while this view is shown and the module is on, and
 /// dropped when it goes.
 ///
 /// The states, in order: with the module off only a line that says to switch it on, and nothing
@@ -47,6 +47,7 @@ struct DockBadgesSettingsView: View {
                 appsHeader
                 appsList(hasAccess: hasAccess)
                 appsFootnote
+                DockBadgeGroupsSection()
             } else {
                 SettingsEmptyRow(systemImage: "app.badge", Text("Switch on Dock badges to choose apps."))
             }

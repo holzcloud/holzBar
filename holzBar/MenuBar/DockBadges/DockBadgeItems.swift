@@ -5,8 +5,9 @@
 
 import AppKit
 
-/// The menu bar items of Dock badges: one status item per chosen app, showing the app's own icon
-/// with a bubble that holds the badge the Dock shows on it.
+/// The menu bar items of Dock badges: one status item per chosen app outside a group, showing the
+/// app's own icon with a bubble that holds the badge the Dock shows on it, and one per group, showing
+/// its first two apps' icons overlapped with one bubble that holds the sum of their badges.
 ///
 /// An item is a status item of holzBar's own, created the way a widget's is: its autosave name
 /// (``DockBadgeItemName``) is registered with ``OwnStatusItemWindows`` and set as the button's
@@ -16,7 +17,8 @@ import AppKit
 /// widest bubble ("99+") and the icon, so a changing count never moves a neighbour; the bubble
 /// grows toward the icon's middle. The tooltip and VoiceOver carry the real count or the whole
 /// label; nothing is announced when it changes. A click opens the app, found through the item's
-/// own autosave name. Every item also has a picture that holzBar draws of it (the icon and, when
+/// own autosave name; a click on a group's item opens its menu (``DockBadgeGroupMenu``), built from
+/// the badges in memory, in which choosing an app opens it. Every item also has a picture that holzBar draws of it (the icon and, when
 /// shown, the bubble), kept in memory and handed out through the closure the owner gives, for the
 /// Shelf, the Layout pane and the search, which cannot capture an item of holzBar's own. Where
 /// macOS 27 does not draw the section an item is in, the item collapses to no width, as a widget
@@ -26,14 +28,24 @@ import AppKit
 /// App names and badge texts stay in memory and are never logged.
 @MainActor
 final class DockBadgeItems {
-    /// One app's item.
+    /// One item: an app's, or a group's.
     private final class Entry {
+        let kind: DockBadgeItemKind
         let statusItem: NSStatusItem
         let autosaveName: String
-        let name: String
-        let icon: NSImage?
-        /// The icon at half strength, for a count of zero in the mode Dim.
-        let dimmedIcon: NSImage?
+        /// The app's name, or the group's.
+        var name: String
+        /// The bundle identifiers of the apps the item shows: the app's own, or the group's chosen
+        /// apps in the group's order.
+        var members: [String]
+        /// What the item draws: the app's icon, or the first two members' icons overlapped.
+        var icon: NSImage?
+        /// The same at half strength, for a count of zero in the mode Dim.
+        var dimmedIcon: NSImage?
+        /// The width of the icon or the pair of icons.
+        var iconWidth: CGFloat
+        /// The members the icons were drawn from.
+        var iconMembers: [String]
         let bubble = CountBadgeView(style: .dockBadge)
         let clickTarget: ClickTarget
         /// What the picture last drawn shows, so that it is drawn again only when that changes.
@@ -42,49 +54,83 @@ final class DockBadgeItems {
         var isCollapsed = false
         /// Whether the count is zero in the mode Hide.
         var isHiddenAtZero = false
+        /// The length the status item has now.
+        var appliedLength: CGFloat
 
-        init(statusItem: NSStatusItem, autosaveName: String, name: String, icon: NSImage?, dimmedIcon: NSImage?) {
+        init(
+            kind: DockBadgeItemKind,
+            statusItem: NSStatusItem,
+            name: String,
+            members: [String],
+            strip: Strip,
+            owner: DockBadgeItems
+        ) {
+            self.kind = kind
             self.statusItem = statusItem
-            self.autosaveName = autosaveName
+            autosaveName = kind.autosaveName
             self.name = name
-            self.icon = icon
-            self.dimmedIcon = dimmedIcon
-            clickTarget = ClickTarget(statusItem: statusItem)
+            self.members = members
+            icon = strip.icon
+            dimmedIcon = strip.dimmed
+            iconWidth = strip.width
+            iconMembers = Array(members.prefix(2))
+            appliedLength = DockBadgeItems.length(forIconWidth: strip.width)
+            clickTarget = ClickTarget(statusItem: statusItem, owner: owner)
+        }
+
+        /// The one length of the item for the icons it draws.
+        var fixedLength: CGFloat {
+            DockBadgeItems.length(forIconWidth: iconWidth)
         }
     }
 
-    /// What a click on an item does: opens the app the item belongs to. The app comes from the
-    /// item's own autosave name, a chosen bundle identifier, and never from any text the Dock
-    /// delivered.
+    /// What an item draws: the image, its half-strength copy and the width.
+    private struct Strip {
+        var icon: NSImage?
+        var dimmed: NSImage?
+        var width: CGFloat
+    }
+
+    /// What a click on an item does: opens the app an app's item belongs to, or the menu of a
+    /// group's. What it opens comes from the item's own autosave name, a chosen bundle identifier
+    /// or a group's identifier, and never from any text the Dock delivered.
     private final class ClickTarget: NSObject {
         private weak var statusItem: NSStatusItem?
+        private weak var owner: DockBadgeItems?
 
-        init(statusItem: NSStatusItem) {
+        init(statusItem: NSStatusItem, owner: DockBadgeItems) {
             self.statusItem = statusItem
+            self.owner = owner
         }
 
         @objc func clicked(_ sender: Any?) {
-            guard
-                let autosaveName = statusItem?.autosaveName,
-                let bundleID = DockBadgeItemName.bundleID(fromAutosaveName: autosaveName)
-            else {
+            guard let autosaveName = statusItem?.autosaveName else {
                 return
             }
-            DockBadgeItems.open(bundleID)
+            owner?.clicked(autosaveName: autosaveName)
         }
     }
 
-    /// The one length of every item: the icon centred with room on both sides for the bubble's
-    /// overhang or for the widest bubble, whichever is more. Measured once, never again (R7).
-    private static let itemLength: CGFloat = {
-        let icon = CGFloat(DesignTokens.DockBadge.iconSize)
-        let overhang = CGFloat(DesignTokens.DockBadge.bubbleOverhang)
-        let widest = CountBadgeView.width(for: "\(DesignTokens.DockBadge.countLimit)+")
-        return icon + 2 * max(overhang, widest - icon - overhang)
-    }()
+    /// The width of the widest bubble, "99+", measured once (R7).
+    private static let widestBubble = CountBadgeView.width(for: "\(DesignTokens.DockBadge.countLimit)+")
 
-    /// The items by bundle identifier.
+    /// The one length of every item that draws icons of the given width: the icons centred with
+    /// room on both sides for the bubble's overhang or for the widest bubble, whichever is more.
+    /// It depends on the icons only (one icon, or a pair), never on a count (R7).
+    private static func length(forIconWidth iconWidth: CGFloat) -> CGFloat {
+        let overhang = CGFloat(DesignTokens.DockBadge.bubbleOverhang)
+        return iconWidth + 2 * max(overhang, widestBubble - iconWidth - overhang)
+    }
+
+    /// The most recent set of items, so that a click routed by holzBar (from the Shelf, the
+    /// search or a hotkey) can open a group's menu.
+    private static weak var active: DockBadgeItems?
+
+    /// The items by autosave name.
     private var entries = [String: Entry]()
+
+    /// The badge of each chosen app as last told, for a group's menu.
+    private var labels = [String: DockBadgeLabel]()
 
     /// Where the items stand now, as ``DockBadges`` last told.
     private var visibility = DockBadgeVisibility.Inputs()
@@ -99,26 +145,48 @@ final class DockBadgeItems {
     ///   `nil` when the item is no longer in the menu bar.
     init(pictureChanged: @escaping (String, NSImage?) -> Void) {
         self.pictureChanged = pictureChanged
+        Self.active = self
     }
 
-    /// Shows one item for each of the apps and takes away the items of apps that are no longer in
-    /// the list (an app that was switched off forgets its place in the menu bar). Each item shows
-    /// the label of its app, none when it has no entry.
+    /// Shows the given items and takes away the items that are no longer wanted (an app that was
+    /// switched off, or put into a group, forgets its place in the menu bar). Each item shows the
+    /// badge of its app, or the sum of its group's, none when it has no entry.
     ///
     /// - Parameters:
+    ///   - kinds: The items to show, from ``DockBadgeItemList``.
     ///   - apps: The bundle identifiers of the chosen apps.
+    ///   - groups: The groups of the chosen apps.
     ///   - labels: The badge of each app by bundle identifier; an app without one has none, which
     ///     is the case of an app that left the Dock.
     ///   - zeroMode: What an item shows while its count is zero.
-    func update(apps: [String], labels: [String: DockBadgeLabel], zeroMode: DockBadgeZeroMode) {
+    func update(
+        kinds: [DockBadgeItemKind],
+        apps: [String],
+        groups: [DockBadgeGroup],
+        labels: [String: DockBadgeLabel],
+        zeroMode: DockBadgeZeroMode
+    ) {
         self.zeroMode = zeroMode
-        let wanted = Set(apps)
-        for bundleID in entries.keys where !wanted.contains(bundleID) {
-            remove(bundleID, keepingPosition: false)
+        self.labels = labels
+        let wanted = Set(kinds.map(\.autosaveName))
+        for name in entries.keys where !wanted.contains(name) {
+            remove(name, keepingPosition: false)
         }
-        for bundleID in apps {
-            let entry = entries[bundleID] ?? makeEntry(for: bundleID)
-            show(labels[bundleID] ?? .none, on: entry)
+        for kind in kinds {
+            let entry: Entry
+            switch kind {
+            case .app(let bundleID):
+                entry = entries[kind.autosaveName] ?? makeEntry(for: kind, name: nil, members: [bundleID])
+                show(labels[bundleID] ?? .none, on: entry)
+            case .group(let id):
+                guard let group = groups.first(where: { $0.id == id }) else {
+                    continue
+                }
+                let members = DockBadgeItemList.members(of: group, in: groups, apps: apps)
+                entry = entries[kind.autosaveName] ?? makeEntry(for: kind, name: group.name, members: members)
+                refresh(group: entry, name: group.name, members: members)
+                show(DockBadgeSum.of(members.map { labels[$0] ?? .none }), on: entry)
+            }
         }
     }
 
@@ -137,29 +205,30 @@ final class DockBadgeItems {
     /// Takes every item out of the menu bar. With `keepingPosition` the place macOS remembered
     /// for each stays, so the items come back where they were.
     func removeAll(keepingPosition: Bool) {
-        for bundleID in Array(entries.keys) {
-            remove(bundleID, keepingPosition: keepingPosition)
+        for name in Array(entries.keys) {
+            remove(name, keepingPosition: keepingPosition)
         }
     }
 
     // MARK: Items
 
-    private func makeEntry(for bundleID: String) -> Entry {
-        let autosaveName = DockBadgeItemName.app(bundleID)
-        let statusItem = NSStatusBar.system.statusItem(withLength: Self.itemLength)
+    private func makeEntry(for kind: DockBadgeItemKind, name groupName: String?, members: [String]) -> Entry {
+        let autosaveName = kind.autosaveName
+        let strip = Self.strip(for: kind, members: members)
+        let statusItem = NSStatusBar.system.statusItem(withLength: Self.length(forIconWidth: strip.width))
         statusItem.autosaveName = autosaveName
         // On macOS 26, holzBar recognises its own items' windows by their frames.
         OwnStatusItemWindows.register(statusItem, forAutosaveName: autosaveName)
-        let name = BuiltInItemActions.applicationName(forBundleID: bundleID) ?? bundleID
-        let icon = Self.icon(forBundleID: bundleID)
-        let entry = Entry(
-            statusItem: statusItem,
-            autosaveName: autosaveName,
-            name: name,
-            icon: icon,
-            dimmedIcon: Self.dimmed(icon)
-        )
-        entries[bundleID] = entry
+        let name: String
+        if let groupName {
+            name = groupName
+        } else if case .app(let bundleID) = kind {
+            name = BuiltInItemActions.applicationName(forBundleID: bundleID) ?? bundleID
+        } else {
+            name = autosaveName
+        }
+        let entry = Entry(kind: kind, statusItem: statusItem, name: name, members: members, strip: strip, owner: self)
+        entries[autosaveName] = entry
         applyLength(of: entry)
         guard let button = statusItem.button else {
             return entry
@@ -178,6 +247,65 @@ final class DockBadgeItems {
         button.addSubview(entry.bubble)
         entry.bubble.isHidden = true
         return entry
+    }
+
+    /// Brings a group's item in line with the group: its name (the label for VoiceOver and for
+    /// holzBar) and the icons of its first two members, with the length they need.
+    private func refresh(group entry: Entry, name: String, members: [String]) {
+        entry.members = members
+        if entry.name != name {
+            entry.name = name
+            entry.statusItem.button?.setAccessibilityLabel(name)
+            OwnStatusItemNames.set(name, forAutosaveName: entry.autosaveName)
+        }
+        let firstTwo = Array(members.prefix(2))
+        guard firstTwo != entry.iconMembers else {
+            return
+        }
+        let strip = Self.strip(for: entry.kind, members: members)
+        entry.iconMembers = firstTwo
+        entry.icon = strip.icon
+        entry.dimmedIcon = strip.dimmed
+        entry.iconWidth = strip.width
+        entry.pictureKey = nil
+        applyLength(of: entry)
+    }
+
+    /// What an item draws: an app's icon, or a group's first two members' icons overlapped (the
+    /// first behind, the second in front, ``DesignTokens/DockBadge/groupIconOverlap`` to its
+    /// right); a group with one app draws that app's icon alone, as an app's item does.
+    private static func strip(for kind: DockBadgeItemKind, members: [String]) -> Strip {
+        let size = CGFloat(DesignTokens.DockBadge.iconSize)
+        let icon: NSImage?
+        var width = size
+        switch kind {
+        case .app(let bundleID):
+            icon = Self.icon(forBundleID: bundleID)
+        case .group:
+            let icons = members.prefix(2).map { Self.icon(forBundleID: $0) }
+            if icons.count >= 2 {
+                icon = pair(back: icons[0], front: icons[1])
+                width = size + CGFloat(DesignTokens.DockBadge.groupIconOverlap)
+            } else {
+                icon = icons.first.flatMap { $0 }
+            }
+        }
+        return Strip(icon: icon, dimmed: Self.dimmed(icon), width: width)
+    }
+
+    /// Two icons overlapped: the back one at the leading edge, the front one
+    /// ``DesignTokens/DockBadge/groupIconOverlap`` to its right. The pair is a template only when
+    /// both are stand-in symbols of apps that are not installed.
+    private static func pair(back: NSImage?, front: NSImage?) -> NSImage {
+        let size = CGFloat(DesignTokens.DockBadge.iconSize)
+        let step = CGFloat(DesignTokens.DockBadge.groupIconOverlap)
+        let image = NSImage(size: NSSize(width: size + step, height: size), flipped: false) { _ in
+            back?.draw(in: CGRect(x: 0, y: 0, width: size, height: size))
+            front?.draw(in: CGRect(x: step, y: 0, width: size, height: size))
+            return true
+        }
+        image.isTemplate = (back?.isTemplate ?? true) && (front?.isTemplate ?? true)
+        return image
     }
 
     /// The app's own icon at the item's icon size, in full colour: this is the one coloured item
@@ -213,25 +341,57 @@ final class DockBadgeItems {
     }
 
     /// Handles a click that holzBar itself routes to one of its Dock badges items, from the
-    /// Shelf, the search, a group or a hotkey: it opens the app as a click on the item does.
-    /// Returns whether the item is a Dock badges item; the other mouse buttons do nothing, as
-    /// the item has no secondary menu.
+    /// Shelf, the search, a group or a hotkey: it does what a click on the item does, opening the
+    /// app of an app's item or the menu of a group's. Returns whether the item is a Dock badges
+    /// item; the other mouse buttons do nothing, as the item has no secondary menu.
     static func handlesOpen(of item: MenuBarItem, mouseButton: CGMouseButton) -> Bool {
-        guard
-            item.tag.namespace == .holzBar,
-            let bundleID = DockBadgeItemName.bundleID(fromAutosaveName: item.tag.title)
-        else {
+        guard item.tag.namespace == .holzBar else {
             return false
         }
-        if mouseButton == .left {
-            open(bundleID)
+        if let bundleID = DockBadgeItemName.bundleID(fromAutosaveName: item.tag.title) {
+            if mouseButton == .left {
+                open(bundleID)
+            }
+            return true
         }
-        return true
+        if DockBadgeItemName.groupID(fromAutosaveName: item.tag.title) != nil {
+            if mouseButton == .left {
+                active?.showMenu(ofItemNamed: item.tag.title)
+            }
+            return true
+        }
+        return false
+    }
+
+    /// A click on an item's own button: opens the app of an app's item, the menu of a group's.
+    private func clicked(autosaveName: String) {
+        if let bundleID = DockBadgeItemName.bundleID(fromAutosaveName: autosaveName) {
+            Self.open(bundleID)
+        } else {
+            showMenu(ofItemNamed: autosaveName)
+        }
+    }
+
+    /// Shows the menu of a group's item, built now from the badges in memory: under the item while
+    /// it is in the bar, and where the pointer is while it is not (concealed, collapsed, or the
+    /// click came from the Shelf).
+    private func showMenu(ofItemNamed name: String) {
+        guard let entry = entries[name], case .group = entry.kind, !entry.members.isEmpty else {
+            return
+        }
+        let menu = DockBadgeGroupMenu.menu(title: entry.name, members: entry.members, labels: labels)
+        if !entry.isCollapsed,
+            let frame = entry.statusItem.button?.window?.frame,
+            NSScreen.screens.contains(where: { $0.frame.intersects(frame) }) {
+            entry.statusItem.showMenu(menu)
+        } else {
+            menu.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
+        }
     }
 
     /// Opens the app, or brings it forward when it runs, as a click in the Dock does. An app that
     /// is not installed makes the Mac beep.
-    private static func open(_ bundleID: String) {
+    static func open(_ bundleID: String) {
         guard let url = BuiltInItemActions.applicationURL(forBundleID: bundleID) else {
             NSSound.beep()
             return
@@ -241,11 +401,10 @@ final class DockBadgeItems {
         NSWorkspace.shared.openApplication(at: url, configuration: configuration, completionHandler: nil)
     }
 
-    private func remove(_ bundleID: String, keepingPosition: Bool) {
-        guard let entry = entries.removeValue(forKey: bundleID) else {
+    private func remove(_ name: String, keepingPosition: Bool) {
+        guard let entry = entries.removeValue(forKey: name) else {
             return
         }
-        let name = entry.autosaveName
         // Removing a status item deletes its preferred position. Cache and restore it, as the
         // widgets and the control items do.
         let position = ControlItemDefaults[.preferredPosition, name]
@@ -298,7 +457,7 @@ final class DockBadgeItems {
             button.setAccessibilityValue(value)
         }
         if let text {
-            position(entry.bubble, text: text, on: button)
+            position(entry.bubble, text: text, of: entry, on: button)
         }
         updatePicture(of: entry, bubbleText: text, isDimmed: isDimmed)
     }
@@ -312,20 +471,19 @@ final class DockBadgeItems {
     /// list, the Shelf and the search; its picture is the one holzBar draws itself.
     private func applyLength(of entry: Entry) {
         let isCollapsed = entry.isHiddenAtZero || visibility.collapsed.contains(entry.autosaveName)
-        guard isCollapsed != entry.isCollapsed else {
+        let length = isCollapsed ? 0 : entry.fixedLength
+        guard length != entry.appliedLength else {
             return
         }
         entry.isCollapsed = isCollapsed
-        guard isCollapsed else {
-            entry.statusItem.length = Self.itemLength
+        entry.appliedLength = length
+        entry.statusItem.length = length
+        guard isCollapsed, let window = entry.statusItem.button?.window else {
             return
         }
-        entry.statusItem.length = 0
-        if let window = entry.statusItem.button?.window {
-            var size = window.frame.size
-            size.width = 1
-            window.setContentSize(size)
-        }
+        var size = window.frame.size
+        size.width = 1
+        window.setContentSize(size)
     }
 
     // MARK: Picture
@@ -349,22 +507,30 @@ final class DockBadgeItems {
                 bubble = (image, bounds.size)
             }
         }
-        pictureChanged(entry.autosaveName, Self.picture(icon: isDimmed ? entry.dimmedIcon : entry.icon, bubble: bubble))
+        let picture = Self.picture(
+            icon: isDimmed ? entry.dimmedIcon : entry.icon,
+            iconWidth: entry.iconWidth,
+            bubble: bubble
+        )
+        pictureChanged(entry.autosaveName, picture)
     }
 
-    /// The picture of an item at the height of a menu bar item: the icon in the middle and the
-    /// bubble in its place on the icon's top trailing corner, kept inside the picture.
-    private static func picture(icon: NSImage?, bubble: (image: NSImage, size: CGSize)?) -> NSImage {
+    /// The picture of an item at the height of a menu bar item: the icon or the pair of icons in the
+    /// middle and the bubble in its place on the icon's top trailing corner, kept inside the picture.
+    private static func picture(icon: NSImage?, iconWidth: CGFloat, bubble: (image: NSImage, size: CGSize)?) -> NSImage {
         let height = ItemIconStore.drawnHeight
+        let length = Self.length(forIconWidth: iconWidth)
         let iconSize = CGFloat(DesignTokens.DockBadge.iconSize)
         let iconFrame = CGRect(
-            x: (itemLength - iconSize) / 2,
+            x: (length - iconWidth) / 2,
             y: (height - iconSize) / 2,
-            width: iconSize,
+            width: iconWidth,
             height: iconSize
         )
-        let bubbleRect = bubble.map { Self.bubbleFrame(width: $0.size.width, barHeight: height, isFlipped: false) }
-        let image = NSImage(size: NSSize(width: itemLength, height: height), flipped: false) { _ in
+        let bubbleRect = bubble.map {
+            Self.bubbleFrame(width: $0.size.width, iconWidth: iconWidth, barHeight: height, isFlipped: false)
+        }
+        let image = NSImage(size: NSSize(width: length, height: height), flipped: false) { _ in
             icon?.draw(in: iconFrame)
             if let bubble, let bubbleRect {
                 bubble.image.draw(in: bubbleRect)
@@ -377,26 +543,27 @@ final class DockBadgeItems {
         return image
     }
 
-    /// Places the bubble on the icon's top trailing corner (see ``bubbleFrame(width:barHeight:isFlipped:)``);
-    /// the icon sits in the middle of the item, so the place follows from the item's fixed length and
-    /// the bar's height and not from how the button has laid itself out.
-    private func position(_ bubble: CountBadgeView, text: String, on button: NSStatusBarButton) {
+    /// Places the bubble on the icon's top trailing corner (see
+    /// ``bubbleFrame(width:iconWidth:barHeight:isFlipped:)``); the icon sits in the middle of the
+    /// item, so the place follows from the item's fixed length and the bar's height and not from
+    /// how the button has laid itself out.
+    private func position(_ bubble: CountBadgeView, text: String, of entry: Entry, on button: NSStatusBarButton) {
         let barHeight = button.bounds.height > 0 ? button.bounds.height : NSStatusBar.system.thickness
-        let width = min(CountBadgeView.width(for: text), Self.itemLength)
-        let frame = Self.bubbleFrame(width: width, barHeight: barHeight, isFlipped: button.isFlipped)
+        let width = min(CountBadgeView.width(for: text), entry.fixedLength)
+        let frame = Self.bubbleFrame(width: width, iconWidth: entry.iconWidth, barHeight: barHeight, isFlipped: button.isFlipped)
         if bubble.frame != frame {
             bubble.frame = frame
         }
     }
 
-    /// Where the bubble sits in an item of the bar's height: its trailing edge `bubbleOverhang`
-    /// beyond the icon's trailing edge and its top `bubbleRise` above the icon's top, growing
-    /// toward the icon's middle, and never above the top of the item. A text wider than the item is
-    /// cut to the item.
-    private static func bubbleFrame(width: CGFloat, barHeight: CGFloat, isFlipped: Bool) -> CGRect {
+    /// Where the bubble sits in an item of the bar's height whose icons are `iconWidth` wide: its
+    /// trailing edge `bubbleOverhang` beyond the icons' trailing edge and its top `bubbleRise`
+    /// above the icons' top, growing toward the icons' middle, and never above the top of the item.
+    /// A text wider than the item is cut to the item.
+    private static func bubbleFrame(width: CGFloat, iconWidth: CGFloat, barHeight: CGFloat, isFlipped: Bool) -> CGRect {
         let icon = CGFloat(DesignTokens.DockBadge.iconSize)
         let height = CountBadgeView.height
-        let iconTrailing = (itemLength + icon) / 2
+        let iconTrailing = (length(forIconWidth: iconWidth) + iconWidth) / 2
         let x = max(iconTrailing + CGFloat(DesignTokens.DockBadge.bubbleOverhang) - width, 0)
         let iconBottom = (barHeight - icon) / 2
         let rise = CGFloat(DesignTokens.DockBadge.bubbleRise)

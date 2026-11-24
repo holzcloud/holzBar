@@ -445,6 +445,11 @@ nonisolated extension Defaults {
         /// `DockBadgeZeroMode`, 0 Dim and 1 Hide (a whole number; absent means Dim). It is
         /// exported with the settings.
         case dockBadgeZeroMode = "DockBadgeZeroMode"
+        /// The groups of Dock badges apps as JSON: a list of at most 12 groups, each with an
+        /// identifier, a name and the bundle identifiers of its apps. It is exported with the
+        /// settings; an imported list is decoded, validated and encoded again
+        /// (`DockBadgeGroupList.normalized`).
+        case dockBadgeGroups = "DockBadgeGroups"
 
         // MARK: System alerts
         // Every System alerts value but the System notifications switch is exported with the
@@ -712,6 +717,7 @@ nonisolated extension Defaults.Key {
             .automationRules,
             .itemGroups,
             .widgets,
+            .dockBadgeGroups,
             .appleItemReplacements,
             .timersBoard,
             .menuBarAppearanceConfigurationV2,
@@ -975,6 +981,18 @@ nonisolated extension Defaults.Key {
         let tilesKey = Self.readoutTiles.rawValue
         if let tiles = result.accepted[tilesKey] as? [String] {
             result.accepted[tilesKey] = ReadoutTileChoice.sanitized(tiles)
+        }
+        // A file never brings more than twelve groups, a name that is empty or over its cap, an
+        // app that is not a bundle identifier or is in two groups: the list is decoded, validated
+        // and encoded again (T-98-27).
+        let dockGroupsKey = Self.dockBadgeGroups.rawValue
+        if let data = result.accepted[dockGroupsKey] as? Data {
+            if let normalized = DockBadgeGroupList.normalized(data) {
+                result.accepted[dockGroupsKey] = normalized
+            } else {
+                result.accepted.removeValue(forKey: dockGroupsKey)
+                result.ignored = (result.ignored + [dockGroupsKey]).sorted()
+            }
         }
         // A file never brings an app that is not a bundle identifier, a repeated one, or more
         // than `DockBadgeApps.maximumCount`: the list is sanitized.
