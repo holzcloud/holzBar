@@ -76,4 +76,42 @@ struct NewAppQuestionTests {
     func answers() {
         #expect(NewAppQuestion.Answer.allCases.map(\.rawValue) == ["visible", "hidden", "alwaysHidden", "dontAskAgain"])
     }
+
+    @Test("Apple's apps, holzBar's own bundle, declined apps, helpers and empty identifiers are never asked")
+    func eligibility() {
+        func eligible(_ id: String, _ path: String? = "/Applications/Tool.app", declined: Set<String> = []) -> Bool {
+            NewAppQuestion.isEligible(bundleID: id, bundlePath: path, ownBundleID: own, declined: declined)
+        }
+        #expect(eligible("com.example.Tool"))
+        #expect(!eligible("com.apple.Notes"))
+        #expect(!eligible("COM.APPLE.Notes"))
+        #expect(!eligible(own))
+        #expect(!eligible("COM.HOLZCLOUD.HOLZBAR"))
+        #expect(!eligible("com.example.Tool", declined: ["com.example.Tool"]))
+        #expect(!eligible("com.example.Helper", "/Applications/Tool.app/Contents/Library/LoginItems/Helper.app"))
+        #expect(!eligible(""))
+        #expect(!eligible("  "))
+        // An app named like Apple's is judged by its identifier, not by what it calls itself.
+        #expect(eligible("com.example.Notes"))
+    }
+
+    @Test("The rows are cut at the limit with the rest counted")
+    func shownRows() {
+        let six = (1...6).map { app("com.example.\($0)") }
+        let cut = NewAppQuestion.shown(six, limit: 4)
+        #expect(cut.rows.map(\.bundleID) == six.prefix(4).map(\.bundleID))
+        #expect(cut.more == 2)
+        let three = NewAppQuestion.shown(Array(six.prefix(3)), limit: 4)
+        #expect(three.rows.count == 3)
+        #expect(three.more == 0)
+        #expect(NewAppQuestion.shown(six).rows.count == NewAppQuestion.defaultRowLimit)
+        #expect(NewAppQuestion.shown(six, limit: -1).rows.isEmpty)
+    }
+
+    @Test("A name with a writing-direction override is cleaned before it is noted")
+    func cleanedNames() {
+        let cleaned = ItemRuleNotices.cleanedName("Tool\u{202E}elppA", fallback: "com.example.Tool")
+        #expect(cleaned == "ToolelppA")
+        #expect(ItemRuleNotices.cleanedName("\u{202E}\n", fallback: "com.example.Tool") == "com.example.Tool")
+    }
 }
