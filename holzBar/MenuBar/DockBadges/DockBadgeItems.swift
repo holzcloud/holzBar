@@ -237,6 +237,10 @@ final class DockBadgeItems {
         // plain status item reports an empty one, and so it would not be listed.
         button.setAccessibilityIdentifier(autosaveName)
         button.setAccessibilityLabel(name)
+        if case .group = kind {
+            // The hint of a group's item; pressing the focused item, as Return does, opens its menu.
+            button.setAccessibilityHelp(String(localized: "Shows the apps of this group"))
+        }
         OwnStatusItemNames.set(name, forAutosaveName: autosaveName)
         button.image = entry.icon
         button.imagePosition = .imageOnly

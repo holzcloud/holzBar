@@ -95,7 +95,7 @@ struct DockBadgesSettingsView: View {
                         get: { settings.isChosen(row.bundleID) },
                         set: { settings.setChosen(row.bundleID, $0) }
                     ),
-                    small: row.isChosen && !row.isInDock && dockBadges.listState == .read ? Text("Not in Dock") : nil
+                    small: Self.smallText(for: row, settings: settings, listState: dockBadges.listState)
                 )
                 // One line with the tail cut; the whole name is the tooltip and, as the row's
                 // label, what VoiceOver reads.
@@ -104,6 +104,18 @@ struct DockBadgesSettingsView: View {
                 .help(row.name)
             }
         }
+    }
+
+    /// The small text after an app's name: "Not in Dock" for a chosen app that has left the Dock,
+    /// else the name of the group the app is in (the user's own text), else none.
+    private static func smallText(for row: DockAppRow, settings: DockBadgesSettings, listState: DockBadges.ListState) -> Text? {
+        guard row.isChosen else {
+            return nil
+        }
+        if !row.isInDock, listState == .read {
+            return Text("Not in Dock")
+        }
+        return settings.group(containing: row.bundleID).map { Text(verbatim: $0.name) }
     }
 
     /// The icons already fetched, by bundle identifier, so a row that redraws does not ask the
