@@ -294,6 +294,9 @@ final class DockBadges {
         case .items(let items):
             dockApps = items
             listState = .read
+            // A read of the Dock's tree that works clears the failure the reader reported.
+            refresh.readWorked()
+            syncRefreshState()
         case .dockMissing, .failed:
             listState = .unreadable
         }
@@ -471,6 +474,7 @@ final class DockBadges {
             self?.dockDidNotify()
         }
         passApps = appState.settings.dockBadges.apps
+        startWorkspaceObservation()
         arm(refresh.visible(true, at: .now))
         syncRefreshState()
     }
@@ -503,6 +507,48 @@ final class DockBadges {
         unregisterReader()
         refresh = DockBadgeRefresh()
         syncRefreshState()
+    }
+
+    /// Follows the chosen apps being activated, launched or quit (the Dock changes the badge a
+    /// moment later), and the Dock itself launching or quitting.
+    private func startWorkspaceObservation() {
+        guard workspaceTasks.isEmpty else {
+            return
+        }
+        let center = NSWorkspace.shared.notificationCenter
+        let names = [
+            NSWorkspace.didActivateApplicationNotification,
+            NSWorkspace.didLaunchApplicationNotification,
+            NSWorkspace.didTerminateApplicationNotification,
+        ]
+        for name in names {
+            workspaceTasks.append(Task { [weak self] in
+                for await notification in center.notifications(named: name) {
+                    let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+                    self?.appDidChange(app?.bundleIdentifier, notification: name)
+                }
+            })
+        }
+    }
+
+    private func appDidChange(_ bundleID: String?, notification name: Notification.Name) {
+        guard let observer = dockObserver, let bundleID, let appState else {
+            return
+        }
+        if bundleID == DockReader.bundleIdentifier {
+            // A Dock that restarts is a new process with new elements.
+            if name == NSWorkspace.didLaunchApplicationNotification {
+                observer.dockDidLaunch()
+                arm(refresh.activated(at: .now))
+            } else if name == NSWorkspace.didTerminateApplicationNotification {
+                observer.dockDidQuit()
+            }
+            return
+        }
+        guard appState.settings.dockBadges.isChosen(bundleID) else {
+            return
+        }
+        arm(refresh.activated(at: .now))
     }
 
     /// The Dock posted a notification: only the fact counts.

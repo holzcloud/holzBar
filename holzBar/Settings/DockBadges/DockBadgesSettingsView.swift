@@ -45,7 +45,7 @@ struct DockBadgesSettingsView: View {
                 }
                 if !hasAccess {
                     accessibilityLine
-                } else if dockBadges.listState == .unreadable {
+                } else if dockBadges.listState == .unreadable || dockBadges.readerFailed {
                     SettingsStateLine(.warning, Text("The Dock could not be read. Reopen this list to try again."))
                 }
                 appsHeader
