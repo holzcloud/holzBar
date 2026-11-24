@@ -14,8 +14,9 @@ import SwiftUI
 ///
 /// The states, in order: with the module off only a line that says to switch it on, and nothing
 /// is read; without Accessibility a warning line with the button that asks for it, and an empty
-/// list that says so; a Dock that could not be read, a warning line; a Dock without apps, an
-/// empty row. The first read draws no spinner: the rows appear when they arrive.
+/// list that says so; a Dock that could not be read (the list, or three badge reads in a row), a
+/// warning line; a Dock that never announces a badge change, an info line under the switch that
+/// says the counts refresh on a timer; a Dock without apps, an empty row. The first read draws no spinner: the rows appear when they arrive.
 struct DockBadgesSettingsView: View {
     @Environment(AppState.self) private var appState
 
@@ -34,6 +35,9 @@ struct DockBadgesSettingsView: View {
                 )
                 if settings.readsCounts, dockBadges.countsAreUnavailable {
                     SettingsStateLine(.warning, Text("Badge counts are not available on this Mac"))
+                }
+                if settings.readsCounts, dockBadges.refreshPolls {
+                    SettingsStateLine(.info, Text("Counts refresh every 30 seconds"))
                 }
                 SettingsPickerRow(.modulesDockBadgesZeroMode, selection: $settings.zeroMode) {
                     Text("Dim").tag(DockBadgeZeroMode.dim)

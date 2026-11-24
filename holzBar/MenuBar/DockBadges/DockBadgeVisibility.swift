@@ -25,6 +25,12 @@ enum DockBadgeVisibility {
         var collapsed = Set<String>()
         /// Whether the Mac is asleep, locked or away.
         var isPaused = false
+
+        /// Whether at least one of the items is in a shown section. An item that is only hidden by
+        /// the zero mode Hide stays in its section, so it counts: the badge can come back.
+        var hasShownItem: Bool {
+            !shown.isEmpty
+        }
     }
 
     /// The answers for the items with the given autosave names.

@@ -73,6 +73,7 @@ sources=(
   DisplayCutout
   DividerPlausibility
   DockBadgeLabel
+  DockBadgeRefresh
   DockBadgeSettings
   DockIconPolicy
   DownloadScan
@@ -263,6 +264,7 @@ tests=(
   DisplayCutoutTests
   DividerPlausibilityTests
   DockBadgeLabelTests
+  DockBadgeRefreshTests
   DockBadgeSettingsTests
   DockIconPolicyTests
   DownloadScanTests

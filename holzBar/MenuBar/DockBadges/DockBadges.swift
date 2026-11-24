@@ -21,15 +21,26 @@ import Observation
 ///
 /// The badges are a separate part, active only while the module is on, the Read badge counts
 /// switch is on and holzBar has Accessibility (``DockBadgeItems`` shows one item per chosen app
-/// outside a group and one per group, ``DockBadgeItemList``; nothing exists otherwise). Then one task reads a pass over the Dock at once and every 30
-/// seconds while at least one app is chosen and the Mac is not asleep, locked or away. The read
-/// goes through a private macOS interface, so it has a start check and a self-switch-off
-/// (``PrivateFeatureGate`` and ``DockLabelGate``): when the Dock does not offer the badge, or
-/// three passes in a row fail, the items go and ``countsAreUnavailable`` says so until the user
-/// switches Read badge counts off and on. A change of that switch, of the module, of Accessibility
-/// or of the chosen apps bumps a generation, and a pass that finishes under an older one neither
-/// calls the bridge again nor counts. App names, bundle identifiers and badge texts stay in
-/// memory and are never logged.
+/// outside a group and one per group, ``DockBadgeItemList``; nothing exists otherwise).
+///
+/// The Dock is read only while at least one badge or group item is in a section the bar shows and
+/// the Mac is in use, with the settle time after a wake (``ReadoutVisibility``, the rule of the
+/// system readouts); an item that is only hidden by the zero mode Hide counts as shown, so its
+/// badge can come back. Then one ``DockObserver`` follows the Dock's notifications and
+/// ``DockBadgeRefresh`` decides when a pass reads the chosen apps' badges: after a notification,
+/// a second after one of the chosen apps was activated, launched or quit, and by a timer with
+/// back-off only until a notified read has found a change (``refreshPolls`` says the Dock stays
+/// silent, so the timer stays). While no item can be seen there is no observer, no wait and no
+/// read. A Dock that restarts is found again.
+///
+/// The read goes through a private macOS interface, so it has a start check and a
+/// self-switch-off (``PrivateFeatureGate`` and ``DockLabelGate``): when the Dock does not offer the
+/// badge, or three passes in a row fail, the items go and ``countsAreUnavailable`` says so until
+/// the user switches Read badge counts off and on. Three passes in a row that could not read the
+/// Dock's tree at all set ``readerFailed``, which the settings say; the items keep their last
+/// values. A change of that switch, of the module, of Accessibility or of the chosen apps bumps a
+/// generation, and a pass that finishes under an older one neither calls the bridge again nor
+/// counts. App names, bundle identifiers and badge texts stay in memory and are never logged.
 @MainActor
 @Observable
 final class DockBadges {
@@ -85,8 +96,13 @@ final class DockBadges {
     /// gone and nothing is read until the switch is turned off and on.
     private(set) var countsAreUnavailable = false
 
-    /// How long the task of the badges waits between two passes.
-    private static let passInterval = Duration.seconds(30)
+    /// Whether the Dock stays silent about badge changes, so the badges refresh on a timer (every 30
+    /// seconds at first, backing off while nothing changes). Settings says so.
+    private(set) var refreshPolls = false
+
+    /// Whether the last three passes in a row could not read the Dock's list at all. The items keep
+    /// their last values; the next pass that works clears it.
+    private(set) var readerFailed = false
 
     /// What decides whether the badges are active and what they show.
     private struct BadgeInputs: Equatable {
@@ -109,9 +125,19 @@ final class DockBadges {
     /// The menu bar items; exists only while the badges are active and the read is available.
     @ObservationIgnored private var items: DockBadgeItems?
 
-    /// The task that reads a pass now and then, and the apps it was started for.
+    /// The pass that is running, and the apps the reader was registered for.
     @ObservationIgnored private var passTask: Task<Void, Never>?
     @ObservationIgnored private var passApps = [String]()
+
+    /// When the reader reads again, and whether it exists at all: the rule, its visibility, the one
+    /// wait it names, the wait for the settle time, the observer of the Dock and the observations of
+    /// the chosen apps. All of them exist only while the reader is registered.
+    @ObservationIgnored private var refresh = DockBadgeRefresh()
+    @ObservationIgnored private var readVisibility = ReadoutVisibility()
+    @ObservationIgnored private var waitTask: Task<Void, Never>?
+    @ObservationIgnored private var settleTask: Task<Void, Never>?
+    @ObservationIgnored private var dockObserver: DockObserver?
+    @ObservationIgnored private var workspaceTasks = [Task<Void, Never>]()
 
     /// The start check, until it decides, and the gate it then makes. `nil` until a pass decided.
     @ObservationIgnored private var startCheck = DockLabelGate.StartCheck()
@@ -317,7 +343,7 @@ final class DockBadges {
     /// The Read badge counts switch changed. The start check and the failure count begin afresh,
     /// so a read that switched itself off tries again when the user turns the switch on.
     func readsCountsDidChange() {
-        cancelPasses()
+        stopReader()
         gate = nil
         startCheck = DockLabelGate.StartCheck()
         labels.removeAll()
@@ -327,9 +353,9 @@ final class DockBadges {
         refreshBadges()
     }
 
-    /// Brings the items and the task in line with the inputs: nothing while the badges are not
-    /// active or the read switched itself off, the items while they are, and the task while an
-    /// app is chosen and the Mac is in use.
+    /// Brings the items and the reader in line with the inputs: nothing while the badges are not
+    /// active or the read switched itself off, the items while they are, and the reader while an
+    /// item can be seen and the Mac is in use.
     private func refreshBadges() {
         let inputs = badgeInputs()
         guard inputs.isActive else {
@@ -347,13 +373,13 @@ final class DockBadges {
         labels = labels.filter { apps.contains($0.key) }
         let kinds = DockBadgeItemList.items(apps: apps, groups: inputs.groups)
         appItems.update(kinds: kinds, apps: apps, groups: inputs.groups, labels: labels, zeroMode: inputs.zeroMode)
-        appItems.apply(visibility: visibilityInputs())
-        guard !apps.isEmpty, !inputs.isPaused else {
-            cancelPasses()
-            return
-        }
-        if passTask == nil || passApps != apps {
-            startPasses(for: apps)
+        let visibility = visibilityInputs()
+        appItems.apply(visibility: visibility)
+        feed(visibility)
+        // The chosen apps changed while the reader runs: it reads again, for the new ones.
+        if dockObserver != nil, passApps != apps {
+            unregisterReader()
+            registerReader()
         }
     }
 
@@ -363,6 +389,7 @@ final class DockBadges {
             self?.visibilityInputs() ?? DockBadgeVisibility.Inputs()
         } onChange: { [weak self] inputs in
             self?.items?.apply(visibility: inputs)
+            self?.feed(inputs)
         }
         return DockBadgeItems { [weak self] name, picture in
             guard let self else {
@@ -386,9 +413,9 @@ final class DockBadges {
         return DockBadgeVisibility.inputs(for: names, in: appState)
     }
 
-    /// Takes the items out, keeping their places, and cancels the task.
+    /// Takes the items out, keeping their places, and ends the reader.
     private func stopBadges() {
-        cancelPasses()
+        stopReader()
         visibilityLoop?.cancel()
         visibilityLoop = nil
         items?.removeAll(keepingPosition: true)
@@ -396,31 +423,145 @@ final class DockBadges {
         labels.removeAll()
     }
 
-    private func cancelPasses() {
-        passGeneration &+= 1
-        passTask?.cancel()
-        passTask = nil
-        passApps = []
+    // MARK: Reader
+
+    /// Whether an item can be seen and the Mac is in use feeds the visibility rule, which says when
+    /// the reader exists. An item that is only hidden by the zero mode Hide is in a shown section
+    /// all the same, so it counts: otherwise Hide at zero everywhere would stop the reader and the
+    /// badges could never come back.
+    private func feed(_ inputs: DockBadgeVisibility.Inputs) {
+        apply(.paused(inputs.isPaused))
+        apply(.shown(inputs.hasShownItem))
     }
 
-    private func startPasses(for apps: [String]) {
-        cancelPasses()
-        passApps = apps
-        let generation = passGeneration
-        passTask = Task { [weak self] in
-            while !Task.isCancelled {
-                await self?.runPass(generation: generation)
-                guard !Task.isCancelled else {
+    /// Feeds an event to the visibility rule and does what it says.
+    private func apply(_ event: ReadoutVisibility.Event) {
+        switch readVisibility.handle(event, at: .now) {
+        case .keep:
+            break
+        case .register:
+            settleTask?.cancel()
+            settleTask = nil
+            registerReader()
+        case .unregister:
+            settleTask?.cancel()
+            settleTask = nil
+            unregisterReader()
+        case .waitUntil(let instant):
+            settleTask?.cancel()
+            settleTask = Task { [weak self] in
+                do {
+                    try await Task.sleep(until: instant, clock: ContinuousClock())
+                } catch {
                     return
                 }
-                try? await Task.sleep(for: Self.passInterval, tolerance: .seconds(5))
+                self?.apply(.settleElapsed)
             }
         }
     }
 
-    /// Reads one pass over the Dock and acts on it: the start check until it decides, then the
-    /// gate's success or failure, and the items' badges while the read is available.
-    private func runPass(generation: Int) async {
+    /// Creates the observer of the Dock and of the chosen apps and reads once.
+    private func registerReader() {
+        guard dockObserver == nil, let appState else {
+            return
+        }
+        let observer = DockObserver()
+        dockObserver = observer
+        observer.start { [weak self] in
+            self?.dockDidNotify()
+        }
+        passApps = appState.settings.dockBadges.apps
+        arm(refresh.visible(true, at: .now))
+        syncRefreshState()
+    }
+
+    /// Ends the observer, the observations, the wait and the pass that runs. The refresh keeps
+    /// whether the Dock could not be read.
+    private func unregisterReader() {
+        guard let observer = dockObserver else {
+            return
+        }
+        observer.stop()
+        dockObserver = nil
+        for task in workspaceTasks {
+            task.cancel()
+        }
+        workspaceTasks = []
+        passGeneration &+= 1
+        passTask?.cancel()
+        passTask = nil
+        passApps = []
+        arm(refresh.visible(false, at: .now))
+        syncRefreshState()
+    }
+
+    /// Ends the reader for good and forgets what it had learned: the next one begins afresh.
+    private func stopReader() {
+        settleTask?.cancel()
+        settleTask = nil
+        readVisibility = ReadoutVisibility()
+        unregisterReader()
+        refresh = DockBadgeRefresh()
+        syncRefreshState()
+    }
+
+    /// The Dock posted a notification: only the fact counts.
+    private func dockDidNotify() {
+        guard dockObserver != nil else {
+            return
+        }
+        arm(refresh.notified(at: .now))
+    }
+
+    /// Brings the one wait to what the refresh says.
+    private func arm(_ action: DockBadgeRefresh.Action) {
+        switch action {
+        case .none:
+            break
+        case .stop:
+            waitTask?.cancel()
+            waitTask = nil
+        case .readAt(let instant):
+            waitTask?.cancel()
+            // A far wait may be late by a few seconds, a near one by a tenth of a second.
+            let delay: Duration = instant - ContinuousClock.now
+            let tolerance: Duration = delay > .seconds(10) ? .seconds(3) : .milliseconds(100)
+            waitTask = Task { [weak self] in
+                do {
+                    try await Task.sleep(until: instant, tolerance: tolerance, clock: ContinuousClock())
+                } catch {
+                    return
+                }
+                self?.waitDidEnd()
+            }
+        }
+    }
+
+    /// The wait is over: runs the pass that is due.
+    private func waitDidEnd() {
+        guard dockObserver != nil, let trigger = refresh.fire(at: .now) else {
+            return
+        }
+        let generation = passGeneration
+        passTask = Task { [weak self] in
+            await self?.runPass(trigger: trigger, generation: generation)
+        }
+    }
+
+    /// Makes the settings follow the refresh.
+    private func syncRefreshState() {
+        if refreshPolls != refresh.showsPollingLine {
+            refreshPolls = refresh.showsPollingLine
+        }
+        if readerFailed != refresh.readerFailed {
+            readerFailed = refresh.readerFailed
+        }
+    }
+
+    // MARK: Pass
+
+    /// Reads one pass over the Dock, acts on it, and tells the refresh how it went.
+    private func runPass(trigger: DockBadgeRefresh.Trigger, generation: Int) async {
         guard generation == passGeneration, let settings = appState?.settings.dockBadges else {
             return
         }
@@ -429,6 +570,20 @@ final class DockBadges {
         guard !Task.isCancelled, generation == passGeneration else {
             return
         }
+        let before = labels
+        handle(result, settings: settings)
+        guard generation == passGeneration else {
+            return
+        }
+        let failed = !result.pass.dockReadable
+        let changed = !failed && DockBadgeRefresh.changed(from: before, to: labels)
+        arm(refresh.passFinished(trigger: trigger, changed: changed, failed: failed, at: .now))
+        syncRefreshState()
+    }
+
+    /// Acts on a pass: the start check until it decides, then the gate's success or failure, and
+    /// the items' badges while the read is available.
+    private func handle(_ result: DockReader.LabelPass, settings: DockBadgesSettings) {
         if gate == nil {
             guard let load = startCheck.record(result.pass) else {
                 return
