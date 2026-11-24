@@ -21,6 +21,9 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Bar only on some displays, notch overflow | ❌ | — | — | ✅ |
 | Floating bar for hidden items, at the icon, the screen edge or the pointer | ❌ <sub>the bar hangs below the menu bar</sub> | — | ✅ <sub>Bartender Bar, at the cursor</sub> | ✅ |
 | Shelf and macOS 27's own overflow button: no item listed twice | ❌ | — | — | ✅ |
+| A notice when the bar is full or macOS 27 folded apps behind its overflow button, in Layout and the Shelf, with Move to Hidden as one Undo step; optionally Automatic (moves the apps you use least after two reads of a fold, at most one move per episode) | ❌ | — | — | 🔜 1.2.0: the fit warning is an estimate |
+| Ask where a new app goes (Visible, Hidden or Always Hidden) the first time it adds a menu bar item, in Layout, the Shelf or the hub (optional, off by default; the answers stay on this Mac) | ❌ | — | — | 🔜 1.2.0 |
+| A list of the apps macOS 27 does not show (outside Applications, no app identifier, possibly off in System Settings), each with a link that fixes it; no System Settings preference is written | ❌ | — | — | 🔜 1.2.0 |
 | Black menu bar, rounded screen corners | ❌ | corners only | — | ✅ |
 | Dashed and dotted borders, wallpaper, accent and glass tints | ❌ | ✅ | — | ✅ |
 | One shape per section of the bar (Sections) | ❌ | — | — | ✅ <sub>macOS 14 – 26</sub> |
@@ -33,6 +36,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Scripts as a rule condition or action | ❌ | ✅ | — | ✅ <sub>from a folder you choose, after you allowed the exact content</sub> |
 | Script hooks before or after a profile | ❌ | ✅ | — | ✅ |
 | Menu bar items of your own (clock, battery, CPU, Shortcut button) | ❌ | — | ✅ | ✅ |
+| A Spotlight button and a Large Percent battery format among the menu bar widgets | ❌ | — | — | 🔜 1.2.0 |
 | Hide the clock, Control Center, Wi-Fi or the battery on macOS 27 | — | — | ✅ | ✅ |
 | Replacement icons for Apple items on macOS 27 | — | ✅ | — | ✅ |
 | AppleScript dictionary | — | — | ✅ | ✅ <sub>a small, read-mostly set; asks before lasting changes</sub> |
@@ -42,6 +46,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Per display: always show everything, or collapse; the display under the pointer decides | — | — | — | ✅ |
 | Layout editor that draws first and applies in one pass, with a tile for where new items land | ❌ | — | — | ✅ |
 | Moods: save the look of the menu bar and switch to it in one click, from the palette or with a rule | ❌ | — | — | ✅ |
+| A built-in Readable menu bar mood: an opaque background in your Mac's light or dark look, with a border under Increase Contrast | ❌ | — | — | 🔜 1.2.0 |
 | holzBar Shelf as a row, a grid or a column | ❌ | — | — | ✅ |
 | Type in the Shelf to find an item and open it with Return | — | — | — | ✅ <sub>the Shelf takes the keyboard when a hotkey opens it</sub> |
 | Always-hidden items behind one fold tile in the Shelf | — | — | — | ✅ |

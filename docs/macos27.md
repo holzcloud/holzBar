@@ -38,6 +38,18 @@ What Accessibility reports for the folded items differs by version. On macOS 27.
 
 The last line of Settings → About → Copy Diagnostics names the state on macOS 27. `Scripts/macos27/overflow-state-probe.swift` prints the control's attributes and the items' frames in both states; it is read-only and has no network access.
 
+### What holzBar does about a fold
+
+From 1.2.0. holzBar tells you when it happens, on macOS 27 only, in two places and never on the bar itself (only the Undo notice after a move appears under the menu bar):
+
+- **The notice.** In Layout, and in a row under the tiles of the holzBar Shelf while the Shelf is open, **Folded away: Docker, Slack +2** names the first two Visible apps whose items macOS folded away (apps whose items holzBar read before and that are not drawn now) and counts the rest. In Layout, which shows every item, the notice needs the fit estimate below to say the apps do not fit as well, so apps in a hidden section are never named.
+- **The fit warning.** Before a fold, the same notice says **N items do not fit beside the notch** (**in the menu bar** on a display without a notch). It compares the widths of the Visible apps' items, as holzBar last read them, with the room: on a display with a notch the area right of the notch less the space of the system items and of the overflow control, otherwise the space right of the frontmost app's menu less the same. These numbers are estimates and the warning can be early or late.
+- **Move N to Hidden.** One button moves at most three apps to Hidden, which can make room. Apple's items, holzBar's own, items that cannot be hidden or moved and items controlled by a rule never move. The apps you use least go first while Usage suggestions is on (then the newest launch, then the nearest to the notch); otherwise the newest launch and then the nearest to the notch. The move is one write of the sections, as Apply makes it, and one Undo step. holzBar then reads the bar again and counts moved apps that are still drawn (**Could not be moved: N**); the notice goes when the apps fit and stays while they do not.
+- **Settle time.** The notice changes only after its state has held for three seconds, and it is not shown while you drag an item, while the Mac wakes or a display changes, while an app is in its launch grace (the 45 seconds above), or for three seconds after a move. With **Off** in Settings → Layout → Making room the Shelf shows no row and holzBar does nothing for it; Layout still shows the notice.
+- **Automatic.** The third choice of **When the menu bar is full** makes the same move without a click. It acts only on a fold macOS has made, never on the estimate alone and never while Layout is open: it needs two reads five seconds apart that both show a fold, waits a minute after holzBar starts or the system settles, makes one move per episode (the next needs thirty seconds without a fold) and pauses after three moves in ten minutes. A notice at the menu bar offers Undo, and Layout's Notices group keeps a row with **Undo** and **Dismiss Notice**.
+
+`Scripts/macos27/fit-probe.swift` prints the same arithmetic per display, read-only, with no network access.
+
 ## Menu bar styles
 
 From 0.0.8. Single, Paired, the shape of its own for the Apple logo, the outlines and the gradients work on macOS 27 as on macOS 26. Sections is not offered on macOS 27: holzBar hides whole applications, so the items of one section do not stand together and holzBar's dividers mark no boundary on the bar; a Sections choice that comes from another Mac or a settings file is drawn as Paired. The Apple-logo shape takes the Apple menu's position from the application-menu read holzBar already makes (no new permission); on macOS 27 that read skips holzBar's own menus, so the last position is kept while holzBar is in front.
@@ -105,6 +117,18 @@ Items of processes without a bundle identifier, such as some script-based apps, 
 An app that has a bundle identifier but runs from somewhere else than `/Applications` or a system folder is a different case. macOS 27.2 names an app's item only when the app runs from `/Applications` or a system folder (a link is followed to where the app really runs), so an app elsewhere (for example a device management agent, or an app in the Applications folder of your home folder) loses its icon whenever holzBar hides anything, even in Visible: the assertion has no way to keep an item it cannot name. holzBar shows a stand-in icon in its place, with the item's picture, or else the app's icon. A click on it, left or right, shows the hidden items for a moment, opens the app's menu and hides them again as soon as the menu closes; the stand-in is not drawn while they are shown, so the icon is never doubled. A click on a stand-in is not a click on the empty menu bar, so it does not show the hidden items by itself. Such an app in Hidden appears in the holzBar Shelf and opens the same way. The switch "Stand-ins for icons macOS hides" in Settings → Layout turns the stand-ins off; with it off, no stand-in icons are drawn, and opening such an app's item still shows every hidden item for a moment. Keep holzBar itself in `/Applications`: from anywhere else macOS conceals holzBar's own icons too, and no stand-ins are shown.
 
 Settings → About → Copy Diagnostics has a Hiding line with the reveal state and counts of these events (agent restarts, late refreshes, young retries, forced and held-back reads, notch rechecks) and of visible apps hidden anyway, never an app name.
+
+## Apps macOS does not show
+
+From 1.2.0, on macOS 27, Settings → Layout has a group **Not shown by macOS**, after Making room. It lists every app whose item macOS does not show on the bar, whatever holzBar hides, with one reason and one link per row. The group is absent when there is nothing to list. The list is read when Layout opens and kept in memory only; app names are never logged and never stored.
+
+There are three reasons, and each comes from a public signal:
+
+- **Not in Applications**: the install location. macOS 27.2 names an app's item only when the app runs from `/Applications` or a system folder (see "Apps that launch while items are hidden"). The link is **Show in Finder**, to move the app.
+- **May be off in Settings**: the overlap heuristic. An app that runs from a named place but whose item lies on top of another drawn item is not drawn; macOS may have switched it off. The link is **Open System Settings**, which opens the Menu Bar pane. The heuristic recognises only an item that overlaps another and can name two apps when either may be the one not drawn.
+- **No app identifier**: a running process without a bundle identifier that owns menu bar items, found by asking each such process through Accessibility for its extras menu bar (a quarter of a second at most per process, on a queue of its own, once per time Layout opens). macOS cannot name its item and holzBar cannot keep it; only its developer can fix it. The link is **Show in Finder**, to the process's file.
+
+holzBar writes no System Settings preference and reads no Control Centre preference for this list; the links only reveal a file or open a pane. `Scripts/macos27/not-shown-probe.swift` prints the running applications without an identifier and, per display, which items are drawn; it is read-only and has no network access.
 
 ## Notch and Dynamic Island
 
