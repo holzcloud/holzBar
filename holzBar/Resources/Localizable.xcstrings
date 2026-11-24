@@ -189095,6 +189095,859 @@
           }
         }
       }
+    },
+    "%lld items do not fit in the menu bar" : {
+      "comment" : "Banner in Layout on a display without a notch when the apps in the Visible section are wider than the room in the menu bar; the number is how many items do not fit",
+      "localizations" : {
+        "cs" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld položka se nevejde do řádku nabídek"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld položky se nevejdou do řádku nabídek"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld položek se nevejde do řádku nabídek"
+                }
+              }
+            }
+          }
+        },
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Element passt nicht in die Menüleiste"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Elemente passen nicht in die Menüleiste"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item does not fit in the menu bar"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld items do not fit in the menu bar"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elemento no cabe en la barra de menús"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementos no caben en la barra de menús"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld élément ne tient pas dans la barre des menus"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld éléments ne tiennent pas dans la barre des menus"
+                }
+              }
+            }
+          }
+        },
+        "hu" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elem nem fér el a menüsoron"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elem nem fér el a menüsoron"
+                }
+              }
+            }
+          }
+        },
+        "id" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item tidak muat di bar menu"
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elemento non entra nella barra dei menu"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementi non entrano nella barra dei menu"
+                }
+              }
+            }
+          }
+        },
+        "ja" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld 個の項目がメニューバーに収まりません"
+                }
+              }
+            }
+          }
+        },
+        "ko" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "항목 %lld개가 메뉴 막대에 들어가지 않습니다"
+                }
+              }
+            }
+          }
+        },
+        "nl" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld onderdeel past niet in de menubalk"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld onderdelen passen niet in de menubalk"
+                }
+              }
+            }
+          }
+        },
+        "pl" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld element nie mieści się na pasku menu"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementy nie mieszczą się na pasku menu"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementów nie mieści się na pasku menu"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementu nie mieści się na pasku menu"
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item não cabe na barra de menus"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld itens não cabem na barra de menus"
+                }
+              }
+            }
+          }
+        },
+        "rm" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld element n'ha betg plaz en il trav da menu"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elements n'han betg plaz en il trav da menu"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld элемент не помещается в строке меню"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld элемента не помещаются в строке меню"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld элементов не помещаются в строке меню"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld элемента не помещается в строке меню"
+                }
+              }
+            }
+          }
+        },
+        "sv" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld objekt får inte plats i menyraden"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld objekt får inte plats i menyraden"
+                }
+              }
+            }
+          }
+        },
+        "tr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld öğe menü çubuğuna sığmıyor"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld öğe menü çubuğuna sığmıyor"
+                }
+              }
+            }
+          }
+        },
+        "uk" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld елемент не вміщується в смузі меню"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld елементи не вміщуються в смузі меню"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld елементів не вміщуються в смузі меню"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld елемента не вміщується в смузі меню"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld 个项目无法放进菜单栏"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld 個項目無法放進選單列"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "These items are wider than the room in the menu bar, so macOS folds some away." : {
+      "comment" : "First sentence of the info of the fit banner on a display without a notch",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tyto položky jsou širší než místo v řádku nabídek, takže macOS některé sbalí."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Elemente sind breiter als der Platz in der Menüleiste, deshalb klappt macOS einige weg."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estos elementos son más anchos que el espacio de la barra de menús, así que macOS pliega algunos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ces éléments sont plus larges que la place dans la barre des menus, donc macOS en replie certains."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ezek az elemek szélesebbek a menüsoron lévő helynél, ezért a macOS néhányat behajtogat."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item-item ini lebih lebar daripada ruang di bar menu, jadi macOS melipat sebagian."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questi elementi sono più larghi dello spazio nella barra dei menu, quindi macOS ne ripiega alcuni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これらの項目はメニューバーの空き領域より幅が広いため、macOS が一部をたたみます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 항목들은 메뉴 막대의 공간보다 넓어서 macOS가 일부를 접습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze onderdelen zijn breder dan de ruimte in de menubalk, dus macOS vouwt er een aantal weg."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te elementy są szersze niż miejsce na pasku menu, więc macOS zwija niektóre z nich."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esses itens são mais largos que o espaço na barra de menus, então o macOS recolhe alguns."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quests elements èn pli lads che la plazza en il trav da menu, perquai plia macOS enqual."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эти элементы шире, чем место в строке меню, поэтому macOS сворачивает часть из них."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De här objekten är bredare än utrymmet i menyraden, så macOS viker bort några."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu öğeler menü çubuğundaki yerden daha geniş, bu yüzden macOS bazılarını katlıyor."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ці елементи ширші за місце в смузі меню, тому macOS згортає частину з них."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这些项目比菜单栏中的可用空间更宽，所以 macOS 会折叠其中一部分。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這些項目比選單列中的可用空間更寬，因此 macOS 會摺疊其中一部分。"
+          }
+        }
+      }
+    },
+    "Moving the apps you use least to Hidden can make room." : {
+      "comment" : "Sentence of the info of the fit banner while Usage suggestions is on; it says a move can make room, not that it will",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přesunutí nejméně používaných aplikací do Skryté může uvolnit místo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn du die Apps, die du am seltensten nutzt, nach „Ausgeblendet“ verschiebst, kann das Platz schaffen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover a Oculto las apps que menos usas puede hacer sitio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déplacer vers Masqué les apps que vous utilisez le moins peut faire de la place."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A legkevesebbet használt appok Rejtett közé helyezése helyet teremthet."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memindahkan app yang paling jarang Anda pakai ke Tersembunyi dapat memberi ruang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spostare in Nascosto le app che usi meno può liberare spazio."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あまり使わないアプリを「非表示」に移すと、場所を空けられることがあります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가장 적게 사용하는 앱을 숨김으로 옮기면 공간이 생길 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als je de apps die je het minst gebruikt naar Verborgen verplaatst, kan dat ruimte maken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przeniesienie najrzadziej używanych aplikacji do sekcji Ukryte może zwolnić miejsce."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover para Oculto os apps que você menos usa pode abrir espaço."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sch'ins spusta las apps che ins duvra il main a Zuppà, po quai far plaz."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Если переместить редко используемые приложения в «Скрыто», это может освободить место."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Att flytta de appar du använder minst till Dold kan ge plats."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En az kullandığın uygulamaları Gizli bölümüne taşımak yer açabilir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Якщо перемістити програми, якими ви користуєтеся найменше, до «Приховано», це може звільнити місце."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把你最少使用的 App 移到“隐藏”，可能会腾出空间。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把你最少使用的 App 移至「已隱藏」，可能會騰出空間。"
+          }
+        }
+      }
+    },
+    "Moving some apps to Hidden can make room." : {
+      "comment" : "Sentence of the info of the fit banner while Usage suggestions is off; it says a move can make room, not that it will",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přesunutí některých aplikací do Skryté může uvolnit místo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn du einige Apps nach „Ausgeblendet“ verschiebst, kann das Platz schaffen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover algunas apps a Oculto puede hacer sitio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déplacer certaines apps vers Masqué peut faire de la place."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Néhány app Rejtett közé helyezése helyet teremthet."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memindahkan beberapa app ke Tersembunyi dapat memberi ruang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spostare alcune app in Nascosto può liberare spazio."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一部のアプリを「非表示」に移すと、場所を空けられることがあります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "일부 앱을 숨김으로 옮기면 공간이 생길 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als je een aantal apps naar Verborgen verplaatst, kan dat ruimte maken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przeniesienie niektórych aplikacji do sekcji Ukryte może zwolnić miejsce."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover alguns apps para Oculto pode abrir espaço."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sch'ins spusta enqual apps a Zuppà, po quai far plaz."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Если переместить часть приложений в «Скрыто», это может освободить место."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Att flytta några appar till Dold kan ge plats."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bazı uygulamaları Gizli bölümüne taşımak yer açabilir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Якщо перемістити частину програм до «Приховано», це може звільнити місце."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把部分 App 移到“隐藏”，可能会腾出空间。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把部分 App 移至「已隱藏」，可能會騰出空間。"
+          }
+        }
+      }
+    },
+    "Nothing can move: the rest are Apple's items, holzBar's own or protected. Quit an app or remove an item to make room." : {
+      "comment" : "Info of the fit banner when no app may be moved by one click",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nic nelze přesunout: ostatní jsou položky Apple, vlastní položky holzBar nebo chráněné položky. Ukonči aplikaci nebo odeber položku, abys uvolnil místo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nichts lässt sich verschieben: Der Rest sind Apple-Elemente, eigene von holzBar oder geschützte. Beende eine App oder entferne ein Element, um Platz zu schaffen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede mover nada: el resto son elementos de Apple, propios de holzBar o protegidos. Cierra una app o quita un elemento para hacer sitio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rien ne peut être déplacé : le reste, ce sont des éléments d'Apple, ceux de holzBar ou des éléments protégés. Quittez une app ou retirez un élément pour faire de la place."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semmi sem mozgatható: a többi az Apple elemei, a holzBar saját elemei vagy védett elemek. Lépj ki egy appból vagy távolíts el egy elemet, hogy helyet szabadíts fel."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidak ada yang dapat dipindahkan: sisanya adalah item Apple, item milik holzBar sendiri, atau item yang dilindungi. Keluar dari sebuah app atau hapus sebuah item untuk memberi ruang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non si può spostare nulla: il resto sono elementi di Apple, di holzBar o protetti. Esci da un'app o rimuovi un elemento per fare spazio."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移動できるものはありません。残りは Apple の項目、holzBar 自身の項目、または保護された項目です。アプリを終了するか項目を削除して、場所を空けてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "옮길 수 있는 항목이 없습니다. 나머지는 Apple 항목, holzBar 자체 항목 또는 보호된 항목입니다. 앱을 종료하거나 항목을 제거해 공간을 확보하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er kan niets worden verplaatst: de rest zijn onderdelen van Apple, van holzBar zelf of beveiligde onderdelen. Stop een app of verwijder een onderdeel om ruimte te maken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nic nie może zostać przeniesione: pozostałe to elementy Apple, własne elementy holzBar lub chronione. Zakończ aplikację albo usuń element, aby zrobić miejsce."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nada pode ser movido: o resto são itens da Apple, do próprio holzBar ou protegidos. Encerre um app ou remova um item para abrir espaço."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagut na po vegnir spustà: il rest èn elements dad Apple, atgnas da holzBar u protegids. Termina ina app u allontanescha in element per far plaz."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переместить нечего: остальные элементы принадлежат Apple, самому holzBar или защищены. Завершите приложение или удалите элемент, чтобы освободить место."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inget går att flytta: resten är Apples objekt, holzBars egna eller skyddade. Avsluta en app eller ta bort ett objekt för att få plats."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taşınabilecek bir şey yok: geri kalanlar Apple’ın öğeleri, holzBar’ın kendi öğeleri veya korumalı öğeler. Yer açmak için bir uygulamadan çık ya da bir öğeyi kaldır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переміщувати нічого: решта елементів належать Apple, самому holzBar або захищені. Завершіть програму або видаліть елемент, щоб звільнити місце."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有可以移动的项目：其余的是 Apple 的项目、holzBar 自己的项目或受保护的项目。退出某个 App 或移除某个项目即可腾出空间。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒有可以移動的項目：其餘的是 Apple 的項目、holzBar 自己的項目或受保護的項目。結束某個 App 或移除某個項目即可騰出空間。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

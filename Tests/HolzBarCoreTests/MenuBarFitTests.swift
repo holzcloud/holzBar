@@ -52,6 +52,9 @@ struct MenuBarFitTests {
         // A menu that reaches into the system items leaves no room, never a negative one.
         #expect(MenuBarFit.room(displayMaxX: 1512, applicationMenuMaxX: 1500) == 0)
         #expect(MenuBarFit.room(displayMaxX: 1512, applicationMenuMaxX: 1512) == 0)
+        // A frame that is not a number leaves no room.
+        #expect(MenuBarFit.room(displayMaxX: 1512, applicationMenuMaxX: .nan) == 0)
+        #expect(MenuBarFit.room(rightAreaWidth: .infinity) == 0)
     }
 
     // MARK: - Widths
