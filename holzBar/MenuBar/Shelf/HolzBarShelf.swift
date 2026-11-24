@@ -836,7 +836,7 @@ private struct HolzBarShelfContentView: View {
         case .downArrow:
             return moveHighlight(.down)
         case .tab:
-            return moveHighlightBetweenTilesAndNotice()
+            return moveHighlightBetweenTilesAndNotice(backward: press.modifiers.contains(.shift))
         case .return, .space:
             return openHighlightedTile()
         case .escape:
@@ -878,6 +878,12 @@ private struct HolzBarShelfContentView: View {
     /// something is typed it steps through the matches instead: left and up go back toward the
     /// best one, right and down on.
     private func moveHighlight(_ step: ShelfLayoutPlan.Step) -> KeyPress.Result {
+        if #available(macOS 27.0, *), highlightedID?.hasPrefix("notice.") == true,
+           case .chip(let id)? = HolzBarShelfNotice.step(from: highlightedID, backward: step == .left || step == .up, appState: appState) {
+            // Inside the notice row the arrows step through its chips.
+            highlightedID = id
+            return .handled
+        }
         let tiles = contents.tiles
         let navigable = tiles.filter(\.isNavigable)
         guard !navigable.isEmpty else {
@@ -899,11 +905,15 @@ private struct HolzBarShelfContentView: View {
         return .handled
     }
 
-    /// Tab moves the highlight from the tiles to the notice row's chip and back.
-    private func moveHighlightBetweenTilesAndNotice() -> KeyPress.Result {
-        guard #available(macOS 27.0, *), let chip = HolzBarShelfNotice.chipIDs(appState: appState).first else { return .ignored }
-        let navigable = contents.tiles.filter(\.isNavigable)
-        highlightedID = highlightedID == chip ? (layout == .row ? navigable.last : navigable.first)?.id : chip
+    /// Tab and Shift-Tab step through the notice row's chips in order, then back to the tiles.
+    private func moveHighlightBetweenTilesAndNotice(backward: Bool) -> KeyPress.Result {
+        guard #available(macOS 27.0, *), let next = HolzBarShelfNotice.step(from: highlightedID, backward: backward, appState: appState) else { return .ignored }
+        if case .chip(let id) = next {
+            highlightedID = id
+        } else {
+            let navigable = contents.tiles.filter(\.isNavigable)
+            highlightedID = (layout == .row ? navigable.last : navigable.first)?.id
+        }
         return .handled
     }
 

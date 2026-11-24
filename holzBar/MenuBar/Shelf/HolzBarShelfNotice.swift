@@ -85,6 +85,29 @@ struct HolzBarShelfNotice: View {
         }
     }
 
+    /// Where the keyboard highlight goes from a chip of the row.
+    enum Step: Equatable {
+        case chip(String)
+        /// Past the first or last chip: back to the tiles.
+        case tiles
+    }
+
+    /// The step through the chips in order: from outside the row to its first chip (its last one
+    /// backward), and from the last chip on to the tiles.
+    ///
+    /// - Returns: `nil` when the row has no chip.
+    static func step(from current: String?, backward: Bool, appState: AppState) -> Step? {
+        let chips = chipIDs(appState: appState)
+        guard !chips.isEmpty else {
+            return nil
+        }
+        guard let current, let index = chips.firstIndex(of: current) else {
+            return .chip(backward ? chips[chips.count - 1] : chips[0])
+        }
+        let next = index + (backward ? -1 : 1)
+        return chips.indices.contains(next) ? .chip(chips[next]) : .tiles
+    }
+
     /// What a click or the keyboard on a chip does: the same pass as the Layout banner's button,
     /// or an answer to the question.
     static func activate(chipID: String, appState: AppState) {
