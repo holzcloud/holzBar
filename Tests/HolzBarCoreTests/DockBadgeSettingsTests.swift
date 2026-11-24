@@ -172,6 +172,39 @@ struct DockBadgeSettingsTests {
         #expect(result.ignored == ["DockBadgesReadsCounts"])
     }
 
+    // MARK: Zero mode
+
+    @Test("The zero mode has two choices with fixed raw values; nothing stored, or an unknown value, is Dim")
+    func zeroModeRawValues() {
+        #expect(DockBadgeZeroMode(rawValue: 0) == .dim)
+        #expect(DockBadgeZeroMode(rawValue: 1) == .hide)
+        #expect(DockBadgeZeroMode(rawValue: 2) == nil)
+        #expect(DockBadgeZeroMode.allCases == [.dim, .hide])
+        #expect(DockBadgeZeroMode.stored(nil) == .dim)
+        #expect(DockBadgeZeroMode.stored(0) == .dim)
+        #expect(DockBadgeZeroMode.stored(1) == .hide)
+        #expect(DockBadgeZeroMode.stored(2) == .dim)
+        #expect(DockBadgeZeroMode.stored(-1) == .dim)
+    }
+
+    @Test("The zero mode travels with a settings file, as 0 or 1 only")
+    func dockBadgeZeroModeTravels() {
+        #expect(Defaults.Key.dockBadgeZeroMode.rawValue == "DockBadgeZeroMode")
+        #expect(Defaults.Key.dockBadgeZeroMode.settingsKind == .number)
+        #expect(Defaults.Key.dockBadgeZeroMode.numberRule == .wholeNumber(0...1))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.dockBadgeZeroMode))
+        #expect(Defaults.Key.importableKinds["DockBadgeZeroMode"] == .number)
+        for accepted: Any in [0, 1] {
+            let result = Defaults.Key.validatedSettings(["DockBadgeZeroMode": accepted], ownBundleIdentifier: ownBundle)
+            #expect((result.accepted["DockBadgeZeroMode"] as? NSNumber)?.intValue == (accepted as? Int))
+        }
+        for refused: Any in [2, 0.5, -1] {
+            let result = Defaults.Key.validatedSettings(["DockBadgeZeroMode": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted["DockBadgeZeroMode"] == nil)
+            #expect(result.ignored == ["DockBadgeZeroMode"])
+        }
+    }
+
     // MARK: Item names
 
     @Test("An app's item name carries its bundle identifier and round-trips")

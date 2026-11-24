@@ -201332,6 +201332,363 @@
           }
         }
       }
+    },
+    "Dim" : {
+      "comment" : "Dock badges settings: choice of the When a count is zero pop-up; the item stays in place at half strength",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ztmavit"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abdunkeln"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atenuar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Assombrir"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elsötétítés"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redupkan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oscura"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "減光"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어둡게"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dimmen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przyciemnij"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escurecer"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stgirentar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Затемнить"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dimma"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karart"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Затемнити"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调暗"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "調暗"
+          }
+        }
+      }
+    },
+    "When a count is zero" : {
+      "comment" : "Dock badges settings: label of the pop-up that decides what an item shows while its count is zero (Dim or Hide)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Když je počet nula"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn eine Anzahl null ist"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando la cuenta es cero"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quand le nombre est zéro"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ha a szám nulla"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saat jumlah nol"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando il conteggio è zero"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カウントがゼロのとき"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카운트가 0일 때"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als een aantal nul is"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gdy liczba wynosi zero"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando a contagem é zero"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cura che in dumber è nul"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Когда счётчик равен нулю"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "När ett antal är noll"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sayı sıfır olduğunda"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли лічильник дорівнює нулю"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当计数为零时"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當計數為零時"
+          }
+        }
+      }
+    },
+    "Dim keeps the item in place at half strength so the bar does not jump. Hide removes the item until the count is above zero." : {
+      "comment" : "Dock badges settings: help text of the When a count is zero pop-up",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ztmavit nechá položku na místě v poloviční síle, aby lišta neposkakovala. Skrýt položku odebere, dokud počet není vyšší než nula."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abdunkeln lässt das Element mit halber Stärke an seinem Platz, damit die Leiste nicht springt. Ausblenden entfernt das Element, bis die Anzahl über null liegt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atenuar mantiene el elemento en su sitio a media intensidad para que la barra no salte. Ocultar quita el elemento hasta que la cuenta sea mayor que cero."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Assombrir garde l'élément en place à demi-intensité pour que la barre ne bouge pas. Masquer retire l'élément jusqu'à ce que le nombre soit supérieur à zéro."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az Elsötétítés a helyén hagyja az elemet félerősséggel, hogy a sáv ne ugráljon. Az Elrejtés eltávolítja az elemet, amíg a szám nulla fölé nem emelkedik."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redupkan menjaga item tetap di tempatnya dengan separuh kekuatan agar bilah tidak bergeser. Sembunyikan menghapus item hingga jumlahnya di atas nol."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oscura mantiene l'elemento al suo posto a metà intensità, così la barra non salta. Nascondi rimuove l'elemento finché il conteggio non è superiore a zero."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「減光」は項目をその場所に半分の濃さで残し、バーが動かないようにします。「非表示」は、カウントがゼロを超えるまで項目を取り除きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'어둡게'는 막대가 움직이지 않도록 항목을 절반 강도로 제자리에 둡니다. '숨기기'는 카운트가 0보다 커질 때까지 항목을 제거합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dimmen laat het onderdeel op zijn plaats staan met halve sterkte, zodat de balk niet verspringt. Verberg haalt het onderdeel weg tot het aantal boven nul is."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przyciemnij zostawia element na miejscu w połowie intensywności, aby pasek nie przeskakiwał. Ukryj usuwa element, dopóki liczba nie będzie większa od zera."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escurecer mantém o item no lugar com metade da intensidade para que a barra não pule. Ocultar remove o item até que a contagem seja maior que zero."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stgirentar lascha l'element al lieu cun la mesadad da la forza, uschè che la trav na siglia betg. Zuppentar allontanescha l'element fin che il dumber è sur nulla."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Затемнить» оставляет элемент на месте с половинной яркостью, чтобы панель не прыгала. «Скрыть» убирает элемент, пока счётчик не станет больше нуля."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dimma behåller objektet på plats med halv styrka så att listen inte hoppar. Dölj tar bort objektet tills antalet är över noll."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karart, çubuk zıplamasın diye öğeyi yarım güçte yerinde tutar. Gizle, sayı sıfırın üzerine çıkana kadar öğeyi kaldırır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Затемнити» залишає елемент на місці з половинною яскравістю, щоб панель не стрибала. «Приховати» прибирає елемент, доки лічильник не стане більшим за нуль."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“调暗”会让项目保持原位并以一半强度显示，使栏不会跳动。“隐藏”会移除项目，直到计数大于零。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「調暗」會讓項目保持原位並以一半強度顯示，使列不會跳動。「隱藏」會移除項目，直到計數大於零。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

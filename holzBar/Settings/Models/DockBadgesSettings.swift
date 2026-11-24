@@ -7,9 +7,10 @@ import Foundation
 import Observation
 
 /// Model for the Dock badges module's own settings: the apps whose Dock badge shows in the menu
-/// bar, and the switch that reads the badge. The choice is stored as bundle identifiers, in the
-/// order chosen, and is exported with the settings; the switch uses a private macOS interface, so
-/// it is off by default and stored on this Mac only. Both save themselves in their `didSet`.
+/// bar, the switch that reads the badge and what an item shows while its count is zero. The choice
+/// is stored as bundle identifiers, in the order chosen, and is exported with the settings, and so
+/// is the zero mode; the switch uses a private macOS interface, so it is off by default and stored
+/// on this Mac only. Each saves itself in its `didSet`.
 @MainActor
 @Observable
 final class DockBadgesSettings {
@@ -37,6 +38,17 @@ final class DockBadgesSettings {
         }
     }
 
+    /// What an item shows while its count is zero: the one setting for every item. Dim by default.
+    /// The module follows it through the badge inputs it observes.
+    var zeroMode = DockBadgeZeroMode.dim {
+        didSet {
+            guard zeroMode != oldValue else {
+                return
+            }
+            Defaults.set(zeroMode.rawValue, forKey: .dockBadgeZeroMode)
+        }
+    }
+
     @ObservationIgnored private weak var appState: AppState?
 
     /// Whether the app is chosen.
@@ -49,13 +61,17 @@ final class DockBadgesSettings {
         apps = DockBadgeApps.setting(bundleID, chosen: isChosen, in: apps)
     }
 
-    /// Loads the stored switch and choice; a stored list that holds anything but valid, unique
-    /// bundle identifiers is cut down to those.
+    /// Loads the stored switch, choice and zero mode; a stored list that holds anything but valid,
+    /// unique bundle identifiers is cut down to those.
     func performSetup(with appState: AppState) {
         self.appState = appState
         Defaults.ifPresent(key: .dockBadgesReadsCounts, assign: &readsCounts)
         Defaults.ifPresent(key: .dockBadgeApps) { (stored: [String]) in
             apps = DockBadgeApps.sanitized(stored)
+        }
+        // Anything stored that is not one of the two modes reads as the default.
+        Defaults.ifPresent(key: .dockBadgeZeroMode) { (stored: Int) in
+            zeroMode = DockBadgeZeroMode.stored(stored)
         }
     }
 }

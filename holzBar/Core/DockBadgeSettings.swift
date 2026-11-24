@@ -117,6 +117,24 @@ nonisolated enum DockBadgeApps {
     }
 }
 
+/// What a Dock badges item shows while its count is zero (Dock badges, D-02, D-13): one setting
+/// for every item.
+///
+/// The raw values are stored and exported (`DockBadgeZeroMode`); new ones are only appended.
+nonisolated enum DockBadgeZeroMode: Int, CaseIterable, Sendable {
+    /// The item stays in place with its icon at half strength and no bubble, so the bar does not
+    /// jump. The default.
+    case dim = 0
+    /// The item takes no width until the count is above zero, and keeps its place and section.
+    case hide = 1
+
+    /// The mode a stored raw value stands for: Dim when nothing is stored or the value is none of
+    /// the known ones (the defaults can hold anything).
+    static func stored(_ raw: Int?) -> DockBadgeZeroMode {
+        raw.flatMap(DockBadgeZeroMode.init(rawValue:)) ?? .dim
+    }
+}
+
 /// The autosave names of the status items that Dock badges adds to the menu bar.
 ///
 /// An item's name is its identity for macOS (its place in the bar) and for holzBar (its section

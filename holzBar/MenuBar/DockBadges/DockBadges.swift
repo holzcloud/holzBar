@@ -96,6 +96,8 @@ final class DockBadges {
         var apps = [String]()
         /// Whether the Mac is asleep, locked or away.
         var isPaused = false
+        /// What an item shows while its count is zero.
+        var zeroMode = DockBadgeZeroMode.dim
     }
 
     /// Follows the badge inputs. While the module is off it reads only the module switch, so that
@@ -304,7 +306,8 @@ final class DockBadges {
         return BadgeInputs(
             isActive: true,
             apps: appState.settings.dockBadges.apps,
-            isPaused: appState.systemActivityMonitor.isPaused
+            isPaused: appState.systemActivityMonitor.isPaused,
+            zeroMode: appState.settings.dockBadges.zeroMode
         )
     }
 
@@ -339,7 +342,7 @@ final class DockBadges {
         let appItems = items ?? makeItems()
         items = appItems
         labels = labels.filter { apps.contains($0.key) }
-        appItems.update(apps: apps, labels: labels)
+        appItems.update(apps: apps, labels: labels, zeroMode: inputs.zeroMode)
         appItems.apply(visibility: visibilityInputs())
         guard !apps.isEmpty, !inputs.isPaused else {
             cancelPasses()
@@ -441,7 +444,7 @@ final class DockBadges {
         }
         if result.pass.dockReadable {
             labels = result.answers.mapValues { DockBadgeLabel($0) }
-            items?.update(apps: settings.apps, labels: labels)
+            items?.update(apps: settings.apps, labels: labels, zeroMode: settings.zeroMode)
         }
     }
 

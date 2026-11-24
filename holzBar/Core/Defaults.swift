@@ -441,6 +441,10 @@ nonisolated extension Defaults {
         /// private macOS interface (a boolean, off by default; the switch of that part, stored on
         /// this Mac only).
         case dockBadgesReadsCounts = "DockBadgesReadsCounts"
+        /// What a Dock badges item shows while its count is zero: the raw values of
+        /// `DockBadgeZeroMode`, 0 Dim and 1 Hide (a whole number; absent means Dim). It is
+        /// exported with the settings.
+        case dockBadgeZeroMode = "DockBadgeZeroMode"
 
         // MARK: System alerts
         // Every System alerts value but the System notifications switch is exported with the
@@ -677,6 +681,7 @@ nonisolated extension Defaults.Key {
             .tempShowInterval,
             .newItemsPlacement,
             .makeRoomMode,
+            .dockBadgeZeroMode,
             .spacerCount,
             .spacerWidth,
             .layoutSnapshotsLimit,
@@ -823,6 +828,9 @@ nonisolated extension Defaults.Key {
         case .makeRoomMode:
             // Exactly the raw values of MakeRoomMode (0 Off, 1 Ask, 2 Automatic); new ones are only appended.
             .wholeNumber(0...2)
+        case .dockBadgeZeroMode:
+            // Exactly the raw values of DockBadgeZeroMode (0 Dim, 1 Hide); new ones are only appended.
+            .wholeNumber(0...1)
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,

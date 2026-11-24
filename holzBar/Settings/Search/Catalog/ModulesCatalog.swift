@@ -121,6 +121,7 @@ extension SettingsCatalog {
             .modulesSystemAlertsTest,
             // Settings of Dock badges.
             .modulesDockBadgesReadsCounts,
+            .modulesDockBadgesZeroMode,
         ]
 
         /// The Mac battery rule's entries: a Mac without an internal battery has no such rule.
@@ -504,6 +505,17 @@ extension SettingsEntry {
         label: String(localized: "Read badge counts"),
         info: String(
             localized: "Reads the badge on the Dock icons of the apps you chose. Uses a private macOS interface. It switches itself off if macOS changes it."
+        ),
+        module: DockBadges.moduleID
+    )
+
+    static let modulesDockBadgesZeroMode = SettingsEntry(
+        id: "modulesDockBadgesZeroMode",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.menuBar,
+        label: String(localized: "When a count is zero"),
+        info: String(
+            localized: "Dim keeps the item in place at half strength so the bar does not jump. Hide removes the item until the count is above zero."
         ),
         module: DockBadges.moduleID
     )

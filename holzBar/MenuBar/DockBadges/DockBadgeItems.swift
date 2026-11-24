@@ -20,7 +20,9 @@ import AppKit
 /// shown, the bubble), kept in memory and handed out through the closure the owner gives, for the
 /// Shelf, the Layout pane and the search, which cannot capture an item of holzBar's own. Where
 /// macOS 27 does not draw the section an item is in, the item collapses to no width, as a widget
-/// does. The class holds no timer, no observer and no task: ``DockBadges`` tells it what to show.
+/// does. At a count of zero an item follows the zero mode (``DockBadgeZeroMode``): dimmed to half
+/// strength without a bubble, or collapsed to no width in its place until the count is above zero,
+/// instantly and without animation. The class holds no timer, no observer and no task: ``DockBadges`` tells it what to show.
 /// App names and badge texts stay in memory and are never logged.
 @MainActor
 final class DockBadgeItems {
@@ -30,18 +32,23 @@ final class DockBadgeItems {
         let autosaveName: String
         let name: String
         let icon: NSImage?
+        /// The icon at half strength, for a count of zero in the mode Dim.
+        let dimmedIcon: NSImage?
         let bubble = CountBadgeView(style: .dockBadge)
         let clickTarget: ClickTarget
         /// What the picture last drawn shows, so that it is drawn again only when that changes.
         var pictureKey: String?
         /// Whether the item is collapsed to no width.
         var isCollapsed = false
+        /// Whether the count is zero in the mode Hide.
+        var isHiddenAtZero = false
 
-        init(statusItem: NSStatusItem, autosaveName: String, name: String, icon: NSImage?) {
+        init(statusItem: NSStatusItem, autosaveName: String, name: String, icon: NSImage?, dimmedIcon: NSImage?) {
             self.statusItem = statusItem
             self.autosaveName = autosaveName
             self.name = name
             self.icon = icon
+            self.dimmedIcon = dimmedIcon
             clickTarget = ClickTarget(statusItem: statusItem)
         }
     }
@@ -82,6 +89,9 @@ final class DockBadgeItems {
     /// Where the items stand now, as ``DockBadges`` last told.
     private var visibility = DockBadgeVisibility.Inputs()
 
+    /// What an item shows at a count of zero.
+    private var zeroMode = DockBadgeZeroMode.dim
+
     /// Told whenever an item's picture is drawn (with the picture) or the item goes (with `nil`).
     private let pictureChanged: (String, NSImage?) -> Void
 
@@ -99,7 +109,9 @@ final class DockBadgeItems {
     ///   - apps: The bundle identifiers of the chosen apps.
     ///   - labels: The badge of each app by bundle identifier; an app without one has none, which
     ///     is the case of an app that left the Dock.
-    func update(apps: [String], labels: [String: DockBadgeLabel]) {
+    ///   - zeroMode: What an item shows while its count is zero.
+    func update(apps: [String], labels: [String: DockBadgeLabel], zeroMode: DockBadgeZeroMode) {
+        self.zeroMode = zeroMode
         let wanted = Set(apps)
         for bundleID in entries.keys where !wanted.contains(bundleID) {
             remove(bundleID, keepingPosition: false)
@@ -139,11 +151,13 @@ final class DockBadgeItems {
         // On macOS 26, holzBar recognises its own items' windows by their frames.
         OwnStatusItemWindows.register(statusItem, forAutosaveName: autosaveName)
         let name = BuiltInItemActions.applicationName(forBundleID: bundleID) ?? bundleID
+        let icon = Self.icon(forBundleID: bundleID)
         let entry = Entry(
             statusItem: statusItem,
             autosaveName: autosaveName,
             name: name,
-            icon: Self.icon(forBundleID: bundleID)
+            icon: icon,
+            dimmedIcon: Self.dimmed(icon)
         )
         entries[bundleID] = entry
         applyLength(of: entry)
@@ -180,6 +194,21 @@ final class DockBadgeItems {
         let image = NSWorkspace.shared.icon(forFile: url.path(percentEncoded: false))
         image.size = size
         image.isTemplate = false
+        return image
+    }
+
+    /// The icon at half strength (``DesignTokens/DockBadge/dimAlpha``), a template when the icon
+    /// is one.
+    private static func dimmed(_ icon: NSImage?) -> NSImage? {
+        guard let icon else {
+            return nil
+        }
+        let alpha = CGFloat(DesignTokens.DockBadge.dimAlpha)
+        let image = NSImage(size: icon.size, flipped: false) { bounds in
+            icon.draw(in: bounds, from: .zero, operation: .sourceOver, fraction: alpha)
+            return true
+        }
+        image.isTemplate = icon.isTemplate
         return image
     }
 
@@ -236,11 +265,15 @@ final class DockBadgeItems {
 
     // MARK: Bubble
 
-    /// Shows the label: the bubble with its text (hidden at zero), the tooltip and the VoiceOver
-    /// value. Nothing is posted to VoiceOver, so a changing count is read only when the item is
-    /// focused.
+    /// Shows the label: the bubble with its text (hidden at zero), the icon at half strength at
+    /// zero in the mode Dim, the item's width (none at zero in the mode Hide), the tooltip and the
+    /// VoiceOver value. Nothing is posted to VoiceOver, so a changing count is read only when the
+    /// item is focused.
     private func show(_ label: DockBadgeLabel, on entry: Entry) {
         let text = label.bubbleText
+        let isDimmed = label.isZero && zeroMode == .dim
+        entry.isHiddenAtZero = label.isZero && zeroMode == .hide
+        applyLength(of: entry)
         if let text {
             if entry.bubble.text != text {
                 entry.bubble.text = text
@@ -251,6 +284,10 @@ final class DockBadgeItems {
         }
         guard let button = entry.statusItem.button else {
             return
+        }
+        let icon = isDimmed ? entry.dimmedIcon : entry.icon
+        if button.image !== icon {
+            button.image = icon
         }
         let value = label.fullText ?? String(localized: "No badge")
         let tooltip = String(localized: "\(entry.name): \(value)")
@@ -263,17 +300,18 @@ final class DockBadgeItems {
         if let text {
             position(entry.bubble, text: text, on: button)
         }
-        updatePicture(of: entry, bubbleText: text)
+        updatePicture(of: entry, bubbleText: text, isDimmed: isDimmed)
     }
 
     // MARK: Length
 
-    /// Sets the status item's length: the fixed one, or none while the item is collapsed. As
+    /// Sets the status item's length: the fixed one, or none while the item is collapsed (in a
+    /// section macOS 27 does not draw, or at zero in the mode Hide). As
     /// `ControlItem.updateStatusItemVisibility` collapses a divider, the item's window is made one
     /// point wide as well. The item keeps its element while collapsed, so it stays in the item
     /// list, the Shelf and the search; its picture is the one holzBar draws itself.
     private func applyLength(of entry: Entry) {
-        let isCollapsed = visibility.collapsed.contains(entry.autosaveName)
+        let isCollapsed = entry.isHiddenAtZero || visibility.collapsed.contains(entry.autosaveName)
         guard isCollapsed != entry.isCollapsed else {
             return
         }
@@ -292,10 +330,11 @@ final class DockBadgeItems {
 
     // MARK: Picture
 
-    /// Draws the picture of the item again when what it shows changed: the icon and, when there
-    /// is a bubble, the bubble as the item has it.
-    private func updatePicture(of entry: Entry, bubbleText: String?) {
-        let key = bubbleText ?? ""
+    /// Draws the picture of the item again when what it shows changed: the icon (at half strength
+    /// when it is dimmed) and, when there is a bubble, the bubble as the item has it. An item
+    /// collapsed at zero keeps the picture of a dimmed one, for the Shelf and the Layout pane.
+    private func updatePicture(of entry: Entry, bubbleText: String?, isDimmed: Bool) {
+        let key = "\(bubbleText ?? "")|\(isDimmed)"
         guard entry.pictureKey != key else {
             return
         }
@@ -310,7 +349,7 @@ final class DockBadgeItems {
                 bubble = (image, bounds.size)
             }
         }
-        pictureChanged(entry.autosaveName, Self.picture(icon: entry.icon, bubble: bubble))
+        pictureChanged(entry.autosaveName, Self.picture(icon: isDimmed ? entry.dimmedIcon : entry.icon, bubble: bubble))
     }
 
     /// The picture of an item at the height of a menu bar item: the icon in the middle and the
