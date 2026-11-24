@@ -91,7 +91,8 @@ nonisolated struct NewAppQuestion: Equatable, Sendable {
             !id.isEmpty,
             !id.lowercased().hasPrefix("com.apple."),
             !OwnBundle.matches(id, bundleIdentifier: ownBundleID),
-            !declined.contains(bundleID)
+            !declined.contains(bundleID),
+            !declined.contains(id)
         else {
             return false
         }

@@ -96,6 +96,9 @@ struct NewAppQuestionTests {
         #expect(!eligible(own))
         #expect(!eligible("COM.HOLZCLOUD.HOLZBAR"))
         #expect(!eligible("com.example.Tool", declined: ["com.example.Tool"]))
+        // Whitespace around the identifier does not get past a decline, whichever form was stored.
+        #expect(!eligible(" com.example.Tool ", declined: ["com.example.Tool"]))
+        #expect(!eligible(" com.example.Tool ", declined: [" com.example.Tool "]))
         #expect(!eligible("com.example.Helper", "/Applications/Tool.app/Contents/Library/LoginItems/Helper.app"))
         #expect(!eligible(""))
         #expect(!eligible("  "))
