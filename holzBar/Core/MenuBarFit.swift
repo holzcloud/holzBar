@@ -118,6 +118,21 @@ nonisolated enum MenuBarFit {
         /// The numbers are missing.
         case unknown
 
+        /// What the verdict says, without its numbers.
+        nonisolated enum Kind: Equatable, Sendable {
+            case fits, doesNotFit, folded, unknown
+        }
+
+        /// The kind of the verdict: the settle time is measured on it, not on the item counts.
+        var kind: Kind {
+            switch self {
+            case .fits: .fits
+            case .doesNotFit: .doesNotFit
+            case .folded: .folded
+            case .unknown: .unknown
+            }
+        }
+
         /// Whether the bar is full.
         var isOverflowing: Bool {
             switch self {
@@ -152,15 +167,17 @@ nonisolated enum MenuBarFit {
 
     // MARK: - Settle
 
-    /// Keeps a verdict from flickering on screen: a verdict that differs from the one shown is
-    /// shown only after it stayed the same for ``Policy/bannerSettle``, so a condition that flips
-    /// within that time changes nothing (T-97-06). Pure and clock-free: the caller passes the
+    /// Keeps a verdict from flickering on screen: a verdict of another kind than the one shown
+    /// is shown only after its kind stayed the same for ``Policy/bannerSettle``, so a condition
+    /// that flips within that time changes nothing (T-97-06). A verdict of the shown kind takes
+    /// over at once with its new numbers, so a count that jitters neither delays the banner nor
+    /// leaves the sentence on an old count. Pure and clock-free: the caller passes the
     /// time of each note and arms one wait for the instant ``note(_:at:)`` returns.
     nonisolated struct Settle: Equatable, Sendable {
         /// The verdict on screen.
         private(set) var shown: Verdict
 
-        /// A different verdict and when it was first seen.
+        /// A verdict of another kind and when its kind was first seen.
         private var pending: (verdict: Verdict, since: ContinuousClock.Instant)?
 
         /// Starts with `shown` on screen: a verdict that is already true at the start shows at once.
@@ -174,15 +191,16 @@ nonisolated enum MenuBarFit {
 
         /// Notes the latest verdict.
         ///
-        /// - Returns: The instant to note again (the verdict stayed different and will be due
-        ///   then), or `nil` when nothing is waiting: the verdict is the one shown, or it just
+        /// - Returns: The instant to note again (the kind stayed different and will be due
+        ///   then), or `nil` when nothing is waiting: the verdict is of the shown kind, or it just
         ///   became the one shown.
         mutating func note(_ verdict: Verdict, at now: ContinuousClock.Instant) -> ContinuousClock.Instant? {
-            guard verdict != shown else {
+            guard verdict.kind != shown.kind else {
+                shown = verdict
                 pending = nil
                 return nil
             }
-            let since = pending?.verdict == verdict ? pending?.since ?? now : now
+            let since = pending?.verdict.kind == verdict.kind ? pending?.since ?? now : now
             guard now - since < Policy.bannerSettle else {
                 shown = verdict
                 pending = nil

@@ -357,16 +357,36 @@ struct MenuBarFitTests {
         #expect(settle.shown == .doesNotFit(items: 2))
     }
 
-    @Test("A different verdict restarts the wait, and the banner leaves after the same time")
+    @Test("A different kind restarts the wait, and the banner leaves after the same time")
     func settleRestartsOnAnotherVerdict() {
         let start = ContinuousClock.now
         var settle = MenuBarFit.Settle(shown: .doesNotFit(items: 1))
         #expect(settle.note(.fits, at: start) == start + .seconds(3))
-        // Another number is another verdict: the wait counts from it.
-        #expect(settle.note(.doesNotFit(items: 2), at: start + .seconds(2)) == start + .seconds(5))
+        // The shown kind again, with another number: it takes over at once and the wait is gone.
+        #expect(settle.note(.doesNotFit(items: 2), at: start + .seconds(2)) == nil)
+        #expect(settle.shown == .doesNotFit(items: 2))
         #expect(settle.note(.fits, at: start + .seconds(3)) == start + .seconds(6))
-        #expect(settle.shown == .doesNotFit(items: 1))
+        #expect(settle.shown == .doesNotFit(items: 2))
         #expect(settle.note(.fits, at: start + .seconds(6)) == nil)
         #expect(settle.shown == .fits)
+    }
+
+    @Test("A count that changes while a kind waits does not restart its wait")
+    func settleIgnoresJitterOfTheCount() {
+        let start = ContinuousClock.now
+        var settle = MenuBarFit.Settle(shown: .fits)
+        #expect(settle.note(.doesNotFit(items: 2), at: start) == start + .seconds(3))
+        #expect(settle.note(.doesNotFit(items: 3), at: start + .seconds(2)) == start + .seconds(3))
+        #expect(settle.shown == .fits)
+        #expect(settle.note(.doesNotFit(items: 3), at: start + .seconds(3)) == nil)
+        #expect(settle.shown == .doesNotFit(items: 3))
+    }
+
+    @Test("Once shown, the sentence follows the count at once")
+    func settleUpdatesTheShownCount() {
+        let now = ContinuousClock.now
+        var settle = MenuBarFit.Settle(shown: .folded(names: ["A"], items: 1))
+        #expect(settle.note(.folded(names: ["A", "B"], items: 2), at: now) == nil)
+        #expect(settle.shown == .folded(names: ["A", "B"], items: 2))
     }
 }
