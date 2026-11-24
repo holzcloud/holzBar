@@ -262,6 +262,75 @@ struct MediaKeyPressTests {
         #expect(!MediaKeyRule.repeatsWhileHeld(.mute))
     }
 
+    @Test("Only no modifier and exactly Option and Shift are holzBar's; every other combination passes")
+    func modifiersPass() {
+        let accepted: [MediaKeyModifiers] = [[], [.option, .shift]]
+        let others: [MediaKeyModifiers] = [
+            .option, .shift, .control, .command,
+            [.option, .control], [.shift, .command], [.option, .command],
+            [.option, .shift, .control], [.option, .shift, .command],
+            [.control, .command], [.option, .shift, .control, .command],
+        ]
+        var brightness = readyContext()
+        brightness.displayControlsOn = true
+        brightness.brightnessSwitchOn = true
+        brightness.target = .builtIn(canChange: true)
+        for modifiers in accepted {
+            var context = readyContext()
+            context.modifiers = modifiers
+            brightness.modifiers = modifiers
+            #expect(MediaKeyRule.acceptsModifiers(modifiers))
+            for code in [MediaKeyCode.soundUp, .soundDown, .mute] {
+                #expect(MediaKeyRule.takes(press(code), in: context, downWasTaken: false))
+            }
+            for code in [MediaKeyCode.brightnessUp, .brightnessDown] {
+                #expect(MediaKeyRule.takes(press(code), in: brightness, downWasTaken: false))
+            }
+        }
+        for modifiers in others {
+            var context = readyContext()
+            context.modifiers = modifiers
+            brightness.modifiers = modifiers
+            #expect(!MediaKeyRule.acceptsModifiers(modifiers))
+            for code in [MediaKeyCode.soundUp, .soundDown, .mute] {
+                #expect(!MediaKeyRule.takes(press(code), in: context, downWasTaken: false))
+            }
+            for code in [MediaKeyCode.brightnessUp, .brightnessDown] {
+                #expect(!MediaKeyRule.takes(press(code), in: brightness, downWasTaken: false))
+            }
+        }
+    }
+
+    @Test("The quarter step is exactly Option and Shift")
+    func quarterStepModifiers() {
+        #expect(MediaKeyRule.usesQuarterStep([.option, .shift]))
+        #expect(!MediaKeyRule.usesQuarterStep([]))
+        #expect(!MediaKeyRule.usesQuarterStep(.option))
+        #expect(!MediaKeyRule.usesQuarterStep(.shift))
+        #expect(!MediaKeyRule.usesQuarterStep([.option, .shift, .command]))
+    }
+
+    @Test("A held key's repeat and release follow their press whatever the modifiers do meanwhile")
+    func modifiersChangeWhileHeld() {
+        var context = readyContext()
+        context.modifiers = .option
+        #expect(MediaKeyRule.takes(press(.soundUp, isRepeat: true), in: context, downWasTaken: true))
+        #expect(MediaKeyRule.takes(press(.soundUp, isDown: false), in: context, downWasTaken: true))
+    }
+
+    @Test("A press with an unaccepted modifier does not ask a monitor either")
+    func modifiersDoNotSurvey() {
+        var context = readyContext()
+        context.displayControlsOn = true
+        context.externalSwitchOn = true
+        context.target = .external(answersBrightness: nil)
+        #expect(MediaKeyRule.needsSurvey(press(.brightnessUp), in: context))
+        context.modifiers = .option
+        #expect(!MediaKeyRule.needsSurvey(press(.brightnessUp), in: context))
+        context.modifiers = [.option, .shift]
+        #expect(MediaKeyRule.needsSurvey(press(.brightnessUp), in: context))
+    }
+
     @Test("An empty context takes nothing")
     func emptyContextPasses() {
         let context = MediaKeyRule.Context()

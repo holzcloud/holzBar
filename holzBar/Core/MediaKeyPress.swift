@@ -80,6 +80,24 @@ nonisolated struct MediaKeyPress: Equatable, Sendable {
     }
 }
 
+/// The modifier keys of a media-key press that decide whether holzBar takes it (Phase 96, D-21).
+///
+/// Only the four keys that change what a volume or brightness key means in macOS are listed:
+/// Option and Shift together give Apple's quarter step, and Option alone opens the Sound or
+/// Displays settings. The Fn key and Caps Lock are not listed on purpose: they say nothing about
+/// the key's meaning, and a keyboard may set them on a media key that is a plain press.
+nonisolated struct MediaKeyModifiers: OptionSet, Equatable, Sendable {
+    let rawValue: Int
+
+    static let shift = MediaKeyModifiers(rawValue: 1 << 0)
+    static let control = MediaKeyModifiers(rawValue: 1 << 1)
+    static let option = MediaKeyModifiers(rawValue: 1 << 2)
+    static let command = MediaKeyModifiers(rawValue: 1 << 3)
+
+    /// Option and Shift: the quarter step.
+    static let quarterStep: MediaKeyModifiers = [.option, .shift]
+}
+
 /// The one rule that decides whether holzBar takes a key, and the steps a taken key makes
 /// (Phase 96, D-02, D-20, D-21, D-22).
 ///
@@ -130,6 +148,9 @@ nonisolated enum MediaKeyRule {
         var softwareDimmedOnly = false
         /// What the brightness keys would change.
         var target = Target.unknown
+        /// The modifier keys held with the press. Only no modifier and exactly Option and Shift
+        /// are holzBar's; every other combination keeps its meaning in macOS (WR-01).
+        var modifiers = MediaKeyModifiers()
 
         init() {}
     }
@@ -143,6 +164,18 @@ nonisolated enum MediaKeyRule {
 
     /// The lowest brightness a key sets: 2 %, so a held key never switches a display to black.
     static let brightnessFloor = 0.02
+
+    /// Whether holzBar may act on a press with these modifiers: none, or exactly Option and Shift
+    /// for the quarter step. Option alone, Shift alone, Control and Command (with or without
+    /// others) have their own meaning in macOS, so those presses pass unchanged.
+    static func acceptsModifiers(_ modifiers: MediaKeyModifiers) -> Bool {
+        modifiers.isEmpty || modifiers == .quarterStep
+    }
+
+    /// Whether the step of a press is the quarter step: exactly Option and Shift are held.
+    static func usesQuarterStep(_ modifiers: MediaKeyModifiers) -> Bool {
+        modifiers == .quarterStep
+    }
 
     /// Whether holzBar takes the key.
     ///
@@ -163,7 +196,8 @@ nonisolated enum MediaKeyRule {
             !context.fullScreenSpace,
             !context.menuBarHidden,
             !context.mirroredOrShared,
-            !context.inWakeWait
+            !context.inWakeWait,
+            acceptsModifiers(context.modifiers)
         else {
             return false
         }
@@ -195,7 +229,8 @@ nonisolated enum MediaKeyRule {
             !context.mirroredOrShared,
             !context.inWakeWait,
             context.displayControlsOn,
-            context.externalSwitchOn
+            context.externalSwitchOn,
+            acceptsModifiers(context.modifiers)
         else {
             return false
         }

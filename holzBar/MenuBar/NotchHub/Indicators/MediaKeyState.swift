@@ -22,9 +22,10 @@ import os
 /// for the main thread: its methods run on the tap's thread, and with Swift 6 and main-actor
 /// default isolation such a read would wait for the main thread (RESEARCH, Pitfall 3).
 ///
-/// ``decide(_:)`` is the only place an event is read: it takes the subtype, `data1` and the Option
-/// and Shift flags of a system-defined event, decodes ``MediaKeyPress`` (only the five keys of
-/// ``MediaKeyCode``; play, next, previous and every other key decode to nothing and pass), and asks
+/// ``decide(_:)`` is the only place an event is read: it takes the subtype, `data1` and the Option,
+/// Shift, Control and Command flags of a system-defined event, decodes ``MediaKeyPress`` (only the
+/// five keys of ``MediaKeyCode``; play, next, previous and every other key decode to nothing and
+/// pass), and asks
 /// ``MediaKeyRule/takes(_:in:downWasTaken:)``, the one rule. The tap records which key-downs it took,
 /// so the key-up and every repeat of a held key follow their down exactly (D-21). Nothing about an
 /// event is logged.
@@ -176,11 +177,30 @@ nonisolated final class MediaKeyState: @unchecked Sendable {
         return .reenable
     }
 
+    /// The modifier keys that matter to the rule, from an event's device-independent flags.
+    private static func modifiers(of flags: NSEvent.ModifierFlags) -> MediaKeyModifiers {
+        var modifiers = MediaKeyModifiers()
+        if flags.contains(.shift) {
+            modifiers.insert(.shift)
+        }
+        if flags.contains(.control) {
+            modifiers.insert(.control)
+        }
+        if flags.contains(.option) {
+            modifiers.insert(.option)
+        }
+        if flags.contains(.command) {
+            modifiers.insert(.command)
+        }
+        return modifiers
+    }
+
     /// Decides what the tap does with an event.
     ///
     /// Runs on the tap's thread, in microseconds: it makes the event's `NSEvent` here, reads the
-    /// subtype, `data1` and the Option and Shift flags, decodes the press and takes one lock, in
-    /// which it reads the snapshot, asks the rule and records the taken down. It waits for nothing
+    /// subtype, `data1` and the Option, Shift, Control and Command flags, decodes the press and
+    /// takes one lock, in which it reads the snapshot, asks the rule and records the taken down.
+    /// A press with any modifier other than exactly Option and Shift passes. It waits for nothing
     /// and logs nothing about the event. Every event that is not one of the five keys, and every
     /// case without a snapshot, passes.
     func decide(_ event: CGEvent) -> Decision {
@@ -196,7 +216,8 @@ nonisolated final class MediaKeyState: @unchecked Sendable {
             return .pass
         }
         let flags = nsEvent.modifierFlags.intersection(.deviceIndependentFlagsMask)
-        let quarter = flags.contains(.option) && flags.contains(.shift)
+        let modifiers = Self.modifiers(of: flags)
+        let quarter = MediaKeyRule.usesQuarterStep(modifiers)
         let location = event.location
         let instant = ContinuousClock.now
         return shared.withLock { state in
@@ -205,7 +226,8 @@ nonisolated final class MediaKeyState: @unchecked Sendable {
             let takes: Bool
             var surveys = false
             if let display {
-                let context = state.snapshot.context(for: display, at: instant)
+                var context = state.snapshot.context(for: display, at: instant)
+                context.modifiers = modifiers
                 takes = MediaKeyRule.takes(press, in: context, downWasTaken: downWasTaken)
                 surveys = !takes && MediaKeyRule.needsSurvey(press, in: context)
             } else {
