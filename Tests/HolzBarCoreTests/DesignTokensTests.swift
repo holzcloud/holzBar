@@ -568,4 +568,13 @@ struct DesignTokensTests {
         #expect(indicator.cardHoverDwell == 0.15)
         #expect(indicator.cardMaximumHeight == 96)
     }
+
+    @Test("The Shelf notice row's widths and the combined question's rows are the design's numbers")
+    func comfortTokens() {
+        let comfort = Tokens.Comfort.self
+        #expect(comfort.shelfNoticeMinWidth == 280)
+        #expect(comfort.shelfNoticeMaxWidth == 420)
+        #expect(comfort.shelfNoticeMinWidth < comfort.shelfNoticeMaxWidth)
+        #expect(comfort.combinedQuestionMaxRows == 4)
+    }
 }

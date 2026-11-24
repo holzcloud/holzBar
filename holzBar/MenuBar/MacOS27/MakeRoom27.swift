@@ -371,6 +371,61 @@ final class MakeRoom27 {
         return ItemClassifier.classify(classifiable) != .essential
     }
 
+    // MARK: - Words
+
+    /// The sentence of the banner on every surface: the Layout pane and the Shelf say the same.
+    func sentence(for banner: Banner) -> String {
+        if case let .folded(names, _) = banner.verdict {
+            // The first two names, then the rest as a count, verbatim.
+            let parts = MenuBarFit.sentenceNames(names)
+            var namesText = parts.shown.joined(separator: ", ")
+            if parts.more > 0 {
+                namesText += " +\(parts.more)"
+            }
+            return String(localized: "Folded away: \(namesText)")
+        }
+        let items = itemCount(of: banner)
+        return banner.hasNotch
+            ? String(localized: "\(items) items do not fit beside the notch")
+            : String(localized: "\(items) items do not fit in the menu bar")
+    }
+
+    /// What the info button or tooltip says: why the bar is full, what a move can do, that it can
+    /// be undone and which apps the button would move. No sentence promises that a move gives
+    /// more space: that is measured on a Mac first. Without a candidate the info says why nothing
+    /// can move.
+    func info(for banner: Banner) -> String {
+        guard !banner.candidates.isEmpty else {
+            return String(localized: "Nothing can move: the rest are Apple's items, holzBar's own or protected. Quit an app or remove an item to make room.")
+        }
+        let why: String
+        let can: String
+        if case .folded = banner.verdict {
+            why = String(localized: "macOS ran out of room and folded these items away.")
+            can = banner.usesUsage
+                ? String(localized: "holzBar can move the apps you use least to Hidden, a few at a time.")
+                : String(localized: "holzBar can move some apps to Hidden, a few at a time.")
+        } else {
+            why = banner.hasNotch
+                ? String(localized: "These items are wider than the room beside the notch, so macOS folds some away.")
+                : String(localized: "These items are wider than the room in the menu bar, so macOS folds some away.")
+            can = banner.usesUsage
+                ? String(localized: "Moving the apps you use least to Hidden can make room.")
+                : String(localized: "Moving some apps to Hidden can make room.")
+        }
+        // The names are the apps' own, shown as they are; they never reach a log line.
+        let names = ListFormatter.localizedString(byJoining: banner.candidates.map(\.name))
+        return [why, can, String(localized: "You can undo it."), names].joined(separator: " ")
+    }
+
+    /// How many items do not fit.
+    private func itemCount(of banner: Banner) -> Int {
+        switch banner.verdict {
+        case let .doesNotFit(items), let .folded(_, items): items
+        case .fits, .unknown: 0
+        }
+    }
+
     // MARK: - A pass
 
     /// Moves the banner's apps to Hidden: one layout write and one Undo step, nothing else moves.

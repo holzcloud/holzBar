@@ -731,15 +731,20 @@ private struct HolzBarShelfContentView: View {
 
     var body: some View {
         ZStack {
-            content
-                .frame(height: layout == .row ? contentHeight : nil)
-                .frame(minHeight: layout == .row ? nil : contentHeight)
-                .padding(.horizontal, horizontalPadding)
-                .padding(.vertical, verticalPadding)
-                .menuBarItemContainer(appState: appState, colorInfo: backgroundColorInfo)
-                .foregroundStyle(colorManager.colorInfo?.color.brightness ?? 0 > 0.67 ? .black : .white)
-                .clipShape(clipShape)
-                .shadow(color: shadow.color, radius: shadow.radius, y: shadow.y)
+            VStack(spacing: 0) {
+                content
+                    .frame(height: layout == .row ? contentHeight : nil)
+                    .frame(minHeight: layout == .row ? nil : contentHeight)
+                    .padding(.horizontal, horizontalPadding)
+                    .padding(.vertical, verticalPadding)
+                if #available(macOS 27.0, *) {
+                    HolzBarShelfNotice(appState: appState, highlightedID: highlightedID)
+                }
+            }
+            .menuBarItemContainer(appState: appState, colorInfo: backgroundColorInfo)
+            .foregroundStyle(colorManager.colorInfo?.color.brightness ?? 0 > 0.67 ? .black : .white)
+            .clipShape(clipShape)
+            .shadow(color: shadow.color, radius: shadow.radius, y: shadow.y)
 
             if dragModel.isDropTargeted {
                 // A dragged menu bar item is over the Shelf: the drop will hide its app.

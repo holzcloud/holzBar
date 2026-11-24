@@ -375,6 +375,17 @@ nonisolated enum DesignTokens {
         static let cardMaximumHeight = 96.0
     }
 
+    /// The numbers of the menu bar comfort features (Phase 97, concept M2 and M3): how wide the
+    /// notice row in the holzBar Shelf is and how many apps one question card lists.
+    nonisolated enum Comfort {
+        /// The narrowest the Shelf's notice row is, in points (M2).
+        static let shelfNoticeMinWidth = 280.0
+        /// The widest the Shelf's notice row is, in points; a longer sentence wraps (M2).
+        static let shelfNoticeMaxWidth = 420.0
+        /// How many apps the combined new-app question lists before it says "+N more" (M3).
+        static let combinedQuestionMaxRows = 4
+    }
+
     /// The gradient of fills that carry white text, the same in both appearances.
     nonisolated enum Fill {
         static let start = RGB(hex: 0x1C78AE)
