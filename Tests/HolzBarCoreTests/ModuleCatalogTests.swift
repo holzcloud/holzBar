@@ -43,7 +43,7 @@ struct ModuleCatalogTests {
         #expect(drag.permission == nil)
         #expect(drag.symbol == "arrow.left.arrow.right")
         #expect(drag.titleKey == "Drag in the Menu Bar")
-        #expect(ModuleCatalog.modules(in: .menuBar).map(\.id) == ["widgets", "menu-bar-drag", "apple-items"])
+        #expect(ModuleCatalog.modules(in: .menuBar).map(\.id) == ["widgets", "menu-bar-drag", "apple-items", "dock-badges"])
         // Off until the user switches it on.
         #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
         #expect(ModuleCatalog.enabledIdentifiers(["menu-bar-drag"], knownTo: ModuleCatalog.all) == ["menu-bar-drag"])
@@ -60,6 +60,23 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
         #expect(ModuleCatalog.enabledIdentifiers(["apple-items"], knownTo: ModuleCatalog.all) == ["apple-items"])
         #expect(!appleItems.isPreview)
+    }
+
+    @Test("Dock badges is a preview module of the menu bar area after Apple Items, off by default, needing Accessibility")
+    func dockBadgesDescriptor() throws {
+        let module = try #require(ModuleCatalog.all.first { $0.id == "dock-badges" })
+        #expect(module.area == .menuBar)
+        #expect(module.symbol == "app.badge")
+        #expect(module.titleKey == "Dock badges")
+        #expect(module.summaryKey == "Shows the badge counts of apps in your Dock as menu bar items.")
+        #expect(module.permission == .accessibility)
+        #expect(module.isPreview)
+        let menuBar = ModuleCatalog.modules(in: .menuBar).map(\.id)
+        #expect(Array(menuBar.suffix(2)) == ["apple-items", "dock-badges"])
+        // Off until the user switches it on; a switch that was turned on survives a relaunch.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["dock-badges"], knownTo: ModuleCatalog.all) == ["dock-badges"])
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
     }
 
     @Test("The Notch hub is an optional module of the notch area without a permission")

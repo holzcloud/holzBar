@@ -104,6 +104,9 @@ final class AppState {
     /// The Apple Items module: hidden system items (macOS 27).
     let appleItems = AppleItems()
 
+    /// The Dock badges module: the apps in the Dock to choose from (Preview).
+    let dockBadges = DockBadges()
+
     /// The Notch hub: a panel at the notch for the modules the user switches on (Preview).
     let notchHub = NotchHubController()
 
@@ -435,6 +438,7 @@ final class AppState {
         hiddenItemsLock.performSetup(with: self)
         itemGroups.performSetup(with: self)
         appleItems.performSetup(with: self)
+        dockBadges.performSetup(with: self)
         spacers.performSetup()
         systemMonitor.performSetup(with: self)
         connectedDevices.performSetup(with: self)

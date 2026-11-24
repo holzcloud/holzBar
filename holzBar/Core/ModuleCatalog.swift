@@ -78,7 +78,9 @@ nonisolated enum ModuleCatalog {
     /// off. Now Playing, a fifth module of the hub, is off until the user switches it on, asks for no
     /// permission and creates no observer, runtime or model while off. System readouts, the module
     /// of the System monitor group, is off until the user switches it on, asks for no permission and
-    /// reads nothing while off; its settings are built only when its row is opened. The title and the summary are the English
+    /// reads nothing while off; its settings are built only when its row is opened. Dock badges is off
+    /// until the user switches it on, asks for no permission beyond holzBar's Accessibility, and reads
+    /// nothing and shows no item while off. The title and the summary are the English
     /// strings the settings show; their keys are those strings.
     static let all: [ModuleDescriptor] = [
         ModuleDescriptor(
@@ -104,6 +106,15 @@ nonisolated enum ModuleCatalog {
             titleKey: "Apple Items",
             summaryKey: "Hide the clock or Control Center, and keep Apple items one click away on macOS 27.",
             permission: nil
+        ),
+        ModuleDescriptor(
+            id: "dock-badges",
+            area: .menuBar,
+            symbol: "app.badge",
+            titleKey: "Dock badges",
+            summaryKey: "Shows the badge counts of apps in your Dock as menu bar items.",
+            permission: .accessibility,
+            isPreview: true
         ),
         ModuleDescriptor(
             id: "notch-hub",

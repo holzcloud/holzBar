@@ -53,6 +53,9 @@ final class AppSettings {
     /// The model for the System alerts module's rule settings.
     let systemAlerts = SystemAlertsSettings()
 
+    /// The model for the Dock badges module's settings.
+    let dockBadges = DockBadgesSettings()
+
     /// Performs the initial setup of the settings model.
     func performSetup(with appState: AppState) {
         advanced.performSetup(with: appState)
@@ -69,5 +72,6 @@ final class AppSettings {
         nowPlaying.performSetup(with: appState)
         readouts.performSetup(with: appState)
         systemAlerts.performSetup(with: appState)
+        dockBadges.performSetup(with: appState)
     }
 }

@@ -131,6 +131,8 @@ struct ModulesSettingsPane: View {
             }
         } else if module.id == AppleItems.moduleID {
             AppleItemsSection(appleItems: appState.appleItems)
+        } else if module.id == DockBadges.moduleID {
+            DockBadgesSettingsView()
         } else if module.id == NotchHubController.moduleID {
             NotchHubSettingsView(settings: appState.settings.notchHub)
         } else if module.id == ReadoutsSettings.moduleID {

@@ -432,6 +432,12 @@ nonisolated extension Defaults {
         /// Mac only).
         case readoutsReadsGPU = "ReadoutsReadsGPU"
 
+        // MARK: Dock badges
+        /// The bundle identifiers of the apps whose Dock badge shows in the menu bar, in the order
+        /// chosen (a list of strings, at most 64). It is exported with the settings; an imported
+        /// list keeps only valid, unique bundle identifiers.
+        case dockBadgeApps = "DockBadgeApps"
+
         // MARK: System alerts
         // Every System alerts value but the System notifications switch is exported with the
         // settings. An imported number outside its whole-number range is refused, and the model
@@ -722,7 +728,8 @@ nonisolated extension Defaults.Key {
             .revealOnChangeItems,
             .calendarHiddenCalendars,
             .notificationsExcludedApps,
-            .readoutTiles:
+            .readoutTiles,
+            .dockBadgeApps:
             .stringArray
         case .hotkeys,
             .revealRules,
@@ -954,6 +961,12 @@ nonisolated extension Defaults.Key {
         let tilesKey = Self.readoutTiles.rawValue
         if let tiles = result.accepted[tilesKey] as? [String] {
             result.accepted[tilesKey] = ReadoutTileChoice.sanitized(tiles)
+        }
+        // A file never brings an app that is not a bundle identifier, a repeated one, or more
+        // than `DockBadgeApps.maximumCount`: the list is sanitized.
+        let dockAppsKey = Self.dockBadgeApps.rawValue
+        if let apps = result.accepted[dockAppsKey] as? [String] {
+            result.accepted[dockAppsKey] = DockBadgeApps.sanitized(apps)
         }
         // A file never brings a stored order of more keys than `ItemOrder` keeps, or an empty,
         // overlong or repeated key: the order is read on the main thread at every restore.
