@@ -39,6 +39,11 @@ final class NotchHubModel {
     /// Whether the open hub is pinned (D-12). Never stored: the controller's `close()` clears it.
     var pin = HubPin()
 
+    /// The question where a new menu bar app should go, set once by the question model when it is
+    /// created (Phase 97, D-06); `nil` until then. The hub reads it for the Overview's first row and
+    /// the dot on the Overview button, and the controller never names it.
+    var newAppQuestionSource: (any HubNewAppQuestionSource)?
+
     init() {
         lastChosenID = Defaults.string(forKey: .notchHubLastTab) ?? HubTabStrip.overviewID
     }

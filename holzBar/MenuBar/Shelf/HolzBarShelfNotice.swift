@@ -74,7 +74,9 @@ struct HolzBarShelfNotice: View {
             return [moveChipID]
         }
         let answers = answersOffered(appState: appState)
-        return questionsAsked(appState: appState).prefix(1).flatMap { app in
+        let asked = questionsAsked(appState: appState)
+        let rows = NewAppQuestion.shown(asked, limit: DesignTokens.Comfort.combinedQuestionMaxRows).rows
+        return rows.flatMap { app in
             answers.map { chipID(bundleID: app.bundleID, answer: $0) }
         }
     }
@@ -116,8 +118,13 @@ struct HolzBarShelfNotice: View {
         VStack(spacing: 0) {
             if let banner = makeRoom.shelfBanner, banner.verdict.isOverflowing {
                 row(for: banner)
-            } else if let app = Self.questionsAsked(appState: appState).first {
-                questionRow(for: app)
+            } else {
+                let asked = Self.questionsAsked(appState: appState)
+                if asked.count == 1, let app = asked.first {
+                    questionRow(for: app)
+                } else if asked.count > 1 {
+                    combinedRow(for: asked)
+                }
             }
         }
         // The row is always in the tree, so it learns when the Shelf opens and goes even while
@@ -220,6 +227,94 @@ struct HolzBarShelfNotice: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel(Text("Where should \(app.name) go?"))
+    }
+
+    /// Several new apps as one card: the header, one row for each of the first apps and the quiet
+    /// count of the others, which are asked next.
+    private func combinedRow(for asked: [NewAppQuestion.App]) -> some View {
+        let shown = NewAppQuestion.shown(asked, limit: DesignTokens.Comfort.combinedQuestionMaxRows)
+        return container {
+            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
+                Text("New in the menu bar")
+                    .font(HolzBarTheme.Typography.caption)
+                    .foregroundStyle(Color.primary.opacity(0.7))
+                    .lineLimit(1)
+                ForEach(shown.rows) { app in
+                    combinedAppRow(for: app)
+                }
+                if shown.more > 0 {
+                    Text("+\(shown.more) more")
+                        .font(HolzBarTheme.Typography.caption)
+                        .foregroundStyle(Color.primary.opacity(0.7))
+                        .lineLimit(1)
+                }
+            }
+        }
+    }
+
+    /// One app of the combined card: on one line when it fits, else the name above the chips. The
+    /// three section chips come first, then the icon-only Don't ask again button.
+    private func combinedAppRow(for app: NewAppQuestion.App) -> some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: HolzBarTheme.Spacing.xs) {
+                icon(for: app, size: Self.iconSize)
+                nameLine(of: app)
+                Spacer(minLength: HolzBarTheme.Spacing.xs)
+                HStack(spacing: HolzBarTheme.Spacing.xs) {
+                    combinedChips(for: app)
+                }
+            }
+            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
+                HStack(spacing: HolzBarTheme.Spacing.xs) {
+                    icon(for: app, size: Self.iconSize)
+                    nameLine(of: app)
+                }
+                WrappingChipsLayout(spacing: HolzBarTheme.Spacing.xs, lineSpacing: HolzBarTheme.Spacing.xxs) {
+                    combinedChips(for: app)
+                }
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text("Where should \(app.name) go?"))
+    }
+
+    @ViewBuilder
+    private func combinedChips(for app: NewAppQuestion.App) -> some View {
+        ForEach(Self.answersOffered(appState: appState).filter { $0 != .dontAskAgain }, id: \.self) { answer in
+            chip(answer, for: app)
+        }
+        dontAskAgainButton(for: app)
+    }
+
+    /// Don't ask again as an icon-only button in a 24 pt target.
+    private func dontAskAgainButton(for app: NewAppQuestion.App) -> some View {
+        let id = Self.chipID(bundleID: app.bundleID, answer: .dontAskAgain)
+        let isHighlighted = highlightedID == id
+        let appState = appState
+        return Image(systemName: "bell.slash")
+            .font(HolzBarTheme.Typography.caption)
+            .accessibilityHidden(true)
+            .frame(width: HolzBarTheme.minimumTargetSize, height: HolzBarTheme.minimumTargetSize)
+            .contentShape(Rectangle())
+            .overlay {
+                HolzBarShelfClickView(
+                    toolTip: Self.title(of: .dontAskAgain),
+                    leftClickAction: {
+                        Self.activate(chipID: id, appState: appState)
+                    },
+                    rightClickAction: nil,
+                    drag: nil
+                )
+            }
+            .keyboardHighlight(isHighlighted)
+            .fixedSize()
+            .accessibilityElement(children: .ignore)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAddTraits(isHighlighted ? .isSelected : [])
+            .accessibilityLabel(Text("Don't ask again"))
+            .accessibilityAction(.default) {
+                Self.activate(chipID: id, appState: appState)
+            }
     }
 
     /// The icon size of a question's row.

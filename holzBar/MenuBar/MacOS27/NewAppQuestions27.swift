@@ -41,6 +41,8 @@ final class NewAppQuestions27 {
 
     init(appState: AppState?) {
         self.appState = appState
+        // The hub reads the question through its model; the hub controller never names this one.
+        appState?.notchHub.model.newAppQuestionSource = self
     }
 
     /// Whether the Always Hidden choice is offered: only while that section is enabled.
@@ -266,5 +268,27 @@ final class NewAppQuestions27 {
         if asked != question.asked {
             asked = question.asked
         }
+    }
+}
+
+// MARK: - The hub's card
+
+@available(macOS 27.0, *)
+extension NewAppQuestions27: HubNewAppQuestionSource {
+    /// The questions the hub's Overview shows: only while the switch is on and the Shelf is not
+    /// used, so the hub's card never shows next to the Shelf's (D-12).
+    var hubQuestions: [NewAppQuestion.App] {
+        guard
+            let appState,
+            appState.settings.advanced.asksWhereNewAppGoes,
+            !appState.settings.general.useShelf
+        else {
+            return []
+        }
+        return asked
+    }
+
+    func answerFromHub(_ answer: NewAppQuestion.Answer, for bundleID: String) {
+        self.answer(answer, for: bundleID, place: .menuBar)
     }
 }
