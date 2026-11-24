@@ -116,6 +116,7 @@ sources=(
   MenuBarAnchor
   MenuBarBackendKind
   MenuBarDragDecider
+  MenuBarFit
   MenuBarIconChoice
   MenuBarDrop
   MenuBarPills
@@ -292,6 +293,7 @@ tests=(
   LiveActivityItemTests
   MenuBarAnchorTests
   MenuBarDragDeciderTests
+  MenuBarFitTests
   MenuBarIconChoiceTests
   MenuBarDropTests
   MenuBarPillsTests

@@ -171,6 +171,20 @@ final class AppState {
         return section
     }
 
+    /// Storage for ``makeRoom27``, typed loosely so the property exists on every macOS.
+    @ObservationIgnored private var makeRoomStorage: AnyObject?
+
+    /// Says when the apps in the Visible section do not fit the menu bar, and moves some to Hidden.
+    @available(macOS 27.0, *)
+    var makeRoom27: MakeRoom27 {
+        if let makeRoom = makeRoomStorage as? MakeRoom27 {
+            return makeRoom
+        }
+        let makeRoom = MakeRoom27(appState: self)
+        makeRoomStorage = makeRoom
+        return makeRoom
+    }
+
     /// Storage for ``standInItems27``, typed loosely so the property exists on every macOS.
     @ObservationIgnored private var standInItems27Storage: AnyObject?
 

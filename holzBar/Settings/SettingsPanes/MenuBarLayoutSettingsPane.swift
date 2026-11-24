@@ -30,6 +30,9 @@ struct MenuBarLayoutSettingsPane: View {
         } else {
             SettingsPaneHost(.layout) {
                 topRow
+                if #available(macOS 27.0, *) {
+                    MakeRoomBanner(makeRoom: appState.makeRoom27)
+                }
                 menuBarGroup
                 LayoutDraftSection()
                 noticesGroup
@@ -39,6 +42,16 @@ struct MenuBarLayoutSettingsPane: View {
                     // Without Screen Recording the items show their apps' icons; the group
                     // offers their real pictures.
                     picturesGroup
+                }
+            }
+            .onAppear {
+                if #available(macOS 27.0, *) {
+                    appState.makeRoom27.surfaceDidOpen(.layout)
+                }
+            }
+            .onDisappear {
+                if #available(macOS 27.0, *) {
+                    appState.makeRoom27.surfaceDidClose(.layout)
                 }
             }
             .onChange(of: appState.automation.itemRuleNotices) { old, new in
