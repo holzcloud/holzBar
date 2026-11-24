@@ -123,7 +123,7 @@ nonisolated struct SharedProfile: Codable, Equatable, Sendable {
     ///   - id: The identifier.
     ///   - bundleIdentifier: holzBar's own bundle identifier (`Constants.bundleIdentifier`).
     static func isOwn(_ id: String, bundleIdentifier: String) -> Bool {
-        OwnBundle.matches(id, bundleIdentifier: bundleIdentifier) || WidgetDefinition.isAutosaveName(id)
+        OwnBundle.matches(id, bundleIdentifier: bundleIdentifier) || OwnArrangedItem.isAutosaveName(id)
     }
 
     /// The applications of an arrangement, for export. The namespace of an item (the part of
@@ -152,9 +152,10 @@ nonisolated struct SharedProfile: Codable, Equatable, Sendable {
             sections[id] = min(sections[id] ?? section, section)
         }
         for (key, section) in itemSections {
-            // A widget's key is its own namespace and its autosave name; the part before the
-            // colon is holzBar, which `note` leaves out as well.
-            if let colon = key.firstIndex(of: ":"), WidgetDefinition.isAutosaveName(String(key[key.index(after: colon)...])) {
+            // An own item's key (a widget's or a Dock badges item's) is its own namespace and
+            // its autosave name; the part before the colon is holzBar, which `note` leaves out
+            // as well.
+            if let colon = key.firstIndex(of: ":"), OwnArrangedItem.isAutosaveName(String(key[key.index(after: colon)...])) {
                 continue
             }
             if let namespace = key.split(separator: ":", maxSplits: 1).first {

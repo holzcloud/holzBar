@@ -35,10 +35,11 @@ nonisolated enum OwnBundle {
         return layout.filter { !matches($0.key, bundleIdentifier: bundleIdentifier) }
     }
 
-    /// The autosave name of the widget an item's identity key stands for (`namespace:title`,
-    /// possibly with a number for a second item of the same title), or `nil` when the key is
-    /// not a widget's: another namespace, or a title that is no widget's autosave name.
-    static func widgetAutosaveName(inItemKey key: String, bundleIdentifier: String) -> String? {
+    /// The autosave name of the own arranged item (a widget or a Dock badges item) an item's
+    /// identity key stands for (`namespace:title`, possibly with a number for a second item of
+    /// the same title), or `nil` when the key is not one's: another namespace, or a title that
+    /// is no own item's autosave name.
+    static func arrangedItemAutosaveName(inItemKey key: String, bundleIdentifier: String) -> String? {
         guard let colon = key.firstIndex(of: ":") else {
             return nil
         }
@@ -46,18 +47,18 @@ nonisolated enum OwnBundle {
             return nil
         }
         let title = String(key[key.index(after: colon)...].prefix { $0 != ":" })
-        return WidgetDefinition.isAutosaveName(title) ? title : nil
+        return OwnArrangedItem.isAutosaveName(title) ? title : nil
     }
 
     /// The key an item's identity key has in the saved macOS 27 layout, or `nil` when the item
-    /// has none: a widget's autosave name, or the namespace (the bundle identifier of the
+    /// has none: an own arranged item's autosave name, or the namespace (the bundle identifier of the
     /// item's application) of any other item. holzBar's own bundle and namespaces that are no
     /// bundle identifiers (the UUIDs of system items) have none.
     ///
     /// - Parameters:
     ///   - key: The item's identity key (`namespace:title`).
     ///   - itemLayoutKey: The layout key of the item itself (`MenuBarItem.layoutKey27`) when the
-    ///     item is known, which is the better answer: a widget's autosave name, or the bundle
+    ///     item is known, which is the better answer: an own item's autosave name, or the bundle
     ///     of the application that really owns the item. It is used unless it is holzBar's own
     ///     bundle.
     ///   - bundleIdentifier: holzBar's own bundle identifier.
@@ -65,7 +66,7 @@ nonisolated enum OwnBundle {
         if let itemLayoutKey {
             return matches(itemLayoutKey, bundleIdentifier: bundleIdentifier) ? nil : itemLayoutKey
         }
-        if let name = widgetAutosaveName(inItemKey: key, bundleIdentifier: bundleIdentifier) {
+        if let name = arrangedItemAutosaveName(inItemKey: key, bundleIdentifier: bundleIdentifier) {
             return name
         }
         let namespace = String(key.prefix { $0 != ":" })

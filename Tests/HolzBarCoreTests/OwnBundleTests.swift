@@ -20,9 +20,24 @@ struct OwnBundleTests {
     @Test("A widget's item key stands for its autosave name, never for holzBar's bundle (CR-01, CR-02)")
     func widgetKey() {
         #expect(OwnBundle.layoutKey(forItemKey: "\(own):\(autosave)", bundleIdentifier: own) == autosave)
-        #expect(OwnBundle.widgetAutosaveName(inItemKey: "\(own):\(autosave)", bundleIdentifier: own) == autosave)
+        #expect(OwnBundle.arrangedItemAutosaveName(inItemKey: "\(own):\(autosave)", bundleIdentifier: own) == autosave)
         // A second item of the same title carries a number.
         #expect(OwnBundle.layoutKey(forItemKey: "\(own):\(autosave):2", bundleIdentifier: own) == autosave)
+    }
+
+    @Test("A Dock badges item's item key stands for its autosave name, never for holzBar's bundle")
+    func badgeKey() {
+        let badge = DockBadgeItemName.app("com.apple.MobileSMS")
+        #expect(OwnBundle.arrangedItemAutosaveName(inItemKey: "\(own):\(badge)", bundleIdentifier: own) == badge)
+        #expect(OwnBundle.arrangedItemAutosaveName(inItemKey: "\(own):\(badge):2", bundleIdentifier: own) == badge)
+        #expect(OwnBundle.layoutKey(forItemKey: "\(own):\(badge)", bundleIdentifier: own) == badge)
+        #expect(OwnBundle.layoutKey(forItemKey: "\(own):\(badge)", itemLayoutKey: badge, bundleIdentifier: own) == badge)
+        // Another namespace, a malformed title and the prefix alone give nothing.
+        #expect(OwnBundle.arrangedItemAutosaveName(inItemKey: "com.example.app:\(badge)", bundleIdentifier: own) == nil)
+        #expect(OwnBundle.arrangedItemAutosaveName(inItemKey: "\(own):holzBar.DockBadge.App.", bundleIdentifier: own) == nil)
+        #expect(OwnBundle.arrangedItemAutosaveName(inItemKey: "\(own):holzBar.DockBadge.App.not a bundle id", bundleIdentifier: own) == nil)
+        // The layout key is never holzBar's bundle, so an imported layout cannot conceal holzBar.
+        #expect(!OwnBundle.matches(badge, bundleIdentifier: own))
     }
 
     @Test("An application's key is its namespace; holzBar's own items and system items have none")
@@ -39,9 +54,9 @@ struct OwnBundleTests {
 
     @Test("Another application's item that is titled like a widget is not a widget")
     func foreignTitle() {
-        #expect(OwnBundle.widgetAutosaveName(inItemKey: "com.example.app:\(autosave)", bundleIdentifier: own) == nil)
+        #expect(OwnBundle.arrangedItemAutosaveName(inItemKey: "com.example.app:\(autosave)", bundleIdentifier: own) == nil)
         // A malformed identifier is no autosave name.
-        #expect(OwnBundle.widgetAutosaveName(inItemKey: "\(own):holzBar.Widget.nope", bundleIdentifier: own) == nil)
+        #expect(OwnBundle.arrangedItemAutosaveName(inItemKey: "\(own):holzBar.Widget.nope", bundleIdentifier: own) == nil)
     }
 
     @Test("The item's own layout key is used, unless it is holzBar's bundle (CR-02)")
