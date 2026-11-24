@@ -384,6 +384,9 @@ final class HolzBarShelfPanel: NSPanel {
         acceptsKeyboard = false
         listsAlwaysHidden = false
         appState?.navigationState.isShelfPresented = false
+        if #available(macOS 27.0, *) {
+            appState?.makeRoom27.surfaceDidClose(.shelf)
+        }
     }
 }
 
@@ -625,8 +628,16 @@ private struct HolzBarShelfContentView: View {
         menuBarManager.shelfPanel.dragModel
     }
 
+    /// Whether the notice row under the tiles shows: the Shelf then takes the panel's radius.
+    private var showsNotice: Bool {
+        guard #available(macOS 27.0, *) else { return false }
+        return HolzBarShelfNotice.isShown(appState: appState)
+    }
+
     private var clipShape: some InsettableShape {
-        if style == .floating {
+        if showsNotice {
+            HolzBarTheme.shape(HolzBarTheme.Radius.panel)
+        } else if style == .floating {
             // A capsule for one row, a rounded panel for a grid or a column.
             RoundedRectangle(
                 cornerRadius: HolzBarShelfPlacement.floatingCornerRadius(forHeight: barHeight),
@@ -824,6 +835,8 @@ private struct HolzBarShelfContentView: View {
             return moveHighlight(.up)
         case .downArrow:
             return moveHighlight(.down)
+        case .tab:
+            return moveHighlightBetweenTilesAndNotice()
         case .return, .space:
             return openHighlightedTile()
         case .escape:
@@ -886,8 +899,20 @@ private struct HolzBarShelfContentView: View {
         return .handled
     }
 
+    /// Tab moves the highlight from the tiles to the notice row's chip and back.
+    private func moveHighlightBetweenTilesAndNotice() -> KeyPress.Result {
+        guard #available(macOS 27.0, *), let chip = HolzBarShelfNotice.chipIDs(appState: appState).first else { return .ignored }
+        let navigable = contents.tiles.filter(\.isNavigable)
+        highlightedID = highlightedID == chip ? (layout == .row ? navigable.last : navigable.first)?.id : chip
+        return .handled
+    }
+
     /// Opens the highlighted tile through the same path as a click.
     private func openHighlightedTile() -> KeyPress.Result {
+        if #available(macOS 27.0, *), let id = highlightedID, id.hasPrefix("notice.") {
+            HolzBarShelfNotice.activate(chipID: id, appState: appState)
+            return .handled
+        }
         let contents = contents
         guard let tile = contents.tiles.first(where: { $0.id == highlightedID }) else {
             return .ignored

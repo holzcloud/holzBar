@@ -100,6 +100,9 @@ struct HolzBarShelfNotice: View {
             )
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        // One container after the tiles; the chip inside it is a named button.
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text(sentence))
     }
 
     /// The move chip, the busy state while a pass runs, or nothing when no app may move.
@@ -116,6 +119,7 @@ struct HolzBarShelfNotice: View {
             .fixedSize()
             .accessibilityElement(children: .combine)
         } else if !banner.candidates.isEmpty {
+            let isHighlighted = highlightedID == Self.moveChipID
             let appState = appState
             // The Shelf's chip, copied from the fold tile so the two look like siblings.
             Text("Move \(banner.candidates.count) to Hidden")
@@ -125,6 +129,7 @@ struct HolzBarShelfNotice: View {
                 .padding(.vertical, 2)
                 .background(Capsule().fill(Color.primary.opacity(0.18)))
                 .padding(.horizontal, 3)
+                .frame(minHeight: HolzBarTheme.minimumTargetSize)
                 .contentShape(Rectangle())
                 .overlay {
                     HolzBarShelfClickView(
@@ -136,9 +141,11 @@ struct HolzBarShelfNotice: View {
                         drag: nil
                     )
                 }
+                .keyboardHighlight(isHighlighted)
                 .fixedSize()
                 .accessibilityElement(children: .ignore)
                 .accessibilityAddTraits(.isButton)
+                .accessibilityAddTraits(isHighlighted ? .isSelected : [])
                 .accessibilityLabel(Text("Move \(banner.candidates.count) to Hidden"))
                 .accessibilityAction(.default) {
                     Self.activate(chipID: Self.moveChipID, appState: appState)
