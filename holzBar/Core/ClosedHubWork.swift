@@ -55,7 +55,7 @@ nonisolated enum ClosedHubWork {
         /// The listen-only scroll monitor of the gestures.
         case scrollMonitor
         /// The meeting countdown of the Calendar module: the next meeting's start time held in
-        /// memory and up to two one-shot wakes (never a title, never polling, D-24).
+        /// memory and up to two one-shot wakes, re-planned after a wake and a clock change (never a title, never polling, D-24).
         case countdown
         /// What puts the dim layers back after a wake or a display change: the screen-parameter
         /// observer and its debounce. Software dimming (D-19) needs it only while a layer exists.

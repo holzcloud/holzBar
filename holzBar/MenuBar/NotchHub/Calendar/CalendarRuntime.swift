@@ -109,6 +109,7 @@ final class CalendarRuntime: HubModuleRuntime {
     @ObservationIgnored private var countdownReadTask: Task<Void, Never>?
     @ObservationIgnored private var countdownWakeTask: Task<Void, Never>?
     @ObservationIgnored private var systemWakeTask: Task<Void, Never>?
+    @ObservationIgnored private var clockChangeTask: Task<Void, Never>?
     @ObservationIgnored private var countdownLoop: ObservationLoop?
     @ObservationIgnored private var isCountingDown = false
     @ObservationIgnored private var permissionLoop: ObservationLoop?
@@ -420,8 +421,10 @@ extension CalendarRuntime {
         refreshCountdown()
     }
 
-    /// Starts watching for the Mac waking from sleep, the only observer of the countdown besides
-    /// the store's change notification the module has anyway.
+    /// Starts watching for the Mac waking from sleep and for a change of the system clock (a
+    /// manual change, a time zone or a daylight saving jump, which move a meeting's wall time but
+    /// not the sleep of the planned wakes), the only observers of the countdown besides the
+    /// store's change notification the module has anyway.
     private func startCountdown() {
         guard !isCountingDown else {
             return
@@ -429,6 +432,11 @@ extension CalendarRuntime {
         isCountingDown = true
         systemWakeTask = Task { [weak self] in
             for await _ in NSWorkspace.shared.notificationCenter.notifications(named: NSWorkspace.didWakeNotification) {
+                self?.refreshCountdown()
+            }
+        }
+        clockChangeTask = Task { [weak self] in
+            for await _ in NotificationCenter.default.notifications(named: .NSSystemClockDidChange) {
                 self?.refreshCountdown()
             }
         }
@@ -443,6 +451,8 @@ extension CalendarRuntime {
         countdownWakeTask = nil
         systemWakeTask?.cancel()
         systemWakeTask = nil
+        clockChangeTask?.cancel()
+        clockChangeTask = nil
         heldStart = nil
         heldFollowingStart = nil
         if countdownPlan != nil {
