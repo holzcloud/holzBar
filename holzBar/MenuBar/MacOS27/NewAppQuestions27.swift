@@ -16,10 +16,12 @@ import OSLog
 /// first use, so with the switch off it does not exist (D-05).
 ///
 /// A noticed app waits while the gate is closed (a drag runs, the system has not settled after a
-/// wake or a display change, an app is in its launch grace). The observation that opens the gate
-/// runs only while an app waits, and the one wait for the system to settle is a single
-/// `Task.sleep`; nothing polls. An answer is remembered by the saved layout and the list of
-/// known apps, so the app is never asked again.
+/// wake or a display change, the app is in its launch grace, the quiet start after the model was
+/// created is not over, ten seconds have not passed since the last new app). The observation that
+/// opens the gate runs only while an app waits, and the time rules need one `Task.sleep` that the
+/// next one replaces; nothing polls. Waiting questions are kept by bundle identifier on this Mac
+/// until answered, so a quit loses none (D-19). An answer is remembered by the saved layout and the
+/// list of known apps; Don't ask again is kept in its own local list.
 ///
 /// App names reach the Layout group and nothing else: they stay in memory and never reach a log.
 @available(macOS 27.0, *)
@@ -32,7 +34,9 @@ final class NewAppQuestions27 {
     @ObservationIgnored private weak var appState: AppState?
     @ObservationIgnored private var question = NewAppQuestion()
     @ObservationIgnored private var gateLoop: ObservationLoop?
-    @ObservationIgnored private var settleTask: Task<Void, Never>?
+    @ObservationIgnored private var waitTask: Task<Void, Never>?
+    /// When the model was created: nothing is asked during the quiet start after it.
+    @ObservationIgnored private let startedAt = ContinuousClock.now
     @ObservationIgnored private let logger = Logger(category: "NewAppQuestions27")
 
     init(appState: AppState?) {
@@ -81,7 +85,7 @@ final class NewAppQuestions27 {
             bundleID: bundleID,
             bundlePath: url?.path,
             ownBundleID: Constants.bundleIdentifier,
-            declined: []
+            declined: Set(Defaults.stringArray(forKey: .newAppQuestionDeclined) ?? [])
         ) else {
             return false
         }
@@ -101,7 +105,8 @@ final class NewAppQuestions27 {
     }
 
     /// Answers the question of an app: a section moves it at once as one Undo step, and the row
-    /// leaves. Don't ask again only takes the row away here.
+    /// leaves. Don't ask again moves nothing: the app is kept in the declined list on this Mac, so
+    /// it is never asked about again.
     ///
     /// - Parameters:
     ///   - answer: The user's choice.
@@ -124,6 +129,10 @@ final class NewAppQuestions27 {
                 )
                 logger.info("A new application was moved to \(Self.name(of: section).logString, privacy: .public) by its answer")
             }
+        }
+        if answer == .dontAskAgain {
+            let declined = Defaults.stringArray(forKey: .newAppQuestionDeclined) ?? []
+            Defaults.set(NewAppQuestion.declined(adding: bundleID, to: declined), forKey: .newAppQuestionDeclined)
         }
         question.remove(bundleID)
         storePending { NewAppQuestion.remembered(removing: bundleID, from: $0) }
@@ -152,44 +161,79 @@ final class NewAppQuestions27 {
         }
     }
 
+    // MARK: - Switching off
+
+    /// Drops every waiting and asked question, empties the kept list and stops every wait: with the
+    /// switch off nothing waits and nothing costs (D-05). The declined list stays.
+    func switchDidTurnOff() {
+        question.clear()
+        storePending { _ in [] }
+        gateLoop?.cancel()
+        gateLoop = nil
+        waitTask?.cancel()
+        waitTask = nil
+        publish()
+    }
+
     // MARK: - The gate
 
     /// Asks the waiting apps when the gate is open. While it is closed, one observation of the
-    /// events that close it and one wait for the system to settle bring the apps back here.
+    /// events that close it and one wait for the next instant time can open it bring the apps back
+    /// here.
     private func releaseIfOpen() {
         guard let appState else {
             return
         }
-        _ = question.release(gate: gate(appState), at: .now)
+        let due = question.release(gate: gate(appState), at: .now)
         publish()
         guard !question.waiting.isEmpty else {
             gateLoop?.cancel()
             gateLoop = nil
-            settleTask?.cancel()
-            settleTask = nil
+            waitTask?.cancel()
+            waitTask = nil
             return
         }
         if gateLoop == nil {
             gateLoop = ObservationLoop.observe({ [weak self] in
-                self?.appState.map { $0.isDraggingMenuBarItem || $0.systemActivityMonitor.isPaused || !$0.concealer27.launchGraceBundleIDs.isEmpty } ?? false
+                self?.appState.map(Self.closingEvents) ?? ClosingEvents(isDragging: false, isPaused: false, launchGrace: [])
             }, onChange: { [weak self] _ in
                 self?.releaseIfOpen()
             })
         }
-        armSettleWait(appState)
+        arm(appState, due: due)
     }
 
-    /// Arms one wait for the system to settle, when only time keeps the gate closed: the monitor
-    /// publishes no event when the bar has settled.
-    private func armSettleWait(_ appState: AppState) {
-        settleTask?.cancel()
-        settleTask = nil
+    /// What closes the gate by an event; the observation follows it while an app waits.
+    private struct ClosingEvents: Equatable {
+        let isDragging: Bool
+        let isPaused: Bool
+        let launchGrace: Set<String>
+    }
+
+    private static func closingEvents(_ appState: AppState) -> ClosingEvents {
+        ClosingEvents(
+            isDragging: appState.isDraggingMenuBarItem,
+            isPaused: appState.systemActivityMonitor.isPaused,
+            launchGrace: appState.concealer27.launchGraceBundleIDs
+        )
+    }
+
+    /// Arms the one wait for the next instant time can open the gate: the end of the quiet start or
+    /// of the coalescing (`due`), or the system settling, which the monitor publishes no event for.
+    private func arm(_ appState: AppState, due: ContinuousClock.Instant?) {
+        waitTask?.cancel()
+        waitTask = nil
+        var next = due
         let monitor = appState.systemActivityMonitor
-        guard !monitor.isSettled, !monitor.isPaused else {
+        if !monitor.isSettled, !monitor.isPaused {
+            let settled = ContinuousClock.now.advanced(by: SystemActivity.settleDelay)
+            next = next.map { min($0, settled) } ?? settled
+        }
+        guard let next else {
             return
         }
-        settleTask = Task { [weak self] in
-            try? await Task.sleep(for: SystemActivity.settleDelay, tolerance: .milliseconds(200), clock: .continuous)
+        waitTask = Task { [weak self] in
+            try? await Task.sleep(until: next, tolerance: .milliseconds(200), clock: .continuous)
             guard !Task.isCancelled else {
                 return
             }
@@ -201,7 +245,8 @@ final class NewAppQuestions27 {
         NewAppQuestion.Gate(
             isDragging: appState.isDraggingMenuBarItem,
             isSettled: appState.systemActivityMonitor.isSettled,
-            launchGrace: appState.concealer27.launchGraceBundleIDs
+            launchGrace: appState.concealer27.launchGraceBundleIDs,
+            startedAt: startedAt
         )
     }
 

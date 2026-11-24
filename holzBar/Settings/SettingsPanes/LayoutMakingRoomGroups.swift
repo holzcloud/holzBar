@@ -56,6 +56,7 @@ struct NewAppsGroup: View {
                         if questions.offersAlwaysHidden {
                             Text("Always Hidden").tag(NewAppQuestion.Answer.alwaysHidden as NewAppQuestion.Answer?)
                         }
+                        Text("Don't ask again").tag(NewAppQuestion.Answer.dontAskAgain as NewAppQuestion.Answer?)
                     }
                 }
             }

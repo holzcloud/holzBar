@@ -4,10 +4,18 @@ import Testing
 @Suite("NewAppQuestion")
 struct NewAppQuestionTests {
     private let own = "com.holzcloud.holzBar"
-    private let open = NewAppQuestion.Gate(isDragging: false, isSettled: true, launchGrace: [])
+    private let start = ContinuousClock.now
+    private var open: NewAppQuestion.Gate {
+        NewAppQuestion.Gate(isDragging: false, isSettled: true, launchGrace: [], startedAt: start)
+    }
 
-    private func app(_ id: String, name: String? = nil) -> NewAppQuestion.App {
-        NewAppQuestion.App(bundleID: id, name: name ?? id, noticedAt: .now)
+    /// Long after the quiet start and the coalescing of an app noticed at `start`.
+    private var later: ContinuousClock.Instant {
+        start.advanced(by: .seconds(120))
+    }
+
+    private func app(_ id: String, name: String? = nil, noticedAfter delay: Duration = .zero) -> NewAppQuestion.App {
+        NewAppQuestion.App(bundleID: id, name: name ?? id, noticedAt: start.advanced(by: delay))
     }
 
     @Test("An app is noted once, also when it is already asked")
@@ -17,7 +25,7 @@ struct NewAppQuestionTests {
         question.note(app("com.example.One", name: "Other name"))
         #expect(question.waiting.map(\.bundleID) == ["com.example.One"])
         #expect(question.waiting.first?.name == "com.example.One")
-        _ = question.release(gate: open, at: .now)
+        _ = question.release(gate: open, at: later)
         question.note(app("com.example.One"))
         #expect(question.waiting.isEmpty)
         #expect(question.asked.map(\.bundleID) == ["com.example.One"])
@@ -28,11 +36,11 @@ struct NewAppQuestionTests {
         var question = NewAppQuestion()
         question.note(app("com.example.B"))
         question.note(app("com.example.A"))
-        #expect(question.release(gate: open, at: .now) == nil)
+        #expect(question.release(gate: open, at: later) == nil)
         #expect(question.waiting.isEmpty)
         #expect(question.asked.map(\.bundleID) == ["com.example.B", "com.example.A"])
         question.note(app("com.example.C"))
-        _ = question.release(gate: open, at: .now)
+        _ = question.release(gate: open, at: later)
         #expect(question.asked.map(\.bundleID) == ["com.example.B", "com.example.A", "com.example.C"])
     }
 
@@ -41,16 +49,16 @@ struct NewAppQuestionTests {
         var question = NewAppQuestion()
         question.note(app("com.example.One"))
         let closed = [
-            NewAppQuestion.Gate(isDragging: true, isSettled: true, launchGrace: []),
-            NewAppQuestion.Gate(isDragging: false, isSettled: false, launchGrace: []),
-            NewAppQuestion.Gate(isDragging: false, isSettled: true, launchGrace: ["com.example.Other"]),
+            NewAppQuestion.Gate(isDragging: true, isSettled: true, launchGrace: [], startedAt: start),
+            NewAppQuestion.Gate(isDragging: false, isSettled: false, launchGrace: [], startedAt: start),
+            NewAppQuestion.Gate(isDragging: false, isSettled: true, launchGrace: ["com.example.One"], startedAt: start),
         ]
         for gate in closed {
-            _ = question.release(gate: gate, at: .now)
+            _ = question.release(gate: gate, at: later)
             #expect(question.waiting.map(\.bundleID) == ["com.example.One"])
             #expect(question.asked.isEmpty)
         }
-        _ = question.release(gate: open, at: .now)
+        _ = question.release(gate: open, at: later)
         #expect(question.waiting.isEmpty)
         #expect(question.asked.map(\.bundleID) == ["com.example.One"])
     }
@@ -60,7 +68,7 @@ struct NewAppQuestionTests {
         var question = NewAppQuestion()
         question.note(app("com.example.A"))
         question.note(app("com.example.B"))
-        _ = question.release(gate: open, at: .now)
+        _ = question.release(gate: open, at: later)
         question.note(app("com.example.C"))
         question.remove("com.example.A")
         question.remove("com.example.C")
@@ -113,6 +121,79 @@ struct NewAppQuestionTests {
         let cleaned = ItemRuleNotices.cleanedName("Tool\u{202E}elppA", fallback: "com.example.Tool")
         #expect(cleaned == "ToolelppA")
         #expect(ItemRuleNotices.cleanedName("\u{202E}\n", fallback: "com.example.Tool") == "com.example.Tool")
+    }
+
+    @Test("Before the quiet start every app waits, none is dropped, and all come together after it")
+    func quietStart() {
+        var question = NewAppQuestion()
+        question.note(app("com.example.A"))
+        question.note(app("com.example.B", noticedAfter: .seconds(3)))
+        let end = start.advanced(by: .seconds(60))
+        #expect(question.release(gate: open, at: start.advanced(by: .seconds(30))) == end)
+        #expect(question.waiting.map(\.bundleID) == ["com.example.A", "com.example.B"])
+        #expect(question.asked.isEmpty)
+        #expect(question.release(gate: open, at: end.advanced(by: .seconds(-1))) == end)
+        #expect(question.asked.isEmpty)
+        #expect(question.release(gate: open, at: end) == nil)
+        #expect(question.waiting.isEmpty)
+        #expect(question.asked.map(\.bundleID) == ["com.example.A", "com.example.B"])
+    }
+
+    @Test("An app in its launch grace waits while the others are asked, and is asked after its grace")
+    func perAppLaunchGrace() {
+        var question = NewAppQuestion()
+        question.note(app("com.example.A"))
+        question.note(app("com.example.B"))
+        let grace = NewAppQuestion.Gate(isDragging: false, isSettled: true, launchGrace: ["com.example.B"], startedAt: start)
+        #expect(question.release(gate: grace, at: later) == nil)
+        #expect(question.asked.map(\.bundleID) == ["com.example.A"])
+        #expect(question.waiting.map(\.bundleID) == ["com.example.B"])
+        _ = question.release(gate: open, at: later)
+        #expect(question.asked.map(\.bundleID) == ["com.example.A", "com.example.B"])
+        #expect(question.waiting.isEmpty)
+    }
+
+    @Test("Apps noticed a few seconds apart are asked together, ten seconds after the last one")
+    func coalescesABurst() {
+        var question = NewAppQuestion()
+        let gate = NewAppQuestion.Gate(isDragging: false, isSettled: true, launchGrace: [], startedAt: start.advanced(by: .seconds(-3600)))
+        question.note(app("com.example.A"))
+        question.note(app("com.example.B", noticedAfter: .seconds(2)))
+        question.note(app("com.example.C", noticedAfter: .seconds(4)))
+        let first = start.advanced(by: .seconds(14))
+        #expect(question.release(gate: gate, at: start.advanced(by: .seconds(13))) == first)
+        #expect(question.asked.isEmpty)
+        // A fourth app noticed during the ten seconds joins the others and moves the end.
+        question.note(app("com.example.D", noticedAfter: .seconds(8)))
+        let second = start.advanced(by: .seconds(18))
+        #expect(question.release(gate: gate, at: first) == second)
+        #expect(question.asked.isEmpty)
+        #expect(question.release(gate: gate, at: second) == nil)
+        #expect(question.asked.map(\.bundleID) == ["com.example.A", "com.example.B", "com.example.C", "com.example.D"])
+        #expect(question.waiting.isEmpty)
+    }
+
+    @Test("A closed gate names no instant, because only an event can open it")
+    func closedGateNamesNoInstant() {
+        var question = NewAppQuestion()
+        question.note(app("com.example.A"))
+        let dragging = NewAppQuestion.Gate(isDragging: true, isSettled: true, launchGrace: [], startedAt: start)
+        #expect(question.release(gate: dragging, at: start) == nil)
+        let allInGrace = NewAppQuestion.Gate(isDragging: false, isSettled: true, launchGrace: ["com.example.A"], startedAt: start)
+        #expect(question.release(gate: allInGrace, at: start) == nil)
+        #expect(question.waiting.map(\.bundleID) == ["com.example.A"])
+    }
+
+    @Test("The declined list adds once, keeps the newest 512 and drops the oldest first")
+    func declinedList() {
+        #expect(NewAppQuestion.declined(adding: "b", to: ["a"]) == ["a", "b"])
+        #expect(NewAppQuestion.declined(adding: "a", to: ["a", "b"]) == ["a", "b"])
+        let cap = NewAppQuestion.Policy.maximumRemembered
+        let full = (0..<cap).map { "com.example.\($0)" }
+        let grown = NewAppQuestion.declined(adding: "com.example.new", to: full)
+        #expect(grown.count == cap)
+        #expect(grown.first == "com.example.1")
+        #expect(grown.last == "com.example.new")
     }
 
     @Test("The waiting list adds once in order, drops the oldest past the cap and removes one")

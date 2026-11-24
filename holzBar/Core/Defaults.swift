@@ -289,6 +289,10 @@ nonisolated extension Defaults {
         /// of strings, at most 512), kept so a quit does not lose a question. They name the apps the
         /// user runs, so this stays on this Mac: never exported or imported.
         case newAppQuestionPending = "NewAppQuestionPending"
+        /// The bundle identifiers the user asked never to be asked about again, with "Don't ask
+        /// again" (a list of strings, at most 512). They name the apps the user runs, so this
+        /// stays on this Mac: never exported or imported.
+        case newAppQuestionDeclined = "NewAppQuestionDeclined"
         /// The section of each item before macOS 27, keyed by its identity (`ItemIdentity`):
         /// 0 visible, 1 hidden, 2 always hidden.
         case itemSections = "ItemSections"
@@ -707,6 +711,7 @@ nonisolated extension Defaults.Key {
             .itemOrder,
             .knownApplications27,
             .newAppQuestionPending,
+            .newAppQuestionDeclined,
             .hiddenSystemItems27,
             .titleChangingItemOwners,
             .revealOnChangeItems,
@@ -870,6 +875,7 @@ nonisolated extension Defaults.Key {
         .notchHubCutout,
         .notificationsExcludedApps,
         .newAppQuestionPending,
+        .newAppQuestionDeclined,
         .shelfAlwaysHiddenFoldOpen,
         .displayBehaviors,
         .debugDropsBarrierExitEvent,

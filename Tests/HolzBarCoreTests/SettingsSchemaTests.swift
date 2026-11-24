@@ -496,6 +496,18 @@ struct SettingsSchemaTests {
         #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
     }
 
+    @Test("The declined new-app questions stay on this Mac, as a string array")
+    func newAppQuestionDeclinedStaysLocal() {
+        #expect(Defaults.Key.newAppQuestionDeclined.rawValue == "NewAppQuestionDeclined")
+        #expect(Defaults.Key.newAppQuestionDeclined.settingsKind == .stringArray)
+        #expect(Defaults.Key.importableKinds["NewAppQuestionDeclined"] == nil)
+        #expect(Defaults.Key.localOnlyKeys.contains(.newAppQuestionDeclined))
+        let result = Defaults.Key.validatedSettings(
+            ["NewAppQuestionDeclined": ["com.example.Tool"], "ShowOnHover": true], ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+    }
+
     @Test("Whether holzBar asks where a new app goes travels with a settings file, as a Boolean only")
     func asksWhereNewAppGoesTravels() {
         #expect(Defaults.Key.asksWhereNewAppGoes.rawValue == "AsksWhereNewAppGoes")
