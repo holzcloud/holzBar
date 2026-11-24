@@ -27,6 +27,10 @@ enum ImportTargets {
         .showOnScroll: .hidingShowOnScroll,
         .showHolzBarIcon: .generalIcon,
         .useShelf: .shelfUse,
+        .rehideStrategy: .hidingRehideStrategy,
+        .rehideInterval: .hidingRehideInterval,
+        .showOnHoverDelay: .hidingHoverDelay,
+        .tempShowInterval: .hidingTempShowInterval,
     ]
 
     /// The position of every entry of this macOS in the Settings window, in sidebar order.
@@ -65,11 +69,16 @@ enum ImportTargets {
             .showOnScroll: .bool(general.showOnScroll),
             .showHolzBarIcon: .bool(general.showHolzBarIcon),
             .useShelf: .bool(general.useShelf),
+            .rehideStrategy: .choice(general.rehideStrategy.rawValue),
+            .rehideInterval: .number(general.rehideInterval),
+            .showOnHoverDelay: .number(advanced.showOnHoverDelay),
+            .tempShowInterval: .number(advanced.tempShowInterval),
         ]
         return values.filter { entry(for: $0.key) != nil }
     }
 
-    /// How a value reads in the preview: the switches as "On" and "Off", a list or a structure as
+    /// How a value reads in the preview: the switches as "On" and "Off", intervals in seconds as
+    /// the system writes them, a choice by the name its pop-up shows, a list or a structure as
     /// "Changed".
     static func text(for value: ImportValue, of key: Defaults.Key) -> String {
         switch value {
@@ -81,10 +90,32 @@ enum ImportTargets {
             }
         case .composite:
             String(localized: "Changed")
-        case .number(let number):
-            number.formatted()
+        case .number(let seconds):
+            Measurement(value: seconds, unit: UnitDuration.seconds).formatted(
+                .measurement(
+                    width: .narrow,
+                    usage: .asProvided,
+                    numberFormatStyle: .number.precision(.fractionLength(0...1))
+                )
+            )
         case .choice(let raw):
-            String(raw)
+            choiceName(raw, of: key)
+        }
+    }
+
+    /// The name of a choice as the pop-up of its setting shows it. `RehideStrategy.localized` is a
+    /// `LocalizedStringKey`, which cannot be turned into the text a VoiceOver label needs, so the
+    /// names are written out here from the same catalogue keys.
+    private static func choiceName(_ raw: Int, of key: Defaults.Key) -> String {
+        switch (key, RehideStrategy(rawValue: raw)) {
+        case (.rehideStrategy, .smart):
+            String(localized: "Smart")
+        case (.rehideStrategy, .timed):
+            String(localized: "After a fixed time")
+        case (.rehideStrategy, .focusedApp):
+            String(localized: "When the app changes")
+        default:
+            raw.formatted()
         }
     }
 }

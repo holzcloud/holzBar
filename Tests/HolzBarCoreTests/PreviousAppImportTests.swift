@@ -25,6 +25,9 @@ struct PreviousAppImportTests {
         "UseIceBar",
     ]
 
+    /// The numeric settings of Thaw that have a target in holzBar, by the stored name.
+    private let numberNames = ["RehideInterval", "ShowOnHoverDelay", "TempShowInterval"]
+
     /// A Thaw defaults domain built from the upstream key table (D-17): the shared names, and the
     /// keys only Thaw has.
     private func thawFixture(booleans: Bool) -> [String: Any] {
@@ -61,6 +64,16 @@ struct PreviousAppImportTests {
             .showOnScroll: .bool(false),
             .showHolzBarIcon: .bool(false),
             .useShelf: .bool(false),
+        ]
+    }
+
+    /// What holzBar has now for the numbers and the strategy: the defaults of the app.
+    private var numbersNow: [Defaults.Key: ImportValue] {
+        [
+            .rehideInterval: .number(15),
+            .showOnHoverDelay: .number(0.2),
+            .tempShowInterval: .number(15),
+            .rehideStrategy: .choice(0),
         ]
     }
 
@@ -170,10 +183,85 @@ struct PreviousAppImportTests {
     @Test("Every rule of Thaw's table reads the stored name its target stores under")
     func thawNamesAreTheTargetsRawValues() {
         let names = PreviousAppImport.sourceNames(of: .thaw)
-        #expect(Set(names.keys) == Set(booleanNames))
+        #expect(Set(names.keys) == Set(booleanNames + numberNames + ["RehideStrategy"]))
         for (name, target) in names {
             #expect(name == target.rawValue)
         }
+    }
+
+    @Test("RehideInterval 99 is written clamped to 30, ShowOnHoverDelay -1 clamped to 0, TempShowInterval 5 as 5")
+    func numbersAreClamped() throws {
+        let current = allOff.merging(numbersNow) { first, _ in first }
+        let result = plan(["RehideInterval": 99, "ShowOnHoverDelay": -1, "TempShowInterval": 5], current: current)
+        #expect(result.changes == [
+            ImportChange(key: .rehideInterval, hotkeyAction: nil, before: .number(15), after: .number(30)),
+            ImportChange(key: .showOnHoverDelay, hotkeyAction: nil, before: .number(0.2), after: .number(0)),
+            ImportChange(key: .tempShowInterval, hotkeyAction: nil, before: .number(15), after: .number(5)),
+        ])
+        #expect(try #require(result.writes["RehideInterval"] as? NSNumber).doubleValue == 30)
+        #expect(try #require(result.writes["ShowOnHoverDelay"] as? NSNumber).doubleValue == 0)
+        #expect(try #require(result.writes["TempShowInterval"] as? NSNumber).doubleValue == 5)
+        #expect(result.ignoredCount == 0)
+        let validated = Defaults.Key.validatedSettings(result.writes, ownBundleIdentifier: ownBundle)
+        #expect(validated.ignored.isEmpty)
+    }
+
+    @Test("A non-finite number, a String or a Boolean under a number key is ignored and counted")
+    func wrongNumbersAreIgnored() {
+        let current = allOff.merging(numbersNow) { first, _ in first }
+        let result = plan(
+            ["RehideInterval": Double.infinity, "ShowOnHoverDelay": Double.nan, "TempShowInterval": "5", "RehideStrategy": true],
+            current: current
+        )
+        #expect(result.changes.isEmpty)
+        #expect(result.writes.isEmpty)
+        #expect(result.ignoredCount == 4)
+    }
+
+    @Test("A number equal to the current one is silent")
+    func equalNumberIsSilent() {
+        let current = allOff.merging(numbersNow) { first, _ in first }
+        let result = plan(["RehideInterval": 15, "TempShowInterval": 15.0], current: current)
+        #expect(result.changes.isEmpty)
+        #expect(result.ignoredCount == 0)
+    }
+
+    @Test("RehideStrategy 1 becomes a choice; 7, -1 and 1.5 are ignored and counted")
+    func strategyIsAChoice() throws {
+        let current = allOff.merging(numbersNow) { first, _ in first }
+        let accepted = plan(["RehideStrategy": 1], current: current)
+        #expect(accepted.changes == [ImportChange(key: .rehideStrategy, hotkeyAction: nil, before: .choice(0), after: .choice(1))])
+        #expect(try #require(accepted.writes["RehideStrategy"] as? NSNumber).intValue == 1)
+        // A huge or non-finite value is refused without converting it to an Int.
+        for huge in [1e300, -1e300, Double.infinity, Double.nan] {
+            let refused = plan(["RehideStrategy": huge], current: current)
+            #expect(refused.changes.isEmpty)
+            #expect(refused.ignoredCount == 1)
+        }
+        for value in [7, -1] as [Int] {
+            let refused = plan(["RehideStrategy": value], current: current)
+            #expect(refused.changes.isEmpty)
+            #expect(refused.writes.isEmpty)
+            #expect(refused.ignoredCount == 1)
+        }
+        let fraction = plan(["RehideStrategy": 1.5], current: current)
+        #expect(fraction.changes.isEmpty)
+        #expect(fraction.ignoredCount == 1)
+    }
+
+    @Test("A strategy equal to the current one is silent")
+    func equalStrategyIsSilent() {
+        let current = allOff.merging(numbersNow) { first, _ in first }
+        let result = plan(["RehideStrategy": 0], current: current)
+        #expect(result.changes.isEmpty)
+        #expect(result.ignoredCount == 0)
+    }
+
+    @Test("Numbers and the strategy are ignored when they have no label here")
+    func unlabelledNumbersAreIgnored() {
+        let result = plan(["RehideInterval": 20, "RehideStrategy": 2], current: allOff)
+        #expect(result.changes.isEmpty)
+        #expect(result.ignoredCount == 2)
     }
 
     @Test("The changes are in a fixed order whatever order the dictionary iterates in")

@@ -81,12 +81,36 @@ nonisolated enum PreviousAppImport {
     private enum Translation {
         /// A Boolean, stored as a Boolean.
         case bool
+        /// A finite number; the target's number rule clamps it to its range.
+        case number
+        /// The raw value of a choice: a whole number inside the range, nothing else.
+        case choice(ClosedRange<Int>)
 
         /// The value as it may be validated and written, or `nil` when it has the wrong kind.
         func accept(_ value: Any) -> Any? {
             switch self {
             case .bool:
-                SettingsSchema.matches(value, .bool) ? value : nil
+                return SettingsSchema.matches(value, .bool) ? value : nil
+            case .number:
+                guard SettingsSchema.matches(value, .number), let number = value as? NSNumber, number.doubleValue.isFinite else {
+                    return nil
+                }
+                return number
+            case .choice(let range):
+                guard SettingsSchema.matches(value, .number), let number = value as? NSNumber else {
+                    return nil
+                }
+                let double = number.doubleValue
+                // Compared as numbers before the conversion: a huge value must not trap `Int(_:)`.
+                guard
+                    double.isFinite,
+                    double.rounded(.towardZero) == double,
+                    double >= Double(range.lowerBound),
+                    double <= Double(range.upperBound)
+                else {
+                    return nil
+                }
+                return NSNumber(value: Int(double))
             }
         }
 
@@ -94,7 +118,11 @@ nonisolated enum PreviousAppImport {
         func shown(_ value: Any) -> ImportValue? {
             switch self {
             case .bool:
-                (value as? Bool).map(ImportValue.bool)
+                return (value as? Bool).map(ImportValue.bool)
+            case .number:
+                return (value as? NSNumber).map { ImportValue.number($0.doubleValue) }
+            case .choice:
+                return (value as? NSNumber).map { ImportValue.choice($0.intValue) }
             }
         }
     }
@@ -105,8 +133,11 @@ nonisolated enum PreviousAppImport {
         let translation: Translation
     }
 
-    /// Thaw's rules by the stored name in Thaw's defaults: the twelve Booleans whose meaning is
-    /// the same in both apps.
+    /// Thaw's rules by the stored name in Thaw's defaults: the twelve Booleans and the three
+    /// intervals whose meaning is the same in both apps, and the rehide strategy, whose raw values
+    /// 0 to 2 are the same too (checked against a real file at the beta). Everything else of
+    /// Thaw has no rule here, among them the enums whose raw values differ in meaning between the
+    /// apps.
     private static let thaw: [String: Rule] = [
         "AutoRehide": Rule(target: .autoRehide, translation: .bool),
         "AutoZenWhileSharingScreen": Rule(target: .autoZenWhileSharingScreen, translation: .bool),
@@ -120,6 +151,10 @@ nonisolated enum PreviousAppImport {
         "ShowOnScroll": Rule(target: .showOnScroll, translation: .bool),
         "ShowIceIcon": Rule(target: .showHolzBarIcon, translation: .bool),
         "UseIceBar": Rule(target: .useShelf, translation: .bool),
+        "RehideInterval": Rule(target: .rehideInterval, translation: .number),
+        "ShowOnHoverDelay": Rule(target: .showOnHoverDelay, translation: .number),
+        "TempShowInterval": Rule(target: .tempShowInterval, translation: .number),
+        "RehideStrategy": Rule(target: .rehideStrategy, translation: .choice(0...2)),
     ]
 
     private static func rules(for source: ImportSource) -> [String: Rule] {
