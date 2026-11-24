@@ -50,7 +50,8 @@ struct HolzBarShelfNotice: View {
 
     /// The answers the question offers: the sections that are on, then Don't ask again.
     private static func answersOffered(appState: AppState) -> [NewAppQuestion.Answer] {
-        let offersAlwaysHidden = appState.newAppQuestions27.offersAlwaysHidden
+        let offersAlwaysHidden = appState.existingNewAppQuestions27?.offersAlwaysHidden
+            ?? appState.settings.advanced.enableAlwaysHiddenSection
         return NewAppQuestion.Answer.allCases.filter { offersAlwaysHidden || $0 != .alwaysHidden }
     }
 
@@ -73,8 +74,11 @@ struct HolzBarShelfNotice: View {
             }
             return [moveChipID]
         }
-        let answers = answersOffered(appState: appState)
         let asked = questionsAsked(appState: appState)
+        guard !asked.isEmpty else {
+            return []
+        }
+        let answers = answersOffered(appState: appState)
         let rows = NewAppQuestion.shown(asked, limit: DesignTokens.Comfort.combinedQuestionMaxRows).rows
         return rows.flatMap { app in
             answers.map { chipID(bundleID: app.bundleID, answer: $0) }
