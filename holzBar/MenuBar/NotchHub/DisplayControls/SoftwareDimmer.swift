@@ -164,6 +164,16 @@ final class SoftwareDimmer {
         setLevel(0, for: display)
     }
 
+    /// Hardware control took over from the layer of a display (``SoftwareDimming/isSupersededByHardware(macOSCanChange:ddcSwitchOn:answer:)``):
+    /// its stored level is cleared and the layer goes, so no layer stays on screen without the
+    /// dim row that could remove it. Does nothing for a display that is not dimmed.
+    func releaseToHardware(_ display: CGDirectDisplayID) {
+        guard level(for: display) > 0 else {
+            return
+        }
+        reset(display)
+    }
+
     /// Whether the layer of a dimmed display is on screen. A display that is not dimmed has
     /// nothing to place and counts as placed.
     func isPlaced(_ display: CGDirectDisplayID) -> Bool {

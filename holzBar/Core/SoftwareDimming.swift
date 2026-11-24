@@ -85,6 +85,19 @@ nonisolated enum SoftwareDimming {
         return answer == .noBrightness
     }
 
+    /// Whether hardware control has taken over from the dim layer of an external display: macOS
+    /// can change it itself, or External monitors (DDC) is on and the monitor answered a DDC
+    /// brightness read. The dim row is gone then (``offersDimming(isExternal:macOSCanChange:ddcSwitchOn:answer:)``),
+    /// so the stored level is cleared with it: a layer never outlives the only control that can
+    /// remove it. A monitor still being read, or not yet asked, keeps its layer.
+    static func isSupersededByHardware(
+        macOSCanChange: Bool,
+        ddcSwitchOn: Bool,
+        answer: DimmingDDCAnswer
+    ) -> Bool {
+        macOSCanChange || (ddcSwitchOn && answer == .answersBrightness)
+    }
+
     /// Whether a layer window exists for a display: only for a level above 0, with the Notch hub
     /// and Display controls on and the display present (D-05).
     static func layerExists(level: Double, hubOn: Bool, moduleOn: Bool, displayPresent: Bool) -> Bool {

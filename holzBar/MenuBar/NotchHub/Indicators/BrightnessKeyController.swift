@@ -478,6 +478,9 @@ final class BrightnessKeyController {
                 if let brightness = controls.first(where: { $0.control == .brightness }) {
                     answers[report.id] = true
                     values[report.id] = brightness
+                    // The monitor has its own brightness now: a stored dim level would outlive
+                    // the dim row that could remove it, so it is cleared (CR-01).
+                    appState?.softwareDimmer.releaseToHardware(report.id)
                 } else {
                     answers[report.id] = false
                 }

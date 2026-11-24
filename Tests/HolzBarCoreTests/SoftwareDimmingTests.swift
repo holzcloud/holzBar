@@ -75,6 +75,35 @@ struct SoftwareDimmingTests {
         #expect(!SoftwareDimming.layerExists(level: 0.5, hubOn: true, moduleOn: true, displayPresent: false))
     }
 
+    @Test("Hardware control supersedes the layer exactly when the row is gone for that reason")
+    func superseded() {
+        // macOS can change the display: always superseded.
+        for answer in [DimmingDDCAnswer.reading, .answersBrightness, .noBrightness] {
+            #expect(SoftwareDimming.isSupersededByHardware(macOSCanChange: true, ddcSwitchOn: false, answer: answer))
+            #expect(SoftwareDimming.isSupersededByHardware(macOSCanChange: true, ddcSwitchOn: true, answer: answer))
+        }
+        // DDC on and the monitor answers brightness: superseded.
+        #expect(SoftwareDimming.isSupersededByHardware(macOSCanChange: false, ddcSwitchOn: true, answer: .answersBrightness))
+        // Still being read, no brightness, or DDC off: the layer stays.
+        #expect(!SoftwareDimming.isSupersededByHardware(macOSCanChange: false, ddcSwitchOn: true, answer: .reading))
+        #expect(!SoftwareDimming.isSupersededByHardware(macOSCanChange: false, ddcSwitchOn: true, answer: .noBrightness))
+        #expect(!SoftwareDimming.isSupersededByHardware(macOSCanChange: false, ddcSwitchOn: false, answer: .answersBrightness))
+        #expect(!SoftwareDimming.isSupersededByHardware(macOSCanChange: false, ddcSwitchOn: false, answer: .noBrightness))
+    }
+
+    @Test("A superseded display never offers the dim row, so its cleared level leaves no layer without a control")
+    func supersededMeansNoRow() {
+        for macOS in [false, true] {
+            for ddc in [false, true] {
+                for answer in [DimmingDDCAnswer.reading, .answersBrightness, .noBrightness] {
+                    if SoftwareDimming.isSupersededByHardware(macOSCanChange: macOS, ddcSwitchOn: ddc, answer: answer) {
+                        #expect(!SoftwareDimming.offersDimming(isExternal: true, macOSCanChange: macOS, ddcSwitchOn: ddc, answer: answer))
+                    }
+                }
+            }
+        }
+    }
+
     @Test("The dim row shows for external displays macOS cannot change, by the DDC rule")
     func offer() {
         let answers: [DimmingDDCAnswer] = [.reading, .answersBrightness, .noBrightness]

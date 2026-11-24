@@ -372,6 +372,11 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             ))
         }
         displays = gate.isAvailable ? found : []
+        // A display macOS can change by itself needs no layer: a stored dim level would outlive
+        // the card's dim row, so it is cleared (CR-01).
+        for display in displays where display.canChange {
+            softwareDimmer?.releaseToHardware(display.id)
+        }
     }
 
     /// Sets the brightness of a display. The level shown afterwards is the one read back, not
@@ -589,6 +594,16 @@ final class DisplayControlsRuntime: HubModuleRuntime {
                 updated.values = [:]
             }
             return updated
+        }
+        // A monitor that answers DDC brightness has its own slider: its stored dim level would
+        // outlive the card's dim row, so it is cleared (CR-01).
+        let ddcSwitchOn = appState?.settings.displayControls.showsExternalMonitors ?? false
+        for monitor in externals where monitor.state == .ready && SoftwareDimming.isSupersededByHardware(
+            macOSCanChange: false,
+            ddcSwitchOn: ddcSwitchOn,
+            answer: monitor.values[.brightness] != nil ? .answersBrightness : .noBrightness
+        ) {
+            softwareDimmer?.releaseToHardware(monitor.id)
         }
     }
 
