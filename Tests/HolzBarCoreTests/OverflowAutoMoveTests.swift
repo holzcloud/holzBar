@@ -95,6 +95,18 @@ struct OverflowAutoMoveTests {
         #expect(gate.note(.folded, conditions: good, at: now + .seconds(12)) == .check(at: now + .seconds(17)))
     }
 
+    @Test("A pass that did not run starts the confirmation again with its full gap")
+    func passThatDidNotRunStartsAgain() {
+        var gate = gate()
+        let now = start + .seconds(100)
+        #expect(confirm(&gate, at: now) == .runPass)
+        gate.didNotRunPass()
+        let later = now + .seconds(6)
+        // Without the reset this read would be the second one and pass at once.
+        #expect(gate.note(.folded, conditions: good, at: later) == .check(at: later + .seconds(5)))
+        #expect(gate.note(.folded, conditions: good, at: later + .seconds(5)) == .runPass)
+    }
+
     // MARK: Quiet start
 
     @Test("Before 60 seconds after the start a folded reading waits for the end of the quiet start")

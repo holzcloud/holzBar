@@ -3,6 +3,7 @@
 //  holzBar
 //
 
+import CoreGraphics
 import Foundation
 import OSLog
 
@@ -24,7 +25,16 @@ import OSLog
 final class OverflowAutoMove27 {
     /// What the observation watches: a change of any of it evaluates the gate again.
     private struct Watched: Equatable {
+        /// An item of the Visible section as the planner sees it, so "has candidates" is
+        /// evaluated again when the items change while a fold persists.
+        struct ItemSignature: Equatable {
+            let windowID: CGWindowID
+            let bounds: CGRect
+            let isOnScreen: Bool
+        }
+
         var overflow: NativeOverflowReading27
+        var visibleItems: [ItemSignature]
         var isDragging: Bool
         var isPaused: Bool
         var isSettled: Bool
@@ -35,6 +45,7 @@ final class OverflowAutoMove27 {
         /// The value while there is no app state.
         static let idle = Watched(
             overflow: .unknown,
+            visibleItems: [],
             isDragging: false,
             isPaused: false,
             isSettled: false,
@@ -99,6 +110,9 @@ final class OverflowAutoMove27 {
         let monitor = appState.systemActivityMonitor
         return Watched(
             overflow: appState.concealer27.nativeOverflow,
+            visibleItems: appState.itemManager.itemCache[.visible].map {
+                Watched.ItemSignature(windowID: $0.windowID, bounds: $0.bounds, isOnScreen: $0.isOnScreen)
+            },
             isDragging: appState.isDraggingMenuBarItem,
             isPaused: monitor.isPaused,
             isSettled: monitor.isSettled,
@@ -151,6 +165,10 @@ final class OverflowAutoMove27 {
             if makeRoom.moveCandidates(place: .menuBar, origin: .automatic) {
                 gate?.didRunPass(at: now)
                 logger.info("Automatic made a pass")
+            } else {
+                // The fresh read no longer says folded, or a pass is running: the next folded
+                // reading starts the confirmation again, with its full gap.
+                gate?.didNotRunPass()
             }
         }
     }

@@ -188,6 +188,12 @@ nonisolated struct OverflowAutoMove: Equatable, Sendable {
         firstFoldedAt = nil
     }
 
+    /// The pass the gate asked for did not run (the caller's fresh read no longer said folded,
+    /// or a pass was already running): the pending confirmation starts over.
+    mutating func didNotRunPass() {
+        firstFoldedAt = nil
+    }
+
     /// The system settled after a wake or a display change: the quiet start begins again and a
     /// pending first read no longer counts.
     mutating func didSettle(at now: ContinuousClock.Instant) {
