@@ -1386,6 +1386,13 @@ extension MenuBarItemManager {
             let item = items.first { $0.windowID == context.windowID }
                 ?? items.first { keys[$0.windowID] == context.identityKey }
             guard let item else {
+                // The item's window still exists, so the read was probably partial (a
+                // full-screen Space, a display change): keep the context for the next
+                // rehide, three times at most. Otherwise the item is gone.
+                if WindowInfo(windowID: context.windowID) != nil, context.rehideAttempts < 3 {
+                    context.rehideAttempts += 1
+                    failedContexts.append(context)
+                }
                 continue
             }
             guard let destination = resolveReturnDestination(for: item, context: context, in: items, keys: keys) else {
