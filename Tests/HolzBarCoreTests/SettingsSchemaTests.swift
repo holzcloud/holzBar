@@ -927,6 +927,21 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.widgetShortcutNames.rawValue == "WidgetShortcutNames")
     }
 
+    @Test("A settings file never carries or changes the safety switches")
+    func settingsFileLeavesSafetySwitches() {
+        #expect(Defaults.Key.settingsFileExcludedKeys == [.holzBarIconShowsCaptureDot, .autoZenWhileSharingScreen])
+        #expect(Defaults.Key.staysOutOfSettingsFiles("HolzBarIconShowsCaptureDot"))
+        #expect(Defaults.Key.staysOutOfSettingsFiles("AutoZenWhileSharingScreen"))
+        #expect(!Defaults.Key.staysOutOfSettingsFiles("ShowOnHover"))
+        #expect(!Defaults.Key.staysOutOfSettingsFiles("holzbariconshowscapturedot"))
+        // They are not local-only: the Thaw import, which shows every change first, may set
+        // them, and its undo record keeps them.
+        for key in Defaults.Key.settingsFileExcludedKeys {
+            #expect(!Defaults.Key.localOnlyKeys.contains(key))
+            #expect(Defaults.Key.importableKinds[key.rawValue] == .bool)
+        }
+    }
+
     @Test("A file import removes the settings the file lacks")
     func importRemovesMissingKeys() {
         let removed = Defaults.Key.keysRemoved(

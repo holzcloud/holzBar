@@ -75,7 +75,7 @@
 <td valign="top" width="50%">
 
 #### Settings
-- ✅ **Export and import** all settings
+- ✅ **Export and import** all settings (the camera and microphone dot and Zen mode while the screen is shared stay as they are on this Mac)
 - ✅ **Imports your Ice settings** on first launch, and Thaw's or Hidden Bar's through Settings → Advanced
 - ✅ **Alerts in Settings are sheets** on its window, so holzBar keeps working while one is open
 - ✅ **Eleven panes sorted by task** — Layout, Showing & Hiding, holzBar Shelf, Profiles & History, Appearance, Automation, Modules, General, Hotkeys, Advanced and About, with compact rows and an info button for each

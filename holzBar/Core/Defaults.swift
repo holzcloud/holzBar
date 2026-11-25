@@ -917,6 +917,23 @@ nonisolated extension Defaults.Key {
         .previousAppImportUndoPending,
     ]
 
+    /// Safety switches that a settings file neither carries nor changes: the camera and
+    /// microphone dot on holzBar's icon (macOS 27) and Zen mode while the screen is shared.
+    ///
+    /// A settings file shared as a nice layout could otherwise turn them off without a word, as
+    /// importing replaces every setting. They stay as they are on this Mac, so an import neither
+    /// sets nor removes them. Unlike the ``localOnlyKeys`` they may still come from Thaw, whose
+    /// import shows every change before it is made, and its undo puts them back.
+    static let settingsFileExcludedKeys: Set<Defaults.Key> = [
+        .holzBarIconShowsCaptureDot,
+        .autoZenWhileSharingScreen,
+    ]
+
+    /// Whether the stored key name is one of the ``settingsFileExcludedKeys``.
+    static func staysOutOfSettingsFiles(_ rawValue: String) -> Bool {
+        settingsFileExcludedKeys.contains { $0.rawValue == rawValue }
+    }
+
     /// The stored key names an imported settings file may set, with the
     /// kind of value each one takes. Every key except the ``localOnlyKeys``.
     static let importableKinds: [String: SettingsSchema.Kind] = Dictionary(
