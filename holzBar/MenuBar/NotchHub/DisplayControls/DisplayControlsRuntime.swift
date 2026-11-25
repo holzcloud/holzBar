@@ -359,6 +359,10 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         }
         var found: [DisplayBrightness] = []
         var seen = Set<CGDirectDisplayID>()
+        // One refresh counts as one read: displays that cannot be read at the same moment (asleep,
+        // waking) must not add up to the three failures in a row that switch the part off.
+        var anyReadFailed = false
+        var anyReadSucceeded = false
         for screen in NSScreen.screens {
             let id = screen.displayID
             guard seen.insert(id).inserted else {
@@ -369,9 +373,9 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             if canChange {
                 value = DisplayServicesBrightness.read(id)
                 if value == nil {
-                    gate.recordFailure()
+                    anyReadFailed = true
                 } else {
-                    gate.recordSuccess()
+                    anyReadSucceeded = true
                 }
             }
             found.append(DisplayBrightness(
@@ -381,6 +385,11 @@ final class DisplayControlsRuntime: HubModuleRuntime {
                 canChange: canChange,
                 value: value
             ))
+        }
+        if anyReadFailed {
+            gate.recordFailure()
+        } else if anyReadSucceeded {
+            gate.recordSuccess()
         }
         displays = gate.isAvailable ? found : []
         // A display macOS can change by itself needs no layer: a stored dim level would outlive
