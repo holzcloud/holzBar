@@ -309,6 +309,9 @@ final class AutomationManager {
         case .capture:
             startCaptureObserver()
         case .audioOutput:
+            guard audioObserver == nil else {
+                return
+            }
             let observer = AutomationAudioObserver()
             observer.onChange = { [weak self] in
                 self?.scriptsAreHeld = false
@@ -318,6 +321,9 @@ final class AutomationManager {
             audioObserver = observer
             observer.start()
         case .bluetooth:
+            guard bluetoothObserver == nil else {
+                return
+            }
             let observer = AutomationBluetoothObserver()
             observer.onChange = { [weak self] in
                 self?.scriptsAreHeld = false
