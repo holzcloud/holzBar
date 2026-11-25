@@ -37,7 +37,7 @@ struct DockBadgesSettingsView: View {
                     SettingsStateLine(.warning, Text("Badge counts are not available on this Mac"))
                 }
                 if settings.readsCounts, dockBadges.refreshPolls {
-                    SettingsStateLine(.info, Text("Counts refresh every 30 seconds"))
+                    SettingsStateLine(.info, Text("Counts refresh every 30 seconds to 2 minutes"))
                 }
                 SettingsPickerRow(.modulesDockBadgesZeroMode, selection: $settings.zeroMode) {
                     Text("Dim").tag(DockBadgeZeroMode.dim)
