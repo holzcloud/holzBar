@@ -60,16 +60,47 @@ struct ProfilesSection: View {
         guard panel.runModal() == .OK, let url = panel.url else {
             return
         }
-        let size = (try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? Int.max
-        guard
-            size <= SharedProfile.maximumSize,
-            let data = try? Data(contentsOf: url),
-            case .success(let shared) = SharedProfile.decode(data, ownBundleIdentifier: Constants.bundleIdentifier)
-        else {
-            isShowingImportError = true
-            return
+        Task {
+            guard
+                let data = await Self.readProfileFile(at: url),
+                case .success(let shared) = SharedProfile.decode(data, ownBundleIdentifier: Constants.bundleIdentifier)
+            else {
+                isShowingImportError = true
+                return
+            }
+            importedProfile = shared
         }
-        importedProfile = shared
+    }
+
+    /// The contents of a profile file, or `nil` when it is not a regular file of at most
+    /// ``SharedProfile/maximumSize`` bytes or cannot be read. Off the main actor, as the
+    /// settings import reads.
+    @concurrent
+    private nonisolated static func readProfileFile(at url: URL) async -> Data? {
+        // Data(contentsOf:) would fetch an http(s) URL; holzBar reads only files.
+        guard url.isFileURL else {
+            return nil
+        }
+        let file = url.resolvingSymlinksInPath()
+        // A pipe or a device could block the read or never end.
+        guard let values = try? file.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey]),
+              values.isRegularFile == true,
+              (values.fileSize ?? 0) <= SharedProfile.maximumSize,
+              let handle = try? FileHandle(forReadingFrom: file)
+        else {
+            return nil
+        }
+        defer {
+            try? handle.close()
+        }
+        // The size above can change after it was read, so the read itself stops one byte past
+        // the limit.
+        guard let data = try? handle.read(upToCount: SharedProfile.maximumSize + 1),
+              data.count <= SharedProfile.maximumSize
+        else {
+            return nil
+        }
+        return data
     }
 
     var body: some View {
