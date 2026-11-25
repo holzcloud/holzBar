@@ -77,8 +77,14 @@ nonisolated enum NowPlayingRemoteLaunch {
     /// The perl program: loads the library at the path in its first argument, finds the function
     /// named by its second and calls it. Exits 3 when the library cannot be loaded and 4 when the
     /// function is missing, the codes of the helper's own errors.
+    ///
+    /// It reads no Perl module: `use DynaLoader` would search `@INC`, which lists
+    /// `/Library/Perl` (writable by an administrator, outside System Integrity Protection) before
+    /// `/System/Library/Perl`. DynaLoader's functions are built into perl, so the script boots
+    /// them itself, and `-f` skips a site customization file.
     static let script = """
-        use DynaLoader;
+        defined(&DynaLoader::boot_DynaLoader) or exit 3;
+        DynaLoader::boot_DynaLoader("DynaLoader");
         my ($path, $name) = @ARGV;
         my $library = DynaLoader::dl_load_file($path, 0) or exit 3;
         my $symbol = DynaLoader::dl_find_symbol($library, $name) or exit 4;
@@ -101,7 +107,7 @@ nonisolated enum NowPlayingRemoteLaunch {
               helper.last == executableName else {
             return nil
         }
-        return ["-e", script, "--", "/" + helper.joined(separator: "/"), function.rawValue]
+        return ["-f", "-e", script, "--", "/" + helper.joined(separator: "/"), function.rawValue]
     }
 
     /// The parts of an absolute path with `.` and `..` resolved, or `nil` for a relative path or
