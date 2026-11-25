@@ -185,15 +185,13 @@ final class MenuBarManager {
             }
         )
 
-        if
-            let hiddenSection = section(withName: .alwaysHidden),
-            let window = hiddenSection.controlItem.window
-        {
-            keyValueObservations.append(
-                window.observe(\.frame, options: [.initial, .new]) { [weak self] window, _ in
-                    Task { @MainActor in
-                        self?.menuBarWindowFrameDidChange(originY: window.frame.origin.y)
-                    }
+        // The divider's window exists only after the control item's setup, which runs
+        // after this, so follow the window as it appears or changes.
+        if let hiddenControlItem = section(withName: .alwaysHidden)?.controlItem {
+            observeMenuBarWindow(hiddenControlItem.window)
+            observers.append(
+                ObservationLoop.observe { hiddenControlItem.window } onChange: { [weak self] window in
+                    self?.observeMenuBarWindow(window)
                 }
             )
         }
@@ -230,6 +228,19 @@ final class MenuBarManager {
                 self?.sectionStatesDidChange()
             }
         )
+    }
+
+    /// The observation of the always-hidden divider's window frame.
+    @ObservationIgnored private var menuBarWindowObservation: NSKeyValueObservation?
+
+    /// Follows the frame of the always-hidden divider's window.
+    private func observeMenuBarWindow(_ window: NSWindow?) {
+        lastMenuBarWindowOriginY = nil
+        menuBarWindowObservation = window?.observe(\.frame, options: [.initial, .new]) { [weak self] window, _ in
+            Task { @MainActor in
+                self?.menuBarWindowFrameDidChange(originY: window.frame.origin.y)
+            }
+        }
     }
 
     /// The last origin of the always-hidden divider's window, so that only a move counts.
