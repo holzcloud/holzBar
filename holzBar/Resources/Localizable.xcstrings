@@ -202780,6 +202780,4171 @@
           }
         }
       }
+    },
+    "Readout widgets" : {
+      "comment" : "What's New 1.2.0: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgety údajů"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anzeige-Widgets"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgets de lecturas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgets de relevés"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Értékwidgetek"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget pembacaan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget delle letture"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読み取りウィジェット"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수치 위젯"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waarden-widgets"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widżety odczytów"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgets de leituras"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgets da las indicaziuns"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виджеты показателей"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Värdewidgetar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gösterge widget’ları"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Віджети показників"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "读数小组件"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讀數小工具"
+          }
+        }
+      }
+    },
+    "Import from Thaw and Hidden Bar" : {
+      "comment" : "What's New 1.2.0: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import z Thaw a Hidden Bar"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import aus Thaw und Hidden Bar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar desde Thaw y Hidden Bar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer depuis Thaw et Hidden Bar"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importálás a Thaw és a Hidden Bar alkalmazásból"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impor dari Thaw dan Hidden Bar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa da Thaw e Hidden Bar"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ThawとHidden Barから読み込む"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thaw 및 Hidden Bar에서 가져오기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importeren uit Thaw en Hidden Bar"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import z Thaw i Hidden Bar"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar do Thaw e do Hidden Bar"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar da Thaw e Hidden Bar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Импорт из Thaw и Hidden Bar"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importera från Thaw och Hidden Bar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thaw ve Hidden Bar’dan içe aktar"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Імпорт із Thaw і Hidden Bar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从 Thaw 和 Hidden Bar 导入"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "從 Thaw 和 Hidden Bar 輸入"
+          }
+        }
+      }
+    },
+    "Making room on macOS 27" : {
+      "comment" : "What's New 1.2.0: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uvolnění místa v macOS 27"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Platz schaffen unter macOS 27"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hacer sitio en macOS 27"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faire de la place sous macOS 27"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hely felszabadítása macOS 27 alatt"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memberi ruang di macOS 27"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fare spazio su macOS 27"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27でスペースを確保"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 공간 확보"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ruimte maken in macOS 27"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwalnianie miejsca w macOS 27"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir espaço no macOS 27"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Far plaz sut macOS 27"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Освобождение места в macOS 27"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skapa utrymme i macOS 27"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de yer açma"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Звільнення місця в macOS 27"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上腾出空间"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 騰出空間"
+          }
+        }
+      }
+    },
+    "Spotlight button" : {
+      "comment" : "What's New 1.2.0: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tlačítko Spotlight"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spotlight-Button"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Botón de Spotlight"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bouton Spotlight"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spotlight-gomb"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tombol Spotlight"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pulsante Spotlight"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spotlightボタン"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spotlight 버튼"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spotlight-knop"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przycisk Spotlight"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Botão do Spotlight"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buttun Spotlight"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кнопка Spotlight"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spotlight-knapp"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spotlight düğmesi"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кнопка Spotlight"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "聚焦按钮"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "聚焦按鈕"
+          }
+        }
+      }
+    },
+    "Restart Menu Bar and Pause holzBar" : {
+      "comment" : "What's New 1.2.0: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restartovat řádek nabídek a pozastavit holzBar"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menüleiste neu starten und holzBar pausieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reiniciar la barra de menús y pausar holzBar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redémarrer la barre des menus et mettre holzBar en pause"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A menüsor újraindítása és a holzBar szüneteltetése"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mulai ulang Bar Menu dan jeda holzBar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riavvia la barra dei menu e metti holzBar in pausa"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メニューバーの再起動とholzBarの一時停止"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대 다시 시작 및 holzBar 일시 정지"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menubalk opnieuw starten en holzBar pauzeren"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uruchom ponownie pasek menu i wstrzymaj holzBar"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reiniciar a Barra de Menus e pausar o holzBar"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puspè cumenzar il trav da menu e pausar holzBar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перезапуск строки меню и приостановка holzBar"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starta om menyraden och pausa holzBar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menü çubuğunu yeniden başlat ve holzBar’ı duraklat"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перезапуск смуги меню і призупинення holzBar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新启动菜单栏并暂停 holzBar"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新啟動選單列並暫停 holzBar"
+          }
+        }
+      }
+    },
+    "Display tab" : {
+      "comment" : "What's New 1.2.0: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karta Displej"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildschirm-Tab"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pestaña Pantalla"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onglet Affichage"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kijelző lap"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab Layar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scheda Schermo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ディスプレイタブ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "디스플레이 탭"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tabblad Beeldscherm"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karta Wyświetlacz"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aba Tela"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab Visualisaziun"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вкладка «Дисплей»"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fliken Skärm"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran sekmesi"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вкладка «Дисплей»"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示标签页"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示器分頁"
+          }
+        }
+      }
+    },
+    "Notifications and calendar in the notch" : {
+      "comment" : "What's New 1.2.0: title",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oznámení a kalendář ve výřezu"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mitteilungen und Kalender im Notch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notificaciones y calendario en el notch"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications et calendrier dans l’encoche"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Értesítések és naptár a notchban"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifikasi dan kalender di notch"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifiche e calendario nel notch"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ノッチ内の通知とカレンダー"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노치의 알림과 캘린더"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meldingen en agenda in de notch"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Powiadomienia i kalendarz w notchu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notificações e calendário no notch"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Communicaziuns e chalender en la notch"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уведомления и календарь в вырезе"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notiser och kalender i notchen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch’ta bildirimler ve takvim"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сповіщення та календар у вирізі"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刘海中的通知和日历"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "瀏海中的通知與行事曆"
+          }
+        }
+      }
+    },
+    "Tiles for the CPU, memory, network, disk and battery, and for the GPU behind its own switch, with two-minute curves in the Notch hub." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dlaždice pro CPU, paměť, síť, disk a baterii a pro GPU za samostatným přepínačem, s dvouminutovými křivkami v centru u výřezu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kacheln für CPU, Arbeitsspeicher, Netzwerk, Festplatte und Akku sowie für die GPU hinter einem eigenen Schalter, mit Zwei-Minuten-Kurven im Notch-Hub."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paneles para la CPU, la memoria, la red, el disco y la batería, y para la GPU tras su propio interruptor, con curvas de dos minutos en el centro del notch."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Des tuiles pour le CPU, la mémoire, le réseau, le disque et la batterie, et pour le GPU derrière son propre interrupteur, avec des courbes de deux minutes dans le hub de l’encoche."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Csempék a CPU, a memória, a hálózat, a lemez és az akkumulátor számára, valamint a GPU számára külön kapcsoló mögött, kétperces görbékkel a notch-központban."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ubin untuk CPU, memori, jaringan, disk, dan baterai, serta untuk GPU di balik sakelarnya sendiri, dengan kurva dua menit di Pusat Notch."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riquadri per CPU, memoria, rete, disco e batteria, e per la GPU dietro un interruttore a parte, con curve di due minuti nell’hub del notch."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU、メモリ、ネットワーク、ディスク、バッテリーのタイルと、専用スイッチの背後にあるGPUのタイルを、2分間のカーブとともにノッチハブに表示します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU, 메모리, 네트워크, 디스크, 배터리 타일과 별도 스위치 뒤에 있는 GPU 타일을 2분 곡선과 함께 노치 허브에 표시합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tegels voor CPU, geheugen, netwerk, schijf en batterij, en voor de gpu achter een eigen schakelaar, met krommen van twee minuten in de notch-hub."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kafelki dla CPU, pamięci, sieci, dysku i baterii oraz dla GPU za osobnym przełącznikiem, z dwuminutowymi krzywymi w centrum notcha."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocos para CPU, memória, rede, disco e bateria, e para a GPU atrás de uma chave própria, com curvas de dois minutos no hub do notch."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tegias per la CPU, la memoria, la rait, il disc e la batteria, e per la GPU davos in agen interruptur, cun curvas da duas minutas en il hub da la notch."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Плитки для CPU, памяти, сети, диска и аккумулятора, а также для ГП за отдельным переключателем, с двухминутными кривыми в центре у выреза."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rutor för CPU, minne, nätverk, disk och batteri, och för GPU bakom en egen switch, med tvåminuterskurvor i notchcentret."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU, bellek, ağ, disk ve pil için kutucuklar ile ayrı bir anahtarın ardındaki GPU için kutucuk; Notch Merkezi’nde iki dakikalık eğrilerle."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Плитки для CPU, памʼяті, мережі, диска й акумулятора, а також для ГП за окремим перемикачем, із двохвилинними кривими в центрі біля вирізу."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU、内存、网络、磁盘和电池的磁贴，以及独立开关之后的 GPU 磁贴，在刘海中心中带有两分钟曲线。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU、記憶體、網路、磁碟和電池的圖磚，以及位於獨立開關之後的 GPU 圖磚，在瀏海中心附有兩分鐘曲線。"
+          }
+        }
+      }
+    },
+    "Network Speed, Disk Activity, GPU Load and Thermal State widgets, and new formats for the CPU, memory and battery widgets." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgety Rychlost sítě, Aktivita disku, Vytížení GPU a Tepelný stav a nové formáty pro widgety CPU, paměti a baterie."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgets für Netzwerkgeschwindigkeit, Festplattenaktivität, GPU-Auslastung und Wärmezustand sowie neue Formate für die Widgets von CPU, Arbeitsspeicher und Akku."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgets de Velocidad de red, Actividad del disco, Carga de la GPU y Estado térmico, y nuevos formatos para los widgets de la CPU, la memoria y la batería."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Des widgets Débit réseau, Activité du disque, Charge du GPU et État thermique, et de nouveaux formats pour les widgets du CPU, de la mémoire et de la batterie."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hálózati sebesség, Lemezaktivitás, GPU-terhelés és Hőállapot widgetek, valamint új formátumok a CPU-, a memória- és az akkumulátor-widgetekhez."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget Kecepatan Jaringan, Aktivitas Disk, Beban GPU, dan Status termal, serta format baru untuk widget CPU, memori, dan baterai."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget Velocità di rete, Attività del disco, Carico della GPU e Stato termico, e nuovi formati per i widget di CPU, memoria e batteria."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ネットワーク速度、ディスクのアクティビティ、GPU の負荷、熱状態のウィジェットと、CPU、メモリ、バッテリーのウィジェットの新しい形式。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "네트워크 속도, 디스크 활동, GPU 부하, 열 상태 위젯과 CPU, 메모리, 배터리 위젯의 새로운 형식입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgets voor Netwerksnelheid, Schijfactiviteit, Gpu-belasting en Thermische status, en nieuwe indelingen voor de widgets van CPU, geheugen en batterij."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widżety Prędkość sieci, Aktywność dysku, Obciążenie GPU i Stan termiczny oraz nowe formaty widżetów CPU, pamięci i baterii."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgets de Velocidade da rede, Atividade do disco, Carga da GPU e Estado térmico, e novos formatos para os widgets de CPU, memória e bateria."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgets per Svelterza da la rait, Activitad dal disc, Grevezza da la GPU e Stadi termic, e novs formats per ils widgets da la CPU, da la memoria e da la batteria."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виджеты «Скорость сети», «Активность диска», «Загрузка ГП» и «Тепловое состояние», а также новые форматы для виджетов CPU, памяти и аккумулятора."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgetar för Nätverkshastighet, Diskaktivitet, GPU-belastning och Värmetillstånd, och nya format för widgetarna för CPU, minne och batteri."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ Hızı, Disk Etkinliği, GPU yükü ve Termal durum widget’ları ile CPU, bellek ve pil widget’ları için yeni biçimler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Віджети «Швидкість мережі», «Активність диска», «Завантаження ГП» і «Тепловий стан», а також нові формати для віджетів CPU, памʼяті й акумулятора."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "网速、磁盘活动、GPU 负载和热状态小组件，以及 CPU、内存和电池小组件的新格式。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "網路速度、磁碟活動、GPU 負載和熱狀態小工具，以及 CPU、記憶體和電池小工具的新格式。"
+          }
+        }
+      }
+    },
+    "The notch warns when the CPU, memory pressure, thermal state, free disk space or the Mac's battery crosses a limit you set, with optional system notifications." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Výřez upozorní, když CPU, tlak na paměť, tepelný stav, volné místo na disku nebo baterie Macu překročí nastavený limit, volitelně se systémovými oznámeními."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Notch warnt, wenn CPU, Speicherdruck, Wärmezustand, freier Speicherplatz oder der Akku des Mac eine eingestellte Grenze überschreitet, auf Wunsch mit Systemmitteilungen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El notch avisa cuando la CPU, la presión de memoria, el estado térmico, el espacio libre en disco o la batería del Mac superan un límite establecido, con notificaciones del sistema opcionales."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’encoche avertit quand le CPU, la pression mémoire, l’état thermique, l’espace disque libre ou la batterie du Mac franchit une limite définie, avec des notifications système en option."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A notch figyelmeztet, ha a CPU, a memórianyomás, a hőállapot, a szabad lemezterület vagy a Mac akkumulátora átlép egy beállított határt, kérésre rendszerértesítésekkel."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch memperingatkan saat CPU, tekanan memori, status termal, ruang disk kosong, atau baterai Mac melewati batas yang ditetapkan, dengan notifikasi sistem opsional."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il notch avvisa quando CPU, pressione della memoria, stato termico, spazio libero su disco o batteria del Mac superano un limite impostato, con notifiche di sistema facoltative."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU、メモリプレッシャー、熱状態、ディスクの空き容量、Macのバッテリーが設定した上限を超えると、ノッチが警告します。システム通知も任意で使えます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU, 메모리 압력, 열 상태, 디스크 여유 공간 또는 Mac의 배터리가 설정한 한도를 넘으면 노치가 경고하며, 시스템 알림도 선택할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De notch waarschuwt wanneer CPU, geheugendruk, thermische status, vrije schijfruimte of de batterij van de Mac een ingestelde grens overschrijdt, met optionele systeemmeldingen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch ostrzega, gdy CPU, ciśnienie pamięci, stan termiczny, wolne miejsce na dysku lub bateria Maca przekroczą ustawiony limit; opcjonalnie z powiadomieniami systemowymi."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O notch avisa quando CPU, pressão de memória, estado térmico, espaço livre em disco ou a bateria do Mac passam de um limite definido, com notificações do sistema opcionais."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La notch avertescha cur che la CPU, la pressiun da la memoria, il stadi termic, la plaz libra sin il disc u la batteria dal Mac surpassa ina limita fixada, sin giavisch cun communicaziuns dal sistem."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вырез предупреждает, когда CPU, нагрузка на память, тепловое состояние, свободное место на диске или аккумулятор Mac выходят за заданный предел; системные уведомления включаются по желанию."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notchen varnar när CPU, minnestryck, värmetillstånd, ledigt diskutrymme eller Macens batteri passerar en inställd gräns, med valfria systemnotiser."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU, bellek baskısı, termal durum, boş disk alanı veya Mac’in pili ayarlanan bir sınırı aştığında notch uyarır; isteğe bağlı olarak sistem bildirimleriyle."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виріз попереджає, коли CPU, навантаження памʼяті, тепловий стан, вільне місце на диску або акумулятор Mac перевищують заданий ліміт; за бажанням із системними сповіщеннями."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当 CPU、内存压力、热状态、可用磁盘空间或 Mac 电池越过所设限值时，刘海会发出警告，还可选用系统通知。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當 CPU、記憶體壓力、熱狀態、可用磁碟空間或 Mac 電池越過所設限值時，瀏海會發出警告，也可選用系統通知。"
+          }
+        }
+      }
+    },
+    "Accessory alerts lists your devices with their battery levels, and the Lowest Device Battery widget shows the lowest one." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upozornění na příslušenství vypisuje zařízení s úrovní baterie a widget Nejnižší baterie zařízení ukazuje nejnižší z nich."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zubehör-Hinweise listet die Geräte mit ihrem Akkustand auf, und das Widget „Niedrigster Geräte-Akkustand“ zeigt den niedrigsten an."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avisos de accesorios lista los dispositivos con su nivel de batería, y el widget Batería más baja de dispositivos muestra el más bajo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alertes d’accessoires liste les appareils avec leur niveau de batterie, et le widget Batterie d’appareil la plus faible affiche le plus bas."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Tartozékriasztások kilistázza az eszközöket az akkumulátorszintjükkel, a Legalacsonyabb eszközakkumulátor-szint widget pedig a legalacsonyabbat mutatja."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peringatan Aksesori mendaftar perangkat beserta level baterainya, dan widget Baterai Perangkat Terendah menampilkan yang terendah."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avvisi accessori elenca i dispositivi con il livello della batteria, e il widget Batteria dispositivo più bassa mostra il più basso."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクセサリの通知がデバイスとそのバッテリー残量を一覧表示し、「デバイスの最低バッテリー残量」ウィジェットが最も低い値を表示します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "액세서리 알림이 기기와 배터리 잔량을 나열하고, ‘가장 낮은 기기 배터리’ 위젯이 가장 낮은 값을 보여 줍니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accessoiremeldingen toont de apparaten met hun batterijniveau, en de widget Laagste apparaatbatterij toont het laagste."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alerty akcesoriów wymieniają urządzenia z poziomem baterii, a widżet Najniższa bateria urządzenia pokazuje najniższy z nich."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avisos de acessórios lista os dispositivos com o nível de bateria, e o widget Menor bateria de dispositivo mostra o mais baixo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avertiments dals accessoris glista ils apparats cun lur nivel da batteria, e il widget Batteria da l’apparat la pli bassa mussa il pli bass."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Оповещения об аксессуарах» перечисляют устройства с уровнем заряда, а виджет «Наименьший заряд устройства» показывает самый низкий."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tillbehörsvarningar listar enheterna med batterinivå, och widgeten Lägsta enhetsbatteri visar det lägsta."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aksesuar Uyarıları aygıtları pil düzeyleriyle listeler, En Düşük Aygıt Pili widget’ı da en düşüğü gösterir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Сповіщення про аксесуари» перелічують пристрої з рівнем заряду, а віджет «Найнижчий заряд пристрою» показує найнижчий."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配件提醒列出设备及其电量，“最低设备电量”小组件显示其中最低的一个。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配件提醒會列出裝置及其電量，「最低裝置電量」小工具會顯示其中最低的一個。"
+          }
+        }
+      }
+    },
+    "The closed notch flashes the input source and the volume or brightness, and can replace macOS's own display." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zavřený výřez krátce ukáže zdroj vstupu a hlasitost nebo jas a může nahradit vlastní zobrazení macOS."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das geschlossene Notch blendet die Eingabequelle und die Lautstärke oder Helligkeit kurz ein und kann die eigene Anzeige von macOS ersetzen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El notch cerrado muestra un momento la fuente de entrada y el volumen o el brillo, y puede sustituir la indicación propia de macOS."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’encoche fermée affiche brièvement la source de saisie et le volume ou la luminosité, et peut remplacer l’affichage de macOS."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A zárt notch rövid időre megmutatja a beviteli forrást és a hangerőt vagy a fényerőt, és helyettesítheti a macOS saját kijelzését."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch yang tertutup menampilkan sumber input dan volume atau kecerahan sesaat, dan dapat menggantikan tampilan bawaan macOS."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il notch chiuso mostra per un attimo la sorgente di input e il volume o la luminosità, e può sostituire la visualizzazione di macOS."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閉じたノッチが入力ソースと音量または明るさを短く表示し、macOS自身の表示を置き換えることもできます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "닫힌 노치가 입력 소스와 음량 또는 밝기를 잠깐 보여 주며, macOS 자체 표시를 대체할 수도 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De gesloten notch toont kort de invoerbron en het volume of de helderheid, en kan de eigen weergave van macOS vervangen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zamknięty notch krótko pokazuje źródło wprowadzania oraz głośność lub jasność i może zastąpić własny wskaźnik macOS."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O notch fechado mostra por um instante a fonte de entrada e o volume ou o brilho, e pode substituir a exibição do macOS."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La notch serrada mussa curt la funtauna da l’endataziun e il volumen u la clerezza, e po remplazzar la visualisaziun da macOS."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрытый вырез ненадолго показывает источник ввода и громкость или яркость и может заменить собственную индикацию macOS."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den stängda notchen visar kort inmatningskällan och volymen eller ljusstyrkan och kan ersätta macOS egen visning."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapalı notch giriş kaynağını ve ses düzeyini veya parlaklığı kısaca gösterir ve macOS’un kendi göstergesinin yerini alabilir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закритий виріз ненадовго показує джерело введення та гучність або яскравість і може замінити власну індикацію macOS."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合上的刘海会短暂显示输入法和音量或亮度，并可取代 macOS 自己的显示。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "闔上的瀏海會短暫顯示輸入來源和音量或亮度，並可取代 macOS 自己的顯示。"
+          }
+        }
+      }
+    },
+    "The unread counts of apps in your Dock as menu bar items, with groups." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Počty nepřečtených položek aplikací z Docku jako položky řádku nabídek, se skupinami."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die ungelesenen Zähler der Apps im Dock als Menüleistenelemente, mit Gruppen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los contadores de no leídos de las apps del Dock como elementos de la barra de menús, con grupos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le nombre de notifications non lues des apps du Dock sous forme d’éléments de la barre des menus, avec des groupes."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Dockban lévő alkalmazások olvasatlan számai menüsor-elemként, csoportokkal."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jumlah belum dibaca dari app di Dock sebagai item bar menu, dengan grup."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I conteggi non letti delle app nel Dock come elementi della barra dei menu, con gruppi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dockにあるアプリの未読数を、グループ付きのメニューバー項目として表示します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock에 있는 앱의 읽지 않은 수를 그룹과 함께 메뉴 막대 항목으로 표시합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De aantallen ongelezen items van apps in het Dock als menubalkonderdelen, met groepen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liczby nieprzeczytanych elementów aplikacji z Docka jako elementy paska menu, z grupami."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As contagens de não lidas dos apps no Dock como itens da barra de menus, com grupos."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils numers da betg legì da las apps en il Dock sco elements dal trav da menu, cun gruppas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Счётчики непрочитанного для приложений в Dock как элементы строки меню, с группами."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Olästa antal för appar i Dock som menyradsobjekt, med grupper."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock’taki uygulamaların okunmamış sayıları, gruplarla birlikte menü çubuğu öğeleri olarak."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лічильники непрочитаного для програм у Dock як елементи смуги меню, з групами."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock 中 App 的未读数，作为菜单栏项目显示，可分组。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock 中 App 的未讀數，以選單列項目顯示，可分組。"
+          }
+        }
+      }
+    },
+    "Bring over their settings with a preview, a backup and Undo." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Převzetí jejich nastavení s náhledem, zálohou a možností vrátit zpět."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deren Einstellungen übernehmen, mit Vorschau, Sicherung und Widerrufen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Traer sus ajustes, con previsualización, copia de seguridad y deshacer."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reprendre leurs réglages, avec aperçu, sauvegarde et annulation."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beállításaik átvétele előnézettel, mentéssel és visszavonással."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Membawa pengaturan mereka dengan pratinjau, cadangan, dan urungkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riportare qui le loro impostazioni, con anteprima, copia di riserva e possibilità di annullare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ほかのアプリの設定を、プレビュー、バックアップ、取り消しとともに引き継ぎます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 앱의 설정을 미리보기, 백업, 실행 취소와 함께 가져옵니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hun instellingen overnemen, met voorvertoning, back-up en ongedaan maken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przeniesienie ich ustawień z podglądem, kopią zapasową i możliwością cofnięcia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trazer as configurações deles, com pré-visualização, backup e desfazer."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Surpigliar lur parameters, cun prevista, copia da segirezza e revocar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перенос их настроек с просмотром, резервной копией и отменой."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hämta deras inställningar med förhandsvisning, säkerhetskopia och ångra."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onların ayarlarını önizleme, yedekleme ve geri alma ile aktarma."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перенесення їхніх параметрів із переглядом, резервною копією та скасуванням."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "带入它们的设置，附带预览、备份和撤销。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "帶入它們的設定，附有預覽、備份和復原。"
+          }
+        }
+      }
+    },
+    "A notice when macOS folds menu bar icons away or they do not fit beside the notch, with Move to Hidden as one Undo step, or Automatic." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upozornění, když macOS sbalí ikony řádku nabídek nebo se nevejdou vedle výřezu, s volbou Přesunout do Skrytých jako jedním krokem, který jde vrátit zpět, nebo automaticky."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Hinweis, wenn macOS Menüleistensymbole wegfaltet oder sie nicht neben das Notch passen, mit dem Verschieben nach Ausgeblendet als ein Schritt zum Widerrufen oder automatisch."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un aviso cuando macOS pliega iconos de la barra de menús o no caben junto al notch, con Mover a Oculto como un solo paso que se puede deshacer, o automáticamente."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un avis quand macOS replie des icônes de la barre des menus ou qu’elles ne tiennent pas à côté de l’encoche, avec Déplacer vers « Masqué » en une seule étape annulable, ou automatiquement."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Értesítés, ha a macOS összecsukja a menüsor ikonjait, vagy azok nem férnek el a notch mellett, az Áthelyezés a rejtettek közé egyetlen visszavonható lépésként, vagy automatikusan."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pemberitahuan saat macOS melipat ikon bar menu atau ikon tidak muat di samping notch, dengan Pindahkan ke Tersembunyi sebagai satu langkah yang dapat diurungkan, atau otomatis."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un avviso quando macOS comprime le icone della barra dei menu o non entrano accanto al notch, con Sposta in «Nascosto» come un unico passaggio annullabile, oppure in automatico."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOSがメニューバーのアイコンを折りたたんだとき、またはアイコンがノッチの横に収まらないときの通知。「非表示」へ移動を1回の取り消しで戻せる操作として、または自動で実行できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS가 메뉴 막대 아이콘을 접거나 아이콘이 노치 옆에 맞지 않을 때 알려 주며, “숨김”으로 이동을 한 번의 실행 취소 단계로 하거나 자동으로 할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een melding wanneer macOS menubalkpictogrammen opvouwt of ze niet naast de notch passen, met Verplaats naar Verborgen als één stap die ongedaan kan worden gemaakt, of automatisch."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Komunikat, gdy macOS zwija ikony paska menu lub nie mieszczą się obok notcha, z opcją Przenieś do ukrytych jako jeden krok do cofnięcia albo automatycznie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um aviso quando o macOS dobra ícones da barra de menus ou eles não cabem ao lado do notch, com Mover para Oculto em uma única etapa que pode ser desfeita, ou automaticamente."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In avis cur che macOS plia ensemen icônas dal trav da menu u cur ch’ellas n’han betg plaz sper la notch, cun Spustar en «Zuppà» sco in sulet pass revocabel, u automatic."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сообщение, когда macOS сворачивает значки строки меню или они не помещаются рядом с вырезом; перемещение в «Скрыто» одним шагом с отменой или автоматически."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En notis när macOS viker ihop menyradsikoner eller de inte ryms bredvid notchen, med Flytta till Dolda som ett enda steg som går att ångra, eller automatiskt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS menü çubuğu simgelerini katladığında veya simgeler notch’un yanına sığmadığında bir uyarı; Gizli olana taşı tek bir geri alınabilir adım olarak veya otomatik."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повідомлення, коли macOS згортає значки смуги меню або вони не вміщуються біля вирізу; переміщення в «Приховано» одним кроком зі скасуванням або автоматично."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当 macOS 折叠菜单栏图标或图标放不下刘海旁边时给出提示，可将图标移到“隐藏”，只需一步撤销，或自动执行。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當 macOS 摺疊選單列圖示，或圖示放不下瀏海旁邊時提供通知，可將圖示移到「已隱藏」，只需一步復原，或自動執行。"
+          }
+        }
+      }
+    },
+    "An optional question for each new menu bar app." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volitelná otázka pro každou novou aplikaci řádku nabídek."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine optionale Frage zu jeder neuen Menüleisten-App."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una pregunta opcional por cada app nueva de la barra de menús."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une question facultative pour chaque nouvelle app de la barre des menus."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egy opcionális kérdés minden új menüsor-alkalmazásról."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pertanyaan opsional untuk setiap app bar menu baru."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una domanda facoltativa per ogni nuova app della barra dei menu."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しいメニューバーアプリごとの任意の質問。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 메뉴 막대 앱마다 선택적으로 묻는 질문입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een optionele vraag voor elke nieuwe menubalk-app."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opcjonalne pytanie o każdą nową aplikację paska menu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma pergunta opcional para cada novo app da barra de menus."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina dumonda opziunala per mintga nova app dal trav da menu."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Необязательный вопрос о каждом новом приложении строки меню."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En valfri fråga för varje ny menyradsapp."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her yeni menü çubuğu uygulaması için isteğe bağlı bir soru."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Необовʼязкове запитання про кожну нову програму смуги меню."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "为每个新的菜单栏 App 提供的可选提问。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "為每個新的選單列 App 提供的可選提問。"
+          }
+        }
+      }
+    },
+    "On macOS 27, Layout lists the apps macOS does not show, each with a link to the fix." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 Uspořádání vypisuje aplikace, které macOS nezobrazuje, každou s odkazem na řešení."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 listet die Anordnung die Apps auf, die macOS nicht anzeigt, jeweils mit einem Link zur Abhilfe."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, Disposición lista las apps que macOS no muestra, cada una con un enlace a la solución."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, Disposition liste les apps que macOS n’affiche pas, chacune avec un lien vers la solution."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt az Elrendezés kilistázza azokat az alkalmazásokat, amelyeket a macOS nem mutat, mindegyiket a megoldásra mutató hivatkozással."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, Tata Letak mendaftar app yang tidak ditampilkan macOS, masing-masing dengan tautan ke solusinya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, Disposizione elenca le app che macOS non mostra, ciascuna con un link alla soluzione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27では、レイアウトがmacOSの表示しないアプリを、それぞれ解決策へのリンクとともに一覧表示します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 레이아웃이 macOS가 표시하지 않는 앱을 해결 방법 링크와 함께 나열합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In macOS 27 toont Indeling de apps die macOS niet laat zien, elk met een link naar de oplossing."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 Układ wymienia aplikacje, których macOS nie pokazuje, każdą z linkiem do rozwiązania."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, o Layout lista os apps que o macOS não mostra, cada um com um link para a solução."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sut macOS 27 glista Disposiziun las apps che macOS na mussa betg, mintgina cun in link a la schliaziun."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 «Раскладка» перечисляет приложения, которые macOS не показывает, каждое со ссылкой на решение."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I macOS 27 listar Layout de appar som macOS inte visar, var och en med en länk till lösningen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de Düzen, macOS’un göstermediği uygulamaları, her biri çözüme giden bir bağlantıyla listeler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 «Розкладка» перелічує програми, яких macOS не показує, кожну з посиланням на рішення."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，布局会列出 macOS 不显示的 App，并各附一个解决办法的链接。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，佈局會列出 macOS 不顯示的 App，並各附一個解決辦法的連結。"
+          }
+        }
+      }
+    },
+    "A built-in mood that gives the menu bar an opaque background." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vestavěná nálada, která dává řádku nabídek neprůhledné pozadí."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine eingebaute Stimmung, die der Menüleiste einen deckenden Hintergrund gibt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un ambiente integrado que da a la barra de menús un fondo opaco."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une ambiance intégrée qui donne à la barre des menus un fond opaque."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beépített hangulat, amely átlátszatlan hátteret ad a menüsornak."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suasana bawaan yang memberi bar menu latar belakang buram."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un’atmosfera integrata che dà alla barra dei menu uno sfondo opaco."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メニューバーに不透明な背景を与える内蔵のムード。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대에 불투명한 배경을 주는 기본 제공 분위기입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een ingebouwde stemming die de menubalk een ondoorzichtige achtergrond geeft."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wbudowany nastrój, który nadaje paskowi menu nieprzezroczyste tło."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um clima integrado que dá à barra de menus um fundo opaco."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina atmosfera integrada che dat al trav da menu in fund betg transparent."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Встроенное настроение, которое придаёт строке меню непрозрачный фон."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En inbyggd stämning som ger menyraden en ogenomskinlig bakgrund."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menü çubuğuna opak bir arka plan veren yerleşik bir ruh hali."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вбудований настрій, що надає смузі меню непрозорий фон."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内置的氛围，为菜单栏提供不透明背景。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "內建的心情，為選單列提供不透明背景。"
+          }
+        }
+      }
+    },
+    "A widget that opens Spotlight." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget, který otevře Spotlight."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Widget, das Spotlight öffnet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un widget que abre Spotlight."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un widget qui ouvre Spotlight."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egy widget, amely megnyitja a Spotlightot."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget yang membuka Spotlight."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un widget che apre Spotlight."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spotlightを開くウィジェット。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spotlight를 여는 위젯입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een widget die Spotlight opent."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widżet, który otwiera Spotlight."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um widget que abre o Spotlight."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In widget che avra Spotlight."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виджет, открывающий Spotlight."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En widget som öppnar Spotlight."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spotlight’ı açan bir widget."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Віджет, що відкриває Spotlight."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开聚焦的小组件。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟聚焦的小工具。"
+          }
+        }
+      }
+    },
+    "A Battery widget format with a larger percentage." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formát widgetu baterie s většími procenty."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Format des Akku-Widgets mit größerer Prozentzahl."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un formato del widget de batería con un porcentaje más grande."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un format du widget Batterie avec un pourcentage plus grand."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az akkumulátor-widget nagyobb százalékos formátuma."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format widget baterai dengan persentase yang lebih besar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un formato del widget Batteria con una percentuale più grande."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "より大きなパーセント表示のバッテリーウィジェット形式。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더 큰 퍼센트를 보여 주는 배터리 위젯 형식입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een formaat voor de batterijwidget met een groter percentage."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format widżetu baterii z większą liczbą procentów."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um formato do widget de bateria com uma porcentagem maior."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In format dal widget da batteria cun in pertschient pli grond."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Формат виджета аккумулятора с более крупными процентами."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ett format för batteriwidgeten med större procenttal."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daha büyük yüzdeli bir pil widget’ı biçimi."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Формат віджета акумулятора з більшими відсотками."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "百分比更大的电池小组件格式。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "百分比更大的電池小工具格式。"
+          }
+        }
+      }
+    },
+    "On macOS 27, in holzBar's menu and the command palette." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 v nabídce holzBar a v paletě příkazů."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 im Menü von holzBar und in der Befehlspalette."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, en el menú de holzBar y en la paleta de comandos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, dans le menu de holzBar et dans la palette de commandes."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt a holzBar menüjében és a parancspalettán."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, di menu holzBar dan di palet perintah."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, nel menu di holzBar e nella tavolozza dei comandi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27で、holzBarのメニューとコマンドパレットに表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 holzBar의 메뉴와 명령 팔레트에 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In macOS 27 in het menu van holzBar en in het opdrachtenpalet."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 w menu holzBar i w palecie poleceń."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, no menu do holzBar e na paleta de comandos."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sut macOS 27, en il menu da holzBar e en la paletta da cumonds."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 — в меню holzBar и в палитре команд."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I macOS 27, i holzBars meny och i kommandopaletten."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de holzBar menüsünde ve komut paletinde."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 — у меню holzBar і в палітрі команд."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，位于 holzBar 的菜单和命令面板中。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，位於 holzBar 的選單和指令面板中。"
+          }
+        }
+      }
+    },
+    "Gestures, a pin, opening on the display with the pointer, a switch for the bounce, and the hotkey closes the hub too." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesta, připnutí, otevření na displeji s ukazatelem, přepínač odrazu a klávesová zkratka centrum také zavře."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesten, Anheften, Öffnen auf dem Bildschirm mit dem Zeiger, ein Schalter für das Nachfedern, und das Tastenkürzel schließt den Hub auch."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestos, una chincheta, abrir en la pantalla del puntero, un interruptor para el rebote, y el atajo de teclado también cierra el centro."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestes, une épingle, ouverture sur l’écran où se trouve le pointeur, un interrupteur pour le rebond, et le raccourci clavier ferme aussi le hub."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesztusok, kitűzés, megnyitás a mutatóval jelölt kijelzőn, kapcsoló a rugózáshoz, és a billentyűparancs a központot is bezárja."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestur, penyematan, membuka di layar tempat penunjuk berada, sakelar untuk pantulan, dan pintasan keyboard juga menutup pusat."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesti, una puntina, apertura sullo schermo del puntatore, un interruttore per il rimbalzo, e l’abbreviazione da tastiera chiude anche l’hub."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ジェスチャ、ピン留め、ポインタのあるディスプレイでの表示、バウンスのスイッチ。ショートカットキーでもハブを閉じられます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제스처, 고정, 포인터가 있는 디스플레이에서 열기, 바운스 스위치, 그리고 단축키로도 허브를 닫을 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebaren, vastzetten, openen op het scherm met de aanwijzer, een schakelaar voor het stuiteren, en de sneltoets sluit de hub ook."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesty, przypinanie, otwieranie na wyświetlaczu ze wskaźnikiem, przełącznik odbicia, a skrót klawiszowy także zamyka centrum."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestos, um alfinete, abrir na tela do ponteiro, uma chave para o ressalto, e o atalho de teclado também fecha o hub."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gests, in nagl, avertura sin il visur cun il pointer, in interruptur per il sursaglir, e la cumbinaziun da tastas serra era il hub."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жесты, закрепление, открытие на дисплее с указателем, переключатель пружинки, а горячая клавиша теперь и закрывает центр."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gester, fästning, öppning på skärmen med pekaren, en switch för studsen, och kortkommandot stänger även centret."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hareketler, sabitleme, işaretçinin olduğu ekranda açma, zıplama için bir anahtar; klavye kısayolu da merkezi kapatır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жести, закріплення, відкриття на дисплеї з вказівником, перемикач пружинки, а гаряча клавіша тепер і закриває центр."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手势、固定、在指针所在的显示器上打开、回弹开关，快捷键也可关闭中心。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手勢、固定、在指標所在的顯示器上開啟、彈跳開關，快速鍵也可關閉中心。"
+          }
+        }
+      }
+    },
+    "Choose the sound output, dim a monitor without brightness control, and no DDC request for three seconds after a wake." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Výběr zvukového výstupu, ztmavení monitoru bez ovládání jasu a žádné požadavky DDC po tři sekundy po probuzení."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Audioausgabe wählen, einen Monitor ohne Helligkeitssteuerung abdunkeln, und drei Sekunden nach dem Aufwachen keine DDC-Anfrage."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elegir la salida de sonido, atenuar un monitor sin control de brillo, y ninguna petición DDC durante tres segundos tras la reactivación."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir la sortie audio, assombrir un moniteur sans réglage de luminosité, et aucune requête DDC pendant trois secondes après la reprise."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A hangkimenet kiválasztása, a fényerő-szabályozás nélküli monitor elsötétítése, és három másodpercig nincs DDC-kérés ébredés után."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memilih output suara, meredupkan monitor tanpa kontrol kecerahan, dan tanpa permintaan DDC selama tiga detik setelah bangun."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegliere l’uscita audio, oscurare un monitor senza controllo della luminosità, e nessuna richiesta DDC per tre secondi dopo la riattivazione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サウンド出力の選択、明るさを制御できないモニタの減光、復帰後3秒間はDDCリクエストを送りません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사운드 출력 선택, 밝기 제어가 없는 모니터 어둡게 하기, 깨어난 뒤 3초 동안 DDC 요청 없음."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De geluidsuitvoer kiezen, een monitor zonder helderheidsregeling dimmen, en drie seconden na het ontwaken geen DDC-verzoek."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybór wyjścia dźwięku, przyciemnianie monitora bez sterowania jasnością i brak żądań DDC przez trzy sekundy po wybudzeniu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolher a saída de som, escurecer um monitor sem controle de brilho, e nenhum pedido DDC por três segundos após a reativação."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tscherner la sortida da tun, stgirentar in monitur senza controlla da la clerezza, e naginas dumondas DDC durant trais secundas suenter il svegliar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбор вывода звука, затемнение монитора без регулировки яркости и отсутствие запросов DDC в течение трёх секунд после пробуждения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Välj ljudutgång, dimma en monitor utan ljusstyrkekontroll, och inga DDC-förfrågningar under tre sekunder efter väckning."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ses çıkışını seçme, parlaklık denetimi olmayan bir monitörü karartma ve uyanmadan sonra üç saniye boyunca DDC isteği yok."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вибір виведення звуку, затемнення монітора без регулювання яскравості та відсутність запитів DDC протягом трьох секунд після пробудження."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择声音输出，调暗没有亮度控制的显示器，唤醒后三秒内不发送 DDC 请求。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇聲音輸出，調暗沒有亮度控制的顯示器，喚醒後三秒內不傳送 DDC 請求。"
+          }
+        }
+      }
+    },
+    "A count and a card with a +N queue, and meeting details with a countdown to the next meeting." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Počet a karta s frontou +N a podrobnosti schůzek s odpočtem do další schůzky."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Zahl und eine Karte mit einer +N-Warteschlange sowie Termindetails mit einem Countdown bis zum nächsten Termin."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un contador y una tarjeta con una cola +N, y los detalles de las reuniones con una cuenta atrás hasta la próxima."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un compteur et une carte avec une file +N, et les détails des réunions avec un compte à rebours jusqu’à la prochaine réunion."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egy szám és egy kártya +N sorral, valamint találkozórészletek visszaszámlálással a következő találkozóig."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hitungan dan kartu dengan antrean +N, serta detail rapat dengan hitung mundur ke rapat berikutnya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un conteggio e una scheda con una coda +N, e dettagli degli eventi con un conto alla rovescia fino al prossimo evento."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "件数とカード、+Nの待ち行列、そして予定の詳細と次の予定までのカウントダウン。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개수와 +N 대기열이 있는 카드, 그리고 다음 일정까지의 카운트다운이 있는 일정 상세 정보입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een aantal en een kaart met een +N-wachtrij, en afspraakdetails met een aftelling tot de volgende afspraak."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Licznik i karta z kolejką +N oraz szczegóły spotkań z odliczaniem do następnego spotkania."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma contagem e um cartão com uma fila +N, e detalhes de reuniões com uma contagem regressiva até a próxima."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In dumber ed ina carta cun ina colonna +N, e detagls da scadenzas cun in cuntavegn infin a la proxima scadenza."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Счётчик и карточка с очередью +N, а также подробности событий с обратным отсчётом до следующей встречи."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ett antal och ett kort med en +N-kö, samt mötesdetaljer med nedräkning till nästa möte."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir sayı ve +N kuyruklu bir kart ile sonraki toplantıya geri sayımlı toplantı ayrıntıları."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лічильник і картка з чергою +N, а також подробиці подій зі зворотним відліком до наступної зустрічі."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数量和带有 +N 队列的卡片，以及带有下一个会议倒计时的会议详情。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "數量和附有 +N 佇列的卡片，以及附有下一場會議倒數的會議詳情。"
+          }
+        }
+      }
+    },
+    "The hub opens below Apple's island, and a setting overrides the detection." : {
+      "comment" : "What's New 1.2.0: detail",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Centrum se otevře pod ostrovem Apple a nastavení přepíše zjištění."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Hub öffnet sich unter der Insel von Apple, und eine Einstellung überschreibt die Erkennung."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El centro se abre bajo la isla de Apple, y un ajuste sustituye la detección."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le hub s’ouvre sous l’île d’Apple, et un réglage remplace la détection."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A központ az Apple szigete alatt nyílik meg, és egy beállítás felülbírálja az észlelést."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pusat terbuka di bawah pulau Apple, dan sebuah pengaturan menimpa deteksi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’hub si apre sotto l’isola di Apple, e un’impostazione sostituisce il rilevamento."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ハブはAppleのアイランドの下に開き、設定で検出を上書きできます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "허브가 Apple의 아일랜드 아래에서 열리며, 설정으로 감지를 덮어쓸 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De hub opent onder het eiland van Apple, en een instelling overschrijft de detectie."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Centrum otwiera się pod wyspą Apple, a ustawienie zastępuje wykrywanie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O hub abre abaixo da ilha da Apple, e um ajuste substitui a detecção."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il hub s’avra sut l’isla d’Apple, ed ina opziun surscriva la recugnuschientscha."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Центр открывается под островом Apple, а настройка переопределяет определение."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Centret öppnas under Apples ö, och en inställning åsidosätter identifieringen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merkez Apple’ın adasının altında açılır ve bir ayar algılamayı geçersiz kılar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Центр відкривається під островом Apple, а параметр перевизначає виявлення."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中心在 Apple 的灵动岛下方打开，并可用设置覆盖检测结果。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中心在 Apple 的動態島下方開啟，並可用設定覆寫偵測結果。"
+          }
+        }
+      }
+    },
+    "holzBar opens Settings only when you open it from the Dock, the Finder, Spotlight or Launchpad, not for Siri on macOS 27." : {
+      "comment" : "What's New 1.2.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar otevře Nastavení, jen když je otevřen z Docku, Finderu, Spotlightu nebo Launchpadu, ne na pokyn Siri v macOS 27."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar öffnet die Einstellungen nur, wenn es aus dem Dock, dem Finder, Spotlight oder Launchpad geöffnet wird, nicht durch Siri unter macOS 27."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar abre los Ajustes solo cuando se abre desde el Dock, el Finder, Spotlight o Launchpad, no por Siri en macOS 27."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar n’ouvre les Réglages que lorsqu’il est ouvert depuis le Dock, le Finder, Spotlight ou Launchpad, pas par Siri sous macOS 27."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar csak akkor nyitja meg a Beállításokat, ha a Dockból, a Finderből, a Spotlightból vagy a Launchpadből nyitják meg, a macOS 27-ben a Siri kérésére nem."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar membuka Pengaturan hanya saat dibuka dari Dock, Finder, Spotlight, atau Launchpad, bukan oleh Siri di macOS 27."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar apre le Impostazioni solo quando viene aperto dal Dock, dal Finder, da Spotlight o da Launchpad, non da Siri su macOS 27."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBarが設定を開くのは、Dock、Finder、Spotlight、Launchpadから開いたときだけで、macOS 27のSiriからは開きません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar는 Dock, Finder, Spotlight 또는 Launchpad에서 열 때만 설정을 열고, macOS 27의 Siri로는 열지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar opent de instellingen alleen als het via het Dock, de Finder, Spotlight of Launchpad wordt geopend, niet door Siri in macOS 27."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar otwiera ustawienia tylko po otwarciu z Docka, Findera, Spotlight lub Launchpada, nie na polecenie Siri w macOS 27."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar abre os Ajustes somente quando é aberto pelo Dock, pelo Finder, pelo Spotlight ou pelo Launchpad, não pela Siri no macOS 27."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar avra ils parameters mo cur ch’ins al avra dal Dock, dal Finder, da Spotlight u da Launchpad, betg tras Siri sut macOS 27."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar открывает настройки, только если его открыли из Dock, Finder, Spotlight или Launchpad, но не по запросу Siri в macOS 27."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar öppnar Inställningar bara när det öppnas från Dock, Finder, Spotlight eller Launchpad, inte av Siri i macOS 27."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Ayarlar’ı yalnızca Dock’tan, Finder’dan, Spotlight’tan veya Launchpad’den açıldığında açar; macOS 27’de Siri tarafından açılmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar відкриває параметри, лише коли його відкрито з Dock, Finder, Spotlight або Launchpad, але не за запитом Siri в macOS 27."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只有从 Dock、访达、聚焦或启动台打开 holzBar 时才会打开设置，macOS 27 上的 Siri 不会。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只有從 Dock、Finder、聚焦或 Launchpad 開啟 holzBar 時才會開啟設定，macOS 27 上的 Siri 不會。"
+          }
+        }
+      }
+    },
+    "On macOS 27.3, holzBar leaves the system's Live Activities on the bar and neither counts, moves nor lists them." : {
+      "comment" : "What's New 1.2.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27.3 holzBar nechává živé aktivity systému v liště a nepočítá je, nepřesouvá ani nevypisuje."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27.3 lässt holzBar die Live-Aktivitäten des Systems in der Leiste und zählt, verschiebt oder listet sie nicht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27.3, holzBar deja en la barra las actividades en directo del sistema y no las cuenta, mueve ni lista."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27.3, holzBar laisse les activités en direct du système dans la barre et ne les compte, déplace ou liste pas."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.3 alatt a holzBar a sávon hagyja a rendszer élő tevékenységeit, és nem számolja, nem helyezi át és nem listázza őket."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27.3, holzBar membiarkan aktivitas langsung sistem tetap di bar dan tidak menghitung, memindahkan, atau mendaftarkannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27.3, holzBar lascia nella barra le attività in tempo reale del sistema e non le conta, sposta o elenca."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.3では、holzBarはシステムのライブアクティビティをバーに残し、数えたり、移動したり、一覧に出したりしません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.3에서 holzBar는 시스템의 실시간 현황을 막대에 그대로 두고 세거나 옮기거나 나열하지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In macOS 27.3 laat holzBar de Live-activiteiten van het systeem in de balk staan en telt, verplaatst of toont ze niet."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27.3 holzBar pozostawia na pasku aktywności na żywo systemu i ich nie liczy, nie przenosi ani nie wymienia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27.3, o holzBar deixa na barra as atividades ao vivo do sistema e não as conta, move nem lista."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sut macOS 27.3 lascha holzBar las activitads en direct dal sistem en il trav da menu e na las dumbra, na las spusta e na las glista betg."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27.3 holzBar оставляет текущие события системы в строке и не считает, не перемещает и не перечисляет их."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I macOS 27.3 låter holzBar systemets liveaktiviteter ligga kvar i raden och räknar, flyttar eller listar dem inte."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.3’te holzBar sistemin canlı etkinliklerini çubukta bırakır; saymaz, taşımaz ve listelemez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27.3 holzBar залишає живі активності системи в смузі й не рахує, не переміщує та не перелічує їх."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27.3 上，holzBar 会把系统的实时活动留在栏中，不计数、不移动、也不列出。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27.3 上，holzBar 會把系統的即時動態留在列中，不計數、不移動、也不列出。"
+          }
+        }
+      }
+    },
+    "On macOS 27, a click on a system item through holzBar never leaves the mouse button down, and the click handling no longer waits on a busy holzBar." : {
+      "comment" : "What's New 1.2.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 kliknutí na systémovou položku přes holzBar nikdy nenechá tlačítko myši stisknuté a zpracování kliknutí už nečeká na vytížený holzBar."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 bleibt die Maustaste nach einem Klick auf ein Systemelement über holzBar nie gedrückt, und die Klickverarbeitung wartet nicht mehr auf ein ausgelastetes holzBar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, un clic en un elemento del sistema a través de holzBar nunca deja el botón del ratón pulsado, y la gestión de clics ya no espera a un holzBar ocupado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, un clic sur un élément système via holzBar ne laisse jamais le bouton de la souris enfoncé, et la gestion des clics n’attend plus un holzBar occupé."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt a holzBaron keresztüli kattintás egy rendszerelemre soha nem hagyja lenyomva az egérgombot, és a kattintáskezelés már nem vár egy terhelt holzBarra."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, klik pada item sistem melalui holzBar tidak pernah membiarkan tombol mouse tertekan, dan penanganan klik tidak lagi menunggu holzBar yang sibuk."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, un clic su un elemento di sistema tramite holzBar non lascia mai premuto il pulsante del mouse, e la gestione dei clic non aspetta più un holzBar occupato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27では、holzBar経由でシステム項目をクリックしてもマウスボタンが押されたままになることはなく、クリック処理が忙しいholzBarを待つこともなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 holzBar를 통한 시스템 항목 클릭이 마우스 버튼을 누른 채로 남기지 않으며, 클릭 처리가 바쁜 holzBar를 더는 기다리지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In macOS 27 laat een klik op een systeemonderdeel via holzBar de muisknop nooit ingedrukt, en de klikafhandeling wacht niet meer op een drukke holzBar."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 kliknięcie elementu systemowego przez holzBar nigdy nie zostawia wciśniętego przycisku myszy, a obsługa kliknięć nie czeka już na zajęty holzBar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, um clique em um item do sistema pelo holzBar nunca deixa o botão do mouse pressionado, e o tratamento de cliques não espera mais um holzBar ocupado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sut macOS 27 na resta ina cliccada sin in element dal sistem tras holzBar mai cun la tasta da la mieur smatgada, e la tractaziun da las cliccadas n’aspetta betg pli in holzBar occupà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 щелчок по системному элементу через holzBar больше не оставляет кнопку мыши нажатой, а обработка щелчков больше не ждёт занятый holzBar."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I macOS 27 lämnar ett klick på ett systemobjekt via holzBar aldrig musknappen nedtryckt, och klickhanteringen väntar inte längre på en upptagen holzBar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de holzBar üzerinden bir sistem öğesine tıklamak fare düğmesini asla basılı bırakmaz ve tıklama işleme artık meşgul bir holzBar’ı beklemez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 клацання системного елемента через holzBar більше не залишає кнопку миші натиснутою, а обробка клацань більше не чекає на завантажений holzBar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，通过 holzBar 点按系统项目不会再让鼠标按键保持按下，点按处理也不再等待繁忙的 holzBar。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，透過 holzBar 點按系統項目不會再讓滑鼠按鍵保持按下，點按處理也不再等待忙碌的 holzBar。"
+          }
+        }
+      }
+    },
+    "On macOS 27, an app that launches into a hidden section keeps its full item until holzBar has read it, up to 45 seconds." : {
+      "comment" : "What's New 1.2.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 aplikace, která se spustí ve skryté sekci, si zachová celou položku, dokud ji holzBar nepřečte, nejdéle 45 sekund."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 behält eine App, die in einem ausgeblendeten Bereich startet, ihr volles Element, bis holzBar es gelesen hat, höchstens 45 Sekunden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, una app que se inicia en una sección oculta conserva su elemento completo hasta que holzBar lo ha leído, hasta 45 segundos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, une app qui démarre dans une section masquée garde son élément complet jusqu’à ce que holzBar l’ait lu, au plus 45 secondes."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt egy rejtett szakaszban induló alkalmazás megtartja teljes elemét, amíg a holzBar el nem olvassa, legfeljebb 45 másodpercig."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, app yang diluncurkan di bagian tersembunyi mempertahankan itemnya yang utuh sampai holzBar membacanya, paling lama 45 detik."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, un’app che si avvia in una sezione nascosta mantiene il suo elemento completo finché holzBar non lo ha letto, fino a 45 secondi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27では、非表示のセクションで起動したアプリは、holzBarが読み取るまで最大45秒間、完全な項目を保ちます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 숨겨진 섹션에서 시작한 앱은 holzBar가 읽을 때까지 최대 45초 동안 전체 항목을 유지합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In macOS 27 behoudt een app die in een verborgen sectie start zijn volledige onderdeel tot holzBar het heeft gelezen, maximaal 45 seconden."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 aplikacja uruchomiona w ukrytej sekcji zachowuje pełny element, dopóki holzBar go nie odczyta, najdłużej 45 sekund."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, um app que inicia em uma seção oculta mantém o item completo até que o holzBar o leia, por até 45 segundos."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sut macOS 27 tegna in’app che sa cumenza en ina secziun zuppada ses element cumplet fin che holzBar al ha legì, il pli tard 45 secundas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 приложение, запущенное в скрытом разделе, сохраняет свой полный элемент, пока holzBar его не прочитает, не дольше 45 секунд."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I macOS 27 behåller en app som startar i en dold sektion sitt fulla objekt tills holzBar har läst det, högst 45 sekunder."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de gizli bir bölümde başlayan bir uygulama, holzBar onu okuyana kadar en fazla 45 saniye boyunca tam öğesini korur."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 програма, запущена в прихованому розділі, зберігає свій повний елемент, доки holzBar його не прочитає, щонайбільше 45 секунд."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，在隐藏分区中启动的 App 会保留完整项目，直到 holzBar 读取它，最长 45 秒。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，在隱藏區段中啟動的 App 會保留完整項目，直到 holzBar 讀取它，最長 45 秒。"
+          }
+        }
+      }
+    },
+    "On macOS 27, after more than three MenuBarAgent restarts in ten minutes holzBar shows every item for 30 minutes instead of retrying in a loop." : {
+      "comment" : "What's New 1.2.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 po více než třech restartech MenuBarAgent za deset minut holzBar na 30 minut zobrazí všechny položky místo opakovaného zkoušení ve smyčce."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 zeigt holzBar nach mehr als drei Neustarts von MenuBarAgent in zehn Minuten 30 Minuten lang alle Elemente, statt es immer wieder zu versuchen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, tras más de tres reinicios de MenuBarAgent en diez minutos, holzBar muestra todos los elementos durante 30 minutos en lugar de reintentar en bucle."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, après plus de trois redémarrages de MenuBarAgent en dix minutes, holzBar affiche tous les éléments pendant 30 minutes au lieu de réessayer en boucle."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt a MenuBarAgent tíz percen belüli háromnál több újraindítása után a holzBar 30 percig minden elemet megjelenít ahelyett, hogy ciklusban próbálkozna."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, setelah MenuBarAgent dimulai ulang lebih dari tiga kali dalam sepuluh menit, holzBar menampilkan semua item selama 30 menit alih-alih mencoba lagi dalam putaran."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, dopo più di tre riavvii di MenuBarAgent in dieci minuti holzBar mostra tutti gli elementi per 30 minuti invece di riprovare in un ciclo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27では、MenuBarAgentが10分間に3回を超えて再起動すると、holzBarはループで再試行する代わりに、30分間すべての項目を表示します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 MenuBarAgent가 10분 안에 세 번보다 많이 다시 시작하면 holzBar는 반복해서 다시 시도하는 대신 30분 동안 모든 항목을 표시합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In macOS 27 toont holzBar na meer dan drie herstarts van MenuBarAgent in tien minuten 30 minuten lang alle onderdelen in plaats van steeds opnieuw te proberen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 po więcej niż trzech restartach MenuBarAgent w ciągu dziesięciu minut holzBar pokazuje wszystkie elementy przez 30 minut zamiast próbować w pętli."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, após mais de três reinícios do MenuBarAgent em dez minutos, o holzBar mostra todos os itens por 30 minutos em vez de tentar de novo em loop."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sut macOS 27 mussa holzBar suenter dapli che trais reinizialisaziuns da MenuBarAgent en diesch minutas tut ils elements durant 30 minutas, empè d’empruvar adina puspè."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 после более чем трёх перезапусков MenuBarAgent за десять минут holzBar показывает все элементы 30 минут вместо повторных попыток по кругу."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I macOS 27 visar holzBar efter fler än tre omstarter av MenuBarAgent på tio minuter alla objekt i 30 minuter i stället för att försöka igen i en slinga."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de MenuBarAgent on dakikada üçten fazla yeniden başlarsa holzBar bir döngüde yeniden denemek yerine 30 dakika boyunca tüm öğeleri gösterir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 після понад трьох перезапусків MenuBarAgent за десять хвилин holzBar показує всі елементи 30 хвилин замість повторних спроб по колу."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，MenuBarAgent 在十分钟内重启超过三次后，holzBar 会显示所有项目 30 分钟，而不是循环重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，MenuBarAgent 在十分鐘內重新啟動超過三次後，holzBar 會顯示所有項目 30 分鐘，而不是迴圈重試。"
+          }
+        }
+      }
+    },
+    "Before macOS 27, the holzBar Shelf on a second display takes the colours of the display it is on." : {
+      "comment" : "What's New 1.2.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Před macOS 27 přebírá holzBar Shelf na druhém displeji barvy displeje, na kterém je."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor macOS 27 übernimmt das holzBar Shelf auf einem zweiten Bildschirm die Farben des Bildschirms, auf dem es sich befindet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antes de macOS 27, el holzBar Shelf de una segunda pantalla toma los colores de la pantalla en la que está."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant macOS 27, le holzBar Shelf sur un deuxième écran prend les couleurs de l’écran où il se trouve."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 előtt a második kijelzőn a holzBar Shelf annak a kijelzőnek a színeit veszi át, amelyiken van."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sebelum macOS 27, holzBar Shelf di layar kedua memakai warna layar tempatnya berada."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima di macOS 27, lo holzBar Shelf su un secondo schermo prende i colori dello schermo su cui si trova."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27より前では、2台目のディスプレイのholzBar Shelfは、そのディスプレイの色を使います。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 이전에는 두 번째 디스플레이의 holzBar Shelf가 그 디스플레이의 색상을 사용합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vóór macOS 27 neemt de holzBar Shelf op een tweede scherm de kleuren over van het scherm waarop hij staat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przed macOS 27 holzBar Shelf na drugim wyświetlaczu przejmuje kolory wyświetlacza, na którym się znajduje."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antes do macOS 27, o holzBar Shelf em uma segunda tela usa as cores da tela em que está."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant macOS 27 prenda il holzBar Shelf sin in segund visur ils colurs dal visur sin il qual el sa chatta."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "До macOS 27 holzBar Shelf на втором дисплее берёт цвета того дисплея, на котором находится."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Före macOS 27 tar holzBar Shelf på en andra skärm den skärmens färger."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’den önce, ikinci bir ekrandaki holzBar Shelf bulunduğu ekranın renklerini alır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "До macOS 27 holzBar Shelf на другому дисплеї бере кольори дисплея, на якому він розташований."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 之前，第二个显示器上的 holzBar Shelf 使用它所在显示器的颜色。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 之前，第二個顯示器上的 holzBar Shelf 使用它所在顯示器的顏色。"
+          }
+        }
+      }
+    },
+    "On macOS 27, an item never shows another item's picture when two items claim the same place." : {
+      "comment" : "What's New 1.2.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 položka nikdy nezobrazí obrázek jiné položky, když dvě položky zabírají stejné místo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 zeigt ein Element nie das Bild eines anderen Elements, wenn zwei Elemente denselben Platz beanspruchen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, un elemento nunca muestra la imagen de otro cuando dos elementos reclaman el mismo sitio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, un élément n’affiche jamais l’image d’un autre élément quand deux éléments revendiquent la même place."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt egy elem soha nem mutatja egy másik elem képét, ha két elem ugyanazt a helyet igényli."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, sebuah item tidak pernah menampilkan gambar item lain saat dua item menempati tempat yang sama."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, un elemento non mostra mai l’immagine di un altro elemento quando due elementi occupano lo stesso posto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27では、2つの項目が同じ場所を主張しても、項目がほかの項目の画像を表示することはありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 두 항목이 같은 자리를 차지하려 해도 항목이 다른 항목의 그림을 표시하지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In macOS 27 toont een onderdeel nooit het plaatje van een ander onderdeel wanneer twee onderdelen dezelfde plek claimen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 element nigdy nie pokazuje obrazu innego elementu, gdy dwa elementy zajmują to samo miejsce."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, um item nunca mostra a imagem de outro item quando dois itens reivindicam o mesmo lugar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sut macOS 27 na mussa in element mai il maletg d’in auter element, cur che dus elements pretendan la medema plaz."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 элемент больше не показывает картинку другого элемента, когда два элемента претендуют на одно место."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I macOS 27 visar ett objekt aldrig ett annat objekts bild när två objekt gör anspråk på samma plats."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de iki öğe aynı yeri talep ettiğinde bir öğe asla başka bir öğenin resmini göstermez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 елемент більше не показує зображення іншого елемента, коли два елементи претендують на те саме місце."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，两个项目争用同一位置时，项目不会再显示另一个项目的图片。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，兩個項目爭用同一位置時，項目不會再顯示另一個項目的圖片。"
+          }
+        }
+      }
+    },
+    "holzBar takes its hiding anew after a wake, an unlock or a display change, and saves your sections only from a settled bar." : {
+      "comment" : "What's New 1.2.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar po probuzení, odemknutí nebo změně displejů znovu použije skrývání a sekce ukládá jen z ustálené lišty."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar legt sein Ausblenden nach dem Aufwachen, Entsperren oder einer Bildschirmänderung neu an und speichert die Bereiche nur von einer beruhigten Leiste."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar vuelve a aplicar su ocultación tras una reactivación, un desbloqueo o un cambio de pantallas, y guarda las secciones solo desde una barra estabilizada."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar rétablit son masquage après une reprise, un déverrouillage ou un changement d’écran, et n’enregistre vos sections que depuis une barre stabilisée."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar ébredés, feloldás vagy kijelzőváltozás után újra alkalmazza az elrejtést, és a szakaszokat csak megállapodott sávról menti."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar menerapkan ulang penyembunyian setelah bangun, buka kunci, atau perubahan layar, dan menyimpan bagian hanya dari bar yang sudah stabil."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ripristina il nascondimento dopo una riattivazione, uno sblocco o una modifica degli schermi, e salva le sezioni solo da una barra stabilizzata."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBarは、スリープ解除、ロック解除、ディスプレイの変更のあとに非表示を取り直し、セクションは安定したバーからのみ保存します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar는 깨어남, 잠금 해제 또는 디스플레이 변경 후 숨김을 다시 적용하고, 안정된 막대에서만 섹션을 저장합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar past het verbergen opnieuw toe na het ontwaken, ontgrendelen of een schermwijziging, en bewaart de secties alleen vanuit een gestabiliseerde balk."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ponownie stosuje ukrywanie po wybudzeniu, odblokowaniu lub zmianie wyświetlaczy i zapisuje sekcje tylko z ustabilizowanego paska."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar refaz a ocultação após uma reativação, um desbloqueio ou uma mudança de telas, e salva as seções somente de uma barra estabilizada."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar applitgescha puspè il zuppar suenter in svegliar, in debloccar u ina midada dals visurs, e memorisescha las secziuns be dad ina bara stabilisada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar заново применяет скрытие после пробуждения, разблокировки или смены дисплеев и сохраняет разделы только с установившейся строки."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar tillämpar döljandet på nytt efter väckning, upplåsning eller en skärmändring och sparar sektionerna bara från en lugnad rad."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar uyanma, kilit açma veya ekran değişikliğinden sonra gizlemeyi yeniden uygular ve bölümleri yalnızca yerleşmiş bir çubuktan kaydeder."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar знову застосовує приховування після пробудження, розблокування або зміни дисплеїв і зберігає розділи лише зі стабілізованої смуги."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "唤醒、解锁或显示器变化后，holzBar 会重新应用隐藏，并且只在稳定的菜单栏上保存分区。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "喚醒、解鎖或顯示器變更後，holzBar 會重新套用隱藏，並且只在穩定的選單列上儲存區段。"
+          }
+        }
+      }
+    },
+    "Automatic rehide is no longer held back by thin windows at the screen edge, and a click inside an open menu or popup no longer starts it." : {
+      "comment" : "What's New 1.2.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatické opětovné skrytí už nezdržují tenká okna na okraji obrazovky a kliknutí uvnitř otevřené nabídky nebo vyskakovacího okna ho už nespustí."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das automatische Wiederausblenden wird nicht mehr von schmalen Fenstern am Bildschirmrand aufgehalten, und ein Klick in ein offenes Menü oder Popup startet es nicht mehr."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La reocultación automática ya no se retiene por ventanas finas en el borde de la pantalla, y un clic dentro de un menú o ventana emergente abierta ya no la inicia."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le remasquage automatique n’est plus retenu par des fenêtres fines au bord de l’écran, et un clic dans un menu ou une pop-up ouverte ne le déclenche plus."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az automatikus újraelrejtést már nem tartják fel a képernyő szélén lévő vékony ablakok, és egy megnyitott menün vagy felugró ablakon belüli kattintás már nem indítja el."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sembunyi ulang otomatis tidak lagi tertahan oleh jendela tipis di tepi layar, dan klik di dalam menu atau popup yang terbuka tidak lagi memulainya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il nascondimento automatico non è più trattenuto da finestre sottili sul bordo dello schermo, e un clic dentro un menu o un popup aperto non lo avvia più."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動再非表示は、画面の端にある細いウィンドウに妨げられなくなり、開いているメニューやポップアップ内のクリックでも開始しなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자동 다시 숨김이 화면 가장자리의 얇은 윈도우에 더는 막히지 않으며, 열린 메뉴나 팝업 안을 클릭해도 더는 시작되지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch opnieuw verbergen wordt niet meer vertraagd door dunne vensters aan de schermrand, en een klik in een geopend menu of pop-up start het niet meer."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatyczne ponowne ukrywanie nie jest już wstrzymywane przez cienkie okna przy krawędzi ekranu, a kliknięcie wewnątrz otwartego menu lub okna podręcznego już go nie uruchamia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A reocultação automática não é mais retida por janelas finas na borda da tela, e um clique dentro de um menu ou popup aberto não a inicia mais."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il zuppar automatic na vegn pli retegnì da fanestras sutilas a l’urlo dal visur, ed ina cliccada en in menu u pop-up avert na al aviescha pli."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматическое повторное скрытие больше не задерживается тонкими окнами у края экрана, а щелчок внутри открытого меню или всплывающего окна больше не запускает его."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatiskt döljande hålls inte längre tillbaka av tunna fönster vid skärmkanten, och ett klick inuti en öppen meny eller popup startar det inte längre."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otomatik yeniden gizleme artık ekran kenarındaki ince pencereler tarafından engellenmez ve açık bir menü veya açılır pencere içindeki bir tıklama onu artık başlatmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматичне повторне приховування більше не затримується тонкими вікнами біля краю екрана, а клацання всередині відкритого меню чи спливного вікна більше його не запускає."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动重新隐藏不再被屏幕边缘的细窗口拖住，点按打开的菜单或弹出窗口内部也不再启动它。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動重新隱藏不再被螢幕邊緣的細視窗拖住，點按開啟的選單或彈出視窗內部也不再啟動它。"
+          }
+        }
+      }
+    },
+    "Where the menu bar is a little taller than the notch, the closed notch is as tall as the menu bar and meets the hardware notch." : {
+      "comment" : "What's New 1.2.0: fix",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tam, kde je řádek nabídek o něco vyšší než výřez, je zavřený výřez stejně vysoký jako řádek nabídek a navazuje na hardwarový výřez."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wo die Menüleiste etwas höher als das Notch ist, ist das geschlossene Notch so hoch wie die Menüleiste und schließt bündig mit dem Notch der Hardware ab."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Donde la barra de menús es algo más alta que el notch, el notch cerrado tiene la altura de la barra de menús y coincide con el notch del hardware."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Là où la barre des menus est un peu plus haute que l’encoche, l’encoche fermée a la hauteur de la barre des menus et rejoint l’encoche matérielle."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahol a menüsor valamivel magasabb a notchnál, a zárt notch olyan magas, mint a menüsor, és találkozik a hardveres notchcsal."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di tempat bar menu sedikit lebih tinggi daripada notch, notch tertutup setinggi bar menu dan bertemu dengan notch perangkat keras."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dove la barra dei menu è un po’ più alta del notch, il notch chiuso è alto quanto la barra dei menu e combacia con il notch dell’hardware."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メニューバーがノッチより少し高い場所では、閉じたノッチはメニューバーと同じ高さになり、ハードウェアのノッチとつながります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대가 노치보다 조금 높은 곳에서는 닫힌 노치가 메뉴 막대와 같은 높이가 되어 하드웨어 노치와 이어집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waar de menubalk iets hoger is dan de notch, is de gesloten notch even hoog als de menubalk en sluit hij aan op de notch van de hardware."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tam, gdzie pasek menu jest nieco wyższy niż notch, zamknięty notch jest tak wysoki jak pasek menu i styka się z notchem sprzętowym."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onde a barra de menus é um pouco mais alta que o notch, o notch fechado tem a altura da barra de menus e encontra o notch do hardware."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nua che il trav da menu è in pau pli aut che la notch, è la notch serrada uschè auta sco il trav da menu e sa cumbina cun la notch dal hardware."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Там, где строка меню немного выше выреза, закрытый вырез равен ей по высоте и смыкается с аппаратным вырезом."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Där menyraden är lite högre än notchen är den stängda notchen lika hög som menyraden och möter maskinvarunotchen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menü çubuğunun notch’tan biraz yüksek olduğu yerlerde kapalı notch menü çubuğu kadar yüksektir ve donanım notch’una kavuşur."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Там, де смуга меню трохи вища за виріз, закритий виріз такої самої висоти, як смуга меню, і сходиться з апаратним вирізом."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在菜单栏比刘海略高的地方，合上的刘海与菜单栏等高，与硬件刘海相接。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在選單列比瀏海略高的地方，闔上的瀏海與選單列等高，與硬體瀏海相接。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
