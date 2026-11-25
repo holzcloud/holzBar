@@ -114,12 +114,15 @@ nonisolated struct ImportBackupRecord {
     ///
     /// The previous values go through holzBar's validation again, so a record that was changed
     /// on disk cannot write a value of the wrong kind. `remove` holds only importable keys that
-    /// had no value before and are not in `set`.
+    /// had no value before and are not in `set`, and the keys whose earlier value validation now
+    /// refuses: they go back to their default, so no imported value stays behind when the record
+    /// is deleted.
     ///
     /// - Parameter ownBundleIdentifier: holzBar's own bundle identifier.
     func restoreWrites(ownBundleIdentifier: String) -> (set: [String: Any], remove: [String]) {
         let set = Defaults.Key.validatedSettings(before, ownBundleIdentifier: ownBundleIdentifier).accepted
-        let remove = absent.filter { Defaults.Key.importableKinds[$0] != nil && before[$0] == nil }
-        return (set, remove)
+        let absentNow = absent.filter { Defaults.Key.importableKinds[$0] != nil && before[$0] == nil }
+        let refused = before.keys.filter { set[$0] == nil }
+        return (set, (absentNow + refused).sorted())
     }
 }

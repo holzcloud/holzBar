@@ -853,15 +853,17 @@ struct ImportBackupRecordTests {
         #expect(writes.remove.allSatisfy { Defaults.Key.importableKinds[$0] != nil })
     }
 
-    @Test("A before value of the wrong kind is dropped when restoring")
-    func wrongKindIsDropped() throws {
+    @Test("A before value that validation refuses is never written, and its key goes back to the default (WR-03)")
+    func wrongKindIsRemoved() throws {
         var list = record().propertyList()
         list["before"] = ["ShowOnClick": "yes", "AutoRehide": true] as [String: Any]
+        list["absent"] = ["ShowOnHover"]
         let loaded = try #require(ImportBackupRecord(propertyList: list))
         let writes = loaded.restoreWrites(ownBundleIdentifier: ownBundle)
         #expect(writes.set.keys.sorted() == ["AutoRehide"])
         #expect(writes.set["ShowOnClick"] == nil)
-        #expect(!writes.remove.contains("ShowOnClick"))
+        // The imported value must not stay when the record is deleted.
+        #expect(writes.remove == ["ShowOnClick", "ShowOnHover"])
     }
 
     @Test("A key that is both before and absent is set, never removed")
