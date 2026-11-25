@@ -28,6 +28,43 @@ nonisolated enum NowPlayingRemoteLaunch {
     /// The name of the helper's executable inside its framework.
     static let executableName = "NowPlayingRemote"
 
+    /// The signing identifier of the helper framework (its bundle identifier).
+    static let helperIdentifier = "com.holzcloud.holzBar.NowPlayingRemote"
+
+    /// The code requirement the helper must meet before every start, or `nil` when a hash has
+    /// the wrong length.
+    ///
+    /// It names the helper's identifier and pins the code directory hash the helper's slice for
+    /// this Mac had when the app bundle passed its check in this session, so a helper swapped
+    /// later is refused. When
+    /// holzBar itself is signed with a certificate, the helper must also be signed with that
+    /// same leaf certificate, so even a helper swapped before launch needs holzBar's key.
+    ///
+    /// - Parameters:
+    ///   - cdhash: The helper's code directory hash (20 bytes).
+    ///   - hostLeafCertificateSHA1: The SHA-1 of the leaf certificate that signs the running
+    ///     app (20 bytes), or `nil` when it is signed ad hoc.
+    static func helperRequirement(cdhash: [UInt8], hostLeafCertificateSHA1: [UInt8]?) -> String? {
+        guard cdhash.count == 20 else {
+            return nil
+        }
+        var requirement = "identifier \"\(helperIdentifier)\" and cdhash H\"\(hex(cdhash))\""
+        if let leaf = hostLeafCertificateSHA1 {
+            guard leaf.count == 20 else {
+                return nil
+            }
+            requirement += " and certificate leaf = H\"\(hex(leaf))\""
+        }
+        return requirement
+    }
+
+    private static func hex(_ bytes: [UInt8]) -> String {
+        bytes.map { byte in
+            let digits = String(byte, radix: 16)
+            return digits.count == 1 ? "0" + digits : digits
+        }.joined()
+    }
+
     /// The most bytes of one line of the helper's output (as the parser reads).
     static let maxLineBytes = NowPlayingRemoteMessage.maxLineBytes
 

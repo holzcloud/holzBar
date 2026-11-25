@@ -3,6 +3,7 @@
 //  holzBar
 //
 
+import CryptoKit
 import Foundation
 import OSLog
 import Security
@@ -22,7 +23,11 @@ import Security
 /// function comes from a closed set, the helper's path must lie inside holzBar's own bundle, the
 /// environment is two fixed variables, standard input and error are the null device and there is
 /// no shell. Before the first start of a session the app bundle, nested code included, is
-/// validated statically and without network access, so a copy with a swapped helper is refused.
+/// validated statically and without network access, so a copy with a swapped helper is refused,
+/// and the helper's code hash is pinned. Before every start the helper itself is validated again
+/// against a requirement that names its identifier, that hash and, when holzBar is signed with a
+/// certificate, the same leaf certificate as the running app (``NowPlayingRemoteLaunch``), so a
+/// helper swapped during the session is refused too.
 /// The output is read here, line by line, up to a limit per line. Nothing is written or logged
 /// besides that it started or ended, with the exit status as a number.
 @MainActor
@@ -44,7 +49,9 @@ final class MediaRemoteBridge {
     private var startTask: Task<Void, Never>?
     private var readTask: Task<Void, Never>?
     private var generation = 0
-    private var bundleIsIntact: Bool?
+    /// The requirement the helper must meet before every start, pinned when the app bundle passed
+    /// its check in this session; `.some(nil)` when the check failed.
+    private var helperRequirement: String??
     private let logger = Logger(category: "NowPlayingRemote")
 
     /// Whether a start is under way or the process runs.
@@ -52,7 +59,8 @@ final class MediaRemoteBridge {
         startTask != nil || process != nil
     }
 
-    /// Starts the route unless it is active: checks the bundle once, then starts the process.
+    /// Starts the route unless it is active: checks the bundle once a session and the helper
+    /// every time, then starts the process.
     func start() {
         guard !isActive else {
             return
@@ -88,23 +96,41 @@ final class MediaRemoteBridge {
                 startTask = nil
             }
         }
-        let bundleURL = Bundle.main.bundleURL
-        let intact: Bool
-        if let known = bundleIsIntact {
-            intact = known
+        let bundleURL = Bundle.main.bundleURL.resolvingSymlinksInPath()
+        guard let helperURL = Self.helperURL() else {
+            logger.notice("The helper was not found in the app")
+            onUnusable?()
+            return
+        }
+        let requirement: String?
+        if let known = helperRequirement {
+            requirement = known
         } else {
-            intact = await Self.bundleCheck(at: bundleURL)
+            requirement = await Self.sessionRequirement(bundleURL: bundleURL, helperURL: helperURL)
             guard run == generation else {
                 return
             }
-            bundleIsIntact = intact
+            helperRequirement = .some(requirement)
         }
-        guard intact else {
+        guard let requirement else {
             logger.notice("The app failed its signature check, so the helper is not started")
             onUnusable?()
             return
         }
-        guard let arguments = Self.arguments(bundleURL: bundleURL) else {
+        let helperIsIntact = await Self.helperCheck(at: helperURL, requirement: requirement)
+        guard run == generation else {
+            return
+        }
+        guard helperIsIntact else {
+            logger.notice("The helper failed its signature check, so it is not started")
+            onUnusable?()
+            return
+        }
+        guard let arguments = NowPlayingRemoteLaunch.arguments(
+            helperPath: helperURL.path(percentEncoded: false),
+            bundlePath: bundleURL.path(percentEncoded: false),
+            function: .stream
+        ) else {
             logger.notice("The helper was not found in the app")
             onUnusable?()
             return
@@ -112,25 +138,21 @@ final class MediaRemoteBridge {
         spawn(arguments: arguments, run: run)
     }
 
-    /// The arguments for perl to stream the helper's output, or `nil` when the helper's place is
-    /// not acceptable.
+    /// The helper's executable with every symbolic link resolved, the path that is checked and
+    /// that perl loads, or `nil` when the app has no Frameworks folder.
     ///
-    /// The path is built from the app bundle's own Frameworks folder, so it shares the app's path
-    /// form (``Bundle`` resolves `/private` and symbolic links differently for a framework it
-    /// opens), and names the framework's executable through the link every framework has at its
-    /// top level. The link is part of what the signature check seals.
-    private static func arguments(bundleURL: URL) -> [String]? {
+    /// The path is built from the app bundle's own Frameworks folder and resolved the same way as
+    /// the bundle's path, so both share one form (``Bundle`` resolves `/private` and symbolic
+    /// links differently for a framework it opens). Resolving the framework's top-level link here
+    /// means the file that is checked is the file perl is given.
+    private static func helperURL() -> URL? {
         guard let frameworks = Bundle.main.privateFrameworksURL else {
             return nil
         }
-        let helper = frameworks
+        return frameworks
             .appending(path: "NowPlayingRemote.framework", directoryHint: .isDirectory)
             .appending(path: NowPlayingRemoteLaunch.executableName, directoryHint: .notDirectory)
-        return NowPlayingRemoteLaunch.arguments(
-            helperPath: helper.path(percentEncoded: false),
-            bundlePath: bundleURL.path(percentEncoded: false),
-            function: .stream
-        )
+            .resolvingSymlinksInPath()
     }
 
     private func spawn(arguments: [String], run: Int) {
@@ -229,17 +251,82 @@ final class MediaRemoteBridge {
 
     // MARK: Integrity
 
-    /// Whether the app bundle, nested code included, is validly signed and unchanged: a strict
-    /// static validation without network access, off the main actor.
+    /// The requirement the helper must meet for the rest of the session, or `nil` when the app
+    /// bundle, nested code included, is not validly signed and unchanged, or the helper's code
+    /// hash or holzBar's own signature cannot be read. Off the main actor.
     @concurrent
-    private nonisolated static func bundleCheck(at url: URL) async -> Bool {
-        var code: SecStaticCode?
-        guard SecStaticCodeCreateWithPath(url as CFURL, [], &code) == errSecSuccess, let code else {
+    private nonisolated static func sessionRequirement(bundleURL: URL, helperURL: URL) async -> String? {
+        guard let bundle = staticCode(at: bundleURL),
+              SecStaticCodeCheckValidityWithErrors(bundle, strictFlags(nested: true), nil, nil) == errSecSuccess,
+              let helper = staticCode(at: helperURL),
+              let cdhash = signingInformation(of: helper)?[kSecCodeInfoUnique as String] as? Data,
+              let hostLeaf = hostLeafCertificateSHA1()
+        else {
+            return nil
+        }
+        return NowPlayingRemoteLaunch.helperRequirement(cdhash: [UInt8](cdhash), hostLeafCertificateSHA1: hostLeaf)
+    }
+
+    /// Whether the helper is validly signed, unchanged and meets the session's requirement: a
+    /// strict static validation without network access, off the main actor.
+    @concurrent
+    private nonisolated static func helperCheck(at url: URL, requirement text: String) async -> Bool {
+        var requirement: SecRequirement?
+        guard SecRequirementCreateWithString(text as CFString, [], &requirement) == errSecSuccess,
+              let requirement,
+              let code = staticCode(at: url)
+        else {
             return false
         }
-        var flags = SecCSFlags(rawValue: kSecCSCheckAllArchitectures | kSecCSCheckNestedCode | kSecCSStrictValidate)
+        return SecStaticCodeCheckValidityWithErrors(code, strictFlags(nested: false), requirement, nil) == errSecSuccess
+    }
+
+    /// The SHA-1 of the leaf certificate that signs the running app: `.some(nil)` when it is
+    /// signed ad hoc, `nil` when its signature cannot be read.
+    private nonisolated static func hostLeafCertificateSHA1() -> [UInt8]?? {
+        var running: SecCode?
+        var code: SecStaticCode?
+        guard SecCodeCopySelf([], &running) == errSecSuccess, let running,
+              SecCodeCopyStaticCode(running, [], &code) == errSecSuccess, let code,
+              let info = signingInformation(of: code)
+        else {
+            return nil
+        }
+        guard let certificates = info[kSecCodeInfoCertificates as String] as? [SecCertificate],
+              let leaf = certificates.first
+        else {
+            return .some(nil)
+        }
+        let data = SecCertificateCopyData(leaf) as Data
+        return .some(Array(Insecure.SHA1.hash(data: data)))
+    }
+
+    private nonisolated static func staticCode(at url: URL) -> SecStaticCode? {
+        var code: SecStaticCode?
+        guard SecStaticCodeCreateWithPath(url as CFURL, [], &code) == errSecSuccess else {
+            return nil
+        }
+        return code
+    }
+
+    private nonisolated static func signingInformation(of code: SecStaticCode) -> [String: Any]? {
+        var info: CFDictionary?
+        guard SecCodeCopySigningInformation(code, SecCSFlags(rawValue: kSecCSSigningInformation), &info) == errSecSuccess else {
+            return nil
+        }
+        return info as? [String: Any]
+    }
+
+    /// Strict validation without network access. The bundle check covers every architecture and
+    /// the nested code; the helper check covers this Mac's architecture only, the slice perl
+    /// loads, because each slice has its own code hash and the pin names this one.
+    private nonisolated static func strictFlags(nested: Bool) -> SecCSFlags {
+        var flags = SecCSFlags(rawValue: kSecCSStrictValidate)
+        if nested {
+            flags.insert(SecCSFlags(rawValue: kSecCSCheckAllArchitectures | kSecCSCheckNestedCode))
+        }
         flags.insert(.noNetworkAccess)
-        return SecStaticCodeCheckValidityWithErrors(code, flags, nil, nil) == errSecSuccess
+        return flags
     }
 }
 

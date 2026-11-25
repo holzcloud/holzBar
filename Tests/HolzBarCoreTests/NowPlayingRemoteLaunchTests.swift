@@ -89,4 +89,29 @@ struct NowPlayingRemoteLaunchTests {
         }
         #expect(!script.contains("perl"))
     }
+
+    @Test("The helper's requirement pins its identifier, its code hash and, when signed, holzBar's certificate")
+    func helperRequirement() {
+        let cdhash = [UInt8](repeating: 0xAB, count: 19) + [0x05]
+        let leaf = [UInt8](0..<20)
+        #expect(NowPlayingRemoteLaunch.helperIdentifier == "com.holzcloud.holzBar.NowPlayingRemote")
+        #expect(
+            NowPlayingRemoteLaunch.helperRequirement(cdhash: cdhash, hostLeafCertificateSHA1: nil)
+                == "identifier \"com.holzcloud.holzBar.NowPlayingRemote\" and cdhash H\"" + String(repeating: "ab", count: 19) + "05\""
+        )
+        #expect(
+            NowPlayingRemoteLaunch.helperRequirement(cdhash: cdhash, hostLeafCertificateSHA1: leaf)
+                == "identifier \"com.holzcloud.holzBar.NowPlayingRemote\" and cdhash H\"" + String(repeating: "ab", count: 19)
+                + "05\" and certificate leaf = H\"000102030405060708090a0b0c0d0e0f10111213\""
+        )
+    }
+
+    @Test("A hash of the wrong length gives no requirement")
+    func helperRequirementRefusesWrongLengths() {
+        let good = [UInt8](repeating: 1, count: 20)
+        #expect(NowPlayingRemoteLaunch.helperRequirement(cdhash: [], hostLeafCertificateSHA1: nil) == nil)
+        #expect(NowPlayingRemoteLaunch.helperRequirement(cdhash: good + [1], hostLeafCertificateSHA1: nil) == nil)
+        #expect(NowPlayingRemoteLaunch.helperRequirement(cdhash: good, hostLeafCertificateSHA1: []) == nil)
+        #expect(NowPlayingRemoteLaunch.helperRequirement(cdhash: good, hostLeafCertificateSHA1: good + good) == nil)
+    }
 }
