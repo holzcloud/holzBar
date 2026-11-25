@@ -83,6 +83,8 @@ final class NotificationBannerReader {
     @ObservationIgnored private var observedProcess: pid_t?
     @ObservationIgnored private var sink: BannerEventSink?
     @ObservationIgnored private var isRegistering = false
+    @ObservationIgnored private var pendingElements = [FiredElement]()
+    @ObservationIgnored private var isReading = false
     @ObservationIgnored private var schedule = ObserverRegistrationSchedule27()
     @ObservationIgnored private var failures = 0
     @ObservationIgnored private var generation = 0
@@ -134,6 +136,8 @@ final class NotificationBannerReader {
         registrationTask?.cancel()
         registrationTask = nil
         isRegistering = false
+        pendingElements.removeAll()
+        isReading = false
         detach()
         onSnapshot = nil
         schedule = ObserverRegistrationSchedule27()
@@ -255,19 +259,45 @@ final class NotificationBannerReader {
         let element: AXUIElement
     }
 
+    /// The most fired elements waiting for a read. A banner's animation fires many events and a
+    /// busy Notification Center answers slowly, so the backlog is bounded; the oldest is dropped.
+    private static let maximumPending = 8
+
     /// Called on the main thread by the observer's callback.
     fileprivate func elementDidFire(_ element: AXUIElement) {
         guard isStarted else {
             return
         }
-        let fired = FiredElement(element: element)
+        // The same element is read once while it waits.
+        if pendingElements.contains(where: { CFEqual($0.element, element) }) {
+            return
+        }
+        pendingElements.append(FiredElement(element: element))
+        if pendingElements.count > Self.maximumPending {
+            pendingElements.removeFirst(pendingElements.count - Self.maximumPending)
+        }
+        readNext()
+    }
+
+    /// Reads the waiting elements one at a time, so at most one copy is in flight; its result is
+    /// dropped when the reader was stopped meanwhile.
+    private func readNext() {
+        guard isStarted, !isReading, !pendingElements.isEmpty else {
+            return
+        }
+        isReading = true
+        let fired = pendingElements.removeFirst()
         let token = generation
-        // One short task per event; it ends when the copy ends, and its result is dropped when
-        // the reader was stopped meanwhile.
         Task { [weak self] in
             let snapshot = await Self.copySnapshot(of: fired)
-            self?.deliver(snapshot, token: token)
+            self?.finishRead(snapshot, token: token)
         }
+    }
+
+    private func finishRead(_ snapshot: AXSnapshot, token: Int) {
+        isReading = false
+        deliver(snapshot, token: token)
+        readNext()
     }
 
     private func deliver(_ snapshot: AXSnapshot, token: Int) {
