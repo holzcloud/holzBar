@@ -716,13 +716,17 @@ final class MenuBarItemEventPoster {
         } catch {
             do {
                 logger.warning("Move events failed, posting fallback")
-                try await scrombleEvent(
-                    mouseUp,
-                    item: item,
-                    timeout: .milliseconds(100), // Fixed timeout for fallback.
-                    repeating: 2, // Double mouse up prevents invalid item state.
-                    bound: .fallback // Keeps its designed bound of 200 ms.
-                )
+                // A fresh task, so that a cancelled caller does not cancel the cleanup
+                // before it posts the mouse up (as in `eventSleep(for:)`).
+                try await Task {
+                    try await scrombleEvent(
+                        mouseUp,
+                        item: item,
+                        timeout: .milliseconds(100), // Fixed timeout for fallback.
+                        repeating: 2, // Double mouse up prevents invalid item state.
+                        bound: .fallback // Keeps its designed bound of 200 ms.
+                    )
+                }.value
             } catch {
                 // Catch this for logging purposes only. We want to propagate
                 // the original error.
@@ -883,13 +887,17 @@ final class MenuBarItemEventPoster {
         } catch {
             do {
                 logger.warning("Click events failed, posting fallback")
-                try await postEventWithBarrier(
-                    mouseUp,
-                    to: item,
-                    timeout: timeout,
-                    repeating: 2, // Double mouse up prevents invalid item state.
-                    bound: .fallback // Keeps its designed bound of 500 ms.
-                )
+                // A fresh task, so that a cancelled caller does not cancel the cleanup
+                // before it posts the mouse up (as in `eventSleep(for:)`).
+                try await Task {
+                    try await postEventWithBarrier(
+                        mouseUp,
+                        to: item,
+                        timeout: timeout,
+                        repeating: 2, // Double mouse up prevents invalid item state.
+                        bound: .fallback // Keeps its designed bound of 500 ms.
+                    )
+                }.value
             } catch {
                 // Catch this for logging purposes only. We want to propagate
                 // the original error.
