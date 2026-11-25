@@ -293,6 +293,61 @@ nonisolated enum AutomationMatch: String, Codable, Sendable {
     }
 }
 
+/// A stored list of automation rules, read element by element.
+///
+/// One element that cannot be decoded (a condition or action a newer build added, or a missing
+/// field) must not make the whole list unreadable, or the next save would erase every rule. The
+/// elements that cannot be read stay as their raw JSON and are written back with the rules, so a
+/// downgrade followed by an upgrade loses nothing.
+nonisolated struct AutomationRuleList: Equatable, Sendable {
+    /// The rules that were read, in their order.
+    var rules: [AutomationRule]
+    /// The raw JSON of each element that could not be read.
+    var unreadable: [Data]
+
+    /// The most elements that cannot be read and are kept.
+    static let maximumUnreadable = 50
+
+    /// The list of a stored array, or `nil` when the data is not a JSON array.
+    static func decode(_ data: Data) -> AutomationRuleList? {
+        guard let elements = try? JSONSerialization.jsonObject(with: data) as? [Any] else {
+            return nil
+        }
+        var list = AutomationRuleList(rules: [], unreadable: [])
+        let decoder = JSONDecoder()
+        for element in elements {
+            guard
+                JSONSerialization.isValidJSONObject(element),
+                let raw = try? JSONSerialization.data(withJSONObject: element)
+            else {
+                continue
+            }
+            if let rule = try? decoder.decode(AutomationRule.self, from: raw) {
+                list.rules.append(rule)
+            } else if list.unreadable.count < maximumUnreadable {
+                list.unreadable.append(raw)
+            }
+        }
+        return list
+    }
+
+    /// The JSON array of the given rules followed by the elements that could not be read.
+    static func encode(rules: [AutomationRule], unreadable: [Data]) throws -> Data {
+        let encoder = JSONEncoder()
+        var parts = try rules.map { try encoder.encode($0) }
+        parts += unreadable
+        var result = Data("[".utf8)
+        for (index, part) in parts.enumerated() {
+            if index > 0 {
+                result.append(UInt8(ascii: ","))
+            }
+            result.append(part)
+        }
+        result.append(UInt8(ascii: "]"))
+        return result
+    }
+}
+
 /// "When these things are true, do this."
 nonisolated struct AutomationRule: Codable, Equatable, Identifiable, Sendable {
     var id = UUID()
@@ -336,11 +391,15 @@ nonisolated struct AutomationRule: Codable, Equatable, Identifiable, Sendable {
 
     /// The rules of a stored list without the ones that use a script. Scripts are local to
     /// the Mac and are never created or approved by an imported or synced file.
+    ///
+    /// Rules are read one by one: an element that cannot be read (it may need a newer build)
+    /// is dropped, and the others stay. It cannot be told apart from a script rule, so none
+    /// of it is imported.
     static func removingScriptRules(from data: Data) -> Data? {
-        guard let rules = try? JSONDecoder().decode([AutomationRule].self, from: data) else {
+        guard let list = AutomationRuleList.decode(data) else {
             return nil
         }
-        return try? JSONEncoder().encode(rules.filter { !$0.usesScript })
+        return try? JSONEncoder().encode(list.rules.filter { !$0.usesScript })
     }
 
     /// The kinds of event the enabled rules need to observe.
@@ -363,10 +422,10 @@ nonisolated struct AutomationRule: Codable, Equatable, Identifiable, Sendable {
 
     /// How many rules of a stored list run or ask a script; 0 when the list cannot be decoded.
     static func scriptRuleCount(in data: Data) -> Int {
-        guard let rules = try? JSONDecoder().decode([AutomationRule].self, from: data) else {
+        guard let list = AutomationRuleList.decode(data) else {
             return 0
         }
-        return rules.filter(\.usesScript).count
+        return list.rules.filter(\.usesScript).count
     }
 
     /// The time spans of the enabled rules.

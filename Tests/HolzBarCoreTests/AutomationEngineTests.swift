@@ -639,4 +639,28 @@ struct AutomationEngineTests {
         #expect(AutomationRule.scriptRuleCount(in: data) == 2)
         #expect(AutomationRule.scriptRuleCount(in: Data("nonsense".utf8)) == 0)
     }
+
+    @Test("One unreadable rule neither drops the list nor is lost by a save")
+    func unreadableRuleIsKept() throws {
+        let good = rule("Good", [battery], action: .zen(true))
+        let encoded = try JSONEncoder().encode(good)
+        let goodObject = try #require(try JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        let unknown: [String: Any] = ["id": UUID().uuidString, "name": "Future", "clauses": [["condition": ["somethingNew": [:]]]]]
+        let data = try JSONSerialization.data(withJSONObject: [unknown, goodObject])
+
+        let list = try #require(AutomationRuleList.decode(data))
+        #expect(list.rules == [good])
+        #expect(list.unreadable.count == 1)
+        #expect(AutomationRule.validated(list.rules) == [good])
+
+        let saved = try AutomationRuleList.encode(rules: list.rules, unreadable: list.unreadable)
+        let again = try #require(AutomationRuleList.decode(saved))
+        #expect(again.rules == [good])
+        #expect(again.unreadable == list.unreadable)
+
+        let imported = try #require(AutomationRule.removingScriptRules(from: data))
+        #expect(try JSONDecoder().decode([AutomationRule].self, from: imported) == [good])
+        #expect(AutomationRuleList.decode(Data("nonsense".utf8)) == nil)
+        #expect(try AutomationRuleList.decode(AutomationRuleList.encode(rules: [], unreadable: []))?.rules == [])
+    }
 }
