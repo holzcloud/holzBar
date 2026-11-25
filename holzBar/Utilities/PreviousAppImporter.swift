@@ -202,7 +202,8 @@ enum PreviousAppImporter {
     /// Puts the settings back as the record holds them, deletes the record and restarts holzBar.
     ///
     /// Only the keys the import touched change: each gets its earlier value (validated again), and
-    /// each that had none is removed. No other key is read or written.
+    /// each that had none, or whose earlier value validation now refuses, is removed. No other
+    /// key is read or written.
     static func restore(_ record: ImportBackupRecord) {
         let writes = record.restoreWrites(ownBundleIdentifier: Constants.bundleIdentifier)
         let defaults = UserDefaults.standard
@@ -260,17 +261,35 @@ enum PreviousAppImporter {
         appState.layoutUndo.record(change, place: .menuBar)
     }
 
-    /// Writes the record: the folder is 0700, the file 0600 and excluded from backups.
+    /// Writes the record: the folder is 0700 (also when it existed before), the file 0600 from the
+    /// moment it exists (it is created under a temporary name with that mode and moved into place,
+    /// never written with the default mode first) and excluded from backups.
     private static func write(_ record: ImportBackupRecord) throws {
         var url = backupURL
-        try FileManager.default.createDirectory(
-            at: url.deletingLastPathComponent(),
+        let folder = url.deletingLastPathComponent()
+        let manager = FileManager.default
+        try manager.createDirectory(
+            at: folder,
             withIntermediateDirectories: true,
             attributes: [.posixPermissions: 0o700]
         )
+        try manager.setAttributes([.posixPermissions: 0o700], ofItemAtPath: folder.path(percentEncoded: false))
         let data = try PropertyListSerialization.data(fromPropertyList: record.propertyList(), format: .binary, options: 0)
-        try data.write(to: url, options: .atomic)
-        try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path(percentEncoded: false))
+        let temporary = folder.appending(path: ".ImportBackup-\(UUID().uuidString).tmp", directoryHint: .notDirectory)
+        guard manager.createFile(
+            atPath: temporary.path(percentEncoded: false),
+            contents: data,
+            attributes: [.posixPermissions: 0o600]
+        ) else {
+            throw CocoaError(.fileWriteUnknown)
+        }
+        do {
+            _ = try manager.replaceItemAt(url, withItemAt: temporary)
+            try manager.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path(percentEncoded: false))
+        } catch {
+            try? manager.removeItem(at: temporary)
+            throw error
+        }
         var values = URLResourceValues()
         values.isExcludedFromBackup = true
         try url.setResourceValues(values)
