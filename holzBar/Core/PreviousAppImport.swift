@@ -68,11 +68,17 @@ nonisolated struct ImportHotkeyRules: Sendable {
     /// The stored names of the hotkey actions holzBar knows and shows in Settings. A hotkey of
     /// the source for any other action is ignored.
     let knownActions: Set<String>
-    /// Whether the stored combination decodes and holzBar would load it: a key code in range, no
-    /// unknown modifier bit and the same modifier rule the hotkey recorder applies. A combination
-    /// that fails is never imported, because holzBar would refuse it at launch or, worse, take a
-    /// bare key from every app.
-    let isValid: @Sendable (Data) -> Bool
+    /// The identity of the stored combination when holzBar would load it, `nil` otherwise: a key
+    /// code in range, no unknown modifier bit, the same modifier rule the hotkey recorder applies,
+    /// and a combination the system does not reserve for itself. Two combinations with the same
+    /// identity are the same keys. A combination that gets `nil` is never imported, because
+    /// holzBar would refuse it at launch or, worse, take a bare key from every app.
+    let identity: @Sendable (Data) -> String?
+
+    /// Whether holzBar would load the stored combination.
+    func isValid(_ data: Data) -> Bool {
+        identity(data) != nil
+    }
 }
 
 /// What an import would do: the settings it changes, the ones it names as not imported, how
@@ -434,17 +440,32 @@ nonisolated enum PreviousAppImport {
         }
         result.isRead = true
         result.entryCount = stored.count
-        for (action, raw) in stored {
+        var candidates: [(action: String, data: Data, identity: String)] = []
+        for action in stored.keys.sorted() {
             // Only an action holzBar has, with data that is a combination holzBar would load.
-            guard rules.knownActions.contains(action), let data = raw as? Data, rules.isValid(data) else {
+            guard
+                rules.knownActions.contains(action),
+                let data = stored[action] as? Data,
+                let identity = rules.identity(data)
+            else {
                 continue
             }
             if currentHotkeys[action] == data {
                 result.unchanged += 1
             } else {
-                result.merged[action] = data
-                result.changes.append(ImportChange(key: .hotkeys, hotkeyAction: action, before: .composite, after: .composite))
+                candidates.append((action, data, identity))
             }
+        }
+        // The system registers a combination once, and at launch holzBar removes the later of two
+        // hotkeys with the same one from its settings for good. A combination that another hotkey
+        // keeps (an action the import leaves, an item's or a profile's) must never be imported:
+        // it would delete the user's own. The combinations of the actions the import replaces
+        // are free, so two actions can swap.
+        let replaced = Set(candidates.map(\.action))
+        var taken = Set(currentHotkeys.filter { !replaced.contains($0.key) }.values.compactMap(rules.identity))
+        for candidate in candidates where taken.insert(candidate.identity).inserted {
+            result.merged[candidate.action] = candidate.data
+            result.changes.append(ImportChange(key: .hotkeys, hotkeyAction: candidate.action, before: .composite, after: .composite))
         }
         return result
     }

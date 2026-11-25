@@ -130,16 +130,25 @@ enum PreviousAppImporter {
 
     /// The rules a hotkey of another app must pass: an action holzBar has and shows in Settings,
     /// and a combination holzBar would load. A combination it would refuse at launch (a key code out
-    /// of range, an unknown modifier bit, no modifier or Shift alone, and Option alone where the
-    /// system refuses it) is never imported.
-    private static let hotkeyRules = ImportHotkeyRules(
-        knownActions: Set(HotkeyAction.allCases.map(\.rawValue).filter { ImportTargets.hotkeyEntry(for: $0) != nil })
-    ) { data in
-        guard let combination = HotkeyStorage.decode(data) else {
-            return false
+    /// of range, an unknown modifier bit, no modifier or Shift alone, Option alone where the
+    /// system refuses it, and one the system reserves for itself) is never imported.
+    private static var hotkeyRules: ImportHotkeyRules {
+        let reserved = KeyCombination.systemReservedPairs()
+        return ImportHotkeyRules(
+            knownActions: Set(HotkeyAction.allCases.map(\.rawValue).filter { ImportTargets.hotkeyEntry(for: $0) != nil })
+        ) { data in
+            guard let combination = HotkeyStorage.decode(data) else {
+                return nil
+            }
+            let refusesOptionOnly = if #available(macOS 15.0, *) { true } else { false }
+            guard
+                HotkeyStorage.loadRejection(modifiers: combination.modifiers, refusesOptionOnly: refusesOptionOnly) == nil,
+                !reserved.contains([combination.key, combination.modifiers])
+            else {
+                return nil
+            }
+            return "\(combination.key)-\(combination.modifiers)"
         }
-        let refusesOptionOnly = if #available(macOS 15.0, *) { true } else { false }
-        return HotkeyStorage.loadRejection(modifiers: combination.modifiers, refusesOptionOnly: refusesOptionOnly) == nil
     }
 
     /// Writes the record of the settings the plan overwrites, marks the undo to be offered, writes

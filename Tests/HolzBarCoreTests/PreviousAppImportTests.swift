@@ -87,14 +87,21 @@ struct PreviousAppImportTests {
     /// `HotkeyAction` and the catalogue.
     private let knownActions: Set<String> = ["ToggleHiddenSection", "SearchMenuBarItems", "EnableIceBar"]
 
+    /// The combinations the tests treat as reserved by the system: key 12 with modifier 256.
+    private let reserved: Set<[Int]> = [[12, 256]]
+
     /// The rules of the importer, reduced to what the tests need: a combination is valid when it
-    /// is a JSON array of two integers whose modifier is not zero.
+    /// is a JSON array of two integers whose modifier is not zero and that is not reserved; its
+    /// identity is the pair itself.
     private var hotkeyRules: ImportHotkeyRules {
-        ImportHotkeyRules(knownActions: knownActions) { data in
-            guard let values = try? JSONDecoder().decode([Int].self, from: data), values.count == 2 else {
-                return false
+        let reserved = reserved
+        return ImportHotkeyRules(knownActions: knownActions) { data in
+            guard let values = try? JSONDecoder().decode([Int].self, from: data), values.count == 2,
+                (0...127).contains(values[0]), values[1] != 0, !reserved.contains(values)
+            else {
+                return nil
             }
-            return (0...127).contains(values[0]) && values[1] != 0
+            return "\(values[0])-\(values[1])"
         }
     }
 
@@ -349,6 +356,53 @@ struct PreviousAppImportTests {
         let bare = plan(["Hotkeys": ["ToggleHiddenSection": combination(40, 0)]], current: allOff)
         #expect(bare.changes.isEmpty)
         #expect(bare.ignoredCount == 1)
+    }
+
+    @Test("A combination the system reserves is ignored and counted, never written")
+    func reservedCombinationIsIgnored() {
+        let result = plan(["Hotkeys": ["ToggleHiddenSection": combination(12, 256)]], current: allOff, hotkeys: ["ToggleHiddenSection": combination(4, 256)])
+        #expect(result.changes.isEmpty)
+        #expect(result.writes["Hotkeys"] == nil)
+        #expect(result.ignoredCount == 1)
+    }
+
+    @Test("A combination an item or profile hotkey of holzBar uses is ignored, so the restart cannot delete that hotkey")
+    func collisionWithAnItemIsIgnored() {
+        let mine = ["Item:com.example.app": combination(2, 512), "ToggleHiddenSection": combination(4, 256)]
+        let result = plan(["Hotkeys": ["ToggleHiddenSection": combination(2, 512)]], current: allOff, hotkeys: mine)
+        #expect(result.changes.isEmpty)
+        #expect(result.writes["Hotkeys"] == nil)
+        #expect(result.ignoredCount == 1)
+    }
+
+    @Test("A combination that another action of holzBar keeps is ignored")
+    func collisionWithAnotherActionIsIgnored() {
+        let mine = ["SearchMenuBarItems": combination(1, 256)]
+        let result = plan(["Hotkeys": ["ToggleHiddenSection": combination(1, 256)]], current: allOff, hotkeys: mine)
+        #expect(result.changes.isEmpty)
+        #expect(result.ignoredCount == 1)
+    }
+
+    @Test("Two imported actions with one combination give the first in name order, and the other is ignored")
+    func collisionBetweenImportedActions() throws {
+        let theirs = combination(40, 768)
+        let result = plan(["Hotkeys": ["ToggleHiddenSection": theirs, "SearchMenuBarItems": theirs]], current: allOff)
+        #expect(result.changes.compactMap(\.hotkeyAction) == ["SearchMenuBarItems"])
+        let written = try #require(result.writes["Hotkeys"] as? [String: Data])
+        #expect(written == ["SearchMenuBarItems": theirs])
+        #expect(result.ignoredCount == 1)
+    }
+
+    @Test("Two actions that swap their combinations both change, because each frees the other's")
+    func swapIsAllowed() throws {
+        let one = combination(1, 256)
+        let two = combination(2, 256)
+        let mine = ["ToggleHiddenSection": one, "SearchMenuBarItems": two]
+        let result = plan(["Hotkeys": ["ToggleHiddenSection": two, "SearchMenuBarItems": one]], current: allOff, hotkeys: mine)
+        #expect(result.changes.count == 2)
+        let written = try #require(result.writes["Hotkeys"] as? [String: Data])
+        #expect(written == ["ToggleHiddenSection": two, "SearchMenuBarItems": one])
+        #expect(result.ignoredCount == 0)
     }
 
     @Test("An action whose combination equals holzBar's gives nothing and is not counted as ignored")
