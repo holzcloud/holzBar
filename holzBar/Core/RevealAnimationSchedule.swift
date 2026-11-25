@@ -36,6 +36,9 @@ nonisolated struct RevealAnimationSchedule: Equatable, Sendable {
     /// How many steps a second the schedule has.
     static let stepsPerSecond = 60.0
 
+    /// The most steps a schedule has, whatever the duration.
+    static let maximumSteps = 10_000
+
     /// The length of a hidden section's divider, which is `ControlItem`'s expanded length.
     static let expandedLength = 10_000.0
 
@@ -79,7 +82,8 @@ nonisolated struct RevealAnimationSchedule: Equatable, Sendable {
         guard start.isFinite, end.isFinite, duration.isFinite, duration > 0, movesTheRightWay else {
             return RevealAnimationSchedule(direction: direction, steps: [])
         }
-        let count = max(1, Int((duration * stepsPerSecond).rounded()))
+        // Saturates instead of trapping for an absurd duration.
+        let count = max(1, min(maximumSteps, Int((min(duration * stepsPerSecond, Double(maximumSteps))).rounded())))
         let steps = (1...count).map { index -> Step in
             let fraction = Double(index) / Double(count)
             let length = index == count
