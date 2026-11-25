@@ -139,6 +139,12 @@ nonisolated enum DockReader {
             if chosen.contains(bundleID), answers[bundleID] == nil {
                 answers[bundleID] = DockBadgeBridge.label(of: entry)
             }
+            // Every chosen app has its answer and the attribute was found listed: nothing later
+            // in the Dock can change the pass, so no further bundle lookups are made. Stopping
+            // before `listed` is true would lose the proof the start check takes from a later item.
+            if listed, answers.count == chosen.count {
+                break
+            }
         }
         return LabelPass(
             pass: DockLabelGate.Pass(dockReadable: true, listed: listed, answers: Array(answers.values)),
