@@ -360,14 +360,18 @@ struct ImportPreviewSheet: View {
     }
 
     /// Writes the backup and the settings and restarts holzBar. The sheet stays until the app
-    /// quits, or shows the failure and gives the primary back.
+    /// quits, or shows the failure and gives the primary back. When the settings are written but
+    /// holzBar cannot restart itself, the sheet closes (the alert of the restart says what to do):
+    /// it must not stay locked, and it must not offer the import again.
     private func apply(_ plan: ImportPlan) {
         failure = nil
         activity = .applying
         Task {
             await Task.yield()
             do {
-                try PreviousAppImporter.apply(plan)
+                try PreviousAppImporter.apply(plan) {
+                    dismiss()
+                }
             } catch PreviousAppImporter.ImportError.backupFailed {
                 // Nothing was written: the primary comes back, and the user can try again.
                 activity = .idle

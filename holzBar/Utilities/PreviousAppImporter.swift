@@ -158,8 +158,11 @@ enum PreviousAppImporter {
     /// before any key is touched. The marker for the undo toast is set only once the record is on
     /// disk. Only keys of the plan are written, validated once more, and no key is removed.
     ///
+    /// - Parameter onRelaunchFailure: Called when holzBar could not start its new instance. The
+    ///   settings are written by then, so the caller must not offer the import again: a second one
+    ///   would replace the record of the original settings by one of the imported state.
     /// - Throws: ``ImportError/backupFailed`` when the record could not be written.
-    static func apply(_ plan: ImportPlan) throws {
+    static func apply(_ plan: ImportPlan, onRelaunchFailure: (@MainActor () -> Void)? = nil) throws {
         let writes = Defaults.Key.validatedSettings(plan.writes, ownBundleIdentifier: Constants.bundleIdentifier).accepted
         let defaults = UserDefaults.standard
         let domain = defaults.persistentDomain(forName: Constants.bundleIdentifier) ?? [:]
@@ -183,7 +186,7 @@ enum PreviousAppImporter {
             defaults.set(value, forKey: key)
         }
         logger.notice("Imported \(writes.count, privacy: .public) settings from \(plan.source.rawValue, privacy: .public)")
-        SettingsBackup.relaunch()
+        SettingsBackup.relaunch(onFailure: onRelaunchFailure)
     }
 
     /// The record of the settings before the last import, or `nil` when there is none or the file
