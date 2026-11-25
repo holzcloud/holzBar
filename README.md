@@ -96,6 +96,20 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ## What's new
 
+### 1.2.0 beta
+
+- **System monitor**: readouts for the CPU, memory, network, disk and battery, the GPU behind its own switch, with two-minute curves in the notch hub, and alerts in the notch when one crosses a limit you set
+- **Devices**: Accessory alerts lists your devices with their battery levels, and a widget shows the lowest one
+- **Indicators**: the closed notch flashes the input source and the volume or brightness, and can replace macOS's own display
+- **Dock badges**: the unread counts of apps in your Dock as menu bar items, with groups
+- **Import from Thaw and Hidden Bar**: bring over their settings with a preview, a backup and Undo
+- **macOS 27**: a notice when icons are folded away or do not fit beside the notch, with Move to Hidden as one Undo step; ask where a new app goes; the apps macOS does not show
+- **Notch hub**: gestures, a pin, opening on the display with the pointer, the sound output, dimming for a monitor without brightness control, and cards for notifications and meetings
+- **Menu bar**: a Readable menu bar mood, a Spotlight button and a Large Percent battery format
+- **Fixed**: clicks on system items, apps that launch hidden, menu bar restarts, Live Activities on macOS 27.3, and more
+
+[Release notes](docs/release-notes/v1.2.0-beta1.md) · [full list](docs/features.md#new-in-120)
+
 ### 1.1.1
 
 - **External monitors**: brightness, contrast, volume and mute over DDC, in Display controls, off until you switch it on
@@ -119,7 +133,7 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 1.0.5 · 1.0.4 · 1.0.3 · 1.0.2 · 1.0.1 · 1.0.0 and older: see the [release notes](docs/release-notes/) and the [full feature list](docs/features.md).
 
-**Planned, not available yet:** more modules for the notch hub. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
+**Planned, not available yet:** restoring your layout automatically on macOS 27, more Shortcuts actions, an optional local MCP server, an app launcher with tools in 1.3.0 and more modules for the notch hub. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
 
 ## More
 
