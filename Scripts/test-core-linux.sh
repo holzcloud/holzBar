@@ -118,6 +118,7 @@ sources=(
   LegacyRevealRules
   LiveActivity
   LiveActivityItem
+  LossyJSONList
   MenuBarAnchor
   MenuBarBackendKind
   MenuBarDragDecider
@@ -305,6 +306,7 @@ tests=(
   LayoutSnapshotTests
   LegacyRevealRulesTests
   LiveActivityItemTests
+  LossyJSONListTests
   MenuBarAnchorTests
   MenuBarDragDeciderTests
   MenuBarFitTests
