@@ -131,7 +131,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Runtime patching of AppKit (method swizzling) | yes | yes | — | none |
 | Item images in memory | kept | — | — | released when unused |
 | Unit tests run on every code change | none | ✅ | — | ✅ |
-| App size | — | — | — | 38.3 MB <sub>CI build of 31 Oct 2026</sub> |
+| App size | — | — | — | 56.4 MB <sub>Release build of 25 Nov 2026</sub> |
 | Widgets do nothing while hidden: no timer, no refresh | — | — | — | ✅ |
 | **Distribution and maintenance** | | | | |
 | Price and licence | free, open source | free, open source | paid (one-time; Pro yearly; Mega Supporter lifetime), closed source | free, open source (GPL-3.0) |
