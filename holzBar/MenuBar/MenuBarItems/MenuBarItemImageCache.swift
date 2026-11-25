@@ -165,6 +165,9 @@ final class MenuBarItemImageCache {
     /// Whether a capture of item images is under way (macOS 27).
     private(set) var isCapturing = false
 
+    /// The macOS 27 capture passes that are running now.
+    @ObservationIgnored private var activeCaptures27 = 0
+
     /// Whether a capture has finished since launch. Until then an empty image list
     /// means the pictures are still on their way, not that capturing failed.
     private(set) var hasCaptured = false
@@ -562,8 +565,13 @@ final class MenuBarItemImageCache {
             for section in sections {
                 items += appState.itemManager.itemCache[section]
             }
+            // Passes can overlap; the cache is capturing until the last one ends.
+            activeCaptures27 += 1
             isCapturing = true
-            defer { isCapturing = false }
+            defer {
+                activeCaptures27 -= 1
+                isCapturing = activeCaptures27 > 0
+            }
             let store = appState.itemImageStore27
             await store.captureActiveMenuBar(appState: appState)
             await store.photographMissing(items: items, appState: appState)
