@@ -39,8 +39,8 @@ struct AdvancedImportRows: View {
         }
     }
 
-    /// The row that exists only while a backup does: its button asks first, because changes made
-    /// since the import are lost.
+    /// The row that exists only while a backup does: its button asks first, because a restore
+    /// puts back the settings the import changed and restarts holzBar; every other setting stays.
     private func restoreRow(for record: ImportBackupRecord) -> some View {
         SettingsButtonRow(.advancedRestoreBeforeImport, small: Text(verbatim: record.source.productName), badge: .preview) {
             Button("Restore Settings Before Import…") {
@@ -50,7 +50,7 @@ struct AdvancedImportRows: View {
         .holzBarConfirmation(
             isPresented: $isConfirmingRestore,
             title: Text("Restore the settings from before the import?"),
-            message: Text("holzBar goes back to the settings it had before you imported from \(record.source.productName) on \(record.date.formatted(date: .long, time: .omitted)). Changes made since then are lost. holzBar restarts."),
+            message: Text("holzBar puts back the settings that your import from \(record.source.productName) on \(record.date.formatted(date: .long, time: .omitted)) changed, as they were before it. All other settings stay as they are. holzBar restarts."),
             confirmTitle: "Restore and Restart",
             isDestructive: true
         ) {

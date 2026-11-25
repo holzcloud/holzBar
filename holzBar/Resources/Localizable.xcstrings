@@ -198715,125 +198715,6 @@
         }
       }
     },
-    "Puts back the settings holzBar had before the last import and restarts. Changes you made since then are lost." : {
-      "comment" : "Advanced: info popover of the Last import row",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vrátí nastavení, která holzBar měl před posledním importem, a restartuje se. Změny provedené od té doby se ztratí."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stellt die Einstellungen wieder her, die holzBar vor dem letzten Import hatte, und startet neu. Änderungen, die du seitdem vorgenommen hast, gehen verloren."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recupera los ajustes que holzBar tenía antes de la última importación y se reinicia. Los cambios que hayas hecho desde entonces se pierden."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rétablit les réglages que holzBar avait avant le dernier import, puis redémarre. Les modifications effectuées depuis sont perdues."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visszaállítja a holzBar beállításait az utolsó importálás előtti állapotra, és újraindul. Az azóta végzett módosítások elvesznek."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mengembalikan pengaturan holzBar sebelum impor terakhir lalu dimulai ulang. Perubahan yang Anda buat sejak itu akan hilang."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ripristina le impostazioni che holzBar aveva prima dell’ultima importazione e si riavvia. Le modifiche fatte da allora vanno perse."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "前回の読み込みの前の設定に戻して、再起動します。それ以降に行った変更は失われます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "마지막 가져오기 전의 설정으로 되돌리고 다시 시작합니다. 그 이후에 변경한 내용은 사라집니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zet de instellingen terug die holzBar had vóór de laatste import en start opnieuw. Wijzigingen die je sindsdien hebt gemaakt, gaan verloren."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przywraca ustawienia, które holzBar miał przed ostatnim importem, i uruchamia się ponownie. Zmiany wprowadzone od tego czasu zostaną utracone."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restaura os ajustes que o holzBar tinha antes da última importação e reinicia. As alterações feitas desde então são perdidas."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remetta ils parameters che holzBar aveva avant l’ultim import e reavia. Las midadas che ti has fatg dapi lura van a perder."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Возвращает настройки, которые были у holzBar до последнего импорта, и перезапускает его. Изменения, внесённые с тех пор, будут потеряны."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Återställer de inställningar som holzBar hade före den senaste importen och startar om. Ändringar du har gjort sedan dess går förlorade."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar’ın son içe aktarmadan önceki ayarlarını geri yükler ve yeniden başlar. O zamandan beri yaptığınız değişiklikler kaybolur."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Повертає параметри, які holzBar мав до останнього імпорту, і перезапускається. Зміни, внесені відтоді, буде втрачено."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "恢复 holzBar 在上次导入之前的设置并重新启动。此后所做的更改将丢失。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "還原 holzBar 在上次輸入之前的設定並重新啟動。此後所做的更改將會遺失。"
-          }
-        }
-      }
-    },
     "Restore Settings Before Import…" : {
       "comment" : "Advanced: button that restores the settings from before the last import (asks first)",
       "localizations" : {
@@ -199068,125 +198949,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "要還原輸入前的設定嗎？"
-          }
-        }
-      }
-    },
-    "holzBar goes back to the settings it had before you imported from %@ on %@. Changes made since then are lost. holzBar restarts." : {
-      "comment" : "Confirmation sheet: body of the question before restoring the settings from before the last import; the first argument is the app the import came from, the second the date of the import",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar se vrátí k nastavení, které měl před importem z %@ dne %@. Změny provedené od té doby se ztratí. holzBar se restartuje."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar kehrt zu den Einstellungen zurück, die es vor deinem Import aus %@ am %@ hatte. Änderungen seitdem gehen verloren. holzBar startet neu."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar vuelve a los ajustes que tenía antes de que importaras desde %@ el %@. Los cambios hechos desde entonces se pierden. holzBar se reinicia."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar revient aux réglages qu’il avait avant votre import depuis %@ le %@. Les modifications effectuées depuis sont perdues. holzBar redémarre."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A holzBar visszaáll a(z) %@ alkalmazásból végzett importálás (%@) előtti beállításokra. Az azóta végzett módosítások elvesznek. A holzBar újraindul."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar kembali ke pengaturan yang dimilikinya sebelum Anda mengimpor dari %@ pada %@. Perubahan sejak itu akan hilang. holzBar dimulai ulang."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar torna alle impostazioni che aveva prima dell’importazione da %@ del %@. Le modifiche fatte da allora vanno perse. holzBar si riavvia."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar は、%@ からの読み込み（%@）の前の設定に戻ります。それ以降に行った変更は失われます。holzBar は再起動します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar가 %@에서 %@에 가져오기 전의 설정으로 돌아갑니다. 그 이후의 변경 사항은 사라집니다. holzBar가 다시 시작됩니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar gaat terug naar de instellingen van vóór je import uit %@ op %@. Wijzigingen sindsdien gaan verloren. holzBar start opnieuw."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar wróci do ustawień sprzed importu z %@ dnia %@. Zmiany wprowadzone od tego czasu zostaną utracone. holzBar uruchomi się ponownie."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O holzBar volta aos ajustes que tinha antes de você importar de %@ em %@. As alterações feitas desde então são perdidas. O holzBar é reiniciado."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar turna ad ils parameters ch’el aveva avant l’import da %@ ils %@. Las midadas fatgas dapi lura van a perder. holzBar reavia."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar вернётся к настройкам, которые были до вашего импорта из %@ от %@. Изменения, внесённые с тех пор, будут потеряны. holzBar перезапустится."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar går tillbaka till de inställningar det hade före din import från %@ den %@. Ändringar som gjorts sedan dess går förlorade. holzBar startar om."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar, %@ uygulamasından %@ tarihinde yaptığınız içe aktarmadan önceki ayarlarına döner. O zamandan beri yapılan değişiklikler kaybolur. holzBar yeniden başlar."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar повернеться до параметрів, які були до вашого імпорту з %@ від %@. Зміни, внесені відтоді, буде втрачено. holzBar перезапуститься."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar 将恢复到从 %@ 导入（%@）之前的设置。此后所做的更改将丢失。holzBar 会重新启动。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar 會還原到從 %@ 輸入（%@）之前的設定。此後所做的更改將會遺失。holzBar 會重新啟動。"
           }
         }
       }
@@ -202777,6 +202539,244 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "標記數字每 30 秒至 2 分鐘重新整理一次"
+          }
+        }
+      }
+    },
+    "Puts back the settings the last import changed, as they were before it, and restarts. All other settings stay as they are." : {
+      "comment" : "Advanced: info popover of the Last import row; only the settings the import changed go back, every other setting stays",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vrátí nastavení, která poslední import změnil, do stavu před ním, a restartuje se. Všechna ostatní nastavení zůstanou, jak jsou."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setzt die Einstellungen, die der letzte Import geändert hat, auf den Stand davor zurück und startet neu. Alle anderen Einstellungen bleiben, wie sie sind."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Devuelve los ajustes que cambió la última importación a como estaban antes y se reinicia. Todos los demás ajustes se quedan como están."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rétablit, tels qu’ils étaient avant, les réglages que le dernier import a modifiés, puis redémarre. Tous les autres réglages restent inchangés."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visszaállítja az utolsó importálás által módosított beállításokat az előtti állapotukra, és újraindul. A többi beállítás változatlan marad."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mengembalikan pengaturan yang diubah oleh impor terakhir seperti sebelumnya lalu dimulai ulang. Semua pengaturan lainnya tetap seperti semula."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riporta allo stato precedente le impostazioni che l’ultima importazione ha modificato e si riavvia. Tutte le altre impostazioni restano come sono."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "前回の読み込みで変更された設定を、その前の状態に戻して再起動します。ほかの設定はそのままです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마지막 가져오기로 바뀐 설정을 그 이전 상태로 되돌리고 다시 시작합니다. 다른 설정은 그대로 유지됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zet de instellingen die de laatste import heeft gewijzigd terug naar hoe ze ervoor waren en start opnieuw. Alle andere instellingen blijven zoals ze zijn."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przywraca ustawienia zmienione przez ostatni import do stanu sprzed niego i uruchamia się ponownie. Wszystkie pozostałe ustawienia zostają bez zmian."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Devolve os ajustes que a última importação alterou ao que eram antes e reinicia. Todos os outros ajustes continuam como estão."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remetta ils parameters che l’ultim import ha midà en il stadi d’avant e reavia. Tut ils auters parameters restan sco ch’els èn."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Возвращает настройки, которые изменил последний импорт, к прежнему состоянию и перезапускает holzBar. Все остальные настройки остаются как есть."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Återställer de inställningar som den senaste importen ändrade till hur de var före den och startar om. Alla andra inställningar förblir som de är."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son içe aktarmanın değiştirdiği ayarları ondan önceki hâline geri getirir ve yeniden başlar. Diğer tüm ayarlar olduğu gibi kalır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повертає параметри, які змінив останній імпорт, до попереднього стану і перезапускається. Усі інші параметри залишаються як є."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将上次导入更改过的设置恢复到导入之前的状态并重新启动。其他所有设置保持不变。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "將上次輸入更改過的設定還原到輸入之前的狀態並重新啟動。其他所有設定保持不變。"
+          }
+        }
+      }
+    },
+    "holzBar puts back the settings that your import from %@ on %@ changed, as they were before it. All other settings stay as they are. holzBar restarts." : {
+      "comment" : "Confirmation sheet: body of the question before restoring the settings from before the last import; only the settings the import changed go back, every other setting stays; the first argument is the app the import came from, the second the date of the import",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar vrátí nastavení, která změnil váš import z %@ dne %@, do stavu před ním. Všechna ostatní nastavení zůstanou, jak jsou. holzBar se restartuje."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar setzt die Einstellungen, die dein Import aus %@ am %@ geändert hat, auf den Stand davor zurück. Alle anderen Einstellungen bleiben, wie sie sind. holzBar startet neu."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar devuelve los ajustes que cambió tu importación desde %@ el %@ a como estaban antes. Todos los demás ajustes se quedan como están. holzBar se reinicia."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar rétablit, tels qu’ils étaient avant, les réglages que votre import depuis %@ le %@ a modifiés. Tous les autres réglages restent inchangés. holzBar redémarre."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar visszaállítja azokat a beállításokat, amelyeket a(z) %@ alkalmazásból végzett importálás (%@) módosított, az előtti állapotukra. A többi beállítás változatlan marad. A holzBar újraindul."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar mengembalikan pengaturan yang diubah oleh impor Anda dari %@ pada %@ seperti sebelumnya. Semua pengaturan lainnya tetap seperti semula. holzBar dimulai ulang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar riporta allo stato precedente le impostazioni che la tua importazione da %@ del %@ ha modificato. Tutte le altre impostazioni restano come sono. holzBar si riavvia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar は、%@ からの読み込み（%@）で変更された設定を、その前の状態に戻します。ほかの設定はそのままです。holzBar は再起動します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar가 %@에서 %@에 가져오기로 바뀐 설정을 그 이전 상태로 되돌립니다. 다른 설정은 그대로 유지됩니다. holzBar가 다시 시작됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar zet de instellingen die je import uit %@ op %@ heeft gewijzigd terug naar hoe ze ervoor waren. Alle andere instellingen blijven zoals ze zijn. holzBar start opnieuw."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar przywróci ustawienia zmienione przez import z %@ dnia %@ do stanu sprzed niego. Wszystkie pozostałe ustawienia zostaną bez zmian. holzBar uruchomi się ponownie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar devolve os ajustes que a sua importação de %@ em %@ alterou ao que eram antes. Todos os outros ajustes continuam como estão. O holzBar é reiniciado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar remetta ils parameters che l’import da %@ ils %@ ha midà en il stadi d’avant. Tut ils auters parameters restan sco ch’els èn. holzBar reavia."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar вернёт настройки, которые изменил ваш импорт из %@ от %@, к прежнему состоянию. Все остальные настройки останутся как есть. holzBar перезапустится."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar återställer de inställningar som din import från %@ den %@ ändrade till hur de var före den. Alla andra inställningar förblir som de är. holzBar startar om."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar, %@ uygulamasından %@ tarihinde yaptığınız içe aktarmanın değiştirdiği ayarları ondan önceki hâline geri getirir. Diğer tüm ayarlar olduğu gibi kalır. holzBar yeniden başlar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar поверне параметри, які змінив ваш імпорт з %@ від %@, до попереднього стану. Усі інші параметри залишаться як є. holzBar перезапуститься."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 将把从 %@ 导入（%@）时更改过的设置恢复到导入之前的状态。其他所有设置保持不变。holzBar 会重新启动。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 會把從 %@ 輸入（%@）時更改過的設定還原到輸入之前的狀態。其他所有設定保持不變。holzBar 會重新啟動。"
           }
         }
       }

@@ -174,7 +174,7 @@ extension SettingsEntry {
         pane: .advanced,
         group: SettingsCatalog.AdvancedPane.backUp,
         label: String(localized: "Last import"),
-        info: String(localized: "Puts back the settings holzBar had before the last import and restarts. Changes you made since then are lost.")
+        info: String(localized: "Puts back the settings the last import changed, as they were before it, and restarts. All other settings stay as they are.")
     )
 
     static let advancedPermissionAccessibility = SettingsEntry(
