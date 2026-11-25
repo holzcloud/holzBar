@@ -412,16 +412,18 @@ nonisolated struct AutomationRule: Codable, Equatable, Identifiable, Sendable {
 
 /// When the next time span starts or ends.
 nonisolated enum AutomationSchedule {
-    /// The seconds from `secondsOfDay` (since midnight) to the next start or end of any of
-    /// the windows, or `nil` without a window. Weekdays are not considered: the boundary
-    /// of a day on which nothing changes only costs one wake-up.
-    static func secondsUntilNextBoundary(of windows: [AutomationTimeWindow], from secondsOfDay: Double) -> Double? {
-        let day = 86_400.0
-        let boundaries = windows.flatMap { [$0.startMinute, $0.endMinute] }.map { Double($0) * 60 }
-        return boundaries
-            .map { boundary in
-                let delta = boundary - secondsOfDay
-                return delta > 0 ? delta : delta + day
+    /// The seconds from `date` to the next start or end of any of the windows, or `nil`
+    /// without a window. The boundary is a wall-clock time found with the calendar, so a day
+    /// with a daylight saving change still ends at the right moment. Weekdays are not
+    /// considered: the boundary of a day on which nothing changes only costs one wake-up.
+    static func secondsUntilNextBoundary(of windows: [AutomationTimeWindow], after date: Date, calendar: Calendar) -> Double? {
+        let minutes = Set(windows.flatMap { [$0.startMinute, $0.endMinute] })
+        return minutes
+            .compactMap { minute -> Double? in
+                let components = DateComponents(hour: minute / 60, minute: minute % 60, second: 0)
+                return calendar
+                    .nextDate(after: date, matching: components, matchingPolicy: .nextTime)
+                    .map { $0.timeIntervalSince(date) }
             }
             .min()
     }
