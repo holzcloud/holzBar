@@ -124,7 +124,6 @@ nonisolated enum DockReader {
         var cache = [URL: String?]()
         var answers = [String: DockLabelAnswer]()
         var listed = false
-        var askedForListing = false
         for entry in entries.prefix(maximumItems) {
             guard !Task.isCancelled, DispatchTime.now().uptimeNanoseconds < deadline else {
                 return unreadable
@@ -132,8 +131,9 @@ nonisolated enum DockReader {
             guard let bundleID = appBundleIdentifier(of: entry, cache: &cache) else {
                 continue
             }
-            if !askedForListing {
-                askedForListing = true
+            // The Dock may list the attribute only on an item that shows a badge, so every
+            // application item is asked until one lists it, not only the first.
+            if !listed {
                 listed = DockBadgeBridge.listsLabel(entry)
             }
             if chosen.contains(bundleID), answers[bundleID] == nil {

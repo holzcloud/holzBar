@@ -183,24 +183,46 @@ struct DockBadgeLabelTests {
 
     @Test("A readable pass with no answer reads nothing")
     func nothingRead() {
-        #expect(DockLabelGate.outcome(pass()) == .nothingRead)
-        #expect(DockLabelGate.outcome(pass(listed: true)) == .nothingRead)
+        for proven in [false, true] {
+            #expect(DockLabelGate.outcome(pass(), interfaceProven: proven) == .nothingRead)
+            #expect(DockLabelGate.outcome(pass(listed: true), interfaceProven: proven) == .nothingRead)
+        }
     }
 
-    @Test("A pass that cannot read the Dock, or whose answers all fail or are unsupported, is a failure")
+    @Test("A pass that cannot read the Dock, or whose answers are errors, is a failure, proven or not")
     func failures() {
-        #expect(DockLabelGate.outcome(pass(readable: false)) == .failure)
-        #expect(DockLabelGate.outcome(pass(readable: false, [.text("1")])) == .failure)
-        #expect(DockLabelGate.outcome(pass([.failed, .failed])) == .failure)
-        #expect(DockLabelGate.outcome(pass([.unsupported])) == .failure)
-        #expect(DockLabelGate.outcome(pass([.unsupported, .failed])) == .failure)
+        for proven in [false, true] {
+            #expect(DockLabelGate.outcome(pass(readable: false), interfaceProven: proven) == .failure)
+            #expect(DockLabelGate.outcome(pass(readable: false, [.text("1")]), interfaceProven: proven) == .failure)
+            #expect(DockLabelGate.outcome(pass([.failed, .failed]), interfaceProven: proven) == .failure)
+            #expect(DockLabelGate.outcome(pass([.unsupported, .failed]), interfaceProven: proven) == .failure)
+        }
+    }
+
+    @Test("Before the interface is proven an answer of only unsupported is a failure")
+    func unprovenUnsupportedFails() {
+        #expect(DockLabelGate.outcome(pass([.unsupported]), interfaceProven: false) == .failure)
+    }
+
+    @Test("Once the interface is proven, items without a badge that answer unsupported are a success")
+    func provenUnsupportedIsNoBadge() {
+        #expect(DockLabelGate.outcome(pass([.unsupported]), interfaceProven: true) == .success)
+        #expect(DockLabelGate.outcome(pass([.unsupported, .unsupported]), interfaceProven: true) == .success)
+    }
+
+    @Test("An attribute an item lists is a success, listed or not proven")
+    func listedIsSuccess() {
+        #expect(DockLabelGate.outcome(pass(listed: true, [.unsupported]), interfaceProven: false) == .success)
+        #expect(DockLabelGate.outcome(pass(listed: true, [.failed]), interfaceProven: false) == .success)
     }
 
     @Test("Any answer with text or no value is a success, so a Dock without badges succeeds every time")
     func successes() {
-        #expect(DockLabelGate.outcome(pass([.none])) == .success)
-        #expect(DockLabelGate.outcome(pass([.text("2")])) == .success)
-        #expect(DockLabelGate.outcome(pass([.failed, .none])) == .success)
+        for proven in [false, true] {
+            #expect(DockLabelGate.outcome(pass([.none]), interfaceProven: proven) == .success)
+            #expect(DockLabelGate.outcome(pass([.text("2")]), interfaceProven: proven) == .success)
+            #expect(DockLabelGate.outcome(pass([.failed, .none]), interfaceProven: proven) == .success)
+        }
     }
 
     // MARK: Gate
@@ -222,7 +244,7 @@ struct DockBadgeLabelTests {
         record(pass(), in: &gate)
         record(pass([.failed]), in: &gate)
         record(pass(), in: &gate)
-        record(pass([.unsupported]), in: &gate)
+        record(pass([.failed]), in: &gate)
         #expect(gate.state == .unavailable(.failedRepeatedly))
     }
 
@@ -237,6 +259,24 @@ struct DockBadgeLabelTests {
         #expect(gate.isAvailable)
     }
 
+    @Test("Twenty passes where the Dock answers unsupported for items without a badge leave a proven gate available")
+    func unsupportedLeavesGateAvailable() {
+        var gate = PrivateFeatureGate(isEnabled: true, load: .loaded)
+        for _ in 0..<20 {
+            record(pass([.unsupported]), in: &gate)
+        }
+        #expect(gate.state == .available)
+    }
+
+    @Test("Real errors still switch a proven gate off, even among unsupported answers")
+    func errorsStillSwitchOff() {
+        var gate = PrivateFeatureGate(isEnabled: true, load: .loaded)
+        for _ in 0..<3 {
+            record(pass([.unsupported, .failed]), in: &gate)
+        }
+        #expect(gate.state != .available)
+    }
+
     @Test("Twenty passes where no chosen app has a badge leave the gate available")
     func noBadgeLeavesGateAvailable() {
         var gate = PrivateFeatureGate(isEnabled: true, load: .loaded)
@@ -247,7 +287,7 @@ struct DockBadgeLabelTests {
     }
 
     private func record(_ pass: DockLabelGate.Pass, in gate: inout PrivateFeatureGate) {
-        switch DockLabelGate.outcome(pass) {
+        switch DockLabelGate.outcome(pass, interfaceProven: true) {
         case .success: gate.recordSuccess()
         case .failure: gate.recordFailure()
         case .nothingRead: break

@@ -189,11 +189,13 @@ nonisolated enum DockBadgeSum {
 ///
 /// The badge is an undocumented attribute of the Dock's application items, so the read can only
 /// stay on while it works. It is off for the session only when the interface is missing (the
-/// Dock's items answer that the attribute does not exist, three passes in a row) or failing (the
-/// Dock cannot be read, or every read ends in an error, three passes in a row). An item with no
-/// badge answers with no value, which is the zero state and never a reason to switch the read
-/// off: a Dock where no app has a badge is a valid Dock. The three-in-a-row rule after the start
-/// check is ``PrivateFeatureGate``'s; ``outcome(_:)`` says which of its calls a pass makes.
+/// Dock's items answer that the attribute does not exist, three passes in a row, before any
+/// proof) or failing (the Dock cannot be read, or every read ends in an error, three passes in a
+/// row). An item with no badge answers with no value, or, because the Dock may list the attribute
+/// only while a badge shows, that the attribute is unsupported. Both are the zero state and never
+/// a reason to switch the read off once the interface has been seen: a Dock where no app has a
+/// badge is a valid Dock. The three-in-a-row rule after the start check is
+/// ``PrivateFeatureGate``'s; ``outcome(_:)`` says which of its calls a pass makes.
 nonisolated enum DockLabelGate {
     /// What one pass over the Dock found.
     struct Pass: Equatable, Sendable {
@@ -209,23 +211,36 @@ nonisolated enum DockLabelGate {
     enum PassOutcome: Equatable, Sendable {
         /// The Dock answered like a Dock that has the interface: record a success.
         case success
-        /// The Dock could not be read, or every answer was an error or "unsupported": record a
-        /// failure.
+        /// The Dock could not be read, or the answers were errors: record a failure.
         case failure
         /// Nothing was asked: record nothing.
         case nothingRead
     }
 
-    /// The outcome of a pass. Any answer with text or no value is a success, so a Dock where no
-    /// chosen app has a badge succeeds every time; a pass with no answer reads nothing.
-    static func outcome(_ pass: Pass) -> PassOutcome {
+    /// The outcome of a pass. An attribute that an item lists, or an answer with text or no value,
+    /// is a success, so a Dock where no chosen app has a badge succeeds every time; a pass with
+    /// no answer reads nothing.
+    ///
+    /// - Parameters:
+    ///   - pass: What the pass found.
+    ///   - interfaceProven: Whether the start check has seen the interface work. Then an item
+    ///     that answers "unsupported" is an item without a badge (the Dock may list the attribute
+    ///     only while a badge shows), so a pass of nothing but "unsupported" answers is a success
+    ///     too. Only an unreadable Dock and answers that are errors are failures.
+    static func outcome(_ pass: Pass, interfaceProven: Bool) -> PassOutcome {
         guard pass.dockReadable else {
             return .failure
         }
         guard !pass.answers.isEmpty else {
             return .nothingRead
         }
-        return pass.answers.contains(where: hasEvidence) ? .success : .failure
+        if pass.listed || pass.answers.contains(where: hasEvidence) {
+            return .success
+        }
+        if interfaceProven, pass.answers.allSatisfy({ $0 == .unsupported }) {
+            return .success
+        }
+        return .failure
     }
 
     /// Whether an answer shows that the interface is there: the Dock gave a text or said the

@@ -637,7 +637,7 @@ final class DockBadges {
             gate = PrivateFeatureGate(isEnabled: true, load: load)
         }
         if gate?.isAvailable == true {
-            switch DockLabelGate.outcome(result.pass) {
+            switch DockLabelGate.outcome(result.pass, interfaceProven: true) {
             case .success: gate?.recordSuccess()
             case .failure: gate?.recordFailure()
             case .nothingRead: break
