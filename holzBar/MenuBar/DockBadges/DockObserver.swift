@@ -132,8 +132,9 @@ final class DockObserver {
         isRegistering = true
         let sink = DockEventSink(owner: self, generation: generation)
         let token = generation
-        // The sink travels as a number: it is only turned back into a pointer by the callback, and
-        // the observer keeps the sink alive for as long as its source is on the run loop.
+        // The sink travels as a number: it is only turned back into a pointer by the callback. An
+        // AXObserver does not retain its refcon, so the sink stays valid only because
+        // `DockObserver.sink` holds it strongly until `detach()` has removed the run-loop source.
         let context = Int(bitPattern: Unmanaged.passUnretained(sink).toOpaque())
         registrationTask = Task { [weak self] in
             let registration = await Self.makeRegistration(for: process, context: context)
@@ -176,7 +177,8 @@ final class DockObserver {
         }
     }
 
-    /// Removes the run-loop source and lets go of the observer.
+    /// Removes the run-loop source and lets go of the observer. The source goes first: the sink is
+    /// released only after no callback can reach it any more.
     private func detach() {
         if let observer {
             CFRunLoopRemoveSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer), .defaultMode)
@@ -279,8 +281,10 @@ private final class DockEventSink {
 }
 
 /// The observer's callback; it runs on the main run loop, where the observer lives. The context is
-/// the unretained sink that `attach()` made; the observer keeps it alive for as long as its source
-/// is on the run loop. The element is not looked at: only the fact that the Dock notified counts.
+/// the unretained sink that `attach()` made. An AXObserver does not retain its refcon: the sink
+/// is valid only because `DockObserver.sink` holds it until `detach()` has removed the run-loop
+/// source, and both happen on the main thread, so the callback never sees a freed sink. The
+/// element is not looked at: only the fact that the Dock notified counts.
 nonisolated private func dockObserverCallback(
     _ observer: AXObserver,
     _ element: AXUIElement,
