@@ -353,7 +353,7 @@ private struct MenuBarItemGroupPanel: View {
                     .fixedSize(horizontal: false, vertical: true)
             } else {
                 HStack(spacing: 4) {
-                    ForEach(items, id: \.tag) { item in
+                    ForEach(items, id: \.windowID) { item in
                         Button {
                             close()
                             Task {
