@@ -71,19 +71,6 @@ final class HotkeyRegistry {
             return noErr
         }
 
-        menuTrackingTasks = [
-            Task { [weak self] in
-                for await _ in NotificationCenter.default.notifications(named: NSMenu.didBeginTrackingNotification) {
-                    self?.unregisterAndRetainAll()
-                }
-            },
-            Task { [weak self] in
-                for await _ in NotificationCenter.default.notifications(named: NSMenu.didEndTrackingNotification) {
-                    self?.registerAllRetained()
-                }
-            },
-        ]
-
         let handler: EventHandlerUPP = { _, event, userData in
             guard
                 let event,
@@ -100,7 +87,7 @@ final class HotkeyRegistry {
             EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyReleased)),
         ]
 
-        return InstallEventHandler(
+        let status = InstallEventHandler(
             GetEventDispatcherTarget(),
             handler,
             eventTypes.count,
@@ -108,6 +95,40 @@ final class HotkeyRegistry {
             Unmanaged.passUnretained(self).toOpaque(),
             &eventHandlerRef
         )
+        // Follow menu tracking only once the handler stands, so a failed install never leaves
+        // tasks behind that the next attempt would double.
+        if status == noErr {
+            menuTrackingTasks.forEach { $0.cancel() }
+            menuTrackingTasks = [
+                Task { [weak self] in
+                    for await _ in NotificationCenter.default.notifications(named: NSMenu.didBeginTrackingNotification) {
+                        self?.menuDidBeginTracking()
+                    }
+                },
+                Task { [weak self] in
+                    for await _ in NotificationCenter.default.notifications(named: NSMenu.didEndTrackingNotification) {
+                        self?.menuDidEndTracking()
+                    }
+                },
+            ]
+        }
+        return status
+    }
+
+    /// How many menus are being tracked, a menu and its open submenus each counting once.
+    private var menuTrackingDepth = 0
+
+    private func menuDidBeginTracking() {
+        menuTrackingDepth += 1
+        unregisterAndRetainAll()
+    }
+
+    private func menuDidEndTracking() {
+        menuTrackingDepth = max(0, menuTrackingDepth - 1)
+        // Hotkeys come back only when the outermost menu closes.
+        if menuTrackingDepth == 0 {
+            registerAllRetained()
+        }
     }
 
     /// Registers the given hotkey for the given event kind and returns the
@@ -203,7 +224,11 @@ final class HotkeyRegistry {
             Logger.hotkeys.error("No registered key combination for id \(id, privacy: .public)")
             return
         }
-        let status = UnregisterEventHotKey(registration.hotKeyRef)
+        guard let hotKeyRef = registration.hotKeyRef else {
+            // Already inactive.
+            return
+        }
+        let status = UnregisterEventHotKey(hotKeyRef)
         guard status == noErr else {
             Logger.hotkeys.error("Hotkey unregistration failed with status \(status, privacy: .public)")
             return
@@ -223,7 +248,7 @@ final class HotkeyRegistry {
     /// Unregisters all key combinations, retaining their registrations
     /// in an inactive state.
     private func unregisterAndRetainAll() {
-        for (id, _) in registrations {
+        for (id, registration) in registrations where registration.hotKeyRef != nil {
             retainedUnregister(id)
         }
     }
@@ -259,7 +284,8 @@ final class HotkeyRegistry {
                 status == noErr,
                 let hotKeyRef
             else {
-                registrations.removeValue(forKey: registration.hotKeyID.id)
+                // Keep the registration inactive: the next end of menu tracking tries again,
+                // so a transient failure does not leave the hotkey dead.
                 Logger.hotkeys.error("Hotkey registration failed with status \(status, privacy: .public)")
                 continue
             }
