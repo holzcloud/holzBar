@@ -94,6 +94,17 @@ final class NowPlayingRuntime: HubModuleRuntime {
     @ObservationIgnored private var hubIsOpen = false
     @ObservationIgnored private var remotePlayers = Set<NowPlayingPlayer>()
     @ObservationIgnored private var readsAllAppsLoop: ObservationLoop?
+    /// When the helper last started, to tell a run that ends at once from a healthy one.
+    @ObservationIgnored private var remoteStartedAt: ContinuousClock.Instant?
+    /// How many runs in a row ended within ``shortRun``; a helper that keeps printing one line and
+    /// exiting never counts as three failures, so its restarts wait longer and longer instead.
+    @ObservationIgnored private var remoteShortRuns = 0
+    @ObservationIgnored private var remoteRestartTask: Task<Void, Never>?
+
+    /// A run shorter than this counts as ending at once.
+    private static let shortRun = Duration.seconds(5)
+    /// The longest wait before the helper is started again after short runs.
+    private static let longestRestartWait = 60.0
 
     init(appState: AppState) {
         self.appState = appState
@@ -217,11 +228,16 @@ final class NowPlayingRuntime: HubModuleRuntime {
               !bridge.isActive else {
             return
         }
+        remoteRestartTask?.cancel()
+        remoteRestartTask = nil
+        remoteStartedAt = .now
         bridge.start()
     }
 
     /// Ends the route and drops the players it reported.
     private func stopRemote() {
+        remoteRestartTask?.cancel()
+        remoteRestartTask = nil
         bridge.stop()
         removeRemotePlayers()
     }
@@ -276,7 +292,27 @@ final class NowPlayingRuntime: HubModuleRuntime {
         }
         removeRemotePlayers()
         remoteGateDidChange()
-        startRemote()
+        if let remoteStartedAt, ContinuousClock.now - remoteStartedAt < Self.shortRun {
+            remoteShortRuns += 1
+        } else {
+            remoteShortRuns = 0
+        }
+        guard remoteShortRuns > 1 else {
+            startRemote()
+            return
+        }
+        // Runs that keep ending at once: wait 2, 4, 8 ... seconds, up to a minute, between starts.
+        let wait = min(pow(2, Double(remoteShortRuns - 1)), Self.longestRestartWait)
+        remoteRestartTask?.cancel()
+        remoteRestartTask = Task { [weak self] in
+            do {
+                try await Task.sleep(for: .seconds(wait), tolerance: .seconds(1), clock: ContinuousClock())
+            } catch {
+                return
+            }
+            self?.remoteRestartTask = nil
+            self?.startRemote()
+        }
     }
 
     /// The bundle failed its check, the helper is missing, the process could not start or a line
