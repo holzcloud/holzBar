@@ -451,7 +451,7 @@ struct DockBadgeRefreshTests {
 
     // MARK: Change
 
-    @Test("A change is a different badge of an app that was read, an app with a badge that was not, or a badge that went")
+    @Test("A change is a different badge of an app that was read, or an app with a badge that was not read before")
     func changeBetweenReads() {
         let one = DockBadgeLabel.count(1)
         #expect(!DockBadgeRefresh.changed(from: [:], to: [:]))
@@ -459,8 +459,16 @@ struct DockBadgeRefreshTests {
         #expect(DockBadgeRefresh.changed(from: ["a": one], to: ["a": .count(2)]))
         #expect(DockBadgeRefresh.changed(from: ["a": one], to: ["a": .mark("•")]))
         #expect(DockBadgeRefresh.changed(from: [:], to: ["a": one]))
-        #expect(DockBadgeRefresh.changed(from: ["a": one], to: [:]))
         #expect(DockBadgeRefresh.changed(from: ["a": one], to: ["a": DockBadgeLabel.none]))
+    }
+
+    @Test("An app the new pass did not find is no change, so a short list while the Dock rebuilds is no evidence (WR-04)")
+    func missingAppIsNoChange() {
+        let one = DockBadgeLabel.count(1)
+        #expect(!DockBadgeRefresh.changed(from: ["a": one], to: [:]))
+        #expect(!DockBadgeRefresh.changed(from: ["a": one, "b": one], to: ["b": one]))
+        // The apps that were found still count.
+        #expect(DockBadgeRefresh.changed(from: ["a": one, "b": one], to: ["b": .count(2)]))
     }
 
     @Test("An app without a badge is the same as an app that is not in the Dock")

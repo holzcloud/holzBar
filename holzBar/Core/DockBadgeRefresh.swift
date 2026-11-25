@@ -271,10 +271,13 @@ nonisolated struct DockBadgeRefresh: Equatable, Sendable {
 
     // MARK: Change
 
-    /// Whether the badges of the chosen apps differ between two passes. An app that is not in the
-    /// Dock has no badge, which is the same as an app without one.
+    /// Whether the badges of the chosen apps that the new pass found differ from the pass before.
+    /// An app that was not in the Dock before has no badge, which is the same as an app without
+    /// one. An app that the new pass did not find is not a change: while the Dock restarts or
+    /// rebuilds its list, a pass can be readable and short, and that says nothing about a badge
+    /// (the next pass finds the app again).
     static func changed(from old: [String: DockBadgeLabel], to new: [String: DockBadgeLabel]) -> Bool {
-        for key in Set(old.keys).union(new.keys) where (old[key] ?? .none) != (new[key] ?? .none) {
+        for (key, label) in new where (old[key] ?? .none) != label {
             return true
         }
         return false
