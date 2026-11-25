@@ -264,8 +264,10 @@ final class DisplayControlsRuntime: HubModuleRuntime {
 
     /// Reads the default output's plan, level, mute and name again. Nothing of the displays is
     /// touched, so a volume change made elsewhere never starts a transfer to a monitor.
-    func refreshVolume() {
-        refreshOutputs()
+    func refreshVolume(refreshesOutputs: Bool = true) {
+        if refreshesOutputs {
+            refreshOutputs()
+        }
         guard let output = OutputVolume.current() else {
             clear()
             return
@@ -933,9 +935,16 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             refreshDisplayOrder()
             refreshExternalMonitors(surveying: showsExternalValues)
             refreshVolume()
-            listener.start(followsDeviceList: true) { [weak self] in
-                self?.refreshVolume()
-            }
+            listener.start(
+                followsDeviceList: true,
+                onValueChange: { [weak self] in
+                    // A level or mute step: the picker's list did not change.
+                    self?.refreshVolume(refreshesOutputs: false)
+                },
+                onChange: { [weak self] in
+                    self?.refreshVolume()
+                }
+            )
             wakeLoop = ObservationLoop.observe { [weak self] in
                 self?.appState?.systemActivityMonitor.ddcWakeGate.lastEvent
             } onChange: { [weak self] _ in
