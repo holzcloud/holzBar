@@ -405,6 +405,20 @@ struct PreviousAppImportTests {
         #expect(result.ignoredCount == 0)
     }
 
+    @Test("A dropped action keeps its combination, so another imported action cannot take it")
+    func droppedActionKeepsItsCombination() {
+        let one = combination(1, 256)
+        let two = combination(2, 256)
+        let item = combination(3, 256)
+        let mine = ["ToggleHiddenSection": one, "SearchMenuBarItems": two, "Item:com.example.app": item]
+        // ToggleHiddenSection would take the item's combination and is dropped, so it keeps `one`;
+        // SearchMenuBarItems would then share `one` with it and must be dropped too.
+        let result = plan(["Hotkeys": ["ToggleHiddenSection": item, "SearchMenuBarItems": one]], current: allOff, hotkeys: mine)
+        #expect(result.changes.isEmpty)
+        #expect(result.writes["Hotkeys"] == nil)
+        #expect(result.ignoredCount == 2)
+    }
+
     @Test("An action whose combination equals holzBar's gives nothing and is not counted as ignored")
     func equalHotkeyIsSilent() {
         let same = combination(4, 256)

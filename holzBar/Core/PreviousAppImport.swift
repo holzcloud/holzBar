@@ -460,10 +460,20 @@ nonisolated enum PreviousAppImport {
         // hotkeys with the same one from its settings for good. A combination that another hotkey
         // keeps (an action the import leaves, an item's or a profile's) must never be imported:
         // it would delete the user's own. The combinations of the actions the import replaces
-        // are free, so two actions can swap.
-        let replaced = Set(candidates.map(\.action))
-        var taken = Set(currentHotkeys.filter { !replaced.contains($0.key) }.values.compactMap(rules.identity))
-        for candidate in candidates where taken.insert(candidate.identity).inserted {
+        // are free, so two actions can swap. A candidate that is dropped keeps its current
+        // combination, which is then no longer free for another candidate: repeat until no more
+        // candidates are dropped (each round can only drop, so this ends).
+        var accepted = candidates
+        while true {
+            let replaced = Set(accepted.map(\.action))
+            var taken = Set(currentHotkeys.filter { !replaced.contains($0.key) }.values.compactMap(rules.identity))
+            let kept = accepted.filter { taken.insert($0.identity).inserted }
+            if kept.count == accepted.count {
+                break
+            }
+            accepted = kept
+        }
+        for candidate in accepted {
             result.merged[candidate.action] = candidate.data
             result.changes.append(ImportChange(key: .hotkeys, hotkeyAction: candidate.action, before: .composite, after: .composite))
         }
