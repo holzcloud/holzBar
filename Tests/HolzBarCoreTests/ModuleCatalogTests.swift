@@ -43,7 +43,7 @@ struct ModuleCatalogTests {
         #expect(drag.permission == nil)
         #expect(drag.symbol == "arrow.left.arrow.right")
         #expect(drag.titleKey == "Drag in the Menu Bar")
-        #expect(ModuleCatalog.modules(in: .menuBar).map(\.id) == ["widgets", "menu-bar-drag", "apple-items"])
+        #expect(ModuleCatalog.modules(in: .menuBar).map(\.id) == ["widgets", "menu-bar-drag", "apple-items", "dock-badges"])
         // Off until the user switches it on.
         #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
         #expect(ModuleCatalog.enabledIdentifiers(["menu-bar-drag"], knownTo: ModuleCatalog.all) == ["menu-bar-drag"])
@@ -60,6 +60,23 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
         #expect(ModuleCatalog.enabledIdentifiers(["apple-items"], knownTo: ModuleCatalog.all) == ["apple-items"])
         #expect(!appleItems.isPreview)
+    }
+
+    @Test("Dock badges is a preview module of the menu bar area after Apple Items, off by default, needing Accessibility")
+    func dockBadgesDescriptor() throws {
+        let module = try #require(ModuleCatalog.all.first { $0.id == "dock-badges" })
+        #expect(module.area == .menuBar)
+        #expect(module.symbol == "app.badge")
+        #expect(module.titleKey == "Dock badges")
+        #expect(module.summaryKey == "Shows the badge counts of apps in your Dock as menu bar items.")
+        #expect(module.permission == .accessibility)
+        #expect(module.isPreview)
+        let menuBar = ModuleCatalog.modules(in: .menuBar).map(\.id)
+        #expect(Array(menuBar.suffix(2)) == ["apple-items", "dock-badges"])
+        // Off until the user switches it on; a switch that was turned on survives a relaunch.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["dock-badges"], knownTo: ModuleCatalog.all) == ["dock-badges"])
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
     }
 
     @Test("The Notch hub is an optional module of the notch area without a permission")
@@ -192,6 +209,26 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["accessory-alerts"], knownTo: ModuleCatalog.all) == ["accessory-alerts"])
     }
 
+    @Test("Indicators is a preview module of the notch area without a permission, directly after Accessory alerts")
+    func indicatorsModule() throws {
+        let indicators = try #require(ModuleCatalog.all.first { $0.id == "indicators" })
+        #expect(indicators.area == .notch)
+        #expect(indicators.permission == nil)
+        #expect(indicators.isPreview)
+        #expect(indicators.symbol == "dial.medium")
+        #expect(indicators.titleKey == "Indicators")
+        #expect(indicators.summaryKey == "Shows keyboard layout changes and volume and brightness levels in the notch.")
+        #expect(indicators.id == IndicatorLook.moduleID)
+        let notch = ModuleCatalog.modules(in: .notch).map(\.id)
+        let alertsIndex = try #require(notch.firstIndex(of: "accessory-alerts"))
+        let indicatorsIndex = try #require(notch.firstIndex(of: "indicators"))
+        #expect(indicatorsIndex == alertsIndex + 1)
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["indicators"], knownTo: ModuleCatalog.all) == ["indicators"])
+    }
+
     @Test("Notifications is a module of the notch area that needs Accessibility, after the hub's other modules")
     func notificationsModule() throws {
         let notifications = try #require(ModuleCatalog.all.first { $0.id == "notifications" })
@@ -234,10 +271,40 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["now-playing"], knownTo: ModuleCatalog.all) == ["now-playing"])
     }
 
+    @Test("System readouts is a preview module of its own area, off by default, without a permission")
+    func systemReadoutsDescriptor() throws {
+        let module = try #require(ModuleCatalog.all.first { $0.id == "system-readouts" })
+        #expect(module.area == .monitor)
+        #expect(module.symbol == "gauge.with.dots.needle.67percent")
+        #expect(module.titleKey == "System readouts")
+        #expect(module.summaryKey == "CPU, memory, network, disk and battery as tiles in the Notch hub, with a short history.")
+        #expect(module.permission == nil)
+        #expect(module.isPreview)
+        #expect(ModuleCatalog.modules(in: .monitor).map(\.id) == ["system-readouts", "system-alerts"])
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+    }
+
+    @Test("System alerts is a preview module after System readouts, off by default, without a permission")
+    func systemAlertsDescriptor() throws {
+        let module = try #require(ModuleCatalog.all.first { $0.id == "system-alerts" })
+        #expect(module.area == .monitor)
+        #expect(module.symbol == "exclamationmark.triangle")
+        #expect(module.titleKey == "System alerts")
+        #expect(module.permission == nil)
+        #expect(module.isPreview)
+        #expect(module.id == AlertLook.moduleID)
+        // The anti-flap sentence of the contract is the second sentence of the summary.
+        #expect(module.summaryKey.hasSuffix("Each alert waits for the time you set, clears with a margin and repeats at most every 30 minutes."))
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+    }
+
     @Test("The Modules pane knows everything the catalog ships")
     func modulesPaneKnowsTheCatalog() {
         #expect(
-            ModuleCatalog.populatedAreas(of: ModuleCatalog.all) == [.menuBar, .notch],
+            ModuleCatalog.populatedAreas(of: ModuleCatalog.all) == [.menuBar, .notch, .monitor],
             """
             A module of another area needs its group title in SettingsCatalog.ModulesPane \
             (ModulesCatalog.swift) and its group in ModulesSettingsPane. Teach both, then \
@@ -318,4 +385,21 @@ struct ModuleCatalogTests {
         #expect(GaugeLevel.level(for: .nan) == .normal)
         #expect(GaugeLevel.level(for: .infinity) == .normal)
     }
+
+    @Test("The remaining-share level is inverted: little left is bad")
+    func gaugeLevelsForWhatRemains() {
+        #expect(GaugeLevel.level(forRemaining: 1) == .normal)
+        #expect(GaugeLevel.level(forRemaining: 0.8) == .normal)
+        #expect(GaugeLevel.level(forRemaining: 0.30) == .normal)
+        #expect(GaugeLevel.level(forRemaining: 0.29) == .elevated)
+        #expect(GaugeLevel.level(forRemaining: 0.20) == .elevated)
+        #expect(GaugeLevel.level(forRemaining: 0.15) == .elevated)
+        #expect(GaugeLevel.level(forRemaining: 0.14) == .critical)
+        #expect(GaugeLevel.level(forRemaining: 0.10) == .critical)
+        #expect(GaugeLevel.level(forRemaining: 0) == .critical)
+        #expect(GaugeLevel.level(forRemaining: -2) == .critical)
+        #expect(GaugeLevel.level(forRemaining: 7) == .normal)
+        #expect(GaugeLevel.level(forRemaining: .nan) == .normal)
+    }
 }
+

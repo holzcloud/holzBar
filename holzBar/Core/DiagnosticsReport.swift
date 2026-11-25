@@ -50,7 +50,7 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// switch is off, so the report stays as it was. Never a name.
     var lastCommandDrag = ""
     /// What the hiding fixes of 1.0.5 did, in fixed words and counts
-    /// (``DiagnosticsReport/hidingSummary27(reveal:agentRestarts:lateAllowlist:youngRetries:forcedReads:heldBack:notchRechecks:hiddenAnyway:)``
+    /// (``DiagnosticsReport/hidingSummary27(reveal:agentRestarts:lateAllowlist:youngRetries:forcedReads:heldBack:notchRechecks:hiddenAnyway:tapDisables:)``
     /// or ``DiagnosticsReport/hidingSummaryBefore27(anchor:iconPutBack:)``), such as `anchor
     /// icon, icon put back 0`. Empty keeps the report as it was. Never a name.
     var hiding = ""
@@ -68,6 +68,29 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// The last clicks in the menu bar as ``BarClickTrace`` wrote them: numbers and fixed words
     /// only. Empty before the first click, so the report of a Mac without clicks stays as it was.
     var barClicks: [String] = []
+    /// How many reopens of the running app opened Settings and how many were ignored, in
+    /// fixed words (``DiagnosticsReport/reopenSummary(opened:ignored:)``), such as `opened 1,
+    /// ignored 3`. Empty while holzBar got no reopen, so the report stays as it was. Never
+    /// the name of a sender.
+    var reopen = ""
+    /// What the shared system readouts monitor does, in counts and fixed words
+    /// (``DiagnosticsReport/readoutsSummary(visible:background:observers:isTimerArmed:samples:)``),
+    /// such as `visible 2, background 0, observers 1, timer on, samples 314`, or `idle, samples
+    /// 12` while nothing is measured. Counts of the monitor only, never a reading, an interface
+    /// or a device name (D-14). Empty keeps the report as it was.
+    var readouts = ""
+    /// What System alerts does, in counts and fixed words
+    /// (``DiagnosticsReport/alertsSummary(isModuleOn:rulesOn:firing:notifications:)``), such as
+    /// `rules 4, firing 1, notifications allowed`, or `off` while the module is off. Never a
+    /// reading, a threshold value, an alert title or a name (D-04). Empty keeps the report as it
+    /// was.
+    var alerts = ""
+    /// What the Indicators module does, in counts and fixed words
+    /// (``DiagnosticsReport/indicatorsSummary(isModuleOn:inputSource:volume:replaces:tapRunning:disables:)``),
+    /// such as `input on, volume on, keys on, tap running, disabled 2`, or `off` while the module
+    /// is off. Switch states, whether the media-key tap exists and how often macOS disabled it,
+    /// never a key, a device name or a display name (D-05). Empty keeps the report as it was.
+    var indicators = ""
 }
 
 /// Writes the text a user can copy into a bug report. It holds an allowlist of facts and
@@ -83,9 +106,21 @@ nonisolated enum DiagnosticsReport {
     /// time, two-digit reads and `ignored: not an app item`).
     static let maximumLastCommandDragLength = 80
 
-    /// The longest text kept for the Hiding line (the longest reveal word and seven counts, each
-    /// capped at five digits, fit with their words).
-    static let maximumHidingLength = 180
+    /// The longest text kept for the Hiding line (the longest reveal word, the breaker word and
+    /// seven counts, each capped at five digits, fit with their words).
+    static let maximumHidingLength = 240
+
+    /// The longest text kept for the System readouts line (four counts of five digits, their
+    /// words and the timer word fit).
+    static let maximumReadoutsLength = 96
+
+    /// The longest text kept for the System alerts line (two counts of five digits, their words and
+    /// the longest notification word fit).
+    static let maximumAlertsLength = 80
+
+    /// The longest text kept for the Indicators line (four switch words, the tap word and one count
+    /// of five digits fit).
+    static let maximumIndicatorsLength = 80
 
     /// The longest text kept for a field.
     static let maximumFieldLength = 40
@@ -129,6 +164,18 @@ nonisolated enum DiagnosticsReport {
         if !input.accessoryBattery.isEmpty {
             lines.append("Accessory battery: \(field(input.accessoryBattery))")
         }
+        if !input.readouts.isEmpty {
+            lines.append("System readouts: \(field(input.readouts, limit: maximumReadoutsLength))")
+        }
+        if !input.alerts.isEmpty {
+            lines.append("System alerts: \(field(input.alerts, limit: maximumAlertsLength))")
+        }
+        if !input.indicators.isEmpty {
+            lines.append("Indicators: \(field(input.indicators, limit: maximumIndicatorsLength))")
+        }
+        if !input.reopen.isEmpty {
+            lines.append("Reopen: \(field(input.reopen))")
+        }
         for (index, click) in input.barClicks.suffix(BarClickTrace.capacity).enumerated() {
             lines.append("Click \(index + 1): \(field(click, limit: maximumClickLength))")
         }
@@ -139,28 +186,35 @@ nonisolated enum DiagnosticsReport {
     /// fixes of 1.0.5 acted (MenuBarAgent restarts, allowlist refreshes for apps read late, young
     /// apps asked again, reads forced and held back by busy apps, notch rechecks) and how many
     /// visible apps MenuBarAgent cannot name and so hides anyway (found by their install location
-    /// or by `HiddenAnyway27`; a count, never a name).
+    /// or by `HiddenAnyway27`; a count, never a name) and how often macOS disabled the click
+    /// bridge's event tap.
     ///
-    /// - Parameter reveal: One of the fixed words `all hidden`, `hidden revealed`, `all revealed`.
+    /// - Parameters:
+    ///   - reveal: One of the fixed words `all hidden`, `hidden revealed`, `all revealed`.
+    ///   - breaker: One of the fixed words `ok`, `tripped` (``AgentRestartBreaker``).
     static func hidingSummary27(
         reveal: String,
         agentRestarts: Int,
+        breaker: String,
         lateAllowlist: Int,
         youngRetries: Int,
         forcedReads: Int,
         heldBack: Int,
         notchRechecks: Int,
-        hiddenAnyway: Int
+        hiddenAnyway: Int,
+        tapDisables: Int
     ) -> String {
         [
             "reveal \(word(reveal))",
             "agent restarts \(count(agentRestarts))",
+            "breaker \(word(breaker))",
             "late allowlist \(count(lateAllowlist))",
             "young retries \(count(youngRetries))",
             "forced reads \(count(forcedReads))",
             "held back \(count(heldBack))",
             "notch rechecks \(count(notchRechecks))",
             "hidden anyway \(count(hiddenAnyway))",
+            "tap disables \(count(tapDisables))",
         ].joined(separator: ", ")
     }
 
@@ -170,6 +224,64 @@ nonisolated enum DiagnosticsReport {
     /// - Parameter anchor: One of the fixed words `icon`, `divider`, `none`.
     static func hidingSummaryBefore27(anchor: String, iconPutBack: Int) -> String {
         "anchor \(word(anchor)), icon put back \(count(iconPutBack))"
+    }
+
+    /// The Reopen line: how many reopens of the running app (a click on the Dock icon, a
+    /// double-click in the Finder, Spotlight, Launchpad, or another sender) opened Settings and
+    /// how many were ignored. Counts only, never who sent them.
+    static func reopenSummary(opened: Int, ignored: Int) -> String {
+        "opened \(count(opened)), ignored \(count(ignored))"
+    }
+
+    /// The System readouts line: how many consumers of the shared monitor show a surface and how
+    /// many watch, how many events it observes, whether its one timer is armed and how many
+    /// samples it took; `idle, samples N` while no consumer and no observer exists, which is
+    /// what "measures nothing" looks like. Counts and fixed words only, never a reading or a name.
+    static func readoutsSummary(visible: Int, background: Int, observers: Int, isTimerArmed: Bool, samples: Int) -> String {
+        guard visible > 0 || background > 0 || observers > 0 else {
+            return "idle, samples \(count(samples))"
+        }
+        let timer = isTimerArmed ? "on" : "off"
+        return "visible \(count(visible)), background \(count(background)), observers \(count(observers)), "
+            + "timer \(timer), samples \(count(samples))"
+    }
+
+    /// The System alerts line: `off` while the module is off, else how many rules are on, how many
+    /// alerts are firing and the state of the optional notifications. Counts and fixed words only,
+    /// never a reading, a threshold, an alert title or a name.
+    ///
+    /// - Parameter notifications: One of the fixed words `off`, `not asked`, `allowed`, `denied`.
+    static func alertsSummary(isModuleOn: Bool, rulesOn: Int, firing: Int, notifications: String) -> String {
+        guard isModuleOn else {
+            return "off"
+        }
+        return "rules \(count(rulesOn)), firing \(count(firing)), notifications \(word(notifications))"
+    }
+
+    /// The Indicators line: `off` while the module is off, else the states of the Input source,
+    /// Volume and brightness and Replace the system display switches, whether the media-key tap
+    /// exists (`tap running` or `tap off`) and, once macOS disabled it, how often. Counts and
+    /// fixed words only, never a key, a device name or a display name.
+    static func indicatorsSummary(
+        isModuleOn: Bool,
+        inputSource: Bool,
+        volume: Bool,
+        replaces: Bool,
+        tapRunning: Bool,
+        disables: Int
+    ) -> String {
+        guard isModuleOn else {
+            return "off"
+        }
+        func state(_ isOn: Bool) -> String {
+            isOn ? "on" : "off"
+        }
+        var line = "input \(state(inputSource)), volume \(state(volume)), keys \(state(replaces)), "
+            + (tapRunning ? "tap running" : "tap off")
+        if disables > 0 {
+            line += ", disabled \(count(disables))"
+        }
+        return line
     }
 
     /// A fixed word of a summary: lowercase letters and spaces only.

@@ -21,6 +21,12 @@ struct DisplayControlsBodyView: View {
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.colorSchemeContrast) private var contrast
 
+    /// Whether the volume card shows the list of outputs.
+    @State private var isOutputListOpen = false
+
+    /// The output row that has keyboard focus.
+    @FocusState private var focusedOutput: String?
+
     var body: some View {
         ScrollView {
             VStack(spacing: Row.gap) {
@@ -43,6 +49,14 @@ struct DisplayControlsBodyView: View {
         static let valueWidth: CGFloat = 44
         static let gap = HolzBarTheme.Spacing.xxs
         static let disabledOpacity = 0.4
+        /// The dim slider moves by 5 percent for VoiceOver and the arrow keys.
+        static let dimStep = 0.05
+        /// The picker's rows: 28 pt high, 4 pt apart, a 24 pt symbol column, a 16 pt spinner.
+        static let outputRowHeight: CGFloat = 28
+        static let outputSymbolColumn: CGFloat = 24
+        static let outputSpinner: CGFloat = 16
+        static let outputHoverAlpha = 0.07
+        static let outputHoverRadius: CGFloat = 8
     }
 
     /// Whether the output has a volume the app can show and set.
@@ -108,8 +122,99 @@ struct DisplayControlsBodyView: View {
                 caption(Text("Turn on External monitors in Settings to control this display"))
                 openSettingsButton
             }
+            if runtime.offersDimming(monitor) {
+                dimRow(monitor)
+            }
         }
         .accessibilityLabel(Text(verbatim: monitor.name))
+    }
+
+    /// The dim row, the card's last row: the 28 pt slot with the dim symbol, the slider from 0 to
+    /// the floor, the value in the 44 pt column, the reset button (enabled above 0 percent) and
+    /// the Preview badge 8 pt after it. It carries no visible name; the accessibility label names
+    /// the monitor. The value shown is the value set: there is nothing to read back.
+    @ViewBuilder
+    private func dimRow(_ monitor: DisplayControlsRuntime.ExternalMonitor) -> some View {
+        if let dimmer = runtime.softwareDimmer {
+            let shown = dimmer.level(for: monitor.id)
+            // A layer that cannot be put on its display is paused, never silently gone.
+            let isPaused = shown > 0 && !dimmer.isPlaced(monitor.id)
+            HStack(spacing: HolzBarTheme.Spacing.xs) {
+                Image(systemName: "sun.min.fill")
+                    .font(HolzBarTheme.Hub.compactSymbolFont)
+                    .foregroundStyle(HolzBarTheme.Hub.pillText)
+                    .frame(width: Row.slot, height: Row.slot)
+                    .help(Text("Dims this display with a dark layer. It can show in screenshots."))
+                    .accessibilityHidden(true)
+                Slider(value: dimLevel(dimmer, monitor: monitor), in: 0...SoftwareDimming.maximum)
+                    .tint(HolzBarTheme.Palette.accent)
+                    .disabled(isPaused)
+                    .opacity(isPaused ? Row.disabledOpacity : 1)
+                    .accessibilityLabel(Text("Dim, \(monitor.name)"))
+                    .accessibilityValue(Text("\(DisplayControlsLevel.percent(shown)) percent"))
+                    .accessibilityAdjustableAction { direction in
+                        switch direction {
+                        case .increment: stepDim(1, dimmer, monitor)
+                        case .decrement: stepDim(-1, dimmer, monitor)
+                        @unknown default: break
+                        }
+                    }
+                    .onKeyPress(.leftArrow) { stepDimKey(-1, dimmer, monitor) }
+                    .onKeyPress(.downArrow) { stepDimKey(-1, dimmer, monitor) }
+                    .onKeyPress(.rightArrow) { stepDimKey(1, dimmer, monitor) }
+                    .onKeyPress(.upArrow) { stepDimKey(1, dimmer, monitor) }
+                Text(verbatim: "\(DisplayControlsLevel.percent(shown)) %")
+                    .font(HolzBarTheme.Typography.mono.monospacedDigit())
+                    .foregroundStyle(HolzBarTheme.Hub.neutral)
+                    .frame(width: Row.valueWidth, alignment: .trailing)
+                    .accessibilityHidden(true)
+                Button {
+                    dimmer.reset(monitor.id)
+                } label: {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(HolzBarTheme.Hub.resetSymbolFont)
+                        .foregroundStyle(HolzBarTheme.Hub.neutral)
+                        .frame(width: HolzBarTheme.minimumTargetSize, height: HolzBarTheme.minimumTargetSize)
+                        .frame(width: Row.slot, height: Row.slot)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .disabled(shown <= 0)
+                .accessibilityLabel(Text("Reset dimming"))
+                PreviewBadge()
+                    .fixedSize()
+                    .layoutPriority(1)
+            }
+            .frame(height: Row.height)
+            if isPaused {
+                caption(Text("Dimming is paused until this display is available again"))
+            }
+        }
+    }
+
+    /// The dim slider's value: the level set, set through the dimmer.
+    private func dimLevel(_ dimmer: SoftwareDimmer, monitor: DisplayControlsRuntime.ExternalMonitor) -> Binding<Double> {
+        Binding(
+            get: { dimmer.level(for: monitor.id) },
+            set: { dimmer.setLevel($0, for: monitor.id) }
+        )
+    }
+
+    /// Moves the dim level by 5 percent steps, held between 0 and the floor.
+    private func stepDim(_ steps: Int, _ dimmer: SoftwareDimmer, _ monitor: DisplayControlsRuntime.ExternalMonitor) {
+        let moved = dimmer.level(for: monitor.id) + Double(steps) * Row.dimStep
+        // Rounded to two decimals so that many steps in a row do not drift.
+        dimmer.setLevel((moved * 100).rounded() / 100, for: monitor.id)
+    }
+
+    /// An arrow key steps the dim level by 5 percent when its slider has focus.
+    private func stepDimKey(
+        _ steps: Int,
+        _ dimmer: SoftwareDimmer,
+        _ monitor: DisplayControlsRuntime.ExternalMonitor
+    ) -> KeyPress.Result {
+        stepDim(steps, dimmer, monitor)
+        return .handled
     }
 
     /// The line of a card while the external part is unavailable. Only a part that switched itself
@@ -373,11 +478,7 @@ struct DisplayControlsBodyView: View {
         card {
             HStack(spacing: HolzBarTheme.Spacing.xs) {
                 muteButton
-                Text(verbatim: runtime.outputName ?? String(localized: "Volume"))
-                    .font(HolzBarTheme.Typography.callout)
-                    .foregroundStyle(HolzBarTheme.Hub.neutral)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+                outputTitle
                 Slider(value: level, in: 0...1)
                     .tint(HolzBarTheme.Palette.accent)
                     .disabled(!isAvailable)
@@ -402,6 +503,9 @@ struct DisplayControlsBodyView: View {
                     .accessibilityHidden(true)
             }
             .frame(height: Row.height)
+            if offersOutputPicker, isOutputListOpen {
+                outputList
+            }
             if !isAvailable {
                 Text("This output has no volume control")
                     .font(HolzBarTheme.Typography.caption)
@@ -409,6 +513,157 @@ struct DisplayControlsBodyView: View {
                     .padding(.leading, Row.slot + HolzBarTheme.Spacing.xs)
                     .padding(.bottom, HolzBarTheme.Spacing.xxs)
             }
+        }
+        .onChange(of: runtime.outputSwitch) { _, new in
+            // The list stays open while a choice is being confirmed, so the spinner is seen, and
+            // closes when the system has settled it.
+            if new == nil {
+                isOutputListOpen = false
+            }
+        }
+        .onChange(of: offersOutputPicker) { _, offers in
+            if !offers {
+                isOutputListOpen = false
+            }
+        }
+    }
+
+    /// Whether the name is a picker: two or more outputs are visible.
+    private var offersOutputPicker: Bool {
+        AudioOutputList.offersPicker(runtime.outputs)
+    }
+
+    /// The output's name: plain text with one visible output, else a button with a chevron that
+    /// opens the list, and the Preview badge 8 pt after it. The name truncates first.
+    @ViewBuilder
+    private var outputTitle: some View {
+        let name = runtime.outputName ?? String(localized: "Volume")
+        if offersOutputPicker {
+            HStack(spacing: HolzBarTheme.Spacing.xs) {
+                Button {
+                    isOutputListOpen.toggle()
+                    if isOutputListOpen {
+                        focusedOutput = runtime.outputs.first(where: \.isCurrent)?.id ?? runtime.outputs.first?.id
+                    }
+                } label: {
+                    HStack(spacing: HolzBarTheme.Spacing.xxs) {
+                        Text(verbatim: name)
+                            .font(HolzBarTheme.Typography.callout)
+                            .foregroundStyle(HolzBarTheme.Hub.neutral)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                        Image(systemName: "chevron.down")
+                            .font(HolzBarTheme.Hub.chevronFont)
+                            .foregroundStyle(HolzBarTheme.Hub.neutral)
+                            .fixedSize()
+                            .accessibilityHidden(true)
+                    }
+                    .frame(minHeight: HolzBarTheme.minimumTargetSize)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Sound output"))
+                .accessibilityValue(Text(verbatim: name))
+                PreviewBadge()
+                    .fixedSize()
+                    .layoutPriority(1)
+            }
+        } else {
+            Text(verbatim: name)
+                .font(HolzBarTheme.Typography.callout)
+                .foregroundStyle(HolzBarTheme.Hub.neutral)
+                .lineLimit(1)
+                .truncationMode(.tail)
+        }
+    }
+
+    /// The inline list of outputs, in place on the card: no system menu, which would take the
+    /// pointer out of the island, and no glass. Esc collapses it, the arrow keys move between
+    /// rows.
+    private var outputList: some View {
+        VStack(spacing: HolzBarTheme.Spacing.xxs) {
+            ForEach(runtime.outputs) { row in
+                outputRow(row)
+            }
+        }
+        .padding(.bottom, HolzBarTheme.Spacing.xxs)
+        .onKeyPress(.escape) {
+            isOutputListOpen = false
+            return .handled
+        }
+        .onKeyPress(.downArrow) { moveOutputFocus(1) }
+        .onKeyPress(.upArrow) { moveOutputFocus(-1) }
+    }
+
+    /// One row of the list: the transport symbol, the device's name and, on the right, a
+    /// checkmark on the default output or a spinner on the output being switched to.
+    private func outputRow(_ row: AudioOutputRow) -> some View {
+        let isSwitching = runtime.outputSwitch?.targetUID == row.id && !row.isCurrent
+        return Button {
+            runtime.selectOutput(uid: row.id)
+            if runtime.outputSwitch == nil {
+                isOutputListOpen = false
+            }
+        } label: {
+            HStack(spacing: HolzBarTheme.Spacing.xs) {
+                Image(systemName: row.symbol)
+                    .font(HolzBarTheme.Hub.compactSymbolFont)
+                    .foregroundStyle(HolzBarTheme.Hub.pillText)
+                    .frame(width: Row.outputSymbolColumn)
+                    .accessibilityHidden(true)
+                Text(verbatim: row.name)
+                    .font(HolzBarTheme.Typography.callout)
+                    .foregroundStyle(HolzBarTheme.Hub.pillText)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                Spacer(minLength: 0)
+                if isSwitching {
+                    ProgressView()
+                        .controlSize(.small)
+                        .frame(width: Row.outputSpinner, height: Row.outputSpinner)
+                        .accessibilityLabel(Text("Switching"))
+                } else if row.isCurrent {
+                    Image(systemName: "checkmark")
+                        .font(HolzBarTheme.Hub.checkmarkFont)
+                        .foregroundStyle(HolzBarTheme.Hub.pillText)
+                        .accessibilityHidden(true)
+                }
+            }
+            .padding(.horizontal, HolzBarTheme.Spacing.xxs)
+            .frame(maxWidth: .infinity, minHeight: Row.outputRowHeight, maxHeight: Row.outputRowHeight)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(OutputRowButtonStyle(isFocused: focusedOutput == row.id))
+        .focused($focusedOutput, equals: row.id)
+        .focusEffectDisabled()
+        .accessibilityLabel(Text(verbatim: row.name))
+        .accessibilityAddTraits(row.isCurrent ? .isSelected : [])
+    }
+
+    /// Moves the keyboard focus to the next or previous row of the list.
+    private func moveOutputFocus(_ offset: Int) -> KeyPress.Result {
+        let ids = runtime.outputs.map(\.id)
+        guard !ids.isEmpty else {
+            return .ignored
+        }
+        let index = focusedOutput.flatMap(ids.firstIndex(of:)) ?? (offset > 0 ? -1 : ids.count)
+        focusedOutput = ids[min(max(index + offset, 0), ids.count - 1)]
+        return .handled
+    }
+
+    /// The row of the output list: plain on the card, white 7 % at radius 8 while the pointer is
+    /// over it or it has keyboard focus.
+    private struct OutputRowButtonStyle: ButtonStyle {
+        let isFocused: Bool
+        @State private var isHovered = false
+
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .background(
+                    .white.opacity(isHovered || isFocused || configuration.isPressed ? Row.outputHoverAlpha : 0),
+                    in: HolzBarTheme.shape(Row.outputHoverRadius)
+                )
+                .onHover { isHovered = $0 }
         }
     }
 

@@ -38,11 +38,23 @@ final class AppSettings {
     /// The model for the Display controls module's settings.
     let displayControls = DisplayControlsSettings()
 
+    /// The model for the Indicators module's settings.
+    let indicators = IndicatorsSettings()
+
     /// The model for the Notifications module's settings.
     let notifications = NotificationsSettings()
 
     /// The model for the Now Playing module's settings.
     let nowPlaying = NowPlayingSettings()
+
+    /// The model for the System readouts module's settings.
+    let readouts = ReadoutsSettings()
+
+    /// The model for the System alerts module's rule settings.
+    let systemAlerts = SystemAlertsSettings()
+
+    /// The model for the Dock badges module's settings.
+    let dockBadges = DockBadgesSettings()
 
     /// Performs the initial setup of the settings model.
     func performSetup(with appState: AppState) {
@@ -55,7 +67,11 @@ final class AppSettings {
         liveActivities.performSetup(with: appState)
         fileDrop.performSetup(with: appState)
         displayControls.performSetup(with: appState)
+        indicators.performSetup(with: appState)
         notifications.performSetup(with: appState)
         nowPlaying.performSetup(with: appState)
+        readouts.performSetup(with: appState)
+        systemAlerts.performSetup(with: appState)
+        dockBadges.performSetup(with: appState)
     }
 }

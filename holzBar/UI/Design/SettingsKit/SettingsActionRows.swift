@@ -74,11 +74,12 @@ struct SettingsButtonRow<Buttons: View>: View {
         self.buttons = buttons()
     }
 
-    /// A row that shows no label, only the info button and the buttons ("Add rule…",
+    /// A row that shows no label, only the badge, the info button and the buttons ("Add rule…",
     /// "Choose Folder…"). The entry still gives the row its id for the search and its name for
     /// VoiceOver.
     init(
         unlabeled entry: SettingsEntry,
+        badge: SettingsBadge? = nil,
         info: Text? = nil,
         @ViewBuilder buttons: () -> Buttons
     ) {
@@ -87,7 +88,7 @@ struct SettingsButtonRow<Buttons: View>: View {
         accessibilityName = Text(entry.label)
         unlabeledInfo = info ?? entry.info.map { Text($0) }
         small = nil
-        badge = nil
+        self.badge = badge
         self.info = nil
         self.buttons = buttons()
     }
@@ -124,8 +125,16 @@ struct SettingsButtonRow<Buttons: View>: View {
 
     private var unlabeledRow: some View {
         HStack(alignment: .center, spacing: HolzBarTheme.SettingsKit.labelControlGap) {
-            if let unlabeledInfo {
-                SettingsInfoButton(unlabeledInfo)
+            if badge != nil || unlabeledInfo != nil {
+                HStack(alignment: .center, spacing: HolzBarTheme.SettingsKit.accessoryGap) {
+                    if let badge {
+                        SettingsBadgeView(badge)
+                            .fixedSize()
+                    }
+                    if let unlabeledInfo {
+                        SettingsInfoButton(unlabeledInfo)
+                    }
+                }
             }
             Spacer(minLength: HolzBarTheme.SettingsKit.labelControlGap)
             buttonStack

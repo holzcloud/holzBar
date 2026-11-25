@@ -11,6 +11,7 @@ extension SettingsCatalog {
     enum ModulesPane {
         static let menuBar = String(localized: "Menu Bar")
         static let notch = String(localized: "Notch")
+        static let monitor = String(localized: "System monitor")
 
         /// The group of an area. A module of another area needs its group here and in the pane;
         /// the test of the module catalog fails until it has one.
@@ -18,6 +19,7 @@ extension SettingsCatalog {
             switch area {
             case .menuBar: menuBar
             case .notch: notch
+            case .monitor: monitor
             default: area.rawValue
             }
         }
@@ -58,26 +60,76 @@ extension SettingsCatalog {
             .modulesAppleItemsReplacements,
             .modulesNotchHubShowsActiveFirst,
             .modulesNotchHubOpensOnHover,
+            .modulesNotchHubGestures,
             .modulesNotchHubDisplays,
+            .modulesNotchHubCutout,
+            .modulesNotchHubBounces,
             // Settings of the hub modules, in catalog order.
             .modulesTimersFinishSound,
             .modulesCalendarShowsAllDay,
             .modulesCalendarCalendars,
+            .modulesCalendarCountdown,
             .modulesLiveActivitiesCapture,
             .modulesLiveActivitiesDownloads,
             .modulesFileDropOpensOnDrag,
             .modulesFileDropRemovesAfterDrop,
             .modulesDisplayControlsBrightness,
             .modulesDisplayControlsExternalMonitors,
+            .modulesAccessoryAlertsDevices,
             .modulesAccessoryAlertsConnect,
             .modulesAccessoryAlertsDisconnect,
             .modulesAccessoryAlertsReadsBattery,
             .modulesAccessoryAlertsLowBattery,
             .modulesAccessoryAlertsLowBatteryLevel,
+            .modulesIndicatorsInputSource,
+            .modulesIndicatorsInputSourceDuration,
+            .modulesIndicatorsVolumeBrightness,
+            .modulesIndicatorsReplacesSystemDisplay,
             .modulesNotificationsExcludedApps,
+            .modulesNotificationsDisplayTime,
             .modulesNowPlayingAppleMusic,
             .modulesNowPlayingSpotify,
             .modulesNowPlayingReadsAllApps,
+            // Settings of the System monitor modules, in the order of the pane.
+            .modulesReadoutsReadsGPU,
+            .modulesReadoutsTileCPU,
+            .modulesReadoutsThermalState,
+            .modulesReadoutsTileGPU,
+            .modulesReadoutsTileMemory,
+            .modulesReadoutsTileNetwork,
+            .modulesReadoutsTileDisk,
+            .modulesReadoutsTileBattery,
+            .modulesReadoutsTileRefresh,
+            .modulesReadoutsRateUnit,
+            // Settings of System alerts, in the order of the contract.
+            .modulesSystemAlertsNotifications,
+            .modulesSystemAlertsCPU,
+            .modulesSystemAlertsCPUThreshold,
+            .modulesSystemAlertsCPUDuration,
+            .modulesSystemAlertsMemoryPressure,
+            .modulesSystemAlertsMemoryPressureThreshold,
+            .modulesSystemAlertsMemoryPressureDuration,
+            .modulesSystemAlertsThermal,
+            .modulesSystemAlertsThermalThreshold,
+            .modulesSystemAlertsThermalDuration,
+            .modulesSystemAlertsFreeDisk,
+            .modulesSystemAlertsFreeDiskThreshold,
+            .modulesSystemAlertsFreeDiskDuration,
+            .modulesSystemAlertsMacBattery,
+            .modulesSystemAlertsMacBatteryThreshold,
+            .modulesSystemAlertsMacBatteryDuration,
+            .modulesSystemAlertsTest,
+            // Settings of Dock badges.
+            .modulesDockBadgesReadsCounts,
+            .modulesDockBadgesZeroMode,
+            .modulesDockBadgesNewGroup,
+        ]
+
+        /// The Mac battery rule's entries: a Mac without an internal battery has no such rule.
+        private static let macBatteryEntryIDs: Set<String> = [
+            SettingsEntry.modulesSystemAlertsMacBattery.id,
+            SettingsEntry.modulesSystemAlertsMacBatteryThreshold.id,
+            SettingsEntry.modulesSystemAlertsMacBatteryDuration.id,
         ]
 
         /// Whether a row entry belongs to a module this Mac can run.
@@ -87,6 +139,9 @@ extension SettingsCatalog {
                     return true
                 }
                 return false
+            }
+            if macBatteryEntryIDs.contains(entry.id) {
+                return SystemAlertsSettings.hasInternalBattery
             }
             guard
                 let moduleID = entry.module,
@@ -181,11 +236,39 @@ extension SettingsEntry {
         module: NotchHubController.moduleID
     )
 
+    static let modulesNotchHubGestures = SettingsEntry(
+        id: "modulesNotchHubGestures",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Gestures"),
+        info: String(localized: "Scroll down on the notch to open the hub and up to close it. Swipe sideways to skip a track."),
+        module: NotchHubController.moduleID
+    )
+
     static let modulesNotchHubDisplays = SettingsEntry(
         id: "modulesNotchHubDisplays",
         pane: .modules,
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Show the hub on"),
+        info: String(localized: "Follow the pointer opens the hub on the display where the pointer is, or on the display of the active window when the pointer is on none."),
+        module: NotchHubController.moduleID
+    )
+
+    static let modulesNotchHubCutout = SettingsEntry(
+        id: "modulesNotchHubCutout",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Display cutout"),
+        info: String(localized: "Where the hub opens around the camera. Automatic tells a notch from Apple's Dynamic Island; choose one if it is wrong. With the Dynamic Island the hub opens below it."),
+        module: NotchHubController.moduleID
+    )
+
+    static let modulesNotchHubBounces = SettingsEntry(
+        id: "modulesNotchHubBounces",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Bounce"),
+        info: String(localized: "Off opens and closes the hub with a plain ease and no overshoot."),
         module: NotchHubController.moduleID
     )
 
@@ -214,6 +297,15 @@ extension SettingsEntry {
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Calendars"),
         info: String(localized: "A calendar you switch off is hidden only in the hub."),
+        module: "calendar"
+    )
+
+    static let modulesCalendarCountdown = SettingsEntry(
+        id: "modulesCalendarCountdown",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Countdown before a meeting"),
+        info: String(localized: "Counts down in the closed notch before a meeting starts. It never shows the event's title."),
         module: "calendar"
     )
 
@@ -271,6 +363,15 @@ extension SettingsEntry {
         module: "display-controls"
     )
 
+    static let modulesAccessoryAlertsDevices = SettingsEntry(
+        id: "modulesAccessoryAlertsDevices",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Devices"),
+        info: String(localized: "Levels need Read battery levels below. Names stay on this Mac."),
+        module: "accessory-alerts"
+    )
+
     static let modulesAccessoryAlertsConnect = SettingsEntry(
         id: "modulesAccessoryAlertsConnect",
         pane: .modules,
@@ -314,12 +415,59 @@ extension SettingsEntry {
         module: "accessory-alerts"
     )
 
+    static let modulesIndicatorsInputSource = SettingsEntry(
+        id: "modulesIndicatorsInputSource",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Input source"),
+        info: String(localized: "Flashes the keyboard layout in the notch when you switch it. It needs two or more input sources."),
+        module: IndicatorLook.moduleID
+    )
+
+    static let modulesIndicatorsInputSourceDuration = SettingsEntry(
+        id: "modulesIndicatorsInputSourceDuration",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Show for"),
+        info: String(localized: "How long the input source stays in the notch."),
+        module: IndicatorLook.moduleID
+    )
+
+    static let modulesIndicatorsVolumeBrightness = SettingsEntry(
+        id: "modulesIndicatorsVolumeBrightness",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Volume and brightness"),
+        info: String(localized: "Shows the volume in the notch when it changes. macOS still shows its own display unless you replace it below."),
+        module: IndicatorLook.moduleID
+    )
+
+    static let modulesIndicatorsReplacesSystemDisplay = SettingsEntry(
+        id: "modulesIndicatorsReplacesSystemDisplay",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Replace the system display"),
+        info: String(
+            localized: "holzBar takes the volume and brightness keys it can handle and shows its own display. It needs Accessibility. Uses a private macOS interface. It switches itself off if macOS changes it."
+        ),
+        module: IndicatorLook.moduleID
+    )
+
     static let modulesNotificationsExcludedApps = SettingsEntry(
         id: "modulesNotificationsExcludedApps",
         pane: .modules,
         group: SettingsCatalog.ModulesPane.notch,
         label: String(localized: "Excluded apps"),
         info: String(localized: "Hide an app with the crossed-out eye on one of its notifications."),
+        module: "notifications"
+    )
+
+    static let modulesNotificationsDisplayTime = SettingsEntry(
+        id: "modulesNotificationsDisplayTime",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.notch,
+        label: String(localized: "Display time"),
+        info: String(localized: "How long a new notification shows as a count in the closed notch."),
         module: "notifications"
     )
 
@@ -347,5 +495,281 @@ extension SettingsEntry {
         label: String(localized: "Read all apps"),
         info: String(localized: "Shows what browsers and video apps play, too, through a helper that runs only while the hub is open. Uses a private macOS interface. It switches itself off if macOS changes it."),
         module: "now-playing"
+    )
+
+    // MARK: Settings of Dock badges
+
+    static let modulesDockBadgesReadsCounts = SettingsEntry(
+        id: "modulesDockBadgesReadsCounts",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.menuBar,
+        label: String(localized: "Read badge counts"),
+        info: String(
+            localized: "Reads the badge on the Dock icons of the apps you chose. Uses a private macOS interface. It switches itself off if macOS changes it."
+        ),
+        module: DockBadges.moduleID
+    )
+
+    static let modulesDockBadgesZeroMode = SettingsEntry(
+        id: "modulesDockBadgesZeroMode",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.menuBar,
+        label: String(localized: "When a count is zero"),
+        info: String(
+            localized: "Dim keeps the item in place at half strength so the bar does not jump. Hide removes the item until the count is above zero."
+        ),
+        module: DockBadges.moduleID
+    )
+
+    static let modulesDockBadgesNewGroup = SettingsEntry(
+        id: "modulesDockBadgesNewGroup",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.menuBar,
+        label: String(localized: "Groups"),
+        module: DockBadges.moduleID
+    )
+
+    // MARK: Settings of the System monitor modules
+
+    static let modulesReadoutsReadsGPU = SettingsEntry(
+        id: "modulesReadoutsReadsGPU",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Read GPU load"),
+        info: String(
+            localized: "Reads how busy the graphics processor is, for its tile and widget. Uses a private macOS interface. It switches itself off if macOS changes it."
+        ),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsTileGPU = SettingsEntry(
+        id: "modulesReadoutsTileGPU",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "GPU tile"),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsTileCPU = SettingsEntry(
+        id: "modulesReadoutsTileCPU",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "CPU tile"),
+        info: String(localized: "Total load, and the load of each core cluster when the chip reports them."),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsThermalState = SettingsEntry(
+        id: "modulesReadoutsThermalState",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Thermal state"),
+        info: String(localized: "Shows on the CPU tile when the Mac runs warm: Fair, Serious or Critical."),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsTileMemory = SettingsEntry(
+        id: "modulesReadoutsTileMemory",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Memory tile"),
+        info: String(localized: "Memory in use. The ring turns amber or red with memory pressure, and swap shows when it is used."),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsTileNetwork = SettingsEntry(
+        id: "modulesReadoutsTileNetwork",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Network tile"),
+        info: String(localized: "Download speed, with the upload speed below it. Counts Wi-Fi and Ethernet, not VPN tunnels."),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsTileDisk = SettingsEntry(
+        id: "modulesReadoutsTileDisk",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Disk tile"),
+        info: String(localized: "Free space on the startup disk; the ring shows how much is used."),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsTileBattery = SettingsEntry(
+        id: "modulesReadoutsTileBattery",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Battery tile"),
+        info: String(localized: "Charge, time left and charging state. The charge respects the charge limit."),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsTileRefresh = SettingsEntry(
+        id: "modulesReadoutsTileRefresh",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Refresh tiles every"),
+        info: String(localized: "Tiles read only while the hub is open. Free disk space is read about once a minute."),
+        module: ReadoutsSettings.moduleID
+    )
+
+    static let modulesReadoutsRateUnit = SettingsEntry(
+        id: "modulesReadoutsRateUnit",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Network speed unit"),
+        info: String(localized: "Used by the Network tile and the Network Speed widget."),
+        module: ReadoutsSettings.moduleID
+    )
+
+    // MARK: Settings of System alerts
+
+    static let modulesSystemAlertsNotifications = SettingsEntry(
+        id: "modulesSystemAlertsNotifications",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "System notifications"),
+        info: String(localized: "Also sends each alert to Notification Center, one per rule. macOS asks for permission when you switch this on."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsCPU = SettingsEntry(
+        id: "modulesSystemAlertsCPU",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "CPU load"),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsCPUThreshold = SettingsEntry(
+        id: "modulesSystemAlertsCPUThreshold",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Alert above"),
+        info: String(localized: "Alerts when CPU load stays above this."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsCPUDuration = SettingsEntry(
+        id: "modulesSystemAlertsCPUDuration",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Held for"),
+        info: String(localized: "The condition must last this long before an alert shows."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsMemoryPressure = SettingsEntry(
+        id: "modulesSystemAlertsMemoryPressure",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Memory pressure"),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsMemoryPressureThreshold = SettingsEntry(
+        id: "modulesSystemAlertsMemoryPressureThreshold",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Alert at"),
+        info: String(localized: "Alerts when memory pressure reaches this level."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsMemoryPressureDuration = SettingsEntry(
+        id: "modulesSystemAlertsMemoryPressureDuration",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Held for"),
+        info: String(localized: "The condition must last this long before an alert shows."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsThermal = SettingsEntry(
+        id: "modulesSystemAlertsThermal",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Thermal state"),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsThermalThreshold = SettingsEntry(
+        id: "modulesSystemAlertsThermalThreshold",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Alert at"),
+        info: String(localized: "Alerts when the thermal state reaches this level."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsThermalDuration = SettingsEntry(
+        id: "modulesSystemAlertsThermalDuration",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Held for"),
+        info: String(localized: "The condition must last this long before an alert shows."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsFreeDisk = SettingsEntry(
+        id: "modulesSystemAlertsFreeDisk",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Free disk space"),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsFreeDiskThreshold = SettingsEntry(
+        id: "modulesSystemAlertsFreeDiskThreshold",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Alert below"),
+        info: String(localized: "Alerts when free disk space falls below this."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsFreeDiskDuration = SettingsEntry(
+        id: "modulesSystemAlertsFreeDiskDuration",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Held for"),
+        info: String(localized: "The condition must last this long before an alert shows."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsMacBattery = SettingsEntry(
+        id: "modulesSystemAlertsMacBattery",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Mac battery"),
+        info: String(localized: "Alerts only while the Mac runs on battery power; plugging in clears it. The charge limit is respected."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsMacBatteryThreshold = SettingsEntry(
+        id: "modulesSystemAlertsMacBatteryThreshold",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Alert below"),
+        info: String(localized: "Alerts when the battery falls below this."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsMacBatteryDuration = SettingsEntry(
+        id: "modulesSystemAlertsMacBatteryDuration",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Held for"),
+        info: String(localized: "The condition must last this long before an alert shows."),
+        module: SystemAlertsSettings.moduleID
+    )
+
+    static let modulesSystemAlertsTest = SettingsEntry(
+        id: "modulesSystemAlertsTest",
+        pane: .modules,
+        group: SettingsCatalog.ModulesPane.monitor,
+        label: String(localized: "Test alert"),
+        info: String(localized: "Shows a sample alert in the notch, and as a notification when those are on."),
+        module: SystemAlertsSettings.moduleID
     )
 }

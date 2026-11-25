@@ -127,6 +127,9 @@ nonisolated struct MenuBarPartialStyle: Codable, Hashable, Sendable {
     static let tintStrengthRange: ClosedRange<Double> = 0.1...0.6
     /// The alpha every tint used so far.
     static let defaultTintStrength: Double = 0.2
+    /// A tint that covers the bar fully. The editor's slider stops at 0.6; only a mood
+    /// that makes the bar opaque ("Readable menu bar") stores this value.
+    static let opaqueTintStrength: Double = 1
 
     /// The values that draw what 0.0.8-beta3 drew.
     static let `default` = MenuBarPartialStyle(
@@ -140,6 +143,12 @@ nonisolated struct MenuBarPartialStyle: Codable, Hashable, Sendable {
     /// `value` kept in ``tintStrengthRange``; the default when it is not finite.
     static func clampedTintStrength(_ value: Double) -> Double {
         SettingsSchema.NumberRule.clamped(tintStrengthRange).clamp(value, fallback: defaultTintStrength)
+    }
+
+    /// `value` as it is read from storage: ``opaqueTintStrength`` is kept, any other value is
+    /// kept in ``tintStrengthRange``.
+    static func storedTintStrength(_ value: Double) -> Double {
+        value == opaqueTintStrength ? value : clampedTintStrength(value)
     }
 
     init(
@@ -168,7 +177,7 @@ nonisolated struct MenuBarPartialStyle: Codable, Hashable, Sendable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let defaults = Self.default
         self.init(
-            tintStrength: Self.clampedTintStrength(
+            tintStrength: Self.storedTintStrength(
                 (try? container.decodeIfPresent(Double.self, forKey: .tintStrength)) ?? defaults.tintStrength
             ),
             gradientDirection: (try? container.decodeIfPresent(MenuBarGradientDirection.self, forKey: .gradientDirection))

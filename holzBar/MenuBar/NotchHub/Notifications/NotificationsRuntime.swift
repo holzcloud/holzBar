@@ -18,6 +18,11 @@ import SwiftUI
 /// it holds at most twenty notifications, and Remove, Clear all and ``shutDown()`` erase it.
 /// Nothing here logs an app, a title or a text, and the Overview's tile shows a count
 /// only.
+///
+/// ``queue`` keeps the identifiers of the notifications not seen yet. While there are any, the
+/// closed notch shows their count for the display time (``activities``): a bell and a number, never
+/// a title, an app or a text. The count adds no observer of its own, because the reader above
+/// already runs while the hub is on.
 @MainActor
 @Observable
 final class NotificationsRuntime: HubModuleRuntime {
@@ -27,6 +32,9 @@ final class NotificationsRuntime: HubModuleRuntime {
 
     /// The notifications, newest first.
     private(set) var log = NotificationLog()
+
+    /// The notifications not seen yet, as identifiers and instants only.
+    private(set) var queue = NotificationQueue()
 
     @ObservationIgnored private let reader = NotificationBannerReader()
     @ObservationIgnored private var permissionLoop: ObservationLoop?
@@ -59,13 +67,17 @@ final class NotificationsRuntime: HubModuleRuntime {
             return
         }
         let excluded = Set(appState?.settings.notifications.excludedApps ?? [])
-        log.record(
+        let now = Date.now
+        let outcome = log.record(
             draft,
-            now: .now,
+            now: now,
             excludedApps: excluded,
             isPresenting: Self.isScreenPresented(),
             makeID: UUID.init
         )
+        if outcome == .recorded, let newest = log.records.first {
+            queue.arrived(newest.id, at: now)
+        }
     }
 
     /// Whether the screen is mirrored or shared, read once per banner exactly as
@@ -82,17 +94,43 @@ final class NotificationsRuntime: HubModuleRuntime {
     /// Erases one notification at once.
     func remove(_ id: NotificationRecord.ID) {
         log.remove(id)
+        queue.forget(id)
+    }
+
+    /// Dismisses the front card: erases that notification through ``remove(_:)``, so the log's
+    /// privacy rules apply, and the next unseen one becomes the front. It does nothing for an
+    /// identifier that is not the front.
+    func dismissFront(_ id: NotificationRecord.ID) {
+        guard queue.front == id else {
+            return
+        }
+        remove(id)
     }
 
     /// Erases every notification at once.
     func removeAll() {
         log.removeAll()
+        queue.markAllSeen()
     }
 
     /// Never shows notifications from the app again, and erases the ones already listed.
     func exclude(app: String) {
         appState?.settings.notifications.exclude(app)
         log.removeAll(fromApp: app)
+        // The log decided which records the app's name matched; whatever it no longer holds is
+        // not unseen any more.
+        let kept = Set(log.records.map(\.id))
+        for id in queue.unseen where !kept.contains(id) {
+            queue.forget(id)
+        }
+    }
+
+    /// The Notifications tab went away or the hub closed: everything listed counts as seen.
+    func tabDidDisappear() {
+        guard !queue.unseen.isEmpty else {
+            return
+        }
+        queue.markAllSeen()
     }
 
     // MARK: Hub
@@ -105,6 +143,34 @@ final class NotificationsRuntime: HubModuleRuntime {
         return HubTile(symbol: "bell.badge", title: Text("Notifications"), value: String(log.records.count))
     }
 
+    /// The count of unseen notifications while there are any: one activity that is finished at the
+    /// last arrival and held for the display time, so the hub drops it exactly then, and a new
+    /// arrival restarts it with the new count. It carries a bell and a number and a fixed sentence
+    /// for VoiceOver, never the title, the app or the text of a notification (D-17). It is no
+    /// flash, so it does not fall back on a crowded bar.
+    var activities: [LiveActivity] {
+        guard let lastArrival = queue.lastArrival, let text = NotificationQueue.countText(queue.count) else {
+            return []
+        }
+        let displayTime = appState?.settings.notifications.displayTime
+            ?? DesignTokens.Indicator.notificationDefaultDisplayTime
+        return [
+            LiveActivity(
+                id: "count",
+                moduleID: moduleID,
+                kind: .other,
+                symbol: "bell.badge",
+                title: String(localized: "\(queue.count) new notifications"),
+                priority: DesignTokens.Indicator.notificationCountPriority,
+                startedAt: lastArrival,
+                finishedAt: lastArrival,
+                tint: .accent,
+                compactValue: text,
+                holdSeconds: TimeInterval(NotificationQueue.displayTime(displayTime))
+            ),
+        ]
+    }
+
     func makeBody(host: any HubHost) -> AnyView {
         AnyView(NotificationsBodyView(runtime: self))
     }
@@ -115,5 +181,6 @@ final class NotificationsRuntime: HubModuleRuntime {
         permissionLoop = nil
         reader.stop()
         log = NotificationLog()
+        queue = NotificationQueue()
     }
 }

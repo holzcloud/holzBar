@@ -559,12 +559,32 @@ extension HIDEventManager {
             // not need.
             let windows = WindowInfo.createWindows(option: .onScreen)
             let dockPID = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.dock").first?.processIdentifier
+            let targets = windows.map { RehideClickTarget.Window(layer: $0.layer, ownerPID: $0.ownerPID, bounds: $0.bounds) }
+            let cursorLayer = Int(CGWindowLevelForKey(.cursorWindow))
+
+            // A click inside an item's open menu or popup is not a click outside the bar.
+            if
+                let mouseLocation = MouseHelpers.locationCoreGraphics,
+                let topmost = RehideClickTarget.topmostWindowIndex(in: targets, at: mouseLocation, cursorLayer: cursorLayer),
+                let context = MenuBarSection.openMenuContext(appState: appState),
+                InterfaceWindowRule.isOpenMenu(
+                    layer: targets[topmost].layer,
+                    width: targets[topmost].bounds.width,
+                    height: targets[topmost].bounds.height,
+                    ownerPID: targets[topmost].ownerPID,
+                    shownOwners: context.shownOwners,
+                    barHeight: context.barHeight
+                )
+            {
+                return
+            }
+
             guard
                 let mouseLocation = MouseHelpers.locationCoreGraphics,
                 let index = RehideClickTarget.clickedWindowIndex(
-                    in: windows.map { RehideClickTarget.Window(layer: $0.layer, ownerPID: $0.ownerPID, bounds: $0.bounds) },
+                    in: targets,
                     at: mouseLocation,
-                    cursorLayer: Int(CGWindowLevelForKey(.cursorWindow)),
+                    cursorLayer: cursorLayer,
                     dockPID: dockPID
                 ),
                 let owningApplication = windows[index].owningApplication

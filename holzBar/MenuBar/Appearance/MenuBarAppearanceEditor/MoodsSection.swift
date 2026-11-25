@@ -24,6 +24,9 @@ struct MoodsSection: View {
             SettingsCatalog.AppearancePane.moods,
             footnote: Text("At most \(MoodNaming.maximumCount) moods. A name has up to \(MoodNaming.maximumNameLength) characters.")
         ) {
+            if #available(macOS 26.0, *) {
+                readableMenuBarRow
+            }
             if appearanceManager.moods.isEmpty {
                 SettingsEmptyRow(systemImage: "paintpalette", Text("No moods yet: save the current look to switch to it in one click."))
             }
@@ -49,11 +52,27 @@ struct MoodsSection: View {
         }
     }
 
+    /// The built-in mood for Liquid Glass: no delete button, no rename, not counted in the limit.
+    private var readableMenuBarRow: some View {
+        let isCurrent = appearanceManager.isReadableMenuBarCurrent
+        return SettingsButtonRow(
+            .appearanceReadableMenuBar,
+            small: isCurrent ? Text("In use") : nil,
+            badge: .preview,
+            info: Text("Gives the menu bar an opaque background in the light or dark look of your Mac, so its icons and text stay readable.")
+        ) {
+            Button("Apply Mood") {
+                appearanceManager.applyMood(named: BuiltInMood.readableMenuBarID)
+            }
+            .disabled(isCurrent)
+        }
+    }
+
     /// The name is user data, so the row uses the text form; the trash acts at once (D-10).
     private func row(for mood: AppearanceMood) -> some View {
         let isCurrent = mood.name == appearanceManager.currentMoodName
         return SettingsButtonRow(Text(verbatim: mood.name), small: isCurrent ? Text("In use") : nil) {
-            Button("Apply") {
+            Button("Apply Mood") {
                 appearanceManager.applyMood(named: mood.name)
             }
             .disabled(isCurrent)

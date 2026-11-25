@@ -12,7 +12,24 @@ struct BuiltInItemTests {
         #expect(BuiltInItem.userSwitching.rawValue == "userSwitching")
         #expect(BuiltInItem.timer.rawValue == "timer")
         #expect(BuiltInItem.launcher.rawValue == "launcher")
-        #expect(BuiltInItem.allCases.count == 6)
+        #expect(BuiltInItem.spotlight.rawValue == "spotlight")
+        #expect(BuiltInItem.allCases.count == 7)
+        // New raw values are only appended.
+        #expect(BuiltInItem.allCases.last == .spotlight)
+    }
+
+    @Test("Spotlight is a template symbol with no Apple item, no settings pane and no second copy")
+    func spotlight() {
+        #expect(BuiltInItem.spotlight.symbolName == "magnifyingglass")
+        #expect(!BuiltInItem.spotlight.allowsSeveral)
+        #expect(BuiltInItem.spotlight.appleItemWords.isEmpty)
+        #expect(BuiltInItem.spotlight.settingsPaneURL == nil)
+        #expect(!BuiltInItem.spotlight.matchesAppleItem(key: "com.apple.Spotlight:Item"))
+    }
+
+    @Test("Only Spotlight carries the Preview badge")
+    func preview() {
+        #expect(BuiltInItem.allCases.filter(\.isPreview) == [.spotlight])
     }
 
     @Test("Only the timer and the launcher can be added more than once")
@@ -38,7 +55,7 @@ struct BuiltInItemTests {
         #expect(!BuiltInItem.focus.matchesAppleItem(key: "com.apple.controlcenter:Wi-Fi"))
         // The numbered system items are never Apple's item to open.
         #expect(!BuiltInItem.focus.matchesAppleItem(key: "com.apple.MenuBarAgent:Focus"))
-        for item in [BuiltInItem.media, .timer, .launcher] {
+        for item in [BuiltInItem.media, .timer, .launcher, .spotlight] {
             #expect(!item.matchesAppleItem(key: "com.apple.controlcenter:FocusModes"))
         }
     }

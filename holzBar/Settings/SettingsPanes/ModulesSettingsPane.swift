@@ -5,7 +5,7 @@
 
 import SwiftUI
 
-/// The pane that lists the optional modules in two groups, Menu Bar and Notch.
+/// The pane that lists the optional modules in three groups, Menu Bar, Notch and System monitor.
 ///
 /// Every module is off until the user switches it on. A module's settings open with its row's
 /// chevron, one module at a time, and every module is closed again when the pane is left. The
@@ -47,6 +47,12 @@ struct ModulesSettingsPane: View {
                 footnote: Text("Hub modules work only while the Notch hub is on.")
             ) {
                 moduleList(in: .notch)
+            }
+            SettingsGroup(
+                SettingsCatalog.ModulesPane.monitor,
+                footnote: Text("Tiles show in the Notch hub while it is on. Menu bar readouts are widgets. Alerts show in the notch on their own.")
+            ) {
+                moduleList(in: .monitor)
             }
         }
         .onDisappear {
@@ -96,10 +102,11 @@ struct ModulesSettingsPane: View {
         }
     }
 
-    /// The module whose switch this module depends on: every hub module depends on the Notch
-    /// hub.
+    /// The module whose switch this module depends on: every module of the Notch area that has a
+    /// hub registration depends on the Notch hub. A module of another area, such as System
+    /// readouts, works without it.
     private func parentID(of module: ModuleDescriptor) -> String? {
-        HubModules.registration(for: module.id) != nil ? NotchHubController.moduleID : nil
+        module.area == .notch && HubModules.registration(for: module.id) != nil ? NotchHubController.moduleID : nil
     }
 
     /// Whether the module's row has settings to open. Drag in the Menu Bar has a note only on
@@ -124,8 +131,14 @@ struct ModulesSettingsPane: View {
             }
         } else if module.id == AppleItems.moduleID {
             AppleItemsSection(appleItems: appState.appleItems)
+        } else if module.id == DockBadges.moduleID {
+            DockBadgesSettingsView()
         } else if module.id == NotchHubController.moduleID {
             NotchHubSettingsView(settings: appState.settings.notchHub)
+        } else if module.id == ReadoutsSettings.moduleID {
+            ReadoutsSettingsView()
+        } else if module.id == SystemAlertsSettings.moduleID {
+            SystemAlertsSettingsView()
         } else if let registration = HubModules.registration(for: module.id) {
             // A module of the Notch hub brings its own settings.
             registration.makeSettings()

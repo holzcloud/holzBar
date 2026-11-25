@@ -42,6 +42,11 @@ enum HubModules {
             makeSettings: { AnyView(AccessoryAlertsSettingsView()) }
         ),
         HubModuleRegistration(
+            id: IndicatorsRuntime.identifier,
+            makeRuntime: { IndicatorsRuntime(appState: $0) },
+            makeSettings: { AnyView(IndicatorsSettingsView()) }
+        ),
+        HubModuleRegistration(
             id: "notifications",
             makeRuntime: { NotificationsRuntime(appState: $0) },
             makeSettings: { AnyView(NotificationsSettingsView()) }
@@ -50,6 +55,16 @@ enum HubModules {
             id: NowPlayingRuntime.identifier,
             makeRuntime: { NowPlayingRuntime(appState: $0) },
             makeSettings: { AnyView(NowPlayingSettingsView()) }
+        ),
+        HubModuleRegistration(
+            id: SystemReadoutsRuntime.identifier,
+            makeRuntime: { SystemReadoutsRuntime(appState: $0) },
+            makeSettings: { AnyView(ReadoutsSettingsView()) }
+        ),
+        HubModuleRegistration(
+            id: SystemAlertsRuntime.identifier,
+            makeRuntime: { SystemAlertsRuntime(appState: $0) },
+            makeSettings: { AnyView(SystemAlertsSettingsView()) }
         ),
     ]
 

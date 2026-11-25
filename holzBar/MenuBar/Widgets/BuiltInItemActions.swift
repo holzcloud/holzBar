@@ -179,6 +179,31 @@ final class BuiltInItemActions {
         return bundleID(ofApplicationAt: url)
     }
 
+    /// The bundle identifier of Spotlight's application.
+    static let spotlightBundleID = "com.apple.Spotlight"
+
+    /// Opens Spotlight through the workspace, by its bundle identifier, and nothing else: no
+    /// event is posted and no shortcut is read. When it is not found or does not open, the Mac
+    /// beeps and one line without personal data is logged.
+    func openSpotlight() {
+        guard let url = Self.applicationURL(forBundleID: Self.spotlightBundleID) else {
+            logger.error("Spotlight was not found")
+            NSSound.beep()
+            return
+        }
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = true
+        NSWorkspace.shared.openApplication(at: url, configuration: configuration) { [logger] _, error in
+            guard let error else {
+                return
+            }
+            logger.error("Spotlight did not open: \(error.localizedDescription, privacy: .private)")
+            Task { @MainActor in
+                NSSound.beep()
+            }
+        }
+    }
+
     /// Opens the application and brings it forward.
     ///
     /// - Returns: `false` when it is not installed.

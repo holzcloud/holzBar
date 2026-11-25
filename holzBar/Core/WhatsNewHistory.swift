@@ -24,6 +24,114 @@ import Foundation
 nonisolated enum WhatsNewHistory {
     /// The releases, newest first.
     static let releases: [WhatsNewRelease] = [
+        WhatsNewRelease(version: "1.2.0",
+            new: [
+                WhatsNewItem(
+                    symbol: "gauge.with.dots.needle.67percent",
+                    title: "System readouts",
+                    detail: "Tiles for the CPU, memory, network, disk and battery, and for the GPU behind its own switch, with two-minute curves in the Notch hub."
+                ),
+                WhatsNewItem(
+                    symbol: "network",
+                    title: "Readout widgets",
+                    detail: "Network Speed, Disk Activity, GPU Load and Thermal State widgets, and new formats for the CPU, memory and battery widgets."
+                ),
+                WhatsNewItem(
+                    symbol: "exclamationmark.triangle",
+                    title: "System alerts",
+                    detail: "The notch warns when the CPU, memory pressure, thermal state, free disk space or the Mac's battery crosses a limit you set, with optional system notifications."
+                ),
+                WhatsNewItem(
+                    symbol: "airpods",
+                    title: "Devices",
+                    detail: "Accessory alerts lists your devices with their battery levels, and the Lowest Device Battery widget shows the lowest one."
+                ),
+                WhatsNewItem(
+                    symbol: "dial.medium",
+                    title: "Indicators",
+                    detail: "The closed notch flashes the input source and the volume or brightness, and can replace macOS's own display."
+                ),
+                WhatsNewItem(
+                    symbol: "app.badge",
+                    title: "Dock badges",
+                    detail: "The unread counts of apps in your Dock as menu bar items, with groups."
+                ),
+                WhatsNewItem(
+                    symbol: "arrow.down.circle",
+                    title: "Import from Thaw and Hidden Bar",
+                    detail: "Bring over their settings with a preview, a backup and Undo."
+                ),
+                WhatsNewItem(
+                    symbol: "menubar.rectangle",
+                    title: "Making room on macOS 27",
+                    detail: "A notice when macOS folds menu bar icons away or they do not fit beside the notch, with Move to Hidden as one Undo step, or Automatic."
+                ),
+                WhatsNewItem(
+                    symbol: "app.dashed",
+                    title: "Ask where a new app goes",
+                    detail: "An optional question for each new menu bar app."
+                ),
+                WhatsNewItem(
+                    symbol: "eye.slash",
+                    title: "Not shown by macOS",
+                    detail: "On macOS 27, Layout lists the apps macOS does not show, each with a link to the fix."
+                ),
+                WhatsNewItem(
+                    symbol: "circle.lefthalf.filled",
+                    title: "Readable menu bar",
+                    detail: "A built-in mood that gives the menu bar an opaque background."
+                ),
+                WhatsNewItem(
+                    symbol: "magnifyingglass",
+                    title: "Spotlight button",
+                    detail: "A widget that opens Spotlight."
+                ),
+                WhatsNewItem(
+                    symbol: "battery.75percent",
+                    title: "Large Percent",
+                    detail: "A Battery widget format with a larger percentage."
+                ),
+                WhatsNewItem(
+                    symbol: "arrow.clockwise",
+                    title: "Restart Menu Bar and Pause holzBar",
+                    detail: "On macOS 27, in holzBar's menu and the command palette."
+                ),
+            ],
+            improved: [
+                WhatsNewItem(
+                    symbol: "capsule.tophalf.filled",
+                    title: "Notch hub",
+                    detail: "Gestures, a pin, opening on the display with the pointer, a switch for the bounce, and the hotkey closes the hub too."
+                ),
+                WhatsNewItem(
+                    symbol: "slider.horizontal.3",
+                    title: "Display tab",
+                    detail: "Choose the sound output, dim a monitor without brightness control, and no DDC request for three seconds after a wake."
+                ),
+                WhatsNewItem(
+                    symbol: "bell.badge",
+                    title: "Notifications and calendar in the notch",
+                    detail: "A count and a card with a +N queue, and meeting details with a countdown to the next meeting."
+                ),
+                WhatsNewItem(
+                    symbol: "rectangle.topthird.inset.filled",
+                    title: "Dynamic Island",
+                    detail: "The hub opens below Apple's island, and a setting overrides the detection."
+                ),
+            ],
+            fixed: [
+                WhatsNewFix(text: "holzBar opens Settings only when you open it from the Dock, the Finder, Spotlight or Launchpad, not for Siri on macOS 27."),
+                WhatsNewFix(text: "On macOS 27.3, holzBar leaves the system's Live Activities on the bar and neither counts, moves nor lists them."),
+                WhatsNewFix(text: "On macOS 27, a click on a system item through holzBar never leaves the mouse button down, and the click handling no longer waits on a busy holzBar."),
+                WhatsNewFix(text: "On macOS 27, an app that launches into a hidden section keeps its full item until holzBar has read it, up to 45 seconds."),
+                WhatsNewFix(text: "On macOS 27, after more than three MenuBarAgent restarts in ten minutes holzBar shows every item for 30 minutes instead of retrying in a loop."),
+                WhatsNewFix(text: "Before macOS 27, the holzBar Shelf on a second display takes the colours of the display it is on."),
+                WhatsNewFix(text: "On macOS 27, an item never shows another item's picture when two items claim the same place."),
+                WhatsNewFix(text: "holzBar takes its hiding anew after a wake, an unlock or a display change, and saves your sections only from a settled bar."),
+                WhatsNewFix(text: "Automatic rehide is no longer held back by thin windows at the screen edge, and a click inside an open menu or popup no longer starts it."),
+                WhatsNewFix(text: "Where the menu bar is a little taller than the notch, the closed notch is as tall as the menu bar and meets the hardware notch."),
+            ]
+        ),
         WhatsNewRelease(version: "1.1.1",
             new: [
                 WhatsNewItem(

@@ -17,7 +17,8 @@ struct HubLiveStateTests {
         ends: TimeInterval? = nil,
         finished: TimeInterval? = nil,
         tint: LiveActivityTint = .accent,
-        compactValue: String? = nil
+        compactValue: String? = nil,
+        flash: LiveActivityFlash? = nil
     ) -> LiveActivity {
         LiveActivity(
             id: id,
@@ -32,12 +33,14 @@ struct HubLiveStateTests {
             endsAt: ends.map { now.addingTimeInterval($0) },
             finishedAt: finished.map { now.addingTimeInterval($0) },
             tint: tint,
-            compactValue: compactValue
+            compactValue: compactValue,
+            flash: flash
         )
     }
 
-    private func content(_ activities: [LiveActivity]) -> HubLiveState.Content? {
-        HubLiveState.make(board: HubActivityBoard.board(activities, now: now), now: now)
+    private func content(_ activities: [LiveActivity], after seconds: TimeInterval = 0) -> HubLiveState.Content? {
+        let moment = now.addingTimeInterval(seconds)
+        return HubLiveState.make(board: HubActivityBoard.board(activities, now: moment, forClosedNotch: true), now: moment)
     }
 
     @Test("An empty board gives no content")
@@ -127,5 +130,49 @@ struct HubLiveStateTests {
         #expect(long.compactValue?.count == 16)
         let short = activity("short", compactValue: "Camera")
         #expect(short.compactValue == "Camera")
+    }
+
+    // MARK: Flashes and a finish that lies ahead (D-09, D-24)
+
+    @Test("A finished flash carries its second text and icon with its word")
+    func flashWord() throws {
+        let icon = URL(string: "file:///Library/Icons/de.png")
+        let flash = LiveActivityFlash(secondaryValue: "German", symbolImageURL: icon)
+        let value = try #require(content([activity("flash", finished: 0, compactValue: "DE", flash: flash)]))
+        #expect(value.trailing == .word("DE"))
+        #expect(value.secondary == "German")
+        #expect(value.symbolImageURL == icon)
+        let plain = try #require(content([activity("plain", finished: 0, compactValue: "DE")]))
+        #expect(plain.secondary == nil)
+        #expect(plain.symbolImageURL == nil)
+    }
+
+    @Test("A flash without a word carries no second text, and a running countdown never does")
+    func flashWithoutAWord() throws {
+        let flash = LiveActivityFlash(secondaryValue: "German", symbolImageURL: URL(string: "file:///a.png"))
+        let none = try #require(content([activity("flash", finished: 0, flash: flash)]))
+        #expect(none.trailing == HubLiveState.Trailing.none)
+        #expect(none.secondary == nil)
+        #expect(none.symbolImageURL == nil)
+        let countdown = try #require(content([activity("timer", ends: 60, compactValue: "DE", flash: flash)]))
+        #expect(countdown.trailing == .countdown(end: now.addingTimeInterval(60)))
+        #expect(countdown.secondary == nil)
+        #expect(countdown.symbolImageURL == nil)
+    }
+
+    @Test("An activity whose finish lies ahead keeps its countdown or percentage until the finish")
+    func finishAhead() throws {
+        let meeting = activity("meeting", ends: 60, finished: 60, compactValue: "Now")
+        let before = try #require(content([meeting]))
+        #expect(before.trailing == .countdown(end: now.addingTimeInterval(60)))
+        let atEnd = try #require(content([meeting], after: 60))
+        #expect(atEnd.trailing == .word("Now"))
+        let bare = activity("bare", ends: 60, finished: 60)
+        let atEndBare = try #require(content([bare], after: 60))
+        #expect(atEndBare.trailing == HubLiveState.Trailing.none)
+        let percent = try #require(content([activity("download", progress: 0.4, finished: 30)]))
+        #expect(percent.trailing == .percent(40))
+        let finished = try #require(content([activity("download", progress: 0.4, finished: -1)]))
+        #expect(finished.trailing == HubLiveState.Trailing.none)
     }
 }

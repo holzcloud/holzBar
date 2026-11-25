@@ -13,6 +13,10 @@ nonisolated struct WidgetText: Equatable, Sendable {
     /// The battery state the app shows as a symbol next to the text; only for the format that
     /// carries it.
     var batteryState: BatteryState?
+    /// The symbol drawn before the text when it changes with the reading: the kind of the
+    /// accessory that has the lowest level (D-26). `nil` for every other source, which draw their
+    /// own fixed symbol.
+    var leadingSymbol: String?
 
     /// Whether the source could not be read and the text is only the en dash (D-13).
     var isUnavailable: Bool {
@@ -34,11 +38,17 @@ nonisolated enum WidgetFormat {
     ///
     /// A reading that does not fit the source or the preset (a byte count for a percent preset, a
     /// number that is not finite) gives the en dash. A button's text is its title.
+    ///
+    /// - Parameters:
+    ///   - rateUnit: Whether the network speed counts bytes or bits per second.
+    ///   - texts: The unit symbols and labels of the rate formats in the user's language.
     static func text(
         for reading: WidgetReading,
         definition: WidgetDefinition,
         locale: Locale,
-        calendar: Calendar
+        calendar: Calendar,
+        rateUnit: ReadoutRateUnit = .bytes,
+        texts: ReadoutTexts = .english
     ) -> WidgetText {
         if definition.kind == .button {
             return WidgetText(string: definition.buttonTitle)
@@ -64,18 +74,34 @@ nonisolated enum WidgetFormat {
         case (.dateTime, .date(let date)):
             let style = dateStyle(for: definition, locale: locale, calendar: calendar)
             return WidgetText(string: date.formatted(style))
-        case (.battery, .battery(let percent, let state)):
-            let string = percentText(Double(min(max(percent, 0), 100)) / 100, locale: locale)
-            return WidgetText(string: string, batteryState: preset == .percentAndState ? state : nil)
-        case (.cpu, .fraction(let fraction)),
-            (.memory, .fraction(let fraction)) where preset != .gigabytesUsed,
+        case (.battery, .battery), (.battery, .power):
+            if let battery = batteryText(for: reading, preset: preset, locale: locale, texts: texts) {
+                return battery
+            }
+        case (.thermalState, .thermal(let level)):
+            return WidgetText(string: ReadoutFormat.thermalWord(level, texts: texts))
+        case (.deviceBattery, .device(let device)):
+            // The level only: the device's name is never drawn in the menu bar (D-26).
+            return WidgetText(
+                string: percentText(Double(min(max(device.percent, 0), 100)) / 100, locale: locale),
+                leadingSymbol: definition.showsSymbol ? device.symbol : nil
+            )
+        case (.cpu, .clusters(let loads)) where preset == .perCluster:
+            guard loads.count >= 2, loads.allSatisfy({ $0.load.isFinite }) else {
+                break
+            }
+            return WidgetText(string: clusterText(loads.map { ($0.label, $0.load) }, locale: locale, texts: texts))
+        case (.cpu, .fraction(let fraction)), (.gpuLoad, .fraction(let fraction)),
+            (.memory, .fraction(let fraction)) where preset == .percentUsed,
             (.freeDisk, .fraction(let fraction)) where preset != .gigabytesFree:
             guard fraction.isFinite else {
                 break
             }
             return WidgetText(string: percentText(fraction, locale: locale))
-        case (.memory, .bytes(let bytes)) where preset == .gigabytesUsed:
+        case (.memory, .bytes(let bytes)) where preset == .gigabytesUsed || preset == .swapUsed:
             return WidgetText(string: byteText(bytes, style: .memory, locale: locale))
+        case (.memory, .pressure(let pressure)) where preset == .pressure:
+            return WidgetText(string: ReadoutFormat.pressureWord(pressure, texts: texts))
         case (.freeDisk, .bytes(let bytes)) where preset == .gigabytesFree:
             return WidgetText(string: byteText(bytes, style: .file, locale: locale))
         case (.uptime, .duration(let duration)):
@@ -85,10 +111,120 @@ nonisolated enum WidgetFormat {
             let shown = isPassed ? .zero : remaining
             let string = durationText(shown, roundingUp: true, compact: preset == .compactDuration, locale: locale)
             return WidgetText(string: string, isMuted: isPassed)
+        case (.networkSpeed, .rates(let first, let second)):
+            let download = ReadoutFormat.rate(first, unit: rateUnit, texts: texts, locale: locale)
+            let upload = ReadoutFormat.rate(second, unit: rateUnit, texts: texts, locale: locale)
+            switch preset {
+            case .download:
+                if let download {
+                    return WidgetText(string: download.text)
+                }
+            case .upload:
+                if let upload {
+                    return WidgetText(string: upload.text)
+                }
+            default:
+                if let download, let upload {
+                    return WidgetText(string: downloadAndUpload(download.text, upload.text))
+                }
+            }
+        case (.diskActivity, .rates(let first, let second)):
+            // Disk activity is always counted in bytes: the unit setting is the network's.
+            let read = ReadoutFormat.rate(first, unit: .bytes, texts: texts, locale: locale)
+            let written = ReadoutFormat.rate(second, unit: .bytes, texts: texts, locale: locale)
+            switch preset {
+            case .read:
+                if let read {
+                    return WidgetText(string: read.text)
+                }
+            case .write:
+                if let written {
+                    return WidgetText(string: written.text)
+                }
+            default:
+                if let read, let written {
+                    return WidgetText(string: readAndWrite(read.text, written.text, texts: texts))
+                }
+            }
         default:
             break
         }
-        return WidgetText(string: unavailable)
+        // The en dash of the lowest device keeps its slot filled with the unknown symbol (D-26).
+        let isDeviceBattery = definition.source == .deviceBattery && definition.showsSymbol
+        return WidgetText(string: unavailable, leadingSymbol: isDeviceBattery ? ConnectedDeviceList.unknownSymbol : nil)
+    }
+
+    /// The text of a battery format from a power reading (the battery's own reading of 1.1.1 is
+    /// the percent and the state only); `nil` for a value the format cannot show, which is then
+    /// the en dash. Percent and State and Percent and Time Left carry the state as a symbol, and Large
+    /// Percent carries it for its glyph.
+    private static func batteryText(
+        for reading: WidgetReading,
+        preset: WidgetPreset,
+        locale: Locale,
+        texts: ReadoutTexts
+    ) -> WidgetText? {
+        let power: PowerReading
+        switch reading {
+        case .battery(let percent, let state):
+            power = PowerReading(percent: percent, state: state)
+        case .power(let value):
+            power = value
+        default:
+            return nil
+        }
+        switch preset {
+        case .adapterWatts:
+            // Without watts (on battery, or an adapter that told none) there is nothing to show.
+            return power.adapterWatts.map { WidgetText(string: wattsText($0, locale: locale, texts: texts)) }
+        case .percentAndTimeLeft:
+            var string = percentText(Double(min(max(power.percent, 0), 100)) / 100, locale: locale)
+            if let time = timeLeft(power) {
+                string += timeSeparator + timeText(time, locale: locale)
+            }
+            return WidgetText(string: string, batteryState: power.state)
+        default:
+            let string = percentText(Double(min(max(power.percent, 0), 100)) / 100, locale: locale)
+            return WidgetText(string: string, batteryState: preset == .percentAndState || preset == .largePercent ? power.state : nil)
+        }
+    }
+
+    /// The time until empty on battery and until full while charging; `nil` on the adapter
+    /// without charging, and while the system gives no estimate.
+    private static func timeLeft(_ power: PowerReading) -> Duration? {
+        switch power.state {
+        case .onBattery: power.timeToEmpty
+        case .charging: power.timeToFull
+        case .charged, .onAdapter: nil
+        }
+    }
+
+    /// Between the percent and the time left.
+    private static let timeSeparator = " \u{00B7} "
+
+    /// The time as hours and minutes (2:10), in the locale's digits.
+    private static func timeText(_ time: Duration, locale: Locale) -> String {
+        time.formatted(Duration.TimeFormatStyle(pattern: .hourMinute(padHourToLength: 1)).locale(locale))
+    }
+
+    private static func wattsText(_ watts: Int, locale: Locale, texts: ReadoutTexts) -> String {
+        texts.fill(texts.wattsFormat, with: watts.formatted(.number.locale(locale)))
+    }
+
+    /// The load of every cluster in one text, in the kernel's level order, each with its label and
+    /// separated by one space: "P 42% E 12%".
+    private static func clusterText(_ loads: [(label: ClusterLabel, load: Double)], locale: Locale, texts: ReadoutTexts) -> String {
+        loads.map { texts.clusterText($0.label, value: percentText($0.load, locale: locale)) }.joined(separator: " ")
+    }
+
+    /// The read and the write rate in one text, each with its translated one-letter label.
+    private static func readAndWrite(_ read: String, _ written: String, texts: ReadoutTexts) -> String {
+        texts.fill(texts.readFormat, with: read) + " " + texts.fill(texts.writeFormat, with: written)
+    }
+
+    /// The download and the upload in one text: the arrows are characters and never translated.
+    private static func downloadAndUpload(_ download: String, _ upload: String) -> String {
+        "\u{2193}" + download + " \u{2191}" + upload
     }
 
     /// The widest texts a widget's format can show, so that the app measures them once and sets
@@ -96,12 +232,18 @@ nonisolated enum WidgetFormat {
     ///
     /// - A clock: every day of the leap year 2024 at 10:58:58 and at 22:58:58 in the calendar's
     ///   time zone, which holds every weekday name, every month name and both AM and PM forms.
-    /// - A percent: 100 percent.
-    /// - A byte count: the capacity, 9.9 GB and 999.9 GB.
+    /// - A percent: 100 percent. Per Core Cluster: the clusters of this Mac at 100 percent, and the total. Percent and Time Left: 100 percent and 99:59; Adapter Watts: 100 W.
+    /// - A thermal state: its four words in the language.
+    /// - A byte count: the capacity, 9.9 GB and 999.9 GB. Swap: 9.9 GB and 99.9 GB.
+    /// - A memory pressure: its three words in the language.
     /// - A duration: 0 min, 1 min, 59 min, 1 h 1 min, 23 h 59 min, 1 day 1 h, 1 day 1 min,
     ///   99 days 23 h, 99 days 59 min, 999 days 23 h and 999 days 59 min. A countdown whose moment
     ///   lies more than 999 days away also gets its own widest texts, with a day count that
     ///   has one digit more than it can reach (WR-04): its moment may lie 126 years away.
+    /// - A rate (network speed): 99.9 and 999 in kilo, mega and giga, in the unit and the labels
+    ///   of the locale; the download and the upload are written the same way, so the widest
+    ///   sample of the two joined with the arrows is the widest text.
+    /// - A disk rate: the same samples in bytes, with the labels of the language for the pair.
     /// - A button: its title.
     /// - A timer item: 00:00. The other built-in items have no text.
     /// - A script widget: 8, 16 or 32 zeros for its width (``scriptWidthDigits(for:)``). Digits
@@ -116,7 +258,9 @@ nonisolated enum WidgetFormat {
         locale: Locale,
         calendar: Calendar,
         capacityBytes: UInt64?,
-        now: Date = .now
+        now: Date = .now,
+        rateUnit: ReadoutRateUnit = .bytes,
+        texts: ReadoutTexts = .english
     ) -> [String] {
         var samples = [String]()
         var seen = Set<String>()
@@ -152,8 +296,60 @@ nonisolated enum WidgetFormat {
                     }
                 }
             }
-        case .battery, .cpu:
+        case .battery where preset == .percentAndTimeLeft:
+            // The longest times shown: 99 hours 59 minutes, and the 100 hours ``PowerValues`` still
+            // believes.
+            for seconds in [99 * 3_600 + 59 * 60, PowerValues.maximumMinutes * 60] {
+                add(percentText(1, locale: locale) + timeSeparator + timeText(.seconds(seconds), locale: locale))
+            }
+        case .battery where preset == .adapterWatts:
+            add(wattsText(100, locale: locale, texts: texts))
+        case .cpu where preset == .perCluster:
+            // The cluster text of this Mac at full load, and the total it falls back to.
+            if texts.clusterLabels.count >= 2 {
+                add(clusterText(texts.clusterLabels.map { ($0, 1) }, locale: locale, texts: texts))
+            }
             add(percentText(1, locale: locale))
+        case .battery, .cpu, .gpuLoad, .deviceBattery:
+            add(percentText(1, locale: locale))
+        case .thermalState:
+            for level in ReadoutThermal.allCases {
+                add(ReadoutFormat.thermalWord(level, texts: texts))
+            }
+        case .networkSpeed:
+            let rates = ReadoutFormat.rateWidthSamples(unit: rateUnit, texts: texts, locale: locale)
+            if preset == .downloadAndUpload {
+                // Every pair, so the widest in the font is among them whatever the unit symbols
+                // are in the language.
+                for download in rates {
+                    for upload in rates {
+                        add(downloadAndUpload(download, upload))
+                    }
+                }
+            } else {
+                rates.forEach(add)
+            }
+        case .diskActivity:
+            let rates = ReadoutFormat.rateWidthSamples(unit: .bytes, texts: texts, locale: locale)
+            if preset == .readAndWrite {
+                for read in rates {
+                    for written in rates {
+                        add(readAndWrite(read, written, texts: texts))
+                    }
+                }
+            } else {
+                rates.forEach(add)
+            }
+        case .memory where preset == .pressure:
+            for pressure in ReadoutPressure.allCases {
+                add(ReadoutFormat.pressureWord(pressure, texts: texts))
+            }
+        case .memory where preset == .swapUsed:
+            // The swap has no fixed bound: the installed memory is not one. 99.9 GB is already
+            // more than a Mac swaps in practice.
+            for gigabytes in [9.9, 99.9] {
+                add(byteText(UInt64(gigabytes * 1_073_741_824), style: .memory, locale: locale))
+            }
         case .memory, .freeDisk:
             if preset == .gigabytesUsed || preset == .gigabytesFree {
                 let style: ByteCountFormatStyle.Style = definition.source == .memory ? .memory : .file

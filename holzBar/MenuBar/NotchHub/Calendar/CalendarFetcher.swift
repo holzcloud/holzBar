@@ -26,6 +26,32 @@ actor CalendarFetcher {
         return store.events(matching: predicate).compactMap(Self.event(from:))
     }
 
+    /// The earliest start after `start` of a timed, not cancelled, not declined event of a visible
+    /// calendar that begins before `end`, or `nil`.
+    ///
+    /// It serves the countdown of the closed notch and returns only a date (D-24): of each event
+    /// it reads the start, the all-day flag, the status, the declined flag and the calendar's
+    /// identifier, never the title, the place, the notes or the attendees' names, and it keeps no
+    /// event value. Empty unless the user has allowed full access.
+    func nextStart(from start: Date, to end: Date, hidden: Set<String>) -> Date? {
+        guard let store = readableStore() else {
+            return nil
+        }
+        let predicate = store.predicateForEvents(withStart: start, end: end, calendars: nil)
+        var earliest: Date?
+        for event in store.events(matching: predicate) {
+            guard let eventStart = event.startDate, eventStart > start, eventStart < end,
+                  !event.isAllDay, event.status != .canceled, !Self.isDeclined(event),
+                  CalendarSelection.isVisible(event.calendar?.calendarIdentifier ?? "", hidden: hidden) else {
+                continue
+            }
+            if earliest.map({ eventStart < $0 }) ?? true {
+                earliest = eventStart
+            }
+        }
+        return earliest
+    }
+
     /// The calendars macOS lists for events, sorted by name. Empty unless the user has allowed
     /// full access.
     func calendars() -> [CalendarInfo] {
@@ -77,8 +103,14 @@ actor CalendarFetcher {
             notes: event.notes,
             url: event.url,
             isCancelled: event.status == .canceled,
-            isDeclined: event.attendees?.contains { $0.isCurrentUser && $0.participantStatus == .declined } ?? false
+            isDeclined: isDeclined(event),
+            attendeeCount: event.attendees?.count
         )
+    }
+
+    /// Whether the current user declined the event.
+    private static func isDeclined(_ event: EKEvent) -> Bool {
+        event.attendees?.contains { $0.isCurrentUser && $0.participantStatus == .declined } ?? false
     }
 
     /// The calendar's colour in sRGB.

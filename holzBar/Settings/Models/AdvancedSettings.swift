@@ -82,6 +82,33 @@ final class AdvancedSettings {
         }
     }
 
+    /// What holzBar does when macOS 27 folds menu bar items away because the bar is full.
+    /// Off shows no notice in the holzBar Shelf; Layout always shows its banner.
+    var makeRoomMode: MakeRoomMode = .ask {
+        didSet {
+            Defaults.set(makeRoomMode.rawValue, forKey: .makeRoomMode)
+            // Automatic runs only in its mode; every other mode stops it.
+            appState?.makeRoomModeDidChange()
+        }
+    }
+
+    /// A Boolean value that indicates whether holzBar asks, once per app, where a new menu bar
+    /// app goes (macOS 27). Off by default; independent of ``makeRoomMode``.
+    var asksWhereNewAppGoes = false {
+        didSet {
+            Defaults.set(asksWhereNewAppGoes, forKey: .asksWhereNewAppGoes)
+            if #available(macOS 27.0, *) {
+                if asksWhereNewAppGoes {
+                    // The model is created by this event, never by a view reading it.
+                    _ = appState?.newAppQuestions27
+                } else {
+                    // Off means no cost: every waiting question goes, and so does the kept list.
+                    appState?.existingNewAppQuestions27?.switchDidTurnOff()
+                }
+            }
+        }
+    }
+
     /// A Boolean value that indicates whether Live Activities stay in the
     /// visible section.
     var keepLiveActivitiesVisible = true {
@@ -137,6 +164,7 @@ final class AdvancedSettings {
         Defaults.ifPresent(key: .openHiddenItemsInMenuBar, assign: &openHiddenItemsInMenuBar)
         Defaults.ifPresent(key: .keepLiveActivitiesVisible, assign: &keepLiveActivitiesVisible)
         Defaults.ifPresent(key: .autoZenWhileSharingScreen, assign: &autoZenWhileSharingScreen)
+        Defaults.ifPresent(key: .asksWhereNewAppGoes, assign: &asksWhereNewAppGoes)
 
         Defaults.ifPresent(key: .sectionDividerStyle) { rawValue in
             if let style = SectionDividerStyle(rawValue: rawValue) {
@@ -147,6 +175,13 @@ final class AdvancedSettings {
         Defaults.ifPresent(key: .newItemsPlacement) { rawValue in
             if let placement = NewItemsPlacement(rawValue: rawValue) {
                 newItemsPlacement = placement
+            }
+        }
+
+        // An unknown raw value, from an imported file or a later version, keeps Ask.
+        Defaults.ifPresent(key: .makeRoomMode) { rawValue in
+            if let mode = MakeRoomMode(rawValue: rawValue) {
+                makeRoomMode = mode
             }
         }
     }
@@ -201,6 +236,31 @@ enum NewItemsPlacement: Int, CaseIterable, Identifiable {
         case .visible: "Visible"
         case .hidden: "Hidden"
         case .alwaysHidden: "Always Hidden"
+        }
+    }
+}
+
+// MARK: - MakeRoomMode
+
+/// What holzBar does when the apps in the Visible section do not fit the menu bar (macOS 27).
+///
+/// The raw values are stored and exported, so they never change; new modes are only appended.
+enum MakeRoomMode: Int, CaseIterable, Identifiable {
+    /// Offers nothing in the holzBar Shelf; the Layout banner still shows.
+    case off = 0
+    /// Shows a notice with a button that moves apps to Hidden.
+    case ask = 1
+    /// Moves the apps by itself when macOS folds them, once per episode, with Undo.
+    case automatic = 2
+
+    var id: Int { rawValue }
+
+    /// Localized string key representation.
+    var localized: LocalizedStringKey {
+        switch self {
+        case .off: "Off"
+        case .ask: "Ask"
+        case .automatic: "Automatic"
         }
     }
 }

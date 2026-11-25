@@ -184,7 +184,7 @@ final class StandInItems27: NSObject {
     /// The first item of the application in Visible, which is the one the stand-in opens.
     private func realItem(of bundleID: String, appState: AppState) -> MenuBarItem? {
         appState.itemManager.itemCache[.visible].first { item in
-            !item.isControlItem && !item.isWidget && item.sourceApplication?.bundleIdentifier == bundleID
+            !item.isControlItem && !item.isOwnArrangedItem && item.sourceApplication?.bundleIdentifier == bundleID
         }
     }
 

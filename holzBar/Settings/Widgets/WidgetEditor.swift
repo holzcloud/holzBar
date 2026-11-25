@@ -58,7 +58,20 @@ struct WidgetEditor: View {
     /// ready-made items' sentences. Text and Shortcut button widgets have none.
     static func explanation(for definition: WidgetDefinition, appName: String?) -> Text? {
         switch definition.kind {
-        case .text, .button:
+        case .text:
+            switch definition.source {
+            case .networkSpeed:
+                return Text("Counts Wi-Fi and Ethernet, not VPN tunnels, in the unit chosen in System readouts.")
+            case .diskActivity:
+                return Text("Reads and writes of all internal and external disks, per second.")
+            case .gpuLoad:
+                return Text("Uses a private macOS interface, switched on in System readouts.")
+            case .deviceBattery:
+                return Text("Uses a private macOS interface, switched on in Accessory alerts.")
+            case .dateTime, .battery, .cpu, .memory, .uptime, .freeDisk, .countdown, .thermalState:
+                return nil
+            }
+        case .button:
             return nil
         case .script:
             return Text("The widget shows the first line of the script's output. It runs when the widget appears and when you click it, and on the system events your automation rules follow, never on a timer.")
@@ -76,6 +89,8 @@ struct WidgetEditor: View {
                 return Text("A click opens fast user switching.")
             case .launcher:
                 return Text(verbatim: WidgetSpeech.hint(for: .launcher, appName: appName))
+            case .spotlight:
+                return Text("A click opens Spotlight.")
             case nil:
                 return nil
             }
@@ -100,7 +115,26 @@ struct WidgetEditor: View {
         case .narrowText: Text("Narrow")
         case .mediumText: Text("Medium")
         case .wideText: Text("Wide")
+        case .download: Text("Download")
+        case .upload: Text("Upload")
+        case .downloadAndUpload: Text("Download and Upload")
+        case .read: Text("Read")
+        case .write: Text("Write")
+        case .readAndWrite: Text("Read and Write")
+        case .pressure: Text("Pressure")
+        case .swapUsed: Text("Swap Used")
+        case .state: Text("State")
+        case .percentAndTimeLeft: Text("Percent and Time Left")
+        case .adapterWatts: Text("Adapter Watts")
+        case .perCluster: Text("Per Core Cluster")
+        case .largePercent: Text("Large Percent")
         }
+    }
+
+    /// The Preview badge of a row whose source or format is new and not yet tried on a Mac; the
+    /// badge stands alone (D-15).
+    static func badge(isPreview: Bool) -> SettingsBadge? {
+        isPreview ? .preview : nil
     }
 }
 
@@ -109,20 +143,53 @@ struct WidgetEditor: View {
 /// The options of a text widget. The definition is read again from the widgets, so an edit
 /// that was refused (a countdown too far away) leaves the controls on the stored value.
 private struct TextWidgetFields: View {
+    @Environment(AppState.self) private var appState
     var widgets: MenuBarWidgets
     let definition: WidgetDefinition
 
+    /// The sources the Source picker lists, in the UI contract's order. GPU Load is listed only
+    /// while its switch in System readouts is on, and Lowest Device Battery only while Read
+    /// battery levels is on in Accessory alerts; either one also while it is this widget's own
+    /// source, so an existing widget is never changed silently (D-07, D-27).
+    private var offeredSources: [WidgetSource] {
+        let readsGPU = appState.settings.readouts.readsGPU
+        let readsDeviceBattery = appState.connectedDevices.readsBattery
+        return WidgetSource.editorOrder.filter { source in
+            switch source {
+            case .gpuLoad: readsGPU || definition.source == .gpuLoad
+            case .deviceBattery: readsDeviceBattery || definition.source == .deviceBattery
+            default: true
+            }
+        }
+    }
+
     var body: some View {
-        SettingsPickerRow(Text("Source"), selection: sourceBinding) {
-            ForEach(WidgetSource.allCases, id: \.self) { source in
+        SettingsPickerRow(
+            Text("Source"),
+            selection: sourceBinding,
+            badge: WidgetEditor.badge(isPreview: definition.source.isPreview)
+        ) {
+            ForEach(offeredSources, id: \.self) { source in
                 WidgetsSection.sourceTitle(source)
                     .tag(source)
             }
         }
         .settingsSubRow()
+        if definition.source == .gpuLoad, !appState.settings.readouts.readsGPU {
+            SettingsStateLine(.info, Text("Read GPU load is off in System readouts"))
+                .settingsSubRow()
+        }
+        if definition.source == .deviceBattery, !appState.connectedDevices.readsBattery {
+            SettingsStateLine(.info, Text("Read battery levels is off in Accessory alerts"))
+                .settingsSubRow()
+        }
         if definition.source.presets.count > 1 {
-            SettingsPickerRow(Text("Format"), selection: binding(\.preset)) {
-                ForEach(definition.source.presets, id: \.self) { preset in
+            SettingsPickerRow(
+                Text("Format"),
+                selection: binding(\.preset),
+                badge: WidgetEditor.badge(isPreview: definition.preset.isPreview)
+            ) {
+                ForEach(offeredPresets, id: \.self) { preset in
                     WidgetEditor.presetTitle(preset)
                         .tag(preset)
                 }
@@ -152,7 +219,8 @@ private struct TextWidgetFields: View {
             }
             .settingsSubRow()
         }
-        if !refreshChoices.isEmpty {
+        // The memory pressure follows the system's event and has no interval to set.
+        if definition.offersRefresh, !refreshChoices.isEmpty {
             SettingsPickerRow(Text("Refresh every"), selection: binding(\.refreshSeconds)) {
                 ForEach(refreshChoices, id: \.self) { seconds in
                     Text("\(seconds) s")
@@ -161,6 +229,14 @@ private struct TextWidgetFields: View {
             }
             .settingsSubRow()
         }
+    }
+
+    /// The formats of the source this Mac can show: Per Core Cluster only when the chip reports
+    /// two or more core clusters, or while it is the chosen one (a widget is never changed
+    /// silently, D-10).
+    private var offeredPresets: [WidgetPreset] {
+        let hasClusters = SystemSamplers.clusterLevels.count >= 2
+        return definition.source.presets.filter { $0 != .perCluster || hasClusters || $0 == definition.preset }
     }
 
     /// The intervals of the source, and the stored one when it is not among them (a settings
@@ -432,7 +508,7 @@ private struct BuiltInItemFields: View {
                 }
             }
             .settingsSubRow()
-        case .airDrop, .focus, .userSwitching, nil:
+        case .airDrop, .focus, .userSwitching, .spotlight, nil:
             // What a click does is the info of the widget's row.
             EmptyView()
         }

@@ -37,6 +37,8 @@ nonisolated struct CalendarEvent: Equatable, Sendable, Identifiable {
     static let maximumLocationLength = 500
     /// The longest notes kept, in characters.
     static let maximumNotesLength = 4_000
+    /// The most notes an open row shows, in characters: well below the stored maximum.
+    static let detailNotesLength = 300
 
     /// Unique for one occurrence: a recurring event has one id per instance.
     let id: String
@@ -53,6 +55,9 @@ nonisolated struct CalendarEvent: Equatable, Sendable, Identifiable {
     let url: URL?
     let isCancelled: Bool
     let isDeclined: Bool
+    /// How many invitees the event has, a number only and never a name. `nil` when unknown; a
+    /// negative number is stored as `nil`, and `0` stays `0`.
+    let attendeeCount: Int?
 
     init(
         id: String,
@@ -66,7 +71,8 @@ nonisolated struct CalendarEvent: Equatable, Sendable, Identifiable {
         notes: String? = nil,
         url: URL? = nil,
         isCancelled: Bool = false,
-        isDeclined: Bool = false
+        isDeclined: Bool = false,
+        attendeeCount: Int? = nil
     ) {
         self.id = id
         self.title = String(title.prefix(Self.maximumTitleLength))
@@ -80,6 +86,7 @@ nonisolated struct CalendarEvent: Equatable, Sendable, Identifiable {
         self.url = url
         self.isCancelled = isCancelled
         self.isDeclined = isDeclined
+        self.attendeeCount = attendeeCount.flatMap { $0 >= 0 ? $0 : nil }
     }
 }
 

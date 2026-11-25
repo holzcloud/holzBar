@@ -11,21 +11,21 @@ import SwiftUI
 /// The running part of the Accessory alerts module of the Notch hub.
 ///
 /// The hub creates it only while the hub and the module are both on and calls ``shutDown()``
-/// when either goes off, so nothing of the module exists while it is off. It owns one
-/// ``BluetoothDeviceMonitor``, which follows which paired Bluetooth devices are connected and
-/// never connects to, searches for or pairs with one. It asks macOS for the Bluetooth permission
-/// once, here in ``init(appState:)`` and only while the state is not determined. Each report of
-/// the monitor goes through an ``AccessoryTracker``, whose events become ``LiveActivity`` values
-/// that are already finished, so each alert widens the notch for five seconds, with its fixed
-/// short word and never the device's name; VoiceOver hears each once. The devices connected when
-/// the module starts are the baseline and raise no alert. Device names live in memory only, are
-/// dropped in ``shutDown()`` and are never logged.
+/// when either goes off, so nothing of the module exists while it is off. It is a consumer of
+/// ``ConnectedDevicesService``, which owns the one ``BluetoothDeviceMonitor`` that follows which
+/// paired Bluetooth devices are connected and never connects to, searches for or pairs with one.
+/// It asks macOS for the Bluetooth permission once, here in ``init(appState:)``, through that
+/// monitor and only while the state is not determined: it is the only place that asks. Each
+/// change of the connected devices goes through an ``AccessoryTracker``, whose events become
+/// ``LiveActivity`` values that are already finished, so each alert widens the notch for five
+/// seconds, with its fixed short word and never the device's name; VoiceOver hears each once.
+/// The devices connected when the module starts are the baseline and raise no alert. Device
+/// names live in memory only, are dropped in ``shutDown()`` and are never logged.
 ///
-/// The battery half reads accessory levels through ``AccessoryBatterySource``, only while the
-/// setting "Read battery levels" is on. A read follows events: the power-source notification, a
-/// device connecting or leaving, and the hub opening. One coarse wait of five minutes covers the
-/// level changing silently; it is armed only while an accessory with a level is connected. Each
-/// read feeds an ``AccessoryLowBatteryGate``, whose ids become low-battery alerts.
+/// The battery half takes the accessory levels from ``ConnectedDevicesService``, the one reader
+/// of the agreed battery read, so it never calls that read itself and reads nothing while the
+/// setting "Read battery levels" is off. Each change of the service's levels feeds an
+/// ``AccessoryLowBatteryGate``, whose ids become low-battery alerts.
 @MainActor
 @Observable
 final class AccessoryAlertsRuntime: HubModuleRuntime {
@@ -40,84 +40,111 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
     let tint = HubTint.accent
     let offersTab = true
 
-    /// The paired devices that are connected now. Empty without the Bluetooth permission.
-    private(set) var connected = [AccessoryDevice]()
+    /// The paired devices that are connected now, from the devices service. Empty without the
+    /// Bluetooth permission.
+    var connected: [AccessoryDevice] {
+        appState?.connectedDevices.connected ?? []
+    }
 
-    /// The state of the Bluetooth permission as of the last report.
-    private(set) var access = BluetoothDeviceMonitor.access
+    /// The state of the Bluetooth permission as of the last report of the devices service.
+    var access: BluetoothAccess {
+        appState?.connectedDevices.access ?? BluetoothDeviceMonitor.access
+    }
 
-    /// The accessories that report a battery level, from the last read. Empty while reading is
-    /// off or this macOS lacks the call.
-    private(set) var batteries = [AccessoryBattery]()
+    /// The rows of the Accessories tab: the devices service's list, from ``ConnectedDeviceList``.
+    var deviceRows: [ConnectedDeviceRow] {
+        appState?.connectedDevices.rows ?? []
+    }
+
+    /// The accessories that report a battery level, from the devices service. Empty while reading
+    /// is off or this macOS lacks the call.
+    var batteries: [AccessoryBattery] {
+        appState?.connectedDevices.batteries ?? []
+    }
 
     /// The level at or below which a battery counted as low at the last read.
     private(set) var lowLevel = AccessoryAlertOptions.defaultLowBatteryLevel
 
     private var alerts = [LiveActivity]()
 
+    /// What the connect and disconnect alerts follow: the connected devices and whether holzBar
+    /// may use Bluetooth at all.
+    private struct DeviceState: Equatable {
+        let connected: [AccessoryDevice]
+        let isAuthorized: Bool
+    }
+
+    /// The consumer names this runtime registers under with the devices service: one for the
+    /// module while it runs, one for the Accessories tab while it is on screen.
+    private static let devicesConsumer = "accessory-alerts"
+    private static let hubDevicesConsumer = "hub-devices"
+
+    @ObservationIgnored private weak var appState: AppState?
     @ObservationIgnored private var tracker = AccessoryTracker()
-    @ObservationIgnored private let monitor = BluetoothDeviceMonitor()
-    @ObservationIgnored private var activationTask: Task<Void, Never>?
+    @ObservationIgnored private var devicesLoop: ObservationLoop?
+    @ObservationIgnored private var batteriesLoop: ObservationLoop?
+    @ObservationIgnored private var lastDevices = [AccessoryDevice]()
     @ObservationIgnored private var lowGate = AccessoryLowBatteryGate()
     @ObservationIgnored private var isRunning = true
-    @ObservationIgnored private var lastRead = Date.now
-    @ObservationIgnored private var readTask: Task<Void, Never>?
-    @ObservationIgnored private var readAgain = false
-    @ObservationIgnored private var refreshTask: Task<Void, Never>?
-    @ObservationIgnored private var powerTask: Task<Void, Never>?
-    @ObservationIgnored private var beganPowerEvents = false
 
-    /// Starts following the connected devices. The Bluetooth question is asked here, once, when
-    /// macOS has not been asked yet.
-    init(appState _: AppState) {
-        monitor.onChange = { [weak self] in
-            self?.devicesDidChange()
-        }
-        monitor.refreshAuthorization()
+    /// Starts following the connected devices through the devices service. The Bluetooth
+    /// question is asked here, once, when macOS has not been asked yet; it is the only place that
+    /// asks.
+    init(appState: AppState) {
+        self.appState = appState
+        let devices = appState.connectedDevices
+        devices.begin(Self.devicesConsumer, wantsDevices: true)
         if BluetoothDeviceMonitor.access == .notDetermined {
-            monitor.requestAuthorization()
+            devices.bluetoothMonitor?.requestAuthorization()
         }
-        monitor.start()
+        devicesLoop = ObservationLoop.observe(
+            { [weak self] in
+                self?.deviceState ?? DeviceState(connected: [], isAuthorized: false)
+            },
+            onChange: { [weak self] state in
+                self?.devicesDidChange(state)
+            }
+        )
         // The baseline: what is connected now is not news.
-        devicesDidChange()
-        // A change made in System Settings shows without a restart.
-        activationTask = Task { [weak self] in
-            for await _ in NotificationCenter.default.notifications(named: NSApplication.didBecomeActiveNotification) {
-                self?.monitor.refreshAuthorization()
+        devicesDidChange(deviceState)
+        // The battery half: every change of the service's levels runs the low-battery gate.
+        batteriesLoop = ObservationLoop.observe(
+            { [weak self] in
+                self?.batteries ?? []
+            },
+            onChange: { [weak self] _ in
+                self?.updateLowBatteryAlerts()
             }
-        }
-        // The battery half: a power-source change may be an accessory's.
-        PowerSourceEvents.shared.begin()
-        beganPowerEvents = true
-        powerTask = Task { [weak self] in
-            for await _ in NotificationCenter.default.notifications(named: .powerSourcesDidChange) {
-                self?.scheduleBatteryRefresh()
-            }
-        }
-        scheduleBatteryRefresh()
+        )
+        updateLowBatteryAlerts()
     }
 
     // MARK: Devices
 
-    /// Reads the connected devices, shows them, and raises an alert for each event.
-    private func devicesDidChange() {
-        if access != BluetoothDeviceMonitor.access {
-            access = BluetoothDeviceMonitor.access
+    private var deviceState: DeviceState {
+        DeviceState(
+            connected: appState?.connectedDevices.connected ?? [],
+            isAuthorized: appState?.connectedDevices.access == .allowed
+        )
+    }
+
+    /// Takes the connected devices the service reports, and raises an alert for each event.
+    private func devicesDidChange(_ state: DeviceState) {
+        guard isRunning else {
+            return
         }
-        guard monitor.isAuthorized else {
+        guard state.isAuthorized else {
             // Without the permission nothing is known; what is connected once it is allowed is
             // the baseline, not a set of new connections.
             tracker.reset()
-            if !connected.isEmpty {
-                connected = []
-                scheduleBatteryRefresh()
-            }
+            lastDevices = []
             return
         }
-        let devices = monitor.connectedDevices()
-        if devices != connected {
-            connected = devices
-            scheduleBatteryRefresh()
+        // A device that connects or leaves makes the service read the levels again (its own
+        // Bluetooth notification), so nothing more is asked here.
+        let devices = state.connected
+        if devices != lastDevices {
+            lastDevices = devices
         }
         let now = Date.now
         let events = tracker.update(connected: devices, now: now)
@@ -212,7 +239,7 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
 
     /// Whether the user wants levels but this macOS lacks the call that gives them.
     var batteryReadingUnavailable: Bool {
-        AccessoryAlertsSettings.readsBattery() && !AccessoryBatterySource.isAvailable
+        appState?.connectedDevices.batteryReadingUnavailable ?? false
     }
 
     func makeBody(host: any HubHost) -> AnyView {
@@ -221,40 +248,40 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
 
     /// Reads the permission and the devices again when the hub opens or closes. An unchanged
     /// snapshot raises nothing.
-    func hubVisibilityDidChange(isOpen: Bool) {
-        monitor.refreshAuthorization()
-        devicesDidChange()
-        if isOpen {
-            scheduleBatteryRefresh()
-        }
+    func hubVisibilityDidChange(isOpen _: Bool) {
+        appState?.connectedDevices.refresh()
     }
 
-    /// Reads the batteries again after a setting changed: the switch for reading, for the
-    /// alert, or the level.
+    /// The Accessories tab came on screen: it needs the devices and their levels for as long as
+    /// it shows.
+    func devicesListDidAppear() {
+        appState?.connectedDevices.begin(Self.hubDevicesConsumer, wantsDevices: true)
+        appState?.connectedDevices.refresh()
+    }
+
+    /// The Accessories tab went off screen.
+    func devicesListDidDisappear() {
+        appState?.connectedDevices.end(Self.hubDevicesConsumer)
+    }
+
+    /// Runs the low-battery logic again on the current levels after a setting changed (the switch
+    /// for reading, for the alert, or the level). It reads nothing: the settings view tells the
+    /// devices service when the switch changes, and the service reads then.
     func settingsDidChange() {
-        scheduleBatteryRefresh()
+        updateLowBatteryAlerts()
     }
 
-    /// Stops the monitor, the notification, the tasks and the wait, and lets go of every device,
+    /// Gives the devices service back and stops the observations, and lets go of every device,
     /// battery and alert.
     func shutDown() {
         isRunning = false
-        activationTask?.cancel()
-        activationTask = nil
-        powerTask?.cancel()
-        powerTask = nil
-        readTask?.cancel()
-        readTask = nil
-        refreshTask?.cancel()
-        refreshTask = nil
-        if beganPowerEvents {
-            PowerSourceEvents.shared.end()
-            beganPowerEvents = false
-        }
-        monitor.onChange = nil
-        monitor.stop()
-        connected = []
-        batteries = []
+        devicesLoop?.cancel()
+        devicesLoop = nil
+        batteriesLoop?.cancel()
+        batteriesLoop = nil
+        appState?.connectedDevices.end(Self.devicesConsumer)
+        appState?.connectedDevices.end(Self.hubDevicesConsumer)
+        lastDevices = []
         alerts = []
         tracker.reset()
         lowGate.reset()
@@ -262,72 +289,28 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
 
     // MARK: Batteries
 
-    /// Reads the batteries soon. Reads never overlap: a request that arrives during one asks for
-    /// one more after it.
-    private func scheduleBatteryRefresh() {
+    /// Runs the low-battery gate on the devices service's levels: reads the options, updates
+    /// ``lowLevel`` and raises an alert for each battery that fell to the low level.
+    ///
+    /// While "Read battery levels" is off there are no levels and the gate forgets what it
+    /// announced; a low battery that is already low when the alert is turned on, or reading is
+    /// turned on again, counts as a first reading.
+    private func updateLowBatteryAlerts() {
         guard isRunning else {
             return
-        }
-        guard readTask == nil else {
-            readAgain = true
-            return
-        }
-        readTask = Task { [weak self] in
-            await self?.readUntilQuiet()
-        }
-    }
-
-    private func readUntilQuiet() async {
-        repeat {
-            readAgain = false
-            await refreshBatteries()
-        } while readAgain && isRunning && !Task.isCancelled
-        readTask = nil
-    }
-
-    /// Reads the accessory batteries once, shows them, raises an alert for each that fell to the
-    /// low level and arms the coarse wait.
-    ///
-    /// The undocumented call is made only while the setting "Read battery levels" is on and this
-    /// macOS has it; otherwise the list is empty and nothing is read.
-    func refreshBatteries() async {
-        guard AccessoryAlertsSettings.readsBattery(), AccessoryBatterySource.isAvailable else {
-            clearBatteries()
-            return
-        }
-        let read = await AccessoryBatterySource.read()
-        // The module or the setting may have gone off while the read ran.
-        guard isRunning, AccessoryAlertsSettings.readsBattery() else {
-            clearBatteries()
-            return
-        }
-        let now = Date.now
-        lastRead = now
-        if read != batteries {
-            batteries = read
         }
         let options = AccessoryAlertsSettings.options()
         if lowLevel != options.lowBatteryLevel {
             lowLevel = options.lowBatteryLevel
         }
-        if options.allowsLowBattery {
-            let levels = Dictionary(read.map { ($0.id, $0.percent) }, uniquingKeysWith: { first, _ in first })
-            let lowIDs = lowGate.update(levels: levels, threshold: options.lowBatteryLevel)
-            raiseLowBatteryAlerts(for: read.filter { lowIDs.contains($0.id) }, at: now)
-        } else {
-            // Turned on later, a battery that is already low counts as a first reading.
+        guard AccessoryAlertsSettings.readsBattery(), options.allowsLowBattery else {
             lowGate.reset()
+            return
         }
-        armBatteryWait()
-    }
-
-    private func clearBatteries() {
-        refreshTask?.cancel()
-        refreshTask = nil
-        lowGate.reset()
-        if !batteries.isEmpty {
-            batteries = []
-        }
+        let read = batteries
+        let levels = Dictionary(read.map { ($0.id, $0.percent) }, uniquingKeysWith: { first, _ in first })
+        let lowIDs = lowGate.update(levels: levels, threshold: options.lowBatteryLevel)
+        raiseLowBatteryAlerts(for: read.filter { lowIDs.contains($0.id) }, at: .now)
     }
 
     private func raiseLowBatteryAlerts(for lowBatteries: [AccessoryBattery], at now: Date) {
@@ -353,27 +336,6 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
         }
         if raised != alerts {
             alerts = raised
-        }
-    }
-
-    /// Arms the one coarse wait, only while an accessory with a level is connected. It replaces
-    /// the previous one, and a read re-arms it.
-    private func armBatteryWait() {
-        refreshTask?.cancel()
-        refreshTask = nil
-        guard
-            isRunning,
-            let next = AccessoryRefreshPolicy.next(hasBatteryAccessory: !batteries.isEmpty, lastRead: lastRead)
-        else {
-            return
-        }
-        refreshTask = Task { [weak self] in
-            let delay = max(next.timeIntervalSinceNow, 1)
-            try? await Task.sleep(for: .seconds(delay), tolerance: .seconds(60), clock: .continuous)
-            guard !Task.isCancelled else {
-                return
-            }
-            self?.scheduleBatteryRefresh()
         }
     }
 }

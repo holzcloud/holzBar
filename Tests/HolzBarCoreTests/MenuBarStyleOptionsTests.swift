@@ -92,4 +92,14 @@ struct MenuBarStyleOptionsTests {
         #expect(MenuBarPartialStyle.defaultTintStrength == 0.2)
         #expect(MenuBarPartialStyle.tintStrengthRange == 0.1...0.6)
     }
+
+    @Test("A stored tint strength of exactly 1 is kept, so a mood can draw an opaque bar; every other value is clamped")
+    func opaqueTintStrengthIsKept() throws {
+        #expect(MenuBarPartialStyle.opaqueTintStrength == 1)
+        #expect(MenuBarPartialStyle.storedTintStrength(1) == 1)
+        #expect(MenuBarPartialStyle.storedTintStrength(0.95) == 0.6)
+        #expect(MenuBarPartialStyle.storedTintStrength(.nan) == 0.2)
+        #expect(try decode(MenuBarPartialStyle.self, #"{"tintStrength":1}"#).tintStrength == 1)
+        #expect(try decode(MenuBarPartialStyle.self, #"{"tintStrength":1.5}"#).tintStrength == 0.6)
+    }
 }

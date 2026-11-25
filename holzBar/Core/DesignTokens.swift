@@ -161,6 +161,21 @@ nonisolated enum DesignTokens {
         /// The fill of a widget card, normally and under Reduce Transparency.
         static let tileFillAlpha: Double = 0.045
         static let tileFillAlphaOpaque: Double = 0.10
+        /// The mini curve of a readout tile (concept R1): 24 pt high with its baseline on the
+        /// ring's bottom, 8 pt after the ring, left out below 40 pt of free width. The line is
+        /// 1.5 pt, the baseline 1 pt; the line is white at 55 percent (85 under Increase
+        /// Contrast, which also drops the area), the area under it white at 6 percent and the
+        /// baseline white at 8 percent. A second series is dashed 2 on, 2 off.
+        static let curveHeight: Double = 24
+        static let curveGap: Double = 8
+        static let curveMinimumWidth: Double = 40
+        static let curveLineWidth: Double = 1.5
+        static let curveBaselineWidth: Double = 1
+        static let curveLineAlpha: Double = 0.55
+        static let curveLineAlphaIncreased: Double = 0.85
+        static let curveAreaAlpha: Double = 0.06
+        static let curveBaselineAlpha: Double = 0.08
+        static let curveDash: [Double] = [2, 2]
         /// The File drop tab's file tile: its size, the type icon, the remove button's circle and
         /// the border (white at 6 percent). A missing file is drawn at half strength.
         static let fileTileWidth: Double = 72
@@ -209,6 +224,9 @@ nonisolated enum DesignTokens {
         static let maximumWidth: Double = 640
         /// The inner padding of the black body, on each side.
         static let sidePadding: Double = 16
+        /// The space between Apple's Dynamic Island and the hub's top edge on a display that has
+        /// one: the hub never covers the island (concept section 10b, Phase 93, D-03).
+        static let islandGap: Double = 6
 
         // MARK: Rows
 
@@ -282,6 +300,9 @@ nonisolated enum DesignTokens {
         /// Closing: the shape returns into the notch without overshoot.
         static let closeResponse: Double = 0.34
         static let closeDamping: Double = 0.9
+        /// The plain ease every move of the island takes when Bounce is off (decision D-13, H4):
+        /// opening, resizing, closing and widening, with no overshoot.
+        static let plainEaseDuration: Double = 0.3
         /// The content appears this long after the shape starts to grow, from a blur and a
         /// smaller scale, with a curve that takes this long; it leaves faster.
         static let contentDelay: Double = 0.09
@@ -300,6 +321,110 @@ nonisolated enum DesignTokens {
         /// longest motion.
         static let settleThreshold: Double = 0.001
         static let completionMargin: Double = 0.5
+    }
+
+    /// The System alerts' alert in the notch (concept section 10, Phase 95, A1 to A3): its timeline
+    /// and the detached pill that keeps an alert from vanishing on a crowded menu bar. The views
+    /// read them through the theme or directly; the geometry reads them from here, and a test pins
+    /// them.
+    nonisolated enum Alert {
+        /// How long the notch stays widened after an alert fires (A2); after that the alert stays
+        /// in the open hub's right pill and the Live activities list until it clears.
+        static let widenedSeconds: TimeInterval = 30
+        /// How long the test alert shows in the notch (D-16).
+        static let testSeconds: TimeInterval = 5
+        /// After how long the test alert's system notification is removed again (A8).
+        static let testNotificationSeconds: TimeInterval = 10
+        /// The widest and the narrowest the detached pill is drawn (A3): just wide enough for the
+        /// symbol, the gap and the value, never wider than the maximum.
+        static let detachedMaximumWidth: Double = 180
+        static let detachedMinimumWidth: Double = 44
+        /// The space between the symbol and the value in the detached pill.
+        static let detachedValueGap: Double = 8
+    }
+
+    /// The numbers of the indicators of the closed notch (concept H1 and H10): how long a flash
+    /// stays, the durations the user may choose for the input source, how fast events are
+    /// coalesced, where a flash ranks among live activities and when it is announced.
+    nonisolated enum Indicator {
+        /// How long a flash stays after it finished (H1).
+        static let holdSeconds: TimeInterval = 1.5
+        /// What the "Show for" setting of the input source offers, in seconds.
+        static let inputSourceDurations: [Double] = [0.5, 1, 1.5, 2, 3]
+        /// The default of that setting.
+        static let inputSourceDefaultDuration: Double = 1.5
+        /// Volume, brightness and gesture events within this many seconds become one flash: three
+        /// frames at 60 Hz.
+        static let coalescingSeconds: TimeInterval = 0.05
+        /// A flash ranks above the thermal and battery alerts (30) so it shows at once.
+        static let flashPriority = 40
+        /// How long after a flash VoiceOver waits before it announces it, so a burst is one
+        /// announcement (H10).
+        static let announceDelay: TimeInterval = 0.3
+        /// What the Notifications module's "Display time" offers, in seconds: how long a new
+        /// notification shows as a count in the closed notch (D-17).
+        static let notificationDisplayTimes = [3, 5, 10, 15, 30]
+        /// The default of that setting.
+        static let notificationDefaultDisplayTime = 5
+        /// The count of unseen notifications ranks between a download (10) and the meeting
+        /// countdown (15), below a flash (``flashPriority``).
+        static let notificationCountPriority = 12
+        /// How long the pointer rests on a notification row before it expands to a card.
+        static let cardHoverDwell: TimeInterval = 0.15
+        /// The tallest a notification card grows, in points.
+        static let cardMaximumHeight = 96.0
+    }
+
+    /// The numbers of the menu bar comfort features (Phase 97, concept M2 and M3): how wide the
+    /// notice row in the holzBar Shelf is and how many apps one question card lists.
+    nonisolated enum Comfort {
+        /// The narrowest the Shelf's notice row is, in points (M2).
+        static let shelfNoticeMinWidth = 280.0
+        /// The widest the Shelf's notice row is, in points; a longer sentence wraps (M2).
+        static let shelfNoticeMaxWidth = 420.0
+        /// How many apps the combined new-app question lists before it says "+N more" (M3).
+        static let combinedQuestionMaxRows = 4
+    }
+
+    /// The Large Percent battery widget's sizes in points (Phase 97, concept M6).
+    nonisolated enum Widget {
+        /// How much larger than the menu bar font the number is.
+        static let largePercentGrowth = 3.0
+        /// How much smaller than the menu bar font the glyph is.
+        static let largePercentGlyphShrink = 2.0
+        /// The space between the glyph and the number.
+        static let largePercentGap = 4.0
+    }
+
+    /// The import sheet's measures in points (Phase 98, concept B5 and B8).
+    nonisolated enum ImportSheet {
+        /// The width of the sheet, the same as the profile import sheet.
+        static let width = 480.0
+        /// The smallest height of the scrolling list of changes.
+        static let listMinHeight = 120.0
+        /// The largest height of the list of changes; a longer list scrolls.
+        static let listMaxHeight = 320.0
+    }
+
+    /// The Dock badge item's measures in points and its limits (Phase 98, concept B1 and B8): the
+    /// menu bar item that reproduces an app's Dock badge as the app's icon with a red bubble.
+    nonisolated enum DockBadge {
+        /// The edge of the app's icon in the item, in points.
+        static let iconSize = 16.0
+        /// How far the second icon of a group item overlaps the first, in points.
+        static let groupIconOverlap = 8.0
+        /// How far the bubble's trailing edge lies beyond the icon's trailing edge, in points.
+        static let bubbleOverhang = 4.0
+        /// How far the bubble's top edge lies above the icon's top edge, in points.
+        static let bubbleRise = 2.0
+        /// The opacity of the icon while the count is zero in the mode that dims it.
+        static let dimAlpha = 0.5
+        /// The largest count the bubble shows as a number; a larger one reads "99+".
+        static let countLimit = 99
+        /// The most characters of a label that is not a number the bubble shows as they are.
+        static let labelCharacterLimit = 3
+        /// The bubble's red, the same in both appearances, with white text.
+        static let fill = Light.danger
     }
 
     /// The gradient of fills that carry white text, the same in both appearances.

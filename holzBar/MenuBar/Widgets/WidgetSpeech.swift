@@ -37,6 +37,7 @@ nonisolated enum WidgetSpeech {
         case .userSwitching: String(localized: "Fast User Switching")
         case .timer: String(localized: "Timer")
         case .launcher: appName ?? String(localized: "App Launcher")
+        case .spotlight: String(localized: "Spotlight")
         }
     }
 
@@ -64,6 +65,7 @@ nonisolated enum WidgetSpeech {
         case .airDrop: String(localized: "Opens AirDrop. Drop files here to share them.")
         case .media: String(localized: "Plays or pauses. Right-click for previous and next.")
         case .userSwitching: String(localized: "Opens fast user switching")
+        case .spotlight: String(localized: "Opens Spotlight")
         case .timer: String(localized: "Starts or stops the timer")
         case .launcher:
             if let appName {
@@ -84,6 +86,11 @@ nonisolated enum WidgetSpeech {
         case .uptime: String(localized: "Uptime")
         case .freeDisk: String(localized: "Free Disk Space")
         case .countdown: String(localized: "Countdown")
+        case .networkSpeed: String(localized: "Network Speed")
+        case .diskActivity: String(localized: "Disk Activity")
+        case .gpuLoad: String(localized: "GPU Load")
+        case .deviceBattery: String(localized: "Lowest device battery")
+        case .thermalState: String(localized: "Thermal State")
         }
     }
 
@@ -115,11 +122,13 @@ nonisolated enum WidgetSpeech {
     ///   - definition: The widget; its preset decides which parts are spoken.
     ///   - locale: The language and the number format of the user.
     ///   - calendar: The calendar the date is written in.
+    ///   - rateUnit: Whether the network speed is said in bytes or bits per second.
     static func value(
         for reading: WidgetReading,
         definition: WidgetDefinition,
         locale: Locale,
-        calendar: Calendar
+        calendar: Calendar,
+        rateUnit: ReadoutRateUnit = .bytes
     ) -> String {
         if definition.kind == .button {
             // A button has no reading: VoiceOver says its label and its hint.
@@ -139,19 +148,30 @@ nonisolated enum WidgetSpeech {
         switch (definition.source, reading) {
         case (.dateTime, .date):
             return WidgetFormat.text(for: reading, definition: definition, locale: locale, calendar: calendar).string
-        case (.battery, .battery(let percent, let state)):
-            let level = min(max(percent, 0), 100)
-            guard definition.preset == .percentAndState else {
-                return String(localized: "\(level) percent")
+        case (.battery, .battery), (.battery, .power):
+            return batteryValue(for: reading, preset: definition.preset, locale: locale) ?? unavailable
+        case (.deviceBattery, .device(let device)):
+            // VoiceOver says the name: a tooltip is not reachable without a pointer. The menu bar
+            // never draws it (D-26).
+            let percent = min(max(device.percent, 0), 100)
+            return String(localized: "\(device.name), \(percent) percent")
+        case (.deviceBattery, .unavailable):
+            return String(localized: "No device reports a battery level")
+        case (.thermalState, .thermal(let level)):
+            let word = switch level {
+            case .nominal: String(localized: "Nominal")
+            case .fair: String(localized: "Fair")
+            case .serious: String(localized: "Serious")
+            case .critical: String(localized: "Critical")
             }
-            switch state {
-            case .charging: return String(localized: "\(level) percent, charging")
-            case .charged: return String(localized: "\(level) percent, charged")
-            case .onBattery: return String(localized: "\(level) percent, on battery")
-            case .onAdapter: return String(localized: "\(level) percent, on power adapter")
+            return String(localized: "Thermal state \(word)")
+        case (.cpu, .clusters(let loads)) where definition.preset == .perCluster:
+            guard loads.count >= 2, loads.allSatisfy({ $0.load.isFinite }) else {
+                return unavailable
             }
-        case (.cpu, .fraction(let fraction)),
-            (.memory, .fraction(let fraction)) where definition.preset != .gigabytesUsed,
+            return clusterValue(loads)
+        case (.cpu, .fraction(let fraction)), (.gpuLoad, .fraction(let fraction)),
+            (.memory, .fraction(let fraction)) where definition.preset == .percentUsed,
             (.freeDisk, .fraction(let fraction)) where definition.preset != .gigabytesFree:
             guard fraction.isFinite else {
                 return unavailable
@@ -163,16 +183,136 @@ nonisolated enum WidgetSpeech {
             return gigabytes(bytes, perGigabyte: 1_073_741_824, locale: locale)
         case (.freeDisk, .bytes(let bytes)) where definition.preset == .gigabytesFree:
             return gigabytes(bytes, perGigabyte: 1_000_000_000, locale: locale)
+        case (.memory, .bytes(let bytes)) where definition.preset == .swapUsed:
+            // Swap is counted like memory, in units of 1024 cubed.
+            return String(localized: "Swap \(gigabytes(bytes, perGigabyte: 1_073_741_824, locale: locale))")
+        case (.memory, .pressure(let pressure)) where definition.preset == .pressure:
+            let word = switch pressure {
+            case .normal: String(localized: "Normal")
+            case .warning: String(localized: "High")
+            case .critical: String(localized: "Critical")
+            }
+            return String(localized: "Memory pressure \(word)")
         case (.uptime, .duration(let duration)):
             return spoken(duration, roundingUp: false, locale: locale)
         case (.countdown, .countdown(let remaining, let isPassed)):
             return spoken(isPassed ? .zero : remaining, roundingUp: true, locale: locale)
+        case (.networkSpeed, .rates(let first, let second)):
+            guard first.isFinite, second.isFinite, first >= 0, second >= 0 else {
+                return unavailable
+            }
+            let download = spokenRate(first, unit: rateUnit, locale: locale)
+            let upload = spokenRate(second, unit: rateUnit, locale: locale)
+            switch definition.preset {
+            case .download: return String(localized: "Download \(download)")
+            case .upload: return String(localized: "Upload \(upload)")
+            default: return String(localized: "Download \(download), upload \(upload)")
+            }
+        case (.diskActivity, .rates(let first, let second)):
+            guard first.isFinite, second.isFinite, first >= 0, second >= 0 else {
+                return unavailable
+            }
+            let read = spokenRate(first, locale: locale)
+            let written = spokenRate(second, locale: locale)
+            switch definition.preset {
+            case .read: return String(localized: "Read \(read)")
+            case .write: return String(localized: "Write \(written)")
+            default: return String(localized: "Read \(read), write \(written)")
+            }
         default:
             return unavailable
         }
     }
 
-    private static func gigabytes(_ bytes: UInt64, perGigabyte: Double, locale: Locale) -> String {
+    /// The load of every core cluster in words: "Performance cores 42 percent, Efficiency cores
+    /// 12 percent", in the kernel's level order. A level that is neither one names itself.
+    static func clusterValue(_ loads: [ClusterLoad]) -> String {
+        loads.map { cluster in
+            let percent = Int((min(max(cluster.load, 0), 1) * 100).rounded())
+            let value = String(localized: "\(percent) percent")
+            switch cluster.label {
+            case .performance: return String(localized: "Performance cores \(value)")
+            case .efficiency: return String(localized: "Efficiency cores \(value)")
+            case .other(let letter):
+                let name = cluster.level.name.isEmpty ? letter : cluster.level.name
+                return String(localized: "\(name) cores \(value)")
+            }
+        }
+        .joined(separator: ", ")
+    }
+
+    /// The battery in words: "80 percent, on battery, 2 hours, 10 minutes left", or the adapter's
+    /// power. `nil` for a value the format cannot say (an adapter without watts).
+    static func batteryValue(for reading: WidgetReading, preset: WidgetPreset, locale: Locale) -> String? {
+        let power: PowerReading
+        switch reading {
+        case .battery(let percent, let state):
+            power = PowerReading(percent: percent, state: state)
+        case .power(let value):
+            power = value
+        default:
+            return nil
+        }
+        if preset == .adapterWatts {
+            guard let watts = power.adapterWatts else {
+                return nil
+            }
+            let style = Measurement<UnitPower>.FormatStyle(
+                width: .wide,
+                locale: locale,
+                usage: .asProvided,
+                numberFormatStyle: .number.precision(.fractionLength(0))
+            )
+            let amount = Measurement(value: Double(watts), unit: UnitPower.watts).formatted(style)
+            return String(localized: "\(amount) adapter")
+        }
+        let level = min(max(power.percent, 0), 100)
+        guard preset != .percent else {
+            return String(localized: "\(level) percent")
+        }
+        let phrase = switch power.state {
+        case .charging: String(localized: "\(level) percent, charging")
+        case .charged: String(localized: "\(level) percent, charged")
+        case .onBattery: String(localized: "\(level) percent, on battery")
+        case .onAdapter: String(localized: "\(level) percent, on power adapter")
+        }
+        guard preset == .percentAndTimeLeft else {
+            return phrase
+        }
+        switch power.state {
+        case .onBattery:
+            return power.timeToEmpty.map { phrase + ", " + String(localized: "\(spoken($0, roundingUp: false, locale: locale)) left") }
+                ?? phrase
+        case .charging:
+            return power.timeToFull.map { phrase + ", " + String(localized: "\(spoken($0, roundingUp: false, locale: locale)) to full") }
+                ?? phrase
+        case .charged, .onAdapter:
+            return phrase
+        }
+    }
+
+    /// A rate in words, in the unit that fits its size: "1.2 megabytes per second".
+    static func spokenRate(_ bytesPerSecond: Double, unit: ReadoutRateUnit = .bytes, locale: Locale) -> String {
+        let units: [UnitInformationStorage] = unit == .bits
+            ? [.kilobits, .megabits, .gigabits]
+            : [.kilobytes, .megabytes, .gigabytes]
+        var scaled = (unit == .bits ? bytesPerSecond * 8 : bytesPerSecond) / 1_000
+        var index = 0
+        while scaled >= 999.5, index < units.count - 1 {
+            scaled /= 1_000
+            index += 1
+        }
+        let style = Measurement<UnitInformationStorage>.FormatStyle(
+            width: .wide,
+            locale: locale,
+            usage: .asProvided,
+            numberFormatStyle: .number.precision(.fractionLength(0...1))
+        )
+        let amount = Measurement(value: scaled, unit: units[index]).formatted(style)
+        return String(localized: "\(amount) per second")
+    }
+
+    static func gigabytes(_ bytes: UInt64, perGigabyte: Double, locale: Locale) -> String {
         let measurement = Measurement(value: Double(bytes) / perGigabyte, unit: UnitInformationStorage.gigabytes)
         let style = Measurement<UnitInformationStorage>.FormatStyle(
             width: .wide,
@@ -184,7 +324,7 @@ nonisolated enum WidgetSpeech {
     }
 
     /// Days, hours and minutes in words, at most two units, rounded the way the text is.
-    private static func spoken(_ duration: Duration, roundingUp: Bool, locale: Locale) -> String {
+    static func spoken(_ duration: Duration, roundingUp: Bool, locale: Locale) -> String {
         let style = Duration.UnitsFormatStyle(
             allowedUnits: [.days, .hours, .minutes],
             width: .wide,

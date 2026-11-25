@@ -33,6 +33,12 @@ struct KeyCombination: Hashable {
         getSystemReservedKeyCombinations().contains(self)
     }
 
+    /// The combinations the system reserves, as the pairs `[key, modifiers]` that
+    /// ``HotkeyStorage`` stores, for a check that cannot touch this type from another isolation.
+    static func systemReservedPairs() -> Set<[Int]> {
+        Set(getSystemReservedKeyCombinations().map { [$0.key.rawValue, $0.modifiers.rawValue] })
+    }
+
     init(key: KeyCode, modifiers: Modifiers) {
         self.key = key
         self.modifiers = modifiers

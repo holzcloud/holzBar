@@ -30,15 +30,38 @@ struct MenuBarLayoutSettingsPane: View {
         } else {
             SettingsPaneHost(.layout) {
                 topRow
+                if #available(macOS 27.0, *) {
+                    MakeRoomBanner(makeRoom: appState.makeRoom27)
+                    NewAppsGroup(
+                        questions: appState.existingNewAppQuestions27,
+                        advanced: appState.settings.advanced
+                    )
+                }
                 menuBarGroup
                 LayoutDraftSection()
                 noticesGroup
+                if #available(macOS 27.0, *) {
+                    MakingRoomGroup(advanced: appState.settings.advanced)
+                    NotShownGroup(list: appState.notShownList27)
+                }
                 UsageSuggestionsSection(usage: appState.usage)
                 SearchSettingsSection(general: appState.settings.general, opens: appState.searchOpens)
                 if !ScreenRecordingAccess.isGranted(appState) {
                     // Without Screen Recording the items show their apps' icons; the group
                     // offers their real pictures.
                     picturesGroup
+                }
+            }
+            .onAppear {
+                if #available(macOS 27.0, *) {
+                    appState.makeRoom27.surfaceDidOpen(.layout)
+                    appState.notShownList27.layoutDidOpen()
+                }
+            }
+            .onDisappear {
+                if #available(macOS 27.0, *) {
+                    appState.makeRoom27.surfaceDidClose(.layout)
+                    appState.notShownList27.layoutDidClose()
                 }
             }
             .onChange(of: appState.automation.itemRuleNotices) { old, new in
@@ -108,13 +131,15 @@ struct MenuBarLayoutSettingsPane: View {
             return true
         }
         if #available(macOS 27.0, *) {
-            return !appState.commandDragSection27.notices.isEmpty || appState.concealer27.isOverflowStuck
+            return !appState.commandDragSection27.notices.isEmpty
+                || appState.concealer27.isOverflowStuck
+                || appState.makeRoom27.lastAutomaticPass != nil
         }
         return false
     }
 
-    /// What was put back by a rule, what a Command-drag did and the folded-away warning; the
-    /// group exists only while there is something to report.
+    /// What was put back by a rule, what a Command-drag did, what Automatic moved and the
+    /// folded-away warning; the group exists only while there is something to report.
     @ViewBuilder
     private var noticesGroup: some View {
         if hasNotices {
@@ -122,6 +147,7 @@ struct MenuBarLayoutSettingsPane: View {
                 ItemRuleNoticeRows()
                 if #available(macOS 27.0, *) {
                     CommandDragNoticeRows()
+                    AutomaticPassNoticeRow(makeRoom: appState.makeRoom27)
                     StuckOverflowWarning(concealer: appState.concealer27)
                 }
             }

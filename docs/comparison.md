@@ -1,8 +1,8 @@
 # holzBar vs. Ice, Thaw and Bartender, in detail
 
-Two comparisons live here: the detailed one against Ice, Thaw and Bartender, and [the wider one against 14 apps](#against-every-other-menu-bar-manager) further down. The README carries a short version.
+Two comparisons live here: the detailed one against Ice, Thaw and Bartender, and [the wider one against 20 apps](#against-every-other-menu-bar-manager) further down. The README carries a short version.
 
-What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds, next to [Bartender](https://www.macbartender.com/) 7, the paid app for macOS 27 (Bartender 6 covers macOS 14 – 26). The Bartender column comes from its product pages; — means not stated there. ❌ means not available or not documented. 🔜 means planned, with the release where one is set (1.2.0, or later): it is **not available yet**.
+What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds, next to [Bartender](https://www.macbartender.com/) 7, the paid app for macOS 27 (Bartender 6 covers macOS 14 – 26). The Bartender column comes from its product pages; — means not stated there. ❌ means not available or not documented. 🔜 means planned, with the release where one is set (1.3.0, or later): it is **not available yet**.
 
 | | Ice 0.11.12 | Thaw 3.0 beta | Bartender 7 | holzBar |
 |---|:---:|:---:|:---:|:---:|
@@ -21,6 +21,9 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Bar only on some displays, notch overflow | ❌ | — | — | ✅ |
 | Floating bar for hidden items, at the icon, the screen edge or the pointer | ❌ <sub>the bar hangs below the menu bar</sub> | — | ✅ <sub>Bartender Bar, at the cursor</sub> | ✅ |
 | Shelf and macOS 27's own overflow button: no item listed twice | ❌ | — | — | ✅ |
+| A notice when the bar is full or macOS 27 folded apps behind its overflow button, in Layout and the Shelf, with Move to Hidden as one Undo step; optionally Automatic (moves a few apps, the ones you use least while Usage suggestions is on, after two reads of a fold, at most one move per episode) | ❌ | — | — | ✅ <sub>the fit warning is an estimate</sub> |
+| Ask where a new app goes (Visible, Hidden or Always Hidden) the first time it adds a menu bar item, in Layout, the Shelf or the hub (optional, off by default; the answers stay on this Mac) | ❌ | — | — | ✅ |
+| A list of the apps macOS 27 does not show (outside Applications, no app identifier, possibly off in System Settings), each with a link that fixes it; no System Settings preference is written | ❌ | — | — | ✅ |
 | Black menu bar, rounded screen corners | ❌ | corners only | — | ✅ |
 | Dashed and dotted borders, wallpaper, accent and glass tints | ❌ | ✅ | — | ✅ |
 | One shape per section of the bar (Sections) | ❌ | — | — | ✅ <sub>macOS 14 – 26</sub> |
@@ -33,6 +36,8 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Scripts as a rule condition or action | ❌ | ✅ | — | ✅ <sub>from a folder you choose, after you allowed the exact content</sub> |
 | Script hooks before or after a profile | ❌ | ✅ | — | ✅ |
 | Menu bar items of your own (clock, battery, CPU, Shortcut button) | ❌ | — | ✅ | ✅ |
+| A Spotlight button and a Large Percent battery format among the menu bar widgets | ❌ | — | — | ✅ |
+| Dock badges: the unread counts of apps you choose from the Dock, as menu bar items, with groups that show a total and open a menu of their apps (optional module, off by default; uses the Accessibility access holzBar already has; the counts are read through a macOS interface that Apple does not document) | ❌ | — | — | ✅ |
 | Hide the clock, Control Center, Wi-Fi or the battery on macOS 27 | — | — | ✅ | ✅ |
 | Replacement icons for Apple items on macOS 27 | — | ✅ | — | ✅ |
 | AppleScript dictionary | — | — | ✅ | ✅ <sub>a small, read-mostly set; asks before lasting changes</sub> |
@@ -42,6 +47,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Per display: always show everything, or collapse; the display under the pointer decides | — | — | — | ✅ |
 | Layout editor that draws first and applies in one pass, with a tile for where new items land | ❌ | — | — | ✅ |
 | Moods: save the look of the menu bar and switch to it in one click, from the palette or with a rule | ❌ | — | — | ✅ |
+| A built-in Readable menu bar mood: an opaque background in your Mac's light or dark look, with a border under Increase Contrast | ❌ | — | — | ✅ |
 | holzBar Shelf as a row, a grid or a column | ❌ | — | — | ✅ |
 | Type in the Shelf to find an item and open it with Return | — | — | — | ✅ <sub>the Shelf takes the keyboard when a hotkey opens it</sub> |
 | Always-hidden items behind one fold tile in the Shelf | — | — | — | ✅ |
@@ -49,15 +55,22 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Drag an item in the Shelf to put it in order, into another section or onto the menu bar | — | — | — | ✅ <sub>macOS 27 only changes the section</sub> |
 | Own menu bar items for Focus, AirDrop, media controls, fast user switching and a timer, which hide and move like any item | ❌ | — | — | ✅ <sub>optional module, up to twelve widgets</sub> |
 | App launchers: a holzBar icon for any app you pick, a click opens it | ❌ | — | — | ✅ <sub>same module</sub> |
-| A hub at the notch (at the top centre without one) that holds optional modules, off until you switch it on | ❌ | — | — | ✅ <sub>its modules are Timers, Calendar, Live activities, File drop, Display controls, Accessory alerts, Notifications and Now Playing</sub> |
+| A hub at the notch (at the top centre without one) that holds optional modules, off until you switch it on | ❌ | — | — | ✅ <sub>its modules are Timers, Calendar, Live activities, File drop, Display controls, Accessory alerts, Indicators, Notifications and Now Playing</sub> |
 | Timers, countdowns to a moment and a stopwatch in that hub (optional module, no permission) | ❌ | — | — | ✅ |
 | Next events and a Join button for meetings in that hub (optional module; Calendar access asked only when you switch it on) | ❌ | — | — | ✅ |
 | Now Playing in that hub (optional module; Music and Spotify without a permission, other apps with the opt-in Read all apps) | ❌ | — | — | ✅ |
 | The notch widens for downloads and for a camera or microphone in use (optional module in that hub) | ❌ | — | — | ✅ |
-| Connection and low-battery alerts for AirPods and other accessories, shown by widening the notch (optional module in that hub; Bluetooth asked only when you switch it on; battery levels use a macOS call that Apple does not document) | ❌ | — | — | ✅ |
+| Connection and low-battery alerts for AirPods and other accessories, shown by widening the notch (optional module in that hub; Bluetooth asked only when you switch it on; battery levels use a macOS call that Apple does not document) | ❌ | — | — | ✅ <sub>also a list of the paired devices with their battery levels, and the lowest one as a menu bar widget</sub> |
 | A file stash at the notch: drag files in, drag them out later as copies (optional module in that hub, no permission) | ❌ | — | — | ✅ |
 | Volume and brightness sliders at the notch, and brightness, contrast, volume and mute of external monitors over DDC (optional module in that hub, no permission; brightness and external monitors use macOS calls that Apple does not document) | ❌ | — | — | ✅ |
 | The banners of your apps listed at the notch (optional module in that hub; read through Accessibility, kept in memory only, no Notifications permission; only what macOS shows on screen, and it follows a structure macOS may change) | ❌ | — | — | ✅ |
+| Input source and volume shown in the closed notch (Indicators, an optional module in that hub, no permission; volume read through Core Audio) | ❌ | — | — | ✅ <sub>a flash of the keyboard layout and of the volume, for a time you choose, and no polling</sub> |
+| Replace macOS's volume and brightness display with holzBar's own at the notch (optional switch, Accessibility asked only then; the brightness keys use macOS calls that Apple does not document; a key holzBar cannot handle goes to macOS unchanged) | ❌ | — | — | ✅ |
+| Notch gestures: scroll on the notch to open and close the hub, swipe sideways to skip a track (optional, off by default) | ❌ | — | — | ✅ |
+| Choose the sound output in the hub's Display tab | ❌ | — | — | ✅ <sub>sets the default output only</sub> |
+| Software dimming of an external monitor that has no brightness control (a dark layer, 0 to 90 percent; shows in screenshots) | ❌ | — | — | ✅ |
+| Pin the hub open, open it on the display where the pointer is, switch the island's bounce off | ❌ | — | — | ✅ |
+| Notification count in the closed notch, a card with the full text and a +N queue in the Notifications tab; calendar details and a countdown to the next meeting in the closed notch (never the title) | ❌ | — | — | ✅ |
 | Show or hide a single item while a condition holds (a VPN is connected, an app is running) | ❌ | ✅ | — | ✅ |
 | Automatic layout snapshots with a one-click restore | — | — | — | ✅ |
 | Command palette for holzBar's own actions | — | — | — | ✅ |
@@ -80,6 +93,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Opened items stay up to 30 s, or open without showing the item | ❌ | ✅ | — | ✅ |
 | Show an item briefly when it changes | ❌ | ✅ | — | ✅ <sub>opt-in per item</sub> |
 | Export and import settings | ❌ | ✅ | — | ✅ |
+| Import settings from Thaw and Hidden Bar, with a preview of every change, a backup file and Undo (only settings holzBar has a matching setting for; window sizes, item positions and scripts are never imported) | ❌ | ❌ | — | ✅ |
 | Languages | English | many, through Crowdin | — | 20, machine-made, not yet reviewed |
 | Keep Apple's Live Activities visible | ❌ | — | — | ✅ <sub>beta, macOS 14 – 26</sub> |
 | Show on scroll with a mouse wheel | ❌ | — | — | ✅ |
@@ -100,7 +114,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Network connections (update checks, telemetry, analytics) | Sparkle update checks | Sparkle update checks | — | **none** — enforced by CI |
 | Personal data (app names, item titles, paths) in logs | partly public | — | — | private, enforced by CI |
 | Asks for Screen Recording only when a feature needs it | ❌ | — | ✅ <sub>not required</sub> | ✅ |
-| Asks for Location Services only when you add a Wi-Fi-name condition, and for Bluetooth only when you add a Bluetooth condition or switch on Accessory alerts | — | — | — | ✅ |
+| Asks for Location Services only when you add a Wi-Fi-name condition, and for Bluetooth only when you add a Bluetooth condition or switch on Accessory alerts, and for Notifications only when you switch on system notifications of the threshold alerts | — | — | — | ✅ |
 | Scripts run only from a folder you chose and only after you allowed their exact content; never from a URL command or an import | — | — | — | ✅ |
 | Hardened runtime (no injected code or libraries) | ✅ | ✅ | — | ✅ (checked by CI) |
 | Only one entitlement (Calendar), no `get-task-allow` | — | — | — | ✅ (checked by CI and the release; no entitlement at all from 0.0.7-beta2 to 0.0.13) |
@@ -117,7 +131,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Runtime patching of AppKit (method swizzling) | yes | yes | — | none |
 | Item images in memory | kept | — | — | released when unused |
 | Unit tests run on every code change | none | ✅ | — | ✅ |
-| App size | — | — | — | 38.3 MB <sub>CI build of 31 Oct 2026</sub> |
+| App size | — | — | — | 56.4 MB <sub>Release build of 25 Nov 2026</sub> |
 | Widgets do nothing while hidden: no timer, no refresh | — | — | — | ✅ |
 | **Distribution and maintenance** | | | | |
 | Price and licence | free, open source | free, open source | paid (one-time; Pro yearly; Mega Supporter lifetime), closed source | free, open source (GPL-3.0) |
@@ -137,7 +151,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 
 | | holzBar | Bartender 7 | Ice | Thaw | SaneBar | Tuck | Barbee | Hidden Bar | Dozer | Vanilla | iBar | Glow | Brow | Lounge | Vorssaint | Dimble | Fire from Ice | JustHide | Ice 2 | ice-rust | ExtraBar |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Maintenance | active (1.1.1) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) | active (beta channel, pushed 31 Oct) <sup>16</sup> | active (pushed 31 Oct) <sup>16</sup> | active (pushed 1 Nov) <sup>16</sup> | active (pushed 29 Oct) <sup>16</sup> | active (pushed 23 Oct) <sup>16</sup> | ❓ |
+| Maintenance | active (1.1.1; 1.2.0 in beta) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) | active (beta channel, pushed 31 Oct) <sup>16</sup> | active (pushed 31 Oct) <sup>16</sup> | active (pushed 1 Nov) <sup>16</sup> | active (pushed 29 Oct) <sup>16</sup> | active (pushed 23 Oct) <sup>16</sup> | ❓ |
 | Price | free | paid, one-time <sup>1</sup> | free | free | free | free; Pro $14.99 | free + in-app (lifetime $12.99) | free | free | free; Pro $10 | free + $2.99/yr | $19.99 once | free; Pro $49/yr (AI only) | $3.99/yr | free | free | free | free | free | free | paid: €14.99/yr, lifetime €39.99 <sup>17</sup> |
 | Open source | ✅ GPL-3.0 | ❌ | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ MIT | ❌ | ❌ | ✅ MIT | ✅ MPL-2.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ GPL-3.0+ | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ GPL-3.0 | ❓ |
 | macOS 26 / 27 | ✅ / ✅ | ❌ / ✅ <sup>2</sup> | dev builds / ❌ | ✅ / ✅ <sup>3</sup> | ✅ / ❌ | ✅ / ✅ <sup>4</sup> | ❓ / ❓ <sup>5</sup> | ✅ / partly <sup>6</sup> | ❓ / ❓ | ✅ / ❓ | ✅ / ❓ | ✅ / ✅ <sup>13</sup> | ❓ / vendor claim | ✅ / vendor claim | ✅ / ✅ | ❌ / ✅ (macOS 27 only) | ✅ / ❓ | ❌ / ✅ (macOS 27 only) | ✅ / ❓ | ✅ / ✅ | ✅ / ❓ (macOS 12.4 or later) |
@@ -175,18 +189,19 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Build provenance (attestation, SLSA) | ✅ SLSA 3 | ❓ | ❌ | ✅ Cosign + SLSA | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Hides desktop icons | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Clipboard history, extras beyond the menu bar | ❌ | ✅ Command Bar, Top Shelf | ❌ | ❌ | ❌ | ❌ | MCP server | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ clipboard, launcher, AI | ✅ clipboard history | ✅ clipboard, Command Bar, many tools | launcher icons | ✅ MCP server (10 tools) | Now Playing, Focus, Time Machine | ❌ none listed | ❌ none listed | actions, deep links, MCP, bookmarks |
-| Imports settings from other apps | ✅ Ice | ❓ Bartender 6 profiles (experimental) | ❌ | ❌ | ✅ Bartender, Ice | ❓ | ❓ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
-| Notch hub (widgets, files, now playing in the notch) | Hub ✅, Timers ✅, Calendar ✅, Live activities ✅, File drop ✅, Display controls ✅, Accessory alerts ✅, Notifications ✅, Now Playing ✅, more modules 🔜 | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | Notch Mode (its own bar) |
+| Imports settings from other apps | ✅ Ice, Thaw and Hidden Bar | ❓ Bartender 6 profiles (experimental) | ❌ | ❌ | ✅ Bartender, Ice | ❓ | ❓ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
+| Notch hub (widgets, files, now playing in the notch) | Hub ✅, Timers ✅, Calendar ✅, Live activities ✅, File drop ✅, Display controls ✅, Accessory alerts ✅, Indicators ✅, Notifications ✅, Now Playing ✅, more modules 🔜 | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | Notch Mode (its own bar) |
 | Calendar and meeting link in the hub (reads your calendars on this Mac only) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Now Playing in the hub (Music and Spotify; any app with the opt-in Read all apps) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | media controls item | ❓ | menu bar item, not a hub | ❓ | ❓ | ❓ |
 | Live activities in the hub (the notch widens while something is going on; holzBar's are running timers, downloads, a camera or microphone in use and accessory alerts) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ❓ | camera/mic indicator item | ❓ | ❓ | ❓ | ❓ | ❓ |
-| Accessory alerts (connect, disconnect and low battery of AirPods and other accessories; holzBar's battery levels use a call that Apple does not document) | ✅ | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
-| System readouts in the menu bar (CPU, memory, network, disk) | 🔜 1.2.0; CPU, memory and disk as text widgets ✅ <sup>14</sup> | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
+| Accessory alerts (connect, disconnect and low battery of AirPods and other accessories; holzBar's battery levels use a call that Apple does not document) | ✅ alerts, a list of the devices with their battery levels and the lowest one as a widget | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
+| System readouts in the menu bar and in the hub (CPU total and per core cluster, GPU, memory with pressure and swap, network speed, disk activity and free space, battery with time left and adapter watts, thermal state) | ✅ menu bar widgets and Notch hub tiles with two-minute curves, opt-in GPU load (a private interface, off by default), no permission <sup>14</sup> | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
+| Threshold alerts in the notch (CPU, memory pressure, thermal state, free disk space, Mac battery; each with a limit and a time, no repeats within 30 minutes), optional system notifications | ✅ alerts widen the notch with no permission; system notifications are an opt-in switch that asks for Notifications only then | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Launcher, command bar | ✅ palette, 🔜 1.3.0 launcher | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | search panel | ❓ | ❓ | ❓ | ❓ | ✅ one hotkey opens the bar |
 | Clipboard history | ❌ not planned | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ✅ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Window management, app switcher | 🔜 later | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Screenshots, OCR, screen recording | 🔜 later | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
-| Per-app volume, audio output switcher | 🔜 later | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ❓ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
+| Per-app volume, audio output switcher | ✅ output switcher in the Display tab (default output only), 🔜 later per-app volume | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ❓ | ❌ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | AI tools (translate, dictate, grammar), kept on the device | 🔜 later, on-device only | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ partly cloud (Pro) | ❌ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Keyboard / VoiceOver | ✅ / ✅ | ✅ / ❓ | ❓ / ❓ | ✅ / ✅ | ✅ / ❓ | ✅ / ❓ | ✅ / ✅ | 1 hotkey / ❓ | 1 hotkey / ❓ | ❓ | ✅ / ❌ | ✅ / ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 
@@ -203,7 +218,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 <sup>11</sup> The vendor says Bartender sends nothing anywhere. Bartender 5.0.52 briefly shipped analytics (Amplitude) and removed it; Sparkle and RevenueCat appear in third-party dependency lists (inferred).
 <sup>12</sup> Glow, Brow and Lounge: ❌ means the vendor's site, changelog and privacy policy do not mention the feature (one source each, no independent test). Lounge's own blog says it lacks automation rules.
 <sup>13</sup> Glow ships two builds: 2.x for macOS 26 and 3.x for macOS 27 (stable since 10 September 2026).
-<sup>14</sup> New in 0.0.8. Rules react to power, Low Power Mode, apps, time, displays, the network, a VPN, the Wi-Fi name, camera and microphone in use and a script's result, and since 0.0.9 to the sound output and a connected Bluetooth device; Thaw's list also has a Focus as a trigger, where holzBar's Focus filter applies a profile on its own. Scripts run as you with holzBar's permissions, only from the folder you chose and only after you allowed their exact content; nothing about them is exported or imported, and no URL command or Shortcut can turn on a rule that uses one. Widgets (macOS 14 to 27) show text from seven permission-free sources (date and time, battery, CPU load, memory, uptime, free disk space, a countdown), run a Shortcut you name, or show the first line of the output of a script you allowed (a script widget); at most twelve, their timers run only while a widget is visible, a script widget never runs on a timer, nothing runs while the module is off, and Shortcut names and the choice of a script never leave your Mac (the widgets' basic steps were checked on macOS 27). Dragging items without ⌘ (macOS 26 and 27) is an optional module that is off until you switch it on; it moves apps' items, not Apple's own, and on macOS 27 hides an app when you drop one of its items on the holzBar icon.
+<sup>14</sup> New in 0.0.8. Rules react to power, Low Power Mode, apps, time, displays, the network, a VPN, the Wi-Fi name, camera and microphone in use and a script's result, and since 0.0.9 to the sound output and a connected Bluetooth device; Thaw's list also has a Focus as a trigger, where holzBar's Focus filter applies a profile on its own. Scripts run as you with holzBar's permissions, only from the folder you chose and only after you allowed their exact content; nothing about them is exported or imported, and no URL command or Shortcut can turn on a rule that uses one. Widgets (macOS 14 to 27) show text from permission-free sources (date and time, battery, CPU load, memory, uptime, free disk space, a countdown and, since 1.2.0, the network speed, the disk activity and the thermal state; the GPU load and the lowest accessory battery level need their own switches), run a Shortcut you name, or show the first line of the output of a script you allowed (a script widget); at most twelve, their timers run only while a widget is visible, a script widget never runs on a timer, nothing runs while the module is off, and Shortcut names and the choice of a script never leave your Mac (the widgets' basic steps were checked on macOS 27). Dragging items without ⌘ (macOS 26 and 27) is an optional module that is off until you switch it on; it moves apps' items, not Apple's own, and on macOS 27 hides an app when you drop one of its items on the holzBar icon.
 <sup>15</sup> Glow's changelog lists item count badges; it does not say what they count. Bartender 7: no badge of this kind found in its sources.
 <sup>16</sup> Last push to the project's GitHub repository, checked on 1 November 2026; not a release date. Dimble (formerly Pelmet) publishes fixes on a beta channel first.
 <sup>17</sup> From extrabar.app on 1 November 2026: €14.99 for one year on one Mac; lifetime access €39.99 list price (a fall sale lowered it at the time), renewal optional. ExtraBar needs the internet only to activate its licence.
@@ -217,7 +232,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 - **One maintainer.** SaneBar was sunset in June; Tuck and Glow ship updates every week or two.
 - **Apple's own items on macOS 27** (clock, Control Center, Wi-Fi) cannot be hidden by Hidden Bar and Tuck; Thaw offers replacement icons and Bartender 7 hides the clock and Control Center. holzBar does both since 0.0.12.
 
-- **Brow and Vorssaint already ship dozens of modules** (notch hub, launcher, clipboard, windows, capture, sound, system monitor, AI). holzBar's are planned (see below), one release at a time. Vorssaint is open source, notarized and has 25k stars on GitHub; holzBar has a fraction of that user base.
+- **Brow and Vorssaint still ship more modules** (launcher, clipboard, windows, capture, sound, AI, and more). holzBar has a notch hub with its modules, a system monitor with threshold alerts and Dock badges since 1.2.0; the rest are planned (see below), one release at a time. Vorssaint is open source, notarized and has 25k stars on GitHub; holzBar has a fraction of that user base.
 
 ### What holzBar does better
 
@@ -225,3 +240,4 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 - **No third-party packages** (Ice 5, Thaw 9, SaneBar 3), Swift 6.4 in Swift 6 mode, checked on macOS 26 and 27 on every code change.
 - **Screen Recording is optional**, and permissions are listed and explained.
 - A **build provenance attestation** for every release since 0.0.6, and SLSA Build Level 3 provenance since 0.0.7-beta2.
+- **Import from Thaw and Hidden Bar** (and Ice) with a preview of every change, a backup file and Undo; Ice and Thaw import nothing from other apps.

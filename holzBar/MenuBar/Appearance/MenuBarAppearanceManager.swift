@@ -39,10 +39,26 @@ final class MenuBarAppearanceManager {
     private(set) var moods = [AppearanceMood]()
 
     /// The name of the mood whose look is on now; `nil` once the look is changed by hand.
-    private(set) var currentMoodName: String?
+    /// The built-in mood is held by its identifier (``BuiltInMood/readableMenuBarID``).
+    private(set) var currentMoodName: String? {
+        didSet {
+            followIncreaseContrast(BuiltInMood.readableMenuBarID == currentMoodName)
+        }
+    }
+
+    /// Whether the built-in "Readable menu bar" mood is the current look.
+    var isReadableMenuBarCurrent: Bool {
+        currentMoodName == BuiltInMood.readableMenuBarID
+    }
 
     /// Whether the configuration is being set by a mood, which keeps its name.
     @ObservationIgnored private var isApplyingMood = false
+
+    /// Follows Increase Contrast, only while the built-in mood is the current look.
+    @ObservationIgnored private let transparencyObserver = TransparencyObserver()
+
+    /// Re-applies the built-in mood's border when Increase Contrast changes.
+    @ObservationIgnored private var increaseContrastLoop: ObservationLoop?
 
     /// The currently previewed partial configuration.
     var previewConfiguration: MenuBarAppearancePartialConfiguration?
@@ -126,7 +142,11 @@ final class MenuBarAppearanceManager {
         guard moods.count < MoodNaming.maximumCount, let cleaned = MoodNaming.cleaned(name) else {
             return nil
         }
-        let unique = MoodNaming.unique(cleaned, among: moods.map(\.name))
+        let unique = MoodNaming.unique(
+            cleaned,
+            among: moods.map(\.name),
+            reserved: BuiltInMood.reservedNames(label: Self.readableMenuBarLabel)
+        )
         moods.append(AppearanceMood(name: unique, configuration: configuration))
         currentMoodName = unique
         saveMoods()
@@ -135,6 +155,12 @@ final class MenuBarAppearanceManager {
 
     /// Switches the menu bar to the mood with this name; does nothing when there is none.
     func applyMood(named name: String) {
+        if name == BuiltInMood.readableMenuBarID {
+            if #available(macOS 26.0, *) {
+                applyReadableMenuBar()
+            }
+            return
+        }
         guard let mood = moods.first(where: { $0.name == name }) else {
             return
         }
@@ -142,6 +168,103 @@ final class MenuBarAppearanceManager {
         configuration = mood.configuration
         isApplyingMood = false
         currentMoodName = mood.name
+    }
+
+    /// The built-in mood's label in the user's language.
+    static var readableMenuBarLabel: String {
+        String(localized: "Readable menu bar")
+    }
+
+    /// The name to show for a stored mood name: the localized label for the built-in mood's
+    /// identifier, else the name itself.
+    static func displayName(ofMood name: String) -> String {
+        name == BuiltInMood.readableMenuBarID ? readableMenuBarLabel : name
+    }
+
+    /// Gives the bar an opaque tint in the system's light and dark grounds.
+    ///
+    /// It patches only the tint (and the border under Increase Contrast) of the current
+    /// configuration, so the shape, spacing, shadow and widgets stay as they are, and it
+    /// never reads or writes a system setting.
+    func applyReadableMenuBar() {
+        var patched = configuration
+        patched.isDynamic = true
+        let increaseContrast = TransparencyOptions.system.increaseContrast
+        Self.patchReadableMenuBar(&patched.lightModeConfiguration, tint: BuiltInMood.lightTint, border: BuiltInMood.lightBorder, increaseContrast: increaseContrast)
+        Self.patchReadableMenuBar(&patched.darkModeConfiguration, tint: BuiltInMood.darkTint, border: BuiltInMood.darkBorder, increaseContrast: increaseContrast)
+        isApplyingMood = true
+        configuration = patched
+        isApplyingMood = false
+        currentMoodName = BuiltInMood.readableMenuBarID
+    }
+
+    /// Sets one appearance's opaque tint and its border.
+    private static func patchReadableMenuBar(
+        _ partial: inout MenuBarAppearancePartialConfiguration,
+        tint: DesignTokens.RGB,
+        border: DesignTokens.Tint,
+        increaseContrast: Bool
+    ) {
+        partial.tintKind = .solid
+        partial.tintFollowsAccentColor = false
+        partial.tintColor = CGColor(srgbRed: tint.red, green: tint.green, blue: tint.blue, alpha: 1)
+        partial.style.tintStrength = MenuBarPartialStyle.opaqueTintStrength
+        patchReadableMenuBarBorder(&partial, border: border, increaseContrast: increaseContrast)
+    }
+
+    /// Draws the border in the increased stroke colour while Increase Contrast is on, else none.
+    private static func patchReadableMenuBarBorder(
+        _ partial: inout MenuBarAppearancePartialConfiguration,
+        border: DesignTokens.Tint,
+        increaseContrast: Bool
+    ) {
+        partial.hasBorder = increaseContrast
+        guard increaseContrast else {
+            return
+        }
+        partial.borderColor = CGColor(
+            srgbRed: border.color.red,
+            green: border.color.green,
+            blue: border.color.blue,
+            alpha: border.alpha
+        )
+        partial.borderWidth = BuiltInMood.borderWidth
+        partial.borderStyle = .solid
+        partial.style.borderFill = .color
+    }
+
+    /// Starts or stops following Increase Contrast: only the built-in mood needs it, and it
+    /// listens to one notification, never polls.
+    private func followIncreaseContrast(_ isOn: Bool) {
+        if isOn {
+            guard increaseContrastLoop == nil else {
+                return
+            }
+            transparencyObserver.start()
+            increaseContrastLoop = ObservationLoop.observe { [weak self] in
+                self?.transparencyObserver.options.increaseContrast ?? false
+            } onChange: { [weak self] increaseContrast in
+                self?.applyReadableMenuBarBorder(increaseContrast: increaseContrast)
+            }
+        } else if increaseContrastLoop != nil {
+            increaseContrastLoop?.cancel()
+            increaseContrastLoop = nil
+            transparencyObserver.stop()
+        }
+    }
+
+    /// Draws or removes the built-in mood's border when Increase Contrast changes, leaving
+    /// everything else of the look as it is.
+    private func applyReadableMenuBarBorder(increaseContrast: Bool) {
+        guard isReadableMenuBarCurrent else {
+            return
+        }
+        var patched = configuration
+        Self.patchReadableMenuBarBorder(&patched.lightModeConfiguration, border: BuiltInMood.lightBorder, increaseContrast: increaseContrast)
+        Self.patchReadableMenuBarBorder(&patched.darkModeConfiguration, border: BuiltInMood.darkBorder, increaseContrast: increaseContrast)
+        isApplyingMood = true
+        configuration = patched
+        isApplyingMood = false
     }
 
     /// Removes a mood.
@@ -199,6 +322,40 @@ final class MenuBarAppearanceManager {
         } catch {
             Logger.serialization.error("Error decoding menu bar appearance configuration: \(error, privacy: .private)")
         }
+        // The current mood is not stored, so the stored look is recognised: the built-in mood's
+        // opaque tints are a look of their own. Its border is then brought in line with
+        // Increase Contrast as it is now, and the listener starts, as after applying the mood.
+        if Self.isReadableMenuBarLook(configuration) {
+            currentMoodName = BuiltInMood.readableMenuBarID
+            applyReadableMenuBarBorder(increaseContrast: TransparencyOptions.system.increaseContrast)
+        }
+    }
+
+    /// Whether a configuration carries the built-in mood's tints in both appearances: dynamic, solid,
+    /// opaque, not following the accent colour, and the mood's ground colours (the border is not
+    /// compared, it follows Increase Contrast).
+    private static func isReadableMenuBarLook(_ configuration: MenuBarAppearanceConfigurationV2) -> Bool {
+        configuration.isDynamic
+            && hasReadableTint(configuration.lightModeConfiguration, tint: BuiltInMood.lightTint)
+            && hasReadableTint(configuration.darkModeConfiguration, tint: BuiltInMood.darkTint)
+    }
+
+    private static func hasReadableTint(_ partial: MenuBarAppearancePartialConfiguration, tint: DesignTokens.RGB) -> Bool {
+        guard
+            partial.tintKind == .solid,
+            !partial.tintFollowsAccentColor,
+            partial.style.tintStrength == MenuBarPartialStyle.opaqueTintStrength,
+            let space = CGColorSpace(name: CGColorSpace.sRGB),
+            let components = partial.tintColor.converted(to: space, intent: .defaultIntent, options: nil)?.components,
+            components.count >= 3
+        else {
+            return false
+        }
+        // A stored colour is a few bits off the constant; one 8-bit step is far more than that.
+        let tolerance = 1.0 / 255
+        return abs(components[0] - tint.red) < tolerance
+            && abs(components[1] - tint.green) < tolerance
+            && abs(components[2] - tint.blue) < tolerance
     }
 
     /// Configures the internal observers for the manager.

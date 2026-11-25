@@ -42,8 +42,8 @@ struct LiveValueText: View {
 }
 
 /// The row of the open island beside the notch and the row below it: one status pill on each
-/// side of the notch, and the settings gear at the right end of the context-line row (concept
-/// section 10b, "Layout", decisions D-01, D-02 and D-07).
+/// side of the notch, the pin at the left end of the context-line row and the settings gear at
+/// its right end (concept section 10b, "Layout", decisions D-01, D-02, D-07 and D-12).
 ///
 /// On the left is the Timers module's own pill. On the right is the top other live activity by the
 /// board's fixed order (``HubStatusPills``), drawn as its symbol and short value
@@ -51,7 +51,12 @@ struct LiveValueText: View {
 /// `+n` badge counts the other live activities that do not show. A finished activity leaves the
 /// pill without a timer: the view asks the system to draw it again at the moment each one leaves.
 /// The pills keep ``NotchHubGeometry/clearance`` from the notch; the row beside the notch holds
-/// only the pills, and the gear sits below the notch.
+/// only the pills, and the pin and the gear sit below the notch.
+///
+/// The pin keeps the hub open (``HubPin``). It is a quiet circle like the gear; pinned it is a
+/// white circle with a black filled pin, so the state is never colour alone. The Preview badge sits
+/// 8 pt after it; the view reports the badge's width, measured once, so the context line can keep
+/// clear of both.
 ///
 /// The view is as wide as the island's shape and as high as the shape down to the end of the
 /// context-line row; every position is relative to the shape's top left corner.
@@ -59,6 +64,8 @@ struct IslandTopRowView: View {
     let model: NotchHubModel
     let layout: NotchHubGeometry.IslandLayout
     let host: any HubHost
+    /// The Preview badge's measured width, for the context line's clear space.
+    @Binding var badgeWidth: CGFloat
 
     private var shapeWidth: CGFloat {
         CGFloat(layout.shape.width)
@@ -102,6 +109,7 @@ struct IslandTopRowView: View {
             ZStack(alignment: .topLeading) {
                 leftPill(placement)
                 rightPill(placement, now: context.date)
+                pin
                 gear
             }
         }
@@ -117,7 +125,7 @@ struct IslandTopRowView: View {
         let now = Date.now
         let expiries = model.activities
             .filter { $0.moduleID != HubStatusPills.leftModuleID }
-            .compactMap { activity in activity.finishedAt?.addingTimeInterval(HubActivityBoard.finishedHold) }
+            .compactMap(\.expiresAt)
             .filter { $0 > now }
             .sorted()
         return [now] + expiries
@@ -197,6 +205,39 @@ struct IslandTopRowView: View {
             .background(HolzBarTheme.Hub.pillFill, in: Capsule())
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text("+\(count) more"))
+    }
+
+    // MARK: The pin
+
+    /// The pin: at the left end of the context-line row, mirrored to the gear, with the Preview
+    /// badge after it. Unpinned it is the gear's quiet circle; pinned a white circle with a black
+    /// filled pin. A click toggles; the pin is never stored.
+    private var pin: some View {
+        let size = HolzBarTheme.Island.gearSize
+        let isPinned = model.pin.isPinned
+        let rowCentre = layout.contextRow.y - layout.shape.y + layout.contextRow.height / 2
+        let label: LocalizedStringKey = isPinned ? "Unpin the hub" : "Pin the hub"
+        return HStack(spacing: HolzBarTheme.Spacing.xs) {
+            Button {
+                model.pin.toggle()
+            } label: {
+                Image(systemName: isPinned ? "pin.fill" : "pin")
+                    .font(HolzBarTheme.Island.gearSymbolFont)
+                    .foregroundStyle(isPinned ? HolzBarTheme.Island.buttonSelectedSymbol : HolzBarTheme.Island.gearSymbol)
+                    .frame(width: size, height: size)
+                    .background(isPinned ? HolzBarTheme.Island.buttonSelectedFill : HolzBarTheme.Island.gearFill, in: Circle())
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .help(label)
+            .accessibilityLabel(Text(label))
+            .accessibilityAddTraits(isPinned ? .isSelected : [])
+            PreviewBadge()
+                .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
+                    badgeWidth = width
+                }
+        }
+        .offset(x: CGFloat(innerInset), y: CGFloat(rowCentre) - size / 2)
     }
 
     // MARK: The gear

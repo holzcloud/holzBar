@@ -74,11 +74,38 @@ final class AppState {
     /// Which optional modules the user has switched on.
     let modules = ModuleStore()
 
+    /// The one shared monitor of the system readouts: it measures only for the consumers that
+    /// are registered, and nothing while there are none (Phase 94).
+    let systemMonitor = SystemMonitor()
+
+    /// The connected devices and their battery levels for the Devices list and the hub's
+    /// Accessories tab: one reader and one Bluetooth monitor, consumer-counted, and nothing
+    /// while no surface shows them (Phase 95).
+    let connectedDevices = ConnectedDevicesService()
+
+    /// The System alerts module: the one background consumer of the shared monitor and the alerts
+    /// it raises as live activities. It lives without the Notch hub and holds nothing while the
+    /// module or every rule is off (Phase 95).
+    let systemAlerts = ThresholdAlertsManager()
+
+    /// Software dimming of external displays: one dark overlay window per dimmed display, kept
+    /// only while the Notch hub and Display controls are on and a level is above 0 (Phase 96).
+    let softwareDimmer = SoftwareDimmer()
+
+    /// The one DDC bus that Display controls and the brightness keys of the Indicators share, so
+    /// that two transfers to a monitor can never interleave (Phase 96, WR-03). It is held weakly:
+    /// each user keeps its own strong reference while its part runs and drops it when the part
+    /// goes off, and the bus is gone when the last one lets go.
+    @ObservationIgnored private weak var sharedBus: DDCBus?
+
     /// Menu bar items of the user's own: text from built-in sources and Shortcut buttons (Phase 12).
     let widgets = MenuBarWidgets()
 
     /// The Apple Items module: hidden system items (macOS 27).
     let appleItems = AppleItems()
+
+    /// The Dock badges module: the apps in the Dock to choose from (Preview).
+    let dockBadges = DockBadges()
 
     /// The Notch hub: a panel at the notch for the modules the user switches on (Preview).
     let notchHub = NotchHubController()
@@ -147,6 +174,96 @@ final class AppState {
         return section
     }
 
+    /// Storage for ``makeRoom27``, typed loosely so the property exists on every macOS.
+    @ObservationIgnored private var makeRoomStorage: AnyObject?
+
+    /// Says when the apps in the Visible section do not fit the menu bar, and moves some to Hidden.
+    @available(macOS 27.0, *)
+    var makeRoom27: MakeRoom27 {
+        if let makeRoom = makeRoomStorage as? MakeRoom27 {
+            return makeRoom
+        }
+        let makeRoom = MakeRoom27(appState: self)
+        makeRoomStorage = makeRoom
+        return makeRoom
+    }
+
+    /// Storage for ``overflowAutoMove27``, typed loosely so the property exists on every macOS.
+    @ObservationIgnored private var overflowAutoMove27Storage: AnyObject?
+
+    /// Whether the setup got far enough for Automatic to start; the mode loaded from the stored
+    /// settings before that must not start it.
+    @ObservationIgnored private var mayStartAutomaticMove = false
+
+    /// Moves apps to Hidden by itself when macOS 27 folds them, in the mode Automatic; created on
+    /// first use.
+    @available(macOS 27.0, *)
+    var overflowAutoMove27: OverflowAutoMove27 {
+        if let automatic = overflowAutoMove27Storage as? OverflowAutoMove27 {
+            return automatic
+        }
+        let automatic = OverflowAutoMove27(appState: self)
+        overflowAutoMove27Storage = automatic
+        return automatic
+    }
+
+    /// Automatic when it exists; reading it never creates it, so in Off and Ask there is none.
+    @available(macOS 27.0, *)
+    var existingOverflowAutoMove27: OverflowAutoMove27? {
+        overflowAutoMove27Storage as? OverflowAutoMove27
+    }
+
+    /// "When the menu bar is full" changed, or the setup finished: Automatic runs only in the mode
+    /// Automatic, and an existing one stops in any other.
+    func makeRoomModeDidChange() {
+        guard #available(macOS 27.0, *), mayStartAutomaticMove else {
+            return
+        }
+        if settings.advanced.makeRoomMode == .automatic {
+            overflowAutoMove27.start()
+        } else {
+            existingOverflowAutoMove27?.stop()
+        }
+    }
+
+    /// Storage for ``notShownList27``, typed loosely so the property exists on every macOS.
+    @ObservationIgnored private var notShownList27Storage: AnyObject?
+
+    /// The apps macOS 27 does not show in the menu bar; it runs only while Layout is open.
+    @available(macOS 27.0, *)
+    var notShownList27: NotShownList27 {
+        if let list = notShownList27Storage as? NotShownList27 {
+            return list
+        }
+        let list = NotShownList27(appState: self)
+        notShownList27Storage = list
+        return list
+    }
+
+    /// Storage for ``newAppQuestions27``, typed loosely so the property exists on every macOS.
+    @ObservationIgnored private var newAppQuestions27Storage: AnyObject?
+
+    /// Asks where an app that macOS 27 shows for the first time should go; created on first use.
+    /// Only an event creates it (the switch turning on, the launch with the switch on, a new app),
+    /// never a view: views read ``existingNewAppQuestions27``.
+    @available(macOS 27.0, *)
+    var newAppQuestions27: NewAppQuestions27 {
+        if let questions = newAppQuestions27Storage as? NewAppQuestions27 {
+            return questions
+        }
+        let questions = NewAppQuestions27(appState: self)
+        newAppQuestions27Storage = questions
+        questions.restoreWaitingQuestions()
+        return questions
+    }
+
+    /// The new-app question when it exists; reading it never creates it, so with the switch off
+    /// there is none.
+    @available(macOS 27.0, *)
+    var existingNewAppQuestions27: NewAppQuestions27? {
+        newAppQuestions27Storage as? NewAppQuestions27
+    }
+
     /// Storage for ``standInItems27``, typed loosely so the property exists on every macOS.
     @ObservationIgnored private var standInItems27Storage: AnyObject?
 
@@ -168,6 +285,18 @@ final class AppState {
             return []
         }
         return (standInItems27Storage as? StandInItems27)?.hitTestFrames ?? []
+    }
+
+    /// The shared DDC bus, created when the first user asks for it and while any user holds it
+    /// (Phase 96, WR-03). It carries no private API of its own: the bus is the existing
+    /// ``DDCBus``, which calls ``IOAVServiceBridge`` only.
+    func ddcBus() -> DDCBus {
+        if let sharedBus {
+            return sharedBus
+        }
+        let bus = DDCBus()
+        sharedBus = bus
+        return bus
     }
 
     /// Passes a mouse release on to a Command-drag that is armed. Nothing is created for it: a
@@ -289,6 +418,15 @@ final class AppState {
             // Hiding does not need the item cache, and the first read of the items can
             // take seconds (measured 9 s), so it starts before the item manager's setup.
             concealer27.performSetup(with: self)
+            // With the switch on the question model is created here, so a question kept from
+            // before the last quit waits again and no view has to create it; with the switch off
+            // nothing is created (D-05, D-19).
+            if settings.advanced.asksWhereNewAppGoes {
+                _ = newAppQuestions27
+            }
+            // Automatic starts here when it is the stored mode; before this point it must not.
+            mayStartAutomaticMove = true
+            makeRoomModeDidChange()
         }
         await itemManager.performSetup(with: self)
         imageCache.performSetup(with: self)
@@ -300,7 +438,12 @@ final class AppState {
         hiddenItemsLock.performSetup(with: self)
         itemGroups.performSetup(with: self)
         appleItems.performSetup(with: self)
+        dockBadges.performSetup(with: self)
         spacers.performSetup()
+        systemMonitor.performSetup(with: self)
+        connectedDevices.performSetup(with: self)
+        systemAlerts.performSetup(with: self)
+        softwareDimmer.performSetup(with: self)
         widgets.performSetup(with: self)
         if #available(macOS 27.0, *) {
             // The stand-ins of apps macOS hides anyway; after the item manager's setup.
@@ -324,16 +467,21 @@ final class AppState {
         Task {
             await WhatsNewOffer.offerIfNeeded(appState: self)
         }
+        Task {
+            // Only after an import from another app restarted holzBar: its undo toast, once.
+            await PreviousAppImporter.offerUndoAfterLaunch(appState: self)
+        }
     }
 
     /// Brings holzBar up to date once the bar has settled after the screen was locked, the
     /// Mac slept, the session was away or the displays changed: the input monitors are
     /// checked, the items read again, the images refreshed where a view shows them, the
-    /// concealment of macOS 27 applied and the menu bar appearance restored.
+    /// concealment of macOS 27 renewed (new assertions first, then the old ones go) and the
+    /// menu bar appearance restored.
     private func systemActivityDidSettle() {
         hidEventManager.healthCheck()
         if #available(macOS 27.0, *) {
-            concealer27.update()
+            concealer27.renewAfterSettle()
         }
         appearanceManager.systemActivityDidSettle()
         Task {

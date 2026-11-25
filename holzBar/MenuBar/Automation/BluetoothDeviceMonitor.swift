@@ -126,14 +126,17 @@ final class BluetoothDeviceMonitor: NSObject, CBCentralManagerDelegate {
         )
     }
 
-    /// The paired devices that are connected now, by name. Empty without the permission.
-    func connectedDevices() -> [AccessoryDevice] {
+    /// The paired devices, split into the ones that are connected now and the ones that are not,
+    /// each half by name. Empty without the permission. It reads the list of paired devices in
+    /// one pass and opens, searches and pairs nothing.
+    func pairedDevices() -> (connected: [AccessoryDevice], disconnected: [AccessoryDevice]) {
         guard isAuthorized else {
-            return []
+            return ([], [])
         }
         let paired = IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] ?? []
-        var result = [AccessoryDevice]()
-        for device in paired where device.isConnected() {
+        var connected = [AccessoryDevice]()
+        var disconnected = [AccessoryDevice]()
+        for device in paired {
             guard let accessory = AccessoryDevice(
                 address: device.addressString ?? "",
                 name: device.name ?? "",
@@ -142,9 +145,21 @@ final class BluetoothDeviceMonitor: NSObject, CBCentralManagerDelegate {
             ) else {
                 continue
             }
-            result.append(accessory)
+            if device.isConnected() {
+                connected.append(accessory)
+            } else {
+                disconnected.append(accessory)
+            }
         }
-        return result.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        let byName: (AccessoryDevice, AccessoryDevice) -> Bool = {
+            $0.name.localizedStandardCompare($1.name) == .orderedAscending
+        }
+        return (connected.sorted(by: byName), disconnected.sorted(by: byName))
+    }
+
+    /// The paired devices that are connected now, by name. Empty without the permission.
+    func connectedDevices() -> [AccessoryDevice] {
+        pairedDevices().connected
     }
 
     // MARK: Notifications

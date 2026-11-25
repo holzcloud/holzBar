@@ -38,9 +38,25 @@ What Accessibility reports for the folded items differs by version. On macOS 27.
 
 The last line of Settings → About → Copy Diagnostics names the state on macOS 27. `Scripts/macos27/overflow-state-probe.swift` prints the control's attributes and the items' frames in both states; it is read-only and has no network access.
 
+### What holzBar does about a fold
+
+From 1.2.0. holzBar tells you when it happens, on macOS 27 only, in two places and never on the bar itself (only the Undo notice after a move appears under the menu bar):
+
+- **The notice.** In Layout, and in a row under the tiles of the holzBar Shelf while the Shelf is open, **Folded away: Docker, Slack +2** names the first two Visible apps whose items macOS folded away (apps whose items holzBar read before and that are not drawn now) and counts the rest. In Layout, which shows every item, the notice needs the fit estimate below to say the apps do not fit as well, so apps in a hidden section are never named.
+- **The fit warning.** Before a fold, the same notice says **N items do not fit beside the notch** (**in the menu bar** on a display without a notch). It compares the widths of the Visible apps' items, as holzBar last read them, with the room: on a display with a notch the area right of the notch less the space of the system items and of the overflow control, otherwise the space right of the frontmost app's menu less the same. These numbers are estimates and the warning can be early or late.
+- **Move N to Hidden.** One button moves at most three apps to Hidden, which can make room. Apple's items, holzBar's own, items that cannot be hidden or moved and items controlled by a rule never move. The apps you use least go first while Usage suggestions is on (then the newest launch, then the nearest to the notch); otherwise the newest launch and then the nearest to the notch. The move is one write of the sections, as Apply makes it, and one Undo step. holzBar then reads the bar again and counts moved apps that are still drawn (**Could not be moved: N**); the notice goes when the apps fit and stays while they do not.
+- **Settle time.** The notice changes only after its state has held for three seconds, and it is not shown while you drag an item, while the Mac wakes or a display changes, while an app is in its launch grace (the 45 seconds above), or for three seconds after a move. With **Off** in Settings → Layout → Making room the Shelf shows no row and holzBar does nothing for it; Layout still shows the notice.
+- **Automatic.** The third choice of **When the menu bar is full** makes the same move without a click. It acts only on a fold macOS has made, never on the estimate alone and never while Layout is open: it needs two reads five seconds apart that both show a fold, waits a minute after holzBar starts or the system settles, makes one move per episode (the next needs thirty seconds without a fold) and pauses after three moves in ten minutes. A notice at the menu bar offers Undo, and Layout's Notices group keeps a row with **Undo** and **Dismiss Notice**.
+
+`Scripts/macos27/fit-probe.swift` prints the same arithmetic per display, read-only, with no network access.
+
 ## Menu bar styles
 
 From 0.0.8. Single, Paired, the shape of its own for the Apple logo, the outlines and the gradients work on macOS 27 as on macOS 26. Sections is not offered on macOS 27: holzBar hides whole applications, so the items of one section do not stand together and holzBar's dividers mark no boundary on the bar; a Sections choice that comes from another Mac or a settings file is drawn as Paired. The Apple-logo shape takes the Apple menu's position from the application-menu read holzBar already makes (no new permission); on macOS 27 that read skips holzBar's own menus, so the last position is kept while holzBar is in front.
+
+## Item spacing
+
+Settings → Advanced offers the spacing between menu bar items on macOS 26 and earlier. holzBar does not offer it on macOS 27 and says so in Settings; Reset there still clears values written on macOS 26.
 
 ## Show and hide animation
 
@@ -76,15 +92,63 @@ An optional module in Settings → Modules, on macOS 27, off until you switch it
 
 holzBar stores only which system items you hid and your replacements' symbols and item keys, on this Mac, and has no network access. Settings → About → Copy Diagnostics says whether the module is on and how many items it hides and replaces, without any name.
 
+## Clicks on the clock and other system items
+
+While holzBar hides items, MenuBarAgent ignores clicks on the clock, the battery and Wi-Fi (measured on macOS 27.0). holzBar holds such a click back, lifts the hiding for a moment and replays the click, so the item opens as usual. It pairs every click it holds back with its own release by the event number macOS gives a press and its release, so no click is left without its release and the release of any other click is never taken. A held click that never sees its release is let go after 10 seconds, and when holzBar stops the click handling, every held click is let go at once.
+
+When macOS switches the click handling off after a timeout, holzBar switches it on again only while it still has Accessibility; without it, the handling stays off until Accessibility is granted again. Settings → About → Copy Diagnostics counts these switches in its Hiding line (`tap disables`).
+
+## Live Activities in the menu bar
+
+From macOS 27.3 macOS shows Live Activities (a timer, a recording, music) in the menu bar. holzBar never offers them for hiding: an item that macOS's menu bar process draws and that is not the clock, the battery, Wi-Fi or Control Center, or that names itself a Live Activity, stays on the bar. holzBar does not count it, move it, or show it in the holzBar Shelf or Layout, and does not write it to the saved layout. A hover over it counts as a hover over an item. An app whose items are all Live Activities is never hidden. holzBar learns that from reading the app's items, and macOS reports none for an app it hides, so a Live Activity of an app you put in a hidden section stays hidden until holzBar has read the app while it is shown. Settings → Advanced shows this rule as "Apple's Live Activities stay visible". holzBar does not publish Live Activities of its own.
+
+## Sleep, displays and Spaces
+
+holzBar waits about 2 seconds after the Mac wakes, the screen unlocks, your session comes back or a display is connected, removed or changed. It then reads the bar again and takes its hiding anew: the new hiding is in place before the old one goes, so nothing hidden shows in between. It saves your sections only from a settled bar; a save asked for while the Mac rests or the bar settles waits for the read after the settle. Space and full-screen changes and calls with the microphone, camera or system audio keep the hiding (see "Camera and microphone indicator").
+
 ## Apps that launch while items are hidden
 
 holzBar hides whole applications through an assertion that names, by bundle identifier, the apps that stay visible. Since 1.0.5 an app that launches while items are hidden and is to stay visible (a new app when new items go to Visible or where macOS puts them, or a helper app inside another app, such as a login item) is added to it at once, so its item appears within about a second. An app that is slow to answer Accessibility right after it starts is asked again at every read for its first 30 seconds instead of being skipped for minutes. When an app such as Slack or an Electron app changes its items often, holzBar reads every app for it at most once every 30 seconds. If `MenuBarAgent` restarts, holzBar applies the hiding again with fresh assertions.
+
+An app in a hidden section that launches stays on the bar until holzBar has read its item, at most 45 seconds, and is hidden then, so a slow app such as Slack or Docker keeps its full-width item instead of a squashed one. The 45 seconds do not run while the Mac sleeps.
 
 Items of processes without a bundle identifier, such as some script-based apps, cannot be named in the assertion and are not listed in the holzBar Shelf: while holzBar hides any app, they stay hidden, and they come back while holzBar hides nothing.
 
 An app that has a bundle identifier but runs from somewhere else than `/Applications` or a system folder is a different case. macOS 27.2 names an app's item only when the app runs from `/Applications` or a system folder (a link is followed to where the app really runs), so an app elsewhere (for example a device management agent, or an app in the Applications folder of your home folder) loses its icon whenever holzBar hides anything, even in Visible: the assertion has no way to keep an item it cannot name. holzBar shows a stand-in icon in its place, with the item's picture, or else the app's icon. A click on it, left or right, shows the hidden items for a moment, opens the app's menu and hides them again as soon as the menu closes; the stand-in is not drawn while they are shown, so the icon is never doubled. A click on a stand-in is not a click on the empty menu bar, so it does not show the hidden items by itself. Such an app in Hidden appears in the holzBar Shelf and opens the same way. The switch "Stand-ins for icons macOS hides" in Settings → Layout turns the stand-ins off; with it off, no stand-in icons are drawn, and opening such an app's item still shows every hidden item for a moment. Keep holzBar itself in `/Applications`: from anywhere else macOS conceals holzBar's own icons too, and no stand-ins are shown.
 
 Settings → About → Copy Diagnostics has a Hiding line with the reveal state and counts of these events (agent restarts, late refreshes, young retries, forced and held-back reads, notch rechecks) and of visible apps hidden anyway, never an app name.
+
+## Apps macOS does not show
+
+From 1.2.0, on macOS 27, Settings → Layout has a group **Not shown by macOS**, after Making room. It lists every app whose item macOS does not show on the bar, whatever holzBar hides, with one reason and one link per row. The group is absent when there is nothing to list. The list is read when Layout opens and kept in memory only; app names are never logged and never stored.
+
+There are three reasons, and each comes from a public signal:
+
+- **Not in Applications**: the install location. macOS 27.2 names an app's item only when the app runs from `/Applications` or a system folder (see "Apps that launch while items are hidden"). The link is **Show in Finder**, to move the app.
+- **May be off in Settings**: the overlap heuristic. An app that runs from a named place but whose item lies on top of another drawn item is not drawn; macOS may have switched it off. The link is **Open System Settings**, which opens the Menu Bar pane. The heuristic recognises only an item that overlaps another and can name two apps when either may be the one not drawn.
+- **No app identifier**: a running process without a bundle identifier that owns menu bar items, found by asking each such process through Accessibility for its extras menu bar (a quarter of a second at most per process, on a queue of its own, once per time Layout opens). macOS cannot name its item and holzBar cannot keep it; only its developer can fix it. The link is **Show in Finder**, to the process's file.
+
+holzBar writes no System Settings preference and reads no Control Centre preference for this list; the links only reveal a file or open a pane. `Scripts/macos27/not-shown-probe.swift` prints the running applications without an identifier and, per display, which items are drawn; it is read-only and has no network access.
+
+## Notch and Dynamic Island
+
+holzBar measures the camera cutout of a display from its safe area and the two unobscured areas beside it (`NSScreen.safeAreaInsets`, `auxiliaryTopLeftArea` and `auxiliaryTopRightArea`, all public API), with no permission and no network. The built-in display of a 14-inch MacBook Pro reports a notch of 185 x 32 points (measured on MacBookPro18,4, macOS 27.2.1 (26B131)); an external display reports no safe area and no cutout. `Scripts/macos27/cutout-probe.swift` prints these numbers for every display; it is read-only.
+
+On a MacBook Pro with Apple's Dynamic Island, the Notch hub and its live state open below the island and never cover it, and the hub is drawn as a separate shape with rounded top corners. A cutout whose width is less than three times its height is taken for the island; a wider one is the notch. Settings → Modules → Notch hub → Display cutout (Automatic, Notch, Dynamic Island, None) overrides the detection for every display with a cutout; an external display has none, and no choice gives it one. The choice is stored on this Mac only and is never exported or imported.
+
+## Menu bar restarts
+
+macOS 27 draws the menu bar in the process `MenuBarAgent` (`com.apple.MenuBarAgent`), which `NSRunningApplication` sees like an application: it runs as an accessory application (measured on MacBookPro18,4, macOS 27.2.1 (26B131)). holzBar notices a restart of it by its process identifier and applies the hiding again by itself. When it restarts more than three times within ten minutes, holzBar stops hiding for 30 minutes (every item is shown) instead of applying the hiding again in a loop, so the bar can never lock up, and then hides again; Copy Diagnostics' Hiding line says `breaker tripped` while it stands and `breaker ok` otherwise. `Scripts/macos27/agent-probe.swift` prints what `NSRunningApplication` reports for it; it is read-only unless you pass `--force-terminate`, which restarts the menu bar.
+
+holzBar's menu has two commands on macOS 27. Restart Menu Bar asks macOS to end `MenuBarAgent`, which macOS normally starts again; holzBar starts no process, expects that restart (it does not count towards the breaker, and a tripped breaker ends once macOS has taken the request), and hides the items again when it sees the new `MenuBarAgent`. If macOS does not take the request, holzBar says so and changes nothing else. The item is there only while macOS lets holzBar see `MenuBarAgent`, and a second restart within 5 seconds is ignored. Pause holzBar shows every item until you choose Resume holzBar or quit holzBar; the pause is not saved, so holzBar hides again after the next launch. Both are also in the command palette and in Settings → Advanced. Neither command can be triggered from `holzbar://` URLs, Shortcuts or automation rules.
+
+On macOS 27.0.1, video in full screen could fail until `MenuBarAgent` was restarted; this is fixed in macOS 27.2, and Restart Menu Bar asks for the restart without Terminal.
+
+On macOS 27.0.1, Command-dragging the microphone or screen recording indicator made `MenuBarAgent` restart about a minute later, after which holzBar hides the items again.
+
+## Reopening holzBar
+
+Opening holzBar while it runs (a click on its icon in the Dock, a double-click in the Finder, Spotlight, or Launchpad, which is the Apps app from macOS 26) opens Settings. A reopen sent by anything else, such as Siri on macOS 27, is ignored, and so is a second one within 2 seconds of the last one that opened Settings. holzBar's menu always opens Settings. Settings → Advanced → Menu bar says the same in one row. Settings → About → Copy Diagnostics has a Reopen line with how many reopens opened Settings and how many were ignored, never who sent them.
 
 ## Updating from macOS 26
 

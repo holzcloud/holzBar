@@ -105,6 +105,25 @@ struct SharedProfileTests {
         ])
     }
 
+    @Test("A shared profile never names a Dock badges item as an app")
+    func neverCarriesABadgeItem() {
+        let badge = DockBadgeItemName.app("com.apple.MobileSMS")
+        let entries = SharedProfile.applications(
+            itemSections: [
+                "\(own):\(badge)": 2,
+                "com.apple.Safari:Safari": 1,
+            ],
+            applicationSections: [badge: 2],
+            knownApplications: [badge, "com.example.visible"],
+            ownBundleIdentifier: own
+        )
+        #expect(entries == [
+            .init(id: "com.apple.Safari", section: 1),
+            .init(id: "com.example.visible", section: 0),
+        ])
+        #expect(SharedProfile.isOwn(badge, bundleIdentifier: own))
+    }
+
     @Test("A shared profile never carries a widget (D-25)")
     func neverCarriesAWidget() throws {
         let widget = "holzBar.Widget.0A1B2C3D-0000-4000-8000-000000000001"

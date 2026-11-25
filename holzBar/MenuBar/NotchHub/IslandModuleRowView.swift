@@ -68,6 +68,11 @@ struct IslandModuleRowView: View {
     private func button(for id: String) -> some View {
         let isSelected = id == model.selectedID
         let size = CGFloat(fit.buttonSize)
+        // A question about a new menu bar app waits while another module is in front: the
+        // Overview button says so, as the unseen dot of a notification row does.
+        let showsDot = id == HubTabStrip.overviewID
+            && !isSelected
+            && model.newAppQuestionSource?.hubQuestions.isEmpty == false
         return Button {
             model.select(id)
         } label: {
@@ -80,13 +85,25 @@ struct IslandModuleRowView: View {
                     in: Circle()
                 )
                 .contentShape(Circle())
+                .overlay(alignment: .topTrailing) {
+                    if showsDot {
+                        Circle()
+                            .fill(HolzBarTheme.Palette.accent)
+                            .frame(width: Self.dotSize, height: Self.dotSize)
+                            .accessibilityHidden(true)
+                    }
+                }
         }
         .buttonStyle(.plain)
         .id(id)
         .help(title(of: id))
         .accessibilityLabel(title(of: id))
+        .accessibilityValue(showsDot ? Text("new") : Text(verbatim: ""))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
+
+    /// The diameter of the dot on the Overview button, the notification row's unseen dot size.
+    private static let dotSize: CGFloat = 6
 
     // MARK: What a button shows
 

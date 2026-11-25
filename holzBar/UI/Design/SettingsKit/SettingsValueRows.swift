@@ -10,22 +10,25 @@ import SwiftUI
 struct SettingsValueRow: View {
     private let label: SettingsRowTitle
     private let value: Text
+    private let badge: SettingsBadge?
     private let info: Text?
 
-    init(_ entry: SettingsEntry, value: Text, info: Text? = nil) {
+    init(_ entry: SettingsEntry, value: Text, badge: SettingsBadge? = nil, info: Text? = nil) {
         label = SettingsRowTitle(entry)
         self.value = value
+        self.badge = badge
         self.info = info
     }
 
-    init(_ title: Text, value: Text, info: Text? = nil) {
+    init(_ title: Text, value: Text, badge: SettingsBadge? = nil, info: Text? = nil) {
         label = SettingsRowTitle(title)
         self.value = value
+        self.badge = badge
         self.info = info
     }
 
     var body: some View {
-        SettingsRow(label, info: info) {
+        SettingsRow(label, badge: badge, info: info) {
             value
                 .font(HolzBarTheme.Typography.body)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)

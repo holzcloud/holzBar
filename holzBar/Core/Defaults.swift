@@ -221,6 +221,12 @@ nonisolated extension Defaults {
         case showOnHoverDelay = "ShowOnHoverDelay"
         case tempShowInterval = "TempShowInterval"
         case newItemsPlacement = "NewItemsPlacement"
+        /// macOS 27: what holzBar does when macOS folds menu bar items away because the bar is full.
+        /// The raw values of `MakeRoomMode`: 0 Off, 1 Ask, 2 Automatic. Absent means Ask; new
+        /// values are only appended.
+        case makeRoomMode = "MakeRoomMode"
+        /// macOS 27: whether holzBar asks where a new menu bar app goes, once per app. Off by default.
+        case asksWhereNewAppGoes = "AsksWhereNewAppGoes"
         case keepLiveActivitiesVisible = "KeepLiveActivitiesVisible"
         case autoZenWhileSharingScreen = "AutoZenWhileSharingScreen"
         case openHiddenItemsInMenuBar = "OpenHiddenItemsInMenuBar"
@@ -230,8 +236,6 @@ nonisolated extension Defaults {
         case itemIcons = "ItemIcons"
         case layoutProfiles = "LayoutProfiles"
         case currentLayoutProfile = "CurrentLayoutProfile"
-        /// Left by the 0.0.7 betas. Nothing reads or writes it any more, and the stored value stays.
-        case syncsSettingsWithICloud = "SyncsSettingsWithICloud"
         case itemGroups = "ItemGroups"
         /// The widgets of the menu bar, as JSON (`WidgetDefinition`): kind, source, format and
         /// order. Exported and imported as one unit (D-25, D-26).
@@ -281,6 +285,14 @@ nonisolated extension Defaults {
         case itemRuleShownSections = "ItemRuleShownSections"
         case knownItemTags = "KnownItemTags"
         case knownApplications27 = "KnownApplications27"
+        /// The bundle identifiers of new menu bar apps whose question is not answered yet (a list
+        /// of strings, at most 512), kept so a quit does not lose a question. They name the apps the
+        /// user runs, so this stays on this Mac: never exported or imported.
+        case newAppQuestionPending = "NewAppQuestionPending"
+        /// The bundle identifiers the user asked never to be asked about again, with "Don't ask
+        /// again" (a list of strings, at most 512). They name the apps the user runs, so this
+        /// stays on this Mac: never exported or imported.
+        case newAppQuestionDeclined = "NewAppQuestionDeclined"
         /// The section of each item before macOS 27, keyed by its identity (`ItemIdentity`):
         /// 0 visible, 1 hidden, 2 always hidden.
         case itemSections = "ItemSections"
@@ -309,11 +321,21 @@ nonisolated extension Defaults {
         // MARK: Notch hub
         /// Whether resting the pointer at the notch opens the Notch hub (a boolean, on by default).
         case notchHubOpensOnHover = "NotchHubOpensOnHover"
+        /// Whether the island opens, resizes, closes and widens with springs that overshoot (a
+        /// boolean, on by default); off, it takes a plain 0.3 s ease. Reduce Motion still wins.
+        case notchHubBounces = "NotchHubBounces"
+        /// Whether a scroll on the closed notch opens and closes the Notch hub and a sideways swipe
+        /// skips a track (a boolean, off by default). The scroll monitor exists only while it is on.
+        case notchHubGestures = "NotchHubGestures"
         /// Whether the Notch hub opens on what is active (a meeting soon, a live activity, music)
         /// instead of the module last chosen (a boolean, on by default).
         case notchHubShowsActiveFirst = "NotchHubShowsActiveFirst"
         /// The displays the Notch hub opens on, as the raw value of `NotchHubDisplays`.
         case notchHubDisplays = "NotchHubDisplays"
+        /// The display cutout the Notch hub assumes instead of the detected one, as the raw value
+        /// of `DisplayCutoutOverride` (0 to 3). Local to this Mac, because it describes this Mac's
+        /// display: never exported or imported.
+        case notchHubCutout = "NotchHubCutout"
         /// The tab the Notch hub showed last. Local to the Mac: never exported or imported.
         case notchHubLastTab = "NotchHubLastTab"
         /// The timers of the Notch hub's Timers module, as JSON (`TimerBoard`). Local to this
@@ -334,6 +356,10 @@ nonisolated extension Defaults {
         /// The identifiers of the calendars the user switched off in the Calendar module. They
         /// name the user's accounts, so this stays on this Mac: never exported or imported.
         case calendarHiddenCalendars = "CalendarHiddenCalendars"
+        /// How many minutes before a meeting the closed notch counts down to it (a whole number,
+        /// 0 Off, 1, 5, 10 or 15; the raw values of `CountdownLead`, new ones only appended; 5 by
+        /// default).
+        case calendarCountdownLead = "CalendarCountdownLead"
         /// Whether the Live activities module shows a camera or the microphone in use by another
         /// app (a boolean, on by default).
         case liveActivitiesCapture = "LiveActivitiesCapture"
@@ -370,6 +396,9 @@ nonisolated extension Defaults {
         /// list of strings). They name the apps the user runs, so this stays on this Mac:
         /// never exported or imported.
         case notificationsExcludedApps = "NotificationsExcludedApps"
+        /// How long a new notification shows as a count in the closed notch, in seconds (a whole
+        /// number from 3 to 30; the model snaps it to 3, 5, 10, 15 or 30, 5 by default).
+        case notificationsDisplayTime = "NotificationsDisplayTime"
 
         // MARK: Display Controls
         /// Whether the Display controls module shows brightness sliders, which use a private
@@ -379,6 +408,117 @@ nonisolated extension Defaults {
         /// which uses a private macOS interface (a boolean, off by default; the switch of that
         /// part, stored on this Mac only).
         case displayControlsExternalMonitors = "DisplayControlsExternalMonitors"
+        /// How far software dimming darkens each external display: a dictionary of display UUID
+        /// to a level above 0 and up to 0.9 (D-19). The identifiers are those of this Mac's
+        /// displays, so it stays on this Mac only: never exported or imported.
+        case displayControlsDimLevels = "DisplayControlsDimLevels"
+
+        // MARK: System readouts
+        /// How the network speed counts: the raw value of `ReadoutRateUnit` (a whole number, 0
+        /// for bytes per second and 1 for bits per second). It is exported with the settings
+        /// and works while the System readouts module is off, because the Network Speed widget
+        /// follows it too.
+        case readoutsRateUnit = "ReadoutsRateUnit"
+        /// The tiles of System readouts the user left on, and "thermal" for the thermal state
+        /// line under the CPU tile (a list of strings, each a known id). Absent means every tile
+        /// is on. It is exported with the settings; an imported list keeps only known ids.
+        case readoutTiles = "ReadoutTiles"
+        /// How often the System readouts tiles read CPU, GPU, memory and network while the hub is
+        /// open, in seconds (a whole number from 2 to 30, 2 by default). It is exported with the
+        /// settings.
+        case readoutsTileRefresh = "ReadoutsTileRefresh"
+        /// Whether System readouts reads the load of the graphics processor, which uses a private
+        /// macOS interface (a boolean, off by default; the switch of that part, stored on this
+        /// Mac only).
+        case readoutsReadsGPU = "ReadoutsReadsGPU"
+
+        // MARK: Dock badges
+        /// The bundle identifiers of the apps whose Dock badge shows in the menu bar, in the order
+        /// chosen (a list of strings, at most 64). It is exported with the settings; an imported
+        /// list keeps only valid, unique bundle identifiers.
+        case dockBadgeApps = "DockBadgeApps"
+        /// Whether Dock badges reads the badge on the Dock icons of the chosen apps, which uses a
+        /// private macOS interface (a boolean, off by default; the switch of that part, stored on
+        /// this Mac only).
+        case dockBadgesReadsCounts = "DockBadgesReadsCounts"
+        /// What a Dock badges item shows while its count is zero: the raw values of
+        /// `DockBadgeZeroMode`, 0 Dim and 1 Hide (a whole number; absent means Dim). It is
+        /// exported with the settings.
+        case dockBadgeZeroMode = "DockBadgeZeroMode"
+        /// The groups of Dock badges apps as JSON: a list of at most 12 groups, each with an
+        /// identifier, a name and the bundle identifiers of its apps. It is exported with the
+        /// settings; an imported list is decoded, validated and encoded again
+        /// (`DockBadgeGroupList.normalized`).
+        case dockBadgeGroups = "DockBadgeGroups"
+
+        // MARK: System alerts
+        // Every System alerts value but the System notifications switch is exported with the
+        // settings. An imported number outside its whole-number range is refused, and the model
+        // brings every stored value through
+        // `ThresholdRule.validatedLimit` and `AlertHold.snapped` again, because the defaults can
+        // hold anything. The five holds are seconds (a whole number from 0 to 900) and are
+        // snapped to the nearest preset: 0, 10, 30, 60, 300 or 900.
+        /// Whether the CPU load rule is on (a boolean, on by default).
+        case systemAlertsCPU = "SystemAlertsCPU"
+        /// The CPU load, in percent, above which the rule fires (a whole number from 50 to 95,
+        /// in steps of 5, 90 by default).
+        case systemAlertsCPUThreshold = "SystemAlertsCPUThreshold"
+        /// How long the CPU load has to hold, in seconds (a whole number from 0 to 900, 300 by
+        /// default).
+        case systemAlertsCPUHold = "SystemAlertsCPUHold"
+        /// Whether the memory pressure rule is on (a boolean, off by default).
+        case systemAlertsMemoryPressure = "SystemAlertsMemoryPressure"
+        /// The memory pressure level that fires the rule (a whole number: 1 is Warning and 2 is
+        /// Critical, the same set as `ThresholdRule.memoryLevels`; 1 by default).
+        case systemAlertsMemoryPressureLevel = "SystemAlertsMemoryPressureLevel"
+        /// How long the memory pressure has to hold, in seconds (a whole number from 0 to 900,
+        /// 60 by default).
+        case systemAlertsMemoryPressureHold = "SystemAlertsMemoryPressureHold"
+        /// Whether the thermal state rule is on (a boolean, on by default).
+        case systemAlertsThermal = "SystemAlertsThermal"
+        /// The thermal state that fires the rule (a whole number: 1 is Fair, 2 is Serious and 3
+        /// is Critical, the same set as `ThresholdRule.thermalLevels`; 2 by default).
+        case systemAlertsThermalLevel = "SystemAlertsThermalLevel"
+        /// How long the thermal state has to hold, in seconds (a whole number from 0 to 900, 0
+        /// by default).
+        case systemAlertsThermalHold = "SystemAlertsThermalHold"
+        /// Whether the free disk space rule is on (a boolean, on by default).
+        case systemAlertsFreeDisk = "SystemAlertsFreeDisk"
+        /// The free space, in decimal gigabytes, below which the rule fires (a whole number from
+        /// 5 to 200 that the model snaps to 5, 10, 20, 50, 100 or 200; 10 by default).
+        case systemAlertsFreeDiskThreshold = "SystemAlertsFreeDiskThreshold"
+        /// How long the free space has to stay low, in seconds (a whole number from 0 to 900, 60
+        /// by default).
+        case systemAlertsFreeDiskHold = "SystemAlertsFreeDiskHold"
+        /// Whether the Mac battery rule is on (a boolean, on by default; it applies on battery
+        /// power only).
+        case systemAlertsMacBattery = "SystemAlertsMacBattery"
+        /// The charge, in percent, below which the rule fires (a whole number from 5 to 50, in
+        /// steps of 5, 20 by default).
+        case systemAlertsMacBatteryThreshold = "SystemAlertsMacBatteryThreshold"
+        /// How long the charge has to stay low, in seconds (a whole number from 0 to 900, 0 by
+        /// default).
+        case systemAlertsMacBatteryHold = "SystemAlertsMacBatteryHold"
+        /// Whether an alert also arrives as a system notification (a boolean, off by default; a
+        /// per-Mac permission state, stored on this Mac only and never exported or imported).
+        case systemAlertsNotifications = "SystemAlertsNotifications"
+
+        // MARK: Indicators
+        /// Whether a change of the keyboard input source flashes in the closed notch (a boolean, off
+        /// by default). It starts the system's input source notifications only while it is on.
+        case indicatorsInputSource = "IndicatorsInputSource"
+        /// How long the input source flash stays, in seconds (a number from 0.5 to 3; the model snaps
+        /// it to 0.5, 1, 1.5, 2 or 3, 1.5 by default).
+        case indicatorsInputSourceDuration = "IndicatorsInputSourceDuration"
+        /// Whether a change of the volume (and, for the keys holzBar takes, of the brightness) shows
+        /// in the closed notch (a boolean, off by default). It starts the volume listener only while
+        /// it is on.
+        case indicatorsVolumeBrightness = "IndicatorsVolumeBrightness"
+        /// Whether holzBar takes the volume and brightness keys it can handle and shows its own
+        /// display instead of the system's (a boolean, off by default; a private-interface switch,
+        /// stored on this Mac only and never exported or imported). Turning it on asks for
+        /// Accessibility, and a session event tap exists only while it is on and trusted.
+        case indicatorsReplacesSystemDisplay = "IndicatorsReplacesSystemDisplay"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -393,6 +533,11 @@ nonisolated extension Defaults {
         /// Hidden: `defaults write com.holzcloud.holzBar DebugHangsItemImageCapture -bool true`.
         /// Never exported or imported.
         case debugHangsItemImageCapture = "DebugHangsItemImageCapture"
+        /// Runs the macOS 27 click bridge's tap on the main run loop instead of its own thread,
+        /// for a Mac where the thread misbehaves. Hidden:
+        /// `defaults write com.holzcloud.holzBar MacOS27ClickBridgeOnMainThread -bool true`.
+        /// Never exported or imported.
+        case macOS27ClickBridgeOnMainThread = "MacOS27ClickBridgeOnMainThread"
 
         // MARK: Migration
         case hasMigrated0_8_0 = "hasMigrated0_8_0"
@@ -404,6 +549,10 @@ nonisolated extension Defaults {
         /// Set once holzBar has looked for the settings of an app it replaces.
         /// The stored key keeps its earlier name.
         case hasImportedPreviousSettings = "HasImportedIceSettings"
+        /// Set by an import from another app once the record of the earlier settings is on disk,
+        /// and cleared by the launch that offers its undo, so the offer shows once. Stored on this
+        /// Mac only: never exported or imported.
+        case previousAppImportUndoPending = "PreviousAppImportUndoPending"
 
         // MARK: Deprecated (Appearance Settings)
         case menuBarHasBorder = "MenuBarHasBorder"
@@ -471,8 +620,11 @@ nonisolated extension Defaults.Key {
             .smartCategories,
             .enableSecondaryContextMenu,
             .keepLiveActivitiesVisible,
+            .asksWhereNewAppGoes,
             .autoZenWhileSharingScreen,
             .notchHubOpensOnHover,
+            .notchHubGestures,
+            .notchHubBounces,
             .notchHubShowsActiveFirst,
             .calendarShowsAllDay,
             .nowPlayingReadsAllApps,
@@ -486,12 +638,23 @@ nonisolated extension Defaults.Key {
             .accessoryAlertsReadsBattery,
             .displayControlsBrightness,
             .displayControlsExternalMonitors,
+            .readoutsReadsGPU,
+            .dockBadgesReadsCounts,
+            .systemAlertsCPU,
+            .systemAlertsMemoryPressure,
+            .systemAlertsThermal,
+            .systemAlertsFreeDisk,
+            .systemAlertsMacBattery,
+            .systemAlertsNotifications,
+            .indicatorsInputSource,
+            .indicatorsVolumeBrightness,
+            .indicatorsReplacesSystemDisplay,
             .openHiddenItemsInMenuBar,
-            .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,
             .debugDropsBarrierExitEvent,
             .debugHangsItemImageCapture,
+            .macOS27ClickBridgeOnMainThread,
             .hasMigrated0_8_0,
             .hasMigrated0_10_0,
             .hasMigrated0_10_1,
@@ -499,6 +662,7 @@ nonisolated extension Defaults.Key {
             .hasMigrated0_11_13,
             .hasMigrated0_11_13_1,
             .hasImportedPreviousSettings,
+            .previousAppImportUndoPending,
             .menuBarHasBorder,
             .menuBarHasShadow,
             .showSectionDividers,
@@ -511,6 +675,7 @@ nonisolated extension Defaults.Key {
             .shelfAlwaysHiddenFold,
             .revealAnimationStyle,
             .notchHubDisplays,
+            .notchHubCutout,
             .timersFinishSound,
             .nowPlayingPlayers,
             .rehideStrategy,
@@ -520,12 +685,29 @@ nonisolated extension Defaults.Key {
             .showOnHoverDelay,
             .tempShowInterval,
             .newItemsPlacement,
+            .makeRoomMode,
+            .dockBadgeZeroMode,
             .spacerCount,
             .spacerWidth,
             .layoutSnapshotsLimit,
             .macOS27ClickRestoreDelay,
             .lastRunMacOSMajor,
             .accessoryAlertsLowBatteryLevel,
+            .readoutsRateUnit,
+            .readoutsTileRefresh,
+            .systemAlertsCPUThreshold,
+            .systemAlertsCPUHold,
+            .systemAlertsMemoryPressureLevel,
+            .systemAlertsMemoryPressureHold,
+            .systemAlertsThermalLevel,
+            .systemAlertsThermalHold,
+            .systemAlertsFreeDiskThreshold,
+            .systemAlertsFreeDiskHold,
+            .systemAlertsMacBatteryThreshold,
+            .systemAlertsMacBatteryHold,
+            .indicatorsInputSourceDuration,
+            .notificationsDisplayTime,
+            .calendarCountdownLead,
             .menuBarBorderWidth,
             .menuBarTintKind:
             .number
@@ -535,6 +717,7 @@ nonisolated extension Defaults.Key {
             .automationRules,
             .itemGroups,
             .widgets,
+            .dockBadgeGroups,
             .appleItemReplacements,
             .timersBoard,
             .menuBarAppearanceConfigurationV2,
@@ -554,16 +737,21 @@ nonisolated extension Defaults.Key {
         case .knownItemTags,
             .itemOrder,
             .knownApplications27,
+            .newAppQuestionPending,
+            .newAppQuestionDeclined,
             .hiddenSystemItems27,
             .titleChangingItemOwners,
             .revealOnChangeItems,
             .calendarHiddenCalendars,
-            .notificationsExcludedApps:
+            .notificationsExcludedApps,
+            .readoutTiles,
+            .dockBadgeApps:
             .stringArray
         case .hotkeys,
             .revealRules,
             .macOS27Layout,
             .displayBehaviors,
+            .displayControlsDimLevels,
             .itemSections,
             .itemIcons,
             .widgetShortcutNames,
@@ -600,14 +788,55 @@ nonisolated extension Defaults.Key {
             .clamped(1...3)
         case .accessoryAlertsLowBatteryLevel:
             .clamped(10...30)
+        case .indicatorsInputSourceDuration:
+            // Seconds; the model snaps them to the choices of IndicatorLook.
+            .clamped(0.5...3)
         case .spacerCount:
             .wholeNumber(0...10)
+        // The raw values of NotchHubDisplays (0 to 3); new ones are only appended.
         case .notchHubDisplays:
-            .wholeNumber(0...2)
+            .wholeNumber(0...3)
+        case .notchHubCutout:
+            .wholeNumber(0...3)
         case .timersFinishSound:
             .wholeNumber(0...5)
         case .nowPlayingPlayers:
             .wholeNumber(1...3)
+        case .readoutsRateUnit:
+            .wholeNumber(0...1)
+        case .readoutsTileRefresh:
+            .wholeNumber(2...30)
+        case .systemAlertsCPUThreshold:
+            .wholeNumber(50...95)
+        case .systemAlertsMemoryPressureLevel:
+            // Exactly ThresholdRule.memoryLevels: 1 Warning, 2 Critical.
+            .wholeNumber(1...2)
+        case .systemAlertsThermalLevel:
+            // Exactly ThresholdRule.thermalLevels: 1 Fair, 2 Serious, 3 Critical.
+            .wholeNumber(1...3)
+        case .systemAlertsFreeDiskThreshold:
+            .wholeNumber(5...200)
+        case .systemAlertsMacBatteryThreshold:
+            .wholeNumber(5...50)
+        case .systemAlertsCPUHold,
+            .systemAlertsMemoryPressureHold,
+            .systemAlertsThermalHold,
+            .systemAlertsFreeDiskHold,
+            .systemAlertsMacBatteryHold:
+            // Seconds; the model snaps them to AlertHold's presets.
+            .wholeNumber(0...900)
+        case .notificationsDisplayTime:
+            // Seconds; the model snaps them to the choices of NotificationQueue.
+            .wholeNumber(3...30)
+        case .calendarCountdownLead:
+            // Minutes; exactly the raw values of CountdownLead, which the model snaps.
+            .wholeNumber(0...15)
+        case .makeRoomMode:
+            // Exactly the raw values of MakeRoomMode (0 Off, 1 Ask, 2 Automatic); new ones are only appended.
+            .wholeNumber(0...2)
+        case .dockBadgeZeroMode:
+            // Exactly the raw values of DockBadgeZeroMode (0 Dim, 1 Hide); new ones are only appended.
+            .wholeNumber(0...1)
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,
@@ -642,17 +871,21 @@ nonisolated extension Defaults.Key {
 
     /// Keys that stay on this Mac: never exported or imported.
     ///
-    /// The key the 0.0.7 betas used for settings sync stays here too, so a settings file
-    /// never sets it. The debug defaults stay on this Mac as well, and so do the names of the
+    /// The debug defaults stay on this Mac, and so do the names of the
     /// Shortcuts the widget buttons run (D-25), the sections that item rules remember, the
     /// tab the Notch hub showed last, the timers (they hold the user's labels), the calendars
     /// the user switched off (their identifiers name the user's accounts), the version the
     /// What's New window last covered (it describes this install), whether the
     /// Shelf's fold was left open and what each display does with the hidden items (the
-    /// displays' identifiers are those of this Mac), and the two switches that turn a private
-    /// interface on: Now Playing's Read all apps and Display controls' External monitors.
+    /// displays' identifiers are those of this Mac), how far software dimming darkens each display
+    /// (also keyed by display), and the two switches that turn a private
+    /// interface on: Now Playing's Read all apps, Display controls' External monitors, System
+    /// readouts' Read GPU load and Dock badges' Read badge counts, Indicators' Replace the system display, the System alerts' System notifications switch (a per-Mac
+    /// permission state) and the display cutout, which describes this Mac's hardware. The bundle
+    /// identifiers of the new menu bar apps whose question waits (and, with them, of those the
+    /// user asked never to be asked about) name the apps the user runs and stay here too. So does the marker that offers the undo
+    /// of an import once, which describes this launch only.
     static let localOnlyKeys: Set<Defaults.Key> = [
-        .syncsSettingsWithICloud,
         .lastRunMacOSMajor,
         .lockHiddenItems,
         .usageSuggestionsEnabled,
@@ -667,11 +900,21 @@ nonisolated extension Defaults.Key {
         .calendarHiddenCalendars,
         .nowPlayingReadsAllApps,
         .displayControlsExternalMonitors,
+        .displayControlsDimLevels,
+        .readoutsReadsGPU,
+        .dockBadgesReadsCounts,
+        .indicatorsReplacesSystemDisplay,
+        .systemAlertsNotifications,
+        .notchHubCutout,
         .notificationsExcludedApps,
+        .newAppQuestionPending,
+        .newAppQuestionDeclined,
         .shelfAlwaysHiddenFoldOpen,
         .displayBehaviors,
         .debugDropsBarrierExitEvent,
         .debugHangsItemImageCapture,
+        .macOS27ClickBridgeOnMainThread,
+        .previousAppImportUndoPending,
     ]
 
     /// The stored key names an imported settings file may set, with the
@@ -732,6 +975,30 @@ nonisolated extension Defaults.Key {
                 result.accepted.removeValue(forKey: replacementsKey)
                 result.ignored = (result.ignored + [replacementsKey]).sorted()
             }
+        }
+        // A file never brings a tile id this build does not know, a repeated one, or more than
+        // `ReadoutTileChoice.maximumChecked` entries looked at: the list is sanitized.
+        let tilesKey = Self.readoutTiles.rawValue
+        if let tiles = result.accepted[tilesKey] as? [String] {
+            result.accepted[tilesKey] = ReadoutTileChoice.sanitized(tiles)
+        }
+        // A file never brings more than twelve groups, a name that is empty or over its cap, an
+        // app that is not a bundle identifier or is in two groups: the list is decoded, validated
+        // and encoded again (T-98-27).
+        let dockGroupsKey = Self.dockBadgeGroups.rawValue
+        if let data = result.accepted[dockGroupsKey] as? Data {
+            if let normalized = DockBadgeGroupList.normalized(data) {
+                result.accepted[dockGroupsKey] = normalized
+            } else {
+                result.accepted.removeValue(forKey: dockGroupsKey)
+                result.ignored = (result.ignored + [dockGroupsKey]).sorted()
+            }
+        }
+        // A file never brings an app that is not a bundle identifier, a repeated one, or more
+        // than `DockBadgeApps.maximumCount`: the list is sanitized.
+        let dockAppsKey = Self.dockBadgeApps.rawValue
+        if let apps = result.accepted[dockAppsKey] as? [String] {
+            result.accepted[dockAppsKey] = DockBadgeApps.sanitized(apps)
         }
         // A file never brings a stored order of more keys than `ItemOrder` keeps, or an empty,
         // overlong or repeated key: the order is read on the main thread at every restore.

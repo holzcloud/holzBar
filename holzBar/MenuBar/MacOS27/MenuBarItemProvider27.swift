@@ -564,7 +564,7 @@ nonisolated enum MenuBarItemProvider27 {
                 // every spot count as occupied, so hovering would never reveal anything again.
                 // A widget counts like any application's item, with the same width test: a
                 // collapsed one is 2 points wide and never moves the edge.
-                let isOwnItem = item.ownerPID == ownPID && !item.isWidget
+                let isOwnItem = item.ownerPID == ownPID && !item.isOwnArrangedItem
                 return item.isOnScreen && !isOwnItem && !item.isControlItem && item.bounds.width > 4
             }
             .map(\.bounds.minX)
@@ -611,15 +611,15 @@ nonisolated enum MenuBarItemProvider27 {
 
     private static func tag(for raw: RawItem, ownPID: pid_t) -> MenuBarItemTag? {
         if raw.pid == ownPID {
-            // holzBar's control items, identified by `ControlItem`, and its widgets, whose
-            // button carries the autosave name as its identifier (`MenuBarWidgets`). A widget
-            // has the tag the other backends give it, so the layout editor, the Shelf and the
-            // search treat it like any item. Another application's item with such an
+            // holzBar's control items, identified by `ControlItem`, and its widgets and Dock
+            // badges items, whose button carries the autosave name as its identifier. Such an
+            // item has the tag the other backends give it, so the layout editor, the Shelf and
+            // the search treat it like any item. Another application's item with such an
             // identifier never gets here: it is not holzBar's process.
             if let controlItem = MenuBarItemTag.controlItems.first(where: { $0.title == raw.identifier }) {
                 return controlItem
             }
-            if WidgetDefinition.isAutosaveName(raw.identifier) {
+            if OwnArrangedItem.isAutosaveName(raw.identifier) {
                 return MenuBarItemTag(namespace: .holzBar, title: raw.identifier)
             }
             return nil

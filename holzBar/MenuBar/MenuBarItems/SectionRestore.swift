@@ -436,9 +436,9 @@ extension MenuBarItemManager {
                 if isProvisional {
                     skippedProvisionalNewItem = true
                 } else {
-                    // A widget the user just added starts where they can see it (D-24).
-                    let isWidget = item.tag.namespace == .holzBar && WidgetDefinition.isAutosaveName(item.tag.title)
-                    target = isWidget ? .visible : newItemsSection
+                    // A widget or a Dock badges item the user just added starts where they can
+                    // see it (D-24).
+                    target = item.isOwnArrangedItem ? .visible : newItemsSection
                 }
             }
             guard var target else {

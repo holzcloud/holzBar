@@ -144,7 +144,7 @@ struct NotchCover27Tests {
 struct LaunchGrace27Tests {
     // The grace is changed outside `#expect`, whose expansion cannot call a mutating method.
 
-    private let start = ContinuousClock.now
+    private let start = SuspendingClock.now
 
     @Test("A launching app is allowed until its item appears")
     func allowedUntilItsItemAppears() {
@@ -159,15 +159,30 @@ struct LaunchGrace27Tests {
         #expect(endedAgain.isEmpty)
     }
 
-    @Test("A grace ends after 10 s without an item")
-    func endsAfterTenSeconds() {
+    @Test("A grace ends after 45 s without an item")
+    func endsAfterFortyFiveSeconds() {
         var grace = LaunchGrace27()
         grace.begin("a", isConcealed: true, at: start)
-        let early = grace.expired(at: start + .seconds(9))
+        let early = grace.expired(at: start + .seconds(44))
         #expect(early.isEmpty)
-        let late = grace.expired(at: start + .seconds(10))
+        let late = grace.expired(at: start + .seconds(45))
         #expect(late == ["a"])
         #expect(grace.allowed.isEmpty)
+    }
+
+    @Test("The next expiry is the earliest grace's end")
+    func nextExpiry() {
+        var grace = LaunchGrace27()
+        #expect(grace.nextExpiry == nil)
+        grace.begin("a", isConcealed: true, at: start)
+        grace.begin("b", isConcealed: true, at: start + .seconds(10))
+        #expect(grace.nextExpiry == start + .seconds(45))
+        let ended = grace.itemsAppeared(["a"])
+        #expect(ended == ["a"])
+        #expect(grace.nextExpiry == start + .seconds(55))
+        let rest = grace.itemsAppeared(["b"])
+        #expect(rest == ["b"])
+        #expect(grace.nextExpiry == nil)
     }
 
     @Test("Visible apps get no grace")

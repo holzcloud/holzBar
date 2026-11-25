@@ -36,6 +36,30 @@ struct AdvancedSettingsPane: View {
                     )
                 }
                 SettingsToggleRow(.advancedSecondaryContextMenu, isOn: $settings.enableSecondaryContextMenu)
+                // A fact, not a choice: only a launch by the user opens Settings (``ReopenGate``).
+                // The Apple launchers are product names and stay as they are.
+                SettingsRow(.advancedReopenSettings, badge: .preview) {
+                    Text(verbatim: "Dock, Finder, Spotlight, Launchpad")
+                        .foregroundStyle(.secondary)
+                }
+                if #available(macOS 27.0, *), MenuBarBackendKind.current == .accessibility27 {
+                    // The same two commands as holzBar's menu and the command palette. The restart
+                    // is offered only while MenuBarAgent is visible (D-07).
+                    SettingsButtonRow(.advancedMenuBarCommands27, badge: .preview) {
+                        Button("Restart Menu Bar") {
+                            MenuBarAgentRestart27.restart(appState: appState)
+                        }
+                        .disabled(!MenuBarAgentRestart27.isAvailable)
+                        Button(appState.concealer27.pause.isPaused ? "Resume holzBar" : "Pause holzBar") {
+                            appState.concealer27.togglePause()
+                        }
+                    }
+                    // A fact, not a choice: Live Activities are never hidden (``LiveActivityItem``).
+                    SettingsRow(.advancedSystemLiveActivities27, small: Text("From macOS 27.3"), badge: .preview) {
+                        Text("Always")
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 if !isMacOS27 {
                     SettingsToggleRow(
                         .advancedKeepLiveActivities,
@@ -70,6 +94,9 @@ struct AdvancedSettingsPane: View {
                 }
             }
             SettingsGroup(SettingsCatalog.AdvancedPane.itemSpacing) {
+                if !isItemSpacingAvailable {
+                    SettingsNoteLine(Text("Item spacing is not available on macOS 27."))
+                }
                 SettingsSliderRow(
                     .advancedItemSpacing,
                     value: $tempItemSpacingOffset,
@@ -85,7 +112,7 @@ struct AdvancedSettingsPane: View {
                         }
                     }
                 )
-                .settingsDependent(on: !isApplyingItemSpacingOffset)
+                .settingsDependent(on: isItemSpacingAvailable && !isApplyingItemSpacingOffset)
                 .onAppear {
                     tempItemSpacingOffset = appState.settings.general.itemSpacingOffset
                 }
@@ -103,6 +130,7 @@ struct AdvancedSettingsPane: View {
                     )
                 }
                 .settingsSubRow()
+                .settingsDependent(on: isItemSpacingAvailable)
                 SettingsButtonRow(.advancedDefaultSpacing) {
                     Button("Reset") {
                         tempItemSpacingOffset = 0
@@ -123,6 +151,7 @@ struct AdvancedSettingsPane: View {
                         SettingsBackup.importFromFile(attachedTo: appState.navigationState.settingsWindow)
                     }
                 }
+                AdvancedImportRows()
             }
             SettingsGroup(SettingsCatalog.AdvancedPane.permissions) {
                 ForEach(listedPermissions, id: \.self) { kind in
@@ -141,6 +170,12 @@ struct AdvancedSettingsPane: View {
             appState.permissions.refresh()
         }
         .permissionRevokeConfirmation($revokingPermission)
+    }
+
+    /// Item spacing is off on macOS 27 until probe P7 shows it works there; Reset stays usable
+    /// to clear keys written on macOS 26.
+    private var isItemSpacingAvailable: Bool {
+        ItemSpacingAvailability.isAvailable(macOSMajor: ProcessInfo.processInfo.operatingSystemVersion.majorVersion)
     }
 
     private var isMacOS27: Bool {

@@ -74,6 +74,20 @@ nonisolated enum WidgetReading: Equatable, Sendable {
     /// ``ScriptOutput/maximumDisplayLength`` characters by ``ScriptOutput/displayLine(_:)``. It
     /// is plain text: never parsed, opened or interpreted (D-23, T-12-25).
     case line(String)
+    /// Two rates in bytes per second, from the network (received, sent) or the disks (read,
+    /// written), made into text by ``ReadoutFormat/rate(_:unit:texts:locale:)``.
+    case rates(first: Double, second: Double)
+    /// The memory pressure level, shown as its word (``ReadoutFormat/pressureWord(_:texts:)``).
+    case pressure(ReadoutPressure)
+    /// The thermal state, shown as its word (``ReadoutFormat/thermalWord(_:texts:)``).
+    case thermal(ReadoutThermal)
+    /// The battery with its time and the adapter's watts, shown by the power formats.
+    case power(PowerReading)
+    /// The load of every CPU cluster, for the Per Core Cluster format of CPU Load.
+    case clusters([ClusterLoad])
+    /// The accessory with the lowest charge, for Lowest Device Battery. The text shows the level
+    /// only; the name is for the tooltip and VoiceOver (D-26).
+    case device(LowestDeviceBattery)
     case unavailable
 }
 

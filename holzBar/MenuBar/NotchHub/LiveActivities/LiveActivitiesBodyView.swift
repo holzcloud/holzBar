@@ -27,7 +27,7 @@ struct LiveActivitiesBodyView: View {
     private var refreshDates: [Date] {
         let now = Date.now
         let expiries = host.liveActivities
-            .compactMap { activity in activity.finishedAt?.addingTimeInterval(HubActivityBoard.finishedHold) }
+            .compactMap(\.expiresAt)
             .filter { $0 > now }
             .sorted()
         return [now] + expiries

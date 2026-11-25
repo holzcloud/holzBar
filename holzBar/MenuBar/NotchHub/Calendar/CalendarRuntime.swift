@@ -47,6 +47,12 @@ struct CalendarRowModel: Identifiable, Equatable {
     var id: String { row.id }
 }
 
+/// What decides whether the closed hub's countdown exists, and for how long it leads.
+private struct CountdownInputs: Equatable {
+    let observers: Set<ClosedHubWork.Observer>
+    let lead: CountdownLead
+}
+
 /// What the module's settings say, to notice a change of them.
 private struct SettingsState: Equatable {
     let showsAllDay: Bool
@@ -60,6 +66,12 @@ private struct SettingsState: Equatable {
 /// observer, no wait. When it starts and the system has not been asked yet, it asks once for
 /// full access to events. The events are read through one actor, kept in memory for the shown
 /// window only and dropped on shutdown.
+///
+/// One narrow read happens while the hub is closed: the countdown before a meeting (D-18, D-24). It
+/// exists only while ``ClosedHubWork`` lists it (the countdown is not Off and access is granted).
+/// It reads only the start times of the next two meetings, holds them in memory (never a title, a
+/// place, notes or attendees) and arms at most two one-shot wakes per meeting; the activity ends
+/// through the board's own expiry at the start. Nothing polls.
 @MainActor
 @Observable
 final class CalendarRuntime: HubModuleRuntime {
@@ -87,6 +99,19 @@ final class CalendarRuntime: HubModuleRuntime {
     @ObservationIgnored private var changeTask: Task<Void, Never>?
     @ObservationIgnored private var waitTask: Task<Void, Never>?
     @ObservationIgnored private var isHubOpen = false
+    /// The countdown's plan for the next meeting, or `nil`. It holds the start time only.
+    private var countdownPlan: CountdownSchedule.Plan?
+    /// Bumped at every wake and every new plan, so what reads ``activities`` draws again at the
+    /// moment the countdown starts or turns amber.
+    private var countdownRevision = 0
+    @ObservationIgnored private var heldStart: Date?
+    @ObservationIgnored private var heldFollowingStart: Date?
+    @ObservationIgnored private var countdownReadTask: Task<Void, Never>?
+    @ObservationIgnored private var countdownWakeTask: Task<Void, Never>?
+    @ObservationIgnored private var systemWakeTask: Task<Void, Never>?
+    @ObservationIgnored private var clockChangeTask: Task<Void, Never>?
+    @ObservationIgnored private var countdownLoop: ObservationLoop?
+    @ObservationIgnored private var isCountingDown = false
     @ObservationIgnored private var permissionLoop: ObservationLoop?
     @ObservationIgnored private var settingsLoop: ObservationLoop?
     @ObservationIgnored private weak var appState: AppState?
@@ -116,6 +141,12 @@ final class CalendarRuntime: HubModuleRuntime {
         if authorization == .notDetermined {
             ask()
         }
+        countdownLoop = ObservationLoop.observe { [weak self] in
+            self?.countdownInputs() ?? CountdownInputs(observers: [], lead: .off)
+        } onChange: { [weak self] inputs in
+            self?.apply(inputs)
+        }
+        apply(countdownInputs())
     }
 
     // MARK: Access
@@ -171,6 +202,9 @@ final class CalendarRuntime: HubModuleRuntime {
         freshness.didChange()
         if isHubOpen {
             reload()
+        }
+        if isCountingDown {
+            refreshCountdown()
         }
     }
 
@@ -287,6 +321,36 @@ final class CalendarRuntime: HubModuleRuntime {
         )
     }
 
+    /// The meeting countdown of the closed notch: one activity from the lead before the next
+    /// meeting's start until the start, amber for the last minute. It carries a fixed sentence for
+    /// VoiceOver, never a title. The countdown is drawn by the system from ``LiveActivity/endsAt``,
+    /// and the board drops the activity at the start (`holdSeconds` 0, finished at the start).
+    var activities: [LiveActivity] {
+        _ = countdownRevision
+        guard let plan = countdownPlan else {
+            return []
+        }
+        let now = Date.now
+        guard now >= plan.startsAt, now < plan.meetingStart else {
+            return []
+        }
+        return [
+            LiveActivity(
+                id: "countdown",
+                moduleID: moduleID,
+                kind: .timer,
+                symbol: "calendar.badge.clock",
+                title: String(localized: "Meeting starts soon"),
+                priority: CountdownSchedule.priority,
+                startedAt: plan.startsAt,
+                endsAt: plan.meetingStart,
+                finishedAt: plan.meetingStart,
+                tint: CountdownSchedule.isAmber(plan, now: now) ? .amber : .accent,
+                holdSeconds: 0
+            ),
+        ]
+    }
+
     func hubVisibilityDidChange(isOpen: Bool) {
         isHubOpen = isOpen
         guard isOpen else {
@@ -308,6 +372,9 @@ final class CalendarRuntime: HubModuleRuntime {
 
     /// Cancels every task and lets go of the events and the store.
     func shutDown() {
+        countdownLoop?.cancel()
+        countdownLoop = nil
+        stopCountdown()
         fetchTask?.cancel()
         fetchTask = nil
         requestTask?.cancel()
@@ -321,5 +388,146 @@ final class CalendarRuntime: HubModuleRuntime {
         rows = []
         freshness.reset()
         fetcher = nil
+    }
+}
+
+// MARK: Countdown
+
+extension CalendarRuntime {
+    /// What exists now, decided by ``ClosedHubWork`` and nowhere else, and the lead.
+    fileprivate func countdownInputs() -> CountdownInputs {
+        guard let appState else {
+            return CountdownInputs(observers: [], lead: .off)
+        }
+        let lead = appState.settings.calendar.countdownLead
+        let observers = ClosedHubWork.observers(
+            ClosedHubWork.Switches(
+                hubOn: appState.modules.isEnabled(NotchHubController.moduleID),
+                calendarOn: appState.modules.isEnabled(Self.identifier),
+                countdownOn: lead != .off,
+                calendarAccess: authorization == .granted
+            )
+        )
+        return CountdownInputs(observers: observers, lead: lead)
+    }
+
+    /// Starts or stops the countdown as the rule says; a new lead plans again.
+    fileprivate func apply(_ inputs: CountdownInputs) {
+        guard inputs.observers.contains(.countdown) else {
+            stopCountdown()
+            return
+        }
+        startCountdown()
+        refreshCountdown()
+    }
+
+    /// Starts watching for the Mac waking from sleep and for a change of the system clock (a
+    /// manual change, a time zone or a daylight saving jump, which move a meeting's wall time but
+    /// not the sleep of the planned wakes), the only observers of the countdown besides the
+    /// store's change notification the module has anyway.
+    private func startCountdown() {
+        guard !isCountingDown else {
+            return
+        }
+        isCountingDown = true
+        systemWakeTask = Task { [weak self] in
+            for await _ in NSWorkspace.shared.notificationCenter.notifications(named: NSWorkspace.didWakeNotification) {
+                self?.refreshCountdown()
+            }
+        }
+        clockChangeTask = Task { [weak self] in
+            for await _ in NotificationCenter.default.notifications(named: .NSSystemClockDidChange) {
+                self?.refreshCountdown()
+            }
+        }
+    }
+
+    /// Drops the wakes, the start times and the activity.
+    func stopCountdown() {
+        isCountingDown = false
+        countdownReadTask?.cancel()
+        countdownReadTask = nil
+        countdownWakeTask?.cancel()
+        countdownWakeTask = nil
+        systemWakeTask?.cancel()
+        systemWakeTask = nil
+        clockChangeTask?.cancel()
+        clockChangeTask = nil
+        heldStart = nil
+        heldFollowingStart = nil
+        if countdownPlan != nil {
+            countdownPlan = nil
+            countdownRevision &+= 1
+        }
+    }
+
+    /// Reads the start of the next meeting and of the one after it (dates only), from now to the end
+    /// of tomorrow, and plans again. Both wakes of the earlier plan are dropped first.
+    func refreshCountdown() {
+        countdownReadTask?.cancel()
+        countdownWakeTask?.cancel()
+        countdownWakeTask = nil
+        guard isCountingDown, authorization == .granted, let fetcher else {
+            return
+        }
+        let hidden = appState?.settings.calendar.hiddenCalendars ?? []
+        let lead = appState?.settings.calendar.countdownLead ?? .off
+        let now = Date.now
+        let windowEnd = NextEvents.windowEnd(now: now, calendar: .current)
+        countdownReadTask = Task { [weak self] in
+            let next = await fetcher.nextStart(from: now, to: windowEnd, hidden: hidden)
+            var following: Date?
+            if let next {
+                following = await fetcher.nextStart(from: next, to: windowEnd, hidden: hidden)
+            }
+            guard !Task.isCancelled, let self, isCountingDown else {
+                return
+            }
+            planCountdown(next: next, following: following, lead: lead)
+        }
+    }
+
+    /// Makes the plan for a start and arms the one wake that is due next.
+    private func planCountdown(next: Date?, following: Date?, lead: CountdownLead) {
+        countdownWakeTask?.cancel()
+        countdownWakeTask = nil
+        heldStart = next
+        heldFollowingStart = following
+        let now = Date.now
+        let plan = CountdownSchedule.plan(nextStart: next, lead: lead, now: now)
+        countdownPlan = plan
+        countdownRevision &+= 1
+        logger.debug("Countdown planned: \(plan == nil ? 0 : 1, privacy: .public) plans")
+        guard let plan else {
+            if next != nil {
+                // The start passed while the read ran: read again from now.
+                refreshCountdown()
+            }
+            return
+        }
+        let wake = CountdownSchedule.nextWake(plan, now: now)
+            ?? CountdownSchedule.followingWake(after: plan, followingStart: following, lead: lead, now: now)
+        guard let wake else {
+            return
+        }
+        let seconds = max(0, wake.timeIntervalSinceNow)
+        countdownWakeTask = Task { [weak self] in
+            try? await Task.sleep(until: .now + .seconds(seconds), tolerance: .seconds(1), clock: .continuous)
+            guard !Task.isCancelled else {
+                return
+            }
+            self?.countdownWakeDidFire()
+        }
+    }
+
+    /// A wake came: while the meeting still lies ahead, the held times plan again without a read;
+    /// once it has started, the next one is read.
+    private func countdownWakeDidFire() {
+        let lead = appState?.settings.calendar.countdownLead ?? .off
+        if let held = heldStart, held > .now {
+            planCountdown(next: held, following: heldFollowingStart, lead: lead)
+        } else {
+            refreshCountdown()
+        }
     }
 }

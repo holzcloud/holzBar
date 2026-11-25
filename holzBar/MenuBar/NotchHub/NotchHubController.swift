@@ -70,12 +70,18 @@ final class NotchHubController: HubHost {
     /// Follows the hub's own settings, while the hub is on.
     @ObservationIgnored private var settingsLoop: ObservationLoop?
 
+    /// Follows the "Display cutout" choice, while the hub is on.
+    @ObservationIgnored private var cutoutLoop: ObservationLoop?
+
     /// Follows the live activities and what decides whether the live state may show, while the hub
     /// is on.
     @ObservationIgnored private var activitiesLoop: ObservationLoop?
 
     /// Follows whether a module accepts file drags, while the hub is on.
     @ObservationIgnored private var dragLoop: ObservationLoop?
+
+    /// The scroll gestures on the closed notch, while the hub is on; they follow their own switch.
+    @ObservationIgnored private var gestures: NotchHubGestures?
 
     /// The runtimes of the hub modules that are on, by identifier. Empty while the hub is off.
     @ObservationIgnored private var runtimes = [String: any HubModuleRuntime]()
@@ -264,6 +270,11 @@ final class NotchHubController: HubHost {
             } onChange: { [weak self] _ in
                 self?.updateHover()
             }
+            cutoutLoop = ObservationLoop.observe { [weak appState] in
+                appState?.settings.notchHub.cutoutOverride ?? .automatic
+            } onChange: { [weak self] _ in
+                self?.cutoutDidChange()
+            }
             activitiesLoop = ObservationLoop.observe { [weak self] in
                 self?.activityInputs()
                     ?? ActivityInputs(activities: [], isFullscreenSpace: false, isMenuBarHidden: false, liveRoom: nil)
@@ -278,10 +289,16 @@ final class NotchHubController: HubHost {
             reconcileRuntimes()
             updateHover()
             activitiesDidChange()
+            if let appState {
+                gestures = NotchHubGestures(hub: self, appState: appState)
+            }
         } else {
+            gestures?.stop()
+            gestures = nil
             modulesLoop = nil
             dragLoop = nil
             settingsLoop = nil
+            cutoutLoop = nil
             activitiesLoop = nil
             itemsAreaTask?.cancel()
             itemsAreaTask = nil
@@ -383,13 +400,23 @@ final class NotchHubController: HubHost {
         }
     }
 
-    /// The display the hotkey opens the hub on, and the live state shows on: the one under the
-    /// pointer when the setting includes it, else the first one it includes.
-    private func preferredScreen() -> NSScreen? {
-        if let screen = NSScreen.screenWithMouse, isIncluded(screen) {
-            return screen
+    /// The display the hotkey opens the hub on, and the live state shows on, chosen by
+    /// ``NotchHubDisplays/preferred(pointer:keyWindow:included:)``: the one under the pointer when
+    /// the setting includes it, else (Follow the pointer only) the key window's, else the first one
+    /// it includes. The alerts' own surface (``AlertNotchSurface``) uses this one rule too, so a
+    /// change of it reaches the alert as well (D-09, D-11). Nothing watches the pointer for it.
+    func preferredScreen() -> NSScreen? {
+        guard let displays = appState?.settings.notchHub.displays else {
+            return nil
         }
-        return NSScreen.screens.first { isIncluded($0) }
+        let included = NSScreen.screens.filter { isIncluded($0) }
+        let keyScreen = NSApp.keyWindow?.screen ?? NSScreen.main
+        let id = displays.preferred(
+            pointer: NSScreen.screenWithMouse?.displayID,
+            keyWindow: keyScreen?.displayID,
+            included: included.map(\.displayID)
+        )
+        return included.first { $0.displayID == id }
     }
 
     private func isIncluded(_ screen: NSScreen) -> Bool {
@@ -397,6 +424,25 @@ final class NotchHubController: HubHost {
             return false
         }
         return displays.includes(isBuiltIn: CGDisplayIsBuiltin(screen.displayID) != 0, hasNotch: screen.hasNotch)
+    }
+
+    /// Opens the hub for a scroll gesture on the closed notch of a screen. Does nothing while the
+    /// module is off or the hub is open; the policy may still keep it closed.
+    func openFromGesture(on screen: NSScreen) {
+        guard isActive, !isOpen else {
+            return
+        }
+        open(on: screen, trigger: .gesture)
+    }
+
+    /// Opens the hub for an alert that was clicked: on the preferred display, with the compact
+    /// trigger, the way a click on the live shape does. Does nothing while the module is off or the
+    /// hub is open.
+    func openForAlert() {
+        guard isActive, !isOpen else {
+            return
+        }
+        open(on: preferredScreen(), trigger: .compact)
     }
 
     /// Opens the hub on a screen, unless the policy says it must not open or the screen has no
@@ -416,7 +462,7 @@ final class NotchHubController: HubHost {
             logger.debug("The Notch hub stays closed: \(reason.rawValue, privacy: .public)")
             return
         }
-        let display = Self.display(of: screen)
+        let display = self.display(of: screen)
         guard
             NotchHubGeometry.island(
                 display: display,
@@ -464,6 +510,10 @@ final class NotchHubController: HubHost {
         let panel = panel ?? NotchHubPanel()
         self.panel = panel
         let presentation = ensurePresentation()
+        presentation.bounces = appState.settings.notchHub.bounces
+        // On a display with Apple's Dynamic Island the hub is a separate shape with convex top
+        // corners (concept section 10b); read before anything is shown or placed.
+        presentation.convexTop = layout.isDetached
         presentation.rowFit = fit
         presentation.rowIDs = model.allTabIDs
         presentation.openingCount &+= 1
@@ -517,8 +567,9 @@ final class NotchHubController: HubHost {
         openedBy = trigger
         openScreenID = screen.displayID
         dragWatch?.hubOpened(byDrag: trigger == .fileDrag)
-        if trigger == .fileDrag {
-            // The hub a drag opened closes when the pointer leaves it, even without Open on hover.
+        if trigger == .fileDrag || trigger == .gesture {
+            // The hub a drag or a gesture opened closes when the pointer leaves it, even without
+            // Open on hover.
             updateHover()
         }
         // The one late re-decision starts before the modules are told, so that what they load
@@ -538,6 +589,8 @@ final class NotchHubController: HubHost {
         guard isOpen else {
             return
         }
+        // Every close ends the pin: it is never kept across closing.
+        model.pin.unpin()
         stopOpenObservers()
         endLateDecision()
         cancelHover()
@@ -545,7 +598,7 @@ final class NotchHubController: HubHost {
         hoverIsArmed = false
         panel?.acceptsKeyboard = false
         panel?.onEscape = nil
-        let wasOpenedByDrag = openedBy == .fileDrag
+        let needsHoverRefresh = openedBy == .fileDrag || openedBy == .gesture
         let screen = NSScreen.screens.first { $0.displayID == openScreenID }
         // The hub returns to the live state only where the live shape has a layout.
         if phase.isLive, screen.flatMap({ liveLayout(on: $0) }) == nil {
@@ -555,7 +608,7 @@ final class NotchHubController: HubHost {
         openedBy = nil
         openScreenID = nil
         dragWatch?.hubClosed()
-        if wasOpenedByDrag {
+        if needsHoverRefresh {
             updateHover()
         }
         notifyRuntimes(isOpen: false)
@@ -569,7 +622,7 @@ final class NotchHubController: HubHost {
             let panel,
             let presentation,
             let screen,
-            let seed = NotchHubGeometry.seed(display: Self.display(of: screen)),
+            let seed = NotchHubGeometry.seed(display: display(of: screen)),
             let from = openShape ?? restShape
         else {
             if phase.target == .live {
@@ -591,6 +644,7 @@ final class NotchHubController: HubHost {
         restShape = rest
         panelScreenFrame = screen.frame
         panel.hasShadow = false
+        presentation.convexTop = NotchHubGeometry.hasDetachedIsland(display: display(of: screen))
         presentation.moveCanvas(transition)
         setPanelFrame(transition, on: screen.frame)
         // Take the larger canvas in its own transaction before the closing animates.
@@ -598,7 +652,7 @@ final class NotchHubController: HubHost {
         if let live {
             // The hub closes into the live state: what it will show is ready when it has settled.
             presentation.liveLayout = live
-            presentation.liveBoard = model.board(now: .now)
+            presentation.liveBoard = model.closedBoard(now: .now)
             setLivePlacement(LivePlacement(screenID: screen.displayID, layout: live))
         }
         presentation.animateClose(
@@ -748,7 +802,7 @@ final class NotchHubController: HubHost {
             let screen = NSScreen.screens.first(where: { $0.displayID == openScreenID }),
             let from = openShape ?? restShape,
             let layout = NotchHubGeometry.island(
-                display: Self.display(of: screen),
+                display: display(of: screen),
                 contentHeight: currentContentHeight(),
                 width: presentation.rowFit.hubWidth,
                 buttonSize: presentation.rowFit.buttonSize
@@ -784,7 +838,10 @@ final class NotchHubController: HubHost {
     private func startOpenObservers() {
         stopOpenObservers()
         let monitor = EventMonitor.global(for: [.leftMouseDown, .rightMouseDown, .otherMouseDown]) { [weak self] _ in
-            self?.close()
+            // A pinned hub ignores a click outside.
+            if self?.model.pin.allowsClose(.outsideClick) ?? true {
+                self?.close()
+            }
         }
         monitor.start()
         outsideClickMonitor = monitor
@@ -881,6 +938,15 @@ final class NotchHubController: HubHost {
         hoverMonitor = monitor
     }
 
+    /// The "Display cutout" choice changed, so every geometry worked out under the old one is
+    /// stale: an open hub closes, as it does when the displays change, the hover zones are built
+    /// again and a placed live state is laid out again.
+    private func cutoutDidChange() {
+        close()
+        updateHover()
+        activitiesDidChange()
+    }
+
     private func stopHover() {
         hoverMonitor?.stop()
         hoverMonitor = nil
@@ -888,10 +954,11 @@ final class NotchHubController: HubHost {
         updateZones()
     }
 
-    /// Whether the hover monitor is wanted: Open on hover is on, or the hub a file drag opened is
-    /// open and has to close when the pointer leaves it.
+    /// Whether the hover monitor is wanted: Open on hover is on, or the hub a file drag or a gesture
+    /// opened is open and has to close when the pointer leaves it.
     private var wantsHover: Bool {
-        appState?.settings.notchHub.opensOnHover == true || (isOpen && openedBy == .fileDrag)
+        appState?.settings.notchHub.opensOnHover == true
+            || (isOpen && (openedBy == .fileDrag || openedBy == .gesture))
     }
 
     /// Builds the zones and follows the displays while the hover or the drag watch needs them, and
@@ -929,7 +996,7 @@ final class NotchHubController: HubHost {
         for screen in NSScreen.screens where isIncluded(screen) {
             guard
                 let layout = NotchHubGeometry.island(
-                    display: Self.display(of: screen),
+                    display: display(of: screen),
                     contentHeight: DesignTokens.Island.contentHeight,
                     width: DesignTokens.Island.baseWidth
                 )
@@ -1036,7 +1103,10 @@ final class NotchHubController: HubHost {
             }
             open(on: NSScreen.screens.first { $0.displayID == screenID }, trigger: trigger)
         case .close:
-            close()
+            // A pinned hub stays open when the pointer leaves.
+            if model.pin.allowsClose(.pointerLeft) {
+                close()
+            }
         }
     }
 
@@ -1143,8 +1213,8 @@ final class NotchHubController: HubHost {
     // MARK: Live activities
 
     /// What the policy needs to know about the Mac when the hub or the live state would show: read
-    /// when asked, never followed.
-    private func policyEnvironment(of screen: NSScreen, appState: AppState) -> NotchHubPolicy.Environment {
+    /// when asked, never followed. The alerts' own surface asks the same question (D-09).
+    func policyEnvironment(of screen: NSScreen, appState: AppState) -> NotchHubPolicy.Environment {
         NotchHubPolicy.Environment(
             isFullscreenSpace: appState.activeSpace.isFullscreen,
             isMenuBarHiddenBySystem: appState.menuBarManager.isMenuBarHiddenBySystem,
@@ -1163,7 +1233,7 @@ final class NotchHubController: HubHost {
         // menu and the status items, and with nothing live it would be read for nothing.
         var room: NotchHubGeometry.LiveRoom?
         if !activities.isEmpty, let appState, let screen = liveCandidateScreen() {
-            room = NotchHubLiveRoom.room(on: screen, display: Self.display(of: screen), appState: appState)
+            room = NotchHubLiveRoom.room(on: screen, display: display(of: screen), appState: appState)
         }
         return ActivityInputs(
             activities: activities,
@@ -1186,7 +1256,7 @@ final class NotchHubController: HubHost {
         guard let appState else {
             return nil
         }
-        let display = Self.display(of: screen)
+        let display = self.display(of: screen)
         return NotchHubGeometry.live(
             display: display,
             room: NotchHubLiveRoom.room(on: screen, display: display, appState: appState)
@@ -1204,7 +1274,7 @@ final class NotchHubController: HubHost {
             let screen = liveCandidateScreen(),
             NotchHubPolicy.blockReason(policyEnvironment(of: screen, appState: appState), trigger: .compact) == nil,
             liveLayout(on: screen) != nil,
-            NotchHubGeometry.seed(display: Self.display(of: screen)) != nil
+            NotchHubGeometry.seed(display: display(of: screen)) != nil
         else {
             return nil
         }
@@ -1224,7 +1294,7 @@ final class NotchHubController: HubHost {
             hideLive()
             return
         }
-        let board = model.board(now: .now)
+        let board = model.closedBoard(now: .now)
         armExpiry(at: board.nextExpiry)
         let screen = liveScreen(for: board)
         let before = phase.target
@@ -1266,7 +1336,7 @@ final class NotchHubController: HubHost {
     /// Widens the closed island, or the notch, to the live shape: the hub's own panel and view,
     /// from the notch's rectangle, or from where a closing had got to.
     private func startLive(board: HubActivityBoard.Board, on screen: NSScreen, wasVisible: Bool) {
-        let display = Self.display(of: screen)
+        let display = self.display(of: screen)
         guard let live = liveLayout(on: screen), let seed = NotchHubGeometry.seed(display: display) else {
             // Not reachable: the screen was chosen because both exist. Never leave a phase that
             // nothing completes.
@@ -1276,6 +1346,8 @@ final class NotchHubController: HubHost {
         let panel = panel ?? NotchHubPanel()
         self.panel = panel
         let presentation = ensurePresentation()
+        presentation.bounces = appState?.settings.notchHub.bounces ?? true
+        presentation.convexTop = live.isDetached
         let existing = wasVisible && panelScreenFrame == screen.frame ? panel.contentView as? IslandHostingView : nil
         restShape = live.shape
         openShape = nil
@@ -1325,6 +1397,7 @@ final class NotchHubController: HubHost {
         }
         restShape = live.shape
         panelScreenFrame = screen.frame
+        presentation.convexTop = live.isDetached
         presentation.placeLive(live, canvas: live.shape)
         setPanelFrame(live.shape, on: screen.frame)
         setLivePlacement(LivePlacement(screenID: screen.displayID, layout: live))
@@ -1406,8 +1479,8 @@ final class NotchHubController: HubHost {
 
     // MARK: The wait for an expiry
 
-    /// Arms the one wait of the live activities: until the next finished activity leaves, then
-    /// the board is worked out again. Replaces a wait already armed, and arms none when no
+    /// Arms the one wait of the live activities: until the next finished activity leaves or a
+    /// widening ends, then the board is worked out again. Replaces a wait already armed, and arms none when no
     /// finished activity is waiting to leave.
     private func armExpiry(at date: Date?) {
         expiryTask?.cancel()
@@ -1472,23 +1545,47 @@ final class NotchHubController: HubHost {
     }
 
     /// What the geometry needs to know about a screen, read from the system's own values.
-    private static func display(of screen: NSScreen) -> NotchHubGeometry.Display {
+    ///
+    /// The camera cutout is classified from public API only (``DisplayCutout``): a notch is
+    /// continued by the hub, Apple's Dynamic Island is never covered, so the hub lies below it
+    /// (Phase 93, D-03).
+    ///
+    /// The user's "Display cutout" setting can override the detection; it never invents a cutout
+    /// where none was found (``DisplayCutout/resolve(detected:override:)``).
+    ///
+    /// The alerts' own surface reads the display through this one function as well (D-09).
+    func display(of screen: NSScreen) -> NotchHubGeometry.Display {
         let frame = screen.frame
-        let notch: NotchHubGeometry.Notch? = if screen.hasNotch {
+        let leftAreaWidth = screen.auxiliaryTopLeftArea.map { Double($0.width) }
+        let rightAreaWidth = screen.auxiliaryTopRightArea.map { Double($0.width) }
+        let detected = DisplayCutout.classify(
+            displayWidth: Double(frame.width),
+            leftAreaWidth: leftAreaWidth,
+            rightAreaWidth: rightAreaWidth,
+            safeAreaTop: Double(screen.safeAreaInsets.top)
+        )
+        let cutout = DisplayCutout.resolve(
+            detected: detected,
+            override: appState?.settings.notchHub.cutoutOverride ?? .automatic
+        )
+        let span: NotchHubGeometry.Notch? = if cutout == .none {
+            nil
+        } else {
             NotchHubGeometry.notch(
                 displayWidth: Double(frame.width),
-                leftAreaWidth: screen.auxiliaryTopLeftArea.map { Double($0.width) },
-                rightAreaWidth: screen.auxiliaryTopRightArea.map { Double($0.width) },
+                leftAreaWidth: leftAreaWidth,
+                rightAreaWidth: rightAreaWidth,
                 height: Double(screen.safeAreaInsets.top)
             )
-        } else {
-            nil
         }
+        let notch = cutout == .notch ? span : nil
+        let island = cutout == .island ? span : nil
+        let measured = frame.maxY - screen.visibleFrame.maxY
         let menuBarHeight: CGFloat
         if screen.hasNotch {
-            menuBarHeight = screen.safeAreaInsets.top
-        } else if frame.maxY - screen.visibleFrame.maxY > 0 {
-            menuBarHeight = frame.maxY - screen.visibleFrame.maxY
+            menuBarHeight = ClosedNotchHeight.resolve(safeAreaTop: screen.safeAreaInsets.top, menuBarHeight: measured)
+        } else if measured > 0 {
+            menuBarHeight = measured
         } else {
             menuBarHeight = NSStatusBar.system.thickness
         }
@@ -1496,7 +1593,8 @@ final class NotchHubController: HubHost {
             width: Double(frame.width),
             height: Double(frame.height),
             menuBarHeight: Double(menuBarHeight),
-            notch: notch
+            notch: notch,
+            island: island
         )
     }
 }

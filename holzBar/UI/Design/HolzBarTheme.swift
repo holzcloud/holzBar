@@ -351,6 +351,12 @@ enum HolzBarTheme {
         static let idleTabFill = Color.white.opacity(DesignTokens.Hub.idleTabFillAlpha)
         /// The symbols of the Now Playing and Display controls modules.
         static let compactSymbolFont = Font.system(size: CGFloat(DesignTokens.Hub.compactSymbolSize))
+        /// The 10 pt chevron of a disclosure in the hub, such as the output picker's.
+        static let chevronFont = Font.system(size: 10, weight: .semibold)
+        /// The 13 pt reset arrow of the dim row, in its 24 pt target.
+        static let resetSymbolFont = Font.system(size: 13)
+        /// The 12 pt checkmark of the chosen row of a list in the hub.
+        static let checkmarkFont = Font.system(size: 12, weight: .semibold)
         /// The words in the File drop tab's outline while a file is dragged over it.
         static let fileDropLabelFont = Font.system(size: CGFloat(DesignTokens.Hub.fileDropLabelSize), weight: .semibold)
         static let columns = DesignTokens.Hub.columns
@@ -417,6 +423,8 @@ enum HolzBarTheme {
             response: DesignTokens.Island.closeResponse,
             dampingFraction: DesignTokens.Island.closeDamping
         )
+        /// What every move of the island takes when Bounce is off: a plain ease, no overshoot.
+        static let islandPlain = Animation.smooth(duration: DesignTokens.Island.plainEaseDuration)
         /// The content appearing a moment after the shape starts to grow.
         static let islandContentIn = Animation.timingCurve(
             DesignTokens.Island.contentCurve[0],

@@ -36,31 +36,55 @@ struct SettingsRowTitle {
     let title: Text
     let entryID: String?
     let info: Text?
+    /// An image that leads the label, such as an app's icon (B4); only the text form has one.
+    let icon: Image?
 
     init(_ entry: SettingsEntry) {
         title = Text(entry.label)
         entryID = entry.id
         info = entry.info.map { Text($0) }
+        icon = nil
     }
 
-    init(_ title: Text) {
+    init(_ title: Text, icon: Image? = nil) {
         self.title = title
         entryID = nil
         info = nil
+        self.icon = icon
     }
 }
 
 /// The leading part of a row (D-09, D-17, D-22): the label, which wraps, then the small text,
-/// the badge and the info button with 6 pt gaps.
+/// the badge and the info button with 6 pt gaps. An icon, when the row has one (B4), leads the
+/// label at the list icon size with an 8 pt gap; it is decoration, so the label stays the row's
+/// name for VoiceOver.
 struct SettingsLabelColumn: View {
     let title: Text
     let small: Text?
     let badge: SettingsBadge?
     let info: Text?
+    var icon: Image?
 
     @Environment(\.settingsParentIsOn) private var parentIsOn
 
     var body: some View {
+        if let icon {
+            HStack(alignment: .center, spacing: HolzBarTheme.Spacing.xs) {
+                icon
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: HolzBarTheme.LayoutList.iconSize, height: HolzBarTheme.LayoutList.iconSize)
+                    .accessibilityHidden(true)
+                labels
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            labels
+        }
+    }
+
+    private var labels: some View {
         HStack(alignment: .center, spacing: HolzBarTheme.SettingsKit.accessoryGap) {
             HStack(alignment: .firstTextBaseline, spacing: HolzBarTheme.SettingsKit.accessoryGap) {
                 title
@@ -178,7 +202,7 @@ struct SettingsRow<Control: View>: View {
     var body: some View {
         let popoverText = info ?? label.info
         HStack(alignment: .center, spacing: HolzBarTheme.SettingsKit.labelControlGap) {
-            SettingsLabelColumn(title: label.title, small: small, badge: badge, info: popoverText)
+            SettingsLabelColumn(title: label.title, small: small, badge: badge, info: popoverText, icon: label.icon)
             control
                 .layoutPriority(1)
                 .modifier(SettingsInfoHint(info: popoverText))

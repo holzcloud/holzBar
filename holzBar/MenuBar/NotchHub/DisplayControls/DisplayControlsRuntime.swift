@@ -65,6 +65,15 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// The output's name, for the open tab only.
     private(set) var outputName: String?
 
+    /// The outputs the picker lists, for the open tab only: the names are kept in memory and
+    /// emptied when the hub closes. Empty while the hub is closed.
+    private(set) var outputs: [AudioOutputRow] = []
+
+    /// The switch of the default output that was asked for and the system has not confirmed
+    /// yet (the picker shows a spinner on its row). It ends when the default read back equals
+    /// the target or after ``AudioOutputList/switchTimeout``.
+    private(set) var outputSwitch: AudioOutputSwitch?
+
     /// One display and what the module knows of its brightness.
     struct DisplayBrightness: Identifiable {
         let id: CGDirectDisplayID
@@ -154,7 +163,9 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// What counts against the gate. It remembers which monitors answered in this session.
     @ObservationIgnored private var ddcPolicy = DDCFailurePolicy()
 
-    /// The bus, created when the part first runs and dropped with it.
+    /// The bus, taken from the app state's shared one when the part first runs and dropped with
+    /// it. The brightness keys of the Indicators use the same bus, so a transfer of one never
+    /// interleaves with one of the other.
     @ObservationIgnored private var bus: DDCBus?
 
     /// The number of hub openings so far. The bus reads each monitor's capabilities once per
@@ -173,6 +184,13 @@ final class DisplayControlsRuntime: HubModuleRuntime {
 
     @ObservationIgnored private var channels: [ExternalControl: Channel] = [:]
 
+    /// The last positions the sliders showed when the hub closed or a new survey began, still to
+    /// be written once, the latest per control (``cancelExternalWork(flushingPendingWrites:)``).
+    @ObservationIgnored private var pendingFlushes: [ExternalControl: UInt16] = [:]
+
+    /// The one task that writes ``pendingFlushes`` after the wake wait, while any is left.
+    @ObservationIgnored private var flushTask: Task<Void, Never>?
+
     /// Whether the hub is open. While it is closed nothing of the external part talks to a monitor.
     @ObservationIgnored private var isHubOpen = false
 
@@ -183,11 +201,45 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// The app state, for the Brightness setting.
     @ObservationIgnored private weak var appState: AppState?
 
+    /// The service that owns the dim layers; the dim row of a card sets its levels through it.
+    var softwareDimmer: SoftwareDimmer? {
+        appState?.softwareDimmer
+    }
+
+    /// Whether a monitor's card offers the dim row (D-25). Every monitor of ``externals`` is
+    /// external and one macOS cannot change itself, so the rule is the External monitors setting
+    /// and what the monitor answered: with the setting off every card has the row; with it on only
+    /// a monitor that does not answer DDC brightness has it, and one still being read waits for
+    /// the answer.
+    func offersDimming(_ monitor: ExternalMonitor) -> Bool {
+        let answer: DimmingDDCAnswer = switch monitor.state {
+        case .reading:
+            .reading
+        case .ready:
+            monitor.values[.brightness] != nil ? .answersBrightness : .noBrightness
+        case .doesNotAnswer, .notPaired, .indistinguishable, .unavailable, .switchedOff:
+            .noBrightness
+        }
+        return SoftwareDimming.offersDimming(
+            isExternal: true,
+            macOSCanChange: false,
+            ddcSwitchOn: appState?.settings.displayControls.showsExternalMonitors ?? false,
+            answer: answer
+        )
+    }
+
     /// The device the volume was read from.
     @ObservationIgnored private var device: AudioObjectID?
 
     /// The CoreAudio listeners, added while the hub is open.
     @ObservationIgnored private let listener = OutputVolume.Listener()
+
+    /// Follows the wake gate while the hub is open: a wake or a display change asks for the
+    /// monitors to be read again once the wait is over.
+    @ObservationIgnored private var wakeLoop: ObservationLoop?
+
+    /// The one-shot wait that ends an output switch the system never confirmed, while it runs.
+    @ObservationIgnored private var outputSwitchTask: Task<Void, Never>?
 
     /// Creates the runtime. It has nothing to start: the state is read when the hub opens. It
     /// only follows the External monitors setting, which costs nothing while the setting stays.
@@ -213,6 +265,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// Reads the default output's plan, level, mute and name again. Nothing of the displays is
     /// touched, so a volume change made elsewhere never starts a transfer to a monitor.
     func refreshVolume() {
+        refreshOutputs()
         guard let output = OutputVolume.current() else {
             clear()
             return
@@ -223,6 +276,57 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         canMute = output.capabilities.muteSettable
         isMuted = canMute ? OutputVolume.isMuted(output.device) ?? false : false
         outputName = OutputVolume.name(of: output.device)
+    }
+
+    /// Builds the picker's list from what the system reports and ends a switch the read-back
+    /// has settled, either way (``AudioOutputSwitch``): the check is always on the default the
+    /// system reports.
+    private func refreshOutputs() {
+        let currentUID = OutputVolume.defaultOutputDevice().flatMap(OutputVolume.uid(of:))
+        outputs = AudioOutputList.rows(OutputVolume.outputDevices(), currentUID: currentUID)
+        if let outputSwitch, outputSwitch.state(currentUID: currentUID, now: .now) != .pending {
+            clearOutputSwitch()
+        }
+    }
+
+    /// Asks the system to make the device with this UID the default output (never the output of
+    /// system sounds). The row shows a spinner until the default read back equals it, at most
+    /// ``AudioOutputList/switchTimeout``; when the system refuses, or the default changes by
+    /// itself, the check stays on, or returns to, the default the system reports and nothing is
+    /// said (D-16). holzBar stores no choice of its own.
+    func selectOutput(uid: String) {
+        let currentUID = OutputVolume.defaultOutputDevice().flatMap(OutputVolume.uid(of:))
+        guard uid != currentUID else {
+            return
+        }
+        outputSwitch = AudioOutputSwitch(targetUID: uid, startedAt: .now)
+        guard OutputVolume.setDefaultOutput(uid: uid) else {
+            clearOutputSwitch()
+            return
+        }
+        outputSwitchTask?.cancel()
+        outputSwitchTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(AudioOutputList.switchTimeout))
+            guard !Task.isCancelled, let self else {
+                return
+            }
+            self.outputSwitchTask = nil
+            self.clearOutputSwitch()
+            self.refreshVolume()
+        }
+        refreshVolume()
+    }
+
+    private func clearOutputSwitch() {
+        outputSwitchTask?.cancel()
+        outputSwitchTask = nil
+        outputSwitch = nil
+    }
+
+    /// Empties the picker's list and drops a pending switch: the device names leave memory.
+    private func clearOutputs() {
+        clearOutputSwitch()
+        outputs = []
     }
 
     /// Sets the level. The level shown afterwards is the one read back, not the argument.
@@ -277,6 +381,11 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             ))
         }
         displays = gate.isAvailable ? found : []
+        // A display macOS can change by itself needs no layer: a stored dim level would outlive
+        // the card's dim row, so it is cleared (CR-01).
+        for display in displays where display.canChange {
+            softwareDimmer?.releaseToHardware(display.id)
+        }
     }
 
     /// Sets the brightness of a display. The level shown afterwards is the one read back, not
@@ -396,13 +505,18 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             monitor.state = .reading
             return monitor
         }
-        let bus = bus ?? DDCBus()
+        let bus = bus ?? appState?.ddcBus() ?? DDCBus()
         self.bus = bus
         let opening = hubOpening
-        startReadingIndicatorWait(generation: generation)
+        // While the wake gate is closed every card shows its reading state, with a spinner too.
+        startReadingIndicatorWait(generation: generation, includingKnownValues: wakeWaitEnd() != nil)
         surveyTask = Task { [weak self] in
+            // No transfer for ``DDCTiming/wakeWait`` after a wake or a display change (D-20).
+            guard let self, await self.waitForWakeGate(), self.ddcGeneration == generation else {
+                return
+            }
             let load = await bus.load()
-            guard !Task.isCancelled, let self, self.ddcGeneration == generation else {
+            guard !Task.isCancelled, self.ddcGeneration == generation else {
                 return
             }
             self.ddcGate.setEnabled(true, load: load)
@@ -489,6 +603,16 @@ final class DisplayControlsRuntime: HubModuleRuntime {
                 updated.values = [:]
             }
             return updated
+        }
+        // A monitor that answers DDC brightness has its own slider: its stored dim level would
+        // outlive the card's dim row, so it is cleared (CR-01).
+        let ddcSwitchOn = appState?.settings.displayControls.showsExternalMonitors ?? false
+        for monitor in externals where monitor.state == .ready && SoftwareDimming.isSupersededByHardware(
+            macOSCanChange: false,
+            ddcSwitchOn: ddcSwitchOn,
+            answer: monitor.values[.brightness] != nil ? .answersBrightness : .noBrightness
+        ) {
+            softwareDimmer?.releaseToHardware(monitor.id)
         }
     }
 
@@ -613,7 +737,14 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// The writer of one control: writes the latest value until none is left, then waits for the
     /// monitor to settle and reads the control back once.
     private func runWriter(_ key: ExternalControl, on bus: DDCBus, generation: Int) async {
-        while ddcGeneration == generation, !Task.isCancelled, let raw = channels[key]?.coalescer.next() {
+        while ddcGeneration == generation, !Task.isCancelled {
+            // The wait comes before the value is taken, so a newer value still coalesces into it.
+            guard await waitForWakeGate(), ddcGeneration == generation else {
+                return
+            }
+            guard let raw = channels[key]?.coalescer.next() else {
+                break
+            }
             let succeeded = await bus.write(key.control, raw: raw, to: key.display)
             guard ddcGeneration == generation, !Task.isCancelled else {
                 return
@@ -629,7 +760,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         channels[key]?.writer = nil
         channels[key]?.settle = Task { [weak self] in
             try? await Task.sleep(for: DDCTiming.settle)
-            guard !Task.isCancelled, let self, self.ddcGeneration == generation else {
+            guard !Task.isCancelled, let self, await self.waitForWakeGate(), self.ddcGeneration == generation else {
                 return
             }
             let value = await bus.readBack(key.control, of: key.display)
@@ -651,11 +782,51 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         }
     }
 
+    // MARK: Wake wait
+
+    /// When the wake gate opens, or `nil` when it is open now: no wake or display change was seen
+    /// in the last ``DDCTiming/wakeWait``.
+    private func wakeWaitEnd() -> ContinuousClock.Instant? {
+        guard let gate = appState?.systemActivityMonitor.ddcWakeGate, !gate.isOpen(at: .now) else {
+            return nil
+        }
+        return gate.opensAt
+    }
+
+    /// Waits until no DDC transfer is held back by a wake or a display change (D-20, DISP-02).
+    /// A later event moves the end, so the gate is asked again after every wait. Answers `false`
+    /// when the task was cancelled, which every caller treats as "stop".
+    private func waitForWakeGate() async -> Bool {
+        while let end = wakeWaitEnd() {
+            try? await Task.sleep(until: end, clock: .continuous)
+            if Task.isCancelled {
+                return false
+            }
+        }
+        return !Task.isCancelled
+    }
+
+    /// A wake or a display change while the hub is open: the monitors are read again once the
+    /// wait is over, where their values are shown. The cards show their reading state until then.
+    private func wakeGateDidChange() {
+        guard isHubOpen, appState?.settings.displayControls.showsExternalMonitors == true else {
+            return
+        }
+        refreshExternalMonitors(surveying: showsExternalValues)
+    }
+
     /// Starts the one wait that lets a first read show its spinner: a monitor with no values to
     /// show waits ``DDCTiming/readingIndicatorDelay`` and, if its survey still runs then, shows
     /// the indicator. A monitor with values shows them at once and never a spinner.
-    private func startReadingIndicatorWait(generation: Int) {
-        guard externals.contains(where: { $0.state == .reading && $0.values.isEmpty }) else {
+    ///
+    /// While the wake gate holds the transfers back (`includingKnownValues`), every card in its
+    /// reading state shows the spinner, also one that has values, because nothing can be set
+    /// until the wait is over.
+    private func startReadingIndicatorWait(generation: Int, includingKnownValues: Bool = false) {
+        func needsIndicator(_ monitor: ExternalMonitor) -> Bool {
+            monitor.state == .reading && (includingKnownValues || monitor.values.isEmpty)
+        }
+        guard externals.contains(where: needsIndicator) else {
             return
         }
         indicatorTask = Task { [weak self] in
@@ -663,8 +834,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             guard !Task.isCancelled, let self, self.ddcGeneration == generation else {
                 return
             }
-            for index in self.externals.indices
-            where self.externals[index].state == .reading && self.externals[index].values.isEmpty {
+            for index in self.externals.indices where needsIndicator(self.externals[index]) {
                 self.externals[index].showsReadingIndicator = true
             }
             self.indicatorTask = nil
@@ -675,7 +845,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// delivered and clears the levels requested. With `flushingPendingWrites` the last value a
     /// slider asked for, which no writer had taken yet, is still written once: closing the hub or
     /// asking again must not drop the position the slider showed. The part switching off or going
-    /// unavailable never writes.
+    /// unavailable never writes, and drops a flush that was still waiting.
     private func cancelExternalWork(flushingPendingWrites: Bool = false) {
         ddcGeneration += 1
         surveyTask?.cancel()
@@ -685,19 +855,57 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         for index in externals.indices where externals[index].showsReadingIndicator {
             externals[index].showsReadingIndicator = false
         }
-        let flushBus = flushingPendingWrites && ddcGate.isAvailable ? bus : nil
+        let flushes = flushingPendingWrites && ddcGate.isAvailable
         for (key, var channel) in channels {
             channel.writer?.cancel()
             channel.settle?.cancel()
-            if let flushBus, let raw = channel.coalescer.next() {
-                Task {
-                    _ = await flushBus.write(key.control, raw: raw, to: key.display)
-                }
+            if flushes, let raw = channel.coalescer.next() {
+                pendingFlushes[key] = raw
             }
         }
         channels = [:]
         requestedLevels = [:]
         requestedMutes = [:]
+        if flushes {
+            startFlush()
+        } else {
+            cancelFlush()
+        }
+    }
+
+    /// Writes the pending positions one after the other, after the wake wait (a monitor coming
+    /// back from sleep drops them otherwise). Every write is checked again after the wait: the
+    /// part switching off, going unavailable or losing its bus means nothing is written.
+    private func startFlush() {
+        guard flushTask == nil, !pendingFlushes.isEmpty else {
+            return
+        }
+        flushTask = Task { [weak self] in
+            while let self, !Task.isCancelled {
+                guard
+                    await self.waitForWakeGate(),
+                    self.ddcGate.isAvailable,
+                    self.appState?.settings.displayControls.showsExternalMonitors == true,
+                    let bus = self.bus,
+                    let (key, raw) = self.pendingFlushes.first
+                else {
+                    break
+                }
+                self.pendingFlushes[key] = nil
+                _ = await bus.write(key.control, raw: raw, to: key.display)
+            }
+            // A task that was cancelled has been replaced or dropped already.
+            if !Task.isCancelled {
+                self?.flushTask = nil
+            }
+        }
+    }
+
+    /// Drops every position still waiting to be written and stops the task that would write it.
+    private func cancelFlush() {
+        flushTask?.cancel()
+        flushTask = nil
+        pendingFlushes = [:]
     }
 
     private func clear() {
@@ -725,11 +933,19 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             refreshDisplayOrder()
             refreshExternalMonitors(surveying: showsExternalValues)
             refreshVolume()
-            listener.start { [weak self] in
+            listener.start(followsDeviceList: true) { [weak self] in
                 self?.refreshVolume()
             }
+            wakeLoop = ObservationLoop.observe { [weak self] in
+                self?.appState?.systemActivityMonitor.ddcWakeGate.lastEvent
+            } onChange: { [weak self] _ in
+                self?.wakeGateDidChange()
+            }
         } else {
+            wakeLoop?.cancel()
+            wakeLoop = nil
             listener.stop()
+            clearOutputs()
             cancelExternalWork(flushingPendingWrites: true)
         }
     }
@@ -816,7 +1032,10 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     func shutDown() {
         externalSettingLoop?.cancel()
         externalSettingLoop = nil
+        wakeLoop?.cancel()
+        wakeLoop = nil
         listener.stop()
+        clearOutputs()
         cancelExternalWork()
         bus = nil
         externals = []

@@ -45,8 +45,69 @@ enum DiagnosticsCollector {
             lastShelfClick: lastShelfClickWords(),
             shelf: shelfWords(appState),
             accessoryBattery: accessoryBatteryWord(appState),
-            barClicks: BarClickLog.trace.lines
+            barClicks: BarClickLog.trace.lines,
+            reopen: reopenWords(),
+            readouts: readoutsWords(appState),
+            alerts: alertsWords(appState),
+            indicators: indicatorsWords(appState)
         )
+    }
+
+    /// What the shared readouts monitor does, in counts: idle while no widget or tile asks, so a
+    /// report shows that holzBar measures nothing while the modules are off.
+    private static func readoutsWords(_ appState: AppState) -> String {
+        let monitor = appState.systemMonitor
+        return DiagnosticsReport.readoutsSummary(
+            visible: monitor.visibleCount,
+            background: monitor.backgroundCount,
+            observers: monitor.observerCount,
+            isTimerArmed: monitor.isTimerArmed,
+            samples: monitor.samplesTaken
+        )
+    }
+
+    /// What System alerts does, in counts and fixed words: `off` while the module is off. The
+    /// notification word is `off` while the System notifications switch is off, else what macOS
+    /// answered (`not asked`, `allowed`, `denied`). Never a rule's value, an alert or a name.
+    private static func alertsWords(_ appState: AppState) -> String {
+        let alerts = appState.systemAlerts
+        let notifications = switch (appState.settings.systemAlerts.notificationsOn, alerts.notificationAccess) {
+        case (false, _): "off"
+        case (true, .notDetermined): "not asked"
+        case (true, .allowed): "allowed"
+        case (true, .denied): "denied"
+        }
+        return DiagnosticsReport.alertsSummary(
+            isModuleOn: appState.modules.isEnabled(SystemAlertsRuntime.identifier),
+            rulesOn: alerts.enabledRuleCount,
+            firing: alerts.firingCount,
+            notifications: notifications
+        )
+    }
+
+    /// What the Indicators module does, in fixed words: the three switches, whether the media-key
+    /// tap exists and how often macOS disabled it; `off` while the module is off. It reads no key,
+    /// device or display name.
+    private static func indicatorsWords(_ appState: AppState) -> String {
+        let indicators = appState.settings.indicators
+        let runtime = appState.notchHub.runtime(IndicatorsRuntime.self)
+        return DiagnosticsReport.indicatorsSummary(
+            isModuleOn: appState.modules.isEnabled(IndicatorsRuntime.identifier),
+            inputSource: indicators.showsInputSource,
+            volume: indicators.showsVolumeBrightness,
+            replaces: indicators.replacesSystemDisplay,
+            tapRunning: runtime?.isMediaKeyTapRunning ?? false,
+            disables: MediaKeyTap.disableCount
+        )
+    }
+
+    /// How many reopens opened Settings and how many were ignored, in fixed words; nothing
+    /// while holzBar got none. It never says who sent them.
+    private static func reopenWords() -> String {
+        guard ReopenRequests.opened + ReopenRequests.ignored > 0 else {
+            return ""
+        }
+        return DiagnosticsReport.reopenSummary(opened: ReopenRequests.opened, ignored: ReopenRequests.ignored)
     }
 
     /// Whether the undocumented battery call of Accessory alerts works on this Mac, in one of
@@ -105,12 +166,14 @@ enum DiagnosticsCollector {
             return DiagnosticsReport.hidingSummary27(
                 reveal: reveal,
                 agentRestarts: concealer.agentRestarts,
+                breaker: concealer.restartBreakerWord,
                 lateAllowlist: concealer.lateAllowlistRefreshes,
                 youngRetries: MenuBarItemProvider27.youngRetries,
                 forcedReads: itemManager.forcedItemReads,
                 heldBack: itemManager.heldBackItemReads,
                 notchRechecks: concealer.notchRechecks,
-                hiddenAnyway: concealer.unnameableVisible.count
+                hiddenAnyway: concealer.unnameableVisible.count,
+                tapDisables: SystemItemClickBridge27.tapDisables
             )
         }
         return DiagnosticsReport.hidingSummaryBefore27(

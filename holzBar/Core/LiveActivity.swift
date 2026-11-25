@@ -27,6 +27,32 @@ nonisolated enum LiveActivityTint: String, CaseIterable, Sendable {
     case green
 }
 
+/// The extra parts of an indicator that is a flash: the user's own feedback, such as the input
+/// source that just changed, which only the closed notch draws.
+///
+/// Whatever enters it from outside is bounded here, so no view can draw an unbounded text or load
+/// a remote image: the second text and the width sample are cut and only a file URL is kept.
+nonisolated struct LiveActivityFlash: Equatable, Sendable {
+    /// The most characters of the second text.
+    static let maximumSecondaryLength = 32
+    /// The most characters of a width sample.
+    static let maximumSampleLength = 16
+
+    /// A second, longer text next to the short value, such as a source's full name, or `nil`.
+    let secondaryValue: String?
+    /// The file URL of an image that replaces the symbol, or `nil`; never a remote URL.
+    let symbolImageURL: URL?
+    /// The widest text the closed notch reserves room for, so it does not jump between values.
+    let widthSample: String?
+
+    /// Creates a flash. A text beyond its cap is cut and a URL that is not a file URL is dropped.
+    init(secondaryValue: String? = nil, symbolImageURL: URL? = nil, widthSample: String? = nil) {
+        self.secondaryValue = secondaryValue.map { String($0.prefix(Self.maximumSecondaryLength)) }
+        self.symbolImageURL = symbolImageURL.flatMap { $0.isFileURL ? $0 : nil }
+        self.widthSample = widthSample.map { String($0.prefix(Self.maximumSampleLength)) }
+    }
+}
+
 /// Something that is going on, as a plain value: a camera in use, a download, a timer.
 ///
 /// A module of the Notch hub returns its activities through ``HubModuleRuntime/activities``;
@@ -67,7 +93,8 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
     /// When the activity ends by itself, such as a timer, or `nil`.
     let endsAt: Date?
     /// When the activity finished, or `nil` while it runs. A finished activity stays for
-    /// ``HubActivityBoard/finishedHold`` seconds with its own done title and symbol.
+    /// ``expiresAt`` (``HubActivityBoard/finishedHold`` seconds by default) with its own done title
+    /// and symbol.
     let finishedAt: Date?
     let tint: LiveActivityTint
     /// Whether the module that returned the activity speaks it to VoiceOver itself, so the hub
@@ -77,6 +104,40 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
     /// "Done", at most ``maximumCompactValueLength`` characters, never a name; `nil` where the
     /// countdown or the percentage says it.
     let compactValue: String?
+    /// How long after ``startedAt`` the activity may widen the closed notch, or `nil` for as long as
+    /// it runs. After that the activity stays in the open hub's right pill and in the Live activities
+    /// list but no longer holds the notch open (``HubActivityBoard/board(_:now:forClosedNotch:)``):
+    /// an alert that holds for hours widens the notch for its first seconds only. This bounds only
+    /// the widening of a running activity; how long a finished one stays is ``holdSeconds``. A
+    /// negative or non-finite value is stored as `nil`.
+    let widenedSeconds: TimeInterval?
+    /// How long a finished activity stays after ``finishedAt``, or `nil` for the board's default
+    /// (``HubActivityBoard/finishedHold``). A hold of 0 ends the activity exactly at its
+    /// ``finishedAt``, which may lie ahead: a countdown that ends at a set moment is running until
+    /// then. A negative or non-finite value is stored as `nil`.
+    let holdSeconds: TimeInterval?
+    /// Marks the activity as a flash, the user's own feedback such as an input source change, or
+    /// `nil` for any other activity. Only the closed notch draws a flash: the board's full view,
+    /// which the open hub's right pill and the Live activities list read, leaves it out.
+    let flash: LiveActivityFlash?
+
+    /// Whether the activity is a flash.
+    var isFlash: Bool {
+        flash != nil
+    }
+
+    /// The moment a finished activity leaves the board, the open hub's right pill and the Live
+    /// activities list: ``finishedAt`` plus ``holdSeconds``, else plus
+    /// ``HubActivityBoard/finishedHold``. `nil` while the activity runs. Every view that decides
+    /// when a finished activity leaves reads this, so none keeps its own copy of the hold.
+    var expiresAt: Date? {
+        finishedAt.map { $0.addingTimeInterval(holdSeconds ?? HubActivityBoard.finishedHold) }
+    }
+
+    /// The moment the closed notch stops widening for this activity, or `nil` when it has no limit.
+    var widenedUntil: Date? {
+        widenedSeconds.map { startedAt.addingTimeInterval($0) }
+    }
 
     /// A key that is unique across modules: the module's identifier and the activity's id.
     var key: String {
@@ -84,7 +145,8 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
     }
 
     /// Creates an activity. A title, detail or short word beyond its cap is cut, a progress outside
-    /// ``progressRange`` is clamped into it and a progress that is not a number is dropped.
+    /// ``progressRange`` is clamped into it and a progress that is not a number is dropped, and a
+    /// widening or a hold that is negative or not a number is dropped.
     init(
         id: String,
         moduleID: String,
@@ -99,7 +161,10 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
         finishedAt: Date? = nil,
         tint: LiveActivityTint = .accent,
         announcesItself: Bool = false,
-        compactValue: String? = nil
+        compactValue: String? = nil,
+        widenedSeconds: TimeInterval? = nil,
+        holdSeconds: TimeInterval? = nil,
+        flash: LiveActivityFlash? = nil
     ) {
         self.id = id
         self.moduleID = moduleID
@@ -117,5 +182,8 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
         self.tint = tint
         self.announcesItself = announcesItself
         self.compactValue = compactValue.map { String($0.prefix(Self.maximumCompactValueLength)) }
+        self.widenedSeconds = widenedSeconds.flatMap { $0.isFinite && $0 >= 0 ? $0 : nil }
+        self.holdSeconds = holdSeconds.flatMap { $0.isFinite && $0 >= 0 ? $0 : nil }
+        self.flash = flash
     }
 }

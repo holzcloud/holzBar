@@ -27,22 +27,34 @@ sources=(
   AccessoryLowBatteryGate
   AccessoryRefreshPolicy
   AccessoryTracker
+  AgentRestartBreaker
+  AlertNotificationPlan
+  AlertRequestPlan
+  AlertSeverity
   AppearanceMoods
   AppleItemReplacement
   AppVersion
+  AudioOutputList
   AutomationEngine
   AutomationRule
   AXSnapshot
   BarClickTrace
+  BatteryGlyph
   BatteryLevel
   BuiltInItem
   CalendarEvent
   CalendarReadFreshness
   CalendarSelection
+  ClickPairing
   ClockClickPolicy
+  ClosedHubWork
+  ClosedNotchHeight
   CommandDragSection
+  ConnectedDeviceList
   ControlCenterControl
   ControlItemOrder
+  CountdownSchedule
+  CPUClusters
   DDCCapabilities
   DDCDisplayMatch
   DDCFailurePolicy
@@ -50,6 +62,7 @@ sources=(
   DDCPacket
   DDCRegistryPairing
   DDCReply
+  DDCWakeGate
   DDCWriteCoalescer
   Defaults
   DesignTokens
@@ -57,7 +70,11 @@ sources=(
   DisplayBehavior
   DisplayControlsLevel
   DisplayControlsOrder
+  DisplayCutout
   DividerPlausibility
+  DockBadgeLabel
+  DockBadgeRefresh
+  DockBadgeSettings
   DockIconPolicy
   DownloadScan
   DownloadTracker
@@ -74,9 +91,14 @@ sources=(
   HubLiveState
   HubModuleLifecycle
   HubModuleRow
+  HubPin
+  HubScrollGesture
   HubStatusPills
   HubTabStrip
+  ImportBackupRecord
+  IndicatorPolicy
   InputMonitors
+  InputSourceLabel
   InterfaceWindowRule
   ItemCategory
   ItemChangeCadence
@@ -86,6 +108,7 @@ sources=(
   ItemOrder
   ItemPlaceholder
   ItemRuleMemory
+  ItemSpacingAvailability
   ItemTimer
   LayoutDraft
   LayoutList
@@ -94,23 +117,29 @@ sources=(
   LayoutSnapshot
   LegacyRevealRules
   LiveActivity
+  LiveActivityItem
   MenuBarAnchor
   MenuBarBackendKind
   MenuBarDragDecider
+  MenuBarFit
   MenuBarIconChoice
   MenuBarDrop
   MenuBarPills
+  MediaKeyPress
   MeetingLinks
   MenuBarStyleOptions
   ModuleCatalog
   MoveBackoff
   MoveNeighbourCheck
+  NewAppQuestion
   NextEvents
   NotchHubDisplays
   NotchHubGeometry
   NotchHubPolicy
   NotificationBannerParser
   NotificationLog
+  NotificationQueue
+  NotShownApps
   NowPlayingModel
   NowPlayingPayload
   NowPlayingPlayers
@@ -120,11 +149,21 @@ sources=(
   OnboardingPolicy
   OpenMenuWait
   OutputVolumePlan
+  OverflowAutoMove
+  OwnArrangedItem
   OwnBundle
+  PauseState
   PermissionListing
   PinnedSystemItems
   PlaybackClock
+  PreviousAppImport
   PrivateFeatureGate
+  ReadoutFormat
+  ReadoutHistory
+  ReadoutLedger
+  ReadoutTiles
+  ReadoutValues
+  ReopenGate
   ReorderDrag
   RevealAnimationPolicy
   RevealAnimationSchedule
@@ -148,7 +187,10 @@ sources=(
   ShelfFind
   ShelfFindRanking
   ShortcutLink
+  SoftwareDimming
   SystemActivity
+  ThresholdEvaluator
+  ThresholdRule
   TimerBoard
   TimerFinishSound
   TimerInput
@@ -157,6 +199,7 @@ sources=(
   UngovernedItemOwners
   URLCommand
   URLPrompt
+  VolumeSteps
   WidgetDefinition
   WidgetFormat
   WidgetReadings
@@ -176,20 +219,33 @@ tests=(
   AccessoryLowBatteryGateTests
   AccessoryRefreshPolicyTests
   AccessoryTrackerTests
+  AgentRestartBreakerTests
+  AlertNotificationPlanTests
+  AlertRequestPlanTests
+  AlertSeverityTests
   AppearanceMoodsTests
   AppleItemReplacementTests
   AppVersionTests
+  AudioOutputListTests
   AutomationEngineTests
   AXSnapshotTests
   BarClickTraceTests
+  BatteryGlyphTests
   BatteryLevelTests
   BuiltInItemTests
+  CalendarEventTests
   CalendarReadFreshnessTests
   CalendarSelectionTests
+  ClickPairingTests
   ClockClickPolicyTests
+  ClosedHubWorkTests
+  ClosedNotchHeightTests
   CommandDragSectionTests
+  ConnectedDeviceListTests
   ControlCenterControlTests
   ControlItemOrderTests
+  CountdownScheduleTests
+  CPUClustersTests
   DDCCapabilitiesTests
   DDCDisplayMatchTests
   DDCFailurePolicyTests
@@ -197,6 +253,7 @@ tests=(
   DDCPacketTests
   DDCRegistryPairingTests
   DDCReplyTests
+  DDCWakeGateTests
   DDCWriteCoalescerTests
   DefaultsKeyNamesTests
   DesignTokensTests
@@ -204,7 +261,11 @@ tests=(
   DisplayBehaviorTests
   DisplayControlsLevelTests
   DisplayControlsOrderTests
+  DisplayCutoutTests
   DividerPlausibilityTests
+  DockBadgeLabelTests
+  DockBadgeRefreshTests
+  DockBadgeSettingsTests
   DockIconPolicyTests
   DownloadScanTests
   DownloadTrackerTests
@@ -220,9 +281,13 @@ tests=(
   HubLiveStateTests
   HubModuleLifecycleTests
   HubModuleRowTests
+  HubPinTests
+  HubScrollGestureTests
   HubStatusPillsTests
   HubTabStripTests
+  IndicatorPolicyTests
   InputMonitorsTests
+  InputSourceLabelTests
   InterfaceWindowRuleTests
   ItemCategoryTests
   ItemChangeCadenceTests
@@ -231,6 +296,7 @@ tests=(
   ItemOrderTests
   ItemPlaceholderTests
   ItemRuleMemoryTests
+  ItemSpacingAvailabilityTests
   ItemTimerTests
   LayoutDraftTests
   LayoutListTests
@@ -238,22 +304,28 @@ tests=(
   LayoutProfileTests
   LayoutSnapshotTests
   LegacyRevealRulesTests
+  LiveActivityItemTests
   MenuBarAnchorTests
   MenuBarDragDeciderTests
+  MenuBarFitTests
   MenuBarIconChoiceTests
   MenuBarDropTests
   MenuBarPillsTests
+  MediaKeyPressTests
   MeetingLinksTests
   MenuBarStyleOptionsTests
   ModuleCatalogTests
   MoveBackoffTests
   MoveNeighbourCheckTests
+  NewAppQuestionTests
   NextEventsTests
   NotchHubDisplaysTests
   NotchHubGeometryTests
   NotchHubPolicyTests
   NotificationBannerParserTests
   NotificationLogTests
+  NotificationQueueTests
+  NotShownAppsTests
   NowPlayingModelTests
   NowPlayingPayloadTests
   NowPlayingPlayersTests
@@ -262,11 +334,21 @@ tests=(
   OnboardingPolicyTests
   OpenMenuWaitTests
   OutputVolumePlanTests
+  OverflowAutoMoveTests
+  OwnArrangedItemTests
   OwnBundleTests
+  PauseStateTests
   PermissionListingTests
   PinnedSystemItemsTests
   PlaybackClockTests
+  PreviousAppImportTests
   PrivateFeatureGateTests
+  ReadoutFormatTests
+  ReadoutHistoryTests
+  ReadoutLedgerTests
+  ReadoutTilesTests
+  ReadoutValuesTests
+  ReopenGateTests
   ReorderDragTests
   RevealAnimationPolicyTests
   RevealAnimationScheduleTests
@@ -289,7 +371,10 @@ tests=(
   ShelfDropTests
   ShelfFindTests
   ShortcutLinkTests
+  SoftwareDimmingTests
   SystemActivityTests
+  ThresholdEvaluatorTests
+  ThresholdRuleTests
   TimerBoardTests
   TimerFinishSoundTests
   TimerInputTests
@@ -298,6 +383,7 @@ tests=(
   UngovernedItemOwnersTests
   URLCommandTests
   URLPromptTests
+  VolumeStepsTests
   WidgetDefinitionTests
   WidgetFormatTests
   WidgetReadingsTests

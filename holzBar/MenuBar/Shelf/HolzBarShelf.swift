@@ -384,6 +384,9 @@ final class HolzBarShelfPanel: NSPanel {
         acceptsKeyboard = false
         listsAlwaysHidden = false
         appState?.navigationState.isShelfPresented = false
+        if #available(macOS 27.0, *) {
+            appState?.makeRoom27.surfaceDidClose(.shelf)
+        }
     }
 }
 
@@ -625,8 +628,16 @@ private struct HolzBarShelfContentView: View {
         menuBarManager.shelfPanel.dragModel
     }
 
+    /// Whether the notice row under the tiles shows: the Shelf then takes the panel's radius.
+    private var showsNotice: Bool {
+        guard #available(macOS 27.0, *) else { return false }
+        return HolzBarShelfNotice.isShown(appState: appState)
+    }
+
     private var clipShape: some InsettableShape {
-        if style == .floating {
+        if showsNotice {
+            HolzBarTheme.shape(HolzBarTheme.Radius.panel)
+        } else if style == .floating {
             // A capsule for one row, a rounded panel for a grid or a column.
             RoundedRectangle(
                 cornerRadius: HolzBarShelfPlacement.floatingCornerRadius(forHeight: barHeight),
@@ -731,15 +742,20 @@ private struct HolzBarShelfContentView: View {
 
     var body: some View {
         ZStack {
-            content
-                .frame(height: layout == .row ? contentHeight : nil)
-                .frame(minHeight: layout == .row ? nil : contentHeight)
-                .padding(.horizontal, horizontalPadding)
-                .padding(.vertical, verticalPadding)
-                .menuBarItemContainer(appState: appState, colorInfo: backgroundColorInfo)
-                .foregroundStyle(colorManager.colorInfo?.color.brightness ?? 0 > 0.67 ? .black : .white)
-                .clipShape(clipShape)
-                .shadow(color: shadow.color, radius: shadow.radius, y: shadow.y)
+            VStack(spacing: 0) {
+                content
+                    .frame(height: layout == .row ? contentHeight : nil)
+                    .frame(minHeight: layout == .row ? nil : contentHeight)
+                    .padding(.horizontal, horizontalPadding)
+                    .padding(.vertical, verticalPadding)
+                if #available(macOS 27.0, *) {
+                    HolzBarShelfNotice(appState: appState, highlightedID: highlightedID)
+                }
+            }
+            .menuBarItemContainer(appState: appState, colorInfo: backgroundColorInfo)
+            .foregroundStyle(colorManager.colorInfo?.color.brightness ?? 0 > 0.67 ? .black : .white)
+            .clipShape(clipShape)
+            .shadow(color: shadow.color, radius: shadow.radius, y: shadow.y)
 
             if dragModel.isDropTargeted {
                 // A dragged menu bar item is over the Shelf: the drop will hide its app.
@@ -819,6 +835,8 @@ private struct HolzBarShelfContentView: View {
             return moveHighlight(.up)
         case .downArrow:
             return moveHighlight(.down)
+        case .tab:
+            return moveHighlightBetweenTilesAndNotice(backward: press.modifiers.contains(.shift))
         case .return, .space:
             return openHighlightedTile()
         case .escape:
@@ -860,6 +878,12 @@ private struct HolzBarShelfContentView: View {
     /// something is typed it steps through the matches instead: left and up go back toward the
     /// best one, right and down on.
     private func moveHighlight(_ step: ShelfLayoutPlan.Step) -> KeyPress.Result {
+        if #available(macOS 27.0, *), highlightedID?.hasPrefix("notice.") == true,
+           case .chip(let id)? = HolzBarShelfNotice.step(from: highlightedID, backward: step == .left || step == .up, appState: appState) {
+            // Inside the notice row the arrows step through its chips.
+            highlightedID = id
+            return .handled
+        }
         let tiles = contents.tiles
         let navigable = tiles.filter(\.isNavigable)
         guard !navigable.isEmpty else {
@@ -881,8 +905,24 @@ private struct HolzBarShelfContentView: View {
         return .handled
     }
 
+    /// Tab and Shift-Tab step through the notice row's chips in order, then back to the tiles.
+    private func moveHighlightBetweenTilesAndNotice(backward: Bool) -> KeyPress.Result {
+        guard #available(macOS 27.0, *), let next = HolzBarShelfNotice.step(from: highlightedID, backward: backward, appState: appState) else { return .ignored }
+        if case .chip(let id) = next {
+            highlightedID = id
+        } else {
+            let navigable = contents.tiles.filter(\.isNavigable)
+            highlightedID = (layout == .row ? navigable.last : navigable.first)?.id
+        }
+        return .handled
+    }
+
     /// Opens the highlighted tile through the same path as a click.
     private func openHighlightedTile() -> KeyPress.Result {
+        if #available(macOS 27.0, *), let id = highlightedID, id.hasPrefix("notice.") {
+            HolzBarShelfNotice.activate(chipID: id, appState: appState)
+            return .handled
+        }
         let contents = contents
         guard let tile = contents.tiles.first(where: { $0.id == highlightedID }) else {
             return .ignored

@@ -199,7 +199,10 @@ enum SettingsBackup {
     /// The new instance gets this one's process identifier (``Relaunch``) and waits until
     /// this one has quit before it sets up. When the new instance cannot be started, this one
     /// keeps running and says so.
-    static func relaunch() {
+    ///
+    /// - Parameter onFailure: Called before the message when the new instance could not be
+    ///   started, so a caller that waits for the restart (a sheet that locks itself) can let go.
+    static func relaunch(onFailure: (@MainActor () -> Void)? = nil) {
         // The new instance reads the settings at once, so write them out first.
         CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
 
@@ -211,6 +214,7 @@ enum SettingsBackup {
         NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { @Sendable _, error in
             Task { @MainActor in
                 if let error {
+                    onFailure?()
                     await Self.show(
                         error,
                         message: String(localized: "holzBar could not restart itself. Quit holzBar and open it again."),

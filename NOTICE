@@ -45,6 +45,13 @@ one line per adapted file:
   - holzBar/Core/SecondaryMenuOwnership.swift adapts the Option rule of Thaw's
     Thaw/Input/Events/SecondaryMenuOwnership.swift (Copyright (C) 2026 Toni Förster).
 
+Code adapted from pull requests to Ice (https://github.com/jordanbaird/Ice, GPL-3.0),
+one line per adapted file:
+
+  - holzBar/MenuBar/Shelf/HolzBarShelfColorManager.swift adapts Abin Madathil's pull request
+    https://github.com/jordanbaird/Ice/pull/1021 (the Shelf takes its colour from the display
+    it is on).
+
 holzBar links no third-party package; the adapted projects and their licenses are
 listed in the app under Settings, About, Acknowledgements.
 

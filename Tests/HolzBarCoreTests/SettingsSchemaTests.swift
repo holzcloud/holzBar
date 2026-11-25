@@ -99,7 +99,6 @@ struct SettingsSchemaTests {
 
     @Test("A settings file cannot set the key the 0.0.7 betas used for settings sync")
     func settingsFileCannotSetLeftoverKey() {
-        #expect(Defaults.Key.localOnlyKeys.contains(.syncsSettingsWithICloud))
         #expect(Defaults.Key.importableKinds["SyncsSettingsWithICloud"] == nil)
         let result = Defaults.Key.validatedSettings(["SyncsSettingsWithICloud": true, "ShowOnHover": true], ownBundleIdentifier: ownBundle)
         #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
@@ -267,6 +266,275 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["DisplayControlsExternalMonitors"])
     }
 
+    @Test("The dimming levels are a local-only dictionary that no file can set")
+    func displayControlsDimLevelsStayLocal() {
+        #expect(Defaults.Key.displayControlsDimLevels.rawValue == "DisplayControlsDimLevels")
+        #expect(Defaults.Key.displayControlsDimLevels.settingsKind == .dictionary)
+        #expect(Defaults.Key.localOnlyKeys.contains(.displayControlsDimLevels))
+        #expect(Defaults.Key.importableKinds["DisplayControlsDimLevels"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["DisplayControlsDimLevels": ["A": 0.5], "DisplayControlsBrightness": false],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["DisplayControlsBrightness"])
+        #expect(result.ignored == ["DisplayControlsDimLevels"])
+    }
+
+    @Test("The System readouts switch for the GPU read is a local-only Boolean that no file can set")
+    func readoutsReadsGPUStaysLocal() {
+        #expect(Defaults.Key.readoutsReadsGPU.rawValue == "ReadoutsReadsGPU")
+        #expect(Defaults.Key.readoutsReadsGPU.settingsKind == .bool)
+        #expect(Defaults.Key.localOnlyKeys.contains(.readoutsReadsGPU))
+        #expect(Defaults.Key.importableKinds["ReadoutsReadsGPU"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["ReadoutsReadsGPU": true, "ShowOnHover": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["ReadoutsReadsGPU"])
+    }
+
+    @Test("The marker that offers the undo of an import is a local-only Boolean that no file can set")
+    func previousAppImportUndoPendingStaysLocal() {
+        #expect(Defaults.Key.previousAppImportUndoPending.rawValue == "PreviousAppImportUndoPending")
+        #expect(Defaults.Key.previousAppImportUndoPending.settingsKind == .bool)
+        #expect(Defaults.Key.localOnlyKeys.contains(.previousAppImportUndoPending))
+        #expect(Defaults.Key.importableKinds["PreviousAppImportUndoPending"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["PreviousAppImportUndoPending": true, "ShowOnHover": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["PreviousAppImportUndoPending"])
+    }
+
+    @Test("The System notifications switch is a per-Mac permission state and no file can set it")
+    func systemAlertsNotificationsStaysLocal() {
+        #expect(Defaults.Key.systemAlertsNotifications.rawValue == "SystemAlertsNotifications")
+        #expect(Defaults.Key.systemAlertsNotifications.settingsKind == .bool)
+        #expect(Defaults.Key.localOnlyKeys.contains(.systemAlertsNotifications))
+        #expect(Defaults.Key.importableKinds["SystemAlertsNotifications"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["SystemAlertsNotifications": true, "ShowOnHover": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["SystemAlertsNotifications"])
+    }
+
+    @Test("The network speed unit travels with a settings file, as 0 or 1 only")
+    func readoutsRateUnitTravels() {
+        #expect(Defaults.Key.readoutsRateUnit.rawValue == "ReadoutsRateUnit")
+        #expect(Defaults.Key.readoutsRateUnit.settingsKind == .number)
+        #expect(Defaults.Key.readoutsRateUnit.numberRule == .wholeNumber(0...1))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.readoutsRateUnit))
+        #expect(Defaults.Key.importableKinds["ReadoutsRateUnit"] == .number)
+        let accepted = Defaults.Key.validatedSettings(["ReadoutsRateUnit": 1], ownBundleIdentifier: ownBundle)
+        #expect((accepted.accepted["ReadoutsRateUnit"] as? NSNumber)?.intValue == 1)
+        for refused: Any in [2, 0.5, -1] {
+            let result = Defaults.Key.validatedSettings(["ReadoutsRateUnit": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted["ReadoutsRateUnit"] == nil)
+            #expect(result.ignored == ["ReadoutsRateUnit"])
+        }
+        #expect(ReadoutRateUnit(rawValue: 1) == .bits)
+    }
+
+    @Test("The tile switches of System readouts travel with a settings file, and only known ids")
+    func readoutTilesTravel() {
+        #expect(Defaults.Key.readoutTiles.rawValue == "ReadoutTiles")
+        #expect(Defaults.Key.readoutTiles.settingsKind == .stringArray)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.readoutTiles))
+        #expect(Defaults.Key.importableKinds["ReadoutTiles"] == .stringArray)
+        let result = Defaults.Key.validatedSettings(["ReadoutTiles": ["cpu", "x", "cpu"]], ownBundleIdentifier: ownBundle)
+        #expect(result.accepted["ReadoutTiles"] as? [String] == ["cpu"])
+        let mixed: [Any] = ["cpu", 1]
+        let refused = Defaults.Key.validatedSettings(["ReadoutTiles": mixed], ownBundleIdentifier: ownBundle)
+        #expect(refused.accepted["ReadoutTiles"] == nil)
+        #expect(refused.ignored == ["ReadoutTiles"])
+    }
+
+    @Test("The tile refresh of System readouts travels with a settings file, from 2 to 30 seconds")
+    func readoutsTileRefreshTravels() {
+        #expect(Defaults.Key.readoutsTileRefresh.rawValue == "ReadoutsTileRefresh")
+        #expect(Defaults.Key.readoutsTileRefresh.settingsKind == .number)
+        #expect(Defaults.Key.readoutsTileRefresh.numberRule == .wholeNumber(2...30))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.readoutsTileRefresh))
+        #expect(Defaults.Key.importableKinds["ReadoutsTileRefresh"] == .number)
+        let accepted = Defaults.Key.validatedSettings(["ReadoutsTileRefresh": 10], ownBundleIdentifier: ownBundle)
+        #expect((accepted.accepted["ReadoutsTileRefresh"] as? NSNumber)?.intValue == 10)
+        for refused: Any in [45, 1, 2.5] {
+            let result = Defaults.Key.validatedSettings(["ReadoutsTileRefresh": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted["ReadoutsTileRefresh"] == nil)
+            #expect(result.ignored == ["ReadoutsTileRefresh"])
+        }
+    }
+
+    @Test("The notification display time travels with a settings file, from 3 to 30 seconds")
+    func notificationsDisplayTimeTravels() {
+        #expect(Defaults.Key.notificationsDisplayTime.rawValue == "NotificationsDisplayTime")
+        #expect(Defaults.Key.notificationsDisplayTime.settingsKind == .number)
+        #expect(Defaults.Key.notificationsDisplayTime.numberRule == .wholeNumber(3...30))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.notificationsDisplayTime))
+        #expect(Defaults.Key.importableKinds["NotificationsDisplayTime"] == .number)
+        let accepted = Defaults.Key.validatedSettings(["NotificationsDisplayTime": 10], ownBundleIdentifier: ownBundle)
+        #expect((accepted.accepted["NotificationsDisplayTime"] as? NSNumber)?.intValue == 10)
+        for refused: Any in [100, 1, 2.5, "5"] {
+            let result = Defaults.Key.validatedSettings(["NotificationsDisplayTime": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted["NotificationsDisplayTime"] == nil)
+            #expect(result.ignored == ["NotificationsDisplayTime"])
+        }
+    }
+
+    @Test("The countdown lead travels with a settings file, from 0 to 15 minutes")
+    func calendarCountdownLeadTravels() {
+        #expect(Defaults.Key.calendarCountdownLead.rawValue == "CalendarCountdownLead")
+        #expect(Defaults.Key.calendarCountdownLead.settingsKind == .number)
+        #expect(Defaults.Key.calendarCountdownLead.numberRule == .wholeNumber(0...15))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.calendarCountdownLead))
+        #expect(Defaults.Key.importableKinds["CalendarCountdownLead"] == .number)
+        let accepted = Defaults.Key.validatedSettings(["CalendarCountdownLead": 10], ownBundleIdentifier: ownBundle)
+        #expect((accepted.accepted["CalendarCountdownLead"] as? NSNumber)?.intValue == 10)
+        for refused: Any in [100, -1, 2.5, "5"] {
+            let result = Defaults.Key.validatedSettings(["CalendarCountdownLead": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted["CalendarCountdownLead"] == nil)
+            #expect(result.ignored == ["CalendarCountdownLead"])
+        }
+    }
+
+    @Test("The System alerts rule settings travel with a settings file: five switches and ten whole numbers")
+    func systemAlertsKeysTravel() {
+        let switches: [Defaults.Key] = [
+            .systemAlertsCPU, .systemAlertsMemoryPressure, .systemAlertsThermal,
+            .systemAlertsFreeDisk, .systemAlertsMacBattery,
+        ]
+        for key in switches {
+            #expect(key.settingsKind == .bool)
+            #expect(!Defaults.Key.localOnlyKeys.contains(key))
+            #expect(Defaults.Key.importableKinds[key.rawValue] == .bool)
+        }
+        #expect(Defaults.Key.systemAlertsCPU.rawValue == "SystemAlertsCPU")
+        #expect(Defaults.Key.systemAlertsMacBatteryHold.rawValue == "SystemAlertsMacBatteryHold")
+        let numbers: [(Defaults.Key, ClosedRange<Int>)] = [
+            (.systemAlertsCPUThreshold, 50...95),
+            (.systemAlertsMemoryPressureLevel, 1...2),
+            (.systemAlertsThermalLevel, 1...3),
+            (.systemAlertsFreeDiskThreshold, 5...200),
+            (.systemAlertsMacBatteryThreshold, 5...50),
+            (.systemAlertsCPUHold, 0...900),
+            (.systemAlertsMemoryPressureHold, 0...900),
+            (.systemAlertsThermalHold, 0...900),
+            (.systemAlertsFreeDiskHold, 0...900),
+            (.systemAlertsMacBatteryHold, 0...900),
+        ]
+        for (key, range) in numbers {
+            #expect(key.settingsKind == .number)
+            #expect(key.numberRule == .wholeNumber(Double(range.lowerBound)...Double(range.upperBound)))
+            #expect(!Defaults.Key.localOnlyKeys.contains(key))
+            #expect(Defaults.Key.importableKinds[key.rawValue] == .number)
+            let accepted = Defaults.Key.validatedSettings([key.rawValue: range.lowerBound], ownBundleIdentifier: ownBundle)
+            #expect((accepted.accepted[key.rawValue] as? NSNumber)?.intValue == range.lowerBound)
+            for refused: Any in [range.upperBound + 1, range.lowerBound - 1, 0.5 + Double(range.lowerBound)] {
+                let result = Defaults.Key.validatedSettings([key.rawValue: refused], ownBundleIdentifier: ownBundle)
+                #expect(result.accepted[key.rawValue] == nil)
+                #expect(result.ignored == [key.rawValue])
+            }
+        }
+    }
+
+    @Test("A CPU threshold of 120 and a hold of 100000 are refused on import")
+    func systemAlertsOutOfRangeNumbersAreRefused() {
+        let result = Defaults.Key.validatedSettings(
+            ["SystemAlertsCPUThreshold": 120, "SystemAlertsCPUHold": 100_000, "SystemAlertsCPU": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["SystemAlertsCPU"])
+        #expect(result.ignored == ["SystemAlertsCPUHold", "SystemAlertsCPUThreshold"])
+    }
+
+    @Test("The schema accepts exactly the memory and thermal levels that Core keeps")
+    func systemAlertsLevelsAgreeWithCore() throws {
+        let memoryRule = try #require(Defaults.Key.systemAlertsMemoryPressureLevel.numberRule)
+        for number in -2...6 {
+            let kept = ThresholdRule.validatedLimit(number, for: .memoryPressure) == number
+            #expect((memoryRule.sanitized(NSNumber(value: number)) != nil) == kept, "memory level \(number)")
+        }
+        let thermalRule = try #require(Defaults.Key.systemAlertsThermalLevel.numberRule)
+        for number in -2...6 {
+            let kept = ThresholdRule.validatedLimit(number, for: .thermal) == number
+            #expect((thermalRule.sanitized(NSNumber(value: number)) != nil) == kept, "thermal level \(number)")
+        }
+    }
+
+    @Test("The Notch hub's display cutout override is a local-only whole number that no file can set")
+    func notchHubCutoutStaysLocal() {
+        #expect(Defaults.Key.notchHubCutout.rawValue == "NotchHubCutout")
+        #expect(Defaults.Key.notchHubCutout.settingsKind == .number)
+        #expect(Defaults.Key.notchHubCutout.numberRule == .wholeNumber(0...3))
+        #expect(Defaults.Key.localOnlyKeys.contains(.notchHubCutout))
+        #expect(Defaults.Key.importableKinds["NotchHubCutout"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["NotchHubCutout": 2, "ShowOnHover": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["NotchHubCutout"])
+    }
+
+    @Test("What holzBar does when the menu bar is full travels with a settings file, as 0, 1 or 2 only")
+    func makeRoomModeTravels() {
+        #expect(Defaults.Key.makeRoomMode.rawValue == "MakeRoomMode")
+        #expect(Defaults.Key.makeRoomMode.settingsKind == .number)
+        #expect(Defaults.Key.makeRoomMode.numberRule == .wholeNumber(0...2))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.makeRoomMode))
+        #expect(Defaults.Key.importableKinds["MakeRoomMode"] == .number)
+        for accepted: Any in [1, 2] {
+            let result = Defaults.Key.validatedSettings(["MakeRoomMode": accepted], ownBundleIdentifier: ownBundle)
+            #expect((result.accepted["MakeRoomMode"] as? NSNumber)?.intValue == (accepted as? Int))
+        }
+        for refused: Any in [7, 1.5, -1] {
+            let result = Defaults.Key.validatedSettings(["MakeRoomMode": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted["MakeRoomMode"] == nil)
+            #expect(result.ignored == ["MakeRoomMode"])
+        }
+    }
+
+    @Test("The waiting new-app questions stay on this Mac, as a string array")
+    func newAppQuestionPendingStaysLocal() {
+        #expect(Defaults.Key.newAppQuestionPending.rawValue == "NewAppQuestionPending")
+        #expect(Defaults.Key.newAppQuestionPending.settingsKind == .stringArray)
+        #expect(Defaults.Key.importableKinds["NewAppQuestionPending"] == nil)
+        #expect(Defaults.Key.localOnlyKeys.contains(.newAppQuestionPending))
+        let result = Defaults.Key.validatedSettings(
+            ["NewAppQuestionPending": ["com.example.Tool"], "ShowOnHover": true], ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+    }
+
+    @Test("The declined new-app questions stay on this Mac, as a string array")
+    func newAppQuestionDeclinedStaysLocal() {
+        #expect(Defaults.Key.newAppQuestionDeclined.rawValue == "NewAppQuestionDeclined")
+        #expect(Defaults.Key.newAppQuestionDeclined.settingsKind == .stringArray)
+        #expect(Defaults.Key.importableKinds["NewAppQuestionDeclined"] == nil)
+        #expect(Defaults.Key.localOnlyKeys.contains(.newAppQuestionDeclined))
+        let result = Defaults.Key.validatedSettings(
+            ["NewAppQuestionDeclined": ["com.example.Tool"], "ShowOnHover": true], ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+    }
+
+    @Test("Whether holzBar asks where a new app goes travels with a settings file, as a Boolean only")
+    func asksWhereNewAppGoesTravels() {
+        #expect(Defaults.Key.asksWhereNewAppGoes.rawValue == "AsksWhereNewAppGoes")
+        #expect(Defaults.Key.asksWhereNewAppGoes.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.asksWhereNewAppGoes))
+        #expect(Defaults.Key.importableKinds["AsksWhereNewAppGoes"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(["AsksWhereNewAppGoes": true], ownBundleIdentifier: ownBundle)
+        #expect((accepted.accepted["AsksWhereNewAppGoes"] as? Bool) == true)
+        let refused = Defaults.Key.validatedSettings(["AsksWhereNewAppGoes": "yes"], ownBundleIdentifier: ownBundle)
+        #expect(refused.accepted["AsksWhereNewAppGoes"] == nil)
+        #expect(refused.ignored == ["AsksWhereNewAppGoes"])
+    }
+
     @Test("The notch hub's settings travel with a settings file, and only the displays within their choices")
     func notchHubSettingsTravel() {
         #expect(Defaults.Key.importableKinds["NotchHubOpensOnHover"] == .bool)
@@ -277,7 +545,10 @@ struct SettingsSchemaTests {
             ownBundleIdentifier: ownBundle
         )
         #expect(accepted.accepted.keys.sorted() == ["NotchHubDisplays", "NotchHubOpensOnHover", "NotchHubShowsActiveFirst"])
-        for refused: Double in [3, 1.5, .nan] {
+        // Follow the pointer, the fourth choice, is raw value 3 and imports as 3 (D-11).
+        let followPointer = Defaults.Key.validatedSettings(["NotchHubDisplays": 3], ownBundleIdentifier: ownBundle)
+        #expect((followPointer.accepted["NotchHubDisplays"] as? NSNumber)?.intValue == 3)
+        for refused: Double in [4, -1, 1.5, .nan] {
             let result = Defaults.Key.validatedSettings(["NotchHubDisplays": refused], ownBundleIdentifier: ownBundle)
             #expect(result.accepted.isEmpty)
             #expect(result.ignored == ["NotchHubDisplays"])
@@ -377,6 +648,100 @@ struct SettingsSchemaTests {
         #expect(clamped.accepted["AccessoryAlertsLowBatteryLevel"] as? Double == 30)
     }
 
+    @Test("The Indicators settings travel: the input source switch and its duration, clamped to 0.5 to 3")
+    func indicatorsSettingsTravel() {
+        #expect(Defaults.Key.indicatorsInputSource.rawValue == "IndicatorsInputSource")
+        #expect(Defaults.Key.indicatorsInputSourceDuration.rawValue == "IndicatorsInputSourceDuration")
+        #expect(Defaults.Key.indicatorsInputSource.settingsKind == .bool)
+        #expect(Defaults.Key.indicatorsInputSourceDuration.settingsKind == .number)
+        #expect(Defaults.Key.indicatorsInputSourceDuration.numberRule == .clamped(0.5...3))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.indicatorsInputSource))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.indicatorsInputSourceDuration))
+        #expect(Defaults.Key.importableKinds["IndicatorsInputSource"] == .bool)
+        #expect(Defaults.Key.importableKinds["IndicatorsInputSourceDuration"] == .number)
+        let accepted = Defaults.Key.validatedSettings(
+            ["IndicatorsInputSource": true, "IndicatorsInputSourceDuration": 2],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(accepted.accepted.keys.sorted() == ["IndicatorsInputSource", "IndicatorsInputSourceDuration"])
+        for refused: Any in [1.5, 2, "yes", ["a"]] {
+            let result = Defaults.Key.validatedSettings(["IndicatorsInputSource": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+        for refused: Any in ["2", true, ["a"]] {
+            let result = Defaults.Key.validatedSettings(["IndicatorsInputSourceDuration": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+        // A number out of range is clamped on import and on every read; a value that is not a number
+        // never reaches the model.
+        let high = Defaults.Key.validatedSettings(["IndicatorsInputSourceDuration": 9], ownBundleIdentifier: ownBundle)
+        #expect(high.accepted["IndicatorsInputSourceDuration"] as? Double == 3)
+        let low = Defaults.Key.validatedSettings(["IndicatorsInputSourceDuration": 0.1], ownBundleIdentifier: ownBundle)
+        #expect(low.accepted["IndicatorsInputSourceDuration"] as? Double == 0.5)
+        #expect(Defaults.Key.indicatorsInputSourceDuration.clamped(9, fallback: 1.5) == 3)
+        #expect(Defaults.Key.indicatorsInputSourceDuration.clamped(0.1, fallback: 1.5) == 0.5)
+        #expect(Defaults.Key.indicatorsInputSourceDuration.clamped(.nan, fallback: 1.5) == 1.5)
+        // The model then snaps what it reads to the nearest choice (96-02's IndicatorLook).
+        #expect(IndicatorLook.inputSourceDuration(Defaults.Key.indicatorsInputSourceDuration.clamped(9, fallback: 1.5)) == 3)
+        #expect(IndicatorLook.inputSourceDuration(Defaults.Key.indicatorsInputSourceDuration.clamped(0.1, fallback: 1.5)) == 0.5)
+        #expect(IndicatorLook.inputSourceDuration(1.7) == 1.5)
+    }
+
+    @Test("The Indicators volume and brightness switch is a bool and importable")
+    func indicatorsVolumeBrightnessTravels() {
+        #expect(Defaults.Key.indicatorsVolumeBrightness.rawValue == "IndicatorsVolumeBrightness")
+        #expect(Defaults.Key.indicatorsVolumeBrightness.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.indicatorsVolumeBrightness))
+        #expect(Defaults.Key.importableKinds["IndicatorsVolumeBrightness"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(["IndicatorsVolumeBrightness": true], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["IndicatorsVolumeBrightness"])
+        for refused: Any in [1.5, 2, "yes", ["a"]] {
+            let result = Defaults.Key.validatedSettings(["IndicatorsVolumeBrightness": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+    }
+
+    @Test("The Indicators Replace the system display switch is a bool and stays on this Mac")
+    func indicatorsReplacesSystemDisplayStaysLocal() {
+        #expect(Defaults.Key.indicatorsReplacesSystemDisplay.rawValue == "IndicatorsReplacesSystemDisplay")
+        #expect(Defaults.Key.indicatorsReplacesSystemDisplay.settingsKind == .bool)
+        #expect(Defaults.Key.localOnlyKeys.contains(.indicatorsReplacesSystemDisplay))
+        #expect(Defaults.Key.importableKinds["IndicatorsReplacesSystemDisplay"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["IndicatorsReplacesSystemDisplay": true, "ShowOnHover": true], ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["IndicatorsReplacesSystemDisplay"])
+    }
+
+    @Test("The notch hub's Bounce switch is a bool and importable")
+    func notchHubBouncesTravels() {
+        #expect(Defaults.Key.notchHubBounces.rawValue == "NotchHubBounces")
+        #expect(Defaults.Key.notchHubBounces.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.notchHubBounces))
+        #expect(Defaults.Key.importableKinds["NotchHubBounces"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(["NotchHubBounces": false], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["NotchHubBounces"])
+        for refused: Any in [1.5, 2, "yes", ["a"]] {
+            let result = Defaults.Key.validatedSettings(["NotchHubBounces": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+    }
+
+    @Test("The notch hub's Gestures switch is a bool and importable")
+    func notchHubGesturesTravels() {
+        #expect(Defaults.Key.notchHubGestures.rawValue == "NotchHubGestures")
+        #expect(Defaults.Key.notchHubGestures.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.notchHubGestures))
+        #expect(Defaults.Key.importableKinds["NotchHubGestures"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(["NotchHubGestures": true], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["NotchHubGestures"])
+        for refused: Any in [1.5, 2, "yes", ["a"]] {
+            let result = Defaults.Key.validatedSettings(["NotchHubGestures": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+    }
+
     @Test("The display controls' brightness setting travels")
     func displayControlsBrightnessSettingTravels() {
         #expect(Defaults.Key.importableKinds["DisplayControlsBrightness"] == .bool)
@@ -474,6 +839,17 @@ struct SettingsSchemaTests {
         let result = Defaults.Key.validatedSettings(["DebugHangsItemImageCapture": true, "ShowOnHover": true], ownBundleIdentifier: ownBundle)
         #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
         #expect(result.ignored == ["DebugHangsItemImageCapture"])
+    }
+
+    @Test("The click bridge's main-thread fallback stays on this Mac")
+    func clickBridgeOnMainThreadStaysLocal() {
+        #expect(Defaults.Key.macOS27ClickBridgeOnMainThread.rawValue == "MacOS27ClickBridgeOnMainThread")
+        #expect(Defaults.Key.macOS27ClickBridgeOnMainThread.settingsKind == .bool)
+        #expect(Defaults.Key.localOnlyKeys.contains(.macOS27ClickBridgeOnMainThread))
+        #expect(Defaults.Key.importableKinds["MacOS27ClickBridgeOnMainThread"] == nil)
+        let result = Defaults.Key.validatedSettings(["MacOS27ClickBridgeOnMainThread": true, "ShowOnHover": true], ownBundleIdentifier: ownBundle)
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["MacOS27ClickBridgeOnMainThread"])
     }
 
     @Test("Numbers out of range are clamped, and infinity and NaN refused")

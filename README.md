@@ -36,9 +36,9 @@ If you looked for an Ice fork that runs on macOS 27, or a free Bartender alterna
 - **Works on macOS 26 and 27.** A dedicated backend for the redesigned macOS 27 menu bar. Every pull request that changes code launches the app on both and runs the unit tests there. It needs macOS 14 or later; CI runs macOS 26 and 27.
 - **Never online.** No update checks, telemetry or analytics, and a CI check proves the app contains no network code.
 - **No dependencies, modern Swift.** Swift 6 language mode, built with Swift 6.4 and Xcode 27, no third-party packages.
-- **Least privilege.** The first launch asks only for Accessibility; Screen Recording is optional, for pictures of your items; Location Services only when you add a Wi-Fi-name condition to a rule, Bluetooth only when you add a Bluetooth condition or switch on the Accessory alerts module. Calendar access only when you switch on the Calendar module of the notch hub, and access to your Downloads folder only when you switch on its downloads source in the Live activities module (the camera and microphone source needs no permission). Since 0.0.7-beta2 no XPC service or helper app, and from 1.0.0 one signed library for the optional Read all apps of Now Playing, used only while the hub is open and that switch is on; from 1.0.0 holzBar carries one entitlement, `com.apple.security.personal-information.calendars`, which only lets macOS ask you for Calendar access, and no `get-task-allow`.
+- **Least privilege.** The first launch asks only for Accessibility; Screen Recording is optional, for pictures of your items; Location Services only when you add a Wi-Fi-name condition to a rule, Bluetooth only when you add a Bluetooth condition or switch on the Accessory alerts module. Calendar access only when you switch on the Calendar module of the notch hub, and access to your Downloads folder only when you switch on its downloads source in the Live activities module (the camera and microphone source needs no permission). Notifications only when you switch on system notifications for System alerts. Dock badges and the volume and brightness keys of Indicators use the Accessibility access holzBar already has. Since 0.0.7-beta2 no XPC service or helper app, and from 1.0.0 one signed library for the optional Read all apps of Now Playing, used only while the hub is open and that switch is on; from 1.0.0 holzBar carries one entitlement, `com.apple.security.personal-information.calendars`, which only lets macOS ask you for Calendar access, and no `get-task-allow`.
 - **Verifiable releases.** Signed with holzBar's own certificate, with GitHub build provenance and, since 0.0.7-beta2, SLSA Build Level 3 provenance.
-- **More than Ice.** A notch hub with eight optional modules, rules, scripts and widgets, profiles, folders, spacers, Zen mode, Shortcuts actions, URL commands, a command palette and moods, a black menu bar, a camera and microphone dot on macOS 27, a search over every setting, and Undo after every layout change. Available in 20 languages: English and nineteen translations, all machine-made and not yet checked by a native speaker ([how they are made and reviewed](docs/translations.md)).
+- **More than Ice.** A notch hub with nine optional modules, a system monitor with readouts and alerts, Dock badges, an import from Thaw and Hidden Bar, rules, scripts and widgets, profiles, folders, spacers, Zen mode, Shortcuts actions, URL commands, a command palette and moods, a black menu bar, a camera and microphone dot on macOS 27, a search over every setting, and Undo after every layout change. Available in 20 languages: English and nineteen translations, all machine-made and not yet checked by a native speaker ([how they are made and reviewed](docs/translations.md)).
 
 <table>
 <tr>
@@ -70,12 +70,18 @@ Researched on 9 October 2026 from each project's own pages and repositories. A d
 | Undo after every layout change, also in the menu bar | no | in the layout editor | - | yes |
 | Short introduction after the first launch | no | - | - | yes |
 | Brightness, contrast, volume and mute of external monitors over DDC (optional) | no | - | - | yes |
+| System readouts (CPU, memory, network, disk, battery; GPU optional) in the menu bar and the hub | no | no | yes | yes |
+| Threshold alerts in the notch (CPU, memory, heat, disk space, battery) | - | - | - | yes |
+| On macOS 27, a notice when apps do not fit beside the notch or are folded away, with Move to Hidden and Undo | no | - | - | yes |
+| Dock badges: the unread counts of apps in your Dock as menu bar items (optional) | no | - | - | yes |
+| Input source and volume flashed in the closed notch, optionally replacing macOS's volume and brightness display | no | - | - | yes |
+| Import of settings from Thaw and Hidden Bar, with a preview, a backup and Undo | no | no | - | yes |
 | Network connections | Sparkle updates | Sparkle updates | vendor says none | none, enforced by CI |
 | Dependencies, Swift | 5 packages, Swift 5 | 9 packages, Swift 6 | closed | none, Swift 6 |
 | Build provenance | no | Cosign, SLSA | - | SLSA Build Level 3 |
 | Developer ID, notarized | yes | yes | - | no (own certificate) |
 
-Where holzBar loses: it has no Developer ID signature, a slide of the bar's own items on macOS 26 only, a small AppleScript dictionary, and one maintainer. The [full comparison](docs/comparison.md) covers 14 apps, with sources and the cells we could not verify.
+Where holzBar loses: it has no Developer ID signature, a slide of the bar's own items on macOS 26 only, a small AppleScript dictionary, and one maintainer. The [full comparison](docs/comparison.md) covers 20 other apps, with sources and the cells we could not verify.
 
 ## Install
 
@@ -87,7 +93,7 @@ brew trust --cask holzcloud/holzbar/holzbar
 brew install --cask holzcloud/holzbar/holzbar
 ```
 
-For the beta, use `holzbar@beta` in the last two commands. Quit Ice, Thaw, Bartender or Hidden Bar first; your Ice settings are imported on the first launch. Update with `brew update && brew upgrade --cask holzbar`.
+For the beta, use `holzbar@beta` in the last two commands. Quit Ice, Thaw, Bartender or Hidden Bar first; your Ice settings are imported on the first launch, and those of Thaw or Hidden Bar through Settings → Advanced. Update with `brew update && brew upgrade --cask holzbar`.
 
 If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Applications/holzBar.app` and open it again. The release certificate has the SHA-256 `e55f0df15060b8c06c6842ccee85e6bc9f86cbbda3bd408abf991457840b1d95`; how to verify a download is in [docs/signing.md](docs/signing.md#for-users-verify-a-download). Switching channels, updating from 0.0.5 and building from source are in [Build and troubleshooting](docs/build-and-troubleshooting.md).
 
@@ -95,6 +101,20 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 > **macOS 27:** while holzBar hides menu bar items, Control Centre does not draw its camera, microphone and screen recording indicator. holzBar cannot prevent this, so it puts a dot on its own icon while the microphone (orange) or camera (green) is in use. [Details](docs/macos27.md#camera-and-microphone-indicator)
 
 ## What's new
+
+### 1.2.0 beta
+
+- **System monitor**: tiles for the CPU, memory, network, disk and battery, and the GPU behind its own switch, most with a two-minute curve, and alerts in the notch when the CPU, memory, heat, disk space or battery crosses a limit you set
+- **Devices**: Accessory alerts lists your devices with their battery levels, and a widget shows the lowest one
+- **Indicators**: the closed notch flashes the input source and the volume, and can replace macOS's own volume and brightness display
+- **Dock badges**: the unread counts of apps in your Dock as menu bar items, with groups
+- **Import from Thaw and Hidden Bar**: bring over their settings with a preview, a backup and Undo
+- **macOS 27**: a notice when icons are folded away or do not fit beside the notch, with Move to Hidden as one Undo step; ask where a new app goes; the apps macOS does not show
+- **Notch hub**: gestures, a pin, opening on the display with the pointer, the sound output, dimming for a monitor without brightness control, notification cards, and meeting details with a countdown
+- **Menu bar**: a Readable menu bar mood, a Spotlight button and a Large Percent battery format
+- **Fixed**: clicks on system items, apps that launch hidden, menu bar restarts, Live Activities on macOS 27.3, and more
+
+[Release notes](docs/release-notes/v1.2.0-beta1.md) · [full list](docs/features.md#new-in-120)
 
 ### 1.1.1
 
@@ -119,7 +139,7 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 1.0.5 · 1.0.4 · 1.0.3 · 1.0.2 · 1.0.1 · 1.0.0 and older: see the [release notes](docs/release-notes/) and the [full feature list](docs/features.md).
 
-**Planned, not available yet:** more modules for the notch hub. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
+**Planned, not available yet:** restoring your layout automatically on macOS 27, more Shortcuts actions, an optional local MCP server, an app launcher with tools in 1.3.0 and more modules for the notch hub. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
 
 ## More
 

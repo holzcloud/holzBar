@@ -363,6 +363,28 @@ final class MenuBarSection {
         }
     }
 
+    /// What the open-menu rule needs: the apps of the items in the hidden and always-hidden
+    /// sections (holzBar's own excluded) and the tallest menu bar, of every display and of every
+    /// item's own window in it. `nil` without such apps, so that nothing can be an open menu.
+    ///
+    /// Shared by ``hasOpenItemMenu`` and smart rehide's click test.
+    static func openMenuContext(appState: AppState) -> (shownOwners: Set<Int32>, barHeight: CGFloat)? {
+        let itemCache = appState.itemManager.itemCache
+        let shownItems = itemCache[.hidden] + itemCache[.alwaysHidden]
+        var shownOwners = Set(shownItems.map { $0.sourcePID ?? $0.ownerPID })
+        shownOwners.remove(ProcessInfo.processInfo.processIdentifier)
+        guard !shownOwners.isEmpty else {
+            return nil
+        }
+        let barHeight = max(
+            NSScreen.screens.reduce(NSStatusBar.system.thickness) { height, screen in
+                max(height, screen.frame.maxY - screen.visibleFrame.maxY)
+            },
+            itemCache.managedItems.reduce(0) { max($0, $1.bounds.height) }
+        )
+        return (shownOwners, barHeight)
+    }
+
     /// Whether a menu, popover or panel of an app with an item in the hidden or always-hidden
     /// section is open, so that no hide pulls the item away under it.
     ///
@@ -374,32 +396,41 @@ final class MenuBarSection {
     var hasOpenItemMenu: Bool {
         guard
             let menuBarManager,
-            let itemCache = appState?.itemManager.itemCache
+            let appState,
+            let context = Self.openMenuContext(appState: appState)
         else {
             return false
         }
-        let shownItems = itemCache[.hidden] + itemCache[.alwaysHidden]
-        var shownOwners = Set(shownItems.map { $0.sourcePID ?? $0.ownerPID })
-        shownOwners.remove(ProcessInfo.processInfo.processIdentifier)
-        guard !shownOwners.isEmpty else {
-            return false
-        }
-        let allItems = itemCache.managedItems
-        let itemWindows = Set(allItems.map(\.windowID))
-        // The tallest menu bar: of every display, and of every item's own window in it.
-        let barHeight = max(
-            NSScreen.screens.reduce(NSStatusBar.system.thickness) { height, screen in
-                max(height, screen.frame.maxY - screen.visibleFrame.maxY)
-            },
-            allItems.reduce(0) { max($0, $1.bounds.height) }
-        )
+        let itemWindows = Set(appState.itemManager.itemCache.managedItems.map(\.windowID))
+        let displayFrames = NSScreen.screens.map { CGDisplayBounds($0.displayID) }
         let openMenus = WindowInfo.createWindows(option: .onScreen).filter { window in
-            !itemWindows.contains(window.windowID) && InterfaceWindowRule.isOpenMenu(
+            guard !itemWindows.contains(window.windowID) else {
+                return false
+            }
+            if InterfaceWindowRule.isOpenMenu(
                 layer: window.layer,
+                width: window.bounds.width,
                 height: window.bounds.height,
                 ownerPID: window.ownerPID,
-                shownOwners: shownOwners,
-                barHeight: barHeight
+                shownOwners: context.shownOwners,
+                barHeight: context.barHeight
+            ) {
+                return true
+            }
+            // The tooltip of an item: small and directly below the bar of the display that
+            // holds the top centre of the window; a window on no display never counts.
+            let topCentre = CGPoint(x: window.bounds.midX, y: window.bounds.minY)
+            guard let displayFrame = displayFrames.first(where: { $0.contains(topCentre) }) else {
+                return false
+            }
+            return InterfaceWindowRule.isBarTooltip(
+                layer: window.layer,
+                width: window.bounds.width,
+                height: window.bounds.height,
+                topBelowDisplayTop: window.bounds.minY - displayFrame.minY,
+                ownerPID: window.ownerPID,
+                shownOwners: context.shownOwners,
+                barHeight: context.barHeight
             )
         }
         let decision = menuBarManager.openMenuWait.check(

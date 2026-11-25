@@ -25,6 +25,11 @@ extension SettingsCatalog {
                 entries += [.advancedDividerStyle, .advancedShowAllSectionsOnDrag]
             }
             entries.append(.advancedSecondaryContextMenu)
+            entries.append(.advancedReopenSettings)
+            if #available(macOS 27.0, *), MenuBarBackendKind.current == .accessibility27 {
+                entries.append(.advancedMenuBarCommands27)
+                entries.append(.advancedSystemLiveActivities27)
+            }
             if isBeforeMacOS27 {
                 entries += [
                     .advancedKeepLiveActivities,
@@ -39,6 +44,8 @@ extension SettingsCatalog {
                 .advancedDefaultSpacing,
                 .advancedExportSettings,
                 .advancedImportSettings,
+                .advancedImportFromApp,
+                .advancedRestoreBeforeImport,
                 .advancedPermissionAccessibility,
                 .advancedPermissionScreenRecording,
                 .advancedPermissionCalendar,
@@ -46,6 +53,16 @@ extension SettingsCatalog {
             ]
             return entries
         }()
+    }
+}
+
+extension SettingsCatalog {
+    /// The group titles of the import sheet, which is not a pane but follows the pane's rule that
+    /// a group title is a catalogue constant.
+    enum ImportSheet {
+        static let apps = String(localized: "Apps")
+        static let changes = String(localized: "Changes")
+        static let notImported = String(localized: "Not imported")
     }
 }
 
@@ -71,6 +88,30 @@ extension SettingsEntry {
         group: SettingsCatalog.AdvancedPane.menuBar,
         label: String(localized: "Right-click on empty menu bar opens holzBar's menu"),
         info: String(localized: "Right-click in an empty area of the menu bar to display a minimal version of holzBar's menu. From macOS 27.2, hold ⌥ Option as you right-click; a plain right-click opens Apple's menu. Disable this setting if you encounter conflicts with other apps.")
+    )
+
+    static let advancedReopenSettings = SettingsEntry(
+        id: "advancedReopenSettings",
+        pane: .advanced,
+        group: SettingsCatalog.AdvancedPane.menuBar,
+        label: String(localized: "Open Settings when holzBar is opened again"),
+        info: String(localized: "When holzBar is already running, it opens Settings only if you open it again from the Dock, Finder, Spotlight or Launchpad; the same request from Siri, Shortcuts or any other app is ignored.")
+    )
+
+    static let advancedMenuBarCommands27 = SettingsEntry(
+        id: "advancedMenuBarCommands27",
+        pane: .advanced,
+        group: SettingsCatalog.AdvancedPane.menuBar,
+        label: String(localized: "Restart Menu Bar or pause holzBar"),
+        info: String(localized: "Restart Menu Bar quits macOS's menu bar process, which macOS normally starts again, and holzBar hides your items again. Pause holzBar shows every item until you resume it or quit holzBar. Both are also in holzBar's menu and the command palette.")
+    )
+
+    static let advancedSystemLiveActivities27 = SettingsEntry(
+        id: "advancedSystemLiveActivities27",
+        pane: .advanced,
+        group: SettingsCatalog.AdvancedPane.menuBar,
+        label: String(localized: "Apple's Live Activities stay visible"),
+        info: String(localized: "From macOS 27.3, macOS shows Live Activities in the menu bar. holzBar never offers them for hiding and does not count, move or list them; an item it cannot tell apart stays on the bar.")
     )
 
     static let advancedKeepLiveActivities = SettingsEntry(
@@ -118,6 +159,22 @@ extension SettingsEntry {
         pane: .advanced,
         group: SettingsCatalog.AdvancedPane.backUp,
         label: String(localized: "Import settings")
+    )
+
+    static let advancedImportFromApp = SettingsEntry(
+        id: "advancedImportFromApp",
+        pane: .advanced,
+        group: SettingsCatalog.AdvancedPane.backUp,
+        label: String(localized: "Import from another app"),
+        info: String(localized: "Brings over matching settings from Thaw or Hidden Bar. You see what changes first, holzBar keeps a backup and you can undo it.")
+    )
+
+    static let advancedRestoreBeforeImport = SettingsEntry(
+        id: "advancedRestoreBeforeImport",
+        pane: .advanced,
+        group: SettingsCatalog.AdvancedPane.backUp,
+        label: String(localized: "Last import"),
+        info: String(localized: "Puts back the settings the last import changed, as they were before it, and restarts. All other settings stay as they are.")
     )
 
     static let advancedPermissionAccessibility = SettingsEntry(

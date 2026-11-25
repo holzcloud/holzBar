@@ -63,10 +63,26 @@ struct WidgetsSection: View {
         }
     }
 
+    /// The sources the Add Widget menu lists: the two that use a private macOS interface only while
+    /// their switch is on.
+    private var addableSources: [WidgetSource] {
+        let readsGPU = appState.settings.readouts.readsGPU
+        let readsDeviceBattery = appState.connectedDevices.readsBattery
+        return WidgetSource.editorOrder.filter {
+            switch $0 {
+            case .gpuLoad: readsGPU
+            case .deviceBattery: readsDeviceBattery
+            default: true
+            }
+        }
+    }
+
     private var addMenu: some View {
         Menu("Add Widget…") {
             Section {
-                ForEach(WidgetSource.allCases, id: \.self) { source in
+                // GPU Load is offered only while its switch in System readouts is on (D-07), and
+                // Lowest Device Battery only while Read battery levels is on (D-27).
+                ForEach(addableSources, id: \.self) { source in
                     Button {
                         add(source)
                     } label: {
@@ -87,6 +103,7 @@ struct WidgetsSection: View {
                 }
             }
             Section {
+                // The order of `BuiltInItem.allCases` is the menu's order; new items go last.
                 ForEach(BuiltInItem.allCases.filter { $0 != .launcher }, id: \.self) { item in
                     Button {
                         addBuiltIn(item)
@@ -106,11 +123,22 @@ struct WidgetsSection: View {
         .disabled(isFull)
     }
 
+    /// Whether the row carries the Preview badge: a text widget with a new source or format, or a
+    /// built-in item that is not yet tried on a Mac.
+    private static func showsPreviewBadge(_ definition: WidgetDefinition) -> Bool {
+        switch definition.kind {
+        case .text: definition.source.isPreview || definition.preset.isPreview
+        case .builtIn: definition.builtIn?.isPreview == true
+        case .button, .script: false
+        }
+    }
+
     private func row(for definition: WidgetDefinition) -> some View {
         let isEditing = editingID == definition.id
         return SettingsButtonRow(
             title(for: definition),
             small: summary(for: definition),
+            badge: WidgetEditor.badge(isPreview: Self.showsPreviewBadge(definition)),
             info: WidgetEditor.explanation(for: definition, appName: launcherName(of: definition))
         ) {
             Button {
@@ -249,6 +277,11 @@ struct WidgetsSection: View {
         case .uptime: Text("Uptime")
         case .freeDisk: Text("Free Disk Space")
         case .countdown: Text("Countdown")
+        case .networkSpeed: Text("Network Speed")
+        case .diskActivity: Text("Disk Activity")
+        case .gpuLoad: Text("GPU Load")
+        case .deviceBattery: Text("Lowest Device Battery")
+        case .thermalState: Text("Thermal State")
         }
     }
 }

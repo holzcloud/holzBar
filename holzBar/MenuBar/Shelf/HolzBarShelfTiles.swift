@@ -177,8 +177,10 @@ private extension View {
             }
         }
     }
+}
 
-    /// Draws the keyboard highlight of the tile.
+extension View {
+    /// Draws the keyboard highlight of the tile (and of the notice row's chip).
     func keyboardHighlight(_ isHighlighted: Bool) -> some View {
         background {
             if isHighlighted {

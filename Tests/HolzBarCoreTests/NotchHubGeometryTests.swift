@@ -477,4 +477,239 @@ struct NotchHubGeometryTests {
         let tight = Geometry.liveRoom(display: notchedA, leftContentEnd: 640, rightContentStart: 870)
         #expect(Geometry.live(display: notchedA, room: tight) == nil)
     }
+
+    // MARK: Dynamic Island display (Phase 93, D-03)
+
+    /// A display with Apple's Dynamic Island: cited about 59 by 40 points (Vorssaint #3998), centred.
+    private let islandDisplay = Geometry.Display(
+        width: 1512, height: 982, menuBarHeight: 40, notch: nil,
+        island: Geometry.Notch(minX: 726.5, maxX: 785.5, height: 40)
+    )
+    /// The same display without any cutout: what a detached layout is laid out like.
+    private let islandDisplayWithoutCutout = Geometry.Display(width: 1512, height: 982, menuBarHeight: 40, notch: nil)
+    private let islandGap = DesignTokens.Island.islandGap
+
+    @Test("The island gap is 6 points")
+    func islandGapToken() {
+        #expect(islandGap == 6)
+    }
+
+    @Test("Island display: the open hub lies below the island, centred on it, and never overlaps it")
+    func islandDisplayOpenHub() throws {
+        let result = try island(islandDisplay)
+        let cutout = Geometry.Rect(x: 726.5, y: 0, width: 59, height: 40)
+        #expect(result.isDetached)
+        #expect(result.notch == nil)
+        #expect(result.shape.y == 46)
+        #expect(result.shape.y >= 40)
+        #expect(result.shape.x + result.shape.width / 2 == 756)
+        #expect(result.hoverZone == cutout)
+        for rect in [result.shape, result.contextRow, result.content, result.moduleRow] {
+            #expect(!rect.intersects(cutout))
+            #expect(rect.minY >= 46)
+        }
+    }
+
+    @Test("Island display: the layout is the one of a display without a cutout, moved down by island and gap")
+    func islandDisplayIsTheNotchlessLayoutMovedDown() throws {
+        let result = try island(islandDisplay)
+        let reference = try island(islandDisplayWithoutCutout)
+        #expect(!reference.isDetached)
+        #expect(result.topRowHeight == reference.topRowHeight)
+        func moved(_ rect: Geometry.Rect) -> Geometry.Rect {
+            Geometry.Rect(x: rect.x, y: rect.y + 46, width: rect.width, height: rect.height)
+        }
+        #expect(result.shape == moved(reference.shape))
+        #expect(result.contextRow == moved(reference.contextRow))
+        #expect(result.content == moved(reference.content))
+        #expect(result.moduleRow == moved(reference.moduleRow))
+    }
+
+    @Test("Island display: with a notch also given, the island wins")
+    func islandWinsOverNotch() throws {
+        let both = Geometry.Display(
+            width: 1512, height: 982, menuBarHeight: 40,
+            notch: Geometry.Notch(minX: 663, maxX: 849, height: 32),
+            island: Geometry.Notch(minX: 726.5, maxX: 785.5, height: 40)
+        )
+        #expect(try island(both) == island(islandDisplay))
+        #expect(Geometry.live(display: both) == Geometry.live(display: islandDisplay))
+        #expect(Geometry.seed(display: both) == Geometry.seed(display: islandDisplay))
+    }
+
+    @Test("Island display: an island that makes no sense counts as none, and the layout is the plain one at y 0")
+    func islandMalformedCountsAsNone() throws {
+        let outside = [
+            Geometry.Notch(minX: -10, maxX: 49, height: 40),
+            Geometry.Notch(minX: 726.5, maxX: 2000, height: 40),
+            Geometry.Notch(minX: 726.5, maxX: 785.5, height: 0),
+            Geometry.Notch(minX: .nan, maxX: 785.5, height: 40),
+            Geometry.Notch(minX: 800, maxX: 700, height: 40),
+        ]
+        let reference = try island(islandDisplayWithoutCutout)
+        for span in outside {
+            let display = Geometry.Display(width: 1512, height: 982, menuBarHeight: 40, notch: nil, island: span)
+            let result = try island(display)
+            #expect(result == reference)
+            #expect(!result.isDetached)
+            #expect(result.shape.y == 0)
+            #expect(Geometry.live(display: display) == Geometry.live(display: islandDisplayWithoutCutout))
+            #expect(Geometry.seed(display: display) == Geometry.seed(display: islandDisplayWithoutCutout))
+            #expect(!Geometry.hasDetachedIsland(display: display))
+        }
+    }
+
+    @Test("Island display: a valid island is detached, a display without one is not")
+    func hasDetachedIsland() {
+        #expect(Geometry.hasDetachedIsland(display: islandDisplay))
+        #expect(!Geometry.hasDetachedIsland(display: islandDisplayWithoutCutout))
+        #expect(!Geometry.hasDetachedIsland(display: notchedA))
+    }
+
+    @Test("Display without an island is never detached")
+    func notchedAndNotchlessAreNotDetached() throws {
+        #expect(try !island(notchedA).isDetached)
+        #expect(try !island(notchless).isDetached)
+        #expect(try !#require(Geometry.live(display: notchedA)).isDetached)
+        #expect(try !#require(Geometry.live(display: notchless)).isDetached)
+    }
+
+    @Test("Island display, live: below the island, centred on it, 90 points to each side, nothing above y 46")
+    func islandDisplayLive() throws {
+        let result = try #require(Geometry.live(display: islandDisplay))
+        #expect(result.isDetached)
+        // 90 on each side of the island's axis 756, plus the 6 point flare.
+        #expect(result.shape == Geometry.Rect(x: 660, y: 46, width: 192, height: 40))
+        #expect(result.shape.x + result.shape.width / 2 == 756)
+        #expect(result.leading == Geometry.Rect(x: 666, y: 46, width: 86, height: 40))
+        #expect(result.trailing == Geometry.Rect(x: 760, y: 46, width: 86, height: 40))
+        #expect(result.hoverZone == result.shape)
+        #expect(result.shape.minY >= 46)
+    }
+
+    @Test("Island display, live: the menu bar's room is not used below the island")
+    func islandDisplayLiveIgnoresRoom() throws {
+        let tight = Geometry.LiveRoom(left: 10, right: 10)
+        let none = Geometry.LiveRoom(left: 0, right: .nan)
+        let full = try #require(Geometry.live(display: islandDisplay))
+        #expect(Geometry.live(display: islandDisplay, room: tight) == full)
+        #expect(Geometry.live(display: islandDisplay, room: none) == full)
+        #expect(Geometry.liveRoom(display: islandDisplay, leftContentEnd: 600, rightContentStart: 900) == .unlimited)
+        #expect(Geometry.liveRoom(display: islandDisplay, leftContentEnd: nil, rightContentStart: .nan) == .unlimited)
+        let broken = Geometry.Display(
+            width: .nan, height: 982, menuBarHeight: 40, notch: nil,
+            island: Geometry.Notch(minX: 726.5, maxX: 785.5, height: 40)
+        )
+        #expect(Geometry.liveRoom(display: broken, leftContentEnd: nil, rightContentStart: nil) == Geometry.LiveRoom(left: 0, right: 0))
+    }
+
+    @Test("Island display, seed: the flat strip centred on the island, below it")
+    func islandDisplaySeed() {
+        #expect(Geometry.seed(display: islandDisplay) == Geometry.Rect(x: 656, y: 46, width: 200, height: 0))
+        let unusable = Geometry.Display(
+            width: 0, height: 982, menuBarHeight: 40, notch: nil,
+            island: Geometry.Notch(minX: 726.5, maxX: 785.5, height: 40)
+        )
+        #expect(Geometry.seed(display: unusable) == nil)
+    }
+
+    @Test("Island display: the transition from the seed to the open shape never reaches above the island's bottom")
+    func islandDisplayTransition() throws {
+        let seed = try #require(Geometry.seed(display: islandDisplay))
+        let open = try island(islandDisplay)
+        let frame = Geometry.transitionFrame(from: seed, to: open.shape, displayWidth: 1512)
+        #expect(frame.minY == 46)
+        #expect(frame.maxY >= open.shape.maxY)
+    }
+
+    // MARK: The alert's detached pill (Phase 95, UI-SPEC A3)
+
+    @Test("Detached alert, notched fixture A: below the top row, centred on the notch, 90 wide for a 30 point value")
+    func detachedAlertNotched() throws {
+        let alert = try #require(Geometry.detachedAlert(display: notchedA, valueWidth: 30))
+        #expect(alert.isDetached)
+        // The notch is 32 high, so the top edge is 32 + 6 below the top of the display.
+        #expect(alert.shape == Geometry.Rect(x: 711, y: 38, width: 90, height: 32))
+        #expect(alert.shape.x + alert.shape.width / 2 == (663 + 849) / 2)
+        // 36 for the symbol, 8, the value, 16 at the end.
+        #expect(alert.leading == Geometry.Rect(x: 711, y: 38, width: 36, height: 32))
+        #expect(alert.trailing == Geometry.Rect(x: 755, y: 38, width: 30, height: 32))
+        #expect(alert.hoverZone == alert.shape)
+    }
+
+    @Test("Detached alert: a long value caps the width at 180, a short one stays at least 44")
+    func detachedAlertWidthLimits() throws {
+        let long = try #require(Geometry.detachedAlert(display: notchedA, valueWidth: 500))
+        #expect(long.shape.width == DesignTokens.Alert.detachedMaximumWidth)
+        #expect(long.shape.width == 180)
+        let none = try #require(Geometry.detachedAlert(display: notchedA, valueWidth: 0))
+        #expect(none.shape.width >= DesignTokens.Alert.detachedMinimumWidth)
+        #expect(none.shape.width >= 44)
+        // The value's area never runs past the end inset.
+        #expect(long.trailing.maxX <= long.shape.maxX - DesignTokens.Island.liveBottomRadius)
+    }
+
+    @Test("Detached alert, no notch: below the menu bar, centred on the display")
+    func detachedAlertNotchless() throws {
+        let alert = try #require(Geometry.detachedAlert(display: notchless, valueWidth: 30))
+        #expect(alert.shape == Geometry.Rect(x: 1235, y: 24 + islandGap, width: 90, height: 24))
+        #expect(alert.isDetached)
+    }
+
+    @Test("Detached alert: it never covers the top row, on every fixture")
+    func detachedAlertStaysBelowTheMenuBar() throws {
+        for display in [notchedA, notchedB, notchedC, notchless] {
+            let alert = try #require(Geometry.detachedAlert(display: display, valueWidth: 40))
+            let topRow = try island(display).topRowHeight
+            #expect(alert.shape.minY == topRow + islandGap)
+            #expect(alert.shape.height == topRow)
+            #expect(alert.shape.minX >= Geometry.screenMargin)
+            #expect(alert.shape.maxX <= display.width - Geometry.screenMargin)
+        }
+    }
+
+    @Test("Detached alert: a shape that would cross the margin is moved inside it")
+    func detachedAlertNearAnEdge() throws {
+        let left = Geometry.Display(
+            width: 400, height: 300, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 10, maxX: 60, height: 32)
+        )
+        let moved = try #require(Geometry.detachedAlert(display: left, valueWidth: 30))
+        #expect(moved.shape.minX == Geometry.screenMargin)
+        #expect(moved.shape.width == 90)
+        let right = Geometry.Display(
+            width: 400, height: 300, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 340, maxX: 390, height: 32)
+        )
+        let movedRight = try #require(Geometry.detachedAlert(display: right, valueWidth: 30))
+        #expect(movedRight.shape.maxX == 400 - Geometry.screenMargin)
+        #expect(movedRight.leading.minX == movedRight.shape.minX)
+    }
+
+    @Test("Detached alert: it exists where the live state has no room on either side")
+    func detachedAlertWhereTheBarIsCrowded() throws {
+        let crowded = Geometry.LiveRoom(left: 0, right: 0)
+        #expect(Geometry.live(display: notchedA, room: crowded) == nil)
+        #expect(Geometry.detachedAlert(display: notchedA, valueWidth: 30) != nil)
+    }
+
+    @Test("Detached alert, Dynamic Island display: the same layout as the live state, which is already detached")
+    func detachedAlertOnAnIslandDisplay() throws {
+        let alert = try #require(Geometry.detachedAlert(display: islandDisplay, valueWidth: 30))
+        #expect(alert == Geometry.live(display: islandDisplay))
+        #expect(alert.isDetached)
+    }
+
+    @Test("Detached alert: a display without a usable size or a value width that is no number gives none")
+    func detachedAlertMalformed() {
+        let unusable = Geometry.Display(width: 0, height: 982, menuBarHeight: 32, notch: nil)
+        #expect(Geometry.detachedAlert(display: unusable, valueWidth: 30) == nil)
+        let tall = Geometry.Display(width: 1512, height: .nan, menuBarHeight: 32, notch: nil)
+        #expect(Geometry.detachedAlert(display: tall, valueWidth: 30) == nil)
+        let narrow = Geometry.Display(width: 20, height: 100, menuBarHeight: 24, notch: nil)
+        #expect(Geometry.detachedAlert(display: narrow, valueWidth: 30) == nil)
+        #expect(Geometry.detachedAlert(display: notchedA, valueWidth: .nan) == nil)
+        #expect(Geometry.detachedAlert(display: notchedA, valueWidth: -1) == nil)
+        #expect(Geometry.detachedAlert(display: notchedA, valueWidth: .infinity) == nil)
+    }
 }

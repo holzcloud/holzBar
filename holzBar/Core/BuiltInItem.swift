@@ -24,6 +24,8 @@ nonisolated enum BuiltInItem: String, Codable, CaseIterable, Sendable {
     case timer
     /// Opens one application of the user's choice.
     case launcher
+    /// Opens Spotlight, which macOS 27 takes out of the menu bar.
+    case spotlight
 
     /// The SF Symbol of the item. A launcher shows its application's icon and uses this symbol
     /// only while it has none.
@@ -35,6 +37,16 @@ nonisolated enum BuiltInItem: String, Codable, CaseIterable, Sendable {
         case .userSwitching: "person.crop.circle"
         case .timer: "timer"
         case .launcher: "square.grid.2x2"
+        case .spotlight: "magnifyingglass"
+        }
+    }
+
+    /// Whether the item is shown with the Preview badge, until the maintainer has tested it on a
+    /// Mac. He sets it to `false` afterwards.
+    var isPreview: Bool {
+        switch self {
+        case .spotlight: true
+        case .focus, .airDrop, .media, .userSwitching, .timer, .launcher: false
         }
     }
 
@@ -43,7 +55,7 @@ nonisolated enum BuiltInItem: String, Codable, CaseIterable, Sendable {
     var allowsSeveral: Bool {
         switch self {
         case .timer, .launcher: true
-        case .focus, .airDrop, .media, .userSwitching: false
+        case .focus, .airDrop, .media, .userSwitching, .spotlight: false
         }
     }
 
@@ -54,7 +66,7 @@ nonisolated enum BuiltInItem: String, Codable, CaseIterable, Sendable {
         case .focus: ["focus"]
         case .airDrop: ["airdrop"]
         case .userSwitching: ["userswitcher", "fastuserswitch", "menuextra.user"]
-        case .media, .timer, .launcher: []
+        case .media, .timer, .launcher, .spotlight: []
         }
     }
 
@@ -64,7 +76,7 @@ nonisolated enum BuiltInItem: String, Codable, CaseIterable, Sendable {
         switch self {
         case .focus: URL(string: "x-apple.systempreferences:com.apple.Focus-Settings.extension")
         case .userSwitching: URL(string: "x-apple.systempreferences:com.apple.Users-Groups-Settings.extension")
-        case .airDrop, .media, .timer, .launcher: nil
+        case .airDrop, .media, .timer, .launcher, .spotlight: nil
         }
     }
 

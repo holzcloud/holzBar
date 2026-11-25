@@ -15,6 +15,10 @@ final class HolzBarShelfColorManager {
 
     @ObservationIgnored private var windowImage: CGImage?
 
+    /// The display `windowImage` was captured from: a capture colours only the Shelf on that
+    /// display, never one on another (adapted from Ice pull request 1021, see NOTICE).
+    @ObservationIgnored private var windowImageDisplayID: CGDirectDisplayID?
+
     /// Observers of the Shelf panel's screen, visibility and frame.
     @ObservationIgnored private var observations = [NSKeyValueObservation]()
 
@@ -40,10 +44,12 @@ final class HolzBarShelfColorManager {
         observations = [
             shelfPanel.observe(\.screen, options: [.initial, .new]) { [weak self] panel, _ in
                 Task { @MainActor [weak self] in
-                    guard let self, panel.isVisible, let screen = panel.screen, screen == .main else {
+                    guard let self, panel.isVisible, let screen = panel.screen else {
                         return
                     }
-                    updateWindowImage(for: screen)
+                    // The colour follows the capture: a Shelf that moved to another display
+                    // must not keep the colour of the old one.
+                    updateAllProperties(with: panel.frame, screen: screen)
                 }
             },
             shelfPanel.observe(\.isVisible, options: [.initial, .new]) { [weak self] panel, _ in
@@ -68,8 +74,7 @@ final class HolzBarShelfColorManager {
                             let self,
                             let panel,
                             let screen = panel.screen,
-                            panel.isVisible,
-                            screen == .main
+                            panel.isVisible
                         else {
                             return
                         }
@@ -132,7 +137,7 @@ final class HolzBarShelfColorManager {
             setColor27()
             return
         }
-        guard let screen = shelfPanel.screen, screen == .main else {
+        guard let screen = shelfPanel.screen else {
             return
         }
         updateWindowImage(for: screen)
@@ -153,18 +158,26 @@ final class HolzBarShelfColorManager {
             return
         }
 
-        let windows = WindowInfo.createWindows(option: .onScreen)
         let displayID = screen.displayID
-
-        guard
-            let menuBarWindow = WindowInfo.menuBarWindow(from: windows, for: displayID),
-            let wallpaperWindow = WindowInfo.wallpaperWindow(from: windows, for: displayID)
-        else {
-            return
+        // A failed capture never leaves the colours of another display behind; one of the same
+        // display keeps the last good image, so the colour does not flash to the default.
+        if windowImageDisplayID != displayID {
+            windowImage = nil
+            windowImageDisplayID = nil
         }
 
+        let windows = WindowInfo.createWindows(option: .onScreen)
+
+        guard let wallpaperWindow = WindowInfo.wallpaperWindow(from: windows, for: displayID) else {
+            return
+        }
+        // A display whose menu bar window is not on screen (a hidden bar) is sampled from its
+        // wallpaper alone.
+        let windowIDs = [WindowInfo.menuBarWindow(from: windows, for: displayID)?.windowID, wallpaperWindow.windowID]
+            .compactMap { $0 }
+
         guard let image = ScreenCapture.captureWindows(
-            with: [menuBarWindow.windowID, wallpaperWindow.windowID],
+            with: windowIDs,
             screenBounds: withMutableCopy(of: wallpaperWindow.bounds) { $0.size.height = 1 },
             option: .nominalResolution
         ) else {
@@ -172,10 +185,17 @@ final class HolzBarShelfColorManager {
         }
 
         windowImage = image
+        windowImageDisplayID = displayID
     }
 
     private func updateColorInfo(with frame: CGRect, screen: NSScreen) {
-        guard let image = windowImage else {
+        // macOS 27 keeps its flat colour, which nothing here may replace or clear.
+        if #available(macOS 27.0, *) {
+            return
+        }
+        // A capture of another display says nothing about this one.
+        guard let image = windowImage, windowImageDisplayID == screen.displayID else {
+            colorInfo = nil
             return
         }
 

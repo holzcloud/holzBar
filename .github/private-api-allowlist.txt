@@ -1,9 +1,9 @@
 # Lines that reach a private macOS interface, which `privacy-check.py private` allows, as
-# `<path>: <token>`. A hit (dlopen, dlsym, a PrivateFrameworks path or @_silgen_name) is allowed
-# when its file equals <path> and the line contains <token>. Each private API sits behind one
-# wrapper per API, and every entry was agreed with the maintainer for that module (see
-# CLAUDE.md, "Private API only by exception, per module"). A new entry needs the maintainer's
-# decision and says why.
+# `<path>: <token>`. A hit (dlopen, dlsym, a PrivateFrameworks path, @_silgen_name, the GPU
+# statistics key or the Dock badge attribute) is allowed when its file equals <path> and the line contains <token>. Each
+# private API sits behind one wrapper per API, and every entry was agreed with the maintainer for
+# that module (see CLAUDE.md, "Private API only by exception, per module"). A new entry needs
+# the maintainer's decision and says why.
 #
 # The menu bar manager's own interfaces. MenuBarClientCore is the macOS 27 framework that
 # conceals the menu bar's items.
@@ -18,7 +18,8 @@ holzBar/MenuBar/NotchHub/AccessoryAlerts/AccessoryBatterySource.swift: dlsym
 #
 # The Display controls module sets brightness through DisplayServices, which Apple does not
 # document: brightness has no public API (agreed 2026-10-09). The wrapper loads it on first
-# use and only while the module's Brightness setting is on.
+# use and only while the module's Brightness setting is on (also the brightness keys of the
+# Indicators module, agreed 2026-11-23).
 holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: dlopen
 holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: dlsym
 holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: PrivateFrameworks
@@ -26,7 +27,8 @@ holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: Privat
 # The Display controls module's External monitors (DDC) switch reads and sets external monitors
 # over DDC/CI through IOAVService, which Apple does not document: Apple silicon has no public
 # DDC path (agreed 2026-11-05; scope 2026-11-14). The wrapper looks the functions up at run time
-# and only while that switch is on.
+# and only while that switch is on (also the brightness keys of the
+# Indicators module, agreed 2026-11-23).
 holzBar/MenuBar/NotchHub/DisplayControls/IOAVServiceBridge.swift: dlsym
 #
 # The Now Playing module's Read all apps reads what any app plays through MediaRemote, which
@@ -36,3 +38,16 @@ holzBar/MenuBar/NotchHub/DisplayControls/IOAVServiceBridge.swift: dlsym
 NowPlayingRemote/NowPlayingRemote.swift: dlopen
 NowPlayingRemote/NowPlayingRemote.swift: dlsym
 NowPlayingRemote/NowPlayingRemote.swift: PrivateFrameworks
+#
+# The System readouts module's Read GPU load switch reads how busy the graphics processor is
+# from an undocumented statistic of the graphics driver, through public IOKit calls (agreed
+# 2026-11-21). The wrapper is the only file that names it and reads only while the switch is on
+# and a GPU tile is open or a GPU Load widget is visible.
+holzBar/MenuBar/Readouts/GPULoadBridge.swift: PerformanceStatistics
+holzBar/MenuBar/Readouts/GPULoadBridge.swift: Device Utilization
+holzBar/MenuBar/Readouts/GPULoadBridge.swift: IOAccelerator
+#
+# The Dock badges module's Read badge counts switch reads the badge an app shows on its Dock icon
+# from an undocumented attribute of the Dock's items, through public Accessibility calls (agreed
+# 2026-11-24). The wrapper is the only file that names it and reads only while the switch is on.
+holzBar/MenuBar/DockBadges/DockBadgeBridge.swift: AXStatusLabel

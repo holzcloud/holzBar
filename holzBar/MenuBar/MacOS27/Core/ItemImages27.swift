@@ -375,6 +375,35 @@ nonisolated enum ItemImages27 {
         return settled
     }
 
+    /// The tags whose frames overlap another item's frame by more than the tolerance.
+    ///
+    /// The rule of ``HiddenAnyway27``: neighbours overlap by about 2 points (measured on
+    /// macOS 27.0) and a collapsed frame is no wider than the tolerance, so neither counts. Two
+    /// items that claim one place cannot both be there, and either may be the one reporting a
+    /// stale frame, so both lose their picture rather than one app's glyph standing on another's
+    /// tile (D-09). The pairs are visited in sorted tag order, so the result does not depend on
+    /// the order of the dictionary.
+    static func overlappingTags(frames: [String: CGRect], tolerance: CGFloat = HiddenAnyway27.tolerance) -> Set<String> {
+        let tags = frames.keys.sorted()
+        var overlapping = Set<String>()
+        for (index, tag) in tags.enumerated() {
+            guard let frame = frames[tag], frame.width > tolerance else {
+                continue
+            }
+            for otherTag in tags[(index + 1)...] {
+                guard let other = frames[otherTag], other.width > tolerance else {
+                    continue
+                }
+                let overlap = frame.intersection(other)
+                if !overlap.isNull, overlap.width > tolerance, overlap.height > 0 {
+                    overlapping.insert(tag)
+                    overlapping.insert(otherTag)
+                }
+            }
+        }
+        return overlapping
+    }
+
     /// What a capture does with a glyph that equals the stored tile of another application.
     enum DuplicateGlyph: Equatable {
         /// Both tiles are on the bar now: the new glyph may be taken from the wrong place.

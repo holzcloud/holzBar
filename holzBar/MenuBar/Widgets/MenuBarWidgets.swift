@@ -70,12 +70,12 @@ final class MenuBarWidgets {
     /// The tasks that follow the clock, Low Power Mode and the locale, while the module is on.
     @ObservationIgnored private var observerTasks = [Task<Void, Never>]()
 
-    /// The task that follows power source events, while a battery widget is visible.
-    @ObservationIgnored private var batteryTask: Task<Void, Never>?
-
     /// Waits for the script store to be read at start-up, so that script widgets that were
     /// revealed before it was ready ask their script then. It ends itself.
     @ObservationIgnored private var scriptStoreLoop: ObservationLoop?
+
+    /// The widgets' consumer of the shared system readouts monitor.
+    @ObservationIgnored private let readoutLink = WidgetReadoutLink()
 
     /// What a click on a built-in item does.
     @ObservationIgnored private let builtInActions = BuiltInItemActions()
@@ -97,6 +97,12 @@ final class MenuBarWidgets {
         self.appState = appState
         timers.onChange = { [weak self] id in
             self?.timerChanged(id)
+        }
+        readoutLink.monitor = appState.systemMonitor
+        readoutLink.onReading = { [weak self] id, reading in
+            if let runtime = self?.runtimes[id], runtime.policy.isVisible {
+                self?.render(runtime, reading: reading)
+            }
         }
         definitions = WidgetList.decode(Defaults.data(forKey: .widgets) ?? Data())
         let storedNames = Defaults.dictionary(forKey: .widgetShortcutNames)
@@ -158,7 +164,6 @@ final class MenuBarWidgets {
         timers.forget(id)
         if let runtime = runtimes.removeValue(forKey: id) {
             stop(runtime, keepingPosition: false)
-            updatePowerSourceEvents()
             updateMediaMonitoring()
         } else {
             Self.forgetPosition(of: definition.autosaveName)
@@ -181,7 +186,8 @@ final class MenuBarWidgets {
             return
         }
         runtime.definition = valid
-        runtime.cpuBaseline = nil
+        // The baseline stays: a request that changed starts a fresh one when the policy says
+        // register, and a cosmetic or format-only edit must not blank a rate for two intervals.
         configure(runtime)
         updateMediaMonitoring()
         let command = runtime.policy.handle(
@@ -369,6 +375,8 @@ final class MenuBarWidgets {
                 return
             }
             openModulesSettings()
+        case .spotlight:
+            builtInActions.openSpotlight()
         case nil:
             break
         }
@@ -529,7 +537,6 @@ final class MenuBarWidgets {
             stop(runtime, keepingPosition: true)
         }
         runtimes.removeAll()
-        updatePowerSourceEvents()
         timers.removeAll()
         updateMediaMonitoring()
     }
@@ -673,10 +680,8 @@ final class MenuBarWidgets {
         var text: WidgetText?
         /// The last value that was handed to VoiceOver.
         var spoken: String?
-        /// The tick counters of the last CPU reading. A load is the difference of two readings,
-        /// so it is dropped whenever the widget stops being visible: a reveal never shows an
-        /// average over the hidden time.
-        var cpuBaseline: CPUTicks?
+        /// The leading symbol the Lowest Device Battery widget has drawn (D-26).
+        var drawnSymbol: String?
         /// Forwards a button's click; the status item's button holds its target weakly.
         var clickTarget: ClickTarget?
         /// The one length of the status item, measured from the widest text (D-12).
@@ -751,6 +756,7 @@ final class MenuBarWidgets {
     ///   widget comes back where it was when the module is switched on again.
     private func stop(_ runtime: Runtime, keepingPosition: Bool) {
         cancelWait(of: runtime)
+        readoutLink.forget(runtime.definition.id)
         let name = runtime.definition.autosaveName
         // Removing a status item deletes its preferred position. Cache and restore it, as the
         // control items do.
@@ -781,7 +787,9 @@ final class MenuBarWidgets {
             return
         }
         let definition = runtime.definition
-        if definition.kind == .builtIn {
+        if LargePercentWidget.isWidget(definition) {
+            LargePercentWidget.configure(button)
+        } else if definition.kind == .builtIn {
             // An app launcher shows its application's own icon; every other item, and a launcher
             // whose application is not installed, a symbol. Only the timer has a text.
             if let icon = launcherIcon(for: definition) {
@@ -793,9 +801,13 @@ final class MenuBarWidgets {
             }
             button.imagePosition = definition.builtIn == .timer ? .imageLeading : .imageOnly
         } else if definition.kind != .button, definition.showsSymbol {
-            // A text widget's source symbol, or a script widget's terminal symbol (D-11).
-            let image = NSImage(systemSymbolName: definition.symbolName, accessibilityDescription: nil)
+            // A text widget's source symbol, or a script widget's terminal symbol (D-11). The
+            // lowest device's is drawn in its slot, as the unknown symbol until a reading (D-26).
+            let image = DeviceBatteryWidget.isWidget(definition)
+                ? DeviceBatteryWidget.slotImage(symbol: ConnectedDeviceList.unknownSymbol, font: Self.font)
+                : NSImage(systemSymbolName: definition.symbolName, accessibilityDescription: nil)
             image?.isTemplate = true
+            runtime.drawnSymbol = DeviceBatteryWidget.isWidget(definition) ? ConnectedDeviceList.unknownSymbol : nil
             button.image = image
             button.imagePosition = .imageLeading
         } else if definition.showsButtonSymbolOnly {
@@ -848,7 +860,9 @@ final class MenuBarWidgets {
         // with every text.
         let appName = launcherName(for: definition)
         let label = WidgetSpeech.label(for: definition, appName: appName)
-        button.toolTip = label
+        // The lowest device's tooltip is its name, set with every reading (D-26).
+        button.toolTip = DeviceBatteryWidget.isWidget(definition)
+            ? DeviceBatteryWidget.tooltip(for: runtime.reading, readsBattery: readsDeviceBattery) : label
         button.setAccessibilityLabel(label)
         button.setAccessibilityHelp(
             WidgetSpeech.hint(for: definition, shortcutName: shortcutNames[definition.id], appName: appName)
@@ -892,13 +906,20 @@ final class MenuBarWidgets {
     /// when its definition or the locale changes, never on a refresh.
     private func measuredLength(for runtime: Runtime) -> CGFloat {
         let definition = runtime.definition
+        if LargePercentWidget.isWidget(definition) {
+            return LargePercentWidget.length(
+                for: definition, font: Self.font, locale: Self.locale, padding: Self.minimumPadding
+            )
+        }
         // A button that shows its symbol has no text; the symbol and the padding are measured.
         let samples = definition.showsButtonSymbolOnly ? [""] : WidgetFormat.widthSamples(
             for: definition,
             locale: Self.locale,
             calendar: Self.calendar,
             capacityBytes: capacityBytes(for: definition),
-            now: .now
+            now: .now,
+            rateUnit: rateUnit,
+            texts: ReadoutTexts.localized(locale: Self.locale)
         )
         guard let button = runtime.statusItem.button, var widest = samples.first else {
             return NSStatusItem.squareLength
@@ -914,7 +935,8 @@ final class MenuBarWidgets {
         }
         // The battery's state symbol is part of the text; the wider of the two is measured.
         var measured = WidgetText(string: widest)
-        if definition.kind == .text, definition.source == .battery, definition.preset == .percentAndState {
+        if definition.kind == .text, definition.source == .battery,
+            definition.preset == .percentAndState || definition.preset == .percentAndTimeLeft {
             let candidates = [BatteryState.charging, .onAdapter].map { WidgetText(string: widest, batteryState: $0) }
             measured = candidates.max { first, second in
                 Self.attributedTitle(for: first).size().width < Self.attributedTitle(for: second).size().width
@@ -928,7 +950,10 @@ final class MenuBarWidgets {
         button.attributedTitle = title
         let fitting = button.fittingSize.width
         button.attributedTitle = previous
-        let symbolWidth = button.image?.size.width ?? 0
+        // The lowest device's symbol slot is one width for every device (D-26).
+        let symbolWidth = DeviceBatteryWidget.isWidget(definition) && definition.showsSymbol
+            ? DeviceBatteryWidget.slotWidth(font: font)
+            : button.image?.size.width ?? 0
         let minimum = max(widestWidth, title.size().width) + symbolWidth + Self.minimumPadding
         return max(fitting, minimum).rounded(.up)
     }
@@ -942,20 +967,9 @@ final class MenuBarWidgets {
         case (.memory, .gigabytesUsed):
             return ProcessInfo.processInfo.physicalMemory
         case (.freeDisk, .gigabytesFree):
-            return WidgetSamplers.diskSpace().map { UInt64(max($0.total, 0)) }
+            return SystemSamplers.diskSpace(precise: true).map { UInt64(max($0.total, 0)) }
         default:
             return nil
-        }
-    }
-
-    /// The symbol that shows the battery's state next to the percentage, if the state has one:
-    /// a bolt while it charges, a plug on the adapter when it is full or holds its level, and
-    /// nothing on battery power.
-    private static func stateSymbolName(for state: BatteryState?) -> String? {
-        switch state {
-        case .charging: "bolt.fill"
-        case .charged, .onAdapter: "powerplug.fill"
-        case .onBattery, nil: nil
         }
     }
 
@@ -974,7 +988,7 @@ final class MenuBarWidgets {
         }
         let title = NSMutableAttributedString(string: text.string, attributes: attributes)
         if
-            let name = stateSymbolName(for: text.batteryState),
+            let name = BatteryGlyph.stateSymbolName(for: text.batteryState),
             let symbol = NSImage(systemSymbolName: name, accessibilityDescription: nil)?
                 .withSymbolConfiguration(NSImage.SymbolConfiguration(pointSize: font.pointSize, weight: .regular))
         {
@@ -994,7 +1008,9 @@ final class MenuBarWidgets {
             for: reading,
             definition: runtime.definition,
             locale: Self.locale,
-            calendar: Self.calendar
+            calendar: Self.calendar,
+            rateUnit: rateUnit,
+            texts: ReadoutTexts.localized(locale: Self.locale)
         )
         if runtime.definition.showsButtonSymbolOnly {
             // The symbol is the button's image; its title is not drawn.
@@ -1003,16 +1019,31 @@ final class MenuBarWidgets {
         guard let button = runtime.statusItem.button else {
             return
         }
+        if DeviceBatteryWidget.isWidget(runtime.definition) {
+            renderDeviceBattery(runtime, reading: reading, symbol: text.leadingSymbol, button: button)
+        }
         if text != runtime.text {
             runtime.text = text
             let isScript = runtime.definition.kind == .script
-            button.attributedTitle = Self.attributedTitle(for: text, truncates: isScript)
+            button.attributedTitle = LargePercentWidget.isWidget(runtime.definition)
+                ? LargePercentWidget.title(
+                    for: text, reading: reading, font: Self.font, showsGlyph: runtime.definition.showsSymbol
+                )
+                : Self.attributedTitle(for: text, truncates: isScript)
             // The same text as a picture, for the surfaces that show items elsewhere (D-24).
-            images[runtime.definition.autosaveName] = launcherIcon(for: runtime.definition) ?? Self.picture(
-                for: runtime.definition,
-                text: text,
-                maximumTextWidth: isScript && runtime.textWidth > 0 ? runtime.textWidth : nil
-            )
+            images[runtime.definition.autosaveName] = LargePercentWidget.isWidget(runtime.definition)
+                ? LargePercentWidget.picture(
+                    text: text,
+                    reading: reading,
+                    showsGlyph: runtime.definition.showsSymbol,
+                    fontSize: Self.font.pointSize,
+                    height: ItemIconStore.drawnHeight
+                )
+                : launcherIcon(for: runtime.definition) ?? Self.picture(
+                    for: runtime.definition,
+                    text: text,
+                    maximumTextWidth: isScript && runtime.textWidth > 0 ? runtime.textWidth : nil
+                )
         }
         // VoiceOver reads the reading in full, not the short text (D-27). A button has no
         // reading: it says its label and its hint. A script widget says its line, or what is
@@ -1020,18 +1051,40 @@ final class MenuBarWidgets {
         let spoken: String
         if runtime.definition.kind == .script {
             spoken = scriptSpeech(for: runtime, reading: reading)
+        } else if DeviceBatteryWidget.isWidget(runtime.definition),
+            let missing = DeviceBatteryWidget.spokenValue(for: reading, readsBattery: readsDeviceBattery)
+        {
+            // The lowest device says why it has no level; with one, WidgetSpeech says it (D-26).
+            spoken = missing
         } else {
             spoken = WidgetSpeech.value(
                 for: reading,
                 definition: runtime.definition,
                 locale: Self.locale,
-                calendar: Self.calendar
+                calendar: Self.calendar,
+                rateUnit: rateUnit
             )
         }
         if spoken != runtime.spoken {
             runtime.spoken = spoken
             button.setAccessibilityValue(spoken.isEmpty ? nil : spoken)
         }
+    }
+
+    private var readsDeviceBattery: Bool { appState?.connectedDevices.readsBattery ?? false }
+
+    /// The lowest device's kind as the symbol in its slot, and its name as the tooltip (D-26).
+    private func renderDeviceBattery(
+        _ runtime: Runtime,
+        reading: WidgetReading,
+        symbol: String?,
+        button: NSStatusBarButton
+    ) {
+        if let symbol, symbol != runtime.drawnSymbol {
+            runtime.drawnSymbol = symbol
+            button.image = DeviceBatteryWidget.slotImage(symbol: symbol, font: Self.font) ?? button.image
+        }
+        button.toolTip = DeviceBatteryWidget.tooltip(for: reading, readsBattery: readsDeviceBattery)
     }
 
     // MARK: Pictures
@@ -1048,7 +1101,8 @@ final class MenuBarWidgets {
         var string = text.string
         switch definition.kind {
         case .text:
-            symbolName = definition.showsSymbol ? definition.source.symbolName : nil
+            // The lowest device's picture shows its kind, never its name (D-26).
+            symbolName = definition.showsSymbol ? text.leadingSymbol ?? definition.source.symbolName : nil
         case .button:
             if definition.showsButtonSymbolOnly {
                 symbolName = WidgetDefinition.buttonSymbolName
@@ -1063,7 +1117,7 @@ final class MenuBarWidgets {
             symbolName: symbolName,
             string: string,
             isMuted: text.isMuted,
-            stateSymbolName: stateSymbolName(for: text.batteryState),
+            stateSymbolName: BatteryGlyph.stateSymbolName(for: text.batteryState),
             fontSize: font.pointSize,
             height: ItemIconStore.drawnHeight,
             maximumTextWidth: maximumTextWidth
@@ -1159,9 +1213,10 @@ final class MenuBarWidgets {
     /// Does what the policy says: read, arm or cancel the one timer, show the en dash.
     private func apply(_ command: WidgetRefreshPolicy.Command, to runtime: Runtime) {
         if command.marksUnavailable {
-            runtime.cpuBaseline = nil
+            readoutLink.resetBaseline(for: runtime.definition.id)
             render(runtime, reading: .unavailable)
         }
+        readoutLink.apply(command.readout, for: runtime.definition)
         if command.refreshes {
             refresh(runtime)
         }
@@ -1173,7 +1228,6 @@ final class MenuBarWidgets {
         case .arm(let instant, let tolerance):
             arm(runtime, until: instant, tolerance: tolerance)
         }
-        updatePowerSourceEvents()
     }
 
     /// Reads the widget's source once and draws the text. A script widget asks its script
@@ -1199,45 +1253,9 @@ final class MenuBarWidgets {
         switch definition.source {
         case .dateTime:
             return .date(Date())
-        case .battery:
-            guard let battery = PowerSources.internalBattery(), let percent = battery.percent else {
-                return .unavailable
-            }
-            return .battery(percent: percent, state: battery.state)
-        case .cpu:
-            // A load needs two readings: the first after a reveal is only the baseline.
-            guard let current = WidgetSamplers.cpuTicks() else {
-                runtime.cpuBaseline = nil
-                return .unavailable
-            }
-            let previous = runtime.cpuBaseline
-            runtime.cpuBaseline = current
-            guard let previous, let load = WidgetReadings.cpuLoad(from: previous, to: current) else {
-                return .unavailable
-            }
-            return .fraction(load)
-        case .memory:
-            guard let memory = WidgetSamplers.memory() else {
-                return .unavailable
-            }
-            if definition.preset == .gigabytesUsed {
-                return .bytes(memory.used)
-            }
-            guard let fraction = WidgetReadings.usedFraction(used: memory.used, total: memory.total) else {
-                return .unavailable
-            }
-            return .fraction(fraction)
-        case .freeDisk:
-            guard let disk = WidgetSamplers.diskSpace() else {
-                return .unavailable
-            }
-            if definition.preset == .gigabytesFree {
-                return disk.available >= 0 ? .bytes(UInt64(disk.available)) : .unavailable
-            }
-            guard let fraction = WidgetReadings.diskFreeFraction(available: disk.available, total: disk.total) else {
-                return .unavailable
-            }
-            return .fraction(fraction)
+        case .cpu, .networkSpeed, .diskActivity, .gpuLoad, .memory, .freeDisk, .battery, .thermalState, .deviceBattery:
+            // The shared monitor feeds it; the first reading after a reveal is only the baseline.
+            return readoutLink.lastReading(for: definition.id) ?? .unavailable
         case .uptime:
             guard let boot = WidgetSamplers.bootDate(), let duration = WidgetReadings.uptime(now: Date(), boot: boot) else {
                 return .unavailable
@@ -1469,6 +1487,9 @@ final class MenuBarWidgets {
         observe(NSLocale.currentLocaleDidChangeNotification) { widgets in
             widgets.localeChanged()
         }
+        observe(ReadoutsSettings.rateUnitDidChange) { widgets in
+            widgets.rateUnitChanged()
+        }
     }
 
     private func observe(_ name: Notification.Name, handler: @escaping @MainActor (MenuBarWidgets) -> Void) {
@@ -1498,38 +1519,16 @@ final class MenuBarWidgets {
         }
     }
 
-    /// Whether a battery widget is visible. The battery has no timer: the widget is read when it
-    /// is revealed and when the power source says it changed.
-    private var needsPowerSourceEvents: Bool {
-        isActive && runtimes.values.contains { runtime in
-            runtime.definition.kind == .text && runtime.definition.source == .battery && runtime.policy.isVisible
-        }
+    /// The network speed unit the System readouts settings choose, bytes until they are loaded.
+    private var rateUnit: ReadoutRateUnit {
+        appState?.settings.readouts.rateUnit ?? .bytes
     }
 
-    /// Asks for power source events while a battery widget is visible, and gives them back when
-    /// none is (D-15). The run loop source is shared with the automation rules.
-    private func updatePowerSourceEvents() {
-        let isNeeded = needsPowerSourceEvents
-        guard isNeeded != (batteryTask != nil) else {
-            return
-        }
-        if isNeeded {
-            PowerSourceEvents.shared.begin()
-            batteryTask = Task { [weak self] in
-                for await _ in NotificationCenter.default.notifications(named: .powerSourcesDidChange) {
-                    self?.powerSourcesChanged()
-                }
-            }
-        } else {
-            batteryTask?.cancel()
-            batteryTask = nil
-            PowerSourceEvents.shared.end()
-        }
-    }
-
-    private func powerSourcesChanged() {
-        for runtime in runtimes.values where runtime.definition.kind == .text && runtime.definition.source == .battery {
-            send(.sourceChanged, to: runtime)
+    /// Measures and draws the Network Speed widgets again after the unit changed.
+    private func rateUnitChanged() {
+        for runtime in runtimes.values where runtime.definition.source == .networkSpeed {
+            configure(runtime)
+            render(runtime, reading: runtime.reading)
         }
     }
 }

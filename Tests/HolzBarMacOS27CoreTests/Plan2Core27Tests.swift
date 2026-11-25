@@ -69,6 +69,66 @@ struct ItemImages27Tests {
         #expect(name.hasSuffix(".png"))
         #expect(!name.contains("/") && !name.contains(":"))
     }
+
+    @Test("Two items that overlap by more than the tolerance both lose their pictures")
+    func overlappingFrames() {
+        let tags = ItemImages27.overlappingTags(frames: [
+            "a": CGRect(x: 0, y: 0, width: 30, height: 24),
+            "b": CGRect(x: 10, y: 0, width: 30, height: 24)
+        ])
+        #expect(tags == ["a", "b"])
+    }
+
+    @Test("Neighbours that overlap by the measured 2 points keep their pictures")
+    func neighbours() {
+        let tags = ItemImages27.overlappingTags(frames: [
+            "a": CGRect(x: 0, y: 0, width: 30, height: 24),
+            "b": CGRect(x: 28, y: 0, width: 30, height: 24)
+        ])
+        #expect(tags.isEmpty)
+    }
+
+    @Test("An overlap of exactly the tolerance does not count")
+    func exactTolerance() {
+        let tags = ItemImages27.overlappingTags(frames: [
+            "a": CGRect(x: 0, y: 0, width: 30, height: 24),
+            "b": CGRect(x: 24, y: 0, width: 30, height: 24)
+        ])
+        #expect(tags.isEmpty)
+    }
+
+    @Test("A collapsed frame lying inside another never counts")
+    func collapsedFrame() {
+        let tags = ItemImages27.overlappingTags(frames: [
+            "a": CGRect(x: 0, y: 0, width: 30, height: 24),
+            "b": CGRect(x: 10, y: 0, width: 3, height: 24)
+        ])
+        #expect(tags.isEmpty)
+    }
+
+    @Test("Only the items that overlap lose their pictures")
+    func farAway() {
+        let tags = ItemImages27.overlappingTags(frames: [
+            "a": CGRect(x: 0, y: 0, width: 30, height: 24),
+            "b": CGRect(x: 10, y: 0, width: 30, height: 24),
+            "c": CGRect(x: 200, y: 0, width: 30, height: 24)
+        ])
+        #expect(tags == ["a", "b"])
+    }
+
+    @Test("Frames on different rows never overlap")
+    func differentRows() {
+        let tags = ItemImages27.overlappingTags(frames: [
+            "a": CGRect(x: 0, y: 0, width: 30, height: 24),
+            "b": CGRect(x: 10, y: 24, width: 30, height: 24)
+        ])
+        #expect(tags.isEmpty)
+    }
+
+    @Test("No frames, no overlaps")
+    func noFrames() {
+        #expect(ItemImages27.overlappingTags(frames: [:]).isEmpty)
+    }
 }
 
 @Suite("PhotoSchedule27")

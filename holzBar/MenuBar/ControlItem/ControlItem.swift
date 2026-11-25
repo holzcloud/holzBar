@@ -1033,6 +1033,35 @@ final class ControlItem {
             menu.addItem(profilesItem)
         }
 
+        // macOS 27: the commands for a stalled MenuBarAgent. Never offered to holzbar:// URL
+        // commands, Shortcuts or automation rules; only here, in the palette and in Settings.
+        if #available(macOS 27.0, *), MenuBarBackendKind.current == .accessibility27 {
+            var commandItems = [NSMenuItem]()
+            // The restart needs MenuBarAgent visible to NSRunningApplication; checked each time
+            // the menu is built.
+            if MenuBarAgentRestart27.isAvailable {
+                let restartItem = NSMenuItem(
+                    title: String(localized: "Restart Menu Bar"),
+                    action: #selector(restartMenuBar),
+                    keyEquivalent: ""
+                )
+                restartItem.target = self
+                commandItems.append(restartItem)
+            }
+            // Pause does not depend on MenuBarAgent being visible.
+            let pauseItem = NSMenuItem(
+                title: appState.concealer27.pause.isPaused
+                    ? String(localized: "Resume holzBar")
+                    : String(localized: "Pause holzBar"),
+                action: #selector(togglePause),
+                keyEquivalent: ""
+            )
+            pauseItem.target = self
+            commandItems.append(pauseItem)
+            menu.addItem(.separator())
+            commandItems.forEach(menu.addItem)
+        }
+
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
@@ -1086,6 +1115,22 @@ final class ControlItem {
     /// Opens the menu bar search panel.
     @objc private func showSearchPanel() {
         appState?.menuBarManager.searchPanel.show()
+    }
+
+    /// Pauses holzBar, or resumes it, on macOS 27: while paused every item is shown.
+    @objc private func togglePause() {
+        guard #available(macOS 27.0, *) else {
+            return
+        }
+        appState?.concealer27.togglePause()
+    }
+
+    /// Restarts MenuBarAgent on macOS 27 (user-initiated, see ``MenuBarAgentRestart27``).
+    @objc private func restartMenuBar() {
+        guard #available(macOS 27.0, *), let appState else {
+            return
+        }
+        MenuBarAgentRestart27.restart(appState: appState)
     }
 }
 

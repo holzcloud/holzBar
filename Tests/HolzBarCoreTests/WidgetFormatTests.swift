@@ -160,6 +160,67 @@ struct WidgetFormatTests {
         #expect(plain(text(.battery(percent: 5, state: .onBattery), definition(.battery), locale: german).string) == "5 %")
     }
 
+    @Test("GPU Load gives a percent, the en dash when nothing was read (MON-07, MON-09)")
+    func gpuLoadText() {
+        #expect(plain(text(.fraction(0.23), definition(.gpuLoad)).string) == "23%")
+        #expect(plain(text(.fraction(1.5), definition(.gpuLoad)).string) == "100%")
+        #expect(text(.unavailable, definition(.gpuLoad)).isUnavailable)
+        #expect(text(.fraction(.nan), definition(.gpuLoad)).isUnavailable)
+        #expect(text(.bytes(1000), definition(.gpuLoad)).isUnavailable)
+        let samples = WidgetFormat.widthSamples(for: definition(.gpuLoad), locale: english, calendar: calendar, capacityBytes: nil)
+        #expect(samples.map(plain) == ["100%"])
+    }
+
+    @Test("Large Percent is the Percent text and carries the state for its glyph (D-16)")
+    func largePercent() {
+        let reading = WidgetReading.battery(percent: 62, state: .charging)
+        let large = text(reading, definition(.battery, preset: .largePercent))
+        #expect(large.string == text(reading, definition(.battery, preset: .percent)).string)
+        #expect(large.batteryState == .charging)
+        #expect(text(.power(PowerReading(percent: 140, state: .onBattery)), definition(.battery, preset: .largePercent)).string == "100%")
+        #expect(text(.unavailable, definition(.battery, preset: .largePercent)).isUnavailable)
+        // The width sample is the widest percent, shared with the other battery percent formats.
+        let samples = WidgetFormat.widthSamples(
+            for: definition(.battery, preset: .largePercent), locale: english, calendar: calendar, capacityBytes: nil
+        )
+        #expect(samples == ["100%"])
+    }
+
+    @Test("Lowest Device Battery gives a percent and never the name, the en dash without a level (D-26, MON-09)")
+    func deviceBatteryText() {
+        let airpods = WidgetReading.device(LowestDeviceBattery(name: "AirPods", percent: 82, symbol: "airpods"))
+        let shown = text(airpods, definition(.deviceBattery))
+        #expect(plain(shown.string) == "82%")
+        #expect(!shown.string.contains("AirPods"))
+        #expect(plain(text(.device(LowestDeviceBattery(name: "Mouse", percent: 140, symbol: "computermouse")), definition(.deviceBattery)).string) == "100%")
+        #expect(plain(text(.device(LowestDeviceBattery(name: "Mouse", percent: -3, symbol: "computermouse")), definition(.deviceBattery)).string) == "0%")
+        #expect(plain(text(airpods, definition(.deviceBattery), locale: german).string) == "82 %")
+        #expect(text(.unavailable, definition(.deviceBattery)).isUnavailable)
+        #expect(text(.fraction(0.5), definition(.deviceBattery)).isUnavailable)
+        #expect(text(airpods, definition(.cpu)).isUnavailable)
+        let samples = WidgetFormat.widthSamples(for: definition(.deviceBattery), locale: english, calendar: calendar, capacityBytes: nil)
+        #expect(samples.map(plain) == ["100%"])
+    }
+
+    @Test("Lowest Device Battery names the device's kind as the leading symbol, never the name (D-26)")
+    func deviceBatteryLeadingSymbol() {
+        let pro = WidgetReading.device(LowestDeviceBattery(name: "AirPods Pro", percent: 64, symbol: "airpodspro"))
+        let shown = text(pro, definition(.deviceBattery))
+        #expect(plain(shown.string) == "64%")
+        #expect(shown.leadingSymbol == "airpodspro")
+        #expect(!shown.string.contains("AirPods"))
+        let none = text(.unavailable, definition(.deviceBattery))
+        #expect(none.isUnavailable)
+        #expect(none.leadingSymbol == ConnectedDeviceList.unknownSymbol)
+        var plainDefinition = definition(.deviceBattery)
+        plainDefinition.showsSymbol = false
+        #expect(text(pro, plainDefinition).leadingSymbol == nil)
+        #expect(text(.unavailable, plainDefinition).leadingSymbol == nil)
+        for source in [WidgetSource.cpu, .battery, .gpuLoad, .memory, .thermalState] {
+            #expect(text(.fraction(0.5), definition(source)).leadingSymbol == nil, "\(source)")
+        }
+    }
+
     @Test("CPU, memory and disk give a percent or a byte count")
     func percentAndBytes() {
         #expect(plain(text(.fraction(0.374), definition(.cpu)).string) == "37%")
@@ -336,6 +397,252 @@ struct WidgetFormatTests {
 
     private var script: WidgetDefinition {
         WidgetDefinition.script()
+    }
+
+    @Test("Network speed writes the rates with arrows, and an en dash for anything else (MON-03, D-13)")
+    func networkSpeedText() {
+        let reading = WidgetReading.rates(first: 1_200_000, second: 85_000)
+        #expect(text(reading, definition(.networkSpeed, preset: .download)).string == "1.2 MB/s")
+        #expect(text(reading, definition(.networkSpeed, preset: .upload)).string == "85.0 kB/s")
+        #expect(text(reading, definition(.networkSpeed, preset: .downloadAndUpload)).string == "\u{2193}1.2 MB/s \u{2191}85.0 kB/s")
+        #expect(text(reading, definition(.networkSpeed)).string == "\u{2193}1.2 MB/s \u{2191}85.0 kB/s")
+        // Bits are counted when the unit asks for them.
+        let bits = WidgetFormat.text(
+            for: reading,
+            definition: definition(.networkSpeed, preset: .download),
+            locale: english,
+            calendar: calendar,
+            rateUnit: .bits
+        )
+        #expect(bits.string == "9.6 Mb/s")
+        #expect(text(.rates(first: -1, second: 5), definition(.networkSpeed, preset: .downloadAndUpload)).isUnavailable)
+        #expect(text(.rates(first: .nan, second: 5), definition(.networkSpeed, preset: .download)).isUnavailable)
+        #expect(text(.fraction(0.5), definition(.networkSpeed)).isUnavailable)
+        #expect(text(.rates(first: 1, second: 2), definition(.cpu)).isUnavailable)
+        // The decimal separator follows the locale.
+        #expect(text(reading, definition(.networkSpeed, preset: .download), locale: german).string == "1,2 MB/s")
+    }
+
+    @Test("Network speed has fixed width samples that reach 999 GB/s (D-11, MON-09)")
+    func networkSpeedWidth() {
+        func samples(_ preset: WidgetPreset, unit: ReadoutRateUnit = .bytes) -> [String] {
+            WidgetFormat.widthSamples(
+                for: definition(.networkSpeed, preset: preset),
+                locale: english,
+                calendar: calendar,
+                capacityBytes: nil,
+                rateUnit: unit
+            )
+        }
+        let download = samples(.download)
+        #expect(download.contains("99.9 MB/s"))
+        #expect(download.contains("999 GB/s"))
+        #expect(Set(download).count == download.count)
+        #expect(samples(.upload) == download)
+        let both = samples(.downloadAndUpload)
+        #expect(both.contains("\u{2193}999 GB/s \u{2191}999 GB/s"))
+        #expect(both.contains("\u{2193}99.9 kB/s \u{2191}999 GB/s"))
+        #expect(Set(both).count == both.count)
+        #expect(samples(.download, unit: .bits).contains("999 Gb/s"))
+        // Every text a rate can take is not wider than the widest sample.
+        let widest = both.map(\.count).max() ?? 0
+        for first in [0.0, 5_000, 123_456, 98_000_000, 999_000_000_000] {
+            for second in [0.0, 85_000, 999_900, 12_000_000] {
+                let shown = text(.rates(first: first, second: second), definition(.networkSpeed)).string
+                #expect(shown.count <= widest, "\(shown)")
+            }
+        }
+    }
+
+    @Test("Disk activity writes bytes with the read and write labels, whatever the unit (MON-04, D-08)")
+    func diskActivityText() {
+        let reading = WidgetReading.rates(first: 12_000_000, second: 3_400_000)
+        #expect(text(reading, definition(.diskActivity, preset: .read)).string == "12.0 MB/s")
+        #expect(text(reading, definition(.diskActivity, preset: .write)).string == "3.4 MB/s")
+        #expect(text(reading, definition(.diskActivity, preset: .readAndWrite)).string == "R 12.0 MB/s W 3.4 MB/s")
+        let bits = WidgetFormat.text(
+            for: reading,
+            definition: definition(.diskActivity, preset: .read),
+            locale: english,
+            calendar: calendar,
+            rateUnit: .bits
+        )
+        #expect(bits.string == "12.0 MB/s")
+        #expect(text(.rates(first: 1, second: -2), definition(.diskActivity)).isUnavailable)
+        #expect(text(.rates(first: .infinity, second: 2), definition(.diskActivity, preset: .read)).isUnavailable)
+        #expect(text(.fraction(0.2), definition(.diskActivity)).isUnavailable)
+        #expect(text(.rates(first: 1, second: 2), definition(.freeDisk)).isUnavailable)
+    }
+
+    @Test("Disk activity has fixed width samples that cover every rate (D-11, MON-09)")
+    func diskActivityWidth() {
+        func samples(_ preset: WidgetPreset) -> [String] {
+            WidgetFormat.widthSamples(
+                for: definition(.diskActivity, preset: preset),
+                locale: english,
+                calendar: calendar,
+                capacityBytes: nil
+            )
+        }
+        #expect(samples(.read).contains("999 GB/s"))
+        #expect(samples(.write) == samples(.read))
+        let both = samples(.readAndWrite)
+        #expect(both.contains("R 999 GB/s W 999 GB/s"))
+        #expect(both.contains("R 99.9 kB/s W 999 GB/s"))
+        #expect(Set(both).count == both.count)
+        let widest = both.map(\.count).max() ?? 0
+        for first in [0.0, 5_000, 123_456, 98_000_000, 999_000_000_000] {
+            for second in [0.0, 85_000, 999_900, 12_000_000] {
+                let shown = text(.rates(first: first, second: second), definition(.diskActivity)).string
+                #expect(shown.count <= widest, "\(shown)")
+            }
+        }
+    }
+
+    @Test("Memory pressure is a word, swap is a memory-style byte count (MON-02)")
+    func pressureAndSwapText() {
+        let pressure = definition(.memory, preset: .pressure)
+        #expect(text(.pressure(.normal), pressure).string == "Normal")
+        #expect(text(.pressure(.warning), pressure).string == "High")
+        #expect(text(.pressure(.critical), pressure).string == "Critical")
+        let german = ReadoutTexts(
+            byteSymbols: ["kB", "MB", "GB"], bitSymbols: ["kb", "Mb", "Gb"], perSecondFormat: "%@/s",
+            pressureNormal: "Normal", pressureHigh: "Hoch", pressureCritical: "Kritisch",
+            thermalNominal: "", thermalFair: "", thermalSerious: "", thermalCritical: "",
+            performanceFormat: "P %@", efficiencyFormat: "E %@", readFormat: "R %@", writeFormat: "W %@", wattsFormat: "%@ W"
+        )
+        let localized = WidgetFormat.text(
+            for: .pressure(.warning), definition: pressure, locale: english, calendar: calendar, texts: german
+        )
+        #expect(localized.string == "Hoch")
+        // A pressure for another format, or another reading for the pressure format, is no value.
+        #expect(text(.pressure(.normal), definition(.memory)).isUnavailable)
+        #expect(text(.fraction(0.5), pressure).isUnavailable)
+        #expect(text(.pressure(.normal), definition(.cpu)).isUnavailable)
+        let swap = definition(.memory, preset: .swapUsed)
+        #expect(plain(text(.bytes(1_288_490_189), swap).string) == "1.2 GB")
+        #expect(text(.fraction(0.5), swap).isUnavailable)
+        // The old memory formats read as before.
+        #expect(plain(text(.fraction(0.5), definition(.memory, preset: .percentUsed)).string) == "50%")
+        #expect(text(.bytes(1_288_490_189), definition(.memory, preset: .percentUsed)).isUnavailable)
+    }
+
+    @Test("Pressure and swap have fixed width samples (MON-09)")
+    func pressureAndSwapWidth() {
+        func samples(_ preset: WidgetPreset) -> [String] {
+            WidgetFormat.widthSamples(
+                for: definition(.memory, preset: preset),
+                locale: english,
+                calendar: calendar,
+                capacityBytes: 17_179_869_184
+            ).map(plain)
+        }
+        #expect(samples(.pressure) == ["Normal", "High", "Critical"])
+        let swap = samples(.swapUsed)
+        #expect(swap.contains("9.9 GB"))
+        #expect(swap.contains("99.9 GB"))
+        // The installed memory is no bound of the swap, so it is not a sample.
+        #expect(!swap.contains("16 GB"))
+    }
+
+    @Test("The thermal state is its word, with fixed width samples (MON-06)")
+    func thermalText() {
+        let thermal = definition(.thermalState)
+        #expect(text(.thermal(.serious), thermal).string == "Serious")
+        #expect(text(.thermal(.nominal), thermal).string == "Nominal")
+        #expect(text(.thermal(.fair), thermal).string == "Fair")
+        #expect(text(.thermal(.critical), thermal).string == "Critical")
+        #expect(text(.fraction(0.5), thermal).isUnavailable)
+        #expect(text(.thermal(.fair), definition(.cpu)).isUnavailable)
+        let samples = WidgetFormat.widthSamples(for: thermal, locale: english, calendar: calendar, capacityBytes: nil)
+        #expect(samples == ["Nominal", "Fair", "Serious", "Critical"])
+    }
+
+    @Test("Percent and Time Left shows the time to empty on battery and to full while charging (MON-05, D-11)")
+    func percentAndTimeLeft() {
+        let left = definition(.battery, preset: .percentAndTimeLeft)
+        let onBattery = PowerReading(
+            percent: 80, state: .onBattery, timeToEmpty: .seconds(130 * 60), timeToFull: nil, adapterWatts: nil
+        )
+        let onBatteryText = text(.power(onBattery), left)
+        #expect(plain(onBatteryText.string) == "80% \u{00B7} 2:10")
+        #expect(onBatteryText.batteryState == .onBattery)
+        let charging = PowerReading(
+            percent: 80, state: .charging, timeToEmpty: nil, timeToFull: .seconds(45 * 60), adapterWatts: 96
+        )
+        let chargingText = text(.power(charging), left)
+        #expect(plain(chargingText.string) == "80% \u{00B7} 0:45")
+        #expect(chargingText.batteryState == .charging)
+        // The wrong estimate for the state is not shown, and no estimate is the percent alone.
+        let mixed = PowerReading(
+            percent: 80, state: .onBattery, timeToEmpty: nil, timeToFull: .seconds(45 * 60), adapterWatts: nil
+        )
+        #expect(plain(text(.power(mixed), left).string) == "80%")
+        let charged = PowerReading(
+            percent: 100, state: .charged, timeToEmpty: .seconds(60), timeToFull: .seconds(60), adapterWatts: 61
+        )
+        #expect(plain(text(.power(charged), left).string) == "100%")
+        let samples = WidgetFormat.widthSamples(for: left, locale: english, calendar: calendar, capacityBytes: nil)
+        #expect(samples.map(plain).contains("100% \u{00B7} 99:59"))
+    }
+
+    @Test("Adapter Watts shows the watts, and the en dash without them (MON-05, MON-09, D-11)")
+    func adapterWatts() {
+        let watts = definition(.battery, preset: .adapterWatts)
+        let plugged = PowerReading(
+            percent: 50, state: .charging, timeToEmpty: nil, timeToFull: nil, adapterWatts: 96
+        )
+        let result = text(.power(plugged), watts)
+        #expect(plain(result.string) == "96 W")
+        #expect(result.batteryState == nil)
+        let unplugged = PowerReading(
+            percent: 50, state: .onBattery, timeToEmpty: nil, timeToFull: nil, adapterWatts: nil
+        )
+        #expect(text(.power(unplugged), watts).isUnavailable)
+        #expect(text(.fraction(0.5), watts).isUnavailable)
+        let samples = WidgetFormat.widthSamples(for: watts, locale: english, calendar: calendar, capacityBytes: nil)
+        #expect(samples.map(plain) == ["100 W"])
+    }
+
+    @Test("The old battery formats give the same text from a power reading as from the battery reading")
+    func batteryFromPower() {
+        let power = PowerReading(percent: 80, state: .charging, timeToEmpty: nil, timeToFull: .seconds(600), adapterWatts: 30)
+        for preset in [WidgetPreset.percent, .percentAndState] {
+            let old = text(.battery(percent: 80, state: .charging), definition(.battery, preset: preset))
+            let new = text(.power(power), definition(.battery, preset: preset))
+            #expect(old == new, "\(preset)")
+        }
+        #expect(text(.power(power), definition(.battery, preset: .percentAndState)).batteryState == .charging)
+        #expect(text(.power(power), definition(.battery, preset: .percent)).batteryState == nil)
+    }
+
+    @Test("Per Core Cluster shows each cluster's load in level order, and the total as the fall back (MON-01, D-10)")
+    func perCluster() {
+        let widget = definition(.cpu, preset: .perCluster)
+        let clusters = [
+            ClusterLoad(level: ClusterLevel(index: 0, name: "Performance", logicalCPUs: 8), label: .performance, load: 0.42),
+            ClusterLoad(level: ClusterLevel(index: 1, name: "Efficiency", logicalCPUs: 2), label: .efficiency, load: 0.12),
+        ]
+        #expect(plain(text(.clusters(clusters), widget).string) == "P 42% E 12%")
+        // The fall back is the total, with the plain percent format.
+        #expect(plain(text(.fraction(0.23), widget).string) == "23%")
+        // One cluster is the total, not a split; the plain percent format ignores clusters.
+        #expect(text(.clusters(Array(clusters.prefix(1))), widget).isUnavailable)
+        #expect(text(.clusters(clusters), definition(.cpu)).isUnavailable)
+        #expect(text(.unavailable, widget).isUnavailable)
+        var texts = ReadoutTexts.english
+        texts.clusterLabels = [.performance, .efficiency]
+        let both = WidgetFormat.widthSamples(
+            for: widget, locale: english, calendar: calendar, capacityBytes: nil, texts: texts
+        )
+        #expect(both.map(plain) == ["P 100% E 100%", "100%"])
+        texts.clusterLabels = [.other("S"), .performance]
+        let other = WidgetFormat.widthSamples(
+            for: widget, locale: english, calendar: calendar, capacityBytes: nil, texts: texts
+        )
+        #expect(other.map(plain) == ["S 100% P 100%", "100%"])
+        let none = WidgetFormat.widthSamples(for: widget, locale: english, calendar: calendar, capacityBytes: nil)
+        #expect(none.map(plain) == ["100%"])
     }
 
     @Test("A script widget shows its line as given, never parsed (T-12-25)")

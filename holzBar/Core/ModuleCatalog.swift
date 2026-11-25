@@ -76,7 +76,11 @@ nonisolated enum ModuleCatalog {
     /// and creates no source, live state or wait while off. Display controls, a fourth module of the hub, is off until
     /// the user switches it on, asks for no permission and creates no runtime or CoreAudio listener while
     /// off. Now Playing, a fifth module of the hub, is off until the user switches it on, asks for no
-    /// permission and creates no observer, runtime or model while off. The title and the summary are the English
+    /// permission and creates no observer, runtime or model while off. System readouts, the module
+    /// of the System monitor group, is off until the user switches it on, asks for no permission and
+    /// reads nothing while off; its settings are built only when its row is opened. Dock badges is off
+    /// until the user switches it on, asks for no permission beyond holzBar's Accessibility, and reads
+    /// nothing and shows no item while off. The title and the summary are the English
     /// strings the settings show; their keys are those strings.
     static let all: [ModuleDescriptor] = [
         ModuleDescriptor(
@@ -102,6 +106,15 @@ nonisolated enum ModuleCatalog {
             titleKey: "Apple Items",
             summaryKey: "Hide the clock or Control Center, and keep Apple items one click away on macOS 27.",
             permission: nil
+        ),
+        ModuleDescriptor(
+            id: "dock-badges",
+            area: .menuBar,
+            symbol: "app.badge",
+            titleKey: "Dock badges",
+            summaryKey: "Shows the badge counts of apps in your Dock as menu bar items.",
+            permission: .accessibility,
+            isPreview: true
         ),
         ModuleDescriptor(
             id: "notch-hub",
@@ -161,6 +174,15 @@ nonisolated enum ModuleCatalog {
             permission: .bluetooth
         ),
         ModuleDescriptor(
+            id: "indicators",
+            area: .notch,
+            symbol: "dial.medium",
+            titleKey: "Indicators",
+            summaryKey: "Shows keyboard layout changes and volume and brightness levels in the notch.",
+            permission: nil,
+            isPreview: true
+        ),
+        ModuleDescriptor(
             id: "notifications",
             area: .notch,
             symbol: "bell.badge",
@@ -175,6 +197,24 @@ nonisolated enum ModuleCatalog {
             titleKey: "Now Playing",
             summaryKey: "Shows what is playing, at the notch.",
             permission: nil
+        ),
+        ModuleDescriptor(
+            id: "system-readouts",
+            area: .monitor,
+            symbol: "gauge.with.dots.needle.67percent",
+            titleKey: "System readouts",
+            summaryKey: "CPU, memory, network, disk and battery as tiles in the Notch hub, with a short history.",
+            permission: nil,
+            isPreview: true
+        ),
+        ModuleDescriptor(
+            id: "system-alerts",
+            area: .monitor,
+            symbol: "exclamationmark.triangle",
+            titleKey: "System alerts",
+            summaryKey: "Alerts in the notch when CPU, memory, heat, disk space or battery cross your limit. Each alert waits for the time you set, clears with a margin and repeats at most every 30 minutes.",
+            permission: nil,
+            isPreview: true
         ),
     ]
 
@@ -243,6 +283,20 @@ nonisolated enum GaugeLevel: Sendable {
         case ..<0.6: return .normal
         case ..<0.85: return .elevated
         default: return .critical
+        }
+    }
+
+    /// The level of a share that is left, from 0 to 1, for a gauge where little left is bad, such
+    /// as a battery: below 0.15 critical, below 0.30 elevated, else normal. Values outside the
+    /// range count as the nearest end; a value that is not a number counts as normal.
+    static func level(forRemaining fraction: Double) -> GaugeLevel {
+        guard fraction.isFinite else {
+            return .normal
+        }
+        switch min(max(fraction, 0), 1) {
+        case ..<0.15: return .critical
+        case ..<0.30: return .elevated
+        default: return .normal
         }
     }
 }

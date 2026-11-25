@@ -20,6 +20,11 @@ struct HubWidget: View {
     private let unit: Text?
     private let detail: Text?
     private let fraction: Double?
+    private let level: GaugeLevel?
+    private let stateLine: HubTileStateLine?
+    private let accessibilityText: Text?
+    private let help: Text?
+    private let history: HubTileHistory?
 
     /// Creates a widget.
     ///
@@ -30,13 +35,26 @@ struct HubWidget: View {
     ///   - unit: The unit, if any.
     ///   - detail: One quiet extra line, if any.
     ///   - fraction: The share of the limit from 0 to 1, or `nil` for a state without a level.
+    ///   - level: The ring's colour, when the caller decides it; the ring follows the fraction
+    ///     otherwise.
+    ///   - stateLine: A state shown in place of the quiet line, in its own colour.
+    ///   - accessibilityValue: What VoiceOver reads as the value. With it the widget is one
+    ///     element named by the title; without it the texts are read combined.
+    ///   - help: The tooltip.
+    ///   - history: The last two minutes as a mini curve right of the ring; the curve is left out
+    ///     when less than its minimum width is free.
     init(
         systemImage: String,
         title: Text,
         value: String,
         unit: Text? = nil,
         detail: Text? = nil,
-        fraction: Double? = nil
+        fraction: Double? = nil,
+        level: GaugeLevel? = nil,
+        stateLine: HubTileStateLine? = nil,
+        accessibilityValue: Text? = nil,
+        help: Text? = nil,
+        history: HubTileHistory? = nil
     ) {
         self.systemImage = systemImage
         self.title = title
@@ -44,6 +62,11 @@ struct HubWidget: View {
         self.unit = unit
         self.detail = detail
         self.fraction = fraction
+        self.level = level
+        self.stateLine = stateLine
+        self.accessibilityText = accessibilityValue
+        self.help = help
+        self.history = history
     }
 
     private var clampedFraction: Double? {
@@ -60,7 +83,7 @@ struct HubWidget: View {
     }
 
     private var levelColor: Color {
-        switch GaugeLevel.level(for: clampedFraction ?? 0) {
+        switch level ?? GaugeLevel.level(for: clampedFraction ?? 0) {
         case .normal: HolzBarTheme.Palette.success
         case .elevated: HolzBarTheme.Palette.warning
         case .critical: HolzBarTheme.Palette.danger
@@ -69,7 +92,7 @@ struct HubWidget: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ring
+            topRow
             title
                 .font(.system(size: 9, weight: .medium))
                 .textCase(.uppercase)
@@ -87,7 +110,17 @@ struct HubWidget: View {
                         .foregroundStyle(.white.opacity(0.55))
                 }
             }
-            if let detail {
+            if let stateLine {
+                HStack(spacing: 4) {
+                    Image(systemName: stateLine.symbol)
+                        .font(.system(size: 10))
+                        .accessibilityHidden(true)
+                    stateLine.text
+                        .font(.system(size: 10, weight: .semibold))
+                        .lineLimit(1)
+                }
+                .foregroundStyle(stateLine.tint.color)
+            } else if let detail {
                 detail
                     .font(.system(size: 10))
                     .foregroundStyle(.white.opacity(detailAlpha))
@@ -104,15 +137,37 @@ struct HubWidget: View {
             HolzBarTheme.shape(CGFloat(DesignTokens.Hub.tileRadius))
                 .stroke(.white.opacity(0.06), lineWidth: HolzBarTheme.Spacing.hairline)
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityValue(Text(verbatim: accessibilityValue))
+        .modifier(HubWidgetAccessibility(title: title, value: accessibilityText, spokenValue: spokenValue))
+        .modifier(HubWidgetHelp(help: help))
     }
 
-    private var accessibilityValue: String {
+    private var spokenValue: String {
         guard let clampedFraction else {
             return value
         }
         return "\(value), \(Int((clampedFraction * 100).rounded())) %"
+    }
+
+    /// The ring, and with a history the curve after it: it fills the rest of the row, with its
+    /// bottom on the ring's bottom, and adds no height. With less than the curve's minimum width
+    /// free the row is the ring alone.
+    @ViewBuilder private var topRow: some View {
+        if let history {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .bottom, spacing: CGFloat(DesignTokens.Hub.curveGap)) {
+                    ring
+                    ReadoutCurve(primary: history.primary, secondary: history.secondary)
+                        .frame(
+                            minWidth: CGFloat(DesignTokens.Hub.curveMinimumWidth),
+                            idealWidth: CGFloat(DesignTokens.Hub.curveMinimumWidth),
+                            maxWidth: .infinity
+                        )
+                }
+                ring
+            }
+        } else {
+            ring
+        }
     }
 
     private var ring: some View {
@@ -131,6 +186,59 @@ struct HubWidget: View {
         }
         .frame(width: 32, height: 32)
         .accessibilityHidden(true)
+    }
+}
+
+extension HubWidget {
+    /// Creates the widget of a module's tile.
+    init(tile: HubTile) {
+        self.init(
+            systemImage: tile.symbol,
+            title: tile.title,
+            value: tile.value,
+            unit: tile.unit,
+            detail: tile.detail,
+            fraction: tile.fraction,
+            level: tile.level,
+            stateLine: tile.stateLine,
+            accessibilityValue: tile.accessibilityValue,
+            help: tile.help,
+            history: tile.history
+        )
+    }
+}
+
+/// A tile with a spoken value is one element: the title is its label and the value is what the
+/// caller wrote. Other tiles read their texts combined, with the ring's share after the value.
+private struct HubWidgetAccessibility: ViewModifier {
+    let title: Text
+    let value: Text?
+    let spokenValue: String
+
+    func body(content: Content) -> some View {
+        if let value {
+            content
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(title)
+                .accessibilityValue(value)
+        } else {
+            content
+                .accessibilityElement(children: .combine)
+                .accessibilityValue(Text(verbatim: spokenValue))
+        }
+    }
+}
+
+/// The tooltip of a tile, when it has one.
+private struct HubWidgetHelp: ViewModifier {
+    let help: Text?
+
+    func body(content: Content) -> some View {
+        if let help {
+            content.help(help)
+        } else {
+            content
+        }
     }
 }
 

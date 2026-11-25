@@ -295,6 +295,22 @@ struct DesignTokensTests {
         #expect(Tokens.Island.gearSize >= Tokens.minimumTargetSize)
     }
 
+    @Test("The mini curve's numbers equal the design's R1")
+    func curveNumbers() {
+        #expect(Tokens.Hub.curveHeight == 24)
+        #expect(Tokens.Hub.curveGap == 8)
+        #expect(Tokens.Hub.curveMinimumWidth == 40)
+        #expect(Tokens.Hub.curveLineWidth == 1.5)
+        #expect(Tokens.Hub.curveBaselineWidth == 1)
+        #expect(Tokens.Hub.curveLineAlpha == 0.55)
+        #expect(Tokens.Hub.curveLineAlphaIncreased == 0.85)
+        #expect(Tokens.Hub.curveAreaAlpha == 0.06)
+        #expect(Tokens.Hub.curveBaselineAlpha == 0.08)
+        #expect(Tokens.Hub.curveDash == [2, 2])
+        // Increase Contrast strengthens the line.
+        #expect(Tokens.Hub.curveLineAlphaIncreased > Tokens.Hub.curveLineAlpha)
+    }
+
     @Test("The island's numbers equal section 10b")
     func islandNumbers() {
         let island = Tokens.Island.self
@@ -368,6 +384,22 @@ struct DesignTokensTests {
         #expect(island.openHeightDamping < 1)
         #expect(island.closeDamping > island.openWidthDamping)
         #expect(island.contentScale < 1)
+    }
+
+    @Test("The alert's timeline and its detached pill are the design's numbers")
+    func alertTokens() {
+        let alert = Tokens.Alert.self
+        #expect(alert.widenedSeconds == 30)
+        #expect(alert.testSeconds == 5)
+        #expect(alert.testNotificationSeconds == 10)
+        #expect(alert.detachedMaximumWidth == 180)
+        #expect(alert.detachedMinimumWidth == 44)
+        #expect(alert.detachedValueGap == 8)
+        // The spacing scale is a multiple of 4.
+        for width in [alert.detachedMaximumWidth, alert.detachedMinimumWidth, alert.detachedValueGap] {
+            #expect(width.truncatingRemainder(dividingBy: 4) == 0)
+        }
+        #expect(alert.detachedMinimumWidth < alert.detachedMaximumWidth)
     }
 
     @Test("The floating bar's shadow is the design's numbers and fits the panel's insets")
@@ -510,5 +542,70 @@ struct DesignTokensTests {
         #expect(toast.plainVisibleSeconds == 3)
         #expect(toast.menuBarGap == 8)
         #expect(toast.screenMargin == 8)
+    }
+
+    @Test("The indicator's hold, durations, coalescing, priority and announce delay are the design's numbers")
+    func indicatorTokens() {
+        let indicator = Tokens.Indicator.self
+        #expect(indicator.holdSeconds == 1.5)
+        #expect(indicator.inputSourceDurations == [0.5, 1, 1.5, 2, 3])
+        #expect(indicator.inputSourceDefaultDuration == 1.5)
+        #expect(indicator.coalescingSeconds == 0.05)
+        #expect(indicator.flashPriority == 40)
+        #expect(indicator.announceDelay == 0.3)
+        #expect(indicator.inputSourceDurations.contains(indicator.inputSourceDefaultDuration))
+        #expect(indicator.flashPriority > AlertLook.priority(for: .thermal))
+    }
+
+    @Test("The notification count's display times, priority, hover dwell and card height are the design's numbers")
+    func notificationTokens() {
+        let indicator = Tokens.Indicator.self
+        #expect(indicator.notificationDisplayTimes == [3, 5, 10, 15, 30])
+        #expect(indicator.notificationDefaultDisplayTime == 5)
+        #expect(indicator.notificationDisplayTimes.contains(indicator.notificationDefaultDisplayTime))
+        #expect(indicator.notificationCountPriority == 12)
+        #expect(indicator.notificationCountPriority < indicator.flashPriority)
+        #expect(indicator.cardHoverDwell == 0.15)
+        #expect(indicator.cardMaximumHeight == 96)
+    }
+
+    @Test("The Shelf notice row's widths and the combined question's rows are the design's numbers")
+    func comfortTokens() {
+        let comfort = Tokens.Comfort.self
+        #expect(comfort.shelfNoticeMinWidth == 280)
+        #expect(comfort.shelfNoticeMaxWidth == 420)
+        #expect(comfort.shelfNoticeMinWidth < comfort.shelfNoticeMaxWidth)
+        #expect(comfort.combinedQuestionMaxRows == 4)
+    }
+
+    @Test("The Large Percent widget's number, glyph and gap are the design's numbers")
+    func widgetTokens() {
+        let widget = Tokens.Widget.self
+        #expect(widget.largePercentGrowth == 3)
+        #expect(widget.largePercentGlyphShrink == 2)
+        #expect(widget.largePercentGap == 4)
+    }
+
+    @Test("The import sheet is 480 wide and its list of changes scrolls between 120 and 320")
+    func importSheetTokens() {
+        let sheet = Tokens.ImportSheet.self
+        #expect(sheet.width == 480)
+        #expect(sheet.listMinHeight == 120)
+        #expect(sheet.listMaxHeight == 320)
+        #expect(sheet.listMinHeight < sheet.listMaxHeight)
+    }
+
+    @Test("The Dock badge item's icon, overlap, bubble placement, dim, limits and red are the design's numbers")
+    func dockBadgeTokens() {
+        let badge = Tokens.DockBadge.self
+        #expect(badge.iconSize == 16)
+        #expect(badge.groupIconOverlap == 8)
+        #expect(badge.bubbleOverhang == 4)
+        #expect(badge.bubbleRise == 2)
+        #expect(badge.dimAlpha == 0.5)
+        #expect(badge.countLimit == 99)
+        #expect(badge.labelCharacterLimit == 3)
+        #expect(badge.fill == Tokens.Light.danger)
+        #expect(badge.fill == Tokens.RGB(hex: 0xDC2626))
     }
 }

@@ -36,6 +36,14 @@ final class NotchHubModel {
     /// is closed.
     private(set) var session: HubContext.Session?
 
+    /// Whether the open hub is pinned (D-12). Never stored: the controller's `close()` clears it.
+    var pin = HubPin()
+
+    /// The question where a new menu bar app should go, set once by the question model when it is
+    /// created (Phase 97, D-06); `nil` until then. The hub reads it for the Overview's first row and
+    /// the dot on the Overview button, and the controller never names it.
+    var newAppQuestionSource: (any HubNewAppQuestionSource)?
+
     init() {
         lastChosenID = Defaults.string(forKey: .notchHubLastTab) ?? HubTabStrip.overviewID
     }
@@ -66,12 +74,14 @@ final class NotchHubModel {
         HubTabStrip.allTabs(tabModuleIDs)
     }
 
-    /// The cards of the Overview, in catalog order.
+    /// The cards of the Overview, in catalog order; a module's cards keep their own order.
     var tiles: [(id: String, tile: HubTile)] {
         // A tile may show an activity that has just expired.
         _ = expiryCount
-        return runtimes.compactMap { runtime in
-            runtime.tile.map { (id: runtime.moduleID, tile: $0) }
+        return runtimes.flatMap { runtime in
+            runtime.tiles.map { tile in
+                (id: tile.key.map { "\(runtime.moduleID).\($0)" } ?? runtime.moduleID, tile: tile)
+            }
         }
     }
 
@@ -87,6 +97,14 @@ final class NotchHubModel {
     func board(now: Date) -> HubActivityBoard.Board {
         _ = expiryCount
         return HubActivityBoard.board(activities, now: now)
+    }
+
+    /// The board of the closed notch at a moment: the same activities, without those whose widening
+    /// has passed (``LiveActivity/widenedSeconds``), so a long alert does not hold the notch open.
+    /// The open hub's pills and the Live activities list keep the full ``board(now:)``.
+    func closedBoard(now: Date) -> HubActivityBoard.Board {
+        _ = expiryCount
+        return HubActivityBoard.board(activities, now: now, forClosedNotch: true)
     }
 
     /// Records that a finished activity left, so that the views that show the board draw again.

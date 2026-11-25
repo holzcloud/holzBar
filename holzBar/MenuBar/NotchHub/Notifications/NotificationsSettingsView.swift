@@ -17,7 +17,7 @@ struct NotificationsSettingsView: View {
     @State private var isEditingExclusions = false
 
     var body: some View {
-        let settings = appState.settings.notifications
+        @Bindable var settings = appState.settings.notifications
         SettingsNoteLine(Text("Reads the banners macOS shows, through Accessibility. Nothing is stored."))
         SettingsButtonRow(
             .modulesNotificationsExcludedApps,
@@ -32,6 +32,12 @@ struct NotificationsSettingsView: View {
         }
         .sheet(isPresented: $isEditingExclusions) {
             ExcludedAppsSheet(settings: settings)
+        }
+        SettingsPickerRow(.modulesNotificationsDisplayTime, selection: $settings.displayTime, badge: .preview) {
+            ForEach(DesignTokens.Indicator.notificationDisplayTimes, id: \.self) { seconds in
+                Text(Duration.seconds(seconds), format: .units(allowed: [.seconds], width: .abbreviated))
+                    .tag(seconds)
+            }
         }
         if !appState.permissions.accessibility.hasPermission {
             SettingsStateLine(.warning, Text("Accessibility access is off")) {

@@ -42,6 +42,10 @@ extension MenuBarItemManager {
         if let appState, appState.widgets.handlesOpen(of: item, mouseButton: mouseButton, origin: origin) {
             return
         }
+        // A Dock badges item is holzBar's own too: its click opens its app, never a bar click.
+        if DockBadgeItems.handlesOpen(of: item, mouseButton: mouseButton) {
+            return
+        }
         if
             let appState,
             !appState.settings.advanced.openHiddenItemsInMenuBar,

@@ -105,4 +105,9 @@ nonisolated enum DDCTiming {
     /// How long a first read lasts before its card shows a spinner: 150 ms, so a quick read
     /// never flashes one.
     static let readingIndicatorDelay: Duration = .milliseconds(150)
+
+    /// How long after a wake or a display reconfiguration no transfer is sent: about 3 s,
+    /// because monitors drop or garble requests while they come back (D-20). The wait counts
+    /// from the event itself, not from the 2 s the menu bar needs to settle (``DDCWakeGate``).
+    static let wakeWait: Duration = .seconds(3)
 }

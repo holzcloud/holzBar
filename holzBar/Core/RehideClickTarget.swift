@@ -46,4 +46,15 @@ nonisolated enum RehideClickTarget {
             (window.layer == 0 || window.ownerPID == dockPID)
         }
     }
+
+    /// The index of the topmost window under the point below the cursor's level, at any
+    /// level: an app window, a menu, a popover, the Dock.
+    ///
+    /// Smart rehide asks it to tell a click into an item's open menu or popup from a click
+    /// outside the bar.
+    static func topmostWindowIndex(in windows: [Window], at point: CGPoint, cursorLayer: Int) -> Int? {
+        windows.firstIndex { window in
+            window.layer < cursorLayer && window.bounds.contains(point)
+        }
+    }
 }

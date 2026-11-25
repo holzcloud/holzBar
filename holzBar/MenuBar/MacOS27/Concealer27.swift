@@ -54,6 +54,61 @@ final class Concealer27 {
     /// concealment again. For diagnostics.
     @ObservationIgnored private(set) var agentRestarts = 0
 
+    /// Stops the re-apply after too many MenuBarAgent restarts in a row (``AgentRestartBreaker``).
+    @ObservationIgnored private var restartBreaker = AgentRestartBreaker()
+
+    /// Ends a trip of ``restartBreaker`` by updating once more; one at a time.
+    @ObservationIgnored private var breakerEndTask: Task<Void, Never>?
+
+    /// The state of ``restartBreaker`` for Copy Diagnostics, one of the fixed words `ok` and
+    /// `tripped`.
+    var restartBreakerWord: String {
+        restartBreaker.isTripped(at: .now) ? "tripped" : "ok"
+    }
+
+    /// Whether the user paused holzBar (the "Pause holzBar" command): every item is shown until
+    /// it is resumed. Not persisted, so a relaunch resumes. Observed, so the menu follows.
+    private(set) var pause = PauseState()
+
+    /// Pauses holzBar, or resumes it and ends a tripped breaker, as the user wants hiding back.
+    func togglePause() {
+        let isPaused = pause.toggle()
+        if !isPaused {
+            endBreakerTrip()
+        }
+        logger.notice("holzBar \(isPaused ? "paused" : "resumed", privacy: .public)")
+        update()
+    }
+
+    /// Ends a trip of ``restartBreaker`` and drops the task that was to end it, so a later trip
+    /// arms its own end instead of waiting for a task armed for the earlier one.
+    private func endBreakerTrip() {
+        restartBreaker.reset()
+        breakerEndTask?.cancel()
+        breakerEndTask = nil
+    }
+
+    /// Prepares holzBar's own "Restart Menu Bar": the breaker expects the restart, which is not
+    /// counted. Nothing else changes until ``manualRestartDidAsk(succeeded:)`` says whether
+    /// macOS took the request.
+    ///
+    /// - Returns: `false` when the last restart was asked for less than five seconds ago.
+    func prepareForManualRestart() -> Bool {
+        restartBreaker.expectRestart(at: .now)
+    }
+
+    /// Settles a manual restart after the request to quit MenuBarAgent: when macOS took it, a
+    /// tripped breaker ends, as the user wants hiding back; when it did not, the expectation is
+    /// taken back, so the next real restart is counted and the user can try again at once.
+    func manualRestartDidAsk(succeeded: Bool) {
+        guard succeeded else {
+            restartBreaker.cancelExpectation()
+            return
+        }
+        endBreakerTrip()
+        logger.notice("Restarting MenuBarAgent at the user's request")
+    }
+
     /// How many times a read found new applications while concealing and the allowlist was
     /// worked out again for them, though they went to the visible section. For diagnostics.
     @ObservationIgnored private(set) var lateAllowlistRefreshes = 0
@@ -83,6 +138,21 @@ final class Concealer27 {
     /// Bundle identifiers of the visible applications MenuBarAgent cannot name, found by the
     /// install location or confirmed by ``HiddenAnyway27``, in the order of the bar.
     private(set) var unnameableVisible = [String]()
+
+    /// Owners whose every item is a system Live Activity: they are never concealed
+    /// (``LiveActivityItem/unconcealableOwners(items:knownSystemIdentifiers:)``).
+    @ObservationIgnored private(set) var liveActivityOwners = Set<String>()
+
+    /// Stores the owners the last read found to be pure hosts of Live Activities and queues an
+    /// update only when the set changed, so a changed allowlist reaches the bar.
+    func noteLiveActivityOwners(_ owners: Set<String>) {
+        guard owners != liveActivityOwners else {
+            return
+        }
+        liveActivityOwners = owners
+        logger.debug("Live Activity owners: \(owners.count, privacy: .public)")
+        update()
+    }
 
     /// The release-all holds live; see ``holdReleased()``.
     @ObservationIgnored private var releaseHold = ReleaseHold27()
@@ -168,8 +238,18 @@ final class Concealer27 {
     @ObservationIgnored private var lastReadHadFoldedItems = false
 
     /// Applications that launched while their section is concealed, shown until their item
-    /// exists (jordanbaird/Ice#1007).
-    @ObservationIgnored private var launchGrace = LaunchGrace27()
+    /// exists (jordanbaird/Ice#1007). Observed, so the Layout banner learns when a grace ends.
+    private var launchGrace = LaunchGrace27()
+
+    /// The applications in their launch grace now; empty almost always. The Layout banner stays
+    /// away while it is not (D-03).
+    var launchGraceBundleIDs: Set<String> {
+        launchGrace.allowed
+    }
+
+    /// The one task that sleeps until the earliest launch grace ends at its cap
+    /// (``scheduleGraceExpiry()``).
+    @ObservationIgnored private var graceExpiryTask: Task<Void, Never>?
 
     /// The applications concealed at the last change, to tell a change of concealment.
     @ObservationIgnored private var lastConcealed = Set<String>()
@@ -203,9 +283,9 @@ final class Concealer27 {
     }
 
     /// Whether a key may be recorded as a known application: holzBar's own bundle never is (it
-    /// has no section), and a widget's autosave name is no application.
+    /// has no section), and an own item's autosave name is no application.
     private func isApplicationKey(_ key: String) -> Bool {
-        !OwnBundle.matches(key, bundleIdentifier: Constants.bundleIdentifier) && !WidgetDefinition.isAutosaveName(key)
+        !OwnBundle.matches(key, bundleIdentifier: Constants.bundleIdentifier) && !OwnArrangedItem.isAutosaveName(key)
     }
 
     /// Adds applications to the ones holzBar knows on macOS 27 (`Defaults.Key.knownApplications27`),
@@ -405,15 +485,34 @@ final class Concealer27 {
         applications.first { $0.bundleIdentifier == MenuBarItemProvider27.menuBarAgentBundleID }?.processIdentifier
     }
 
-    /// Applies the concealment again after MenuBarAgent restarted.
+    /// Applies the concealment again after MenuBarAgent restarted, unless it restarts too often.
     ///
     /// The assertions are taken to have died with the old MenuBarAgent, and an apply reuses a
     /// live token whose target is unchanged, so the stale tokens are dropped first (releasing a
     /// dead one fails softly), queued like a suspension's release but without one, and the
     /// update that follows takes fresh assertions. Happens once per restart.
+    ///
+    /// ``restartBreaker`` is asked first: when MenuBarAgent restarts a fourth time within ten
+    /// minutes, holzBar stops hiding for 30 minutes instead of applying again in a loop (a bar
+    /// that shows everything beats one that locks up).
     private func menuBarAgentDidRestart() {
         agentRestarts += 1
-        logger.notice("MenuBarAgent restarted (\(self.agentRestarts, privacy: .public) so far), applying concealment again")
+        let outcome = restartBreaker.record(at: .now)
+        switch outcome {
+        case .reapply:
+            logger.notice("MenuBarAgent restarted (\(self.agentRestarts, privacy: .public) so far), applying concealment again")
+        case .expected:
+            logger.debug("MenuBarAgent restarted because holzBar asked for it, applying concealment again")
+        case .tripped:
+            // Logged once per trip: restarts that arrive while it stands add nothing. The end is
+            // armed every time (it replaces the task, for the same deadline while the trip
+            // stands), so a trip after a reset never waits on a task armed for an earlier one.
+            if breakerEndTask == nil {
+                logger.notice("MenuBarAgent restarted \(AgentRestartBreaker.restartLimit + 1, privacy: .public) times within ten minutes; hiding stops for 30 minutes")
+            }
+            scheduleBreakerEnd()
+        }
+        // Dead tokens go in every case: a later apply must not reuse them.
         let previous = applyTask
         applyTask = Task { [weak self, controller] in
             await previous?.value
@@ -423,17 +522,33 @@ final class Concealer27 {
         update()
     }
 
+    /// Updates once the trip of ``restartBreaker`` has ended, so the hiding comes back by itself.
+    private func scheduleBreakerEnd() {
+        guard let until = restartBreaker.trippedUntil else {
+            return
+        }
+        breakerEndTask?.cancel()
+        breakerEndTask = Task { [weak self] in
+            try? await Task.sleep(until: until, tolerance: .seconds(5), clock: .continuous)
+            guard !Task.isCancelled, let self else {
+                return
+            }
+            breakerEndTask = nil
+            update()
+        }
+    }
+
     /// Answers applications that may own items launching or quitting, with exactly one update.
     ///
     /// An application whose saved section is hidden or always hidden is shown until its item
-    /// exists, or for at most 10 s, then concealed: concealed before its status item exists,
+    /// exists, or for at most 45 s, then concealed: concealed before its status item exists,
     /// it gets an item of 3 points (jordanbaird/Ice#1007).
     ///
     /// - Parameter candidates: The launched applications whose saved section is concealed.
     private func applicationsDidChange(graces candidates: [String]) {
         // The bar is laid out anew, so the notch is worked out again.
         notchConcealed.removeAll()
-        let now = ContinuousClock.now
+        let now = SuspendingClock.now
         let begun = candidates.filter { launchGrace.begin($0, isConcealed: true, at: now) }
         guard !begun.isEmpty else {
             update()
@@ -441,13 +556,25 @@ final class Concealer27 {
         }
         logger.debug("\(begun.count, privacy: .public) applications in concealed sections launched, showing them until their items exist")
         showTemporarily(bundleIDs: begun)
-        // One bounded wait per change.
-        Task { [weak self] in
-            try? await Task.sleep(for: LaunchGrace27.timeout)
-            guard let self else {
+        scheduleGraceExpiry()
+    }
+
+    /// Sleeps until the earliest launch grace ends at its cap, then ends the ones that are due
+    /// and schedules again. One task serves every grace; a new call replaces it. The suspending
+    /// clock does not run while the Mac sleeps.
+    private func scheduleGraceExpiry() {
+        graceExpiryTask?.cancel()
+        graceExpiryTask = nil
+        guard let expiry = launchGrace.nextExpiry else {
+            return
+        }
+        graceExpiryTask = Task { [weak self] in
+            try? await Task.sleep(until: expiry, tolerance: .seconds(1), clock: .suspending)
+            guard !Task.isCancelled, let self else {
                 return
             }
             endGraces(launchGrace.expired(at: .now))
+            scheduleGraceExpiry()
         }
     }
 
@@ -457,6 +584,7 @@ final class Concealer27 {
             return
         }
         endGraces(launchGrace.itemsAppeared(bundleIDs))
+        scheduleGraceExpiry()
     }
 
     /// Conceals the applications whose launch grace ended, balancing their allowance.
@@ -477,12 +605,26 @@ final class Concealer27 {
         applyChanges()
     }
 
+    /// Takes the assertions anew once the bar has settled after the Mac woke, the screen
+    /// unlocked, the session came back or a display changed.
+    ///
+    /// The renewal activates the new assertions before it releases the old ones, so no hidden
+    /// item shows in between. The release hold, the breaker, the pause and the Live Activity
+    /// owners apply as for every change; while the target is empty the renewal releases
+    /// everything, which is what that state wants.
+    func renewAfterSettle() {
+        logger.debug("Renewing the concealment after a settle")
+        applyChanges(renewing: true)
+    }
+
     /// Derives what to conceal from holzBar's sections and queues the apply.
     ///
+    /// - Parameter renewing: Whether to take every assertion anew instead of keeping the live
+    ///   ones whose target is unchanged.
     /// - Returns: Whether the change is on its way: queued now, or at the end of the suspension
     ///   under way. `false` while concealment is paused or unavailable.
     @discardableResult
-    private func applyChanges() -> Bool {
+    private func applyChanges(renewing: Bool = false) -> Bool {
         guard let appState, MenuBarAssessmentAssertion27.isAvailable else {
             return false
         }
@@ -518,15 +660,25 @@ final class Concealer27 {
         }
         notchCoverBasis = sectionConcealed
         // Applications concealed for the notch join whatever the sections conceal.
-        // A release-all hold empties the target, whatever the sections conceal.
-        let target = releaseHold.target(NotchCover27.adding(
+        // A release-all hold empties the target, whatever the sections conceal; so does a tripped
+        // restart breaker (every item is shown until it ends) and a paused holzBar (until resumed).
+        // The owners of Live Activities only stay on the allowlist, whatever the sections or the
+        // notch conceal (``LiveActivityItem``); the release hold, breaker and pause rules follow.
+        let planned = NotchCover27.adding(
             notchConcealed.subtracting(temporarilyShown.keys),
             to: ConcealmentPlanner27.concealedSets(
                 layout: layout,
                 state: state,
                 temporarilyShown: Set(temporarilyShown.keys)
             )
-        ))
+        ).compactMap { concealed in
+            // A set that conceals nothing needs no assertion, as in ``ConcealmentPlanner27``.
+            // The hosts probe P4 measured stay out whatever the read says: a concealed process
+            // reports no items, so ``liveActivityOwners`` never learns of its Live Activity.
+            let remaining = concealed.subtracting(liveActivityOwners).subtracting(LiveActivityItem.measuredHosts)
+            return remaining.isEmpty ? nil : remaining
+        }
+        let target: [Set<String>] = pause.target(restartBreaker.isTripped(at: .now) ? [] : releaseHold.target(planned))
         let concealed = ConcealmentPlanner27.effectivelyConcealed(sets: target)
         if concealed != lastConcealed {
             lastConcealed = concealed
@@ -543,7 +695,11 @@ final class Concealer27 {
         let task = Task { [weak self, controller, logger] in
             await previous?.value
             do {
-                try await controller.apply(target: target, running: running)
+                if renewing {
+                    try await controller.renew(target: target, running: running)
+                } else {
+                    try await controller.apply(target: target, running: running)
+                }
                 self?.failedApplies = 0
                 self?.applyFinished(sequence, succeeded: true)
             } catch {
@@ -708,7 +864,7 @@ final class Concealer27 {
             byPID[application.processIdentifier] = application
         }
         var owners = [UnnameableApps27.Owner]()
-        for item in appState.itemManager.itemCache[.visible] where !item.isControlItem && !item.isWidget {
+        for item in appState.itemManager.itemCache[.visible] where !item.isControlItem && !item.isOwnArrangedItem {
             guard
                 let pid = item.sourcePID,
                 let application = byPID[pid],
@@ -1344,7 +1500,7 @@ final class Concealer27 {
                 item.canBeHidden,
                 !item.isSystemClone,
                 !item.isControlItem,
-                !item.isWidget,
+                !item.isOwnArrangedItem,
                 let bundleID = item.sourceApplication?.bundleIdentifier,
                 isApplicationKey(bundleID)
             else {
@@ -1366,6 +1522,10 @@ final class Concealer27 {
 
         guard !newBundleIDs.isEmpty else {
             return
+        }
+        // The question is asked later; the placement below applies at once.
+        if appState.settings.advanced.asksWhereNewAppGoes {
+            appState.newAppQuestions27.noteNewApplications(newBundleIDs)
         }
         guard
             var name = appState.settings.advanced.newItemsPlacement.section,
@@ -1496,7 +1656,7 @@ final class Concealer27 {
                 item.canBeHidden,
                 !item.isSystemClone,
                 !item.isControlItem,
-                !item.isWidget,
+                !item.isOwnArrangedItem,
                 let bundleID = item.sourceApplication?.bundleIdentifier
             else {
                 return nil

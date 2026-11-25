@@ -40,38 +40,52 @@ struct WidgetDefinitionTests {
         )
     }
 
-    @Test("Exactly the seven permission-free sources (D-01, D-04)")
+    @Test("The seven permission-free sources and the network speed and disk activity, appended (D-01, D-02, D-04)")
     func sources() {
         #expect(
             WidgetSource.allCases.map(\.rawValue)
-                == ["dateTime", "battery", "cpu", "memory", "uptime", "freeDisk", "countdown"]
+                == ["dateTime", "battery", "cpu", "memory", "uptime", "freeDisk", "countdown", "networkSpeed", "diskActivity", "thermalState", "gpuLoad", "deviceBattery"]
         )
         #expect(WidgetKind(rawValue: "text") == .text)
         #expect(WidgetKind(rawValue: "button") == .button)
         #expect(WidgetKind(rawValue: "script") == .script)
         #expect(WidgetKind(rawValue: "chart") == nil)
-        #expect(WidgetSource(rawValue: "network") == nil)
         #expect(WidgetSource(rawValue: "wifi") == nil)
         #expect(
             WidgetSource.allCases.map(\.symbolName)
-                == ["clock", "battery.75percent", "cpu", "memorychip", "power", "internaldrive", "hourglass"]
+                == ["clock", "battery.75percent", "cpu", "memorychip", "power", "internaldrive", "hourglass", "arrow.up.arrow.down", "cylinder.split.1x2", "thermometer.medium", "square.3.layers.3d", "dot.radiowaves.left.and.right"]
         )
+        // Only the new sources are a Preview (D-15, D-26).
+        #expect(
+            WidgetSource.allCases.filter(\.isPreview) == [.networkSpeed, .diskActivity, .thermalState, .gpuLoad, .deviceBattery]
+        )
+        #expect(
+            WidgetPreset.allCases.filter(\.isPreview)
+                == [.download, .upload, .downloadAndUpload, .read, .write, .readAndWrite, .pressure, .swapUsed, .state,
+                    .percentAndTimeLeft, .adapterWatts, .perCluster, .largePercent]
+        )
+        #expect(WidgetPreset.largePercent.rawValue == "largePercent")
     }
 
     @Test("Each source offers a fixed set of presets (D-09)")
     func presets() {
         #expect(WidgetSource.dateTime.presets == [.time, .weekdayAndTime, .dateAndTime, .weekdayDateAndTime])
-        #expect(WidgetSource.battery.presets == [.percent, .percentAndState])
-        #expect(WidgetSource.cpu.presets == [.percent])
-        #expect(WidgetSource.memory.presets == [.percentUsed, .gigabytesUsed])
+        #expect(WidgetSource.battery.presets == [.percent, .percentAndState, .percentAndTimeLeft, .adapterWatts, .largePercent])
+        #expect(WidgetSource.cpu.presets == [.percent, .perCluster])
+        #expect(WidgetSource.memory.presets == [.percentUsed, .gigabytesUsed, .pressure, .swapUsed])
         #expect(WidgetSource.uptime.presets == [.duration, .compactDuration])
         #expect(WidgetSource.countdown.presets == [.duration, .compactDuration])
         #expect(WidgetSource.freeDisk.presets == [.gigabytesFree, .percentFree])
-        // The twelve formats of the sources, and the three widths that belong to the script kind
+        #expect(WidgetSource.networkSpeed.presets == [.download, .upload, .downloadAndUpload])
+        #expect(WidgetSource.diskActivity.presets == [.read, .write, .readAndWrite])
+        #expect(WidgetSource.thermalState.presets == [.state])
+        #expect(WidgetSource.gpuLoad.presets == [.percent])
+        #expect(WidgetSource.deviceBattery.presets == [.percent])
+        // The twenty-five formats of the sources, and the three widths that belong to the script kind
         // alone (D-23).
-        #expect(Set(WidgetSource.allCases.flatMap(\.presets)).count == 12)
+        #expect(Set(WidgetSource.allCases.flatMap(\.presets)).count == 25)
         #expect(WidgetKind.scriptPresets == [.narrowText, .mediumText, .wideText])
-        #expect(WidgetPreset.allCases.count == 15)
+        #expect(WidgetPreset.allCases.count == 28)
         let sourcePresets = Set(WidgetSource.allCases.flatMap(\.presets))
         #expect(sourcePresets.isDisjoint(with: WidgetKind.scriptPresets))
         #expect(sourcePresets.union(WidgetKind.scriptPresets).count == WidgetPreset.allCases.count)
@@ -83,6 +97,60 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource.battery.defaultPreset == .percentAndState)
         #expect(WidgetSource.memory.defaultPreset == .percentUsed)
         #expect(WidgetSource.freeDisk.defaultPreset == .gigabytesFree)
+        #expect(WidgetSource.networkSpeed.defaultPreset == .downloadAndUpload)
+        #expect(WidgetSource.diskActivity.defaultPreset == .readAndWrite)
+        #expect(WidgetSource.thermalState.defaultPreset == .state)
+        #expect(WidgetSource.gpuLoad.defaultPreset == .percent)
+        #expect(WidgetSource.deviceBattery.defaultPreset == .percent)
+    }
+
+    @Test("The network speed and the disk activity refresh every 2 s, tunable from 2 to 60 s (D-09)")
+    func rateSourcesRefresh() {
+        for source in [WidgetSource.networkSpeed, .diskActivity] {
+            #expect(source.refreshRange == 2...60)
+            #expect(source.defaultRefreshSeconds == 2)
+            #expect(source.refreshChoices == [2, 5, 10, 30, 60])
+            #expect(text(source, refreshSeconds: 1).validated(now: now)?.refreshSeconds == 2)
+            #expect(text(source, refreshSeconds: 99).validated(now: now)?.refreshSeconds == 60)
+            #expect(text(source).validated(now: now)?.refreshSeconds == 2)
+        }
+        #expect(WidgetPreset(rawValue: "downloadAndUpload") == .downloadAndUpload)
+        #expect(WidgetPreset(rawValue: "readAndWrite") == .readAndWrite)
+        // A format of the other source is replaced by the source's default.
+        #expect(text(.diskActivity, preset: .download).validated(now: now)?.preset == .readAndWrite)
+    }
+
+    @Test("GPU Load refreshes every 5 s by default, tunable from 2 to 60 s (D-02, MON-07)")
+    func gpuLoadRefresh() {
+        #expect(WidgetSource.gpuLoad.refreshRange == 2...60)
+        #expect(WidgetSource.gpuLoad.defaultRefreshSeconds == 5)
+        #expect(WidgetSource.gpuLoad.refreshChoices == [2, 5, 10, 30, 60])
+        #expect(text(.gpuLoad, refreshSeconds: 1).validated(now: now)?.refreshSeconds == 2)
+        #expect(text(.gpuLoad, refreshSeconds: 99).validated(now: now)?.refreshSeconds == 60)
+        #expect(text(.gpuLoad).validated(now: now)?.refreshSeconds == 5)
+        #expect(WidgetSource(rawValue: "gpuLoad") == .gpuLoad)
+    }
+
+    @Test("Lowest Device Battery has one format and no interval of its own (D-26, D-27, A7)")
+    func deviceBatteryHasNoRefresh() {
+        let source = WidgetSource.deviceBattery
+        #expect(source.refreshRange == nil)
+        #expect(source.defaultRefreshSeconds == nil)
+        #expect(source.refreshChoices.isEmpty)
+        #expect(text(source, refreshSeconds: 30).validated(now: now)?.refreshSeconds == nil)
+        #expect(!text(source).offersRefresh)
+        #expect(WidgetSource(rawValue: "deviceBattery") == .deviceBattery)
+    }
+
+    @Test("The editor lists every source once, GPU Load between Disk Activity and Thermal State, Lowest Device Battery after Battery (D-02, D-27)")
+    func editorOrder() {
+        #expect(
+            WidgetSource.editorOrder
+                == [.dateTime, .battery, .deviceBattery, .cpu, .memory, .uptime, .freeDisk, .countdown, .networkSpeed,
+                    .diskActivity, .gpuLoad, .thermalState]
+        )
+        #expect(Set(WidgetSource.editorOrder) == Set(WidgetSource.allCases))
+        #expect(WidgetSource.editorOrder.count == WidgetSource.allCases.count)
     }
 
     @Test("A definition round-trips through the list unchanged")
@@ -178,6 +246,27 @@ struct WidgetDefinitionTests {
             #expect(widget.validated(now: now)?.showsSeconds == false, "\(source)")
         }
         #expect(WidgetDefinition.text(source: .dateTime, uses24HourClock: true, now: now).showsSeconds == false)
+    }
+
+    @Test("An event-fed format has no refresh interval to offer (D-10, UI contract Refresh every)")
+    func offersRefresh() {
+        func widget(_ source: WidgetSource, _ preset: WidgetPreset) -> WidgetDefinition {
+            WidgetDefinition(id: UUID(), kind: .text, source: source, preset: preset)
+        }
+        #expect(!widget(.memory, .pressure).offersRefresh)
+        #expect(widget(.memory, .percentUsed).offersRefresh)
+        #expect(widget(.memory, .gigabytesUsed).offersRefresh)
+        #expect(widget(.memory, .swapUsed).offersRefresh)
+        #expect(!widget(.battery, .percent).offersRefresh)
+        #expect(!widget(.battery, .percentAndTimeLeft).offersRefresh)
+        #expect(!widget(.thermalState, .state).offersRefresh)
+        #expect(!widget(.freeDisk, .gigabytesFree).offersRefresh)
+        #expect(widget(.cpu, .percent).offersRefresh)
+        #expect(widget(.networkSpeed, .download).offersRefresh)
+        #expect(widget(.diskActivity, .read).offersRefresh)
+        #expect(widget(.gpuLoad, .percent).offersRefresh)
+        // A button and a script widget have no interval either, whatever their source holds.
+        #expect(!WidgetDefinition.button(title: "Run").offersRefresh)
     }
 
     @Test("CPU and memory keep their minimum intervals (D-15)")
@@ -502,6 +591,17 @@ struct WidgetDefinitionTests {
         let good = element(kind: "builtIn", ["builtIn": "focus"])
         let list = WidgetList.decode(try data([missing, unknown, good]), now: now)
         #expect(list.map(\.builtIn) == [.focus])
+    }
+
+    @Test("A Spotlight item survives validation with its item kept and no option")
+    func spotlightValidated() throws {
+        var spotlight = WidgetDefinition.builtIn(.spotlight)
+        spotlight.timerMinutes = 500
+        spotlight.mediaOnlyWhenActive = true
+        spotlight.launcherBundleID = "com.apple.Music"
+        let valid = try #require(spotlight.validated(now: now))
+        #expect(valid.builtIn == .spotlight)
+        #expect(valid.kind == .builtIn)
     }
 
     @Test("A built-in item reads on events only; its symbol is its item's")

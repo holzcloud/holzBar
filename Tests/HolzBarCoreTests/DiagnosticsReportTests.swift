@@ -191,38 +191,54 @@ struct DiagnosticsReportTests {
     @Test("The macOS 27 hiding summary")
     func hidingSummary27() {
         let summary = DiagnosticsReport.hidingSummary27(
-            reveal: "all hidden", agentRestarts: 0, lateAllowlist: 2, youngRetries: 1,
-            forcedReads: 14, heldBack: 11, notchRechecks: 3, hiddenAnyway: 1
+            reveal: "all hidden", agentRestarts: 0, breaker: "ok", lateAllowlist: 2, youngRetries: 1,
+            forcedReads: 14, heldBack: 11, notchRechecks: 3, hiddenAnyway: 1, tapDisables: 3
         )
-        #expect(summary == "reveal all hidden, agent restarts 0, late allowlist 2, young retries 1, forced reads 14, held back 11, notch rechecks 3, hidden anyway 1")
+        #expect(summary == "reveal all hidden, agent restarts 0, breaker ok, late allowlist 2, young retries 1, forced reads 14, held back 11, notch rechecks 3, hidden anyway 1, tap disables 3")
         let longest = DiagnosticsReport.hidingSummary27(
-            reveal: "hidden revealed", agentRestarts: Int.max, lateAllowlist: Int.max, youngRetries: Int.max,
-            forcedReads: Int.max, heldBack: Int.max, notchRechecks: Int.max, hiddenAnyway: Int.max
+            reveal: "hidden revealed", agentRestarts: Int.max, breaker: "tripped", lateAllowlist: Int.max, youngRetries: Int.max,
+            forcedReads: Int.max, heldBack: Int.max, notchRechecks: Int.max, hiddenAnyway: Int.max, tapDisables: Int.max
         )
         let capped = DiagnosticsReport.hidingSummary27(
-            reveal: "hidden revealed", agentRestarts: 99_999, lateAllowlist: 99_999, youngRetries: 99_999,
-            forcedReads: 99_999, heldBack: 99_999, notchRechecks: 99_999, hiddenAnyway: 99_999
+            reveal: "hidden revealed", agentRestarts: 99_999, breaker: "tripped", lateAllowlist: 99_999, youngRetries: 99_999,
+            forcedReads: 99_999, heldBack: 99_999, notchRechecks: 99_999, hiddenAnyway: 99_999, tapDisables: 99_999
         )
         // Every count stops at five digits, so the line is never cut.
         #expect(longest == capped)
         #expect(capped.count <= DiagnosticsReport.maximumHidingLength)
+        #expect(capped.contains("breaker tripped"))
+        #expect(capped.hasSuffix(", tap disables 99999"))
+    }
+
+    @Test("Tap disables are counted, never negative")
+    func hidingSummaryTapDisables() {
+        func summary(_ tapDisables: Int) -> String {
+            DiagnosticsReport.hidingSummary27(
+                reveal: "all hidden", agentRestarts: 0, breaker: "ok", lateAllowlist: 0, youngRetries: 0,
+                forcedReads: 0, heldBack: 0, notchRechecks: 0, hiddenAnyway: 0, tapDisables: tapDisables
+            )
+        }
+        #expect(summary(0).hasSuffix(", hidden anyway 0, tap disables 0"))
+        #expect(summary(3).hasSuffix(", tap disables 3"))
+        #expect(summary(-2).hasSuffix(", tap disables 0"))
+        #expect(summary(Int.max).hasSuffix(", tap disables 99999"))
     }
 
     @Test("Visible apps MenuBarAgent hides anyway are counted, never named")
     func hidingSummaryHiddenAnyway() {
         func summary(_ hiddenAnyway: Int) -> String {
             DiagnosticsReport.hidingSummary27(
-                reveal: "all hidden", agentRestarts: 0, lateAllowlist: 0, youngRetries: 0,
-                forcedReads: 0, heldBack: 0, notchRechecks: 0, hiddenAnyway: hiddenAnyway
+                reveal: "all hidden", agentRestarts: 0, breaker: "ok", lateAllowlist: 0, youngRetries: 0,
+                forcedReads: 0, heldBack: 0, notchRechecks: 0, hiddenAnyway: hiddenAnyway, tapDisables: 0
             )
         }
-        #expect(summary(0).hasSuffix(", notch rechecks 0, hidden anyway 0"))
-        #expect(summary(2).hasSuffix(", hidden anyway 2"))
-        #expect(summary(-1).hasSuffix(", hidden anyway 0"))
+        #expect(summary(0).hasSuffix(", notch rechecks 0, hidden anyway 0, tap disables 0"))
+        #expect(summary(2).contains(", hidden anyway 2,"))
+        #expect(summary(-1).contains(", hidden anyway 0,"))
         var input = sample
         input.hiding = summary(1)
         let line = DiagnosticsReport.make(input).split(separator: "\n").last.map(String.init) ?? ""
-        #expect(line == "Hiding: reveal all hidden, agent restarts 0, late allowlist 0, young retries 0, forced reads 0, held back 0, notch rechecks 0, hidden anyway 1")
+        #expect(line == "Hiding: reveal all hidden, agent restarts 0, breaker ok, late allowlist 0, young retries 0, forced reads 0, held back 0, notch rechecks 0, hidden anyway 1, tap disables 0")
     }
 
     @Test("The hiding summary before macOS 27")
@@ -236,14 +252,15 @@ struct DiagnosticsReportTests {
         let allowed = Set("abcdefghijklmnopqrstuvwxyz0123456789 ,")
         let summaries = [
             DiagnosticsReport.hidingSummary27(
-                reveal: "All\nHidden/../\u{7}", agentRestarts: -1, lateAllowlist: 2, youngRetries: 3,
-                forcedReads: 4, heldBack: 5, notchRechecks: 6, hiddenAnyway: -7
+                reveal: "All\nHidden/../\u{7}", agentRestarts: -1, breaker: "Tripped!\n", lateAllowlist: 2, youngRetries: 3,
+                forcedReads: 4, heldBack: 5, notchRechecks: 6, hiddenAnyway: -7, tapDisables: -8
             ),
             DiagnosticsReport.hidingSummaryBefore27(anchor: "Icon\r\n\t:x", iconPutBack: -3),
         ]
         for summary in summaries {
             #expect(summary.allSatisfy { allowed.contains($0) })
         }
+        #expect(summaries[0].contains("breaker tripped,"))
         #expect(summaries[1] == "anchor iconx, icon put back 0")
     }
 
@@ -352,5 +369,160 @@ struct DiagnosticsReportTests {
         #expect(text.split(separator: "\n").count == 12)
         #expect(!text.contains("/"))
         #expect(!text.contains("\""))
+    }
+
+    @Test("The reopen summary holds two capped counts in fixed words")
+    func reopenSummary() {
+        #expect(DiagnosticsReport.reopenSummary(opened: 2, ignored: 5) == "opened 2, ignored 5")
+        #expect(DiagnosticsReport.reopenSummary(opened: -1, ignored: -9) == "opened 0, ignored 0")
+        #expect(DiagnosticsReport.reopenSummary(opened: .max, ignored: .max) == "opened 99999, ignored 99999")
+        let allowed = Set("abcdefghijklmnopqrstuvwxyz0123456789 ,")
+        #expect(DiagnosticsReport.reopenSummary(opened: 7, ignored: 12).allSatisfy { allowed.contains($0) })
+    }
+
+    @Test("The reopen line shows the counts, and is absent without them")
+    func reopenLine() {
+        var input = sample
+        input.reopen = "opened 1, ignored 3"
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").contains("Reopen: opened 1, ignored 3"))
+        input.reopen = ""
+        #expect(!DiagnosticsReport.make(input).split(separator: "\n").contains { $0.hasPrefix("Reopen:") })
+    }
+
+    @Test("A hostile reopen field stays on one clean line without a path or a name")
+    func hostileReopen() {
+        var input = sample
+        input.reopen = "opened 1\n/Users/anna/Raycast \"x\"\nFake: line"
+        let text = DiagnosticsReport.make(input)
+        #expect(text.split(separator: "\n").count == 12)
+        #expect(!text.contains("/"))
+        #expect(!text.contains("\""))
+    }
+
+    @Test("The readouts summary says idle, or the counts and whether the timer is armed")
+    func readoutsSummary() {
+        #expect(
+            DiagnosticsReport.readoutsSummary(visible: 0, background: 0, observers: 0, isTimerArmed: false, samples: 12)
+                == "idle, samples 12"
+        )
+        #expect(
+            DiagnosticsReport.readoutsSummary(visible: 2, background: 1, observers: 1, isTimerArmed: true, samples: 314)
+                == "visible 2, background 1, observers 1, timer on, samples 314"
+        )
+        #expect(
+            DiagnosticsReport.readoutsSummary(visible: 1, background: 0, observers: 0, isTimerArmed: false, samples: 0)
+                == "visible 1, background 0, observers 0, timer off, samples 0"
+        )
+        let capped = DiagnosticsReport.readoutsSummary(
+            visible: -3, background: .max, observers: 0, isTimerArmed: true, samples: .max
+        )
+        #expect(capped == "visible 0, background 99999, observers 0, timer on, samples 99999")
+        let allowed = Set("abcdefghijklmnopqrstuvwxyz0123456789 ,")
+        #expect(capped.allSatisfy { allowed.contains($0) })
+    }
+
+    @Test("The System readouts line shows the summary, and is absent without one")
+    func readoutsLine() {
+        var input = sample
+        input.readouts = "idle, samples 12"
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").contains("System readouts: idle, samples 12"))
+        let longest = DiagnosticsReport.readoutsSummary(
+            visible: .max, background: .max, observers: .max, isTimerArmed: false, samples: .max
+        )
+        input.readouts = longest
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").contains("System readouts: \(longest)"))
+        input.readouts = ""
+        #expect(!DiagnosticsReport.make(input).split(separator: "\n").contains { $0.hasPrefix("System readouts:") })
+    }
+
+    @Test("The alerts summary says off, or the rule counts and the notification word")
+    func alertsSummary() {
+        #expect(
+            DiagnosticsReport.alertsSummary(isModuleOn: false, rulesOn: 4, firing: 0, notifications: "allowed") == "off"
+        )
+        #expect(
+            DiagnosticsReport.alertsSummary(isModuleOn: true, rulesOn: 4, firing: 1, notifications: "allowed")
+                == "rules 4, firing 1, notifications allowed"
+        )
+        #expect(
+            DiagnosticsReport.alertsSummary(isModuleOn: true, rulesOn: 0, firing: 0, notifications: "not asked")
+                == "rules 0, firing 0, notifications not asked"
+        )
+        // A word is reduced to lowercase letters and spaces; counts are capped and never negative.
+        let hostile = DiagnosticsReport.alertsSummary(
+            isModuleOn: true, rulesOn: -2, firing: .max, notifications: "Denied\n/Users/Anna 42\"x\""
+        )
+        #expect(hostile == "rules 0, firing 99999, notifications deniedusersanna x")
+        let allowed = Set("abcdefghijklmnopqrstuvwxyz0123456789 ,")
+        #expect(hostile.allSatisfy { allowed.contains($0) })
+    }
+
+    @Test("The System alerts line shows the summary, is cut at its maximum and absent without one")
+    func alertsLine() {
+        var input = sample
+        input.alerts = "rules 4, firing 1, notifications allowed"
+        #expect(
+            DiagnosticsReport.make(input).split(separator: "\n")
+                .contains("System alerts: rules 4, firing 1, notifications allowed")
+        )
+        input.alerts = "off"
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").contains("System alerts: off"))
+        input.alerts = String(repeating: "a", count: 500)
+        let line = DiagnosticsReport.make(input).split(separator: "\n").first { $0.hasPrefix("System alerts:") }
+        #expect(line?.count == "System alerts: ".count + DiagnosticsReport.maximumAlertsLength)
+        input.alerts = ""
+        #expect(!DiagnosticsReport.make(input).split(separator: "\n").contains { $0.hasPrefix("System alerts:") })
+    }
+
+    @Test("The indicators summary says off, or the switches, the tap and how often it was disabled")
+    func indicatorsSummary() {
+        #expect(
+            DiagnosticsReport.indicatorsSummary(
+                isModuleOn: false, inputSource: true, volume: true, replaces: true, tapRunning: true, disables: 2
+            ) == "off"
+        )
+        #expect(
+            DiagnosticsReport.indicatorsSummary(
+                isModuleOn: true, inputSource: true, volume: true, replaces: true, tapRunning: true, disables: 2
+            ) == "input on, volume on, keys on, tap running, disabled 2"
+        )
+        #expect(
+            DiagnosticsReport.indicatorsSummary(
+                isModuleOn: true, inputSource: false, volume: true, replaces: false, tapRunning: false, disables: 0
+            ) == "input off, volume on, keys off, tap off"
+        )
+        // A count is capped and never negative.
+        #expect(
+            DiagnosticsReport.indicatorsSummary(
+                isModuleOn: true, inputSource: true, volume: true, replaces: true, tapRunning: true, disables: .max
+            ).hasSuffix("disabled 99999")
+        )
+        #expect(
+            DiagnosticsReport.indicatorsSummary(
+                isModuleOn: true, inputSource: true, volume: true, replaces: true, tapRunning: false, disables: -5
+            ) == "input on, volume on, keys on, tap off"
+        )
+        let allowed = Set("abcdefghijklmnopqrstuvwxyz0123456789 ,")
+        let line = DiagnosticsReport.indicatorsSummary(
+            isModuleOn: true, inputSource: true, volume: true, replaces: true, tapRunning: true, disables: 7
+        )
+        #expect(line.allSatisfy { allowed.contains($0) })
+    }
+
+    @Test("The Indicators line follows the System alerts line, is cut at its maximum and absent without one")
+    func indicatorsLine() {
+        var input = sample
+        input.alerts = "off"
+        input.indicators = "input on, volume on, keys on, tap running, disabled 2"
+        let lines = DiagnosticsReport.make(input).split(separator: "\n")
+        #expect(lines.contains("Indicators: input on, volume on, keys on, tap running, disabled 2"))
+        let alertsIndex = lines.firstIndex { $0.hasPrefix("System alerts:") }
+        let indicatorsIndex = lines.firstIndex { $0.hasPrefix("Indicators:") }
+        #expect(alertsIndex != nil && indicatorsIndex == alertsIndex.map { $0 + 1 })
+        input.indicators = String(repeating: "a", count: 500)
+        let cut = DiagnosticsReport.make(input).split(separator: "\n").first { $0.hasPrefix("Indicators:") }
+        #expect(cut?.count == "Indicators: ".count + DiagnosticsReport.maximumIndicatorsLength)
+        input.indicators = ""
+        #expect(!DiagnosticsReport.make(input).split(separator: "\n").contains { $0.hasPrefix("Indicators:") })
     }
 }

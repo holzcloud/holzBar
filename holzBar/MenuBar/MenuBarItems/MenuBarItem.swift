@@ -46,21 +46,21 @@ nonisolated struct MenuBarItem: CustomStringConvertible {
     }
 
     /// A Boolean value that indicates whether this item is one of holzBar's
-    /// widgets (Phase 12): an item of holzBar's own namespace whose title is
-    /// a widget's autosave name.
-    var isWidget: Bool {
-        tag.namespace == .holzBar && WidgetDefinition.isAutosaveName(tag.title)
+    /// own arranged items: an item of holzBar's own namespace whose title is
+    /// a widget's or a Dock badges item's autosave name.
+    var isOwnArrangedItem: Bool {
+        tag.namespace == .holzBar && OwnArrangedItem.isAutosaveName(tag.title)
     }
 
     /// The key of the item in the saved macOS 27 layout (`Defaults.Key.macOS27Layout`).
     ///
     /// macOS 27 hides whole applications, so an application's items share its bundle
-    /// identifier. A widget is holzBar's own item and has a key of its own, its autosave
-    /// name: that is never a running bundle, so no concealment assertion names it, and never
-    /// holzBar's bundle, so holzBar's icon is never concealed. holzBar hides a widget itself
-    /// (`MenuBarWidgets`). `nil` when the item's application is unknown.
+    /// identifier. A widget or a Dock badges item is holzBar's own item and has a key of its
+    /// own, its autosave name: that is never a running bundle, so no concealment assertion
+    /// names it, and never holzBar's bundle, so holzBar's icon is never concealed. holzBar
+    /// hides a widget itself (`MenuBarWidgets`). `nil` when the item's application is unknown.
     var layoutKey27: String? {
-        if isWidget {
+        if isOwnArrangedItem {
             return tag.title
         }
         return sourceApplication?.bundleIdentifier
