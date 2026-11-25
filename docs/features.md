@@ -11,7 +11,9 @@
 - ✅ Drag-and-drop layout editor — as bars or as a list of every item with a filter; it draws first and lays the bar out in one pass when you choose Apply (or at once, if you prefer)
 - ✅ **Drag items in the menu bar without ⌘ Command** (macOS 26 and 27) — an optional module in Settings, Modules, off until you switch it on
 - ✅ **Apple Items** (macOS 27) — hide the clock, Control Center, Wi-Fi or the battery, and keep an Apple item one click away with a replacement icon; an optional module, off until you switch it on
-- ✅ **Notch hub** — one black shape that grows out of the notch, for optional modules, each a round button in one row; live activities widen the notch; off until you switch it on; Timers, Calendar, Live activities, File drop, Display controls, Accessory alerts, Notifications and Now Playing are its first modules
+- ✅ **Notch hub** — one black shape that grows out of the notch, for optional modules, each a round button in one row; live activities widen the notch; off until you switch it on; Timers, Calendar, Live activities, File drop, Display controls, Accessory alerts, Indicators, Notifications and Now Playing are its first modules
+- ✅ **Dock badges** — the unread counts of the apps in your Dock as menu bar items, alone or in groups; an optional module, off until you switch it on; uses the Accessibility access holzBar already has, and the count is read through a private interface behind its own switch
+- ✅ **System monitor** — **System readouts** (CPU, GPU, memory, network, disk and battery tiles in the Notch hub and as menu bar widgets) and **System alerts** (an alert in the notch when the Mac crosses a limit you set); two optional modules, off until you switch them on, no permission needed
 - ✅ **Layout profiles** — "Work", "Home", … one click, hotkey or URL away
 - ✅ **Profiles bound to a display or a Space** — applied when you connect the display or switch to the Space
 - ✅ **Groups** (folders) — several items behind an icon of their own, in a colour and with a symbol or image of your choice
@@ -28,7 +30,7 @@
 - ✅ **Opened items stay** up to 30 s after their menu closes — or open without showing the item at all
 - ✅ **Show When It Changes** — a marked item shows for 5 s when its title or value changes
 - ✅ **Privacy indicators stay visible** — the camera and microphone indicator, the FaceTime item and the Screenshot tool's recording button can be moved, never hidden <sub>macOS 14 to 26</sub>
-- ✅ Item spacing <sub>BETA</sub>
+- ✅ Item spacing <sub>BETA</sub> <sub>macOS 14 to 26; not offered on macOS 27</sub>
 
 </td>
 <td valign="top" width="50%">
@@ -74,7 +76,7 @@
 
 #### Settings
 - ✅ **Export and import** all settings
-- ✅ **Imports your Ice settings** on first launch
+- ✅ **Imports your Ice settings** on first launch, and Thaw's or Hidden Bar's through Settings → Advanced
 - ✅ **Alerts in Settings are sheets** on its window, so holzBar keeps working while one is open
 - ✅ **Eleven panes sorted by task** — Layout, Showing & Hiding, holzBar Shelf, Profiles & History, Appearance, Automation, Modules, General, Hotkeys, Advanced and About, with compact rows and an info button for each
 - ✅ **Search over every setting** — ⌘F in the Settings window
