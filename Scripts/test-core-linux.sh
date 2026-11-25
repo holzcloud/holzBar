@@ -140,6 +140,7 @@ sources=(
   NotificationLog
   NotificationQueue
   NotShownApps
+  NowPlayingArtworkFormat
   NowPlayingModel
   NowPlayingPayload
   NowPlayingPlayers
@@ -326,6 +327,7 @@ tests=(
   NotificationLogTests
   NotificationQueueTests
   NotShownAppsTests
+  NowPlayingArtworkFormatTests
   NowPlayingModelTests
   NowPlayingPayloadTests
   NowPlayingPlayersTests

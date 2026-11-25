@@ -11,8 +11,9 @@ import UniformTypeIdentifiers
 /// Reads the artwork of a local audio file from the file's own metadata, as a small picture.
 ///
 /// The file location comes from another app's notification, so it is untrusted: only a `file`
-/// URL whose type is audio is opened, only its metadata is read, a picture above 20 MB is
-/// refused, and what is kept is a thumbnail of at most 256 pixels. Nothing is written, logged,
+/// URL whose type is audio is opened, only its metadata is read, a picture above 20 MB or in
+/// another format than JPEG or PNG is refused, and what is kept is a thumbnail of at most 256
+/// pixels. Nothing is written, logged,
 /// retried or fetched from the network. A failure, including macOS refusing a protected folder,
 /// gives no picture.
 nonisolated enum NowPlayingArtworkReader {
@@ -52,9 +53,22 @@ nonisolated enum NowPlayingArtworkReader {
         }
     }
 
-    /// Decodes the picture into a thumbnail and encodes it as PNG.
+    /// Decodes the picture into a thumbnail and encodes it as PNG. Only a JPEG or PNG picture is
+    /// decoded (``NowPlayingArtworkFormat``): its first bytes must name the format, the decoder
+    /// gets that format as its hint and must report it.
     private static func pngThumbnail(from data: Data) -> Data? {
-        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
+        guard let format = NowPlayingArtworkFormat(sniffing: data) else {
+            return nil
+        }
+        let sourceOptions: [CFString: Any] = [
+            kCGImageSourceTypeIdentifierHint: format.typeIdentifier,
+            kCGImageSourceShouldCache: false,
+        ]
+        guard
+            let source = CGImageSourceCreateWithData(data as CFData, sourceOptions as CFDictionary),
+            let type = CGImageSourceGetType(source) as String?,
+            NowPlayingArtworkFormat.typeIdentifiers.contains(type)
+        else {
             return nil
         }
         let options: [CFString: Any] = [
