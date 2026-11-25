@@ -113,7 +113,10 @@ final class HolzBarShelfPanel: NSPanel {
             Task { [weak self] in
                 let center = NotificationCenter.default
                 for await _ in center.notifications(named: NSApplication.didChangeScreenParametersNotification) {
-                    self?.hide()
+                    // A closed Shelf has nothing to hide.
+                    if self?.currentSection != nil {
+                        self?.hide()
+                    }
                 }
             },
         ]
