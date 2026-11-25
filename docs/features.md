@@ -389,7 +389,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ### After 1.2.0 (release not fixed yet)
 
-**Nothing here is in 1.1.1.**
+**Nothing here is in 1.2.0.**
 
 **Menu bar**
 - **Restore layout automatically** on macOS 27: a setting in Layout that puts items back in your saved order when macOS or an app moves them.
@@ -410,7 +410,7 @@ An app launcher and search panel, file search through Spotlight, a calculator an
 
 ### Later (order open)
 
-Window management (app switcher, Dock previews, layouts), mouse and keyboard tweaks (scroll direction, smooth scrolling, no acceleration, mouse button shortcuts, trackpad middle click, shortcut management), sound (per-app volume, output switcher, microphone mute, music app blocker), energy and display (extra brightness, display tools, cleaning mode), capture (screenshots, text from the screen, screen and GIF recording, colour picker, measure, QR, camera preview), system tools (cleanup scan, app uninstaller, Homebrew manager, wallpaper tools, focus timer) and text tools with on-device AI (translation, dictation, grammar fix, agent and workflows).
+Window management (app switcher, Dock previews, layouts), mouse and keyboard tweaks (scroll direction, smooth scrolling, no acceleration, mouse button shortcuts, trackpad middle click, shortcut management), sound (per-app volume, microphone mute, music app blocker), energy and display (extra brightness, display tools, cleaning mode), capture (screenshots, text from the screen, screen and GIF recording, colour picker, measure, QR, camera preview), system tools (cleanup scan, app uninstaller, Homebrew manager, wallpaper tools, focus timer) and text tools with on-device AI (translation, dictation, grammar fix, agent and workflows).
 
 ### Principles for every module
 
