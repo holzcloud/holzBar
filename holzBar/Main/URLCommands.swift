@@ -36,7 +36,8 @@ import OSLog
 /// one is open, and after the user declines one, holzBar asks nothing for a while
 /// (`URLPrompt`). Commands that arrive faster than 8 in 2 seconds are ignored
 /// (`URLCommand.Throttle`). Shortcuts actions (App Intents) run without the question and
-/// without the limit, because the user built them.
+/// without the limit, because the user built them, but follow the same Zen mode rules, as
+/// another app can start a shortcut.
 ///
 /// `ice-bar` still works as another name for `shelf`.
 ///

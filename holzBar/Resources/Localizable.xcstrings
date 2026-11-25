@@ -206945,6 +206945,125 @@
           }
         }
       }
+    },
+    "Zen mode is on, so holzBar does not do this now." : {
+      "comment" : "Error of a Shortcuts action that Zen mode refuses, as it refuses the same URL command.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Režim Zen je zapnutý, takže to holzBar teď neudělá."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Zen-Modus ist an, daher führt holzBar das jetzt nicht aus."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El modo Zen está activado, así que holzBar no lo hace ahora."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le mode Zen est activé, holzBar ne fait donc pas cela maintenant."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Zen mód be van kapcsolva, ezért a holzBar ezt most nem teszi meg."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mode Zen aktif, jadi holzBar tidak melakukan ini sekarang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La modalità Zen è attiva, quindi holzBar ora non lo fa."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen モードがオンのため、holzBar は今これを実行しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "젠 모드가 켜져 있어 holzBar가 지금은 이 작업을 하지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zenmodus staat aan, dus holzBar doet dit nu niet."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tryb Zen jest włączony, więc holzBar teraz tego nie zrobi."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O modo Zen está ativado, então o holzBar não faz isso agora."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il modus Zen è activà, perquai na fa holzBar quai ussa betg."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Включён режим «Дзен», поэтому holzBar сейчас этого не делает."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen-läget är på, så holzBar gör inte detta nu."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen modu açık, bu yüzden holzBar bunu şu anda yapmıyor."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Увімкнено режим «Дзен», тому holzBar зараз цього не робить."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "禅模式已开启，因此 holzBar 现在不执行此操作。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen 模式已開啟，因此 holzBar 現在不執行此操作。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

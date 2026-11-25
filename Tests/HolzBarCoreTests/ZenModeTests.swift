@@ -16,12 +16,21 @@ struct ZenModeTests {
     func onLocksTheGestures() {
         let zen = ZenMode(isManual: true)
         #expect(zen.isActive)
-        let refused: [ZenMode.Trigger] = [.hover, .clickOnEmptyBar, .scroll, .revealRule, .urlCommand, .changeReveal, .commandDrag]
+        let refused: [ZenMode.Trigger] = [
+            .hover, .clickOnEmptyBar, .scroll, .revealRule, .urlCommand, .changeReveal, .commandDrag, .shortcutAction,
+        ]
         for trigger in refused {
             #expect(!zen.allows(trigger))
         }
         #expect(zen.allows(.holzBarIcon))
         #expect(zen.allows(.sectionHotkey))
+    }
+
+    @Test("A Shortcuts action reveals only while Zen mode is off, manual or automatic")
+    func shortcutActionFollowsZenMode() {
+        #expect(ZenMode().allows(.shortcutAction))
+        #expect(!ZenMode(isManual: true).allows(.shortcutAction))
+        #expect(!ZenMode(isAutomatic: true).allows(.shortcutAction))
     }
 
     @Test("A Command-drag reveals only while Zen mode is off, manual or automatic")
