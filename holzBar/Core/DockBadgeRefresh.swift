@@ -12,10 +12,14 @@ import Foundation
 /// Whether the Dock announces a badge change is not known until it is seen on a real Mac, so the
 /// rule decides at run time, from what the Dock does, and both answers are right without a
 /// rebuild:
-/// - A change found by a read that a notification triggered proves that the Dock announces
-///   changes. The mode becomes ``Mode/following`` and no timer runs at all.
-/// - A change found by a timed read proves that it does not (or not for badges). The mode becomes
-///   ``Mode/polling``, the timer stays with a floor of ``baseInterval``, and Settings says so.
+/// - A change found by a read that a notification triggered suggests that the Dock announces
+///   changes. The mode becomes ``Mode/following`` and the timer is lengthened to
+///   ``maximumInterval``, never removed: the evidence is weak (the change may have happened long
+///   before the notification, which can be an icon appearing for an unrelated app), so a badge
+///   can never stay stale for longer than that.
+/// - A change found by a timed read proves that notifications missed it, in any mode. The mode
+///   becomes ``Mode/polling``, the timer stays with a floor of ``baseInterval``, and Settings says
+///   so.
 /// - Until one of the two has happened the mode is ``Mode/probing``: a timer runs, starting at
 ///   ``baseInterval`` after the first read and doubling after every read that found nothing, up to
 ///   ``maximumInterval``.
@@ -37,7 +41,7 @@ nonisolated struct DockBadgeRefresh: Equatable, Sendable {
     nonisolated enum Mode: Equatable, Sendable {
         /// Not known yet: a timer with back-off runs.
         case probing
-        /// The Dock announces changes: no timer.
+        /// The Dock seems to announce changes: only the slowest timer runs, as a safety net.
         case following
         /// The Dock does not announce changes: the timer stays.
         case polling
@@ -230,8 +234,10 @@ nonisolated struct DockBadgeRefresh: Equatable, Sendable {
         let foundChange = changed && !failed
         switch trigger {
         case .notification where foundChange:
+            // Weak evidence: the safety net stays, at its slowest.
             mode = .following
-            pending.timer = nil
+            interval = Self.maximumInterval
+            pending.timer = now + interval
         case .timer where foundChange:
             mode = .polling
             interval = Self.baseInterval
@@ -240,18 +246,17 @@ nonisolated struct DockBadgeRefresh: Equatable, Sendable {
         case .start, .notification, .activation:
             break
         }
-        if mode != .following {
-            switch trigger {
-            case .start:
-                interval = Self.baseInterval
+        switch trigger {
+        case .start:
+            interval = Self.baseInterval
+            pending.timer = now + interval
+        case .timer:
+            pending.timer = now + interval
+        case .notification, .activation:
+            // A timer that this read took along is armed again. The one a notification read
+            // armed on entering ``Mode/following`` stays as it is.
+            if timerTakenAlong {
                 pending.timer = now + interval
-            case .timer:
-                pending.timer = now + interval
-            case .notification, .activation:
-                // A timer that this read took along is armed again.
-                if timerTakenAlong {
-                    pending.timer = now + interval
-                }
             }
         }
         timerTakenAlong = false

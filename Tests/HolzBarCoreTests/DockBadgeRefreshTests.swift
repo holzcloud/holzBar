@@ -32,7 +32,8 @@ struct DockBadgeRefreshTests {
         return (refresh, due)
     }
 
-    /// A refresh in following mode, and the instant of its last pass.
+    /// A refresh in following mode, and the instant of its last pass. Its floor timer is pending
+    /// 120 seconds after that.
     private func following() -> (DockBadgeRefresh, Instant) {
         var refresh = probing()
         let at = t0 + .seconds(5)
@@ -40,7 +41,7 @@ struct DockBadgeRefreshTests {
         let due = at + DockBadgeRefresh.coalescing
         #expect(refresh.fire(at: due) == .notification)
         let action = refresh.passFinished(trigger: .notification, changed: true, failed: false, at: due)
-        #expect(action == .none)
+        #expect(action == .readAt(due + .seconds(120)))
         return (refresh, due)
     }
 
@@ -161,34 +162,73 @@ struct DockBadgeRefreshTests {
         #expect(refresh.fire(at: due + .seconds(2)) == .notification)
     }
 
-    @Test("A notification pass that found a change means the Dock announces: following, and no timer")
+    @Test("A notification pass that found a change means the Dock seems to announce: following, with the slowest timer left")
     func notificationChangeIsFollowing() {
         let (refresh, due) = following()
         var next = refresh
         #expect(next.mode == .following)
         #expect(!next.showsPollingLine)
-        #expect(next.fire(at: due + .seconds(10_000)) == nil)
+        #expect(next.fire(at: due + .seconds(119)) == nil)
+        #expect(next.fire(at: due + .seconds(120)) == .timer)
     }
 
-    @Test("In following a pass without a change arms nothing either")
-    func followingPassArmsNothing() {
+    @Test("Following never leaves a badge stale for long: a timed read that finds a change means polling")
+    func followingTimerChangeIsPolling() {
         var (refresh, due) = following()
+        due += .seconds(120)
+        #expect(timerPass(&refresh, at: due, changed: true) == .readAt(due + .seconds(30)))
+        #expect(refresh.mode == .polling)
+        #expect(refresh.showsPollingLine)
+    }
+
+    @Test("In following a timed read without a change keeps the slowest timer")
+    func followingTimerWithoutChange() {
+        var (refresh, due) = following()
+        for _ in 1...3 {
+            due += .seconds(120)
+            #expect(timerPass(&refresh, at: due, changed: false) == .readAt(due + .seconds(120)))
+            #expect(refresh.mode == .following)
+        }
+    }
+
+    @Test("A change that happened before an unrelated notification is found later by the timer")
+    func staleChangeIsFoundByTheFloor() {
+        // The badge changed at 20 seconds. At 25 seconds an unrelated icon appeared: the read it
+        // triggered found the old change and the mode became following. The timer must still come.
+        var refresh = probing()
+        let at = t0 + .seconds(25)
+        _ = refresh.notified(at: at)
+        let due = at + DockBadgeRefresh.coalescing
+        #expect(refresh.fire(at: due) == .notification)
+        _ = refresh.passFinished(trigger: .notification, changed: true, failed: false, at: due)
+        #expect(refresh.mode == .following)
+        // A later change goes unannounced; the floor timer reads it within 120 seconds.
+        #expect(refresh.fire(at: due + .seconds(120)) == .timer)
+        _ = refresh.passFinished(trigger: .timer, changed: true, failed: false, at: due + .seconds(120))
+        #expect(refresh.mode == .polling)
+    }
+
+    @Test("In following a notification pass without a change keeps the floor timer")
+    func followingPassKeepsTheTimer() {
+        var (refresh, due) = following()
+        let timer = due + .seconds(120)
         due += .seconds(40)
         #expect(refresh.notified(at: due) == .readAt(due + .milliseconds(500)))
         #expect(refresh.fire(at: due + .milliseconds(500)) == .notification)
         let end = due + .milliseconds(600)
-        #expect(refresh.passFinished(trigger: .notification, changed: false, failed: false, at: end) == .none)
+        #expect(refresh.passFinished(trigger: .notification, changed: false, failed: false, at: end) == .readAt(timer))
         #expect(refresh.mode == .following)
     }
 
-    @Test("A notification pass that found a change also ends polling")
+    @Test("A notification pass that found a change also ends polling, with the slowest timer left")
     func notificationChangeEndsPolling() {
         var (refresh, due) = polling()
         due += .seconds(5)
         _ = refresh.notified(at: due)
         #expect(refresh.fire(at: due + .milliseconds(500)) == .notification)
-        let action = refresh.passFinished(trigger: .notification, changed: true, failed: false, at: due + .milliseconds(600))
-        #expect(action == .none)
+        let end = due + .milliseconds(600)
+        let action = refresh.passFinished(trigger: .notification, changed: true, failed: false, at: end)
+        #expect(action == .readAt(end + .seconds(120)))
         #expect(refresh.mode == .following)
         #expect(!refresh.showsPollingLine)
     }
@@ -260,13 +300,14 @@ struct DockBadgeRefreshTests {
         #expect(refresh.mode == .probing)
     }
 
-    @Test("An activation pass in following arms no timer")
-    func activationInFollowingArmsNothing() {
+    @Test("An activation pass in following keeps the floor timer and does not change the mode")
+    func activationInFollowingKeepsTheTimer() {
         var (refresh, due) = following()
+        let timer = due + .seconds(120)
         let at = due + .seconds(50)
         _ = refresh.activated(at: at)
         #expect(refresh.fire(at: at + .seconds(1)) == .activation)
-        #expect(refresh.passFinished(trigger: .activation, changed: true, failed: false, at: at + .seconds(1)) == .none)
+        #expect(refresh.passFinished(trigger: .activation, changed: true, failed: false, at: at + .seconds(1)) == .readAt(timer))
         #expect(refresh.mode == .following)
     }
 
