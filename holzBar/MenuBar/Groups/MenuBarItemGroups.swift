@@ -206,10 +206,12 @@ final class MenuBarItemGroups {
         }
         let id = group.id
         Task {
-            guard
-                let name = await iconStore.storeImage(from: url),
-                let index = groups.firstIndex(where: { $0.id == id })
-            else {
+            let name = await iconStore.storeImage(from: url)
+            guard let name, let index = groups.firstIndex(where: { $0.id == id }) else {
+                // The group was deleted meanwhile: the new file belongs to nothing.
+                if let name {
+                    iconStore.deleteFile(named: name)
+                }
                 NSSound.beep()
                 return
             }
