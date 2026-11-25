@@ -107,16 +107,16 @@ final class NotificationBannerReader {
         launchTask = Task { [weak self] in
             for await notification in center.notifications(named: NSWorkspace.didLaunchApplicationNotification) {
                 let launched = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
-                if launched?.bundleIdentifier == Self.bundleIdentifier {
-                    self?.attach()
+                if let launched, launched.bundleIdentifier == Self.bundleIdentifier {
+                    self?.notificationCenterDidLaunch(processIdentifier: launched.processIdentifier)
                 }
             }
         }
         terminateTask = Task { [weak self] in
             for await notification in center.notifications(named: NSWorkspace.didTerminateApplicationNotification) {
                 let quit = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
-                if quit?.bundleIdentifier == Self.bundleIdentifier {
-                    self?.notificationCenterDidQuit()
+                if let quit, quit.bundleIdentifier == Self.bundleIdentifier {
+                    self?.notificationCenterDidQuit(processIdentifier: quit.processIdentifier)
                 }
             }
         }
@@ -153,6 +153,7 @@ final class NotificationBannerReader {
         if AXIsProcessTrusted() {
             attach()
         } else {
+            invalidateRegistration()
             detach()
             state = .noPermission
         }
@@ -161,7 +162,7 @@ final class NotificationBannerReader {
     // MARK: Registration
 
     private static func notificationCenter() -> NSRunningApplication? {
-        NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).first
+        NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).first { !$0.isTerminated }
     }
 
     /// Registers the observer when it can be, and says why when it cannot.
@@ -235,11 +236,37 @@ final class NotificationBannerReader {
         }
     }
 
-    private func notificationCenterDidQuit() {
+    /// A new Notification Center process: when the observer is still on an older one (its quit
+    /// has not been delivered yet), that observer is let go first.
+    private func notificationCenterDidLaunch(processIdentifier: pid_t) {
+        if let observedProcess, observedProcess != processIdentifier {
+            invalidateRegistration()
+            detach()
+        }
+        attach()
+    }
+
+    private func notificationCenterDidQuit(processIdentifier: pid_t) {
+        // The quit of a process the reader does not observe (one it already let go of) changes nothing.
+        if let observedProcess, observedProcess != processIdentifier {
+            return
+        }
+        invalidateRegistration()
         detach()
         if isStarted, AXIsProcessTrusted() {
             state = .notificationCenterMissing
         }
+        // Notification Center is already back when the new one launched before this quit arrived.
+        attach()
+    }
+
+    /// Forgets a registration that is still under way: it was made for a process that is gone or
+    /// for a permission that is withdrawn, so it must not install an observer when it ends.
+    private func invalidateRegistration() {
+        generation &+= 1
+        registrationTask?.cancel()
+        registrationTask = nil
+        isRegistering = false
     }
 
     /// Removes the run-loop source and lets go of the observer.
