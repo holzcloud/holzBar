@@ -82,6 +82,9 @@ final class ConcealmentController27 {
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "", category: "ConcealmentController27")
     private var live = [Live]()
 
+    /// Set when the app is quitting: no transition activates or keeps an assertion after it.
+    private var isTerminating = false
+
     /// Whether any assertion is currently live.
     var isActive: Bool {
         !live.isEmpty
@@ -119,6 +122,9 @@ final class ConcealmentController27 {
     }
 
     private func transition(target: [Set<String>], running: Set<String>, reusingLive: Bool, name: String) async throws {
+        guard !isTerminating else {
+            return
+        }
         // Timed: every change has MenuBarAgent lay the bar out again, and that animation is
         // what a stutter of the bar would be made of.
         let started = ProcessInfo.processInfo.systemUptime
@@ -153,10 +159,25 @@ final class ConcealmentController27 {
             }
             throw error
         }
+        guard !isTerminating else {
+            // Quitting began while an activation was in flight: `releaseAllForTermination()`
+            // already released the old assertions, and the new ones must not outlive it.
+            for token in activated {
+                backend.invalidate(token)
+            }
+            return
+        }
         for old in remaining {
             backend.invalidate(old.token)
         }
         live = next
+    }
+
+    /// Releases every live assertion as the app quits and keeps later or in-flight
+    /// transitions from asserting anything again.
+    func releaseAllForTermination() {
+        isTerminating = true
+        releaseAll()
     }
 
     /// Releases every live assertion, which restores all items.

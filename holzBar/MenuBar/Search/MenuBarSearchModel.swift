@@ -11,7 +11,8 @@ import Observation
 final class MenuBarSearchModel {
     enum ItemID: Hashable {
         case header(MenuBarSection.Name)
-        case item(MenuBarItemTag)
+        /// An item by its window: tags repeat (untitled items of one app), windows do not.
+        case item(CGWindowID)
     }
 
     var searchText = ""

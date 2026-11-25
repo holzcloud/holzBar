@@ -170,6 +170,15 @@ final class LayoutUndo {
         canUndo = false
     }
 
+    /// Withdraws a change that was recorded before its action ran and then failed: the
+    /// history entry goes, and so does its toast, so no Undo button acts on another change.
+    func withdraw(changeID: UUID) {
+        if let toast, toast.changeID == changeID {
+            setToast(nil)
+        }
+        forget(id: changeID)
+    }
+
     /// Takes a change out of the history without running it, for example when the notice it
     /// belongs to was undone on its own.
     func forget(id: UUID) {

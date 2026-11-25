@@ -161,11 +161,16 @@ final class ItemImageStore27 {
         if let image = loaded[key] {
             return image
         }
+        guard let entry = index[key] else {
+            return nil
+        }
         guard
-            let entry = index[key],
             let source = CGImageSourceCreateWithURL(directory.appending(path: entry.fileName) as CFURL, nil),
             let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil)
         else {
+            // The file is missing or unreadable: drop the entry, so the lookup stops
+            // reading the disk on every call and the item is photographed again.
+            forget(key: key)
             return nil
         }
         let image = CapturedImage(cgImage: cgImage, scale: entry.scale)

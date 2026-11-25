@@ -201,12 +201,14 @@ enum LayoutBarMoves {
         actionName: String,
         announcement: String? = nil,
         registersUndo: Bool = true,
+        recordedChange: UUID? = nil,
         place: LayoutUndo.Place = .settings
     ) {
         var announcement = announcement
+        var changeID = recordedChange
         if registersUndo, let anchor = anchor(of: item, appState: appState) {
             let sentence = announcement ?? String(localized: "\(item.displayName) moved")
-            recordMove(windowID: item.windowID, anchor: anchor, sentence: sentence, actionName: actionName, place: place, appState: appState)
+            changeID = recordMove(windowID: item.windowID, anchor: anchor, sentence: sentence, actionName: actionName, place: place, appState: appState)
             // The record announces the sentence, so VoiceOver hears it once.
             announcement = nil
         }
@@ -222,6 +224,10 @@ enum LayoutBarMoves {
                 }
             } catch {
                 Logger.default.error("Error moving menu bar item: \(error, privacy: .private)")
+                // The move never happened, so its undo entry and toast are withdrawn.
+                if let changeID {
+                    appState.layoutUndo.withdraw(changeID: changeID)
+                }
                 // The item stays where it was, so no cache change brings back the rows a
                 // drag rearranged; the cache the rows missed during the drag is shown now.
                 LayoutBarRouter.shared.showItemCache()
@@ -241,19 +247,23 @@ enum LayoutBarMoves {
     ) {
         var announcement = announcement
         // Recorded now, while the item is still where it was.
+        var changeID: UUID?
         if let anchor = anchor(of: item, appState: appState) {
             let sentence = announcement ?? String(localized: "\(item.displayName) moved")
-            recordMove(windowID: item.windowID, anchor: anchor, sentence: sentence, actionName: actionName, place: place, appState: appState)
+            changeID = recordMove(windowID: item.windowID, anchor: anchor, sentence: sentence, actionName: actionName, place: place, appState: appState)
             announcement = nil
         }
         Task {
             let items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
             guard let destination = endDestination(of: section, in: items) else {
                 Logger.default.error("No control item to move next to")
+                if let changeID {
+                    appState.layoutUndo.withdraw(changeID: changeID)
+                }
                 LayoutBarRouter.shared.showItemCache()
                 return
             }
-            move(item, to: destination, appState: appState, actionName: actionName, announcement: announcement, registersUndo: false)
+            move(item, to: destination, appState: appState, actionName: actionName, announcement: announcement, registersUndo: false, recordedChange: changeID)
         }
     }
 
@@ -295,11 +305,10 @@ enum LayoutBarMoves {
         actionName: String,
         place: LayoutUndo.Place,
         appState: AppState
-    ) {
-        appState.layoutUndo.record(
-            moveChange(windowID: windowID, anchor: anchor, sentence: sentence, actionName: actionName, appState: appState),
-            place: place
-        )
+    ) -> UUID {
+        let change = moveChange(windowID: windowID, anchor: anchor, sentence: sentence, actionName: actionName, appState: appState)
+        appState.layoutUndo.record(change, place: place)
+        return change.id
     }
 
     private static func moveChange(

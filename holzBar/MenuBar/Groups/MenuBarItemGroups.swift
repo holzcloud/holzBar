@@ -67,15 +67,18 @@ final class MenuBarItemGroups {
     @ObservationIgnored private var statusItems = [UUID: NSStatusItem]()
     @ObservationIgnored private var targets = [UUID: ClickTarget]()
     @ObservationIgnored private let popover = NSPopover()
+    /// Stored groups that did not decode, written back with every save so that they are not lost.
+    @ObservationIgnored private var undecodableGroups = [Data]()
     @ObservationIgnored private var popoverObservers = [Task<Void, Never>]()
 
     func performSetup(with appState: AppState) {
         self.appState = appState
         if
             let data = Defaults.data(forKey: .itemGroups),
-            let decoded = try? JSONDecoder().decode([MenuBarItemGroup].self, from: data)
+            let list = LossyJSONList<MenuBarItemGroup>(decoding: data)
         {
-            groups = decoded
+            undecodableGroups = list.undecodable
+            groups = list.elements
         } else {
             updateStatusItems()
         }
@@ -92,7 +95,7 @@ final class MenuBarItemGroups {
     }
 
     private func save() {
-        if let data = try? JSONEncoder().encode(groups) {
+        if let data = LossyJSONList<MenuBarItemGroup>.encode(groups, keeping: undecodableGroups) {
             Defaults.set(data, forKey: .itemGroups)
         }
     }
@@ -203,10 +206,12 @@ final class MenuBarItemGroups {
         }
         let id = group.id
         Task {
-            guard
-                let name = await iconStore.storeImage(from: url),
-                let index = groups.firstIndex(where: { $0.id == id })
-            else {
+            let name = await iconStore.storeImage(from: url)
+            guard let name, let index = groups.firstIndex(where: { $0.id == id }) else {
+                // The group was deleted meanwhile: the new file belongs to nothing.
+                if let name {
+                    iconStore.deleteFile(named: name)
+                }
                 NSSound.beep()
                 return
             }
@@ -348,7 +353,7 @@ private struct MenuBarItemGroupPanel: View {
                     .fixedSize(horizontal: false, vertical: true)
             } else {
                 HStack(spacing: 4) {
-                    ForEach(items, id: \.tag) { item in
+                    ForEach(items, id: \.windowID) { item in
                         Button {
                             close()
                             Task {
