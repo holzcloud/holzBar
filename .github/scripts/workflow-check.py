@@ -17,8 +17,11 @@
 #                secret access, and no pull_request_target or workflow_run
 #                trigger, which run with secrets on code from others.
 #   credentials  Every checkout sets persist-credentials: false, so no later
-#                step finds a token in .git/config; only the release
-#                workflow's cask job keeps its deploy key, to push the cask.
+#                step finds a token or key in .git/config; the release
+#                workflow's cask job loads its deploy key into an ssh-agent
+#                of its last step only.
+#   homebrew     No job that may use a secret runs brew: Homebrew updates
+#                itself unpinned at run time (audit SEC-02).
 #
 # It runs in the workflows job of .github/workflows/build.yml and locally:
 #
@@ -53,8 +56,8 @@ SECRETS_ALLOWED = {
     ("release.yml", "holzcloud-ch"): {"CMS_TOKEN"},
 }
 
-# (workflow file, job) whose checkout keeps its credentials.
-CREDENTIALS_ALLOWED = {("release.yml", "cask")}
+# (workflow file, job) whose checkout keeps its credentials. None does.
+CREDENTIALS_ALLOWED = set()
 
 SLSA_GENERATOR = re.compile(
     r"^slsa-framework/slsa-github-generator/\.github/workflows/generator_generic_slsa3\.yml@v\d+\.\d+\.\d+$")
@@ -74,6 +77,7 @@ DYNAMIC_SECRET = re.compile(r"\bsecrets\s*\[|\(\s*secrets\s*\)")
 INHERIT = re.compile(r"^\s*secrets:\s*inherit\b")
 UNSAFE_TRIGGER = re.compile(r"\b(pull_request_target|workflow_run)\b")
 STEP = re.compile(r"^(\s*)-\s")
+BREW = re.compile(r"(^|[\s;&|(`$])brew\s")
 PERSIST_FALSE = re.compile(r"^\s*persist-credentials:\s*(false|\"false\"|'false')\s*(#.*)?$")
 
 errors = 0
@@ -277,6 +281,15 @@ def check_credentials(path, lines, jobs):
             annotate(path, index + 1, "actions/checkout must set persist-credentials: false")
 
 
+def check_homebrew(path, lines, jobs):
+    name = os.path.basename(path)
+    for index, line in enumerate(lines):
+        if is_blank_or_comment(line) or not jobs[index]:
+            continue
+        if SECRETS_ALLOWED.get((name, jobs[index])) and BREW.search(line.split(" #", 1)[0]):
+            annotate(path, index + 1, f"Job {jobs[index]} may use a secret, so it may not run brew")
+
+
 def main():
     default_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     parser = argparse.ArgumentParser(description="holzBar's workflow supply-chain checks.")
@@ -297,10 +310,11 @@ def main():
             check_permissions(path, lines, jobs)
         check_secrets(path, lines, jobs, keys, is_action)
         check_credentials(path, lines, jobs)
+        check_homebrew(path, lines, jobs)
     if errors:
         return 1
     print(f"==> Workflows: {references} action references pinned, read-only top-level permissions, "
-          "secrets and write permissions only where allowed")
+          "secrets and write permissions only where allowed, no brew next to a secret")
     return 0
 
 

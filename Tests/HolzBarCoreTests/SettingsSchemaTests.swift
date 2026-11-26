@@ -927,6 +927,33 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.widgetShortcutNames.rawValue == "WidgetShortcutNames")
     }
 
+    @Test("The module switches travel with the settings")
+    func moduleSwitchesAreImportable() {
+        #expect(Defaults.Key.enabledModules.rawValue == "EnabledModules")
+        #expect(!Defaults.Key.localOnlyKeys.contains(.enabledModules))
+        #expect(Defaults.Key.importableKinds["EnabledModules"] == .stringArray)
+        let result = Defaults.Key.validatedSettings(
+            ["EnabledModules": ["notchHub", "widgets"], "ShowOnHover": true], ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted["EnabledModules"] as? [String] == ["notchHub", "widgets"])
+        #expect(Defaults.Key.validatedSettings(["EnabledModules": "notchHub"], ownBundleIdentifier: ownBundle).ignored == ["EnabledModules"])
+    }
+
+    @Test("A settings file never carries or changes the safety switches")
+    func settingsFileLeavesSafetySwitches() {
+        #expect(Defaults.Key.settingsFileExcludedKeys == [.holzBarIconShowsCaptureDot, .autoZenWhileSharingScreen])
+        #expect(Defaults.Key.staysOutOfSettingsFiles("HolzBarIconShowsCaptureDot"))
+        #expect(Defaults.Key.staysOutOfSettingsFiles("AutoZenWhileSharingScreen"))
+        #expect(!Defaults.Key.staysOutOfSettingsFiles("ShowOnHover"))
+        #expect(!Defaults.Key.staysOutOfSettingsFiles("holzbariconshowscapturedot"))
+        // They are not local-only: the Thaw import, which shows every change first, may set
+        // them, and its undo record keeps them.
+        for key in Defaults.Key.settingsFileExcludedKeys {
+            #expect(!Defaults.Key.localOnlyKeys.contains(key))
+            #expect(Defaults.Key.importableKinds[key.rawValue] == .bool)
+        }
+    }
+
     @Test("A file import removes the settings the file lacks")
     func importRemovesMissingKeys() {
         let removed = Defaults.Key.keysRemoved(

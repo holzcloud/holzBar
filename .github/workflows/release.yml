@@ -2,7 +2,8 @@ name: Release
 # A release starts with a pushed v* tag on main (docs/signing.md). Each job gets only what
 # it needs: the build runs without write token, OIDC or secrets; only the sign job sees the
 # signing certificate, and it runs no code from the repository; only the cask job holds the
-# deploy key that may push to main.
+# deploy key that may push to main, and it runs no Homebrew or other third-party code
+# (cask-check style-checks the casks without any secret).
 on:
   push:
     tags: [ "v*" ]
@@ -531,14 +532,143 @@ jobs:
       provenance-name: holzBar-${{ needs.build.outputs.version }}.intoto.jsonl
       upload-assets: true
 
-  # The Homebrew casks that every user installs from. main takes only pull requests with
-  # green checks; this job alone may push to it, with a deploy key.
-  cask:
-    name: Update the Homebrew cask
+  # The Homebrew casks that every user installs from, in two jobs. Two channels, one cask
+  # each: holzbar (stable, plain versions only) and holzbar@beta (the newest alpha, beta or
+  # plain release). A plain tag updates both, an -alphaN or -betaN tag only holzbar@beta.
+  # Each job changes exactly the version and sha256 lines of each cask on the newest main,
+  # and only forward. cask-check style-checks the result with Homebrew, which brew update
+  # fetches unpinned at run time, so it holds no secret and no environment, and its token
+  # can only read. cask, which alone holds the deploy key that may push to main, runs no
+  # Homebrew and no third-party code: it makes the same edit itself and pushes it only if
+  # it gives exactly the files cask-check checked. Whatever ran in cask-check can make the
+  # push fail, never change what is pushed.
+  cask-check:
+    name: Check the Homebrew cask update
     # The cask moves only when the release carries both provenances.
     needs: [build, sign, publish, provenance]
     runs-on: macos-26
     timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+      SHA256: ${{ needs.sign.outputs.sha256 }}
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_ENV_HINTS: "1"
+      LC_ALL: C
+    steps:
+      # main, not the tag.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      # The edit is the same as in the cask job below; keep the two in step.
+      - name: Update and style-check the casks
+        run: |
+          set -euo pipefail
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta)[0-9]+)?$ ]] || [[ ! "$SHA256" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error::The version or the checksum from the sign job is malformed."
+            exit 1
+          fi
+          # In path order, which is the order git diff lists them in.
+          if [[ "$VERSION" == *-* ]]; then
+            TARGETS=(Casks/holzbar@beta.rb)
+          else
+            TARGETS=(Casks/holzbar.rb Casks/holzbar@beta.rb)
+          fi
+          # A key that sorts like the version: 0.0.7-alpha1 before 0.0.7-beta1, before 0.0.7,
+          # before 0.0.8. The release list cannot tell which release is newest: GitHub orders
+          # it by the date of the tagged commit, not by when a release was published.
+          version_key() {
+            [[ "$1" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(-(alpha|beta)([0-9]+))?$ ]] || return 1
+            # Stage: alpha 1, beta 2, plain release 3.
+            local STAGE=3
+            case "${BASH_REMATCH[5]}" in alpha) STAGE=1 ;; beta) STAGE=2 ;; esac
+            printf '%06d.%06d.%06d.%d.%06d' "$((10#${BASH_REMATCH[1]}))" "$((10#${BASH_REMATCH[2]}))" \
+              "$((10#${BASH_REMATCH[3]}))" "$STAGE" "$((10#${BASH_REMATCH[6]:-0}))"
+          }
+          NEW_KEY=$(version_key "$VERSION")
+          CHANGED=()
+          NEWER=0
+          EXPECTED_NUMSTAT=""
+          for CASK in "${TARGETS[@]}"; do
+            if grep -qxF "  version \"$VERSION\"" "$CASK" && grep -qxF "  sha256 \"$SHA256\"" "$CASK"; then
+              echo "::notice::$CASK is already at $VERSION."
+              continue
+            fi
+            # A re-run of an older release must never move a cask back.
+            CURRENT=$(sed -n -E 's/^  version "(.*)"$/\1/p' "$CASK")
+            if ! CURRENT_KEY=$(version_key "$CURRENT"); then
+              echo "::error::$CASK on main has no version line this job can read."
+              exit 1
+            fi
+            if [[ ! "$CURRENT_KEY" < "$NEW_KEY" ]]; then
+              echo "::warning::$CASK is at $CURRENT, which is not older than $VERSION; it stays as it is."
+              NEWER=1
+              continue
+            fi
+            sed -E \
+              -e "s/^  version \".*\"/  version \"$VERSION\"/" \
+              -e "s/^  sha256 .*/  sha256 \"$SHA256\"/" \
+              "$CASK" > "$RUNNER_TEMP/cask.rb"
+            cat "$RUNNER_TEMP/cask.rb" > "$CASK"
+            CHANGED+=("$CASK")
+            EXPECTED_NUMSTAT+=$(printf '2\t2\t%s' "$CASK")$'\n'
+          done
+          # What the cask job compares its own edit with: every target cask, changed or not.
+          mkdir -p "$RUNNER_TEMP/casks"
+          cp "${TARGETS[@]}" "$RUNNER_TEMP/casks/"
+          if [ "${#CHANGED[@]}" -eq 0 ]; then
+            if [ "$NEWER" -eq 1 ]; then
+              echo "::error::No cask is older than $VERSION; the casks stay as they are."
+              exit 1
+            fi
+            echo "==> Every cask is already at $VERSION."
+            exit 0
+          fi
+          NUMSTAT=$(git diff --numstat)
+          # git diff lists every changed tracked file: exactly two lines of each changed cask, nothing else.
+          if [ "$NUMSTAT" != "${EXPECTED_NUMSTAT%$'\n'}" ]; then
+            git diff
+            echo "::error::The cask update must change exactly the version and the sha256 line of ${CHANGED[*]}."
+            exit 1
+          fi
+          git -c user.name="github-actions[bot]" \
+            -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -qam "holzbar $VERSION"
+          # Users run a current Homebrew; the runner image may be older.
+          brew update --quiet
+          # The committed casks, loaded from a local copy as the tap, style-checked the way
+          # cask.yml does.
+          SRC="$RUNNER_TEMP/tap-src"
+          git clone --quiet "$GITHUB_WORKSPACE" "$SRC"
+          git -C "$SRC" checkout --quiet -B main "$(git rev-parse HEAD)"
+          brew untap holzcloud/holzbar > /dev/null 2>&1 || true
+          brew tap holzcloud/holzbar "$SRC"
+          for CASK in "${CHANGED[@]}"; do
+            TOKEN=$(basename "$CASK" .rb)
+            brew trust --cask "holzcloud/holzbar/$TOKEN"
+            brew style --cask "holzcloud/holzbar/$TOKEN"
+          done
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: holzBar-casks
+          path: ${{ runner.temp }}/casks
+          retention-days: 7
+          if-no-files-found: error
+          overwrite: true
+
+  # Pushes the casks cask-check checked. main takes only pull requests with green checks;
+  # this job alone may push to it, with a deploy key, and it runs only the commands written
+  # here, git and ssh: no Homebrew, no code from the repository, and the key only in the
+  # last step.
+  cask:
+    name: Update the Homebrew cask
+    needs: [build, sign, cask-check]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     # The environment, which only v* tag runs may use, holds CASK_DEPLOY_KEY: the write
     # deploy key that the main ruleset lets push. GITHUB_TOKEN cannot.
     environment: release
@@ -549,14 +679,19 @@ jobs:
       ZIP: ${{ needs.sign.outputs.zip }}
       SHA256: ${{ needs.sign.outputs.sha256 }}
       GH_REPO: ${{ github.repository }}
-      HOMEBREW_NO_AUTO_UPDATE: "1"
-      HOMEBREW_NO_ENV_HINTS: "1"
+      LC_ALL: C
     steps:
-      # main, not the tag; the key stays configured because the last step pushes with it.
+      # main, not the tag, without any credential; the last step pushes through an ssh-agent.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
-          ssh-key: ${{ secrets.CASK_DEPLOY_KEY }}
+          persist-credentials: false
+
+      # The casks cask-check style-checked; only compared with, never copied.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: holzBar-casks
+          path: ${{ runner.temp }}/checked
 
       # The cask moves only to the zip that was signed above, and only forward (next step).
       - name: Check the published zip
@@ -574,30 +709,39 @@ jobs:
             exit 1
           fi
 
-      # Two channels, one cask each: holzbar (stable, plain versions only) and holzbar@beta
-      # (the newest alpha, beta or plain release). A plain tag updates both, an -alphaN or
-      # -betaN tag only holzbar@beta. Changes exactly the version and sha256 lines of each
-      # file on the newest main, style-checks the casks the way cask.yml does, and pushes.
-      # If main moved in between, the edit is made again on the new main, so no merge
-      # conflict can occur.
+      # The same edit as in cask-check, on the newest main, pushed only when each changed
+      # cask is byte for byte the one cask-check style-checked. If main moved in between,
+      # the edit is made again on the new main, so no merge conflict can occur.
       - name: Update the cask on main
+        env:
+          CASK_DEPLOY_KEY: ${{ secrets.CASK_DEPLOY_KEY }}
         run: |
           set -euo pipefail
-          # Users run a current Homebrew; the runner image may be older.
-          brew update --quiet
-          SRC="$RUNNER_TEMP/tap-src"
+          if [ -z "$CASK_DEPLOY_KEY" ]; then
+            echo "::error::CASK_DEPLOY_KEY is not set in the environment release."
+            exit 1
+          fi
+          # The key lives only in this step's ssh-agent, never in a file or in .git/config,
+          # and the agent ends with the step. GitHub's published ed25519 host key
+          # (api.github.com/meta), so nothing is trusted on first use.
+          KNOWN_HOSTS="$RUNNER_TEMP/known_hosts"
+          printf '%s\n' 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl' > "$KNOWN_HOSTS"
+          eval "$(ssh-agent -s)" > /dev/null
+          trap 'ssh-agent -k > /dev/null 2>&1 || true' EXIT
+          ssh-add -q - <<< "$CASK_DEPLOY_KEY"
+          unset CASK_DEPLOY_KEY
+          export GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=\"$KNOWN_HOSTS\""
+          git remote set-url origin "git@github.com:$GH_REPO.git"
+          CHECKED="$RUNNER_TEMP/checked"
           # In path order, which is the order git diff lists them in.
           if [[ "$VERSION" == *-* ]]; then
             TARGETS=(Casks/holzbar@beta.rb)
           else
             TARGETS=(Casks/holzbar.rb Casks/holzbar@beta.rb)
           fi
-          # A key that sorts like the version: 0.0.7-alpha1 before 0.0.7-beta1, before 0.0.7,
-          # before 0.0.8. The release list cannot tell which release is newest: GitHub orders
-          # it by the date of the tagged commit, not by when a release was published.
+          # The same key as in cask-check.
           version_key() {
             [[ "$1" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(-(alpha|beta)([0-9]+))?$ ]] || return 1
-            # Stage: alpha 1, beta 2, plain release 3.
             local STAGE=3
             case "${BASH_REMATCH[5]}" in alpha) STAGE=1 ;; beta) STAGE=2 ;; esac
             printf '%06d.%06d.%06d.%d.%06d' "$((10#${BASH_REMATCH[1]}))" "$((10#${BASH_REMATCH[2]}))" \
@@ -626,10 +770,11 @@ jobs:
                 NEWER=1
                 continue
               fi
-              sed -i '' -E \
+              sed -E \
                 -e "s/^  version \".*\"/  version \"$VERSION\"/" \
                 -e "s/^  sha256 .*/  sha256 \"$SHA256\"/" \
-                "$CASK"
+                "$CASK" > "$RUNNER_TEMP/cask.rb"
+              cat "$RUNNER_TEMP/cask.rb" > "$CASK"
               CHANGED+=("$CASK")
               EXPECTED_NUMSTAT+=$(printf '2\t2\t%s' "$CASK")$'\n'
             done
@@ -648,20 +793,16 @@ jobs:
               echo "::error::The cask update must change exactly the version and the sha256 line of ${CHANGED[*]}."
               exit 1
             fi
+            # Exactly what Homebrew style-checked, or nothing.
+            for CASK in "${CHANGED[@]}"; do
+              if ! cmp -s "$CASK" "$CHECKED/$(basename "$CASK")"; then
+                echo "::error::$CASK on the newest main is not the cask \"Check the Homebrew cask update\" style-checked; re-run that job, and this one runs again after it."
+                exit 1
+              fi
+            done
             git -c user.name="github-actions[bot]" \
               -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
               commit -qam "holzbar $VERSION"
-            # The committed casks, loaded from a local copy as the tap.
-            rm -rf "$SRC"
-            git clone --quiet "$GITHUB_WORKSPACE" "$SRC"
-            git -C "$SRC" checkout --quiet -B main "$(git rev-parse HEAD)"
-            brew untap holzcloud/holzbar > /dev/null 2>&1 || true
-            brew tap holzcloud/holzbar "$SRC"
-            for CASK in "${CHANGED[@]}"; do
-              TOKEN=$(basename "$CASK" .rb)
-              brew trust --cask "holzcloud/holzbar/$TOKEN"
-              brew style --cask "holzcloud/holzbar/$TOKEN"
-            done
             if git push origin HEAD:main; then
               echo "==> ${CHANGED[*]} moved to $VERSION on main."
               exit 0

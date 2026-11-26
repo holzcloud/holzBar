@@ -46,6 +46,10 @@ private final class SettingsWindowModel {
         let navigationState = appState.navigationState
         observations.removeAll()
         guard let window else {
+            // Nothing observes the visibility any more, so the last value must not linger.
+            if navigationState.isSettingsPresented {
+                navigationState.isSettingsPresented = false
+            }
             return
         }
         navigationState.settingsWindow = window

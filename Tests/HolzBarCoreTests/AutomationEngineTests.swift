@@ -355,13 +355,36 @@ struct AutomationEngineTests {
         #expect(AutomationRule.timeWindows(of: [timeRule, powerRule]).isEmpty)
     }
 
+    private func calendar(_ zone: String) -> Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: zone) ?? .gmt
+        return calendar
+    }
+
+    private func date(_ calendar: Calendar, _ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int = 0) -> Date {
+        calendar.date(from: DateComponents(year: year, month: month, day: day, hour: hour, minute: minute)) ?? .distantPast
+    }
+
     @Test("The next boundary is the nearest start or end, wrapping past midnight")
     func nextBoundary() {
         let windows = [AutomationTimeWindow(startMinute: 9 * 60, endMinute: 17 * 60, weekdays: [])]
-        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, from: 8 * 3600) == 3600.0)
-        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, from: 12 * 3600) == 5.0 * 3600)
-        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, from: 17 * 3600) == 16.0 * 3600)
-        #expect(AutomationSchedule.secondsUntilNextBoundary(of: [], from: 0) == nil)
+        let utc = calendar("UTC")
+        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, after: date(utc, 2027, 1, 5, 8), calendar: utc) == 3600.0)
+        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, after: date(utc, 2027, 1, 5, 12), calendar: utc) == 5.0 * 3600)
+        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, after: date(utc, 2027, 1, 5, 17), calendar: utc) == 16.0 * 3600)
+        #expect(AutomationSchedule.secondsUntilNextBoundary(of: [], after: date(utc, 2027, 1, 5, 8), calendar: utc) == nil)
+    }
+
+    @Test("The next boundary is right on a day with a daylight saving change")
+    func nextBoundaryAcrossDaylightSaving() {
+        let windows = [AutomationTimeWindow(startMinute: 4 * 60, endMinute: 4 * 60 + 1, weekdays: [])]
+        let newYork = calendar("America/New_York")
+        // Spring forward 2027-03-14: 01:30 to 04:00 is 1.5 hours of real time, not 2.5.
+        let spring = date(newYork, 2027, 3, 14, 1, 30)
+        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, after: spring, calendar: newYork) == 1.5 * 3600)
+        // Fall back 2027-11-07: 01:30 (the first one) to 04:00 is 3.5 hours of real time.
+        let fall = Date(timeIntervalSince1970: date(newYork, 2027, 11, 7, 0, 30).timeIntervalSince1970 + 3600)
+        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, after: fall, calendar: newYork) == 3.5 * 3600)
     }
 
     @Test("Answers combine with unknown ones staying unknown unless another decides")
@@ -615,5 +638,29 @@ struct AutomationEngineTests {
         #expect(withCondition.usesScript && withAction.usesScript && !plain.usesScript)
         #expect(AutomationRule.scriptRuleCount(in: data) == 2)
         #expect(AutomationRule.scriptRuleCount(in: Data("nonsense".utf8)) == 0)
+    }
+
+    @Test("One unreadable rule neither drops the list nor is lost by a save")
+    func unreadableRuleIsKept() throws {
+        let good = rule("Good", [battery], action: .zen(true))
+        let encoded = try JSONEncoder().encode(good)
+        let goodObject = try #require(try JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        let unknown: [String: Any] = ["id": UUID().uuidString, "name": "Future", "clauses": [["condition": ["somethingNew": [:]]]]]
+        let data = try JSONSerialization.data(withJSONObject: [unknown, goodObject])
+
+        let list = try #require(AutomationRuleList.decode(data))
+        #expect(list.rules == [good])
+        #expect(list.unreadable.count == 1)
+        #expect(AutomationRule.validated(list.rules) == [good])
+
+        let saved = try AutomationRuleList.encode(rules: list.rules, unreadable: list.unreadable)
+        let again = try #require(AutomationRuleList.decode(saved))
+        #expect(again.rules == [good])
+        #expect(again.unreadable == list.unreadable)
+
+        let imported = try #require(AutomationRule.removingScriptRules(from: data))
+        #expect(try JSONDecoder().decode([AutomationRule].self, from: imported) == [good])
+        #expect(AutomationRuleList.decode(Data("nonsense".utf8)) == nil)
+        #expect(try AutomationRuleList.decode(AutomationRuleList.encode(rules: [], unreadable: []))?.rules == [])
     }
 }

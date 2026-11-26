@@ -31,9 +31,10 @@ enum SettingsBackup {
     ]
 
     /// Returns a Boolean value that indicates whether the key is never exported,
-    /// imported or replaced.
+    /// imported or replaced: a key of this Mac's windows, or a safety switch that a file must
+    /// not turn off without a word (`Defaults.Key.settingsFileExcludedKeys`).
     private static func isExcluded(_ key: String) -> Bool {
-        excludedKeyPrefixes.contains { key.hasPrefix($0) }
+        excludedKeyPrefixes.contains { key.hasPrefix($0) } || Defaults.Key.staysOutOfSettingsFiles(key)
     }
 
     /// The settings that are exported: holzBar's own keys only.

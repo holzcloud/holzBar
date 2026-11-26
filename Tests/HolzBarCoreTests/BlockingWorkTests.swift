@@ -57,6 +57,13 @@ struct BlockingWorkTests {
         #expect(!result.timedOut)
     }
 
+    @Test("An absurd timeout does not trap")
+    func absurdTimeoutDoesNotTrap() async {
+        let result = await BlockingWork.run(on: queue, timeout: .seconds(Int64.max), fallback: -1) { 7 }
+        #expect(result.value == 7)
+        #expect(!result.timedOut)
+    }
+
     @Test("Work that blocks past the timeout returns the fallback on time")
     func boundedReturnsTheFallbackOnTime() async {
         let blocker = DispatchSemaphore(value: 0)

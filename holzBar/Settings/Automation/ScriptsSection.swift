@@ -186,8 +186,10 @@ struct ScriptsSection: View {
     private func approvalMessage(for entry: ScriptStore.Entry) -> String {
         let name = URLPrompt.displayName(entry.name)
         let folder = URLPrompt.displayName(store.folderURL.lastPathComponent)
+        // The size in the user's units and language, such as "2 KB" or "1 byte".
+        let size = ByteCountFormatter.string(fromByteCount: Int64(entry.size), countStyle: .file)
         return String(
-            localized: "\u{201C}\(name)\u{201D} in the folder \u{201C}\(folder)\u{201D}, \(entry.size) bytes, checksum starts with \(entry.checksumPrefix). It runs as you, with holzBar's permissions, including Accessibility. macOS asks separately before it controls another app. Allow it only if you wrote it or read it."
+            localized: "\u{201C}\(name)\u{201D} in the folder \u{201C}\(folder)\u{201D}, \(size), checksum starts with \(entry.checksumPrefix). It runs as you, with holzBar's permissions, including Accessibility. macOS asks separately before it controls another app. Allow it only if you wrote it or read it."
         )
     }
 

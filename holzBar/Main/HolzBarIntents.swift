@@ -7,8 +7,12 @@ import AppIntents
 
 // Shortcuts actions (App Intents). They run the same code as holzBar's hotkeys and menu,
 // inside holzBar, without a script, a command line tool or a new permission. An action
-// only does what the user put into a shortcut, so nothing here asks first (unlike
-// `holzbar://profile/<name>`, which any app can open).
+// only does what the user put into a shortcut, so outside Zen mode nothing here asks first
+// (unlike `holzbar://profile/<name>`, which any app can open). Another app or a web page can
+// start a shortcut, though, so Zen mode treats an action like a URL or AppleScript command
+// (`URLCommand.Action.decision(zenMode:)`): it reveals no hidden item, applies no profile,
+// switches no rule and opens no search, and turning Zen mode off asks first and is refused
+// while the screen is shared.
 
 // MARK: - Errors
 
@@ -23,6 +27,8 @@ nonisolated enum HolzBarIntentError: Error, CustomLocalizedStringResourceConvert
     /// A shortcut asked to turn on a rule that uses a script. That is done only in the settings,
     /// so nothing outside holzBar makes a script run (D-12).
     case scriptRuleNeedsSettings
+    /// Zen mode refuses the action, as it refuses the same URL or AppleScript command.
+    case zenModeRefuses
 
     var localizedStringResource: LocalizedStringResource {
         switch self {
@@ -34,6 +40,8 @@ nonisolated enum HolzBarIntentError: Error, CustomLocalizedStringResourceConvert
             "No menu bar item matches \u{201C}\(name)\u{201D}."
         case .scriptRuleNeedsSettings:
             "Rules that use a script can be turned on only in holzBar's settings."
+        case .zenModeRefuses:
+            "Zen mode is on, so holzBar does not do this now."
         }
     }
 }
@@ -47,15 +55,34 @@ private func intentAppState() throws -> AppState {
     return appState
 }
 
+/// Refuses an action that Zen mode refuses as a URL or AppleScript command.
+@MainActor
+private func refuseInZenMode(_ action: URLCommand.Action, appState: AppState) throws {
+    guard action.decision(zenMode: appState.menuBarManager.zenMode) != .refuse else {
+        throw HolzBarIntentError.zenModeRefuses
+    }
+}
+
 // MARK: - Zen Mode
 
 /// Turns Zen mode on or off.
 nonisolated struct ToggleZenModeIntent: AppIntent {
     static let title: LocalizedStringResource = "Toggle Zen Mode"
 
+    /// Turning Zen mode on runs at once. Turning it off asks first, with the question of
+    /// `holzbar://zen/toggle`, and is refused while the screen is shared.
     @MainActor
     func perform() async throws -> some IntentResult {
-        try intentAppState().menuBarManager.toggleZenMode()
+        let appState = try intentAppState()
+        let manager = appState.menuBarManager
+        let action = URLCommand.Action.zenMode(.toggle)
+        try refuseInZenMode(action, appState: appState)
+        if action.decision(zenMode: manager.zenMode) == .ask {
+            URLCommands.perform(URLCommand(name: "zen", arguments: ["toggle"]), appState: appState)
+        } else {
+            // Turns it on; never ends the automatic part.
+            manager.setZenModeFromURL(manager.zenMode.requested(byURL: .toggle))
+        }
         return .result()
     }
 }
@@ -110,6 +137,9 @@ struct ChangeSectionIntent: AppIntent {
         guard let target = manager.section(withName: name), target.isEnabled else {
             throw HolzBarIntentError.sectionUnavailable
         }
+        if sectionAction != .hide, target.isHidden, !manager.allowsReveal(.shortcutAction) {
+            throw HolzBarIntentError.zenModeRefuses
+        }
         switch sectionAction {
         case .show:
             target.show()
@@ -162,8 +192,10 @@ struct ApplyLayoutProfileIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
+        let appState = try intentAppState()
+        try refuseInZenMode(.applyProfile(profile.id), appState: appState)
         // A Shortcut is outside holzBar: no profile hook runs for it (D-12).
-        try intentAppState().profiles.apply(named: profile.id, runsHooks: false)
+        appState.profiles.apply(named: profile.id, runsHooks: false)
         return .result()
     }
 }
@@ -239,7 +271,9 @@ struct SetAutomationRuleIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        let manager = try intentAppState().automation
+        let appState = try intentAppState()
+        try refuseInZenMode(.automationRule(name: rule.name, isEnabled: isEnabled), appState: appState)
+        let manager = appState.automation
         guard let id = UUID(uuidString: rule.id) else {
             return .result()
         }
@@ -274,13 +308,19 @@ struct OpenMenuBarItemIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        let itemManager = try intentAppState().itemManager
+        let appState = try intentAppState()
+        let itemManager = appState.itemManager
         let items = itemManager.itemCache.managedItems.filter { !$0.isControlItem }
         guard
             name.contains(where: { !$0.isWhitespace }),
             let item = FuzzyMatch.rank(items, query: name, key: { $0.displayName }).first
         else {
             throw HolzBarIntentError.noMatchingItem(name)
+        }
+        // Opening a hidden item shows it, which Zen mode refuses.
+        if itemManager.itemCache.address(for: item.tag)?.section != .visible,
+           !appState.menuBarManager.allowsReveal(.shortcutAction) {
+            throw HolzBarIntentError.zenModeRefuses
         }
         // The shortcut goes on while the menu is open; the item is hidden again later.
         Task {
@@ -296,7 +336,9 @@ nonisolated struct SearchMenuBarItemsIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        try intentAppState().menuBarManager.searchPanel.show()
+        let appState = try intentAppState()
+        try refuseInZenMode(.search, appState: appState)
+        appState.menuBarManager.searchPanel.show()
         return .result()
     }
 }

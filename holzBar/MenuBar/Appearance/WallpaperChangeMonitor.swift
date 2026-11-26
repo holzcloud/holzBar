@@ -70,6 +70,9 @@ final class WallpaperChangeMonitor {
     /// How long to wait before opening the file again when it was not there yet.
     private static let retryDelay = Duration.milliseconds(500)
 
+    /// How many times the file is opened again, the wait doubling each time (about 30 s in all).
+    private static let maxRetries = 6
+
     init(url: URL = WallpaperChangeMonitor.indexURL) {
         self.url = url
     }
@@ -102,15 +105,26 @@ final class WallpaperChangeMonitor {
         watch = nil
         start()
         if watch == nil {
-            // The new file may not be linked yet: one more try a moment later.
+            // The new file may not be linked yet: try again a moment later, with a growing
+            // wait and a bounded number of tries.
             retryTask?.cancel()
             retryTask = Task { [weak self] in
-                do {
-                    try await Task.sleep(for: Self.retryDelay)
-                } catch {
-                    return
+                var delay = Self.retryDelay
+                for _ in 0..<Self.maxRetries {
+                    do {
+                        try await Task.sleep(for: delay)
+                    } catch {
+                        return
+                    }
+                    guard let self else {
+                        return
+                    }
+                    start()
+                    if watch != nil {
+                        return
+                    }
+                    delay *= 2
                 }
-                self?.start()
             }
         }
         debounceTask?.cancel()

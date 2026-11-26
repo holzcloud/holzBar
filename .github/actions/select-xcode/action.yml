@@ -17,14 +17,14 @@ inputs:
     description: >-
       The Swift release to install from swift.org, exactly as swift.org names
       it (https://www.swift.org/api/v1/install/releases.json, "name"), such as
-      6.4.2. Bumping it means updating swift-sha256 too.
-    default: "6.4.2"
+      6.4.3. Bumping it means updating swift-sha256 too.
+    default: "6.4.3"
   swift-sha256:
     description: >-
       The SHA-256 of swift-SWIFT_VERSION-RELEASE-osx.pkg. swift.org publishes
       no checksum for the macOS package, so it is pinned here on top of the
       Developer ID signature check.
-    default: "0a7d8489900d21dbf5f0187cb570e646a4c0226d0ddef2cbde8c7f54dfe79736"
+    default: "ccbfc46b166625613286abfa63b6e974b5b6a7c2205e5bc9e52d09f6e051e859"
 runs:
   using: composite
   steps:

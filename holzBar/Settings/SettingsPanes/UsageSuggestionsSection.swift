@@ -34,7 +34,7 @@ struct UsageSuggestionsSection: View {
                     }
                 }
             }
-            SettingsButtonRow(.layoutStoredUsage, small: Text("\(summary.items) items, \(summary.clicks) opens")) {
+            SettingsButtonRow(.layoutStoredUsage, small: Text("Items: \(summary.items), opens: \(summary.clicks)")) {
                 Button("View Data…") {
                     isShowingData = true
                 }

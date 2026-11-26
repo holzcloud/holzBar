@@ -597,7 +597,7 @@ final class Concealer27 {
 
     /// Releases every assertion as holzBar quits, so no application stays hidden.
     func releaseAllForTermination() {
-        controller.releaseAll()
+        controller.releaseAllForTermination()
     }
 
     /// Derives what to conceal from holzBar's sections and applies it.

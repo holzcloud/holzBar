@@ -79,12 +79,16 @@ struct Toast: View {
 extension View {
     /// Shows a toast at the bottom of the view while `isPresented` is true and sets it back to
     /// false after the duration. With Reduce Motion it fades instead of sliding.
+    ///
+    /// - Parameter id: Identifies the toast's message. A new message while one is shown (a new
+    ///   `id`) starts the duration again, so the second toast gets its full time.
     func holzBarToast(
         isPresented: Binding<Bool>,
+        id: AnyHashable = 0,
         duration: Duration = HolzBarTheme.UndoToast.plainDuration,
         toast: Toast
     ) -> some View {
-        modifier(ToastModifier(isPresented: isPresented, duration: duration, toast: toast))
+        modifier(ToastModifier(isPresented: isPresented, id: id, duration: duration, toast: toast))
     }
 }
 
@@ -92,6 +96,7 @@ private struct ToastModifier: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var isPresented: Bool
 
+    let id: AnyHashable
     let duration: Duration
     let toast: Toast
 
@@ -108,13 +113,19 @@ private struct ToastModifier: ViewModifier {
                 HolzBarTheme.Motion.resolved(HolzBarTheme.Motion.smooth, reduceMotion: reduceMotion),
                 value: isPresented
             )
-            .task(id: isPresented) {
+            .task(id: TimerKey(isPresented: isPresented, id: id)) {
                 guard isPresented else {
                     return
                 }
                 try? await Task.sleep(for: duration)
                 isPresented = false
             }
+    }
+
+    /// Restarts the timer when the toast is presented and when its message changes.
+    private struct TimerKey: Hashable {
+        let isPresented: Bool
+        let id: AnyHashable
     }
 }
 

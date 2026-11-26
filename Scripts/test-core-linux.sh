@@ -118,6 +118,7 @@ sources=(
   LegacyRevealRules
   LiveActivity
   LiveActivityItem
+  LossyJSONList
   MenuBarAnchor
   MenuBarBackendKind
   MenuBarDragDecider
@@ -140,6 +141,7 @@ sources=(
   NotificationLog
   NotificationQueue
   NotShownApps
+  NowPlayingArtworkFormat
   NowPlayingModel
   NowPlayingPayload
   NowPlayingPlayers
@@ -305,6 +307,7 @@ tests=(
   LayoutSnapshotTests
   LegacyRevealRulesTests
   LiveActivityItemTests
+  LossyJSONListTests
   MenuBarAnchorTests
   MenuBarDragDeciderTests
   MenuBarFitTests
@@ -326,6 +329,7 @@ tests=(
   NotificationLogTests
   NotificationQueueTests
   NotShownAppsTests
+  NowPlayingArtworkFormatTests
   NowPlayingModelTests
   NowPlayingPayloadTests
   NowPlayingPlayersTests

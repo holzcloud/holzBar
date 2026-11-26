@@ -12,7 +12,7 @@ import Observation
 /// a module that was removed is ignored and dropped the next time the choice is saved.
 @Observable
 final class ModuleStore {
-    private static let storageKey = "EnabledModules"
+    private static let storageKey = Defaults.Key.enabledModules.rawValue
 
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let catalog: [ModuleDescriptor]

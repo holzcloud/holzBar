@@ -431,7 +431,7 @@ private struct MenuBarSearchContentView: View {
             searchItems.append(SearchItem(headerItem, name.displayString, 0))
 
             for item in items {
-                let listItem = ListItem.item(id: .item(item.tag)) {
+                let listItem = ListItem.item(id: .item(item.windowID)) {
                     performAction(for: item)
                 } content: {
                     MenuBarSearchItemView(item: item)
@@ -462,8 +462,8 @@ private struct MenuBarSearchContentView: View {
 
     private func menuBarItem(for selection: MenuBarSearchModel.ItemID) -> MenuBarItem? {
         switch selection {
-        case .item(let tag):
-            return itemManager.itemCache.managedItems.first(matching: tag)
+        case .item(let windowID):
+            return itemManager.itemCache.managedItems.first { $0.windowID == windowID }
         case .header:
             return nil
         }

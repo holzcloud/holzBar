@@ -386,8 +386,9 @@ nonisolated enum SystemSamplers {
         var offset = 0
         var visited = 0
         // The first fields of every message: the length (two bytes), the version and the type.
+        // Only interface records count toward the cap: multicast address records come between
+        // them, and the walk is bounded by the buffer's size in any case.
         while offset + 4 <= used, visited < maximumInterfaceRecords {
-            visited += 1
             let length = Int(raw.loadUnaligned(fromByteOffset: offset, as: UInt16.self))
             guard length > 0, offset + length <= used else {
                 break
@@ -399,6 +400,7 @@ nonisolated enum SystemSamplers {
             guard messageType == UInt8(RTM_IFINFO2), length >= MemoryLayout<if_msghdr2>.size else {
                 continue
             }
+            visited += 1
             let header = raw.loadUnaligned(fromByteOffset: offset, as: if_msghdr2.self)
             let isUp = (header.ifm_flags & IFF_UP) != 0
             // Only an Ethernet type interface that is up can count; the name is looked up for

@@ -66,7 +66,8 @@ nonisolated enum BlockingWork {
             // Not cancelled when the work wins (`DispatchWorkItem` is not Sendable): the
             // timer then finds the continuation gone and does nothing.
             let (seconds, attoseconds) = timeout.components
-            let nanoseconds = seconds * 1_000_000_000 + attoseconds / 1_000_000_000
+            // Saturates instead of overflowing for an absurd timeout (about 95 years at most).
+            let nanoseconds = max(0, min(seconds, 3_000_000_000)) * 1_000_000_000 + max(0, attoseconds / 1_000_000_000)
             DispatchQueue.global().asyncAfter(deadline: .now() + .nanoseconds(Int(nanoseconds))) {
                 takeContinuation()?.resume(returning: (fallback, true))
             }

@@ -23,6 +23,10 @@ final class BuiltInTimers {
 
     private var entries = [UUID: Entry]()
 
+    /// Whether each item was last seen, kept also while no timer exists: a timer started from a
+    /// hidden item (Shelf, search, hotkey) must wait for its end only.
+    private var seenStates = [UUID: Bool]()
+
     /// Called after the text of the timer with the given identifier changed.
     var onChange: ((UUID) -> Void)?
 
@@ -33,7 +37,7 @@ final class BuiltInTimers {
 
     /// A click on the item: starts the timer, cancels a running one or clears a finished one.
     func tap(_ id: UUID, minutes: Int) {
-        var entry = entries[id] ?? Entry()
+        var entry = entries[id] ?? Entry(isSeen: seenStates[id] ?? true)
         entry.timer.tap(minutes: minutes, now: Date())
         entries[id] = entry
         rearm(id)
@@ -42,6 +46,7 @@ final class BuiltInTimers {
 
     /// Tells whether the item is seen, so that a hidden timer waits for its end only.
     func setSeen(_ isSeen: Bool, for id: UUID) {
+        seenStates[id] = isSeen
         guard var entry = entries[id], entry.isSeen != isSeen else {
             return
         }
@@ -57,6 +62,7 @@ final class BuiltInTimers {
     func forget(_ id: UUID) {
         entries[id]?.task?.cancel()
         entries[id] = nil
+        seenStates[id] = nil
     }
 
     /// Cancels every wait and every timer, when the module is switched off.
@@ -65,6 +71,7 @@ final class BuiltInTimers {
             entry.task?.cancel()
         }
         entries.removeAll()
+        seenStates.removeAll()
     }
 
     private func rearm(_ id: UUID) {

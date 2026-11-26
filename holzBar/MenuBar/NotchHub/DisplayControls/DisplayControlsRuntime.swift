@@ -264,8 +264,10 @@ final class DisplayControlsRuntime: HubModuleRuntime {
 
     /// Reads the default output's plan, level, mute and name again. Nothing of the displays is
     /// touched, so a volume change made elsewhere never starts a transfer to a monitor.
-    func refreshVolume() {
-        refreshOutputs()
+    func refreshVolume(refreshesOutputs: Bool = true) {
+        if refreshesOutputs {
+            refreshOutputs()
+        }
         guard let output = OutputVolume.current() else {
             clear()
             return
@@ -357,6 +359,10 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         }
         var found: [DisplayBrightness] = []
         var seen = Set<CGDirectDisplayID>()
+        // One refresh counts as one read: displays that cannot be read at the same moment (asleep,
+        // waking) must not add up to the three failures in a row that switch the part off.
+        var anyReadFailed = false
+        var anyReadSucceeded = false
         for screen in NSScreen.screens {
             let id = screen.displayID
             guard seen.insert(id).inserted else {
@@ -367,9 +373,9 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             if canChange {
                 value = DisplayServicesBrightness.read(id)
                 if value == nil {
-                    gate.recordFailure()
+                    anyReadFailed = true
                 } else {
-                    gate.recordSuccess()
+                    anyReadSucceeded = true
                 }
             }
             found.append(DisplayBrightness(
@@ -379,6 +385,11 @@ final class DisplayControlsRuntime: HubModuleRuntime {
                 canChange: canChange,
                 value: value
             ))
+        }
+        if anyReadFailed {
+            gate.recordFailure()
+        } else if anyReadSucceeded {
+            gate.recordSuccess()
         }
         displays = gate.isAvailable ? found : []
         // A display macOS can change by itself needs no layer: a stored dim level would outlive
@@ -933,9 +944,16 @@ final class DisplayControlsRuntime: HubModuleRuntime {
             refreshDisplayOrder()
             refreshExternalMonitors(surveying: showsExternalValues)
             refreshVolume()
-            listener.start(followsDeviceList: true) { [weak self] in
-                self?.refreshVolume()
-            }
+            listener.start(
+                followsDeviceList: true,
+                onValueChange: { [weak self] in
+                    // A level or mute step: the picker's list did not change.
+                    self?.refreshVolume(refreshesOutputs: false)
+                },
+                onChange: { [weak self] in
+                    self?.refreshVolume()
+                }
+            )
             wakeLoop = ObservationLoop.observe { [weak self] in
                 self?.appState?.systemActivityMonitor.ddcWakeGate.lastEvent
             } onChange: { [weak self] _ in

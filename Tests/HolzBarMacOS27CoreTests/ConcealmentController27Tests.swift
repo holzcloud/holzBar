@@ -54,12 +54,72 @@ final class FakeConcealmentBackend: ConcealmentBackend27 {
     }
 }
 
+/// A backend whose activation waits until the test lets it finish.
+@MainActor
+final class GatedConcealmentBackend: ConcealmentBackend27 {
+    private let inner: FakeConcealmentBackend
+    private var gate: CheckedContinuation<Void, Never>?
+    private var isReleased = false
+
+    init(universe: Set<String>) {
+        inner = FakeConcealmentBackend(universe: universe)
+    }
+
+    var concealed: Set<String> { inner.concealed }
+
+    func waitUntilActivating() async {
+        while gate == nil {
+            await Task.yield()
+        }
+    }
+
+    func finishActivation() {
+        isReleased = true
+        gate?.resume()
+        gate = nil
+    }
+
+    func activate(allowedBundleIDs: [String], allowedSystemItems: [Int]) async throws -> ConcealmentToken27 {
+        if !isReleased {
+            await withCheckedContinuation { gate = $0 }
+        }
+        return try await inner.activate(allowedBundleIDs: allowedBundleIDs, allowedSystemItems: allowedSystemItems)
+    }
+
+    func invalidate(_ token: ConcealmentToken27) {
+        inner.invalidate(token)
+    }
+}
+
 @Suite("ConcealmentController27")
 @MainActor
 struct ConcealmentController27Tests {
     let running: Set<String> = ["visible.app", "hidden.app", "always.app"]
     let allHidden: [Set<String>] = [["hidden.app", "always.app"]]
     let hiddenRevealed: [Set<String>] = [["always.app"]]
+
+    @Test("An activation in flight at termination does not outlive the release")
+    func terminationDuringActivation() async throws {
+        let backend = GatedConcealmentBackend(universe: running)
+        let controller = ConcealmentController27(backend: backend)
+        let apply = Task { try await controller.apply(target: allHidden, running: running) }
+        await backend.waitUntilActivating()
+        controller.releaseAllForTermination()
+        backend.finishActivation()
+        try await apply.value
+        #expect(!controller.isActive)
+        #expect(backend.concealed.isEmpty)
+    }
+
+    @Test("Nothing is asserted after termination began")
+    func applyAfterTermination() async throws {
+        let backend = FakeConcealmentBackend(universe: running)
+        let controller = ConcealmentController27(backend: backend)
+        controller.releaseAllForTermination()
+        try await controller.apply(target: allHidden, running: running)
+        #expect(!controller.isActive)
+        #expect(backend.activationCount == 0)
+    }
 
     @Test("Hiding conceals the target set")
     func hiding() async throws {

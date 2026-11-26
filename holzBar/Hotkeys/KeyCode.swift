@@ -161,6 +161,10 @@ extension KeyCode {
         else {
             return ""
         }
+        // The layout data belongs to the input source: keep it alive until the translation is done.
+        defer {
+            withExtendedLifetime(inputSource) {}
+        }
 
         let layoutBytes = CFDataGetBytePtr(unsafeBitCast(layoutData, to: CFData.self))
         let layoutPtr = unsafeBitCast(layoutBytes, to: UnsafePointer<UCKeyboardLayout>.self)
