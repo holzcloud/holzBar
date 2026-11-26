@@ -927,6 +927,18 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.widgetShortcutNames.rawValue == "WidgetShortcutNames")
     }
 
+    @Test("The module switches travel with the settings")
+    func moduleSwitchesAreImportable() {
+        #expect(Defaults.Key.enabledModules.rawValue == "EnabledModules")
+        #expect(!Defaults.Key.localOnlyKeys.contains(.enabledModules))
+        #expect(Defaults.Key.importableKinds["EnabledModules"] == .stringArray)
+        let result = Defaults.Key.validatedSettings(
+            ["EnabledModules": ["notchHub", "widgets"], "ShowOnHover": true], ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted["EnabledModules"] as? [String] == ["notchHub", "widgets"])
+        #expect(Defaults.Key.validatedSettings(["EnabledModules": "notchHub"], ownBundleIdentifier: ownBundle).ignored == ["EnabledModules"])
+    }
+
     @Test("A settings file never carries or changes the safety switches")
     func settingsFileLeavesSafetySwitches() {
         #expect(Defaults.Key.settingsFileExcludedKeys == [.holzBarIconShowsCaptureDot, .autoZenWhileSharingScreen])

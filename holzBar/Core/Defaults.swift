@@ -432,6 +432,12 @@ nonisolated extension Defaults {
         /// Mac only).
         case readoutsReadsGPU = "ReadoutsReadsGPU"
 
+        // MARK: Modules
+        /// The identifiers of the optional modules the user switched on (a list of strings;
+        /// `ModuleStore` ignores an identifier that is not in the module catalog). It is exported
+        /// with the settings, so a restored backup switches on the modules it had.
+        case enabledModules = "EnabledModules"
+
         // MARK: Dock badges
         /// The bundle identifiers of the apps whose Dock badge shows in the menu bar, in the order
         /// chosen (a list of strings, at most 64). It is exported with the settings; an imported
@@ -745,6 +751,7 @@ nonisolated extension Defaults.Key {
             .calendarHiddenCalendars,
             .notificationsExcludedApps,
             .readoutTiles,
+            .enabledModules,
             .dockBadgeApps:
             .stringArray
         case .hotkeys,
