@@ -78,7 +78,9 @@ struct HotkeysSettingsPane: View {
         }
         .task(id: profileNames) {
             // Each profile gets its hotkey object here, outside the view update, so the
-            // rows only read them.
+            // rows only read them. The empty ones of profiles that are gone are dropped first,
+            // so they do not pile up until the next launch.
+            settings.pruneEmptyProfileHotkeys(keeping: Set(profileNames))
             for name in profileNames {
                 _ = settings.hotkey(for: .applyProfile(name))
             }

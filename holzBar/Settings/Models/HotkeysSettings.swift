@@ -245,6 +245,25 @@ final class HotkeysSettings {
         }
     }
 
+    /// Drops the empty hotkey objects of profiles that no longer exist, such as the names a
+    /// rename passed through. A hotkey with a key combination is kept: it is stored, and only
+    /// deleting or renaming its profile removes or moves it.
+    ///
+    /// - Parameter names: The names of the saved profiles.
+    func pruneEmptyProfileHotkeys(keeping names: Set<String>) {
+        dynamicHotkeys.removeAll { hotkey in
+            guard case .applyProfile(let name) = hotkey.target,
+                  !names.contains(name),
+                  hotkey.keyCombination == nil
+            else {
+                return false
+            }
+            observers[hotkey.target] = nil
+            hotkey.disable()
+            return true
+        }
+    }
+
     /// Moves the hotkey of one target to another, for a renamed profile.
     func moveHotkey(from oldTarget: HotkeyTarget, to newTarget: HotkeyTarget) {
         guard oldTarget != newTarget else {
