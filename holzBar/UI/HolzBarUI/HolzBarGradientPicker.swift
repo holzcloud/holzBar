@@ -238,6 +238,10 @@ private struct HolzBarGradientPickerRoot: View {
     }
 
     private func insertStop(at location: CGFloat, select: Bool) {
+        // A strip without width gives no finite location; nothing is inserted then.
+        guard location.isFinite else {
+            return
+        }
         var location = location.clamped(to: 0...1)
         if abs(location - 0.5) <= 0.025 {
             location = 0.5
@@ -488,7 +492,13 @@ private struct HolzBarGradientPickerHandle: View {
             return
         }
 
-        var location = (value.location.x / geometry.size.width).clamped(to: 0...1)
+        // A collapsed strip has no width: the division would give NaN or infinity, and a NaN
+        // location would be stored in the gradient.
+        let width = geometry.size.width
+        guard width > 0, width.isFinite, value.location.x.isFinite else {
+            return
+        }
+        var location = (value.location.x / width).clamped(to: 0...1)
 
         if
             !NSEvent.modifierFlags.contains(.command),
