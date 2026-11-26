@@ -28,7 +28,10 @@ private struct WindowReaderView: NSViewRepresentable {
         return view
     }
 
-    func updateNSView(_: NSView, context: Context) { }
+    func updateNSView(_ nsView: NSView, context: Context) {
+        // A view update can bring a new closure; the next window change calls that one.
+        (nsView as? Represented)?.action = action
+    }
 }
 
 extension View {

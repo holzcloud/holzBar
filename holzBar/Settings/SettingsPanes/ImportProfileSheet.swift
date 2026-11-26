@@ -26,7 +26,7 @@ struct ImportProfileSheet: View {
             Text("Import Profile")
                 .font(HolzBarTheme.Typography.title)
                 .accessibilityAddTraits(.isHeader)
-            Text("The profile \u{201C}\(finalName)\u{201D} has \(shared.apps.count) apps, \(installedCount) of them installed on this Mac. Importing adds it to your profiles; it moves nothing until you apply it.")
+            Text("Apps in the profile \u{201C}\(finalName)\u{201D}: \(shared.apps.count), installed on this Mac: \(installedCount). Importing adds it to your profiles; it moves nothing until you apply it.")
                 .font(HolzBarTheme.Typography.callout)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)

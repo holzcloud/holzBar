@@ -67,7 +67,7 @@ struct LayoutHistorySection: View {
             let diff = snapshots.diff(to: target)
             ConfirmSheet(
                 title: Text("Restore this layout?"),
-                message: Text("\(diff.moves) items will move, \(diff.notPresent) are not in the menu bar now. The layout as it is now is kept first, so you can undo this."),
+                message: Text("Items that will move: \(diff.moves). Items not in the menu bar now: \(diff.notPresent). The layout as it is now is kept first, so you can undo this."),
                 confirmTitle: "Restore",
                 cancelTitle: "Cancel",
                 onConfirm: {

@@ -67,7 +67,7 @@
 - ✅ **Sound output and Bluetooth as rule conditions**
 - ✅ **Show hidden items when the battery is low or the network drops** — since 0.0.8 these are rules in the Automation pane (the old settings are moved there once)
 - ✅ **Zen mode** — one hotkey, menu item, URL or Shortcuts action keeps hidden items hidden; optionally on while the screen is mirrored or shared, without any permission
-- ✅ **Shortcuts actions** — Zen mode, show or hide a section, apply a profile, open an item by name, search
+- ✅ **Shortcuts actions** — Zen mode, show or hide a section, apply a profile, open an item by name, search; while Zen mode is on they follow the same rules as a URL command (nothing is revealed, turning Zen mode off asks first and is refused while the screen is shared)
 - ✅ **`holzbar://` URL commands** and [Raycast script commands](../Integrations/Raycast)
 - ✅ Hotkeys for sections, search, the holzBar Shelf, app menus, **auto-rehide**, **a quick peek**, **Zen mode**, **each layout profile** and **each menu bar item** — a combination another holzBar hotkey already uses moves only when you choose **Replace**
 
@@ -75,7 +75,7 @@
 <td valign="top" width="50%">
 
 #### Settings
-- ✅ **Export and import** all settings
+- ✅ **Export and import** all settings, including which modules are on (the camera and microphone dot and Zen mode while the screen is shared stay as they are on this Mac)
 - ✅ **Imports your Ice settings** on first launch, and Thaw's or Hidden Bar's through Settings → Advanced
 - ✅ **Alerts in Settings are sheets** on its window, so holzBar keeps working while one is open
 - ✅ **Eleven panes sorted by task** — Layout, Showing & Hiding, holzBar Shelf, Profiles & History, Appearance, Automation, Modules, General, Hotkeys, Advanced and About, with compact rows and an info button for each

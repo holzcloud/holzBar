@@ -432,6 +432,12 @@ nonisolated extension Defaults {
         /// Mac only).
         case readoutsReadsGPU = "ReadoutsReadsGPU"
 
+        // MARK: Modules
+        /// The identifiers of the optional modules the user switched on (a list of strings;
+        /// `ModuleStore` ignores an identifier that is not in the module catalog). It is exported
+        /// with the settings, so a restored backup switches on the modules it had.
+        case enabledModules = "EnabledModules"
+
         // MARK: Dock badges
         /// The bundle identifiers of the apps whose Dock badge shows in the menu bar, in the order
         /// chosen (a list of strings, at most 64). It is exported with the settings; an imported
@@ -745,6 +751,7 @@ nonisolated extension Defaults.Key {
             .calendarHiddenCalendars,
             .notificationsExcludedApps,
             .readoutTiles,
+            .enabledModules,
             .dockBadgeApps:
             .stringArray
         case .hotkeys,
@@ -916,6 +923,23 @@ nonisolated extension Defaults.Key {
         .macOS27ClickBridgeOnMainThread,
         .previousAppImportUndoPending,
     ]
+
+    /// Safety switches that a settings file neither carries nor changes: the camera and
+    /// microphone dot on holzBar's icon (macOS 27) and Zen mode while the screen is shared.
+    ///
+    /// A settings file shared as a nice layout could otherwise turn them off without a word, as
+    /// importing replaces every setting. They stay as they are on this Mac, so an import neither
+    /// sets nor removes them. Unlike the ``localOnlyKeys`` they may still come from Thaw, whose
+    /// import shows every change before it is made, and its undo puts them back.
+    static let settingsFileExcludedKeys: Set<Defaults.Key> = [
+        .holzBarIconShowsCaptureDot,
+        .autoZenWhileSharingScreen,
+    ]
+
+    /// Whether the stored key name is one of the ``settingsFileExcludedKeys``.
+    static func staysOutOfSettingsFiles(_ rawValue: String) -> Bool {
+        settingsFileExcludedKeys.contains { $0.rawValue == rawValue }
+    }
 
     /// The stored key names an imported settings file may set, with the
     /// kind of value each one takes. Every key except the ``localOnlyKeys``.

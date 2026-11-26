@@ -11565,242 +11565,6 @@
         }
       }
     },
-    "%lld items" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld položek"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld Elemente"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elementos"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld éléments"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elem"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld item"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elementi"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 項目"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "항목 %lld개"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld onderdelen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elementów"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld itens"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elements"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Элементов: %lld"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld objekt"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld öğe"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Елементів: %lld"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 个项目"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 個項目"
-          }
-        }
-      }
-    },
-    "%lld items will move, %lld are not in the menu bar now. The layout as it is now is kept first, so you can undo this." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld položek se přesune, %lld jich teď není v řádku nabídek. Aktuální uspořádání se nejdřív uloží, takže to můžete vrátit."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld Objekte werden verschoben, %lld sind jetzt nicht in der Menüleiste. Das jetzige Layout wird zuerst gesichert, damit du das rückgängig machen kannst."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se moverán %lld elementos; %lld no están ahora en la barra de menús. Primero se conserva la disposición actual, para que puedas deshacerlo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld éléments seront déplacés, %lld ne sont pas dans la barre des menus actuellement. La disposition actuelle est d’abord conservée, afin que vous puissiez annuler."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elem áthelyezésre kerül, %lld jelenleg nincs a menüsoron. A jelenlegi elrendezés előbb mentésre kerül, így visszavonhatja."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld item akan dipindahkan, %lld saat ini tidak ada di bar menu. Tata letak Anda saat ini disimpan dulu agar Anda dapat mengurungkan."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elementi verranno spostati, %lld non sono ora nella barra dei menu. Il layout attuale viene prima conservato, così puoi annullare."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 個の項目が移動し、%lld 個は現在メニューバーにありません。現在のレイアウトは先に保存されるので、元に戻せます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "항목 %lld개가 이동하고, %lld개는 지금 메뉴 막대에 없습니다. 현재 레이아웃이 먼저 보관되므로 되돌릴 수 있습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld onderdelen worden verplaatst, %lld staan nu niet in de menubalk. De huidige indeling wordt eerst bewaard, zodat je dit kunt herstellen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elementów zostanie przeniesionych, %lld nie ma teraz na pasku menu. Obecny układ zostaje najpierw zachowany, więc możesz to cofnąć."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld itens serão movidos; %lld não estão na barra de menus agora. O layout atual é mantido antes, para que você possa desfazer."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elements vegnan spustads, %lld n’èn ussa betg en la trav da menu. Il layout actual vegn l’emprim memorisà, uschè che ti pos revocar."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Будет перемещено элементов: %lld; сейчас в строке меню нет: %lld. Текущая раскладка сохраняется заранее, так что это можно отменить."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld objekt kommer att flyttas, %lld finns inte på menyraden just nu. Din nuvarande layout sparas först så att du kan ångra."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld öğe taşınacak, %lld öğe şu anda menü çubuğunda değil. Geri alabilmeniz için geçerli düzeniniz önce kaydedilir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Буде переміщено елементів: %lld; зараз у смузі меню немає: %lld. Поточна розкладка зберігається заздалегідь, тож це можна відмінити."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "将移动 %lld 个项目，另有 %lld 个当前不在菜单栏中。会先保留当前布局，因此你可以撤销此操作。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "將移動 %lld 個項目，另有 %lld 個目前不在選單列中。系統會先保留目前的佈局，因此你可以還原此操作。"
-          }
-        }
-      }
-    },
     "%lld percent" : {
       "localizations" : {
         "cs" : {
@@ -78157,124 +77921,6 @@
         }
       }
     },
-    "“%@” in the folder “%@”, %lld bytes, checksum starts with %@. It runs as you, with holzBar's permissions, including Accessibility. macOS asks separately before it controls another app. Allow it only if you wrote it or read it." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„%@“ ve složce „%@“, bajtů: %lld, kontrolní součet začíná %@. Běží jako vy, s oprávněními holzBar, včetně Zpřístupnění. macOS se zvlášť zeptá, než začne ovládat jinou aplikaci. Povolte ho, jen pokud jste ho napsali nebo přečetli."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„%@“ im Ordner „%@“, %lld Byte, die Prüfsumme beginnt mit %@. Es läuft als du, mit den Berechtigungen von holzBar, einschließlich der Bedienungshilfen. macOS fragt separat nach, bevor es eine andere App steuert. Erlaube es nur, wenn du es selbst geschrieben oder gelesen hast."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” en la carpeta “%@”, %lld bytes, la suma de comprobación empieza por %@. Se ejecuta como tú, con los permisos de holzBar, incluida Accesibilidad. macOS pregunta por separado antes de que controle otra app. Permítelo solo si lo escribiste o lo leíste."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "« %@ » dans le dossier « %@ », %lld octets, la somme de contrôle commence par %@. Il s’exécute comme vous, avec les autorisations de holzBar, y compris l’accessibilité. macOS demande séparément avant qu’il contrôle une autre app. Ne l’autorisez que si vous l’avez écrit ou lu."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„%@” a(z) „%@” mappában, %lld bájt, az ellenőrző összeg kezdete: %@. Ön néven fut, a holzBar engedélyeivel, a Kisegítő lehetőségeket is beleértve. A macOS külön rákérdez, mielőtt másik alkalmazást vezérel. Csak akkor engedélyezze, ha Ön írta vagy olvasta el."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” di folder “%@”, %lld byte, checksum diawali %@. Berjalan sebagai Anda, dengan izin holzBar, termasuk Aksesibilitas. macOS bertanya terpisah sebelum mengendalikan app lain. Izinkan hanya jika Anda yang menulis atau membacanya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” nella cartella “%@”, %lld byte, il checksum inizia con %@. Viene eseguito come te, con le autorizzazioni di holzBar, compresa l’accessibilità. macOS chiede separatamente prima che controlli un’altra app. Consentilo solo se lo hai scritto o letto."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フォルダ「%@」内の「%@」、%lld バイト、チェックサムは %@ で始まります。あなたとして、アクセシビリティを含む holzBar の権限で実行されます。別の App を制御する前には、macOS が別途確認します。自分で書いたか、内容を読んだ場合にのみ許可してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "폴더 “%@”의 “%@”, %lld바이트, 체크섬은 %@(으)로 시작합니다. 손쉬운 사용을 포함한 holzBar의 권한으로 사용자 본인 자격으로 실행됩니다. 다른 앱을 제어하기 전에 macOS가 별도로 확인합니다. 직접 작성했거나 내용을 읽어 본 경우에만 허용하세요."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” in de map “%@”, %lld bytes, controlesom begint met %@. Het draait als jij, met de toestemmingen van holzBar, inclusief Toegankelijkheid. macOS vraagt apart toestemming voordat het een andere app bestuurt. Sta het alleen toe als je het zelf hebt geschreven of gelezen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„%@” w folderze „%@”, %lld bajtów, suma kontrolna zaczyna się od %@. Działa jako Ty, z uprawnieniami holzBar, w tym Dostępność. macOS osobno pyta, zanim steruje inną aplikacją. Zezwól tylko wtedy, gdy sam go napisałeś lub przeczytałeś."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” na pasta “%@”, %lld bytes, a soma de verificação começa com %@. Ele é executado como você, com as permissões do holzBar, incluindo Acessibilidade. O macOS pergunta separadamente antes de ele controlar outro app. Permita-o somente se você mesmo o escreveu ou o leu."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«%@» en l’ordinatur «%@», %lld bytes, la summa da controlla cumenza cun %@. Vegn exequì sco ti, cun las permissiuns da holzBar, inclusiv Bedienungshilfen. macOS dumonda separadamain, avant che controllescha in’autra app. Lubescha mo sche ti has scrit u legì el sez."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«%@» в папке «%@», %lld байт, контрольная сумма начинается с %@. Запускается от вашего имени с разрешениями holzBar, включая «Универсальный доступ». Перед тем как он начнёт управлять другим приложением, macOS отдельно запросит подтверждение. Разрешайте его, только если вы сами его написали или прочитали."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "”%@” i mappen ”%@”, %lld byte, kontrollsumman börjar med %@. Det körs som du, med holzBars behörigheter, inklusive Hjälpmedel. macOS frågar separat innan det styr en annan app. Tillåt det bara om du har skrivit eller läst det."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” klasör “%@” içinde, %lld bayt, sağlama toplamı %@ ile başlıyor. Sizin olarak, holzBar’ın izinleriyle, Erişilebilirlik dahil, çalışır. macOS başka bir uygulamayı denetlemeden önce ayrıca sorar. Yalnızca kendiniz yazdıysanız veya okuduysanız izin verin."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«%@» у папці «%@», %lld байт, контрольна сума починається з %@. Запускається від вашого імені з дозволами holzBar, зокрема «Доступність». Перш ніж він почне керувати іншою програмою, macOS окремо запитає підтвердження. Дозволяйте його, лише якщо ви самі його написали або прочитали."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "文件夹“%@”中的“%@”，%lld 字节，校验和以 %@ 开头。它以你的身份运行，使用 holzBar 的权限（包括“辅助功能”）。它控制其他 App 之前，macOS 会另行询问。仅当它是你自己编写或已阅读过时才允许。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「%@」位於檔案夾「%@」，%lld 位元組，檢查碼開頭為 %@。它會以你的身分、使用 holzBar 的權限執行，包括「輔助使用」。它控制其他 App 之前，macOS 會另外詢問。只有在你自己寫過或讀過它時才允許。"
-          }
-        }
-      }
-    },
     "“%@” is not movable" : {
       "localizations" : {
         "cs" : {
@@ -79923,124 +79569,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "條件不成立時，%@ 會被移到隱藏區段；條件成立時，則放回你原本安排的位置。手動移動只在條件成立時有效。條件無法讀取時不會發生任何事。設定檔會讓此項目留在其規則放置的位置。"
-          }
-        }
-      }
-    },
-    "%lld items are controlled by rules. A profile leaves them where their rule puts them." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Položek řízených pravidly: %lld. Profil je nechá tam, kam je umístí jejich pravidlo."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld Elemente werden von Regeln gesteuert. Ein Profil lässt sie dort, wo ihre Regel sie hinstellt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elementos están controlados por reglas. Un perfil los deja donde los ponen sus reglas."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld éléments sont pilotés par des règles. Un profil les laisse là où leur règle les met."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elemet szabályok vezérelnek. A profil ott hagyja őket, ahová a szabályuk teszi."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Item yang dikendalikan aturan: %lld. Profil membiarkannya di tempat yang ditentukan aturannya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elementi sono controllati da regole. Un profilo li lascia dove li mette la loro regola."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 個の項目がルールで制御されています。プロファイルは、それらをルールが置いた位置のままにします。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "항목 %lld개가 규칙으로 제어됩니다. 프로파일은 이 항목들을 규칙이 둔 위치에 그대로 둡니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld onderdelen worden door regels bestuurd. Een profiel laat ze staan waar hun regel ze plaatst."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elementy sterowane regułami: %lld. Profil zostawia je tam, gdzie umieszcza je ich reguła."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld itens são controlados por regras. Um perfil os deixa onde as regras deles os colocam."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elements vegnan controllads da reglas. In profil als lascha là nua che lur regla als metta."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Элементов под управлением правил: %lld. Профиль оставляет их там, куда их поместили правила."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Objekt styrda av regler: %lld. En profil lämnar dem där deras regel placerar dem."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kurallarla yönetilen öğeler: %lld. Bir profil onları kurallarının koyduğu yerde bırakır."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Елементів під керуванням правил: %lld. Профіль залишає їх там, куди їх помістили правила."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 个项目由规则控制。配置文件会让它们保持在各自规则所放置的位置。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "有 %lld 個項目由規則控制。設定檔會讓它們留在各自規則放置的位置。"
           }
         }
       }
@@ -82165,124 +81693,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "輸入指令"
-          }
-        }
-      }
-    },
-    "%lld results" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Výsledky: %lld"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld Ergebnisse"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld resultados"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld résultats"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld találat"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld hasil"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld risultati"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 件の結果"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "결과 %lld개"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld resultaten"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wyniki: %lld"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld resultados"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld resultats"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Результатов: %lld"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld resultat"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sonuç sayısı: %lld"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Результатів: %lld"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 个结果"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 個結果"
           }
         }
       }
@@ -86295,124 +85705,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "保留"
-          }
-        }
-      }
-    },
-    "%lld items, %lld opens" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Položky: %lld, otevření: %lld"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld Elemente, %lld Öffnungen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elementos, %lld aperturas"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld éléments, %lld ouvertures"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elem, %lld megnyitás"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Item: %lld, pembukaan: %lld"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elementi, %lld aperture"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 個の項目、%lld 回開いた"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "항목 %lld개, 열기 %lld회"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld onderdelen, %lld keer geopend"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elementy: %lld, otwarcia: %lld"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld itens, %lld aberturas"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld elements, %lld avertiras"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Элементов: %lld, открытий: %lld"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Objekt: %lld, öppningar: %lld"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Öğe sayısı: %lld, açılma sayısı: %lld"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Елементів: %lld, відкриттів: %lld"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 个项目，打开 %lld 次"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 個項目，打開 %lld 次"
           }
         }
       }
@@ -153735,125 +153027,6 @@
         }
       }
     },
-    "The profile “%@” has %lld apps, %lld of them installed on this Mac. Importing adds it to your profiles; it moves nothing until you apply it." : {
-      "comment" : "Import profile sheet: same text with app instead of application",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil „%@“ má aplikací: %lld, z toho %lld nainstalovaných na tomto Macu. Import ho přidá k vašim profilům; nic nepřesune, dokud ho nepoužijete."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das Profil „%@“ enthält %lld Apps, %lld davon sind auf diesem Mac installiert. Beim Importieren wird es zu deinen Profilen hinzugefügt; es verschiebt nichts, bis du es anwendest."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El perfil “%@” tiene %lld apps, %lld de ellas instaladas en este Mac. Al importarlo se añade a tus perfiles; no mueve nada hasta que lo apliques."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le profil « %@ » contient %lld apps, dont %lld sont installées sur ce Mac. L’importer l’ajoute à vos profils ; il ne déplace rien tant que vous ne l’appliquez pas."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A(z) „%@” profil alkalmazásainak száma: %lld, ebből %lld van telepítve ezen a Macen. Az importálás hozzáadja a profiljaihoz; semmit sem helyez át, amíg nem alkalmazza."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil “%@” memiliki %lld app, %lld di antaranya terpasang di Mac ini. Impor menambahkannya ke profil Anda; tidak ada yang dipindahkan sampai Anda menerapkannya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il profilo “%@” contiene %lld app, %lld delle quali sono installate su questo Mac. L’importazione lo aggiunge ai tuoi profili; non sposta nulla finché non lo applichi."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "プロファイル「%@」にはアプリが %lld 個あり、そのうち %lld 個がこの Mac にインストールされています。読み込むとプロファイルに追加されますが、適用するまで何も移動しません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” 프로파일에는 앱이 %lld개 있으며, 그중 %lld개가 이 Mac에 설치되어 있습니다. 가져오면 내 프로파일에 추가되며, 적용하기 전에는 아무것도 옮기지 않습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Het profiel “%@” heeft %lld apps, waarvan %lld op deze Mac zijn geïnstalleerd. Importeren voegt het aan je profielen toe; het verplaatst niets totdat je het toepast."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil „%@” zawiera aplikacje: %lld, z czego %lld jest zainstalowanych na tym Macu. Import dodaje go do Twoich profili; nic nie przenosi, dopóki go nie zastosujesz."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O perfil “%@” tem %lld apps, %lld deles instalados neste Mac. Importá-lo o adiciona aos seus perfis; ele não move nada até que você o aplique."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il profil «%@» cuntegna %lld apps, %lld da quellas èn installadas sin quest Mac. L’import al agiunta a tes profils; el na spusta nagut enfin che ti al applitgeschas."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "В профиле «%@» приложений: %lld, из них установлено на этом Mac: %lld. При импорте он добавляется к вашим профилям; пока вы его не примените, ничего не перемещается."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profilen ”%@” har %lld appar, %lld av dem installerade på den här Macen. Import lägger till den bland dina profiler; ingenting flyttas förrän du tillämpar den."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” profilinde %lld uygulama var, %lld tanesi bu Mac’te yüklü. İçe aktarma onu profillerinize ekler; siz uygulayana kadar hiçbir şey taşınmaz."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "У профілі «%@» програм: %lld, із них установлено на цьому Mac: %lld. Під час імпорту його додається до ваших профілів; доки ви його не застосуєте, нічого не переміщується."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "配置文件“%@”包含 %lld 个 App，其中 %lld 个已安装在这台 Mac 上。导入后它会加入你的配置文件；在你应用之前，不会移动任何内容。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "設定檔「%@」含有 %lld 個 App，其中 %lld 個已安裝在這台 Mac 上。輸入後會加到你的設定檔中；在你套用之前不會移動任何東西。"
-          }
-        }
-      }
-    },
     "The file lists these apps and the section of each. It holds no display, Wi-Fi, hotkey or other setting. Switch an app off to leave it out." : {
       "comment" : "Share profile sheet: same text with app instead of application",
       "localizations" : {
@@ -206942,6 +206115,1941 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在選單列比瀏海略高的地方，闔上的瀏海與選單列等高，與硬體瀏海相接。"
+          }
+        }
+      }
+    },
+    "Zen mode is on, so holzBar does not do this now." : {
+      "comment" : "Error of a Shortcuts action that Zen mode refuses, as it refuses the same URL command.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Režim Zen je zapnutý, takže to holzBar teď neudělá."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Zen-Modus ist an, daher führt holzBar das jetzt nicht aus."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El modo Zen está activado, así que holzBar no lo hace ahora."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le mode Zen est activé, holzBar ne fait donc pas cela maintenant."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Zen mód be van kapcsolva, ezért a holzBar ezt most nem teszi meg."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mode Zen aktif, jadi holzBar tidak melakukan ini sekarang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La modalità Zen è attiva, quindi holzBar ora non lo fa."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen モードがオンのため、holzBar は今これを実行しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "젠 모드가 켜져 있어 holzBar가 지금은 이 작업을 하지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zenmodus staat aan, dus holzBar doet dit nu niet."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tryb Zen jest włączony, więc holzBar teraz tego nie zrobi."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O modo Zen está ativado, então o holzBar não faz isso agora."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il modus Zen è activà, perquai na fa holzBar quai ussa betg."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Включён режим «Дзен», поэтому holzBar сейчас этого не делает."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen-läget är på, så holzBar gör inte detta nu."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen modu açık, bu yüzden holzBar bunu şu anda yapmıyor."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Увімкнено режим «Дзен», тому holzBar зараз цього не робить."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "禅模式已开启，因此 holzBar 现在不执行此操作。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen 模式已開啟，因此 holzBar 現在不執行此操作。"
+          }
+        }
+      }
+    },
+    "%lld items" : {
+      "comment" : "A number of menu bar items, for example in a group.",
+      "localizations" : {
+        "cs" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld položka"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld položky"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld položky"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld položek"
+                }
+              }
+            }
+          }
+        },
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Element"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Elemente"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld items"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elemento"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld de elementos"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementos"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld élément"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld d’éléments"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld éléments"
+                }
+              }
+            }
+          }
+        },
+        "hu" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elem"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elem"
+                }
+              }
+            }
+          }
+        },
+        "id" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item"
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elemento"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld di elementi"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementi"
+                }
+              }
+            }
+          }
+        },
+        "ja" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld 項目"
+                }
+              }
+            }
+          }
+        },
+        "ko" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "항목 %lld개"
+                }
+              }
+            }
+          }
+        },
+        "nl" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld onderdeel"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld onderdelen"
+                }
+              }
+            }
+          }
+        },
+        "pl" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld element"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementy"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementów"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementu"
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld de itens"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld itens"
+                }
+              }
+            }
+          }
+        },
+        "rm" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld element"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elements"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld элемент"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld элемента"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld элементов"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld элемента"
+                }
+              }
+            }
+          }
+        },
+        "sv" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld objekt"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld objekt"
+                }
+              }
+            }
+          }
+        },
+        "tr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld öğe"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld öğe"
+                }
+              }
+            }
+          }
+        },
+        "uk" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld елемент"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld елементи"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld елементів"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld елемента"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld 个项目"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld 個項目"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld results" : {
+      "comment" : "The number of results in a list, read by VoiceOver.",
+      "localizations" : {
+        "cs" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld výsledek"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld výsledky"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld výsledku"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld výsledků"
+                }
+              }
+            }
+          }
+        },
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Ergebnis"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Ergebnisse"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld result"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld results"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld resultado"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld de resultados"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld resultados"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld résultat"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld de résultats"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld résultats"
+                }
+              }
+            }
+          }
+        },
+        "hu" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld találat"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld találat"
+                }
+              }
+            }
+          }
+        },
+        "id" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld hasil"
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld risultato"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld di risultati"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld risultati"
+                }
+              }
+            }
+          }
+        },
+        "ja" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld 件の結果"
+                }
+              }
+            }
+          }
+        },
+        "ko" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "결과 %lld개"
+                }
+              }
+            }
+          }
+        },
+        "nl" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld resultaat"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld resultaten"
+                }
+              }
+            }
+          }
+        },
+        "pl" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld wynik"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld wyniki"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld wyników"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld wyniku"
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld resultado"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld de resultados"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld resultados"
+                }
+              }
+            }
+          }
+        },
+        "rm" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld resultat"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld resultats"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld результат"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld результата"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld результатов"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld результата"
+                }
+              }
+            }
+          }
+        },
+        "sv" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld resultat"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld resultat"
+                }
+              }
+            }
+          }
+        },
+        "tr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld sonuç"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld sonuç"
+                }
+              }
+            }
+          }
+        },
+        "uk" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld результат"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld результати"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld результатів"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld результату"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld 个结果"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld 個結果"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld items are controlled by rules. A profile leaves them where their rule puts them." : {
+      "comment" : "Below the profiles: how many menu bar items automation rules control.",
+      "localizations" : {
+        "cs" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld položka je řízena pravidlem. Profil ji nechá tam, kam ji umístí její pravidlo."
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld položky jsou řízeny pravidly. Profil je nechá tam, kam je umístí jejich pravidlo."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld položky je řízeno pravidly. Profil je nechá tam, kam je umístí jejich pravidlo."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld položek je řízeno pravidly. Profil je nechá tam, kam je umístí jejich pravidlo."
+                }
+              }
+            }
+          }
+        },
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Element wird von einer Regel gesteuert. Ein Profil lässt es dort, wo seine Regel es hinstellt."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Elemente werden von Regeln gesteuert. Ein Profil lässt sie dort, wo ihre Regel sie hinstellt."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item is controlled by a rule. A profile leaves it where its rule puts it."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld items are controlled by rules. A profile leaves them where their rule puts them."
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elemento está controlado por una regla. Un perfil lo deja donde lo pone su regla."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld de elementos están controlados por reglas. Un perfil los deja donde los ponen sus reglas."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementos están controlados por reglas. Un perfil los deja donde los ponen sus reglas."
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld élément est piloté par une règle. Un profil le laisse là où sa règle le met."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld d’éléments sont pilotés par des règles. Un profil les laisse là où leur règle les met."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld éléments sont pilotés par des règles. Un profil les laisse là où leur règle les met."
+                }
+              }
+            }
+          }
+        },
+        "hu" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elemet egy szabály vezérel. A profil ott hagyja, ahová a szabálya teszi."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elemet szabályok vezérelnek. A profil ott hagyja őket, ahová a szabályuk teszi."
+                }
+              }
+            }
+          }
+        },
+        "id" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item dikendalikan aturan. Profil membiarkannya di tempat yang ditentukan aturannya."
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elemento è controllato da una regola. Un profilo lo lascia dove lo mette la sua regola."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld di elementi sono controllati da regole. Un profilo li lascia dove li mette la loro regola."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementi sono controllati da regole. Un profilo li lascia dove li mette la loro regola."
+                }
+              }
+            }
+          }
+        },
+        "ja" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld 個の項目がルールで制御されています。プロファイルは、それらをルールが置いた位置のままにします。"
+                }
+              }
+            }
+          }
+        },
+        "ko" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "항목 %lld개가 규칙으로 제어됩니다. 프로파일은 이 항목들을 규칙이 둔 위치에 그대로 둡니다."
+                }
+              }
+            }
+          }
+        },
+        "nl" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld onderdeel wordt door een regel bestuurd. Een profiel laat het staan waar zijn regel het plaatst."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld onderdelen worden door regels bestuurd. Een profiel laat ze staan waar hun regel ze plaatst."
+                }
+              }
+            }
+          }
+        },
+        "pl" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld element jest sterowany regułą. Profil zostawia go tam, gdzie umieszcza go jego reguła."
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementy są sterowane regułami. Profil zostawia je tam, gdzie umieszcza je ich reguła."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementów jest sterowanych regułami. Profil zostawia je tam, gdzie umieszcza je ich reguła."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elementu jest sterowane regułami. Profil zostawia je tam, gdzie umieszcza je ich reguła."
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item é controlado por uma regra. Um perfil o deixa onde a regra dele o coloca."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld de itens são controlados por regras. Um perfil os deixa onde as regras deles os colocam."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld itens são controlados por regras. Um perfil os deixa onde as regras deles os colocam."
+                }
+              }
+            }
+          }
+        },
+        "rm" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld element vegn controllà d’ina regla. In profil al lascha là nua che sia regla al metta."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld elements vegnan controllads da reglas. In profil als lascha là nua che lur regla als metta."
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld элемент управляется правилом. Профиль оставляет его там, куда его поместило правило."
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld элемента управляются правилами. Профиль оставляет их там, куда их поместили правила."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld элементов управляются правилами. Профиль оставляет их там, куда их поместили правила."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld элемента управляются правилами. Профиль оставляет их там, куда их поместили правила."
+                }
+              }
+            }
+          }
+        },
+        "sv" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld objekt styrs av en regel. En profil lämnar det där dess regel placerar det."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld objekt styrs av regler. En profil lämnar dem där deras regel placerar dem."
+                }
+              }
+            }
+          }
+        },
+        "tr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld öğe bir kuralla yönetiliyor. Bir profil onu kuralının koyduğu yerde bırakır."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld öğe kurallarla yönetiliyor. Bir profil onları kurallarının koyduğu yerde bırakır."
+                }
+              }
+            }
+          }
+        },
+        "uk" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld елемент керується правилом. Профіль залишає його там, куди його помістило правило."
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld елементи керуються правилами. Профіль залишає їх там, куди їх помістили правила."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld елементів керуються правилами. Профіль залишає їх там, куди їх помістили правила."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld елемента керуються правилами. Профіль залишає їх там, куди їх помістили правила."
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld 个项目由规则控制。配置文件会让它们保持在各自规则所放置的位置。"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "有 %lld 個項目由規則控制。設定檔會讓它們留在各自規則放置的位置。"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Items that will move: %lld. Items not in the menu bar now: %lld. The layout as it is now is kept first, so you can undo this." : {
+      "comment" : "Question before restoring a layout from Layout History: two counts of menu bar items.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Položky, které se přesunou: %lld. Položky, které teď nejsou v řádku nabídek: %lld. Aktuální uspořádání se nejdřív uloží, takže to můžete vrátit."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objekte, die verschoben werden: %lld. Objekte, die jetzt nicht in der Menüleiste sind: %lld. Das jetzige Layout wird zuerst gesichert, damit du das rückgängig machen kannst."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementos que se moverán: %lld. Elementos que no están ahora en la barra de menús: %lld. Primero se conserva la disposición actual, para que puedas deshacerlo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Éléments qui seront déplacés : %lld. Éléments absents de la barre des menus actuellement : %lld. La disposition actuelle est d’abord conservée, afin que vous puissiez annuler."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Áthelyezendő elemek: %lld. Jelenleg a menüsoron nem lévő elemek: %lld. A jelenlegi elrendezés előbb mentésre kerül, így visszavonhatja."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item yang akan dipindahkan: %lld. Item yang saat ini tidak ada di bar menu: %lld. Tata letak Anda saat ini disimpan dulu agar Anda dapat mengurungkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementi che verranno spostati: %lld. Elementi non presenti ora nella barra dei menu: %lld. Il layout attuale viene prima conservato, così puoi annullare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移動する項目: %lld。現在メニューバーにない項目: %lld。現在のレイアウトは先に保存されるので、元に戻せます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이동할 항목: %lld. 지금 메뉴 막대에 없는 항목: %lld. 현재 레이아웃이 먼저 보관되므로 되돌릴 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderdelen die worden verplaatst: %lld. Onderdelen die nu niet in de menubalk staan: %lld. De huidige indeling wordt eerst bewaard, zodat je dit kunt herstellen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementy do przeniesienia: %lld. Elementy, których nie ma teraz na pasku menu: %lld. Obecny układ zostaje najpierw zachowany, więc możesz to cofnąć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Itens que serão movidos: %lld. Itens que não estão na barra de menus agora: %lld. O layout atual é mantido antes, para que você possa desfazer."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elements che vegnan spustads: %lld. Elements che n’èn ussa betg en la trav da menu: %lld. Il layout actual vegn l’emprim memorisà, uschè che ti pos revocar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будет перемещено элементов: %lld. Сейчас нет в строке меню: %lld. Текущая раскладка сохраняется заранее, так что это можно отменить."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objekt som flyttas: %lld. Objekt som inte finns på menyraden just nu: %lld. Din nuvarande layout sparas först så att du kan ångra."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taşınacak öğeler: %lld. Şu anda menü çubuğunda olmayan öğeler: %lld. Geri alabilmeniz için geçerli düzeniniz önce kaydedilir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Буде переміщено елементів: %lld. Зараз немає в смузі меню: %lld. Поточна розкладка зберігається заздалегідь, тож це можна відмінити."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将移动的项目：%lld。当前不在菜单栏中的项目：%lld。会先保留当前布局，因此你可以撤销此操作。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "將移動的項目：%lld。目前不在選單列中的項目：%lld。系統會先保留目前的佈局，因此你可以還原此操作。"
+          }
+        }
+      }
+    },
+    "Items: %lld, opens: %lld" : {
+      "comment" : "Below the stored usage data: how many menu bar items it covers and how often they were opened.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Položky: %lld, otevření: %lld"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemente: %lld, Öffnungen: %lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementos: %lld, aperturas: %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Éléments : %lld, ouvertures : %lld"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemek: %lld, megnyitások: %lld"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item: %lld, pembukaan: %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementi: %lld, aperture: %lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目: %lld、開いた回数: %lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목: %lld, 열기: %lld"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderdelen: %lld, keer geopend: %lld"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementy: %lld, otwarcia: %lld"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Itens: %lld, aberturas: %lld"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elements: %lld, avertiras: %lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Элементов: %lld, открытий: %lld"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objekt: %lld, öppningar: %lld"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öğe sayısı: %lld, açılma sayısı: %lld"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Елементів: %lld, відкриттів: %lld"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "项目：%lld，打开次数：%lld"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目：%lld，打開次數：%lld"
+          }
+        }
+      }
+    },
+    "Apps in the profile “%@”: %lld, installed on this Mac: %lld. Importing adds it to your profiles; it moves nothing until you apply it." : {
+      "comment" : "Import Profile sheet: the profile's name, how many apps it lists and how many of them are installed.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aplikace v profilu „%@“: %lld, nainstalované na tomto Macu: %lld. Import ho přidá k vašim profilům; nic nepřesune, dokud ho nepoužijete."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps im Profil „%@“: %lld, auf diesem Mac installiert: %lld. Beim Importieren wird es zu deinen Profilen hinzugefügt; es verschiebt nichts, bis du es anwendest."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps del perfil “%@”: %lld, instaladas en este Mac: %lld. Al importarlo se añade a tus perfiles; no mueve nada hasta que lo apliques."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps du profil « %@ » : %lld, installées sur ce Mac : %lld. L’importer l’ajoute à vos profils ; il ne déplace rien tant que vous ne l’appliquez pas."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A(z) „%@” profil alkalmazásai: %lld, ezen a Macen telepítve: %lld. Az importálás hozzáadja a profiljaihoz; semmit sem helyez át, amíg nem alkalmazza."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App di profil “%@”: %lld, terpasang di Mac ini: %lld. Impor menambahkannya ke profil Anda; tidak ada yang dipindahkan sampai Anda menerapkannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App nel profilo “%@”: %lld, installate su questo Mac: %lld. L’importazione lo aggiunge ai tuoi profili; non sposta nulla finché non lo applichi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイル「%@」のアプリ: %lld、この Mac にインストール済み: %lld。読み込むとプロファイルに追加されますが、適用するまで何も移動しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” 프로파일의 앱: %lld, 이 Mac에 설치됨: %lld. 가져오면 내 프로파일에 추가되며, 적용하기 전에는 아무것도 옮기지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps in het profiel “%@”: %lld, geïnstalleerd op deze Mac: %lld. Importeren voegt het aan je profielen toe; het verplaatst niets totdat je het toepast."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aplikacje w profilu „%@”: %lld, zainstalowane na tym Macu: %lld. Import dodaje go do Twoich profili; nic nie przenosi, dopóki go nie zastosujesz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps do perfil “%@”: %lld, instalados neste Mac: %lld. Importá-lo o adiciona aos seus perfis; ele não move nada até que você o aplique."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps en il profil «%@»: %lld, installadas sin quest Mac: %lld. L’import al agiunta a tes profils; el na spusta nagut enfin che ti al applitgeschas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приложений в профиле «%@»: %lld, из них установлено на этом Mac: %lld. При импорте он добавляется к вашим профилям; пока вы его не примените, ничего не перемещается."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appar i profilen ”%@”: %lld, installerade på den här Macen: %lld. Import lägger till den bland dina profiler; ingenting flyttas förrän du tillämpar den."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” profilindeki uygulamalar: %lld, bu Mac’te yüklü olanlar: %lld. İçe aktarma onu profillerinize ekler; siz uygulayana kadar hiçbir şey taşınmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Програм у профілі «%@»: %lld, із них установлено на цьому Mac: %lld. Під час імпорту його додається до ваших профілів; доки ви його не застосуєте, нічого не переміщується."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配置文件“%@”中的 App：%lld，已安装在这台 Mac 上：%lld。导入后它会加入你的配置文件；在你应用之前，不会移动任何内容。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定檔「%@」中的 App：%lld，已安裝在這台 Mac 上：%lld。輸入後會加到你的設定檔中；在你套用之前不會移動任何東西。"
+          }
+        }
+      }
+    },
+    "“%@” in the folder “%@”, %@, checksum starts with %@. It runs as you, with holzBar's permissions, including Accessibility. macOS asks separately before it controls another app. Allow it only if you wrote it or read it." : {
+      "comment" : "Sheet that allows a script: its name, its folder, its size (formatted, such as 2 KB) and the start of its checksum.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ ve složce „%@“, %@, kontrolní součet začíná %@. Běží jako vy, s oprávněními holzBar, včetně Zpřístupnění. macOS se zvlášť zeptá, než začne ovládat jinou aplikaci. Povolte ho, jen pokud jste ho napsali nebo přečetli."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ im Ordner „%@“, %@, die Prüfsumme beginnt mit %@. Es läuft als du, mit den Berechtigungen von holzBar, einschließlich der Bedienungshilfen. macOS fragt separat nach, bevor es eine andere App steuert. Erlaube es nur, wenn du es selbst geschrieben oder gelesen hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” en la carpeta “%@”, %@, la suma de comprobación empieza por %@. Se ejecuta como tú, con los permisos de holzBar, incluida Accesibilidad. macOS pregunta por separado antes de que controle otra app. Permítelo solo si lo escribiste o lo leíste."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » dans le dossier « %@ », %@, la somme de contrôle commence par %@. Il s’exécute comme vous, avec les autorisations de holzBar, y compris l’accessibilité. macOS demande séparément avant qu’il contrôle une autre app. Ne l’autorisez que si vous l’avez écrit ou lu."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” a(z) „%@” mappában, %@, az ellenőrző összeg kezdete: %@. Ön néven fut, a holzBar engedélyeivel, a Kisegítő lehetőségeket is beleértve. A macOS külön rákérdez, mielőtt másik alkalmazást vezérel. Csak akkor engedélyezze, ha Ön írta vagy olvasta el."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” di folder “%@”, %@, checksum diawali %@. Berjalan sebagai Anda, dengan izin holzBar, termasuk Aksesibilitas. macOS bertanya terpisah sebelum mengendalikan app lain. Izinkan hanya jika Anda yang menulis atau membacanya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” nella cartella “%@”, %@, il checksum inizia con %@. Viene eseguito come te, con le autorizzazioni di holzBar, compresa l’accessibilità. macOS chiede separatamente prima che controlli un’altra app. Consentilo solo se lo hai scritto o letto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォルダ「%@」内の「%@」、%@、チェックサムは %@ で始まります。あなたとして、アクセシビリティを含む holzBar の権限で実行されます。別の App を制御する前には、macOS が別途確認します。自分で書いたか、内容を読んだ場合にのみ許可してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "폴더 “%@”의 “%@”, %@, 체크섬은 %@(으)로 시작합니다. 손쉬운 사용을 포함한 holzBar의 권한으로 사용자 본인 자격으로 실행됩니다. 다른 앱을 제어하기 전에 macOS가 별도로 확인합니다. 직접 작성했거나 내용을 읽어 본 경우에만 허용하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” in de map “%@”, %@, controlesom begint met %@. Het draait als jij, met de toestemmingen van holzBar, inclusief Toegankelijkheid. macOS vraagt apart toestemming voordat het een andere app bestuurt. Sta het alleen toe als je het zelf hebt geschreven of gelezen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” w folderze „%@”, %@, suma kontrolna zaczyna się od %@. Działa jako Ty, z uprawnieniami holzBar, w tym Dostępność. macOS osobno pyta, zanim steruje inną aplikacją. Zezwól tylko wtedy, gdy sam go napisałeś lub przeczytałeś."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” na pasta “%@”, %@, a soma de verificação começa com %@. Ele é executado como você, com as permissões do holzBar, incluindo Acessibilidade. O macOS pergunta separadamente antes de ele controlar outro app. Permita-o somente se você mesmo o escreveu ou o leu."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» en l’ordinatur «%@», %@, la summa da controlla cumenza cun %@. Vegn exequì sco ti, cun las permissiuns da holzBar, inclusiv Bedienungshilfen. macOS dumonda separadamain, avant che controllescha in’autra app. Lubescha mo sche ti has scrit u legì el sez."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» в папке «%@», %@, контрольная сумма начинается с %@. Запускается от вашего имени с разрешениями holzBar, включая «Универсальный доступ». Перед тем как он начнёт управлять другим приложением, macOS отдельно запросит подтверждение. Разрешайте его, только если вы сами его написали или прочитали."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "”%@” i mappen ”%@”, %@, kontrollsumman börjar med %@. Det körs som du, med holzBars behörigheter, inklusive Hjälpmedel. macOS frågar separat innan det styr en annan app. Tillåt det bara om du har skrivit eller läst det."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” klasör “%@” içinde, %@, sağlama toplamı %@ ile başlıyor. Sizin olarak, holzBar’ın izinleriyle, Erişilebilirlik dahil, çalışır. macOS başka bir uygulamayı denetlemeden önce ayrıca sorar. Yalnızca kendiniz yazdıysanız veya okuduysanız izin verin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» у папці «%@», %@, контрольна сума починається з %@. Запускається від вашого імені з дозволами holzBar, зокрема «Доступність». Перш ніж він почне керувати іншою програмою, macOS окремо запитає підтвердження. Дозволяйте його, лише якщо ви самі його написали або прочитали."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件夹“%@”中的“%@”，%@，校验和以 %@ 开头。它以你的身份运行，使用 holzBar 的权限（包括“辅助功能”）。它控制其他 App 之前，macOS 会另行询问。仅当它是你自己编写或已阅读过时才允许。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」位於檔案夾「%@」，%@，檢查碼開頭為 %@。它會以你的身分、使用 holzBar 的權限執行，包括「輔助使用」。它控制其他 App 之前，macOS 會另外詢問。只有在你自己寫過或讀過它時才允許。"
+          }
+        }
+      }
+    },
+    "The profile could not be saved." : {
+      "comment" : "Alert title when a shared profile file cannot be written; the message is the system's reason.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil se nepodařilo uložit."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Profil konnte nicht gesichert werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se ha podido guardar el perfil."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le profil n’a pas pu être enregistré."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A profilt nem sikerült menteni."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil tidak dapat disimpan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile salvare il profilo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイルを保存できませんでした。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로파일을 저장할 수 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het profiel kon niet worden bewaard."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie można zapisać profilu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível salvar o perfil."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il profil n’ha betg pudì vegnir memorisà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось сохранить профиль."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profilen kunde inte sparas."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil kaydedilemedi."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося зберегти профіль."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法存储配置文件。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法儲存設定檔。"
           }
         }
       }

@@ -19,8 +19,8 @@ import Foundation
 ///
 /// Another app can ask with a `holzbar://zen` URL (``requested(byURL:)``): it may turn Zen
 /// mode on, but never ends the automatic part, and turning it off asks the user first
-/// (`URLCommand.Action.decision(zenMode:)`). Shortcuts actions act like the user's own
-/// toggle, because the user built the shortcut.
+/// (`URLCommand.Action.decision(zenMode:)`). Shortcuts actions follow the same rules: another
+/// app or a web page can start a shortcut, so it is no proof that the user asked.
 nonisolated struct ZenMode: Equatable, Sendable {
     /// What can reveal hidden items.
     nonisolated enum Trigger: CaseIterable, Sendable {
@@ -43,6 +43,9 @@ nonisolated struct ZenMode: Equatable, Sendable {
         /// A Command-drag in the menu bar with "Show all sections on drag": it reveals by
         /// itself, as hover does.
         case commandDrag
+        /// A Shortcuts action of holzBar: another app can start a shortcut, so it is treated
+        /// like a URL command.
+        case shortcutAction
     }
 
     /// What another app asks for with a `holzbar://zen` URL.
@@ -75,7 +78,7 @@ nonisolated struct ZenMode: Equatable, Sendable {
         case .holzBarIcon, .sectionHotkey:
             // The user's own request.
             return true
-        case .hover, .clickOnEmptyBar, .scroll, .revealRule, .urlCommand, .changeReveal, .commandDrag:
+        case .hover, .clickOnEmptyBar, .scroll, .revealRule, .urlCommand, .changeReveal, .commandDrag, .shortcutAction:
             return false
         }
     }
