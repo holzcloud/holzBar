@@ -77921,124 +77921,6 @@
         }
       }
     },
-    "“%@” in the folder “%@”, %lld bytes, checksum starts with %@. It runs as you, with holzBar's permissions, including Accessibility. macOS asks separately before it controls another app. Allow it only if you wrote it or read it." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„%@“ ve složce „%@“, bajtů: %lld, kontrolní součet začíná %@. Běží jako vy, s oprávněními holzBar, včetně Zpřístupnění. macOS se zvlášť zeptá, než začne ovládat jinou aplikaci. Povolte ho, jen pokud jste ho napsali nebo přečetli."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„%@“ im Ordner „%@“, %lld Byte, die Prüfsumme beginnt mit %@. Es läuft als du, mit den Berechtigungen von holzBar, einschließlich der Bedienungshilfen. macOS fragt separat nach, bevor es eine andere App steuert. Erlaube es nur, wenn du es selbst geschrieben oder gelesen hast."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” en la carpeta “%@”, %lld bytes, la suma de comprobación empieza por %@. Se ejecuta como tú, con los permisos de holzBar, incluida Accesibilidad. macOS pregunta por separado antes de que controle otra app. Permítelo solo si lo escribiste o lo leíste."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "« %@ » dans le dossier « %@ », %lld octets, la somme de contrôle commence par %@. Il s’exécute comme vous, avec les autorisations de holzBar, y compris l’accessibilité. macOS demande séparément avant qu’il contrôle une autre app. Ne l’autorisez que si vous l’avez écrit ou lu."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„%@” a(z) „%@” mappában, %lld bájt, az ellenőrző összeg kezdete: %@. Ön néven fut, a holzBar engedélyeivel, a Kisegítő lehetőségeket is beleértve. A macOS külön rákérdez, mielőtt másik alkalmazást vezérel. Csak akkor engedélyezze, ha Ön írta vagy olvasta el."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” di folder “%@”, %lld byte, checksum diawali %@. Berjalan sebagai Anda, dengan izin holzBar, termasuk Aksesibilitas. macOS bertanya terpisah sebelum mengendalikan app lain. Izinkan hanya jika Anda yang menulis atau membacanya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” nella cartella “%@”, %lld byte, il checksum inizia con %@. Viene eseguito come te, con le autorizzazioni di holzBar, compresa l’accessibilità. macOS chiede separatamente prima che controlli un’altra app. Consentilo solo se lo hai scritto o letto."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フォルダ「%@」内の「%@」、%lld バイト、チェックサムは %@ で始まります。あなたとして、アクセシビリティを含む holzBar の権限で実行されます。別の App を制御する前には、macOS が別途確認します。自分で書いたか、内容を読んだ場合にのみ許可してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "폴더 “%@”의 “%@”, %lld바이트, 체크섬은 %@(으)로 시작합니다. 손쉬운 사용을 포함한 holzBar의 권한으로 사용자 본인 자격으로 실행됩니다. 다른 앱을 제어하기 전에 macOS가 별도로 확인합니다. 직접 작성했거나 내용을 읽어 본 경우에만 허용하세요."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” in de map “%@”, %lld bytes, controlesom begint met %@. Het draait als jij, met de toestemmingen van holzBar, inclusief Toegankelijkheid. macOS vraagt apart toestemming voordat het een andere app bestuurt. Sta het alleen toe als je het zelf hebt geschreven of gelezen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„%@” w folderze „%@”, %lld bajtów, suma kontrolna zaczyna się od %@. Działa jako Ty, z uprawnieniami holzBar, w tym Dostępność. macOS osobno pyta, zanim steruje inną aplikacją. Zezwól tylko wtedy, gdy sam go napisałeś lub przeczytałeś."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” na pasta “%@”, %lld bytes, a soma de verificação começa com %@. Ele é executado como você, com as permissões do holzBar, incluindo Acessibilidade. O macOS pergunta separadamente antes de ele controlar outro app. Permita-o somente se você mesmo o escreveu ou o leu."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«%@» en l’ordinatur «%@», %lld bytes, la summa da controlla cumenza cun %@. Vegn exequì sco ti, cun las permissiuns da holzBar, inclusiv Bedienungshilfen. macOS dumonda separadamain, avant che controllescha in’autra app. Lubescha mo sche ti has scrit u legì el sez."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«%@» в папке «%@», %lld байт, контрольная сумма начинается с %@. Запускается от вашего имени с разрешениями holzBar, включая «Универсальный доступ». Перед тем как он начнёт управлять другим приложением, macOS отдельно запросит подтверждение. Разрешайте его, только если вы сами его написали или прочитали."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "”%@” i mappen ”%@”, %lld byte, kontrollsumman börjar med %@. Det körs som du, med holzBars behörigheter, inklusive Hjälpmedel. macOS frågar separat innan det styr en annan app. Tillåt det bara om du har skrivit eller läst det."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” klasör “%@” içinde, %lld bayt, sağlama toplamı %@ ile başlıyor. Sizin olarak, holzBar’ın izinleriyle, Erişilebilirlik dahil, çalışır. macOS başka bir uygulamayı denetlemeden önce ayrıca sorar. Yalnızca kendiniz yazdıysanız veya okuduysanız izin verin."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«%@» у папці «%@», %lld байт, контрольна сума починається з %@. Запускається від вашого імені з дозволами holzBar, зокрема «Доступність». Перш ніж він почне керувати іншою програмою, macOS окремо запитає підтвердження. Дозволяйте його, лише якщо ви самі його написали або прочитали."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "文件夹“%@”中的“%@”，%lld 字节，校验和以 %@ 开头。它以你的身份运行，使用 holzBar 的权限（包括“辅助功能”）。它控制其他 App 之前，macOS 会另行询问。仅当它是你自己编写或已阅读过时才允许。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「%@」位於檔案夾「%@」，%lld 位元組，檢查碼開頭為 %@。它會以你的身分、使用 holzBar 的權限執行，包括「輔助使用」。它控制其他 App 之前，macOS 會另外詢問。只有在你自己寫過或讀過它時才允許。"
-          }
-        }
-      }
-    },
     "“%@” is not movable" : {
       "localizations" : {
         "cs" : {
@@ -207930,6 +207812,125 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "設定檔「%@」中的 App：%lld，已安裝在這台 Mac 上：%lld。輸入後會加到你的設定檔中；在你套用之前不會移動任何東西。"
+          }
+        }
+      }
+    },
+    "“%@” in the folder “%@”, %@, checksum starts with %@. It runs as you, with holzBar's permissions, including Accessibility. macOS asks separately before it controls another app. Allow it only if you wrote it or read it." : {
+      "comment" : "Sheet that allows a script: its name, its folder, its size (formatted, such as 2 KB) and the start of its checksum.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ ve složce „%@“, %@, kontrolní součet začíná %@. Běží jako vy, s oprávněními holzBar, včetně Zpřístupnění. macOS se zvlášť zeptá, než začne ovládat jinou aplikaci. Povolte ho, jen pokud jste ho napsali nebo přečetli."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ im Ordner „%@“, %@, die Prüfsumme beginnt mit %@. Es läuft als du, mit den Berechtigungen von holzBar, einschließlich der Bedienungshilfen. macOS fragt separat nach, bevor es eine andere App steuert. Erlaube es nur, wenn du es selbst geschrieben oder gelesen hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” en la carpeta “%@”, %@, la suma de comprobación empieza por %@. Se ejecuta como tú, con los permisos de holzBar, incluida Accesibilidad. macOS pregunta por separado antes de que controle otra app. Permítelo solo si lo escribiste o lo leíste."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » dans le dossier « %@ », %@, la somme de contrôle commence par %@. Il s’exécute comme vous, avec les autorisations de holzBar, y compris l’accessibilité. macOS demande séparément avant qu’il contrôle une autre app. Ne l’autorisez que si vous l’avez écrit ou lu."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” a(z) „%@” mappában, %@, az ellenőrző összeg kezdete: %@. Ön néven fut, a holzBar engedélyeivel, a Kisegítő lehetőségeket is beleértve. A macOS külön rákérdez, mielőtt másik alkalmazást vezérel. Csak akkor engedélyezze, ha Ön írta vagy olvasta el."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” di folder “%@”, %@, checksum diawali %@. Berjalan sebagai Anda, dengan izin holzBar, termasuk Aksesibilitas. macOS bertanya terpisah sebelum mengendalikan app lain. Izinkan hanya jika Anda yang menulis atau membacanya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” nella cartella “%@”, %@, il checksum inizia con %@. Viene eseguito come te, con le autorizzazioni di holzBar, compresa l’accessibilità. macOS chiede separatamente prima che controlli un’altra app. Consentilo solo se lo hai scritto o letto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォルダ「%@」内の「%@」、%@、チェックサムは %@ で始まります。あなたとして、アクセシビリティを含む holzBar の権限で実行されます。別の App を制御する前には、macOS が別途確認します。自分で書いたか、内容を読んだ場合にのみ許可してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "폴더 “%@”의 “%@”, %@, 체크섬은 %@(으)로 시작합니다. 손쉬운 사용을 포함한 holzBar의 권한으로 사용자 본인 자격으로 실행됩니다. 다른 앱을 제어하기 전에 macOS가 별도로 확인합니다. 직접 작성했거나 내용을 읽어 본 경우에만 허용하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” in de map “%@”, %@, controlesom begint met %@. Het draait als jij, met de toestemmingen van holzBar, inclusief Toegankelijkheid. macOS vraagt apart toestemming voordat het een andere app bestuurt. Sta het alleen toe als je het zelf hebt geschreven of gelezen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” w folderze „%@”, %@, suma kontrolna zaczyna się od %@. Działa jako Ty, z uprawnieniami holzBar, w tym Dostępność. macOS osobno pyta, zanim steruje inną aplikacją. Zezwól tylko wtedy, gdy sam go napisałeś lub przeczytałeś."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” na pasta “%@”, %@, a soma de verificação começa com %@. Ele é executado como você, com as permissões do holzBar, incluindo Acessibilidade. O macOS pergunta separadamente antes de ele controlar outro app. Permita-o somente se você mesmo o escreveu ou o leu."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» en l’ordinatur «%@», %@, la summa da controlla cumenza cun %@. Vegn exequì sco ti, cun las permissiuns da holzBar, inclusiv Bedienungshilfen. macOS dumonda separadamain, avant che controllescha in’autra app. Lubescha mo sche ti has scrit u legì el sez."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» в папке «%@», %@, контрольная сумма начинается с %@. Запускается от вашего имени с разрешениями holzBar, включая «Универсальный доступ». Перед тем как он начнёт управлять другим приложением, macOS отдельно запросит подтверждение. Разрешайте его, только если вы сами его написали или прочитали."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "”%@” i mappen ”%@”, %@, kontrollsumman börjar med %@. Det körs som du, med holzBars behörigheter, inklusive Hjälpmedel. macOS frågar separat innan det styr en annan app. Tillåt det bara om du har skrivit eller läst det."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” klasör “%@” içinde, %@, sağlama toplamı %@ ile başlıyor. Sizin olarak, holzBar’ın izinleriyle, Erişilebilirlik dahil, çalışır. macOS başka bir uygulamayı denetlemeden önce ayrıca sorar. Yalnızca kendiniz yazdıysanız veya okuduysanız izin verin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» у папці «%@», %@, контрольна сума починається з %@. Запускається від вашого імені з дозволами holzBar, зокрема «Доступність». Перш ніж він почне керувати іншою програмою, macOS окремо запитає підтвердження. Дозволяйте його, лише якщо ви самі його написали або прочитали."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件夹“%@”中的“%@”，%@，校验和以 %@ 开头。它以你的身份运行，使用 holzBar 的权限（包括“辅助功能”）。它控制其他 App 之前，macOS 会另行询问。仅当它是你自己编写或已阅读过时才允许。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」位於檔案夾「%@」，%@，檢查碼開頭為 %@。它會以你的身分、使用 holzBar 的權限執行，包括「輔助使用」。它控制其他 App 之前，macOS 會另外詢問。只有在你自己寫過或讀過它時才允許。"
           }
         }
       }
