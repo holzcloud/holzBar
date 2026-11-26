@@ -27,7 +27,8 @@ final class MenuBarAppearanceManager {
             // properties on the manager might call for them, try to configure now
             // (at most every 0.1 s, with the latest configuration).
             configurationThrottle.throttle(latest: true) { [weak self] in
-                guard let self, overlayPanels.isEmpty else {
+                // Build the panels when a look needs them, and close them when it no longer does.
+                guard let self, overlayPanels.isEmpty == needsOverlayPanels(for: configuration) else {
                     return
                 }
                 configureOverlayPanels(with: configuration)

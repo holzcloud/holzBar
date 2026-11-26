@@ -36,6 +36,8 @@ enum DesktopPicture {
         /// The colour around a picture that does not fill the screen: sRGB red, green, blue
         /// and alpha.
         let fillComponents: [CGFloat]?
+        /// Whether the system appearance is dark, which picks the dark image of a dynamic picture.
+        let isDark: Bool
     }
 
     /// A strip handed from the decoding queue to the main actor. Nothing else holds the
@@ -181,8 +183,28 @@ enum DesktopPicture {
             stripHeight: height,
             scaling: scaling,
             allowsClipping: allowsClipping,
-            fillComponents: fillComponents
+            fillComponents: fillComponents,
+            isDark: NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
         )
+    }
+
+    /// The index of the image of a dynamic (light and dark) picture to show, from the picture's
+    /// own metadata; the first image when it has none or the appearance is light.
+    private nonisolated static func imageIndex(in source: CGImageSource, isDark: Bool) -> Int {
+        guard
+            isDark,
+            let metadata = CGImageSourceCopyMetadataAtIndex(source, 0, nil),
+            let tag = CGImageMetadataCopyTagWithPath(metadata, nil, "apple_desktop:apr" as CFString),
+            let encoded = CGImageMetadataTagCopyValue(tag) as? String,
+            let data = Data(base64Encoded: encoded),
+            let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
+            let index = plist["d"] as? Int,
+            index >= 0,
+            index < CGImageSourceGetCount(source)
+        else {
+            return 0
+        }
+        return index
     }
 
     /// Decodes the picture and cuts the strip under the menu bar. Runs on ``queue``.
@@ -198,7 +220,7 @@ enum DesktopPicture {
             return nil
         }
         // A thumbnail no larger than the screen: a huge picture is never decoded in full.
-        // A dynamic HEIC wallpaper gives its first image.
+        // A dynamic HEIC wallpaper gives the image of the current appearance.
         let maxPixelSize = max(layout.screenSize.width, layout.screenSize.height) * layout.scale
         let thumbnailOptions: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
@@ -206,7 +228,7 @@ enum DesktopPicture {
             kCGImageSourceShouldCacheImmediately: true,
             kCGImageSourceThumbnailMaxPixelSize: Int(maxPixelSize.rounded()),
         ]
-        guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, thumbnailOptions as CFDictionary) else {
+        guard let image = CGImageSourceCreateThumbnailAtIndex(source, imageIndex(in: source, isDark: layout.isDark), thumbnailOptions as CFDictionary) else {
             return nil
         }
         let imageRect = pictureRect(imageSize: CGSize(width: image.width, height: image.height), layout: layout)

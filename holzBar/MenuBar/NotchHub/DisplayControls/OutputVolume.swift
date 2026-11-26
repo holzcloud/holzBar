@@ -333,6 +333,7 @@ extension OutputVolume {
         private var deviceListRegistration: Registration?
         private var deviceRegistrations = [Registration]()
         private var onChange: (@MainActor () -> Void)?
+        private var onValueChange: (@MainActor () -> Void)?
 
         /// Whether the listeners are added.
         var isRunning: Bool {
@@ -340,12 +341,19 @@ extension OutputVolume {
         }
 
         /// Adds the listeners. Does nothing when they are already added. With `followsDeviceList`
-        /// a device that appears or leaves is reported as well.
-        func start(followsDeviceList: Bool = false, onChange: @escaping @MainActor () -> Void) {
+        /// a device that appears or leaves is reported as well. With `onValueChange` a change of the
+        /// level or the mute of the default output goes there instead of to `onChange`, so an owner
+        /// that rebuilds more on a change of devices need not do so for every step of the level.
+        func start(
+            followsDeviceList: Bool = false,
+            onValueChange: (@MainActor () -> Void)? = nil,
+            onChange: @escaping @MainActor () -> Void
+        ) {
             guard !isRunning else {
                 return
             }
             self.onChange = onChange
+            self.onValueChange = onValueChange
             let system = AudioObjectID(kAudioObjectSystemObject)
             let address = OutputVolume.address(kAudioHardwarePropertyDefaultOutputDevice, scope: kAudioObjectPropertyScopeGlobal)
             systemRegistration = register(system, address) { listener in
@@ -354,7 +362,7 @@ extension OutputVolume {
             if followsDeviceList {
                 let listAddress = OutputVolume.address(kAudioHardwarePropertyDevices, scope: kAudioObjectPropertyScopeGlobal)
                 deviceListRegistration = register(system, listAddress) { listener in
-                    listener.valueChanged()
+                    listener.onChange?()
                 }
             }
             addDeviceListeners()
@@ -372,6 +380,7 @@ extension OutputVolume {
             }
             deviceListRegistration = nil
             onChange = nil
+            onValueChange = nil
         }
 
         private func defaultDeviceChanged() {
@@ -381,7 +390,7 @@ extension OutputVolume {
         }
 
         private func valueChanged() {
-            onChange?()
+            (onValueChange ?? onChange)?()
         }
 
         private func addDeviceListeners() {

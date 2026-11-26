@@ -34,6 +34,10 @@ final class AutomationManager {
         }
     }
 
+    /// The raw elements of the stored list that this build cannot read, written back on every
+    /// save so that a newer build still finds them.
+    @ObservationIgnored private var unreadableRules = [Data]()
+
     @ObservationIgnored private let logger = Logger(category: "AutomationManager")
     @ObservationIgnored private weak var appState: AppState?
     @ObservationIgnored private var engineState = AutomationEngine.State()
@@ -146,11 +150,13 @@ final class AutomationManager {
             isLoading = false
         }
         var decoded = [AutomationRule]()
+        unreadableRules = []
         if
             let data = Defaults.data(forKey: .automationRules),
-            let stored = try? JSONDecoder().decode([AutomationRule].self, from: data)
+            let stored = AutomationRuleList.decode(data)
         {
-            decoded = AutomationRule.validated(stored)
+            decoded = AutomationRule.validated(stored.rules)
+            unreadableRules = stored.unreadable
         }
         scriptStore.adoptLegacyData(rules: decoded.filter(\.usesScript), order: decoded.map(\.id))
         rules = AutomationRuleStorage.merge(
@@ -237,7 +243,7 @@ final class AutomationManager {
         let parts = AutomationRuleStorage.split(rules)
         let isStored = scriptStore.setScriptRules(parts.local, order: parts.order)
         let forSettings = isStored ? parts.settings : rules
-        if let data = try? JSONEncoder().encode(forSettings) {
+        if let data = try? AutomationRuleList.encode(rules: forSettings, unreadable: unreadableRules) {
             Defaults.set(data, forKey: .automationRules)
         }
     }
@@ -309,6 +315,9 @@ final class AutomationManager {
         case .capture:
             startCaptureObserver()
         case .audioOutput:
+            guard audioObserver == nil else {
+                return
+            }
             let observer = AutomationAudioObserver()
             observer.onChange = { [weak self] in
                 self?.scriptsAreHeld = false
@@ -318,6 +327,9 @@ final class AutomationManager {
             audioObserver = observer
             observer.start()
         case .bluetooth:
+            guard bluetoothObserver == nil else {
+                return
+            }
             let observer = AutomationBluetoothObserver()
             observer.onChange = { [weak self] in
                 self?.scriptsAreHeld = false
@@ -519,9 +531,7 @@ final class AutomationManager {
         }
         timeTask = Task { [weak self] in
             while !Task.isCancelled {
-                let components = Calendar.current.dateComponents([.hour, .minute, .second], from: .now)
-                let seconds = Double((components.hour ?? 0) * 3600 + (components.minute ?? 0) * 60 + (components.second ?? 0))
-                guard let delay = AutomationSchedule.secondsUntilNextBoundary(of: windows, from: seconds) else {
+                guard let delay = AutomationSchedule.secondsUntilNextBoundary(of: windows, after: .now, calendar: .current) else {
                     return
                 }
                 // A moment past the boundary, so the check sees the new minute.

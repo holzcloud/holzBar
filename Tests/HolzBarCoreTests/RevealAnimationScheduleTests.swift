@@ -18,6 +18,13 @@ struct RevealAnimationScheduleTests {
         #expect(schedule.steps.allSatisfy { $0.length >= 18 && $0.length <= 800 })
     }
 
+    @Test("An absurd duration is capped instead of trapping")
+    func absurdDurationIsCapped() {
+        let schedule = RevealAnimationSchedule.make(direction: .reveal, from: 800, to: 18, duration: 1e300)
+        #expect(schedule.steps.count == RevealAnimationSchedule.maximumSteps)
+        #expect(schedule.steps.last?.length == 18)
+    }
+
     @Test("A hide from 18 to 800 has 11 steps that rise and end exactly at 800")
     func hideSteps() {
         let schedule = RevealAnimationSchedule.make(direction: .hide, from: 18, to: 800)

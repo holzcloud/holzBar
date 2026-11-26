@@ -219,6 +219,8 @@ final class MenuBarOverlayPanel: NSPanel {
             backing: .buffered,
             defer: false
         )
+        // The manager owns the panel and closes it often; ARC must be the only releaser.
+        self.isReleasedWhenClosed = false
         self.level = .statusBar
         self.title = "Menu Bar Overlay"
         self.backgroundColor = .clear

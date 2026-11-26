@@ -67,6 +67,8 @@ final class ThresholdAlertsManager {
     @ObservationIgnored private var settleTask: Task<Void, Never>?
     /// The one wait for the next hold, clear hold or quiet period to run out.
     @ObservationIgnored private var deadlineTask: Task<Void, Never>?
+    /// The one wait for the earliest done state to leave the list.
+    @ObservationIgnored private var pruneTask: Task<Void, Never>?
     /// The one wait that turns the test alert into its done state.
     @ObservationIgnored private var testTask: Task<Void, Never>?
     /// The alerts' own notch surface, created when an alert first needs it (D-07).
@@ -275,6 +277,8 @@ final class ThresholdAlertsManager {
     private func tearDown() {
         settleTask?.cancel()
         settleTask = nil
+        pruneTask?.cancel()
+        pruneTask = nil
         testTask?.cancel()
         testTask = nil
         testNotificationTask?.cancel()
@@ -705,12 +709,26 @@ final class ThresholdAlertsManager {
         activities.removeAll { $0.id == id }
     }
 
-    /// Drops the done states the board no longer shows.
+    /// Drops the done states the board no longer shows, and waits for the next one to expire, so
+    /// a finished state does not stay until some later effect arrives.
     private func prune(at now: Date) {
         let hold = HubActivityBoard.finishedHold * 2
-        guard activities.contains(where: { $0.finishedAt.map { now.timeIntervalSince($0) >= hold } ?? false }) else {
+        if activities.contains(where: { $0.finishedAt.map { now.timeIntervalSince($0) >= hold } ?? false }) {
+            activities.removeAll { $0.finishedAt.map { now.timeIntervalSince($0) >= hold } ?? false }
+        }
+        pruneTask?.cancel()
+        pruneTask = nil
+        guard let next = activities.compactMap(\.finishedAt).min() else {
             return
         }
-        activities.removeAll { $0.finishedAt.map { now.timeIntervalSince($0) >= hold } ?? false }
+        let delay = max(next.addingTimeInterval(hold).timeIntervalSince(now), 0) + 0.5
+        pruneTask = Task { [weak self] in
+            do {
+                try await Task.sleep(for: .seconds(delay), tolerance: .seconds(1), clock: ContinuousClock())
+            } catch {
+                return
+            }
+            self?.prune(at: .now)
+        }
     }
 }

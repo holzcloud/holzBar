@@ -89,6 +89,11 @@ final class DownloadsSource {
     private var watch: Watch?
     private var startTask: Task<Void, Never>?
     private var scanTask: Task<Void, Never>?
+    private var retryTask: Task<Void, Never>?
+    /// How many times in a row the folder could not be opened for lack of a folder.
+    private var unavailableCount = 0
+    /// How many times a missing folder is tried again, the wait doubling from two seconds.
+    private static let maximumRetries = 6
     private let debouncer = Debouncer(delay: coalescing)
     private let logger = Logger(category: "DownloadsSource")
 
@@ -122,6 +127,9 @@ final class DownloadsSource {
         startTask = nil
         scanTask?.cancel()
         scanTask = nil
+        retryTask?.cancel()
+        retryTask = nil
+        unavailableCount = 0
         debouncer.cancel()
         watch = nil
         folder = nil
@@ -135,6 +143,7 @@ final class DownloadsSource {
     private func didOpen(_ opening: Opening) {
         switch opening {
         case .opened(let descriptor):
+            unavailableCount = 0
             access = .granted
             watch = Watch(descriptor: descriptor) { [weak self] event in
                 self?.folderDidChange(event)
@@ -148,6 +157,23 @@ final class DownloadsSource {
             // No folder to watch (it may be gone for now): not a refusal.
             access = .granted
             onChange?()
+            // The folder may come back (it was replaced, or a volume is not mounted yet): no event
+            // exists for that, so try again a few times, one after another.
+            guard unavailableCount < Self.maximumRetries else {
+                return
+            }
+            let wait = 2.0 * pow(2, Double(unavailableCount))
+            unavailableCount += 1
+            retryTask?.cancel()
+            retryTask = Task { [weak self] in
+                do {
+                    try await Task.sleep(for: .seconds(wait), tolerance: .seconds(1), clock: ContinuousClock())
+                } catch {
+                    return
+                }
+                self?.retryTask = nil
+                self?.start()
+            }
         }
     }
 

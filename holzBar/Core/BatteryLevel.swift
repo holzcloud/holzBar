@@ -17,6 +17,11 @@ nonisolated enum BatteryLevel {
         guard maximum > 0 else {
             return nil
         }
-        return current * 100 / maximum
+        let (scaled, overflow) = current.multipliedReportingOverflow(by: 100)
+        if overflow {
+            // An absurd capacity: saturate instead of trapping.
+            return current > 0 ? Int.max / maximum : Int.min / maximum
+        }
+        return scaled / maximum
     }
 }
