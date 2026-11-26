@@ -208053,6 +208053,2720 @@
           }
         }
       }
+    },
+    "A rule with a time window switches on time on the days the clocks change." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pravidlo s časovým oknem se přepne včas i ve dnech změny času."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Regel mit Zeitfenster schaltet auch an den Tagen der Zeitumstellung pünktlich."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una regla con franja horaria cambia puntual también los días de cambio de hora."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une règle avec une plage horaire bascule à l’heure, même les jours de changement d’heure."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az időablakos szabály az óraátállítás napjain is pontosan vált."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aturan dengan rentang waktu kini beralih tepat waktu juga pada hari pergantian jam."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una regola con una fascia oraria scatta puntuale anche nei giorni del cambio dell’ora."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "時刻が切り替わる日も、時間帯を指定したルールが時間どおりに切り替わります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간이 바뀌는 날에도 시간대가 있는 규칙이 제때 전환됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een regel met een tijdvenster schakelt ook op de dagen dat de klok wordt verzet op tijd."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reguła z przedziałem czasu przełącza się punktualnie także w dni zmiany czasu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma regra com janela de horário muda na hora certa também nos dias de mudança de horário."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina regla cun ina fanestra da temp sa mida punctualmain er ils dis che l’ura vegn midada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Правило с временным окном срабатывает вовремя и в дни перевода часов."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En regel med ett tidsfönster växlar i tid även de dagar då klockan ställs om."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaman aralığı olan bir kural, saatlerin değiştiği günlerde de zamanında geçiş yapar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Правило з часовим вікном спрацьовує вчасно й у дні переведення годинника."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在夏令时切换的日子，带时间段的规则也能准时切换。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在日光節約時間切換的日子，有時段的規則也會準時切換。"
+          }
+        }
+      }
+    },
+    "If holzBar cannot read an automation rule or item group, the others are no longer lost." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Když holzBar nedokáže přečíst pravidlo automatizace nebo skupinu položek, ostatní se už neztratí."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kann holzBar eine Automatisierungsregel oder Elementgruppe nicht lesen, gehen die anderen nicht mehr verloren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si holzBar no puede leer una regla de automatización o un grupo de elementos, los demás ya no se pierden."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si holzBar ne peut pas lire une règle d’automatisation ou un groupe d’éléments, les autres ne sont plus perdus."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ha a holzBar nem tud beolvasni egy automatizálási szabályt vagy elemcsoportot, a többi már nem vész el."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jika holzBar tidak dapat membaca satu aturan otomatisasi atau grup item, yang lain tidak lagi hilang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se holzBar non riesce a leggere una regola di automazione o un gruppo di elementi, gli altri non vanno più persi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar が読み取れない自動化ルールや項目グループがあっても、ほかのものは失われなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar가 읽을 수 없는 자동화 규칙이나 항목 그룹이 있어도 나머지는 더 이상 사라지지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als holzBar een automatiseringsregel of onderdeelgroep niet kan lezen, gaan de andere niet meer verloren."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gdy holzBar nie może odczytać reguły automatyzacji lub grupy elementów, pozostałe już nie przepadają."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se o holzBar não consegue ler uma regra de automação ou um grupo de itens, os outros não se perdem mais."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sche holzBar na po betg leger ina regla d’automatisaziun u ina gruppa d’elements, na van las autras betg pli a perder."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Если holzBar не может прочитать правило автоматизации или группу элементов, остальные больше не теряются."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om holzBar inte kan läsa en automatiseringsregel eller objektgrupp går de andra inte längre förlorade."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar bir otomasyon kuralını veya öğe grubunu okuyamadığında diğerleri artık kaybolmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Якщо holzBar не може прочитати правило автоматизації чи групу елементів, решта більше не втрачається."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即使 holzBar 无法读取某条自动化规则或某个项目组，其他规则和组也不再丢失。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即使 holzBar 無法讀取某條自動化規則或某個項目群組，其他規則和群組也不再遺失。"
+          }
+        }
+      }
+    },
+    "Rules about the sound output or Bluetooth, timers started from hidden items, volume changes and bursts of notifications use less energy." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pravidla pro zvukový výstup nebo Bluetooth, časovače spuštěné ze skrytých položek, změny hlasitosti a návaly oznámení spotřebují méně energie."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regeln zur Tonausgabe oder zu Bluetooth, Timer aus ausgeblendeten Elementen, Lautstärkeänderungen und viele Mitteilungen auf einmal brauchen weniger Energie."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las reglas sobre la salida de sonido o el Bluetooth, los temporizadores iniciados desde elementos ocultos, los cambios de volumen y las ráfagas de notificaciones gastan menos energía."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les règles sur la sortie audio ou le Bluetooth, les minuteurs lancés depuis des éléments masqués, les changements de volume et les rafales de notifications consomment moins d’énergie."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A hangkimenetre vagy a Bluetoothra vonatkozó szabályok, a rejtett elemekből indított időzítők, a hangerő-változások és az értesítések sorozatai kevesebb energiát fogyasztanak."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aturan tentang output suara atau Bluetooth, timer yang dimulai dari item tersembunyi, perubahan volume, dan rentetan notifikasi kini lebih hemat energi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le regole sull’uscita audio o sul Bluetooth, i timer avviati da elementi nascosti, le modifiche del volume e le raffiche di notifiche consumano meno energia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サウンド出力や Bluetooth のルール、非表示の項目から開始したタイマー、音量の変更、続けて届く通知の消費電力が減りました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사운드 출력이나 Bluetooth 규칙, 가려진 항목에서 시작한 타이머, 음량 변경, 연달아 오는 알림이 에너지를 덜 사용합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regels over de geluidsuitvoer of Bluetooth, timers die vanuit verborgen onderdelen starten, volumewijzigingen en reeksen meldingen gebruiken minder energie."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reguły dotyczące wyjścia dźwięku lub Bluetooth, minutniki uruchomione z ukrytych elementów, zmiany głośności i serie powiadomień zużywają mniej energii."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regras sobre a saída de som ou o Bluetooth, timers iniciados em itens ocultos, mudanças de volume e rajadas de notificações gastam menos energia."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reglas davart la sortida dal tun u Bluetooth, timers startads dad elements zuppads, midadas dal volumen e bleras communicaziuns a la giada consumeschan main energia."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Правила для звукового выхода или Bluetooth, таймеры из скрытых элементов, изменения громкости и потоки уведомлений расходуют меньше энергии."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regler om ljudutgången eller Bluetooth, timrar som startas från gömda objekt, volymändringar och skurar av notiser drar mindre energi."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ses çıkışı veya Bluetooth kuralları, gizli öğelerden başlatılan zamanlayıcılar, ses düzeyi değişiklikleri ve art arda gelen bildirimler daha az enerji harcar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Правила для звукового виходу чи Bluetooth, таймери зі схованих елементів, зміни гучності та потоки сповіщень витрачають менше енергії."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关于声音输出或蓝牙的规则、从隐藏项目启动的计时器、音量变化以及接连到来的通知都更省电。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關於聲音輸出或藍牙的規則、從隱藏項目啟動的計時器、音量變化，以及接連而來的通知都更省電。"
+          }
+        }
+      }
+    },
+    "The menu bar look removes its layers when they are no longer needed, follows the wallpaper reliably and uses the dark picture of a dynamic wallpaper in dark mode." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vzhled řádku nabídek odstraní své vrstvy, když už nejsou potřeba, spolehlivě sleduje tapetu a v tmavém režimu použije tmavý obrázek dynamické tapety."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Erscheinungsbild der Menüleiste entfernt seine Ebenen, sobald sie nicht mehr nötig sind, folgt dem Hintergrundbild zuverlässig und nimmt im dunklen Modus das dunkle Bild eines dynamischen Hintergrundbilds."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El aspecto de la barra de menús quita sus capas cuando ya no hacen falta, sigue el fondo de pantalla de forma fiable y usa la imagen oscura de un fondo dinámico en modo oscuro."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’apparence de la barre des menus retire ses calques dès qu’ils ne servent plus, suit le fond d’écran de façon fiable et prend l’image sombre d’un fond d’écran dynamique en mode sombre."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A menüsor megjelenése eltávolítja a rétegeit, ha már nincs rájuk szükség, megbízhatóan követi a háttérképet, és sötét módban a dinamikus háttérkép sötét képét használja."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tampilan bar menu menghapus lapisannya saat tidak lagi diperlukan, mengikuti wallpaper dengan andal, dan memakai gambar gelap wallpaper dinamis dalam mode gelap."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’aspetto della barra dei menu rimuove i suoi livelli quando non servono più, segue sempre lo sfondo e in modalità scura usa l’immagine scura di uno sfondo dinamico."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メニューバーの外観は、不要になったレイヤーを取り除き、壁紙の変更を確実に追い、ダークモードではダイナミック壁紙の暗い画像を使います。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대 모양은 더 이상 필요 없는 레이어를 제거하고, 배경화면 변경을 확실히 따르며, 다크 모드에서는 다이내믹 배경화면의 어두운 이미지를 사용합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De weergave van de menubalk verwijdert zijn lagen zodra ze niet meer nodig zijn, volgt de achtergrond betrouwbaar en gebruikt in donkere modus de donkere afbeelding van een dynamische achtergrond."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wygląd paska menu usuwa swoje warstwy, gdy nie są już potrzebne, niezawodnie śledzi tapetę i w trybie ciemnym używa ciemnego obrazu tapety dynamicznej."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A aparência da barra de menus remove suas camadas quando não são mais necessárias, acompanha o papel de parede de forma confiável e usa a imagem escura de um papel de parede dinâmico no modo escuro."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’apparientscha da la trav da menu allontanescha ses nivels cura ch’els na servan betg pli, suonda adina il fund dal visur ed utilisescha en il modus stgir il maletg stgir d’in fund dinamic."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Внешний вид строки меню убирает свои слои, когда они больше не нужны, надёжно следит за обоями и в тёмном режиме берёт тёмное изображение динамических обоев."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menyradens utseende tar bort sina lager när de inte längre behövs, följer skrivbordsbilden pålitligt och använder den mörka bilden i en dynamisk skrivbordsbild i mörkt läge."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menü çubuğu görünümü artık gerekmeyen katmanlarını kaldırır, duvar kâğıdını güvenilir biçimde izler ve karanlık modda dinamik duvar kâğıdının karanlık görüntüsünü kullanır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вигляд рядка меню прибирає свої шари, коли вони вже не потрібні, надійно стежить за шпалерами й у темному режимі бере темне зображення динамічних шпалер."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "菜单栏外观会在不再需要时移除其图层，可靠地跟随墙纸变化，并在深色模式下使用动态墙纸的深色图像。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選單列外觀會在不再需要時移除其圖層，可靠地跟隨背景圖片變化，並在深色模式下使用動態背景圖片的深色影像。"
+          }
+        }
+      }
+    },
+    "Settings again notices when macOS hides the menu bar automatically." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nastavení opět pozná, když macOS automaticky skrývá řádek nabídek."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Einstellungen erkennen wieder, wenn macOS die Menüleiste automatisch ausblendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los ajustes vuelven a detectar cuándo macOS oculta automáticamente la barra de menús."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les réglages remarquent à nouveau quand macOS masque automatiquement la barre des menus."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A beállítások ismét észlelik, ha a macOS automatikusan elrejti a menüsort."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pengaturan kembali mengenali saat macOS menyembunyikan bar menu secara otomatis."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le impostazioni rilevano di nuovo quando macOS nasconde automaticamente la barra dei menu."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS がメニューバーを自動的に隠すとき、設定が再びそれを認識します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS가 메뉴 막대를 자동으로 가릴 때 설정에서 다시 이를 인식합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instellingen merkt weer op wanneer macOS de menubalk automatisch verbergt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustawienia znów wykrywają, gdy macOS automatycznie ukrywa pasek menu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os ajustes voltam a perceber quando o macOS oculta a barra de menus automaticamente."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils parameters remartgan puspè cura che macOS zuppenta automaticamain la trav da menu."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки снова замечают, когда macOS автоматически скрывает строку меню."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inställningar märker åter när macOS döljer menyraden automatiskt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayarlar, macOS menü çubuğunu otomatik gizlediğinde bunu yeniden fark eder."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Параметри знову помічають, коли macOS автоматично ховає рядок меню."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当 macOS 自动隐藏菜单栏时，设置会再次识别到。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當 macOS 自動隱藏選單列時，設定會再次辨識出來。"
+          }
+        }
+      }
+    },
+    "Two untitled items of one app are told apart in the search, in group panels and in Settings." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dvě položky bez názvu z jedné aplikace se rozliší ve vyhledávání, panelech skupin i v nastavení."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwei unbenannte Elemente derselben App werden in der Suche, in Gruppenfenstern und in den Einstellungen auseinandergehalten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dos elementos sin título de la misma app se distinguen en la búsqueda, en los paneles de grupo y en los ajustes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deux éléments sans titre d’une même app sont distingués dans la recherche, les panneaux de groupe et les réglages."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egy alkalmazás két cím nélküli elemét a keresés, a csoportpanelek és a beállítások is megkülönböztetik."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dua item tanpa judul dari satu app kini dibedakan di pencarian, panel grup, dan Pengaturan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Due elementi senza titolo della stessa app vengono distinti nella ricerca, nei pannelli dei gruppi e nelle impostazioni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同じアプリの名前のない 2 つの項目が、検索、グループパネル、設定で区別されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "같은 앱의 제목 없는 두 항목이 검색, 그룹 패널, 설정에서 구별됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twee naamloze onderdelen van één app worden in de zoekfunctie, groepspanelen en Instellingen uit elkaar gehouden."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dwa elementy bez nazwy z jednej aplikacji są rozróżniane w wyszukiwaniu, panelach grup i ustawieniach."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dois itens sem título do mesmo app são distinguidos na busca, nos painéis de grupo e nos ajustes."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dus elements senza titel da la medema app vegnan distinguids en la tschertga, en ils panels da gruppas ed en ils parameters."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Два безымянных элемента одного приложения различаются в поиске, панелях групп и настройках."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Två namnlösa objekt från samma app hålls isär i sökningen, gruppanelerna och Inställningar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aynı uygulamanın başlıksız iki öğesi aramada, grup panellerinde ve Ayarlar’da ayırt edilir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Два безіменні елементи однієї програми розрізняються в пошуку, панелях груп і параметрах."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同一 App 的两个无标题项目在搜索、群组面板和设置中可以区分开。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同一 App 的兩個無標題項目在搜尋、群組面板和設定中可以區分開來。"
+          }
+        }
+      }
+    },
+    "An item shown for a moment returns to its section even when the menu bar could not be read just then." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Položka zobrazená na chvíli se vrátí do své sekce, i když řádek nabídek v tu chvíli nešlo přečíst."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein kurz eingeblendetes Element kehrt in seinen Bereich zurück, auch wenn die Menüleiste gerade nicht gelesen werden konnte."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un elemento mostrado un momento vuelve a su sección aunque la barra de menús no se haya podido leer en ese instante."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un élément affiché un instant retourne dans sa section même si la barre des menus n’a pas pu être lue à ce moment."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A rövid időre megjelenített elem akkor is visszatér a szakaszába, ha a menüsort abban a pillanatban nem lehetett beolvasni."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item yang ditampilkan sesaat kembali ke bagiannya meskipun bar menu tidak dapat dibaca saat itu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un elemento mostrato per un attimo torna nella sua sezione anche se in quel momento la barra dei menu non era leggibile."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一時的に表示した項目は、その瞬間にメニューバーを読み取れなかった場合でも元のセクションに戻ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "잠시 보인 항목은 그 순간 메뉴 막대를 읽지 못했더라도 원래 섹션으로 돌아갑니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een onderdeel dat even werd getoond, keert terug naar zijn sectie, ook als de menubalk op dat moment niet kon worden gelezen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Element pokazany na chwilę wraca do swojej sekcji, nawet gdy w tym momencie nie udało się odczytać paska menu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um item mostrado por um instante volta à sua seção mesmo quando a barra de menus não pôde ser lida naquele momento."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In element mussà per in mument returna en sia secziun, er sche la trav da menu na pudeva betg vegnir legida en quel mument."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ненадолго показанный элемент возвращается в свой раздел, даже если строку меню в тот момент не удалось прочитать."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ett objekt som visades en stund går tillbaka till sin sektion även när menyraden inte kunde läsas just då."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kısa süre gösterilen bir öğe, menü çubuğu o anda okunamasa bile kendi bölümüne döner."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ненадовго показаний елемент повертається до свого розділу, навіть якщо рядок меню тієї миті не вдалося прочитати."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即使当时无法读取菜单栏，临时显示的项目也会回到其分区。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即使當下無法讀取選單列，暫時顯示的項目也會回到其區段。"
+          }
+        }
+      }
+    },
+    "A move in Layout that fails no longer leaves an Undo entry." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nezdařený přesun v Uspořádání už nezanechá položku Zpět."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine misslungene Verschiebung in der Anordnung hinterlässt keinen Eintrag zum Widerrufen mehr."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un movimiento en Disposición que falla ya no deja una entrada de Deshacer."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un déplacement dans Disposition qui échoue ne laisse plus d’entrée Annuler."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az Elrendezésben sikertelen áthelyezés már nem hagy Visszavonás-bejegyzést."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pemindahan di Tata Letak yang gagal tidak lagi meninggalkan entri Urungkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uno spostamento in Disposizione che non riesce non lascia più una voce Annulla."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "レイアウトで失敗した移動は、取り消しの項目を残さなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "레이아웃에서 실패한 이동은 더 이상 실행 취소 항목을 남기지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een mislukte verplaatsing in Indeling laat geen item voor Ongedaan maken meer achter."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieudane przeniesienie w Układzie nie zostawia już wpisu Cofnij."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma movimentação em Layout que falha não deixa mais uma entrada de Desfazer."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In spustament en Disposiziun che na reussescha betg na lascha betg pli enavos ina endataziun Revocar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неудачное перемещение в разделе «Раскладка» больше не оставляет запись для отмены."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En flytt i Layout som misslyckas lämnar inte längre någon Ångra-post."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Düzen’de başarısız olan bir taşıma artık Geri Al kaydı bırakmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Невдале переміщення в «Розкладці» більше не залишає запису для скасування."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "布局中失败的移动不再留下撤销记录。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "佈局中失敗的移動不再留下復原記錄。"
+          }
+        }
+      }
+    },
+    "On macOS 27, an item whose stored picture is lost is photographed again." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 se položka, jejíž uložený obrázek se ztratil, znovu vyfotí."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 wird ein Element, dessen gespeichertes Bild verloren ging, neu aufgenommen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, un elemento cuya imagen guardada se perdió se vuelve a fotografiar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sur macOS 27, un élément dont l’image enregistrée est perdue est de nouveau photographié."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt az az elem, amelynek mentett képe elveszett, újra lefényképeződik."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, item yang gambar tersimpannya hilang kini difoto ulang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, un elemento la cui immagine salvata è andata persa viene fotografato di nuovo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 では、保存した画像が失われた項目を再び撮影します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 저장된 이미지가 사라진 항목을 다시 촬영합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 wordt een onderdeel waarvan de bewaarde afbeelding verloren is gegaan opnieuw vastgelegd."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 element, którego zapisany obraz zginął, jest fotografowany ponownie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, um item cuja imagem salva se perdeu é fotografado de novo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 vegn in element, il qual maletg memorisà è ì a perder, fotografà da nov."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 элемент, чьё сохранённое изображение потерялось, снимается заново."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27 fotograferas ett objekt vars sparade bild gått förlorad på nytt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de kayıtlı görüntüsü kaybolan bir öğe yeniden fotoğraflanır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 елемент, чиє збережене зображення втрачено, знімається знову."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，已存图像丢失的项目会被重新拍摄。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，已儲存影像遺失的項目會重新拍攝。"
+          }
+        }
+      }
+    },
+    "Before macOS 27, a cancelled move or click no longer leaves an item pressed." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Před macOS 27 už zrušený přesun nebo klepnutí nenechá položku stisknutou."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor macOS 27 bleibt ein Element nach einer abgebrochenen Verschiebung oder einem abgebrochenen Klick nicht mehr gedrückt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antes de macOS 27, un movimiento o clic cancelado ya no deja un elemento pulsado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant macOS 27, un déplacement ou un clic annulé ne laisse plus un élément enfoncé."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 előtt egy megszakított áthelyezés vagy kattintás már nem hagyja lenyomva az elemet."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sebelum macOS 27, pemindahan atau klik yang dibatalkan tidak lagi membiarkan item tetap tertekan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima di macOS 27, uno spostamento o un clic annullato non lascia più un elemento premuto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 より前では、キャンセルされた移動やクリックで項目が押されたままになることがなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 이전에서는 취소된 이동이나 클릭이 더 이상 항목을 눌린 상태로 남기지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vóór macOS 27 blijft een onderdeel na een geannuleerde verplaatsing of klik niet meer ingedrukt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przed macOS 27 anulowane przeniesienie lub kliknięcie nie zostawia już elementu wciśniętego."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antes do macOS 27, um movimento ou clique cancelado não deixa mais um item pressionado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant macOS 27 na resta in element betg pli smatgà suenter in spustament u in clic interrut."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "До macOS 27 отменённое перемещение или нажатие больше не оставляет элемент нажатым."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Före macOS 27 lämnar en avbruten flytt eller ett avbrutet klick inte längre ett objekt nedtryckt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’den önce, iptal edilen bir taşıma veya tıklama artık öğeyi basılı bırakmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "До macOS 27 скасоване переміщення чи клацання більше не залишає елемент натиснутим."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 之前，取消的移动或点按不再让项目保持按下状态。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 之前，取消的移動或按一下不再讓項目維持按下狀態。"
+          }
+        }
+      }
+    },
+    "Hotkeys keep working after a menu was open, even when one could not be registered at once." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klávesové zkratky fungují i po otevření nabídky, i když některou nešlo hned zaregistrovat."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tastenkürzel funktionieren nach einem geöffneten Menü weiter, auch wenn eines nicht sofort registriert werden konnte."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los atajos de teclado siguen funcionando después de abrir un menú, aunque uno no se haya podido registrar al instante."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les raccourcis clavier continuent de fonctionner après l’ouverture d’un menu, même si l’un d’eux n’a pas pu être enregistré tout de suite."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A billentyűparancsok egy menü megnyitása után is működnek, akkor is, ha valamelyiket nem lehetett azonnal regisztrálni."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pintasan keyboard tetap berfungsi setelah menu terbuka, bahkan saat salah satunya tidak dapat langsung didaftarkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le abbreviazioni da tastiera continuano a funzionare dopo l’apertura di un menu, anche se una non poteva essere registrata subito."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メニューを開いた後もショートカットキーが動作し続けます。すぐに登録できなかったものも同様です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴를 연 후에도 단축키가 계속 작동하며, 바로 등록하지 못한 단축키도 마찬가지입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sneltoetsen blijven werken nadat een menu open was, ook als er een niet meteen kon worden geregistreerd."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skróty klawiszowe działają dalej po otwarciu menu, nawet gdy któregoś nie dało się od razu zarejestrować."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os atalhos de teclado continuam funcionando depois de um menu aberto, mesmo quando um não pôde ser registrado na hora."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las cumbinaziuns da tastas funcziunan vinavant suenter in menu avert, er sch’ina na pudeva betg vegnir registrada immediat."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Горячие клавиши продолжают работать после открытия меню, даже если какую-то не удалось сразу зарегистрировать."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kortkommandon fortsätter fungera efter att en meny varit öppen, även när ett inte kunde registreras direkt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klavye kısayolları bir menü açıldıktan sonra da çalışmaya devam eder, biri hemen kaydedilemese bile."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Гарячі клавіші працюють і після відкриття меню, навіть якщо одну не вдалося одразу зареєструвати."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开菜单后快捷键仍可继续使用，即使某个快捷键当时无法立即注册。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟選單後快速鍵仍可繼續使用，即使某個快速鍵當時無法立即註冊。"
+          }
+        }
+      }
+    },
+    "Notifications in the notch keep working after Notification Center restarts." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oznámení ve výřezu fungují dál i po restartu Centra oznámení."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mitteilungen in der Notch funktionieren weiter, nachdem die Mitteilungszentrale neu gestartet ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las notificaciones en el notch siguen funcionando después de que el centro de notificaciones se reinicie."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les notifications dans l’encoche continuent de fonctionner après le redémarrage du centre de notifications."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A notch értesítései az Értesítési központ újraindulása után is működnek."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifikasi di notch tetap berfungsi setelah Pusat Notifikasi dimulai ulang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le notifiche nel notch continuano a funzionare dopo il riavvio del Centro Notifiche."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知センターが再起動した後も、ノッチの通知が動作し続けます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알림 센터가 다시 시작된 후에도 노치의 알림이 계속 작동합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meldingen in de notch blijven werken nadat het berichtencentrum opnieuw is gestart."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Powiadomienia w notchu działają dalej po ponownym uruchomieniu centrum powiadomień."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As notificações no notch continuam funcionando depois que a Central de Notificações reinicia."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las communicaziuns en il notch funcziunan vinavant suenter ch’il center da communicaziuns è vegnì reavià."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уведомления в вырезе продолжают работать после перезапуска Центра уведомлений."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notiser i notchen fortsätter fungera efter att Notiscenter har startats om."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildirim Merkezi yeniden başladıktan sonra notch’taki bildirimler çalışmaya devam eder."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сповіщення у вирізі працюють і після перезапуску Центру сповіщень."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知中心重新启动后，刘海中的通知仍可正常工作。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知中心重新啟動後，瀏海中的通知仍可正常運作。"
+          }
+        }
+      }
+    },
+    "Read all apps waits longer before each new start of a helper that keeps ending." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Číst všechny aplikace“ čeká déle, než znovu spustí pomocníka, který se stále ukončuje."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Alle Apps lesen“ wartet länger, bevor ein Helfer, der immer wieder endet, neu gestartet wird."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Leer todas las apps» espera más antes de reiniciar un asistente que se cierra una y otra vez."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Lire toutes les apps » attend plus longtemps avant de relancer un assistant qui s’arrête sans cesse."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A „Minden alkalmazás olvasása” tovább vár, mielőtt újraindít egy folyton leálló segédet."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Baca semua app” menunggu lebih lama sebelum memulai ulang helper yang terus berhenti."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Leggi tutte le app» attende di più prima di riavviare un helper che continua a chiudersi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「すべてのアプリを読み取る」は、終了を繰り返すヘルパーを再起動する前に、より長く待ちます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'모든 앱 읽기'는 계속 종료되는 도우미를 다시 시작하기 전에 더 오래 기다립니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘Lees alle apps’ wacht langer voordat een hulpprogramma dat steeds stopt opnieuw wordt gestart."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Czytaj wszystkie aplikacje” czeka dłużej przed ponownym uruchomieniem pomocnika, który ciągle się kończy."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Ler todos os apps” espera mais antes de reiniciar um auxiliar que termina repetidamente."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Leger tut las apps» spetga pli ditg avant che reaviar in agid che terminescha adina puspè."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Читать все приложения» дольше ждёт перед новым запуском помощника, который всё время завершается."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "”Läs alla appar” väntar längre innan en hjälpare som hela tiden avslutas startas igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Tüm uygulamaları oku”, sürekli kapanan bir yardımcıyı yeniden başlatmadan önce daha uzun bekler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Читати всі програми» довше чекає перед новим запуском помічника, який постійно завершується."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“读取所有 App”在重新启动反复退出的辅助程序前会等待更久。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「讀取所有 App」在重新啟動反覆結束的輔助程式前會等待更久。"
+          }
+        }
+      }
+    },
+    "Downloads in the notch keep following the Downloads folder after it was briefly missing." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stahování ve výřezu dál sleduje složku Stažené soubory i poté, co na chvíli chyběla."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloads in der Notch folgen dem Ordner „Downloads“ weiter, nachdem er kurz gefehlt hat."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las descargas en el notch siguen vigilando la carpeta Descargas después de que falte un momento."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les téléchargements dans l’encoche continuent de suivre le dossier Téléchargements après une brève absence de celui-ci."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A notch letöltései akkor is követik a Letöltések mappát, ha az rövid ideig hiányzott."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unduhan di notch tetap mengikuti folder Unduhan setelah sempat hilang sebentar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I download nel notch continuano a seguire la cartella Download dopo che è mancata per poco."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ダウンロードフォルダが一時的になくなった後も、ノッチのダウンロードが追跡し続けます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다운로드 폴더가 잠시 사라진 후에도 노치의 다운로드가 계속 폴더를 따라갑니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloads in de notch blijven de map Downloads volgen nadat die even ontbrak."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pobrane w notchu dalej śledzą folder Pobrane po jego chwilowym zniknięciu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os downloads no notch continuam acompanhando a pasta Downloads depois que ela some por um instante."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las telechargiadas en il notch suondan vinavant l’ordinatur Telechargiadas suenter ch’el ha mancà curtamain."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загрузки в вырезе продолжают следить за папкой «Загрузки» после её кратковременного исчезновения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hämtningar i notchen fortsätter följa mappen Hämtade filer efter att den saknats en stund."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch’taki indirmeler, İndirilenler klasörü kısa süre kaybolduktan sonra da onu izlemeye devam eder."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завантаження у вирізі й далі стежать за папкою «Завантаження» після її короткої відсутності."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“下载”文件夹短暂消失后，刘海中的下载仍会继续跟踪它。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「下載項目」檔案夾短暫消失後，瀏海中的下載仍會繼續追蹤它。"
+          }
+        }
+      }
+    },
+    "Brightness in Display controls no longer switches itself off when several displays wake up at once." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jas v Ovládání displeje se už nevypne, když se probudí několik displejů najednou."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Helligkeit in der Anzeigesteuerung schaltet sich nicht mehr ab, wenn mehrere Bildschirme gleichzeitig aufwachen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El brillo de los controles de pantalla ya no se desactiva cuando varias pantallas despiertan a la vez."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La luminosité des contrôles d’affichage ne se désactive plus quand plusieurs écrans se réveillent en même temps."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Kijelzővezérlők fényereje már nem kapcsol ki, ha több kijelző egyszerre ébred fel."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kecerahan di Kontrol Layar tidak lagi mati sendiri saat beberapa layar bangun bersamaan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La luminosità nei controlli dello schermo non si disattiva più quando più monitor si riattivano insieme."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "複数のディスプレイが同時にスリープ解除されても、ディスプレイコントロールの明るさがオフにならなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "여러 디스플레이가 동시에 깨어나도 디스플레이 제어의 밝기가 더 이상 꺼지지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De helderheid in Schermbediening schakelt zichzelf niet meer uit als meerdere beeldschermen tegelijk ontwaken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jasność w sterowaniu wyświetlaczem nie wyłącza się już, gdy kilka wyświetlaczy budzi się naraz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O brilho nos controles de tela não se desativa mais quando vários monitores despertam ao mesmo tempo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La clerezza en ils controlls da la visualisaziun na sa deactivescha betg pli cura che plirs monitors sa dasdan il medem mument."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Яркость в управлении дисплеем больше не отключается, когда несколько дисплеев просыпаются одновременно."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ljusstyrkan i Skärmkontroller stängs inte längre av när flera skärmar vaknar samtidigt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Birden çok ekran aynı anda uyandığında Ekran Denetimleri’ndeki parlaklık artık kendini kapatmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Яскравість у керуванні дисплеєм більше не вимикається, коли кілька дисплеїв прокидаються одночасно."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "多个显示器同时唤醒时，显示控制中的亮度不再自行关闭。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "多部顯示器同時喚醒時，顯示器控制中的亮度不再自行關閉。"
+          }
+        }
+      }
+    },
+    "Network readouts also work on Macs with many virtual network interfaces." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Údaje o síti fungují i na Macích s mnoha virtuálními síťovými rozhraními."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Netzwerkanzeigen funktionieren auch auf Macs mit vielen virtuellen Netzwerkschnittstellen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las lecturas de red también funcionan en Mac con muchas interfaces de red virtuales."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les mesures réseau fonctionnent aussi sur les Mac dotés de nombreuses interfaces réseau virtuelles."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A hálózati értékek a sok virtuális hálózati csatolóval rendelkező Maceken is működnek."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pembacaan jaringan juga berfungsi di Mac dengan banyak antarmuka jaringan virtual."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le letture di rete funzionano anche sui Mac con molte interfacce di rete virtuali."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "多数の仮想ネットワークインターフェイスがある Mac でも、ネットワークの表示が動作します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가상 네트워크 인터페이스가 많은 Mac에서도 네트워크 표시가 작동합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Netwerkmetingen werken ook op Macs met veel virtuele netwerkinterfaces."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odczyty sieci działają także na Macach z wieloma wirtualnymi interfejsami sieciowymi."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As leituras de rede também funcionam em Macs com muitas interfaces de rede virtuais."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las indicaziuns da la rait funcziunan er sin Macs cun bleras interfatschas da rait virtualas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сетевые показатели работают и на Mac со множеством виртуальных сетевых интерфейсов."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nätverksvärden fungerar även på Mac-datorer med många virtuella nätverksgränssnitt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ağ göstergeleri çok sayıda sanal ağ arabirimi olan Mac’lerde de çalışır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мережеві показники працюють і на Mac із багатьма віртуальними мережевими інтерфейсами."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在有许多虚拟网络接口的 Mac 上，网络读数也能正常工作。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在有許多虛擬網路介面的 Mac 上，網路讀數也能正常運作。"
+          }
+        }
+      }
+    },
+    "Counts and sizes in Settings use the correct singular and plural forms." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Počty a velikosti v nastavení používají správné tvary jednotného a množného čísla."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anzahlen und Größen in den Einstellungen verwenden die richtige Einzahl und Mehrzahl."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los recuentos y tamaños en los ajustes usan el singular y el plural correctos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les nombres et les tailles dans les réglages utilisent le bon singulier et le bon pluriel."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A beállításokban a darabszámok és méretek a helyes egyes és többes számot használják."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jumlah dan ukuran di Pengaturan kini ditulis dengan benar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I conteggi e le dimensioni nelle impostazioni usano il singolare e il plurale corretti."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定内の数とサイズが正しい形で表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정의 개수와 크기가 올바른 형태로 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aantallen en groottes in Instellingen gebruiken het juiste enkelvoud en meervoud."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liczby i rozmiary w ustawieniach używają poprawnych form liczby pojedynczej i mnogiej."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contagens e tamanhos nos ajustes usam o singular e o plural corretos."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dumbraziuns e grondezzas en ils parameters utiliseschan il singular ed il plural corrects."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Числа и размеры в настройках используют правильные формы единственного и множественного числа."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antal och storlekar i Inställningar använder rätt singular- och pluralformer."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayarlar’daki sayılar ve boyutlar doğru tekil ve çoğul biçimleri kullanır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кількості й розміри в параметрах мають правильні форми однини та множини."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置中的数量和大小显示得更准确。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定中的數量和大小顯示得更準確。"
+          }
+        }
+      }
+    },
+    "Share Profile says when the file cannot be saved, and a new notice in Settings stays its full time." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Sdílet profil“ upozorní, když soubor nejde uložit, a nové upozornění v nastavení zůstane zobrazené celou dobu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Profil teilen“ meldet, wenn die Datei nicht gesichert werden kann, und ein neuer Hinweis in den Einstellungen bleibt die volle Zeit stehen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Compartir perfil» avisa cuando el archivo no se puede guardar, y un aviso nuevo en los ajustes se muestra todo su tiempo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Partager le profil » signale quand le fichier ne peut pas être enregistré, et un nouvel avis dans les réglages reste affiché tout son temps."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A „Profil megosztása” jelzi, ha a fájlt nem lehet menteni, és a beállítások új értesítése a teljes ideig látható marad."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Bagikan profil” memberi tahu saat file tidak dapat disimpan, dan pemberitahuan baru di Pengaturan tetap tampil selama waktunya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Condividi profilo» avvisa quando il file non può essere salvato, e un nuovo avviso nelle impostazioni resta visibile per tutto il tempo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「プロファイルを共有」はファイルを保存できないときに知らせ、設定の新しい通知は最後まで表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'프로파일 공유'는 파일을 저장할 수 없을 때 알려 주고, 설정의 새 알림은 정해진 시간 동안 끝까지 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘Deel profiel’ meldt wanneer het bestand niet kan worden bewaard, en een nieuwe melding in Instellingen blijft de volle tijd staan."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Udostępnij profil” informuje, gdy pliku nie można zapisać, a nowy komunikat w ustawieniach pozostaje widoczny przez cały czas."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Compartilhar perfil” avisa quando o arquivo não pode ser salvo, e um novo aviso nos ajustes fica visível pelo tempo todo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Cundivider il profil» annunzia, cura che la datoteca na po betg vegnir memorisada, ed in nov avis en ils parameters resta visibel tut il temp."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Поделиться профилем» сообщает, если файл не удаётся сохранить, а новое уведомление в настройках показывается всё отведённое время."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "”Dela profilen” säger till när filen inte kan sparas, och ett nytt meddelande i Inställningar visas hela sin tid."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Profili paylaş”, dosya kaydedilemediğinde bunu bildirir ve Ayarlar’daki yeni bir uyarı süresinin sonuna kadar görünür kalır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Поділитися профілем» повідомляє, коли файл не вдається зберегти, а нове сповіщення в параметрах показується весь свій час."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“共享配置文件”会在无法存储文件时提示，设置中的新提示也会显示完整时长。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「分享設定檔」會在無法儲存檔案時提示，設定中的新提示也會顯示完整時間。"
+          }
+        }
+      }
+    },
+    "The arrow keys and Return in other holzBar windows are no longer taken by the open search panel." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otevřený panel hledání už nezachytává šipky a Return v ostatních oknech holzBar."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Pfeiltasten und der Zeilenschalter in anderen holzBar-Fenstern werden nicht mehr vom offenen Suchfenster abgefangen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las teclas de flecha y Retorno en otras ventanas de holzBar ya no las captura el panel de búsqueda abierto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les touches fléchées et Retour dans les autres fenêtres de holzBar ne sont plus captées par le panneau de recherche ouvert."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A megnyitott keresőpanel már nem foglalja le a nyílbillentyűket és a Returnt a holzBar többi ablakában."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Panel pencarian yang terbuka tidak lagi menangkap tombol panah dan Return di jendela holzBar lainnya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I tasti freccia e Invio nelle altre finestre di holzBar non vengono più intercettati dal pannello di ricerca aperto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "検索パネルを開いていても、ほかの holzBar ウインドウで矢印キーと Return キーが奪われなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "열려 있는 검색 패널이 더 이상 다른 holzBar 윈도우의 화살표 키와 Return 키를 가로채지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het geopende zoekpaneel vangt de pijltoetsen en Return in andere holzBar-vensters niet meer af."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otwarty panel wyszukiwania nie przechwytuje już klawiszy strzałek i Return w innych oknach holzBar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As teclas de seta e Return em outras janelas do holzBar não são mais capturadas pelo painel de busca aberto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las tastas da frizzas e Return en autras fanestras da holzBar na vegnan betg pli interceptadas dal panel da tschertga avert."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открытая панель поиска больше не перехватывает клавиши со стрелками и Return в других окнах holzBar."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den öppna sökpanelen fångar inte längre piltangenterna och Retur i andra holzBar-fönster."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Açık arama paneli artık diğer holzBar pencerelerindeki ok tuşlarını ve Return tuşunu yakalamaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відкрита панель пошуку більше не перехоплює клавіші зі стрілками та Return в інших вікнах holzBar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开的搜索面板不再占用其他 holzBar 窗口中的方向键和 Return 键。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟的搜尋面板不再佔用其他 holzBar 視窗中的方向鍵和 Return 鍵。"
+          }
+        }
+      }
+    },
+    "A settings export now includes which modules are on, so a restored backup switches them on again." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export nastavení nyní obsahuje, které moduly jsou zapnuté, takže obnovená záloha je znovu zapne."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Export der Einstellungen enthält jetzt, welche Module eingeschaltet sind, sodass eine wiederhergestellte Sicherung sie wieder einschaltet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una exportación de los ajustes ahora incluye qué módulos están activados, así que una copia restaurada los vuelve a activar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un export des réglages indique désormais quels modules sont activés, si bien qu’une sauvegarde restaurée les réactive."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A beállítások exportja most azt is tartalmazza, mely modulok vannak bekapcsolva, így a visszaállított mentés újra bekapcsolja őket."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekspor pengaturan kini menyertakan modul mana yang aktif, sehingga cadangan yang dipulihkan mengaktifkannya kembali."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un’esportazione delle impostazioni ora include quali moduli sono attivi, così un backup ripristinato li riattiva."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定の書き出しに、どのモジュールがオンかが含まれるようになり、復元したバックアップでモジュールが再びオンになります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정 내보내기에 이제 어떤 모듈이 켜져 있는지 포함되므로, 백업을 복원하면 모듈이 다시 켜집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een export van de instellingen bevat nu welke modules aan staan, zodat een teruggezette reservekopie ze weer aanzet."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eksport ustawień zawiera teraz informację, które moduły są włączone, więc przywrócona kopia znów je włącza."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma exportação dos ajustes agora inclui quais módulos estão ativados, então um backup restaurado os ativa de novo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In export dals parameters cuntegna ussa, tge moduls ch’èn activads, uschia ch’ina copia da segirezza restabilida als activescha puspè."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Экспорт настроек теперь включает сведения о том, какие модули включены, поэтому восстановленная копия снова их включает."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En export av inställningarna innehåller nu vilka moduler som är på, så att en återställd säkerhetskopia slår på dem igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayarların dışa aktarımı artık hangi modüllerin açık olduğunu da içerir; böylece geri yüklenen bir yedek onları yeniden açar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Експорт параметрів тепер містить, які модулі увімкнено, тож відновлена резервна копія знову їх вмикає."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出设置现在包含哪些模块已打开，恢复备份时会重新打开它们。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "輸出設定現在包含哪些模組已開啟，回復備份時會重新開啟它們。"
+          }
+        }
+      }
+    },
+    "Read all apps checks its helper before every start and loads nothing from outside the system." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Číst všechny aplikace“ zkontroluje pomocníka před každým spuštěním a nenačte nic mimo systém."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Alle Apps lesen“ prüft seinen Helfer vor jedem Start und lädt nichts von außerhalb des Systems."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Leer todas las apps» comprueba su asistente antes de cada inicio y no carga nada de fuera del sistema."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Lire toutes les apps » vérifie son assistant avant chaque lancement et ne charge rien hors du système."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A „Minden alkalmazás olvasása” minden indítás előtt ellenőrzi a segédjét, és semmit sem tölt be a rendszeren kívülről."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Baca semua app” memeriksa helper-nya sebelum setiap mulai dan tidak memuat apa pun dari luar sistem."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Leggi tutte le app» controlla il suo helper prima di ogni avvio e non carica nulla al di fuori del sistema."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「すべてのアプリを読み取る」は、起動のたびにヘルパーを確認し、システム外のものを読み込みません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'모든 앱 읽기'는 시작할 때마다 도우미를 확인하며 시스템 밖의 어떤 것도 불러오지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘Lees alle apps’ controleert zijn hulpprogramma vóór elke start en laadt niets van buiten het systeem."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Czytaj wszystkie aplikacje” sprawdza pomocnika przed każdym uruchomieniem i nie wczytuje niczego spoza systemu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Ler todos os apps” verifica seu auxiliar antes de cada início e não carrega nada de fora do sistema."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Leger tut las apps» controllescha ses agid avant mintga start e na chargia nagut dador il sistem."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Читать все приложения» проверяет помощника перед каждым запуском и не загружает ничего извне системы."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "”Läs alla appar” kontrollerar sin hjälpare före varje start och läser inte in något utanför systemet."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Tüm uygulamaları oku”, yardımcısını her başlatmadan önce denetler ve sistem dışından hiçbir şey yüklemez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Читати всі програми» перевіряє помічника перед кожним запуском і не завантажує нічого ззовні системи."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“读取所有 App”会在每次启动前检查其辅助程序，并且不载入系统以外的任何内容。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「讀取所有 App」會在每次啟動前檢查其輔助程式，且不載入系統以外的任何內容。"
+          }
+        }
+      }
+    },
+    "Shortcuts actions follow Zen mode like holzbar:// commands, and Now Playing artwork is read only as JPEG or PNG." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Akce zkratek dodržují režim Zen jako příkazy holzbar:// a obaly v Právě hraje se čtou jen jako JPEG nebo PNG."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kurzbefehl-Aktionen befolgen den Zen-Modus wie holzbar://-Befehle, und Cover in der Wiedergabe werden nur als JPEG oder PNG gelesen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las acciones de Atajos respetan el modo Zen como los comandos holzbar://, y las portadas de Reproduciendo ahora solo se leen como JPEG o PNG."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les actions de raccourci respectent le mode Zen comme les commandes holzbar://, et les illustrations de Lecture en cours ne sont lues qu’en JPEG ou PNG."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Parancsok műveletei a holzbar:// parancsokhoz hasonlóan követik a Zen módot, a Most szól borítóképei pedig csak JPEG vagy PNG formában olvashatók be."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tindakan Pintasan mengikuti Mode Zen seperti perintah holzbar://, dan sampul Sedang Diputar hanya dibaca sebagai JPEG atau PNG."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le azioni dei comandi rapidi rispettano la modalità Zen come i comandi holzbar://, e le copertine di In riproduzione vengono lette solo come JPEG o PNG."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ショートカットのアクションは holzbar:// コマンドと同様に Zen モードに従い、再生中のアートワークは JPEG または PNG のみ読み込みます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "단축어 동작은 holzbar:// 명령처럼 젠 모드를 따르며, 지금 재생 중의 아트워크는 JPEG 또는 PNG로만 읽습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opdracht-acties volgen de Zenmodus net als holzbar://-opdrachten, en illustraties bij Nu aan het afspelen worden alleen als JPEG of PNG gelezen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czynności Skrótów przestrzegają trybu Zen jak polecenia holzbar://, a okładki w Teraz odtwarzane są odczytywane tylko jako JPEG lub PNG."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As ações de Atalhos seguem o Modo Zen como os comandos holzbar://, e as capas de Tocando agora são lidas apenas como JPEG ou PNG."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las acziuns da shortcut respectan il modus Zen sco ils cumonds holzbar://, e las copertinas da Reproducziun actuala vegnan legidas mo sco JPEG u PNG."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Действия быстрых команд соблюдают режим «Дзен», как команды holzbar://, а обложки «Сейчас играет» читаются только в формате JPEG или PNG."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genvägsåtgärder följer Zen-läge som holzbar://-kommandon, och omslagsbilder i Spelas nu läses bara som JPEG eller PNG."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kestirme eylemleri holzbar:// komutları gibi Zen modunu izler ve Şimdi çalıyor kapak resimleri yalnızca JPEG veya PNG olarak okunur."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дії швидких команд дотримуються режиму «Дзен», як команди holzbar://, а обкладинки «Зараз грає» читаються лише як JPEG або PNG."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快捷指令操作像 holzbar:// 命令一样遵循禅模式，正在播放的插图只按 JPEG 或 PNG 读取。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "捷徑動作會像 holzbar:// 命令一樣遵循 Zen 模式，正在播放的插圖只以 JPEG 或 PNG 讀取。"
+          }
+        }
+      }
+    },
+    "A profile file is read as carefully as a settings file, and a settings file can no longer turn off automatic Zen mode or the camera and microphone dot on the holzBar icon." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soubor profilu se čte stejně opatrně jako soubor nastavení a soubor nastavení už nemůže vypnout automatický režim Zen ani tečku kamery a mikrofonu na ikoně holzBar."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Profildatei wird so vorsichtig gelesen wie eine Einstellungsdatei, und eine Einstellungsdatei kann den automatischen Zen-Modus und den Kamera- und Mikrofonpunkt am holzBar-Symbol nicht mehr ausschalten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un archivo de perfil se lee con el mismo cuidado que un archivo de ajustes, y un archivo de ajustes ya no puede desactivar el modo Zen automático ni el punto de cámara y micrófono del icono de holzBar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un fichier de profil est lu avec autant de prudence qu’un fichier de réglages, et un fichier de réglages ne peut plus désactiver le mode Zen automatique ni le point caméra et micro sur l’icône de holzBar."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A profilfájl ugyanolyan óvatosan töltődik be, mint a beállításfájl, és a beállításfájl már nem kapcsolhatja ki az automatikus Zen módot vagy a kamera és mikrofon pöttyét a holzBar ikonján."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File profil dibaca sehati-hati file pengaturan, dan file pengaturan tidak lagi dapat mematikan Mode Zen otomatis atau titik kamera dan mikrofon di ikon holzBar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un file di profilo viene letto con la stessa cautela di un file di impostazioni, e un file di impostazioni non può più disattivare la modalità Zen automatica né il punto di fotocamera e microfono sull’icona di holzBar."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイルファイルは設定ファイルと同じく慎重に読み込まれ、設定ファイルで自動 Zen モードや holzBar アイコンのカメラ・マイクの点をオフにできなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로파일 파일은 설정 파일처럼 신중하게 읽히며, 설정 파일로 더 이상 자동 젠 모드나 holzBar 아이콘의 카메라 및 마이크 점을 끌 수 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een profielbestand wordt even zorgvuldig gelezen als een instellingenbestand, en een instellingenbestand kan de automatische Zenmodus en de camera- en microfoonstip op het holzBar-symbool niet meer uitzetten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plik profilu jest odczytywany tak ostrożnie jak plik ustawień, a plik ustawień nie może już wyłączyć automatycznego trybu Zen ani kropki kamery i mikrofonu na ikonie holzBar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um arquivo de perfil é lido com o mesmo cuidado que um arquivo de ajustes, e um arquivo de ajustes não pode mais desativar o Modo Zen automático nem o ponto de câmera e microfone no ícone do holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina datoteca da profil vegn legida uschè prudentamain sco ina datoteca da parameters, ed ina datoteca da parameters na po betg pli deactivar il modus Zen automatic u il punct da camera e microfon sin l’icona da holzBar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл профиля читается так же осторожно, как файл настроек, а файл настроек больше не может отключить автоматический режим «Дзен» или точку камеры и микрофона на значке holzBar."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En profilfil läses lika försiktigt som en inställningsfil, och en inställningsfil kan inte längre stänga av automatiskt Zen-läge eller kamera- och mikrofonpricken på holzBar-symbolen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil dosyası bir ayar dosyası kadar dikkatli okunur ve bir ayar dosyası artık otomatik Zen modunu veya holzBar simgesindeki kamera ve mikrofon noktasını kapatamaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл профілю читається так само обережно, як файл параметрів, а файл параметрів більше не може вимкнути автоматичний режим «Дзен» чи крапку камери й мікрофона на значку holzBar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配置文件会像设置文件一样谨慎读取，设置文件也无法再关闭自动禅模式或 holzBar 图标上的摄像头和麦克风圆点。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定檔會像設定檔案一樣謹慎讀取，設定檔案也無法再關閉自動 Zen 模式或 holzBar 圖示上的相機與麥克風圓點。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
