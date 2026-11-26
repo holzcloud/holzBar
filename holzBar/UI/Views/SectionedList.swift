@@ -17,6 +17,9 @@ struct SectionedList<ItemID: Hashable>: View {
     @Binding var items: [SectionedListItem<ItemID>]
     @State private var itemFrames = [ItemID: CGRect]()
     @State private var scrollIndicatorsFlashTrigger = 0
+    /// The list's window: the key monitors see every key press in the app, so they act only
+    /// on presses in this window.
+    @State private var window: NSWindow?
 
     let spacing: CGFloat
 
@@ -71,6 +74,7 @@ struct SectionedList<ItemID: Hashable>: View {
             }
         }
         .scrollIndicatorsFlash(trigger: scrollIndicatorsFlashTrigger)
+        .onWindowChange(update: $window)
         .onKeyDown(key: .downArrow, isEnabled: selection != nil) { event in
             guard handlesKeyDown(event) else {
                 return .ignored
@@ -140,6 +144,9 @@ struct SectionedList<ItemID: Hashable>: View {
     /// input method does, so the list leaves a key press to the field while it has
     /// marked text (input-method composition) or while a modifier is held.
     private func handlesKeyDown(_ event: NSEvent) -> Bool {
+        guard let window, event.window === window else {
+            return false
+        }
         if
             let client = event.window?.firstResponder as? NSTextInputClient,
             client.hasMarkedText()
