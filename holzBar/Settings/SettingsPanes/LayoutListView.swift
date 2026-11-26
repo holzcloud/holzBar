@@ -46,7 +46,7 @@ struct LayoutListView: View {
                 }
             }
         }
-        ForEach(rows, id: \.tag) { item in
+        ForEach(rows, id: \.windowID) { item in
             row(for: item)
         }
     }
