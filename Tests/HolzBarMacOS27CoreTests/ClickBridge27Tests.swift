@@ -246,3 +246,49 @@ struct PanelWatch27Tests {
         #expect(ItemClick27.panelWatchInterval(elapsed: .milliseconds(-5)) == .milliseconds(250))
     }
 }
+
+@Suite("Replay point of a held-back click")
+struct ReplayPoint27Tests {
+    private let wifi = CGRect(x: 1225, y: 0, width: 22, height: 24)
+
+    @Test("An item that did not move has the click replayed where it was made")
+    func unmovedItemKeepsTheClick() {
+        let click = CGPoint(x: 1236, y: 12)
+        #expect(ItemClick27.replayPoint(click: click, frameAtPress: wifi, frameNow: wifi) == click)
+    }
+
+    @Test("An item that moved left takes the click with it (issue #151)")
+    func movedItemTakesTheClickAlong() {
+        let moved = wifi.offsetBy(dx: -30, dy: 0)
+        let point = ItemClick27.replayPoint(click: CGPoint(x: 1240, y: 10), frameAtPress: wifi, frameNow: moved)
+        #expect(point == CGPoint(x: 1210, y: 10))
+        #expect(moved.contains(point))
+    }
+
+    @Test("An item that got narrower keeps the click inside it")
+    func narrowerItemKeepsTheClickInside() {
+        let narrow = CGRect(x: 1200, y: 0, width: 10, height: 24)
+        let point = ItemClick27.replayPoint(click: CGPoint(x: 1246, y: 12), frameAtPress: wifi, frameNow: narrow)
+        #expect(narrow.contains(point))
+    }
+
+    @Test("Without a frame at either moment the click stays where it was made")
+    func missingFrameKeepsTheClick() {
+        let click = CGPoint(x: 1236, y: 12)
+        #expect(ItemClick27.replayPoint(click: click, frameAtPress: nil, frameNow: wifi) == click)
+        #expect(ItemClick27.replayPoint(click: click, frameAtPress: wifi, frameNow: nil) == click)
+        #expect(ItemClick27.replayPoint(click: click, frameAtPress: wifi, frameNow: .zero) == click)
+    }
+
+    @Test("A click outside the item's frame at the press is not moved")
+    func clickOutsideTheItemIsNotMoved() {
+        let click = CGPoint(x: 1300, y: 12)
+        let moved = wifi.offsetBy(dx: -30, dy: 0)
+        #expect(ItemClick27.replayPoint(click: click, frameAtPress: wifi, frameNow: moved) == click)
+    }
+
+    @Test("The lift for a moving item covers every round of the wait")
+    func settleLiftCoversTheWait() {
+        #expect(ItemClick27.replaySettleLift == .milliseconds(20 * ItemClick27.replaySettlePolls))
+    }
+}

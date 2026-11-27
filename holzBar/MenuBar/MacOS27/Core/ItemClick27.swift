@@ -175,6 +175,40 @@ nonisolated enum ItemClick27 {
         return OpenPanel(item: item, window: window.number, ownerPID: window.ownerPID)
     }
 
+    /// Where a click the bridge held back is replayed, once concealment is lifted.
+    ///
+    /// Lifting concealment brings every concealed item back into the bar, so a system item with
+    /// a concealed item to its right moves left, and a click replayed where the pointer is
+    /// lands on its neighbour (issue #151: a click on Wi-Fi opened the menu of the item next to
+    /// it). The click keeps its place inside the item instead: the same distance from the
+    /// item's left edge, in the frame the item has now.
+    ///
+    /// A click outside the frame the item had at the press, or an item without a frame at
+    /// either moment, is replayed where it was made.
+    static func replayPoint(click: CGPoint, frameAtPress: CGRect?, frameNow: CGRect?) -> CGPoint {
+        guard
+            let frameAtPress, let frameNow,
+            frameAtPress.width > 0, frameNow.width > 0, frameNow.height > 0,
+            frameAtPress.insetBy(dx: -1, dy: -1).contains(click)
+        else {
+            return click
+        }
+        let x = frameNow.minX + (click.x - frameAtPress.minX)
+        let y = frameNow.minY + (click.y - frameAtPress.minY)
+        // An item that changed its size keeps the click inside it.
+        return CGPoint(
+            x: min(max(x, frameNow.minX), frameNow.maxX - 1),
+            y: min(max(y, frameNow.minY), frameNow.maxY - 1)
+        )
+    }
+
+    /// How many 20 ms rounds an item that moved under a lifted concealment gets to come to
+    /// rest before the click is replayed: until two reads in a row agree, at most about 240 ms.
+    static let replaySettlePolls = 12
+
+    /// How long concealment stays lifted while a moved item comes to rest: the rounds above.
+    static let replaySettleLift: Duration = .milliseconds(20 * replaySettlePolls)
+
     /// Whether a window stands at the panels' level and is tall enough to be one.
     private static func isPanel(_ window: PanelWindow) -> Bool {
         window.layer >= panelLayer && window.height > panelHeight

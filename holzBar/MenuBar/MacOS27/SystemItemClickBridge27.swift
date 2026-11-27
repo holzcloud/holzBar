@@ -36,10 +36,14 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
     /// System items that do not open from an Accessibility press, so a click on them has to
     /// go through MenuBarAgent. Seeded with what was measured on macOS 27.0; anything else
     /// that turns out to ignore the press joins them at its first click.
+    ///
+    /// Wi-Fi is no longer among them: on macOS 27.2.1 it opens from a press while items are
+    /// concealed (measured with `Scripts/macos27/system-item-shift-probe.swift`, 3 of 3, its
+    /// panel up after 81 to 99 ms). A press lifts nothing, so the bar does not move under the
+    /// click (issue #151). Where Wi-Fi still ignores the press, its first click finds that out.
     private var systemItemsIgnoringPress: Set<String> = [
         "com.apple.menuextra.clock",
         "com.apple.menuextra.battery",
-        "com.apple.menuextra.wifi",
     ]
 
     /// Covers the concealed part of the bar while a click lifts concealment, so the hidden
@@ -305,11 +309,14 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             return
         }
         // Control Centre opens from an Accessibility press even while items are concealed
-        // (measured on macOS 27.0: its panel appears after about 177 ms). The clock, the
-        // battery and Wi-Fi ignore the press, so for those the concealment is lifted and the
-        // click replayed — and put back the moment their panel is up, rather than after a
-        // fixed second and a half, which is what made every hidden item flash into view.
+        // (measured on macOS 27.0: its panel appears after about 177 ms), and so does Wi-Fi
+        // (measured on macOS 27.2.1). The clock and the battery ignore the press, so for those
+        // the concealment is lifted and the click replayed — and put back the moment their
+        // panel is up, rather than after a fixed second and a half, which is what made every
+        // hidden item flash into view.
         let systemItem = MenuBarItemProvider27.systemItem(at: location)
+        // Where the item stood at the press: the lift may move it before the replay.
+        let frameAtPress = systemItem.flatMap { MenuBarItemProvider27.systemItemFrame(identifier: $0.identifier) }
         let mayOpenFromPress = systemItem.map { !self.systemItemsIgnoringPress.contains($0.identifier) } ?? false
         let taken = panelMemory.takeForBridgedClick()
         Task {
@@ -382,8 +389,24 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             self.clockCover.show(appState: appState)
             await concealer.suspendReleased(for: Self.clickRestoreDelay)
             let released = (ProcessInfo.processInfo.systemUptime - bridgeStarted) * 1000
+            // The lift brings the concealed items back, and one to the right of the clicked
+            // item moves it left: the click follows the item rather than land on its neighbour.
+            let target = await Self.replayPoint(
+                click: location,
+                element: systemItem?.element,
+                frameAtPress: frameAtPress
+            ) {
+                // The item is moving: the lift must outlast the wait for it to come to rest.
+                concealer.suspend(for: ItemClick27.replaySettleLift + Self.clickRestoreDelay)
+            }
             let baseline = Self.windowNumbers()
-            Self.replayClick(at: location)
+            Self.replayClick(at: target)
+            if target != location {
+                // The replayed click took the pointer along with it.
+                _ = CGWarpMouseCursorPosition(location)
+                let moved = target.x - location.x
+                Self.bridgeLogger.debug("Click bridge: the item moved \(moved, privacy: .public) pt under the lift, the click followed it")
+            }
             // One bounded wait, past the concealment's return.
             self.clockCover.hide(after: .milliseconds(300))
             Self.bridgeLogger.debug("Click bridge: lifted in \(released, privacy: .public) ms, click replayed")
@@ -543,6 +566,43 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             }
             if !isCurrent() || !ItemClick27.panelIsOnScreen(window: window, windows: windowsForPanelCheck()) {
                 return
+            }
+        }
+    }
+
+    /// Where to replay a held-back click on the given item, once concealment is lifted.
+    ///
+    /// An item that stands where it stood at the press has the click replayed at once, where it
+    /// was made. One that moved is read again every 20 ms until two reads agree, for at most
+    /// `ItemClick27.replaySettlePolls` rounds, and `itemMoved` is called once before the wait.
+    private static func replayPoint(
+        click: CGPoint,
+        element: AXUIElement?,
+        frameAtPress: CGRect?,
+        itemMoved: () -> Void
+    ) async -> CGPoint {
+        guard let element, let frameAtPress, var frame = await liveFrame(of: element), frame != frameAtPress else {
+            return click
+        }
+        itemMoved()
+        for _ in 0..<ItemClick27.replaySettlePolls {
+            try? await Task.sleep(for: .milliseconds(20))
+            guard let next = await liveFrame(of: element) else {
+                break
+            }
+            if next == frame {
+                break
+            }
+            frame = next
+        }
+        return ItemClick27.replayPoint(click: click, frameAtPress: frameAtPress, frameNow: frame)
+    }
+
+    /// Reads an item's frame off the main thread, which the call can block.
+    private static func liveFrame(of element: AXUIElement) async -> CGRect? {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                continuation.resume(returning: MenuBarItemProvider27.liveFrame(of: element))
             }
         }
     }
