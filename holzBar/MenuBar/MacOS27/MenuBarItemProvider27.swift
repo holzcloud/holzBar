@@ -224,6 +224,12 @@ nonisolated enum MenuBarItemProvider27 {
         }
     }
 
+    /// The frame the given item has right now, asked of its process. The call can block, so it
+    /// is never made on the main thread.
+    static func liveFrame(of element: AXUIElement) -> CGRect? {
+        frame(of: element)
+    }
+
     /// The Accessibility element of the system item with the given identifier, from the last
     /// read, for a press when no frame is known.
     static func systemItemElement(identifier: String) -> AXUIElement? {
